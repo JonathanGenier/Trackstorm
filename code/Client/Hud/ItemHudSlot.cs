@@ -9,6 +9,7 @@ internal sealed partial class ItemHudSlot : Control
     private readonly Label _number = new();
     private readonly Label _name = new();
     private readonly Label _resource = new();
+    private readonly Label _resourceUnit = new();
     private readonly TextureRect _icon = new();
     private readonly Line2D _thrust = new()
     {
@@ -31,6 +32,9 @@ internal sealed partial class ItemHudSlot : Control
         AddLabel(_number, "SlotNumber", new Rect2(9, 3, 18, 23), 20, font);
         AddLabel(_name, "ItemName", new Rect2(30, 4, 116, 20), 15, font);
         AddLabel(_resource, "ResourceValue", new Rect2(8, 55, 54, 29), 23, font);
+        AddLabel(_resourceUnit, "ResourceUnit", new Rect2(8, 75, 54, 10), 9, font);
+        _resourceUnit.Text = "HP";
+        _resourceUnit.Visible = false;
         _number.Text = number.ToString(System.Globalization.CultureInfo.InvariantCulture);
         _icon.Name = "ItemIcon";
         _icon.Position = new Vector2(34, 29);
@@ -56,6 +60,12 @@ internal sealed partial class ItemHudSlot : Control
         _icon.Visible = icon is not null;
         _resource.Visible = view.Resource is not null;
         _resource.Text = view.Resource?.Text ?? string.Empty;
+        bool shield = view.Item == HeldItem.Tombstone;
+        _resource.Size = new Vector2(54, shield ? 20 : 29);
+        _resourceUnit.Visible = shield && view.Resource is not null;
+        bool damagedShield = view.Item == HeldItem.Tombstone && view.Resource?.Fraction <= 0.25;
+        _resource.Modulate = damagedShield ? new Color("ff7852") : Colors.White;
+        _icon.Modulate = damagedShield ? new Color("ff9a73") : Colors.White;
         QueueRedraw();
     }
 
@@ -69,6 +79,11 @@ internal sealed partial class ItemHudSlot : Control
         }
 
         if (_view?.Resource?.Fraction is not double fraction) return;
+        if (_view.Item == HeldItem.Tombstone)
+        {
+            DrawDurability(fraction);
+            return;
+        }
         bool boost = _view.Item == HeldItem.Nitro;
         Color fill = new(boost ? "17d5ed" : "d8ae37");
         Color edge = new(boost ? "66efff" : "f4d46b");
@@ -82,6 +97,35 @@ internal sealed partial class ItemHudSlot : Control
             var content = new Rect2(rect.Position, new Vector2(rect.Size.X * filled, rect.Size.Y));
             DrawRect(content, fill);
             DrawRect(new Rect2(content.Position, new Vector2(content.Size.X, 2)), edge);
+        }
+    }
+
+    // Three armored plates with pointed bases distinguish durability from fuel/magazine rails.
+    private void DrawDurability(double fraction)
+    {
+        Color fill = new(fraction <= 0.25 ? "ee6945" : "a8c5b4");
+        Color rim = new("dce8cf");
+        for (int plate = 0; plate < 3; plate++)
+        {
+            float x = 65 + plate * 27;
+            Vector2[] outline = [new(x, 59), new(x + 24, 59), new(x + 24, 74), new(x + 12, 82), new(x, 74)];
+            DrawColoredPolygon(outline, new Color("1e2928"));
+            float filled = (float)Math.Clamp(fraction * 3 - plate, 0, 1);
+            if (filled > 0)
+            {
+                float bottom = 60 + 21 * filled;
+                if (bottom <= 74)
+                    DrawRect(new Rect2(x + 1, 60, 22, bottom - 60), fill);
+                else
+                {
+                    float inset = (bottom - 74) * 11 / 7;
+                    DrawColoredPolygon([new(x + 1, 60), new(x + 23, 60), new(x + 23, 74),
+                        new(x + 23 - inset, bottom), new(x + 1 + inset, bottom), new(x + 1, 74)], fill);
+                }
+            }
+            DrawPolyline([.. outline, outline[0]], rim, 1, true);
+            if (filled < 1)
+                DrawPolyline([new(x + 14, 62), new(x + 10, 68), new(x + 14, 70), new(x + 8, 77)], new Color("080d0d"), 2, true);
         }
     }
 

@@ -1,0 +1,1225 @@
+=== comprehensive ===
+Trackstorm Story version: expected '0.0.16'; actual '0.0.16'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm Story version: expected '0.1.15'; actual '0.1.15'.
+Trackstorm Story version: expected '0.2.1'; actual '0.2.1'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm Story version: expected '0.2.1'; actual '0.2.1'.
+Trackstorm Story version: expected '0.0.15'; actual '0.0.15'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.0.15.0'; actual file/product '0.0.15.0'.
+Trackstorm export preset versions: expected '0.0.15.0'; actual file/product '0.0.15.0'.
+Trackstorm export preset versions: expected '0.0.15.0'; actual file/product '0.0.15.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm Story version: expected '0.1.2'; actual '0.1.2'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Synchronized canonical Story version and tracked export preset to '0.1.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Synchronized canonical Story version and tracked export preset to '0.1.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm export preset versions: expected '0.1.1.0'; actual file/product '0.1.1.0'.
+Synchronized canonical Story version and tracked export preset to '0.1.1'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm export preset versions: expected '0.1.1.0'; actual file/product '0.1.1.0'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm export preset versions: expected '0.1.1.0'; actual file/product '0.1.1.0'.
+Synchronized canonical Story version and tracked export preset to '0.1.1'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm export preset versions: expected '0.1.1.0'; actual file/product '0.1.1.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm export preset versions: expected '0.2.0.0'; actual file/product '0.2.0.0'.
+Synchronized canonical Story version and tracked export preset to '0.2.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm export preset versions: expected '0.2.0.0'; actual file/product '0.2.0.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm export preset versions: expected '0.2.0.0'; actual file/product '0.2.0.0'.
+Synchronized canonical Story version and tracked export preset to '0.2.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm export preset versions: expected '0.2.0.0'; actual file/product '0.2.0.0'.
+Version rules: 108 checks passed.
+
+>> Workflow helper regression tests
+Created ts-999.md
+Added TS-999 to docs/verification/README.md
+ts-999.md already exists; leaving it unchanged.
+Verification index already links ts-999.md.
+Docs-only iteration selected; no build/test command required.
+
+Fast targeted checks passed. Run ./check.ps1 before final Story handoff.
+Workflow helper regression tests passed.
+
+>> Frontend media verifier regression tests
+Frontend media verifier regression test passed.
+
+>> Frontend media materialization and checksums
+Frontend media verified: 5 materialized files.
+
+>> Restore
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+
+>> Debug build and analyzers
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.82
+
+>> Release build and analyzers
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Trackstorm.Core.Tests -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Release\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\ExportRelease\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:05.64
+
+>> Core tests
+Test run for C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:  1112, Skipped:     0, Total:  1112, Duration: 7 s - Trackstorm.Core.Tests.dll (net10.0)
+
+>> Transport conversion tests
+Test run for C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   418, Skipped:     0, Total:   418, Duration: 8 s - Trackstorm.Transport.Tests.dll (net10.0)
+
+All checks passed.
+=== final-audit ===
+00:01.578  blend            | Read blend: "C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\assets\items\tombstone\source\Tombstone.blend"
+Info: Read library: 'C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\assets\vehicles\source\TrackstormCar.blend', '//..\..\..\vehicles\source\TrackstormCar.blend', parent '<direct>'
+TOMBSTONE_MOUNT_MESH_PASS {"closed_outward_meshes": 64}
+TOMBSTONE_AUDIT_PASS {"mesh_objects": 31, "closed_outward_meshes": true, "production_car_rear_extent_m": 2.9853618144989014, "production_car_half_width_m": 1.6850000619888306, "minimum_separating_clearance_m": 0.04463791847229004, "deployment_samples": 61, "mounted_road_clearance_m": 0.14500000000000002, "vehicle_local_top_m": 1.4001456499099731, "shield_local_top_m": 1.5221033096313477, "expanded_width_m": 6.614999771118164, "expanded_height_including_lamps_m": 2.5221033096313477, "limitations": "Conservative mesh sweep at authored frame-32 Car reference pose; runtime must cover articulated wheels, trunk/rack, terrain and gameplay contacts."}
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit
+=== world-production ===
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Blocked normal use retained the shield; retry after clearing the obstruction uses the same capability.
+Scenario 0: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 1: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 2: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 3: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 4: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 5: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 6: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 7: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+World wall integration passed: sixteen one-use deployments on the production oval/infield with upright motion and exact UDP convergence.
+=== world-flat ===
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Blocked normal use retained the shield; retry after clearing the obstruction uses the same capability.
+Scenario 0: flat/banked fixture deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 1: flat/banked fixture deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 2: flat/banked fixture deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 3: flat/banked fixture deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Bank slide follows elevation: 203.21 -> 202.97 m; both ends remain terrain-aligned.
+Fast uphill slide follows elevation: 202.97 -> 204.06 m.
+First wall contact: car 16.63 -> 15.42 m/s, ordinary collision damage retained.
+Off-centre vehicle hit moved wall 8.84 m; heading changed 87.5 degrees; HP 811.9.
+Banked off-centre car peak support-relative rise 0.13 m; upward speed 1.12 m/s.
+Unpowered wall coast from 8 m/s: 3.67 m travel; 0.01 m/s after three seconds.
+Late join restored both walls; sustained native Machine Gun fire destroyed the targeted pool and removed its collider.
+Three UDP peers retained the surviving movable wall through 300 further native physics frames.
+Native Missile wall damage: 811.9 -> 519.9 HP.
+Native Salvo wall damage: 519.9 -> 296.4 HP.
+Sixteen walls deployed via ordinary use, then sustained for 600 physics frames across three UDP arenas.
+Hard native vehicle hit released tipping at 900.0 HP; angular speed 17.36 rad/s.
+Tipped wall broke on native side/ground contact and left the live set.
+Hard impact 0, vehicle 2: car peak rise 0.00 m; peak upward speed 0.00 m/s over three seconds.
+Hard native vehicle hit released tipping at 900.0 HP; angular speed 12.89 rad/s.
+Tipped wall broke on native side/ground contact and left the live set.
+Hard impact 1, vehicle 1: car peak rise 0.00 m; peak upward speed 0.00 m/s over three seconds.
+Hard native vehicle hit released tipping at 900.0 HP; angular speed 26.64 rad/s.
+Tipped wall broke on native side/ground contact and left the live set.
+Hard impact 2, vehicle 2: car peak rise 0.00 m; peak upward speed 0.00 m/s over three seconds.
+Hard native vehicle hit released tipping at 900.0 HP; angular speed 17.23 rad/s.
+Tipped wall broke on native side/ground contact and left the live set.
+Hard impact 3, vehicle 1: car peak rise 0.00 m; peak upward speed 0.00 m/s over three seconds.
+Hard native vehicle hit released tipping at 900.0 HP; angular speed 16.99 rad/s.
+Tipped wall broke on native side/ground contact and left the live set.
+Hard impact 4, vehicle 2: car peak rise 0.00 m; peak upward speed 0.00 m/s over three seconds.
+Configured native expiry fired at its exact captured deadline despite retuning; all three peer colliders removed.
+World wall integration passed: native contact spin, tipping/breakage, expiry, deployment, motion, weapons, late join and UDP convergence.
+=== rear-shield ===
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Scenario 0: shield 900 -> 810, protected vehicle 1000 -> 1000; other shield 900 HP.
+Scenario 1: shield 900 -> 810, protected vehicle 1000 -> 1000; other shield 900 HP.
+Scenario 2: shield 900 -> 810, protected vehicle 1000 -> 1000; other shield 900 HP.
+Scenario 3: shield 900 -> 900, protected vehicle 1000 -> 911.19385; other shield 900 HP.
+Scenario 4: shield 900 -> 900, protected vehicle 911.19385 -> 821.19385; other shield 900 HP.
+Scenario 5: shield 900 -> 900, protected vehicle 821.19385 -> 731.19385; other shield 900 HP.
+Scenario 6: shield 10 -> 0, protected vehicle 731.19385 -> 652.44385; other shield 900 HP.
+Scenario 7: shield 900 -> 822.76117, protected vehicle 652.44385 -> 652.44385; other shield 900 HP.
+Rear shield integration passed: selection/stow cycles without use, persistent damaged identity, native rays, moving fire, edge/front/side, destruction, collision and UDP replication.
+=== lifecycle ===
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Two UDP peers admitted; four independent Tombstones acquired through normal authority.
+Damage and duplicate hit/transition exercised; rear state retains slots and persistent pools.
+World transition releases its slot; the second damaged rear shield retains its slot. HP 550/900/900/1000, vehicles 1500 HP.
+Full checkpoint/authority restoration preserved pools, lifecycle, pose and replay memory; third UDP peer connecting.
+Late join converged; lethal world/held damage and twenty repeated destruction attempts produced two removals.
+Three UDP peers agree on remaining entities, stages, health and cleared slots; exactly two destruction outcomes and no vehicle damage.
+Tombstone integration passed: authoritative pools, lifecycle, repeated events, three-peer UDP and full state restoration.
+Tombstone verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\tombstone-checks\b54887fd89624ba5b46d5711a85d1181
+=== rack ===
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Two native UDP peers ready
+Fixture configuration accepted
+Pickup Wrench
+Two occupied slots
+Wrench visible to owner and other peer
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Wrench
+Confirmed use/fire outcome for Wrench
+Depletion retracts and closes on both peers
+Use preserves second physical slot
+Pickup Missile
+Two occupied slots
+Missile visible to owner and other peer
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Missile
+Confirmed use/fire outcome for Missile
+Depletion retracts and closes on both peers
+Use preserves second physical slot
+Pickup Oil
+Two occupied slots
+Oil visible to owner and other peer
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Oil
+Confirmed use/fire outcome for Oil
+Depletion retracts and closes on both peers
+Use preserves second physical slot
+Pickup Nitro
+Two occupied slots
+Nitro visible to owner and other peer
+Selected Nitro is ready without ignition on both peers
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Nitro
+Confirmed use/fire outcome for Nitro
+Usable item stays deployed after release on both peers
+Released Nitro stays extended without thrust effects on both peers
+Use preserves second physical slot
+Pickup Proxy Mine
+Two occupied slots
+Proxy Mine visible to owner and other peer
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Proxy Mine
+Confirmed use/fire outcome for Proxy Mine
+Depletion retracts and closes on both peers
+Use preserves second physical slot
+Pickup Salvo
+Two occupied slots
+Salvo visible to owner and other peer
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Salvo
+Confirmed use/fire outcome for Salvo
+Usable item stays deployed after release on both peers
+Use preserves second physical slot
+Pickup Machine Gun
+Two occupied slots
+Machine Gun visible to owner and other peer
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Machine Gun
+Confirmed use/fire outcome for Machine Gun
+Usable item stays deployed after release on both peers
+Use preserves second physical slot
+Pickup Tombstone
+Two occupied slots
+Tombstone visible to owner and other peer
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Remote Tombstone deployment request
+Deployment retracts the carriage on both peers
+Use transfers the same shield and health to one world wall
+Tombstone use preserves the other physical slot
+Five-shot lifecycle grant
+Multi-shot rack deployed
+Select empty physical slot
+Empty selection stays stowed
+Empty slot does not reopen
+Return to usable slot
+Usable slot opens again
+Repeated shot accepted
+Confirmed remaining shots 4
+Both peers remain fully deployed between shots
+Repeated shot accepted
+Confirmed remaining shots 3
+Both peers remain fully deployed between shots
+Repeated shot accepted
+Confirmed remaining shots 2
+Both peers remain fully deployed between shots
+Repeated shot accepted
+Confirmed remaining shots 1
+Both peers remain fully deployed between shots
+Repeated shot accepted
+Confirmed remaining shots 0
+Final shot retracts both racks
+Depleted rack remains stowed
+Duplicate first grant
+Duplicate second grant
+Duplicate first selected
+Duplicate switch
+Duplicate switch retracts despite equal item type
+Duplicate second re-deployed
+Recovery reconstructs selected duplicate without use replay
+Death removes rack payload
+Respawn starts with closed empty rack
+New-life pickup
+New-life Nitro readies its rack-mounted jet
+Normal driving with deployed rack
+Both UDP peers show coasting lamps
+Both UDP peers show moving brake lamps
+Both UDP peers show reverse lamps from accepted movement
+Native proximity pickup fills selected slot
+Authoritative marker claim recorded
+Actual pickup deploys correct rack on both peers
+Rapid-use first slot
+Rapid-use second slot
+Rapid-use setup visible
+Immediate switch command
+Immediate switched use command
+Immediate switched use confirmed
+Consumed switched Wrench presented rather than old Salvo
+Rapid switched use closes coherently
+Rapid use preserves unselected Salvo
+Car rack integration passed: 142 checks; seven items, switching/use, duplicates, lifecycle and two UDP peers.
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Two native UDP peers ready
+Fixture configuration accepted
+First consecutive mine granted
+Second consecutive mine granted
+First mine mounted on both peers
+First consecutive mine used
+First mine placement starts
+First mine releases
+Empty arms begin returning on both peers
+Select second mine during empty return
+Second mine selected
+Previous empty return remains unfinished at second use
+Second consecutive mine used
+Second authoritative placement starts
+Both peers receive second placement
+Second placement keeps the rack requested through a publication gap
+Second placement keeps the rack requested through a publication gap
+Second mine stays mounted and visible through placement on both peers
+Second mine completes its full authoritative placement (frames 59, ticks 0, car <150, 21.64568, 35>)
+Rack returns and stows after second release
+Car rack consecutive mine passed: 20 checks on two UDP peers.
+=== articulation ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.12
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Car articulation passed: 226 assertions.
+=== vehicle ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+  Trackstorm.Core.Tests -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\bin\Debug\net10.0\Trackstorm.Core.Tests.dll
+  Trackstorm.Transport.Tests -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\bin\Debug\net10.0\Trackstorm.Transport.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.74
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Drive check: end=<-2.944757E-09, 1.081571, -32.43908>, peak speed=19.60, peak height=4.10, supported ticks=185
+Drift check: max handbrake=1, supported=144, drift ticks=52, end=<-12.973119, 1.1396847, 19.109116>
+Brake check: end velocity=<1.6260915E-07, -0.00221394, 10.999787>, distance=2.76m
+Cornering: low radius=9.60m; fast radius=16.54m; front slip=0.61
+Steering onset: first wheel=0.016rad; yaw at 100ms=-0.143rad/s
+Recovery: initial side speed=4m/s; final=0.006m/s
+Handbrake recovery: entry=6, held=6, peak yaw=0.16, final side=0.000, speed=11.08
+Handbrake recovery: entry=6, held=45, peak yaw=0.36, final side=0.000, speed=3.97
+Handbrake recovery: entry=16, held=6, peak yaw=0.37, final side=0.000, speed=19.42
+Handbrake recovery: entry=16, held=45, peak yaw=1.21, final side=0.000, speed=10.24
+Power out: entry=6, held=6, throttle delay=-6, acceleration=1.146, side=0.447, yaw=0.369, recovery=0.050, final side=0.010, peak speed=16.306, peak yaw=0.369
+Power out: entry=6, held=6, throttle delay=0, acceleration=-0.796, side=0.435, yaw=0.359, recovery=0.050, final side=0.011, peak speed=14.958, peak yaw=0.359
+Power out: entry=6, held=6, throttle delay=6, acceleration=0.510, side=0.240, yaw=0.244, recovery=0.000, final side=0.012, peak speed=13.629, peak yaw=0.359
+Power out: entry=6, held=45, throttle delay=-6, acceleration=-9.024, side=0.111, yaw=0.125, recovery=0.700, final side=0.000, peak speed=21.007, peak yaw=0.438
+Power out: entry=6, held=45, throttle delay=0, acceleration=-9.228, side=0.108, yaw=0.123, recovery=0.700, final side=0.000, peak speed=20.126, peak yaw=0.438
+Power out: entry=6, held=45, throttle delay=6, acceleration=0.185, side=0.015, yaw=0.035, recovery=0.400, final side=0.000, peak speed=19.104, peak yaw=0.438
+Power out: entry=16, held=6, throttle delay=-6, acceleration=-1.636, side=1.021, yaw=1.154, recovery=0.050, final side=0.000, peak speed=25.030, peak yaw=1.173
+Power out: entry=16, held=6, throttle delay=0, acceleration=-3.457, side=1.024, yaw=1.147, recovery=0.050, final side=0.000, peak speed=23.558, peak yaw=1.160
+Power out: entry=16, held=6, throttle delay=6, acceleration=0.190, side=0.562, yaw=0.953, recovery=0.000, final side=0.001, peak speed=22.077, peak yaw=1.160
+Power out: entry=16, held=45, throttle delay=-6, acceleration=-9.111, side=0.506, yaw=2.179, recovery=0.700, final side=0.001, peak speed=26.391, peak yaw=2.248
+Power out: entry=16, held=45, throttle delay=0, acceleration=-9.006, side=0.496, yaw=2.163, recovery=0.700, final side=0.001, peak speed=25.341, peak yaw=2.248
+Power out: entry=16, held=45, throttle delay=6, acceleration=-4.041, side=0.169, yaw=1.579, recovery=0.400, final side=0.001, peak speed=24.147, peak yaw=2.248
+Acceleration: entry=0, final=13.378
+Acceleration: entry=4, final=17.325
+Acceleration: entry=12, final=24.933
+Brake recovery: first drive=0.383, before=0.042, after=7.269
+Collision HP: player=54.35, target=54.35
+Brush check: contacts=179, player HP=100.00, target HP=100.00
+Blast check: max height=1.26, peak angular=0.76, end=<-19.01312, 1.145302, 17.769053>, HP=59.24
+Collision shake: intensity=0%, peak=0.000000m, HP=50.598, life=41
+Collision shake: intensity=25%, peak=0.070351m, HP=50.598, life=42
+Collision shake: intensity=50%, peak=0.140701m, HP=50.598, life=43
+Collision shake: intensity=100%, peak=0.281402m, HP=50.598, life=44
+Collision shake: intensity=100%, peak=0.281402m, HP=50.598, life=45
+Stationary speed: observed=0.0000 m/s, command=0.0028 m/s, HUD=Speed  0 km/h
+Reverse speed: observed=4.79 m/s, HUD=Speed  17 km/h
+Surface speed after 90 ticks: Concrete=13.38, Mud=8.12
+Surface crossings: 8; peak speed=25.20
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose, native life reset.
+Vehicle integration passed: 159 assertions.
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Drive check: end=<-2.944757E-09, 1.081571, -32.43908>, peak speed=19.60, peak height=4.10, supported ticks=185
+Drift check: max handbrake=1, supported=144, drift ticks=52, end=<-12.973119, 1.1396847, 19.109116>
+Brake check: end velocity=<1.6260915E-07, -0.00221394, 10.999787>, distance=2.76m
+Cornering: low radius=9.60m; fast radius=16.54m; front slip=0.61
+Steering onset: first wheel=0.016rad; yaw at 100ms=-0.143rad/s
+Recovery: initial side speed=4m/s; final=0.006m/s
+Handbrake recovery: entry=6, held=6, peak yaw=0.16, final side=0.000, speed=11.08
+Handbrake recovery: entry=6, held=45, peak yaw=0.36, final side=0.000, speed=3.97
+Handbrake recovery: entry=16, held=6, peak yaw=0.37, final side=0.000, speed=19.42
+Handbrake recovery: entry=16, held=45, peak yaw=1.21, final side=0.000, speed=10.24
+Power out: entry=6, held=6, throttle delay=-6, acceleration=1.146, side=0.447, yaw=0.369, recovery=0.050, final side=0.010, peak speed=16.306, peak yaw=0.369
+Power out: entry=6, held=6, throttle delay=0, acceleration=-0.796, side=0.435, yaw=0.359, recovery=0.050, final side=0.011, peak speed=14.958, peak yaw=0.359
+Power out: entry=6, held=6, throttle delay=6, acceleration=0.510, side=0.240, yaw=0.244, recovery=0.000, final side=0.012, peak speed=13.629, peak yaw=0.359
+Power out: entry=6, held=45, throttle delay=-6, acceleration=-9.024, side=0.111, yaw=0.125, recovery=0.700, final side=0.000, peak speed=21.007, peak yaw=0.438
+Power out: entry=6, held=45, throttle delay=0, acceleration=-9.228, side=0.108, yaw=0.123, recovery=0.700, final side=0.000, peak speed=20.126, peak yaw=0.438
+Power out: entry=6, held=45, throttle delay=6, acceleration=0.185, side=0.015, yaw=0.035, recovery=0.400, final side=0.000, peak speed=19.104, peak yaw=0.438
+Power out: entry=16, held=6, throttle delay=-6, acceleration=-1.636, side=1.021, yaw=1.154, recovery=0.050, final side=0.000, peak speed=25.030, peak yaw=1.173
+Power out: entry=16, held=6, throttle delay=0, acceleration=-3.457, side=1.024, yaw=1.147, recovery=0.050, final side=0.000, peak speed=23.558, peak yaw=1.160
+Power out: entry=16, held=6, throttle delay=6, acceleration=0.190, side=0.562, yaw=0.953, recovery=0.000, final side=0.001, peak speed=22.077, peak yaw=1.160
+Power out: entry=16, held=45, throttle delay=-6, acceleration=-9.111, side=0.506, yaw=2.179, recovery=0.700, final side=0.001, peak speed=26.391, peak yaw=2.248
+Power out: entry=16, held=45, throttle delay=0, acceleration=-9.006, side=0.496, yaw=2.163, recovery=0.700, final side=0.001, peak speed=25.341, peak yaw=2.248
+Power out: entry=16, held=45, throttle delay=6, acceleration=-4.041, side=0.169, yaw=1.579, recovery=0.400, final side=0.001, peak speed=24.147, peak yaw=2.248
+Acceleration: entry=0, final=13.378
+Acceleration: entry=4, final=17.325
+Acceleration: entry=12, final=24.933
+Brake recovery: first drive=0.383, before=0.042, after=7.269
+Collision HP: player=54.35, target=54.35
+Brush check: contacts=179, player HP=100.00, target HP=100.00
+Blast check: max height=1.26, peak angular=0.76, end=<-19.01312, 1.145302, 17.769053>, HP=59.24
+Collision shake: intensity=0%, peak=0.000000m, HP=50.598, life=41
+Collision shake: intensity=25%, peak=0.073140m, HP=50.598, life=42
+Collision shake: intensity=50%, peak=0.146281m, HP=50.598, life=43
+Collision shake: intensity=100%, peak=0.292561m, HP=50.598, life=44
+Collision shake: intensity=100%, peak=0.292561m, HP=50.598, life=45
+Stationary speed: observed=0.0000 m/s, command=0.0028 m/s, HUD=Speed  0 km/h
+Reverse speed: observed=4.79 m/s, HUD=Speed  17 km/h
+Surface speed after 90 ticks: Concrete=13.38, Mud=8.12
+Surface crossings: 8; peak speed=25.20
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose, native life reset.
+Vehicle integration passed: 159 assertions.
+Fixed-step replay matched across 30 and 144 render FPS (0.02 tolerance).
+Surface replay matched across 30 and 144 render FPS (0.02 tolerance).
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Drive check: end=<-2.944757E-09, 1.081571, -32.43908>, peak speed=19.60, peak height=4.10, supported ticks=185
+Drift check: max handbrake=1, supported=144, drift ticks=52, end=<-12.973119, 1.1396847, 19.109116>
+Brake check: end velocity=<1.6260915E-07, -0.00221394, 10.999787>, distance=2.76m
+Cornering: low radius=9.60m; fast radius=16.54m; front slip=0.61
+Steering onset: first wheel=0.016rad; yaw at 100ms=-0.143rad/s
+Recovery: initial side speed=4m/s; final=0.006m/s
+Handbrake recovery: entry=6, held=6, peak yaw=0.16, final side=0.000, speed=11.08
+Handbrake recovery: entry=6, held=45, peak yaw=0.36, final side=0.000, speed=3.97
+Handbrake recovery: entry=16, held=6, peak yaw=0.37, final side=0.000, speed=19.42
+Handbrake recovery: entry=16, held=45, peak yaw=1.21, final side=0.000, speed=10.24
+Power out: entry=6, held=6, throttle delay=-6, acceleration=1.146, side=0.447, yaw=0.369, recovery=0.050, final side=0.010, peak speed=16.306, peak yaw=0.369
+Power out: entry=6, held=6, throttle delay=0, acceleration=-0.796, side=0.435, yaw=0.359, recovery=0.050, final side=0.011, peak speed=14.958, peak yaw=0.359
+Power out: entry=6, held=6, throttle delay=6, acceleration=0.510, side=0.240, yaw=0.244, recovery=0.000, final side=0.012, peak speed=13.629, peak yaw=0.359
+Power out: entry=6, held=45, throttle delay=-6, acceleration=-9.024, side=0.111, yaw=0.125, recovery=0.700, final side=0.000, peak speed=21.007, peak yaw=0.438
+Power out: entry=6, held=45, throttle delay=0, acceleration=-9.228, side=0.108, yaw=0.123, recovery=0.700, final side=0.000, peak speed=20.126, peak yaw=0.438
+Power out: entry=6, held=45, throttle delay=6, acceleration=0.185, side=0.015, yaw=0.035, recovery=0.400, final side=0.000, peak speed=19.104, peak yaw=0.438
+Power out: entry=16, held=6, throttle delay=-6, acceleration=-1.636, side=1.021, yaw=1.154, recovery=0.050, final side=0.000, peak speed=25.030, peak yaw=1.173
+Power out: entry=16, held=6, throttle delay=0, acceleration=-3.457, side=1.024, yaw=1.147, recovery=0.050, final side=0.000, peak speed=23.558, peak yaw=1.160
+Power out: entry=16, held=6, throttle delay=6, acceleration=0.190, side=0.562, yaw=0.953, recovery=0.000, final side=0.001, peak speed=22.077, peak yaw=1.160
+Power out: entry=16, held=45, throttle delay=-6, acceleration=-9.111, side=0.506, yaw=2.179, recovery=0.700, final side=0.001, peak speed=26.391, peak yaw=2.248
+Power out: entry=16, held=45, throttle delay=0, acceleration=-9.006, side=0.496, yaw=2.163, recovery=0.700, final side=0.001, peak speed=25.341, peak yaw=2.248
+Power out: entry=16, held=45, throttle delay=6, acceleration=-4.041, side=0.169, yaw=1.579, recovery=0.400, final side=0.001, peak speed=24.147, peak yaw=2.248
+Acceleration: entry=0, final=13.378
+Acceleration: entry=4, final=17.325
+Acceleration: entry=12, final=24.933
+Brake recovery: first drive=0.383, before=0.042, after=7.269
+Collision HP: player=54.35, target=54.35
+Brush check: contacts=179, player HP=100.00, target HP=100.00
+Blast check: max height=1.26, peak angular=0.76, end=<-19.01312, 1.145302, 17.769053>, HP=59.24
+Collision shake: intensity=0%, peak=0.000000m, HP=50.598, life=41
+Collision shake: intensity=25%, peak=0.070351m, HP=50.598, life=42
+Collision shake: intensity=50%, peak=0.140701m, HP=50.598, life=43
+Collision shake: intensity=100%, peak=0.281402m, HP=50.598, life=44
+Collision shake: intensity=100%, peak=0.281402m, HP=50.598, life=45
+Stationary speed: observed=0.0000 m/s, command=0.0028 m/s, HUD=Speed  0 km/h
+Reverse speed: observed=4.79 m/s, HUD=Speed  17 km/h
+Surface speed after 90 ticks: Concrete=13.38, Mud=8.12
+Surface crossings: 8; peak speed=25.20
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose, native life reset.
+Vehicle integration passed: 174 assertions.
+Vehicle verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\vehicle-checks\f450664c795b455786180684e2f9e5bb
+=== items ===
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Eight native peers assigned and initialized.
+E and controller X switch all eight players; immediate use selects Wrench in slot two.
+All eight use Wrench at full HP, including repeated requests.
+Every full-health use consumed once and replicated; preparing damaged Wrench use.
+All eight damaged players use Wrench.
+Damaged Wrench outcomes match on all eight peers.
+Remote client requested missile scenario 0; host owns creation.
+Remote client requested missile scenario 1; host owns creation.
+Remote client requested missile scenario 2; host owns creation.
+Remote client requested missile scenario 3; host owns creation.
+Item integration passed: Eight native peers assigned and initialized.
+E and controller X switch all eight players; immediate use selects Wrench in slot two.
+All eight use Wrench at full HP, including repeated requests.
+Every full-health use consumed once and replicated; preparing damaged Wrench use.
+All eight damaged players use Wrench.
+Damaged Wrench outcomes match on all eight peers.
+Remote client requested missile scenario 0; host owns creation.
+Scenario 0: one remote launch/impact on every peer at <-40, 1.9604418, -2.521462>; host-only damage/impulse.
+Remote client requested missile scenario 1; host owns creation.
+Scenario 1: one remote launch/impact on every peer at <8, 1.9604418, -5.4000072>; host-only damage/impulse.
+Remote client requested missile scenario 2; host owns creation.
+Scenario 2: one remote launch/impact on every peer at <-17, 1.9604418, 2>; host-only damage/impulse.
+Remote client requested missile scenario 3; host owns creation.
+Scenario 3: one remote launch/impact on every peer at <-45, 1.9726641, -50>; host-only damage/impulse.
+Vehicles, movable prop, static container and arena boundary all stop missiles. VFX consume replicated events only.
+REPLICATION_TRAFFIC {"seconds":6.3624178,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":1813,"messages":1,"peak":1813},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":79586,"messages":27,"peak":3280},{"peer":1,"protocol":"TJ","delivery":"Unreliable","bytes":680,"messages":10,"peak":68},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":17465,"messages":17,"peak":1327},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":1857,"messages":2,"peak":1837},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":230474,"messages":226,"peak":2182},{"peer":2,"protocol":"TC","delivery":"Reliable","bytes":1813,"messages":1,"peak":1813},{"peer":2,"protocol":"TI","delivery":"Reliable","bytes":79586,"messages":27,"peak":3280},{"peer":2,"protocol":"TJ","delivery":"Unreliable","bytes":680,"messages":10,"peak":68},{"peer":2,"protocol":"TM","delivery":"Reliable","bytes":17465,"messages":17,"peak":1327},{"peer":2,"protocol":"TS","delivery":"Reliable","bytes":1857,"messages":2,"peak":1837},{"peer":2,"protocol":"TS","delivery":"Unreliable","bytes":230474,"messages":226,"peak":2182},{"peer":3,"protocol":"TC","delivery":"Reliable","bytes":1813,"messages":1,"peak":1813},{"peer":3,"protocol":"TI","delivery":"Reliable","bytes":79586,"messages":27,"peak":3280},{"peer":3,"protocol":"TJ","delivery":"Unreliable","bytes":680,"messages":10,"peak":68},{"peer":3,"protocol":"TM","delivery":"Reliable","bytes":17465,"messages":17,"peak":1327},{"peer":3,"protocol":"TS","delivery":"Reliable","bytes":1857,"messages":2,"peak":1837},{"peer":3,"protocol":"TS","delivery":"Unreliable","bytes":230474,"messages":226,"peak":2182},{"peer":4,"protocol":"TC","delivery":"Reliable","bytes":1813,"messages":1,"peak":1813},{"peer":4,"protocol":"TI","delivery":"Reliable","bytes":79586,"messages":27,"peak":3280},{"peer":4,"protocol":"TJ","delivery":"Unreliable","bytes":680,"messages":10,"peak":68},{"peer":4,"protocol":"TM","delivery":"Reliable","bytes":17465,"messages":17,"peak":1327},{"peer":4,"protocol":"TS","delivery":"Reliable","bytes":1857,"messages":2,"peak":1837},{"peer":4,"protocol":"TS","delivery":"Unreliable","bytes":230474,"messages":226,"peak":2182},{"peer":5,"protocol":"TC","delivery":"Reliable","bytes":1813,"messages":1,"peak":1813},{"peer":5,"protocol":"TI","delivery":"Reliable","bytes":79586,"messages":27,"peak":3280},{"peer":5,"protocol":"TJ","delivery":"Unreliable","bytes":680,"messages":10,"peak":68},{"peer":5,"protocol":"TM","delivery":"Reliable","bytes":17465,"messages":17,"peak":1327},{"peer":5,"protocol":"TS","delivery":"Reliable","bytes":1857,"messages":2,"peak":1837},{"peer":5,"protocol":"TS","delivery":"Unreliable","bytes":230474,"messages":226,"peak":2182},{"peer":6,"protocol":"TC","delivery":"Reliable","bytes":1813,"messages":1,"peak":1813},{"peer":6,"protocol":"TI","delivery":"Reliable","bytes":79586,"messages":27,"peak":3280},{"peer":6,"protocol":"TJ","delivery":"Unreliable","bytes":680,"messages":10,"peak":68},{"peer":6,"protocol":"TM","delivery":"Reliable","bytes":17465,"messages":17,"peak":1327},{"peer":6,"protocol":"TS","delivery":"Reliable","bytes":1857,"messages":2,"peak":1837},{"peer":6,"protocol":"TS","delivery":"Unreliable","bytes":230474,"messages":226,"peak":2182},{"peer":7,"protocol":"TC","delivery":"Reliable","bytes":1813,"messages":1,"peak":1813},{"peer":7,"protocol":"TI","delivery":"Reliable","bytes":79586,"messages":27,"peak":3280},{"peer":7,"protocol":"TJ","delivery":"Unreliable","bytes":680,"messages":10,"peak":68},{"peer":7,"protocol":"TM","delivery":"Reliable","bytes":17465,"messages":17,"peak":1327},{"peer":7,"protocol":"TS","delivery":"Reliable","bytes":1857,"messages":2,"peak":1837},{"peer":7,"protocol":"TS","delivery":"Unreliable","bytes":230474,"messages":226,"peak":2182}]}
+REPLICATION_TRAFFIC {"seconds":6.1093432,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":353,"messages":11,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":49549,"messages":343,"peak":145}]}
+REPLICATION_TRAFFIC {"seconds":6.0918699,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":221,"messages":7,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":48389,"messages":335,"peak":145}]}
+REPLICATION_TRAFFIC {"seconds":6.0775431,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":221,"messages":7,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":48389,"messages":335,"peak":145}]}
+REPLICATION_TRAFFIC {"seconds":6.0678375,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":221,"messages":7,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":48389,"messages":335,"peak":145}]}
+REPLICATION_TRAFFIC {"seconds":6.059005,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":221,"messages":7,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":48389,"messages":335,"peak":145}]}
+REPLICATION_TRAFFIC {"seconds":6.0497169,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":221,"messages":7,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":48389,"messages":335,"peak":145}]}
+REPLICATION_TRAFFIC {"seconds":6.0392885,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":221,"messages":7,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":48389,"messages":335,"peak":145}]}
+Item verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\item-checks\035030a449de4753ada0fa2e2ca44cde
+=== reconnect ===
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Diagnostics: Direct-IP current Ping observed through neutral projection.
+Remote tags passed over two-peer UDP: damaged snapshot, actual Wrench healing, collision death, timed respawn, matching host/client names and no local tags.
+Category pickup history before reconnect: 1:3:Oil:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;3:3:Wrench:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1
+Item recovery seed: three distinct applied hits, 2.25 points, rate 0.375, target watermark 3.
+Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 8083; no historical events.
+Tombstone recovery verified: 1 retained pools; 1 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
+Proxy Mine reconnect 1: complete state restored without impact replay.
+Nitro reconnect 1: remaining 0, exact checkpoint state and returning player charge 37.5%.
+Circus timer reconnect 1: 07:51, start 300, complete standings retained.
+Environment recovery verified: Stage 2 damage 17, final rock and persistent cleared plants.
+Category history verified after reconnect 1
+Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 8113; no historical events.
+Tombstone recovery verified: 1 retained pools; 1 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
+Proxy Mine reconnect 2: complete state restored without impact replay.
+Nitro reconnect 2: remaining 0, exact checkpoint state and returning player charge 37.5%.
+Circus timer reconnect 2: 07:50, start 300, complete standings retained.
+Environment recovery verified: Stage 2 damage 17, final rock and persistent cleared plants.
+Category history verified after reconnect 2
+Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 8173; no historical events.
+Tombstone recovery verified: 1 retained pools; 1 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
+Proxy Mine reconnect 3: complete state restored without impact replay.
+Nitro reconnect 3: remaining 0, exact checkpoint state and returning player charge 37.5%.
+Circus timer reconnect 3: 07:49, start 300, complete standings retained.
+Environment recovery verified: Stage 2 damage 17, final rock and persistent cleared plants.
+Category history verified after reconnect 3
+REPLICATION_TRAFFIC {"seconds":147.4340796,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TD","delivery":"Reliable","bytes":1844,"messages":1,"peak":1844},{"peer":1,"protocol":"TE","delivery":"Reliable","bytes":281,"messages":1,"peak":281},{"peer":1,"protocol":"TL","delivery":"Reliable","bytes":216,"messages":2,"peak":108},{"peer":1,"protocol":"TP","delivery":"Reliable","bytes":68,"messages":1,"peak":68},{"peer":2,"protocol":"TD","delivery":"Reliable","bytes":5579,"messages":4,"peak":1844},{"peer":2,"protocol":"TE","delivery":"Reliable","bytes":12521,"messages":12,"peak":4283},{"peer":2,"protocol":"TG","delivery":"Reliable","bytes":25640,"messages":18,"peak":9091},{"peer":2,"protocol":"TG","delivery":"Unreliable","bytes":135184,"messages":172,"peak":5360},{"peer":2,"protocol":"TL","delivery":"Reliable","bytes":432,"messages":4,"peak":108},{"peer":2,"protocol":"TP","delivery":"Reliable","bytes":544,"messages":8,"peak":68},{"peer":3,"protocol":"TD","delivery":"Reliable","bytes":1844,"messages":1,"peak":1844},{"peer":3,"protocol":"TE","delivery":"Reliable","bytes":291,"messages":1,"peak":291},{"peer":3,"protocol":"TG","delivery":"Reliable","bytes":2635,"messages":3,"peak":1840},{"peer":3,"protocol":"TG","delivery":"Unreliable","bytes":14768,"messages":39,"peak":5388},{"peer":3,"protocol":"TL","delivery":"Reliable","bytes":108,"messages":1,"peak":108},{"peer":3,"protocol":"TP","delivery":"Reliable","bytes":68,"messages":1,"peak":68},{"peer":3,"protocol":"TZ","delivery":"Reliable","bytes":15465,"messages":2,"peak":8386},{"peer":4,"protocol":"TD","delivery":"Reliable","bytes":1844,"messages":1,"peak":1844},{"peer":4,"protocol":"TE","delivery":"Reliable","bytes":291,"messages":1,"peak":291},{"peer":4,"protocol":"TG","delivery":"Reliable","bytes":2635,"messages":3,"peak":1840},{"peer":4,"protocol":"TG","delivery":"Unreliable","bytes":24418,"messages":79,"peak":5388},{"peer":4,"protocol":"TL","delivery":"Reliable","bytes":108,"messages":1,"peak":108},{"peer":4,"protocol":"TP","delivery":"Reliable","bytes":68,"messages":1,"peak":68},{"peer":4,"protocol":"TZ","delivery":"Reliable","bytes":15466,"messages":2,"peak":8386},{"peer":5,"protocol":"TD","delivery":"Reliable","bytes":1844,"messages":1,"peak":1844},{"peer":5,"protocol":"TE","delivery":"Reliable","bytes":292,"messages":1,"peak":292},{"peer":5,"protocol":"TG","delivery":"Reliable","bytes":2635,"messages":3,"peak":1840},{"peer":5,"protocol":"TG","delivery":"Unreliable","bytes":29378,"messages":100,"peak":5388},{"peer":5,"protocol":"TL","delivery":"Reliable","bytes":108,"messages":1,"peak":108},{"peer":5,"protocol":"TP","delivery":"Reliable","bytes":68,"messages":1,"peak":68},{"peer":5,"protocol":"TZ","delivery":"Reliable","bytes":15465,"messages":2,"peak":8385}]}
+REPLICATION_TRAFFIC {"seconds":147.438115,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TL","delivery":"Reliable","bytes":297,"messages":2,"peak":150},{"peer":2,"protocol":"TD","delivery":"Reliable","bytes":59,"messages":1,"peak":59},{"peer":2,"protocol":"TG","delivery":"Reliable","bytes":138,"messages":3,"peak":60},{"peer":2,"protocol":"TG","delivery":"Unreliable","bytes":68952,"messages":491,"peak":172},{"peer":2,"protocol":"TL","delivery":"Reliable","bytes":297,"messages":2,"peak":150},{"peer":3,"protocol":"TG","delivery":"Reliable","bytes":39,"messages":1,"peak":39},{"peer":3,"protocol":"TG","delivery":"Unreliable","bytes":2891,"messages":26,"peak":172},{"peer":3,"protocol":"TL","delivery":"Reliable","bytes":151,"messages":1,"peak":151},{"peer":4,"protocol":"TG","delivery":"Reliable","bytes":39,"messages":1,"peak":39},{"peer":4,"protocol":"TG","delivery":"Unreliable","bytes":6346,"messages":56,"peak":172},{"peer":4,"protocol":"TL","delivery":"Reliable","bytes":151,"messages":1,"peak":151},{"peer":5,"protocol":"TG","delivery":"Reliable","bytes":39,"messages":1,"peak":39},{"peer":5,"protocol":"TG","delivery":"Unreliable","bytes":8571,"messages":72,"peak":172},{"peer":5,"protocol":"TL","delivery":"Reliable","bytes":151,"messages":1,"peak":151}]}
+Reconnect integration passed: immediate lobby removal/fresh admission, three arena resyncs including 125 seconds offline, native body reuse, prediction/interpolation reset, held-item/spawn/match continuity, dimmed retained standings, final results and new-generation reset over real UDP. EOS identity and initial scores are test seams.
+=== migration ===
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Migration native arena 1 prepared in 190 ms.
+Migration native arena 0 prepared in 61 ms.
+Migration native arena 2 prepared in 81 ms.
+Category pickup history before migration: 2:3:Missile:Weapon=-0.5/2,Consumable=-0.25/1,Droppable=0.75/0;3:3:MachineGun:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;4:3:MachineGun:Weapon=-0.5/2,Consumable=-0.25/1,Droppable=0.75/0
+Item recovery seed: three distinct applied hits, 2.25 points, rate 0.375, target watermark 3.
+Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 437; no historical events.
+Tombstone recovery verified: 2 retained pools; 0 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
+Machine gun recovery verified: 299/800 rounds, phase 0.25, no historical shot.
+Nitro migration verified: partial charge retained without unwanted activation; Circus totals restore without historical awards.
+Proxy Mine migration verified: same hazard survives authority replacement.
+Environment recovery verified: Stage 2 damage 17, final rock and persistent cleared plants.
+Category history verified after authority migration: 2:3:Missile:Weapon=-0.5/2,Consumable=-0.25/1,Droppable=0.75/0;3:3:MachineGun:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;4:3:MachineGun:Weapon=-0.5/2,Consumable=-0.25/1,Droppable=0.75/0
+Circus timer migration verified: 35848 -> 35815 remaining ticks, recovery debit 48; score boundary retained.
+REPLICATION_TRAFFIC {"seconds":12.0795111,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TD","delivery":"Reliable","bytes":1844,"messages":1,"peak":1844},{"peer":1,"protocol":"TE","delivery":"Reliable","bytes":564,"messages":2,"peak":282},{"peer":1,"protocol":"TL","delivery":"Reliable","bytes":390,"messages":3,"peak":139},{"peer":1,"protocol":"TX","delivery":"Reliable","bytes":5909,"messages":5,"peak":2831},{"peer":2,"protocol":"TD","delivery":"Reliable","bytes":1844,"messages":1,"peak":1844},{"peer":2,"protocol":"TE","delivery":"Reliable","bytes":282,"messages":1,"peak":282},{"peer":2,"protocol":"TL","delivery":"Reliable","bytes":278,"messages":2,"peak":139},{"peer":2,"protocol":"TX","delivery":"Reliable","bytes":5909,"messages":5,"peak":2831},{"peer":3,"protocol":"TG","delivery":"Reliable","bytes":78,"messages":2,"peak":39},{"peer":3,"protocol":"TG","delivery":"Unreliable","bytes":70569,"messages":453,"peak":172},{"peer":3,"protocol":"TL","delivery":"Reliable","bytes":298,"messages":2,"peak":150},{"peer":4,"protocol":"TX","delivery":"Reliable","bytes":492,"messages":2,"peak":348}]}
+REPLICATION_TRAFFIC {"seconds":12.0823048,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TL","delivery":"Reliable","bytes":148,"messages":1,"peak":148},{"peer":2,"protocol":"TD","delivery":"Reliable","bytes":7376,"messages":4,"peak":1844},{"peer":2,"protocol":"TE","delivery":"Reliable","bytes":19648,"messages":10,"peak":4499},{"peer":2,"protocol":"TG","delivery":"Reliable","bytes":492541,"messages":185,"peak":9373},{"peer":2,"protocol":"TG","delivery":"Unreliable","bytes":161758,"messages":160,"peak":5388},{"peer":2,"protocol":"TL","delivery":"Reliable","bytes":668,"messages":5,"peak":139},{"peer":2,"protocol":"TP","delivery":"Reliable","bytes":788,"messages":10,"peak":80},{"peer":2,"protocol":"TX","delivery":"Reliable","bytes":255098,"messages":42,"peak":17465},{"peer":2,"protocol":"TZ","delivery":"Reliable","bytes":72678,"messages":7,"peak":10940},{"peer":3,"protocol":"TD","delivery":"Reliable","bytes":7376,"messages":4,"peak":1844},{"peer":3,"protocol":"TE","delivery":"Reliable","bytes":19334,"messages":9,"peak":4499},{"peer":3,"protocol":"TG","delivery":"Reliable","bytes":492541,"messages":185,"peak":9373},{"peer":3,"protocol":"TG","delivery":"Unreliable","bytes":161758,"messages":160,"peak":5388},{"peer":3,"protocol":"TL","delivery":"Reliable","bytes":556,"messages":4,"peak":139},{"peer":3,"protocol":"TP","delivery":"Reliable","bytes":720,"messages":9,"peak":80},{"peer":3,"protocol":"TX","delivery":"Reliable","bytes":249079,"messages":36,"peak":17465},{"peer":3,"protocol":"TZ","delivery":"Reliable","bytes":72678,"messages":7,"peak":10940}]}
+REPLICATION_TRAFFIC {"seconds":12.0817882,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TL","delivery":"Reliable","bytes":148,"messages":1,"peak":148},{"peer":2,"protocol":"TG","delivery":"Reliable","bytes":78,"messages":2,"peak":39},{"peer":2,"protocol":"TG","delivery":"Unreliable","bytes":70276,"messages":454,"peak":172},{"peer":2,"protocol":"TL","delivery":"Reliable","bytes":150,"messages":1,"peak":150},{"peer":2,"protocol":"TX","delivery":"Reliable","bytes":358,"messages":2,"peak":214},{"peer":3,"protocol":"TX","delivery":"Reliable","bytes":293,"messages":2,"peak":147}]}
+Migration integration passed: 3 native UDP peers; intentional lobby host leave; former-host fresh join; active native match authority loss; sequential epochs; retained vehicles; prediction reset; item/spawn/match restore. Identity is a trusted test seam, not real EOS.
+=== transport ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\bin\Debug\net10.0\Trackstorm.Transport.Tests.dll
+Test run for C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\bin\Debug\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running all tests in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\bin\Debug\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 433 of 434 NUnit test cases using Current Discovery mode, Non-Explicit run
+  Passed CombatUsesSharedScoredAttributionAndOneRowPerDeath(ulong.MinValue,"collision",True,"Victim died") [142 ms]
+  Passed CombatUsesSharedScoredAttributionAndOneRowPerDeath(2UL,"missile",True,"Victim died") [< 1 ms]
+  Passed CombatUsesSharedScoredAttributionAndOneRowPerDeath(1UL,"missile",True,"Killer killed Victim with Missile") [5 ms]
+  Passed CombatUsesSharedScoredAttributionAndOneRowPerDeath(1UL,"collision",True,"Killer killed Victim") [< 1 ms]
+  Passed CombatUsesSharedScoredAttributionAndOneRowPerDeath(1UL,"missile",False,"Victim died") [< 1 ms]
+  Passed ExpiryIsIndependentAndBurstsEvictOldestWithoutWaitingForRendering [6 ms]
+  Passed FilteringIsAllowlistedAndNeverLeaksDiagnosticFields [< 1 ms]
+  Passed InactiveFeedConsumesNothingAndMatchEndHasPlayerWording [12 ms]
+  Passed PresenceUsesCapturedNamesAndOnlyCommittedTransitions [1 ms]
+  Passed ReplicaDeduplicationAndRebindingNeverReplayHistory [1 ms]
+  Passed CategoriesRouteExplicitly [1 ms]
+  Passed CooldownConsumesDuplicatesAndFloods [< 1 ms]
+  Passed EngineCrossfadeIsContinuous [2 ms]
+  Passed ItemsInitializeAndDeduplicate [17 ms]
+  Passed MachineGunSoundsEachNewRoundButNeverDuplicateOrSeededPublications [< 1 ms]
+  Passed MatchFeedbackUsesAuthoritativeTransitions [< 1 ms]
+  Passed PlaylistCyclesAndResets [2 ms]
+  Passed SalvoNextShotCapabilityDoesNotSoundLikeAnotherPickup [1 ms]
+  Passed SettingsGainBounds [< 1 ms]
+  Passed VehicleFeedbackIsOncePerBoundary [1 ms]
+  Passed LateRenewalAndServiceOutageFailClosed [5 ms]
+  Passed ObserverRequiresFreshReadAfterEveryActivation [1 ms]
+  Passed RetiredRenewalCannotReviveAndSuccessorRejectsOldToken(0) [1 ms]
+  Passed RetiredRenewalCannotReviveAndSuccessorRejectsOldToken(2.9d) [< 1 ms]
+  Passed RetiredRenewalCannotReviveAndSuccessorRejectsOldToken(3) [< 1 ms]
+  Passed RetiredRenewalCannotReviveAndSuccessorRejectsOldToken(10) [< 1 ms]
+  Passed BoostIsBoundedSmoothAndReturnsToRoadSpeedFeedback(30) [< 1 ms]
+  Passed BoostIsBoundedSmoothAndReturnsToRoadSpeedFeedback(60) [< 1 ms]
+  Passed BoostIsBoundedSmoothAndReturnsToRoadSpeedFeedback(144) [< 1 ms]
+  Passed RepeatedUseCannotStackAndResetClearsAllFeedback [< 1 ms]
+  Passed ArmedInputKeepsMouseDirectAndStickPreciseThenReturnsLikeOrdinaryCamera(30) [< 1 ms]
+  Passed ArmedInputKeepsMouseDirectAndStickPreciseThenReturnsLikeOrdinaryCamera(60) [< 1 ms]
+  Passed ArmedInputKeepsMouseDirectAndStickPreciseThenReturnsLikeOrdinaryCamera(144) [< 1 ms]
+  Passed OrbitAndReturnAreIndependentOfRenderRate(30) [< 1 ms]
+  Passed OrbitAndReturnAreIndependentOfRenderRate(60) [< 1 ms]
+  Passed OrbitAndReturnAreIndependentOfRenderRate(144) [< 1 ms]
+  Passed OrbitRemainsBoundedAndResetClearsBothAxes(False) [< 1 ms]
+  Passed OrbitRemainsBoundedAndResetClearsBothAxes(True) [< 1 ms]
+  Passed AccelerationAndBrakingHaveOppositeWeight [1 ms]
+  Passed RenderRatesAndRotatedHeadingAgree [< 1 ms]
+  Passed ResetClearsInertiaAndFeedback [< 1 ms]
+  Passed ShakeIsBoundedAndDecays [< 1 ms]
+  Passed ShakeTrajectoryIsBoundedAndRenderRateIndependent [< 1 ms]
+  Passed TurningAndSlipAreBounded(-1) [< 1 ms]
+  Passed TurningAndSlipAreBounded(1) [< 1 ms]
+  Passed CircusProjectionUpdatesCategoriesInPlaceAndDoesNotReplayInitialAwards [13 ms]
+  Passed HealthFormattingAndNormalization [< 1 ms]
+  Passed NonCircusModeClearsCircusPresentationAndNextMatchStartsWithoutFeedback [< 1 ms]
+  Passed ResourceAdaptersRetainExistingSemanticsWithoutInventingCapacity [2 ms]
+  Passed ResourcesBelongToPhysicalSlotsAndDisappearWithOccupancy [< 1 ms]
+  Passed SalvoShowsIndependentRemainingShotsInBothSlots [< 1 ms]
+  Passed SnapshotChangesAndItemMappingAreReadOnly [< 1 ms]
+  Passed SpeedUnitsAndVisualScale [< 1 ms]
+  Passed TimerUsesAuthoritativeTimeAcrossCountdownJoinRecoveryAndFinish [10 ms]
+  Passed CorrectionDecayIsIndependentOfRenderRate [< 1 ms]
+  Passed CorrectionThresholds(0.0f,0.0f,0) [< 1 ms]
+  Passed CorrectionThresholds(0.005f,0.0f,0) [< 1 ms]
+  Passed CorrectionThresholds(0.01f,0.0f,0) [< 1 ms]
+  Passed CorrectionThresholds(0.5f,0.5f,0) [< 1 ms]
+  Passed CorrectionThresholds(3.0f,0.0f,1) [< 1 ms]
+  Passed CorrectionThresholds(20.0f,0.0f,1) [< 1 ms]
+  Passed ApplyRejectsInvalidDraftWithoutMutation("vehicle.mass","not a number") [4 ms]
+  Passed ApplyRejectsInvalidDraftWithoutMutation("vehicle.mass","-1") [2 ms]
+  Passed ApplyRejectsInvalidDraftWithoutMutation("vehicle.mass","NaN") [< 1 ms]
+  Passed ApplyRejectsInvalidDraftWithoutMutation("match.minimum_players","1.5") [< 1 ms]
+  Passed CategoryResetAndUnrelatedEditsCommitTogetherThroughAuthority [6 ms]
+  Passed CategoryResetPreservesOtherDraftsAndCoversTheWholeCategory [15 ms]
+  Passed DefaultsAndDirtyStateUseActualConfigurationValues [1 ms]
+  Passed DiscardRestoresCurrentAuthorityWithoutMutationOrPersistence [12 ms]
+  Passed HostStorageUsesProductionDefaultsForAbsentAndMissingValues [5 ms]
+  Passed ImportAcquisitionEnforcesByteBoundAndStrictUtf8 [16 ms]
+  Passed ImportAcquisitionReadsFreshBytesAndReleasesTheFile [2 ms]
+  Passed ImportedKeysRemainExplicitAcrossExternalEditsWhileUnlistedFieldsConverge [3 ms]
+  Passed MalformedSavedTuningPreservesReleaseFallbacksAndValidOverrides [24 ms]
+  Passed ResetDoesNotOmitDefaultsMatchingAnOutdatedEditorBaseline [1 ms]
+  Passed ResetStagesProductionDefaultsUntilApplyThenReplacesPersistedTuning [13 ms]
+  Passed UnchangedAcceptedSettingsCanRetryFailedPersistence [12 ms]
+  Passed UnsupportedSavedTuningPreservesFileAndUsesReleaseDefaults(False) [2 ms]
+  Passed UnsupportedSavedTuningPreservesFileAndUsesReleaseDefaults(True) [6 ms]
+  Passed AveragesFrameTimeAndHoldsCompletedWindow [< 1 ms]
+  Passed FormatsLifecycle(Connected,0,"Ping  0 ms") [2 ms]
+  Passed FormatsLifecycle(Connected,45,"Ping  45 ms") [< 1 ms]
+  Passed FormatsLifecycle(Connected,60000,"Ping  60000 ms") [< 1 ms]
+  Passed FormatsLifecycle(Connected,int.MaxValue,"Ping  --") [< 1 ms]
+  Passed FormatsLifecycle(Connected,null,"Ping  --") [< 1 ms]
+  Passed FormatsLifecycle(Connected,-1,"Ping  --") [< 1 ms]
+  Passed FormatsLifecycle(Connecting,45,"Ping  connecting") [< 1 ms]
+  Passed FormatsLifecycle(Reconnecting,45,"Ping  reconnecting") [< 1 ms]
+  Passed FormatsLifecycle(Disconnected,45,"Ping  disconnected") [< 1 ms]
+  Passed FormatsLifecycle(Unavailable,45,"Ping  --") [< 1 ms]
+  Passed IndependentVisibilityAndFiniteOutput [< 1 ms]
+  Passed SteadyFrames(30) [< 1 ms]
+  Passed SteadyFrames(60) [< 1 ms]
+  Passed SteadyFrames(144) [< 1 ms]
+  Passed ClearsExpiredIdentity [3 ms]
+  Passed CreatesEmbeddedClientConfigurationWithoutAFile [1 ms]
+  Passed GuardsDuplicateOperationsAndCompletesLogout [< 1 ms]
+  Passed HandlesLogoutFailure [< 1 ms]
+  Passed HandlesMissingNativeLibrary [< 1 ms]
+  Passed InvalidExplicitOverrideIsActionable [< 1 ms]
+  Passed KeepsOnlineIdentityOutsideCoreAndRedactsDiagnostics [1 ms]
+  Passed RedactsMalformedAndUnknownConfigurationFields [6 ms]
+  Passed RejectsInvalidConfiguration("Environment","production") [1 ms]
+  Passed RejectsInvalidConfiguration("DeploymentName","unsafe\nlabel") [< 1 ms]
+  Passed RejectsInvalidConfiguration("ProductId","") [< 1 ms]
+  Passed RejectsInvalidConfiguration("SandboxId","<sandbox>") [< 1 ms]
+  Passed RejectsInvalidConfiguration("DeploymentId"," ") [< 1 ms]
+  Passed RejectsInvalidConfiguration("ClientId","invalid client") [< 1 ms]
+  Passed RejectsInvalidConfiguration("ClientSecret","private\nsecret") [< 1 ms]
+  Passed RejectsLateCallbacksAcrossReplacementAndDisposal [< 1 ms]
+  Passed RemovesOnlyReleasedOwnersCallbackRegistrations [3 ms]
+  Passed TimesOutWithoutRetainingIdentityOrPlatform [< 1 ms]
+  Passed ValidatesSdkLimitsAndNulls [< 1 ms]
+  Passed ExplicitEnvironmentOverrideWins [2 ms]
+  Passed FailuresAndSignedOutStateExplainRecovery [< 1 ms]
+  Passed OnlyAuthenticatedCoordinatorEnablesHosting [< 1 ms]
+  Passed PendingHandlesSurviveConsumerCancellationAndReleaseExactlyOnce [< 1 ms]
+  Passed RepeatedOperationsDoNotDropEarlierPendingOwnership [< 1 ms]
+  Passed BoundsPollAndDisconnectsOnUnconsumedQueueOverflow(Reliable) [11 ms]
+  Passed BoundsPollAndDisconnectsOnUnconsumedQueueOverflow(Unreliable) [2 ms]
+  Passed CarriesLobbyReadyStartAndReturn [28 ms]
+  Passed DeveloperAuthorityAndConfigurationSurviveSuccessiveMigrations [506 ms]
+  Passed EnforcesCapacityAndConnectionDeadline [2 ms]
+  Passed EvictsIncompleteUnreliableAssembliesWithoutBlockingProgress [1 ms]
+  Passed ExpiresIncompleteMessagesWithoutAllowingLateRestart [1 ms]
+  Passed FragmentsReordersDropsAndBoundsPayloads [53 ms]
+FAKE NATIVE, 10 simulated seconds, players=2, projectiles=False; host sent=209, received=600, mean packet=504.6B, peak=1170B, peak gateway poll=0.068ms; RTT/loss and SDK Tick NOT measured
+
+FAKE NATIVE, 10 simulated seconds, players=8, projectiles=False; host sent=2877, received=4200, mean packet=938.9B, peak=1170B, peak gateway poll=0.542ms; RTT/loss and SDK Tick NOT measured
+
+FAKE NATIVE, 10 simulated seconds, players=2, projectiles=False; host sent=409, received=600, mean packet=358.1B, peak=1170B, peak gateway poll=0.071ms; RTT/loss and SDK Tick NOT measured
+
+FAKE NATIVE, 10 simulated seconds, players=8, projectiles=False; host sent=4277, received=4200, mean packet=698.7B, peak=1170B, peak gateway poll=0.787ms; RTT/loss and SDK Tick NOT measured
+
+FAKE NATIVE, 10 simulated seconds, players=2, projectiles=True; host sent=979, received=600, mean packet=231.5B, peak=1170B, peak gateway poll=0.068ms; RTT/loss and SDK Tick NOT measured
+
+  Passed FreshActiveJoinUsesEosCheckpointAndActivationPath [27 ms]
+  Passed InterleavesMaximumUnreliableMessagesExactlyOnce [92 ms]
+  Passed LargeReliableBoundaryUsesProductionEosFramingWithoutExceedingNativeQueue [88 ms]
+  Passed MapsCapabilitiesDeliveryAndFailures [2 ms]
+  Passed MeasuresVehicleTrafficThroughEosFraming(2,False,False) [57 ms]
+  Passed MeasuresVehicleTrafficThroughEosFraming(8,False,False) [290 ms]
+  Passed MeasuresVehicleTrafficThroughEosFraming(2,True,False) [59 ms]
+  Passed MeasuresVehicleTrafficThroughEosFraming(8,True,False) [267 ms]
+  Passed MeasuresVehicleTrafficThroughEosFraming(2,True,True) [67 ms]
+FAKE NATIVE, 10 simulated seconds, players=8, projectiles=True; host sent=8309, received=4200, mean packet=547.8B, peak=1170B, peak gateway poll=1.950ms; RTT/loss and SDK Tick NOT measured
+
+  Passed MeasuresVehicleTrafficThroughEosFraming(8,True,True) [298 ms]
+  Passed MigratesLobbyAndActiveMatchThroughProductionFraming(False,True,False,False,False) [82 ms]
+  Passed MigratesLobbyAndActiveMatchThroughProductionFraming(True,True,False,False,False) [389 ms]
+  Passed MigratesLobbyAndActiveMatchThroughProductionFraming(True,False,False,False,False) [41 ms]
+  Passed MigratesLobbyAndActiveMatchThroughProductionFraming(True,True,True,False,False) [148 ms]
+  Passed MigratesLobbyAndActiveMatchThroughProductionFraming(True,True,True,True,False) [170 ms]
+  Passed MigratesLobbyAndActiveMatchThroughProductionFraming(False,True,False,False,True) [55 ms]
+  Passed MigratesLobbyAndActiveMatchThroughProductionFraming(True,True,False,False,True) [307 ms]
+  Passed MigratesLobbyAndActiveMatchThroughProductionFraming(True,False,False,False,True) [44 ms]
+  Passed MigrationRestoresCheckpointConfigurationAfterUncheckpointedTuning [164 ms]
+  Passed MigrationRoutingRequiresAcceptedCheckpoint("peer") [7 ms]
+  Passed MigrationRoutingRequiresAcceptedCheckpoint("unreliable") [6 ms]
+  Passed MigrationRoutingRequiresAcceptedCheckpoint("epoch") [6 ms]
+  Passed MigrationRoutingRequiresAcceptedCheckpoint("sequence") [5 ms]
+  Passed MigrationRoutingRequiresAcceptedCheckpoint("corrupt") [4 ms]
+  Passed ReconnectsArenaWithOneVehicleAndFreshCheckpoint [56 ms]
+  Passed RejectsStaleCallbacksMembershipAndCredential [< 1 ms]
+  Passed RejectsWrongSessionAndMalformedFragments [< 1 ms]
+  Passed RepeatedCyclesRejectOldPacketsAndMemberDeparture(Reliable) [2 ms]
+  Passed RepeatedCyclesRejectOldPacketsAndMemberDeparture(Unreliable) [1 ms]
+  Passed ReversedProductionVehicleAndPropMessagesBothAdvance [3 ms]
+  Passed SamplesLatencyExpiresAndRejectsRetiredReplies [2 ms]
+  Passed TrustedLeaseCrashMigrationAndFormerHostRetention(False) [14 ms]
+  Passed TrustedLeaseCrashMigrationAndFormerHostRetention(True) [218 ms]
+  Passed TrustedLeaseOutageFailsClosedAtBothPeers [77 ms]
+  Passed TrustedLeaseP2pPartitionPreservesHealthyHost [90 ms]
+  Passed TwoPlayerArenaRestoresLatestSafeCheckpoint("valid") [54 ms]
+  Passed TwoPlayerArenaRestoresLatestSafeCheckpoint("stale") [41 ms]
+  Passed TwoPlayerArenaRestoresLatestSafeCheckpoint("future") [40 ms]
+  Passed TwoPlayerArenaRestoresLatestSafeCheckpoint("corrupt") [38 ms]
+  Passed TwoPlayerArenaRestoresLatestSafeCheckpoint("wrong-epoch") [41 ms]
+  Passed TwoPlayerArenaRestoresLatestSafeCheckpoint("finished-observed") [56 ms]
+  Passed TwoPlayerFormerHostResumesAndMigratesAgain [216 ms]
+  Passed TwoPlayerLobbyMigrationFencesOldHost("leave") [11 ms]
+  Passed TwoPlayerLobbyMigrationFencesOldHost("crash") [8 ms]
+  Passed TwoPlayerLobbyMigrationFencesOldHost("partition") [8 ms]
+  Passed TwoPlayerLobbyMigrationFencesOldHost("pause") [9 ms]
+  Passed TwoPlayerLongPartitionThenConfirmedHostLossRejectsExpiredCheckpoint [52 ms]
+  Passed TwoPlayerMissingCheckpointFailsClosed [8 ms]
+  Passed TwoPlayerP2pPartitionCannotGrantAuthority [133 ms]
+  Passed TwoPlayerRosterExpansionCannotLeaveTwoAuthorities(False) [102 ms]
+  Passed TwoPlayerRosterExpansionCannotLeaveTwoAuthorities(True) [96 ms]
+  Passed TwoPlayerTransientLossRetainsEpoch(False) [84 ms]
+  Passed TwoPlayerTransientLossRetainsEpoch(True) [96 ms]
+  Passed UnreliableWindowRejectsEvictedDuplicatesAndHandlesWrap(1) [1 ms]
+  Passed UnreliableWindowRejectsEvictedDuplicatesAndHandlesWrap(4294967288) [< 1 ms]
+  Passed LocalDiagnosticTextIsLiteral [1 ms]
+  Passed WordingAndIdentityPositionsRemainExact(Damage,"Applied","Missile took 3.125 damage from Missile (Missile) — HP 96.875/100",2) [< 1 ms]
+  Passed WordingAndIdentityPositionsRemainExact(Healing,"Applied","Missile healed 3.125 from Missile — HP 96.875/100",1) [< 1 ms]
+  Passed WordingAndIdentityPositionsRemainExact(Developer,"Setting changed","Missile changed speed: 1 → 3.125",1) [< 1 ms]
+  Passed WordingAndIdentityPositionsRemainExact(Lifecycle,"Kill","Missile killed Missile from Missile",2) [< 1 ms]
+  Passed WordingAndIdentityPositionsRemainExact(Lifecycle,"Dead","Missile dead from Missile (Missile)",2) [< 1 ms]
+  Passed WordingAndIdentityPositionsRemainExact(Item,"Used","Missile Used — Missile — Missile — speed (3.125)",2) [< 1 ms]
+  Passed BundledAddressAndOverride [< 1 ms]
+  Passed InvalidOverrideFailsClosed("") [< 1 ms]
+  Passed InvalidOverrideFailsClosed("http://leases.example.test") [< 1 ms]
+  Passed InvalidOverrideFailsClosed("https://user:password@leases.example.test") [< 1 ms]
+  Passed InvalidOverrideFailsClosed("https://leases.example.test/?credential=x") [< 1 ms]
+  Passed InvalidOverrideFailsClosed("https://leases.example.test/#fragment") [< 1 ms]
+  Passed InvalidOverrideFailsClosed(" https://leases.example.test") [< 1 ms]
+  Passed EmbeddedBundledAddress [< 1 ms]
+  Passed EightRowsShareRankAndVisibilityWithHud [6 ms]
+  Passed FinishedPresentationUsesFrozenParticipantsRatherThanRebuildingRanks [< 1 ms]
+  Passed InvalidDiagnosticsCannotReplaceAcceptedSamples [< 1 ms]
+  Passed MigrationRejectsRetiredEpochAndUsesCurrentHost [< 1 ms]
+  Passed OfflineRowsSurviveResultsAndReactivateWithoutDuplicateOrReset [1 ms]
+  Passed PingPublicationExpiresRejectsOldRosterAndResamplesRebind [< 1 ms]
+  Passed EveryCategoryReturnsThroughSettingsAndGame [1 ms]
+  Passed MainMenuSettingsReturnToTheirCallerAndInvalidTransitionsDoNothing [< 1 ms]
+Reliable=100/100; unreliable=76/100; ping=92ms; incoming loss=0.23076928; outgoing loss=
+
+  Passed AdversePacketsPreserveReliableOrderAndExposeDiagnostics [5 s]
+  Passed ConnectionAndEstablishedTimeoutsReleaseResources [12 s]
+  Passed HostAndSevenClientsRejectExcessAndReconnect [217 ms]
+  Passed OccupiedListenerReportsBindErrorAndCanRecoverAfterOwnerCloses [14 ms]
+  Passed RejectsInvalidOperationsAndBoundsReceiveQueue [201 ms]
+  Passed RepeatedHostJoinAndStopReleasesListenerAndPeers [432 ms]
+CORRECTION tick=72; vehicle=3; error=0.1192; scheduleLag=0.0152; age=0.0003; pending=9; clientAck=51; authorityAck=55; hostTick=73; snapshotTick=69
+CORRECTION tick=113; vehicle=2; error=0.2141; scheduleLag=0.0111; age=0.0001; pending=8; clientAck=91; authorityAck=94; hostTick=114; snapshotTick=111
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+startup max=0.2141m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=12
+players=8; outbound delay=30ms; jitter=10ms; loss=0%; corrections=1608; p99=0.0000m; max=0.2141m; snapshots/client=228; stale packets rejected
+
+TenMinuteEightPlayerImpairmentSoak: Sustained native soak; run separately from the ordinary fast gate.
+  Passed EightPlayerControlledSnapshotLossConverges [12 s]
+  Skipped TenMinuteEightPlayerImpairmentSoak [< 1 ms]
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0000m; steady p99=0.0000m; steady max=0.0197m; steady >1cm=1; max pending at completion=5
+players=2; outbound delay=0ms; jitter=0ms; loss=0%; corrections=238; p99=0.0000m; max=0.0197m; snapshots/client=239; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,0,0,0.0f,0.0f) [12 s]
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0087m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=6
+players=2; outbound delay=30ms; jitter=0ms; loss=0%; corrections=237; p99=0.0000m; max=0.0087m; snapshots/client=238; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,30,0,0.0f,0.0f) [12 s]
+  Failed VehicleLoopConvergesAcrossNetworkConditions(2,25,5,0.0f,0.0f) [5 s]
+  Error Message:
+     Assert.That(clients.All(client => client.Latest?.Tick > staleTick), Is.True)
+  Expected: True
+  But was:  False
+
+  Stack Trace:
+     at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 163
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 34
+   at InvokeStub_NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Object, Span`1)
+
+1)    at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 163
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 34
+   at InvokeStub_NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Object, Span`1)
+
+
+CORRECTION tick=112; vehicle=2; error=0.1984; scheduleLag=0.0005; age=0.0001; pending=10; clientAck=84; authorityAck=89; hostTick=113; snapshotTick=108
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.1984m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=12
+players=2; outbound delay=50ms; jitter=10ms; loss=0%; corrections=234; p99=0.0000m; max=0.1984m; snapshots/client=235; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,50,10,0.0f,0.0f) [12 s]
+CORRECTION tick=108; vehicle=2; error=0.1438; scheduleLag=0.0079; age=0.0000; pending=2; clientAck=71; authorityAck=72; hostTick=109; snapshotTick=108
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.1438m; steady p99=0.0000m; steady max=0.0510m; steady >1cm=1; max pending at completion=6
+players=2; outbound delay=0ms; jitter=0ms; loss=2%; corrections=220; p99=0.0000m; max=0.1438m; snapshots/client=221; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,0,0,2.0f,0.0f) [12 s]
+CORRECTION tick=84; vehicle=2; error=0.1438; scheduleLag=0.0022; age=0.0001; pending=9; clientAck=61; authorityAck=65; hostTick=85; snapshotTick=81
+CORRECTION tick=84; vehicle=5; error=0.1439; scheduleLag=0.0022; age=0.0001; pending=9; clientAck=61; authorityAck=65; hostTick=85; snapshotTick=81
+CORRECTION tick=98; vehicle=7; error=0.1828; scheduleLag=0.0151; age=0.0001; pending=8; clientAck=74; authorityAck=77; hostTick=99; snapshotTick=96
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.1828m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=12
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=1575; p99=0.0000m; max=0.1828m; snapshots/client=210; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(8,30,10,2.0f,0.0f) [12 s]
+CORRECTION tick=88; vehicle=2; error=0.1190; scheduleLag=0.0150; age=0.0001; pending=7; clientAck=54; authorityAck=56; hostTick=89; snapshotTick=87
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.1190m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=9
+players=2; outbound delay=30ms; jitter=10ms; loss=2%; corrections=226; p99=0.0000m; max=0.1190m; snapshots/client=227; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,30,10,2.0f,10.0f) [12 s]
+CORRECTION tick=129; vehicle=7; error=0.1723; scheduleLag=0.0041; age=0.0001; pending=9; clientAck=92; authorityAck=96; hostTick=130; snapshotTick=126
+CORRECTION tick=130; vehicle=8; error=0.2041; scheduleLag=0.0026; age=0.0001; pending=10; clientAck=106; authorityAck=111; hostTick=131; snapshotTick=126
+CORRECTION tick=132; vehicle=3; error=0.1994; scheduleLag=0.0005; age=0.0001; pending=9; clientAck=109; authorityAck=113; hostTick=133; snapshotTick=129
+CORRECTION tick=133; vehicle=4; error=0.1972; scheduleLag=0.0149; age=0.0001; pending=10; clientAck=109; authorityAck=114; hostTick=134; snapshotTick=129
+CORRECTION tick=446; vehicle=5; error=0.1665; scheduleLag=0.0145; age=0.0001; pending=9; clientAck=423; authorityAck=426; hostTick=447; snapshotTick=444
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=54; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=53; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=54; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0239m; steady p99=0.0000m; steady max=0.2041m; steady >1cm=7; max pending at completion=13
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=1565; p99=0.0064m; max=0.2041m; snapshots/client=216; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(8,30,10,2.0f,10.0f) [12 s]
+  Passed ActiveMatchUsesNormalDiscoveryAndAutomaticAccessGate(Public) [15 ms]
+  Passed ActiveMatchUsesNormalDiscoveryAndAutomaticAccessGate(Locked) [43 ms]
+  Passed ActualMembershipDepartureDisconnectsAdmittedMember(Left,Public) [3 ms]
+  Passed ActualMembershipDepartureDisconnectsAdmittedMember(Kicked,Public) [< 1 ms]
+  Passed ActualMembershipDepartureDisconnectsAdmittedMember(Disconnected,Public) [< 1 ms]
+  Passed ActualMembershipDepartureDisconnectsAdmittedMember(Left,Locked) [41 ms]
+  Passed ActualMembershipDepartureDisconnectsAdmittedMember(Kicked,Locked) [41 ms]
+  Passed ActualMembershipDepartureDisconnectsAdmittedMember(Disconnected,Locked) [42 ms]
+  Passed AdmissionAndRenamePreserveAuthority(Public) [1 ms]
+  Passed AdmissionAndRenamePreserveAuthority(Locked) [33 ms]
+  Passed BrowserBypassCannotAllocateAuthoritativePlayer(Public) [1 ms]
+  Passed BrowserBypassCannotAllocateAuthoritativePlayer(Locked) [33 ms]
+  Passed BrowserFiltersOrdersAndReplacesRenames [9 ms]
+  Passed BrowserVersionGatePrecedesMembershipAndCredentials(Public) [1 ms]
+  Passed BrowserVersionGatePrecedesMembershipAndCredentials(Locked) [16 ms]
+  Passed CanceledCreateRetainsFailedCleanupForRetry [< 1 ms]
+  Passed CapacityIsEightIncludingHost [1 ms]
+  Passed ClassifiesNativeMemberStatus(Joined,False,Joined,False) [< 1 ms]
+  Passed ClassifiesNativeMemberStatus(Promoted,False,Ownership,False) [< 1 ms]
+  Passed ClassifiesNativeMemberStatus(Left,False,Departed,True) [< 1 ms]
+  Passed ClassifiesNativeMemberStatus(Kicked,False,Departed,True) [< 1 ms]
+  Passed ClassifiesNativeMemberStatus(Disconnected,False,Departed,True) [< 1 ms]
+  Passed ClassifiesNativeMemberStatus(Left,True,Closure,True) [< 1 ms]
+  Passed ClassifiesNativeMemberStatus(Kicked,True,Closure,True) [< 1 ms]
+  Passed ClassifiesNativeMemberStatus(Disconnected,True,Closure,True) [< 1 ms]
+  Passed ClassifiesNativeMemberStatus(Closed,False,Closure,False) [< 1 ms]
+  Passed ClientRequiresDiscoveredSessionBeforeAssigningPlayerId [< 1 ms]
+  Passed CrashedFormerHostResolvesTrustedRouteWhileEosRemainsStale(Public) [175 ms]
+  Passed CrashedFormerHostResolvesTrustedRouteWhileEosRemainsStale(Locked) [158 ms]
+  Passed CredentialsRemainOutOfPresentationAndDiagnostics [47 ms]
+  Passed DelayedSavedLookupPrecedesFreshAdmission(False) [4 ms]
+  Passed DelayedSavedLookupPrecedesFreshAdmission(True) [3 ms]
+  Passed DirectIpVersionRejectionReachesClientWithoutBootstrap(3) [1 ms]
+  Passed DirectIpVersionRejectionReachesClientWithoutBootstrap(5) [< 1 ms]
+  Passed EosRetirementFreezesArenaBeforeLeaseRelease [72 ms]
+  Passed EosRetirementStopsHealthyLeaseAndAllowsOneSuccessor(False,False) [14 ms]
+  Passed EosRetirementStopsHealthyLeaseAndAllowsOneSuccessor(False,True) [12 ms]
+  Passed EosRetirementStopsHealthyLeaseAndAllowsOneSuccessor(True,False) [24 ms]
+  Passed EosRetirementStopsHealthyLeaseAndAllowsOneSuccessor(True,True) [22 ms]
+  Passed ExpiredAuthorityCannotBeRenewedByLateServiceCallback [< 1 ms]
+  Passed FailedCloseCanBeRetriedWithoutLeakingLobby [8 ms]
+  Passed FirstObservationAfterOutageCannotRestorePrePartitionCheckpoint [12 ms]
+  Passed FormerHostResumesThroughProviderAndCoreWithoutPassword(Public,False) [11 ms]
+  Passed FormerHostResumesThroughProviderAndCoreWithoutPassword(Public,True) [7 ms]
+  Passed FormerHostResumesThroughProviderAndCoreWithoutPassword(Locked,False) [33 ms]
+  Passed FormerHostResumesThroughProviderAndCoreWithoutPassword(Locked,True) [33 ms]
+  Passed FreshAdmissionWaitsForPendingStartupLookup(True) [4 ms]
+  Passed FreshAdmissionWaitsForPendingStartupLookup(False) [3 ms]
+  Passed HealthyCompositionRenewsOnlyHostAndRecoversTemporaryCoordinationDelay [59 ms]
+  Passed HostKickRemovesBindingPublishesReasonAndRejectsRejoinUntilDisconnect [1 ms]
+  Passed IncompleteFreshBootstrapDoesNotSaveResumeLocator [< 1 ms]
+  Passed LateCreateAndSearchAreRejected [< 1 ms]
+  Passed LateJoinRenameAndDuplicateCompletionAreInert [< 1 ms]
+  Passed LateNotificationFromPreviousVisitIsRejected [< 1 ms]
+  Passed LockedSessionRemainsStableAcrossProofRefreshesPastThirtySeconds [26 ms]
+  Passed MatchLongResumeUsesAuthenticatedIdentityAndRetainsOneMapping(Public) [1 ms]
+  Passed MatchLongResumeUsesAuthenticatedIdentityAndRetainsOneMapping(Locked) [33 ms]
+  Passed MemberLeaveUsesExistingAuthorityRemovalAndRejoinGetsFreshId [< 1 ms]
+  Passed MembershipJoinRefreshCannotTearDownUnrelatedAdmittedMember(Public,False) [< 1 ms]
+  Passed MembershipJoinRefreshCannotTearDownUnrelatedAdmittedMember(Public,True) [< 1 ms]
+  Passed MembershipJoinRefreshCannotTearDownUnrelatedAdmittedMember(Locked,False) [25 ms]
+  Passed MembershipJoinRefreshCannotTearDownUnrelatedAdmittedMember(Locked,True) [24 ms]
+  Passed MenuAbandonmentRequiresConfirmationAndPreservesHistory(Public,False) [11 ms]
+  Passed MenuAbandonmentRequiresConfirmationAndPreservesHistory(Locked,False) [33 ms]
+  Passed MenuAbandonmentRequiresConfirmationAndPreservesHistory(Locked,True) [36 ms]
+  Passed MetadataRefreshCannotTearDownAdmittedMember(Public) [1 ms]
+  Passed MetadataRefreshCannotTearDownAdmittedMember(Locked) [25 ms]
+  Passed MissingStartupLobbyClearsHintWithoutMembershipOrOfflineStatus [4 ms]
+  Passed MissingVersionRemainsVisibleButCannotJoin [< 1 ms]
+  Passed NamesValidateAtCreateAndRename [< 1 ms]
+  Passed OrdinaryArenaDeparturePreservesManualResumeUntilReturn(False) [4 ms]
+  Passed OrdinaryArenaDeparturePreservesManualResumeUntilReturn(True) [4 ms]
+  Passed OrdinaryClientRestartsAfterLaterMigrationWithStaleEosRouting(Public) [504 ms]
+  Passed OrdinaryClientRestartsAfterLaterMigrationWithStaleEosRouting(Locked) [557 ms]
+  Passed ProductionObservationStopsOnRecoveryAndRestartsForTrueCrash [124 ms]
+  Passed PromotionRefreshCannotTearDownAdmittedMember(Public) [< 1 ms]
+  Passed PromotionRefreshCannotTearDownAdmittedMember(Locked) [25 ms]
+  Passed ProviderPromotionDoesNotGrantGameplayAuthority [< 1 ms]
+  Passed ProviderUpdatesCannotRegressMigratedAuthorityRouting [1 ms]
+  Passed RepeatedLifecycleRejectsLateNotificationsAndExpiresCredential [165 ms]
+  Passed RestartLocatorRejoinsKnownSessionAndEmitsResumeInsteadOfNewAdmission(False) [5 ms]
+  Passed RestartLocatorRejoinsKnownSessionAndEmitsResumeInsteadOfNewAdmission(True) [3 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("outage") [5 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("self") [4 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("older") [4 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("conflict") [4 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("wrong-locator") [3 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("expired") [3 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("malformed-holder") [3 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("invalid-duration") [3 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("delayed") [3 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("cancelled") [3 ms]
+  Passed ResumeWireMismatchCannotReclaimAuthority(3,False,Resume) [< 1 ms]
+  Passed ResumeWireMismatchCannotReclaimAuthority(5,False,Resume) [< 1 ms]
+  Passed ResumeWireMismatchCannotReclaimAuthority(3,True,Resume) [< 1 ms]
+  Passed ResumeWireMismatchCannotReclaimAuthority(5,True,Resume) [< 1 ms]
+  Passed ResumeWireMismatchCannotReclaimAuthority(3,True,InspectReservation) [< 1 ms]
+  Passed ResumeWireMismatchCannotReclaimAuthority(5,True,InspectReservation) [< 1 ms]
+  Passed ResumeWireMismatchCannotReclaimAuthority(3,True,Abandon) [< 1 ms]
+  Passed ResumeWireMismatchCannotReclaimAuthority(5,True,Abandon) [< 1 ms]
+  Passed RetirementRequiresServiceEventFreshMembershipAndMatchingCohort(Left) [1 ms]
+  Passed RetirementRequiresServiceEventFreshMembershipAndMatchingCohort(Kicked) [< 1 ms]
+  Passed RetirementRequiresServiceEventFreshMembershipAndMatchingCohort(Disconnected) [< 1 ms]
+  Passed ReusedDisplayNameCreatesFreshLobbyAndSession [33 ms]
+  Passed SharedConfigurationConvergesRejectsForgedRequestsAndRetainsSessionOwnership [53 ms]
+  Passed StaleReservationReturnsToBrowserAfterBoundHostResponse(False) [4 ms]
+  Passed StaleReservationReturnsToBrowserAfterBoundHostResponse(True) [3 ms]
+  Passed StartupWithoutLocatorNeverRequestsRetainedResume [< 1 ms]
+  Passed TimeoutsRejectLateResultsAndPermitRecovery [< 1 ms]
+  Passed UnavailableRestartOffersRetryWithoutErasingTheReservationHint [4 ms]
+  Passed UnjoinableSelectionsFailCleanly [< 1 ms]
+  Passed VersionMismatchPreservesLocatorAndCompatibleRetryReclaimsSamePlayer [12 ms]
+  Passed WrongCredentialAndUnboundPeerNeverEnterAuthority [33 ms]
+  Passed AcceptRequiresSameJoinableRowWithinBoundAndResetsOnSelectionOrRefresh [< 1 ms]
+  Passed AllCountsRemainDynamic(0) [1 ms]
+  Passed AllCountsRemainDynamic(100) [< 1 ms]
+  Passed FiltersCombineWithSearchAndDoNotChangeSource [1 ms]
+  Passed MouseDoubleClickCannotJoinAReplacementRowOrSurviveRefresh [< 1 ms]
+  Passed HandoffKeepsModeOrderAndNamesWhileConnectivityChanges [< 1 ms]
+  Passed CompressedBoundariesPreserveExactBytesAcrossSingleAndMultiplePackets(False) [32 ms]
+  Passed CompressedBoundariesPreserveExactBytesAcrossSingleAndMultiplePackets(True) [32 ms]
+  Passed IncompleteTransfersExpireAndStopClearsContinuation [3 ms]
+  Passed InvalidOrInconsistentChunksDisconnectWithoutPublishing(0) [2 ms]
+  Passed InvalidOrInconsistentChunksDisconnectWithoutPublishing(1) [2 ms]
+  Passed InvalidOrInconsistentChunksDisconnectWithoutPublishing(2) [2 ms]
+  Passed InvalidOrInconsistentChunksDisconnectWithoutPublishing(3) [2 ms]
+  Passed LargeBoundaryIsAtomicPacedAndPreservesFollowingReliableOrder [17 ms]
+  Passed MalformedCompressionCannotPublishOrAllocateBeyondTheBoundary(0) [< 1 ms]
+  Passed MalformedCompressionCannotPublishOrAllocateBeyondTheBoundary(1) [< 1 ms]
+  Passed MalformedCompressionCannotPublishOrAllocateBeyondTheBoundary(2) [< 1 ms]
+  Passed StalledCheckpointBoundsReliableBacklogWhileMotionRemainsIndependent [2 ms]
+  Passed LifeChangesDoNotInterpolate [< 1 ms]
+  Passed PresentationClockIsMonotonicAndHoldsAtLatest [< 1 ms]
+  Passed SamplesAndClamps(0,0) [< 1 ms]
+  Passed SamplesAndClamps(10,0) [< 1 ms]
+  Passed SamplesAndClamps(15,5) [< 1 ms]
+  Passed SamplesAndClamps(20,10) [< 1 ms]
+  Passed SamplesAndClamps(30,10) [< 1 ms]
+  Passed StableStreamAvoidsFixedHundredMillisecondDelayAndRecoversAfterStall [< 1 ms]
+  Passed LoadsOnlyCurrentBoundedRoutingState [40 ms]
+  Passed ApplicationFailureCannotBypassSuccessfulCompletion [< 1 ms]
+  Passed FailureRetryReplaysOwningPhase(FrontendDependencies,Preloader) [< 1 ms]
+  Passed FailureRetryReplaysOwningPhase(FrontendSetup,FrontendLoading) [< 1 ms]
+  Passed FailureRetryReplaysOwningPhase(ApplicationInitialization,FrontendLoading) [< 1 ms]
+  Passed InvalidTransitionsAreRejected [< 1 ms]
+  Passed StartupUsesRequiredDeterministicOrder [< 1 ms]
+  Passed MissingStateAndExpiredDeadlinesAreExplicit [1 ms]
+  Passed RefreshReflectsDeathAndRespawnDeadline [< 1 ms]
+  Passed ReportsSnapshotWithoutExposingTokensOrDamageContext [< 1 ms]
+  Passed SearchPreservesValuesAndMatchesLabelsCategoriesAndUnavailableState [1 ms]
+  Passed ConvertsTimeoutRejectionAndUnknownFailures [< 1 ms]
+  Passed RoutesReliableAndUnreliableIndependently [< 1 ms]
+  Passed HostDoesNotDisplayArbitraryClientPing [< 1 ms]
+  Passed HudAndLeaderboardSharePublishedPing(0) [1 ms]
+  Passed HudAndLeaderboardSharePublishedPing(123) [< 1 ms]
+  Passed HudAndLeaderboardSharePublishedPing(60000) [< 1 ms]
+  Passed HudAndLeaderboardSharePublishedPing(null) [< 1 ms]
+  Passed ProjectsCurrentSessionAndInvalidatesReplacement("EOS P2P") [< 1 ms]
+  Passed ProjectsCurrentSessionAndInvalidatesReplacement("Direct-IP") [< 1 ms]
+  Passed AcceptedAimsRequireCurrentHostGenerationConfigurationAndMonotonicTick [4 ms]
+  Passed ActiveJoinBootstrapsWithoutChangingExistingWorldAndActivatesOnce(False) [18 ms]
+  Passed ActiveJoinBootstrapsWithoutChangingExistingWorldAndActivatesOnce(True) [14 ms]
+delay ticks=2; holds=0; peak pending=18; input transit/host lag=4; return acknowledgement lag=14; steady max=0.0000; snapshot drops=9/500; input drops=29
+
+delay ticks=3; holds=0; peak pending=19; input transit/host lag=5; return acknowledgement lag=14; steady max=0.0000; snapshot drops=9/500; input drops=29
+
+  Passed AimRequestsCannotClaimAnotherPlayerOrWrongCapabilityAndSamplesExpire [4 ms]
+  Passed ApplicationResumeReceivesCurrentPhaseAndAcknowledgesSynchronization(False) [13 ms]
+  Passed ApplicationResumeReceivesCurrentPhaseAndAcknowledgesSynchronization(True) [11 ms]
+  Passed ClusteredSnapshotLossWithInputJitterKeepsPredictionResponsive(2) [77 ms]
+  Passed ClusteredSnapshotLossWithInputJitterKeepsPredictionResponsive(3) [68 ms]
+  Passed ConfigurationPublicationsAreOrderedIdempotentAndHostOnly [3 ms]
+  Passed DelayedFirstSnapshotAdoptsAcknowledgesAndReplaysQueuedInputs [4 ms]
+  Passed DelayedFirstSnapshotHistoryExhaustionStopsSession [1 ms]
+  Passed DelayedReliableDeathDoesNotRewindRespawn [4 ms]
+  Passed DeveloperCapabilitiesAndDiagnosticsExcludeUnsupportedOperationsAndRawIdentity [< 1 ms]
+  Passed DisconnectedLoadingParticipantDoesNotBlockCountdown [7 ms]
+  Passed DisposalDetachesOnlyOwnedCallbacksAndPreservesReservations [< 1 ms]
+  Passed DroppedReorderedMotionCannotLoseImpactOrResurrectProjectile [4 ms]
+  Passed EntryFailureIsAuthenticatedBeforeAndDuringLoading [< 1 ms]
+  Passed EventReplicationRejectsDuplicatesForgedSendersAndOldGenerations [2 ms]
+  Passed EveryConnectedParticipantMustSynchronizeBeforeOneFiveSecondStart(2,False) [11 ms]
+  Passed EveryConnectedParticipantMustSynchronizeBeforeOneFiveSecondStart(4,False) [17 ms]
+  Passed EveryConnectedParticipantMustSynchronizeBeforeOneFiveSecondStart(4,True) [17 ms]
+  Passed FirstSnapshotWaitsForActualHostConfiguration [1 ms]
+  Passed HostOwnsMatchAndReliablyInitializesJoiningPlayers [1 ms]
+  Passed HostPublishesEveryLifecycleBoundaryReliably [1 ms]
+  Passed HostSurvivesNativeSendClosure [< 1 ms]
+  Passed InitialEntryWaitsForCheckpointAndHostRelease(False) [18 ms]
+  Passed InitialEntryWaitsForCheckpointAndHostRelease(True) [18 ms]
+  Passed InitialSynchronizationHasABoundedFailure [4 ms]
+  Passed InterruptedActiveBootstrapLeavesNoGhost(False) [< 1 ms]
+  Passed InterruptedActiveBootstrapLeavesNoGhost(True) [1 ms]
+CODEC_ALLOCATION players=2, fullEncodeDecodeBytesPerPair=15296.96, motionEncodeDecodeBytesPerPair=1432; 1000 repetitions; excludes publication construction/native marshalling.
+
+CODEC_ALLOCATION players=8, fullEncodeDecodeBytesPerPair=48530.88, motionEncodeDecodeBytesPerPair=2392; 1000 repetitions; excludes publication construction/native marshalling.
+
+{"players":2,"scenario":"driving","simulatedSeconds":10,"hostAllocations":16948088,"clientAdvanceAllocations":4753560,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TM-Reliable","bytes":37145,"messages":95,"peak":391},{"protocol":"TS-Unreliable","bytes":96200,"messages":200,"peak":481}]}
+
+{"players":8,"scenario":"driving","simulatedSeconds":10,"hostAllocations":45177360,"clientAdvanceAllocations":48760560,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TM-Reliable","bytes":882455,"messages":665,"peak":1327},{"protocol":"TS-Unreliable","bytes":2571800,"messages":1400,"peak":1837}]}
+
+{"players":2,"scenario":"missile","simulatedSeconds":10,"hostAllocations":19742696,"clientAdvanceAllocations":5007840,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TI-Reliable","bytes":8310,"messages":10,"peak":876},{"protocol":"TJ-Unreliable","bytes":32400,"messages":300,"peak":108},{"protocol":"TM-Reliable","bytes":37145,"messages":95,"peak":391},{"protocol":"TS-Unreliable","bytes":96200,"messages":200,"peak":481}]}
+
+{"players":8,"scenario":"missile","simulatedSeconds":10,"hostAllocations":54340704,"clientAdvanceAllocations":53445200,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TI-Reliable","bytes":220080,"messages":70,"peak":3324},{"protocol":"TJ-Unreliable","bytes":730800,"messages":2100,"peak":348},{"protocol":"TM-Reliable","bytes":882455,"messages":665,"peak":1327},{"protocol":"TS-Unreliable","bytes":2571800,"messages":1400,"peak":1837}]}
+
+  Passed ItemPublicationsRejectForgedStaleAndUnreliableState [3 ms]
+  Passed LiveConfigurationReplicatesToExistingAndNewPeersAndClientCannotMutate [3 ms]
+  Passed MatchPublicationsRejectForgedStaleUnreliableAndPostFinishState [2 ms]
+  Passed MeasureProjectileCodecAllocation(2) [12 ms]
+  Passed MeasureProjectileCodecAllocation(8) [34 ms]
+  Passed MeasureReplicationTraffic(2,"driving") [45 ms]
+  Passed MeasureReplicationTraffic(8,"driving") [164 ms]
+  Passed MeasureReplicationTraffic(2,"missile") [38 ms]
+  Passed MeasureReplicationTraffic(8,"missile") [176 ms]
+{"players":2,"scenario":"oil","simulatedSeconds":10,"hostAllocations":20417288,"clientAdvanceAllocations":4817776,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TI-Reliable","bytes":5590,"messages":5,"peak":1334},{"protocol":"TM-Reliable","bytes":37145,"messages":95,"peak":391},{"protocol":"TS-Unreliable","bytes":96200,"messages":200,"peak":481}]}
+
+{"players":8,"scenario":"oil","simulatedSeconds":10,"hostAllocations":59604104,"clientAdvanceAllocations":52410608,"rejected":42,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TI-Reliable","bytes":427420,"messages":105,"peak":5132},{"protocol":"TM-Reliable","bytes":882455,"messages":665,"peak":1327},{"protocol":"TS-Unreliable","bytes":2571800,"messages":1400,"peak":1837}]}
+
+{"players":2,"scenario":"nitro","simulatedSeconds":10,"hostAllocations":25613096,"clientAdvanceAllocations":11780912,"rejected":141,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TI-Reliable","bytes":303530,"messages":433,"peak":786},{"protocol":"TM-Reliable","bytes":237507,"messages":559,"peak":425},{"protocol":"TS-Unreliable","bytes":96200,"messages":200,"peak":481}]}
+
+{"players":8,"scenario":"nitro","simulatedSeconds":10,"hostAllocations":73586480,"clientAdvanceAllocations":190839544,"rejected":987,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TI-Reliable","bytes":7953260,"messages":3031,"peak":2964},{"protocol":"TM-Reliable","bytes":5722815,"messages":3913,"peak":1463},{"protocol":"TS-Unreliable","bytes":2571800,"messages":1400,"peak":1837}]}
+
+{"players":2,"scenario":"circus","simulatedSeconds":10,"hostAllocations":16514288,"clientAdvanceAllocations":4546560,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TM-Reliable","bytes":39040,"messages":100,"peak":459},{"protocol":"TS-Unreliable","bytes":96200,"messages":200,"peak":481}]}
+
+{"players":8,"scenario":"circus","simulatedSeconds":10,"hostAllocations":43420832,"clientAdvanceAllocations":47585000,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TM-Reliable","bytes":927220,"messages":700,"peak":1599},{"protocol":"TS-Unreliable","bytes":2571800,"messages":1400,"peak":1837}]}
+
+  Passed MeasureReplicationTraffic(2,"oil") [41 ms]
+  Passed MeasureReplicationTraffic(8,"oil") [221 ms]
+  Passed MeasureReplicationTraffic(2,"nitro") [56 ms]
+  Passed MeasureReplicationTraffic(8,"nitro") [330 ms]
+  Passed MeasureReplicationTraffic(2,"circus") [31 ms]
+  Passed MeasureReplicationTraffic(8,"circus") [196 ms]
+  Passed MotionCodecRejectsMalformedAndForeignBaselines(False) [2 ms]
+  Passed MotionCodecRejectsMalformedAndForeignBaselines(True) [2 ms]
+  Passed PropPublicationsRespectAuthorityGenerationAndOrdering [2 ms]
+NUnit Adapter 5.0.0.0: Test execution complete
+  Passed ReplacementPeerReceivesReliableCurrentLifecycleAndItems [< 1 ms]
+  Passed SnapshotAgeIsClientOnlyAndTracksElapsedTimeInsteadOfCatchUpSteps [2 ms]
+  Passed SnapshotBurstReplaysNewestBoundaryAndPreservesReliableOrder(False) [2 ms]
+  Passed SnapshotBurstReplaysNewestBoundaryAndPreservesReliableOrder(True) [1 ms]
+  Passed SwitchCommandsAreReliableOrderedAndCannotSelectAnotherPlayer [1 ms]
+  Passed ThreeFinishedCyclesDisposeMatchStateAndKeepSessionOwnership [48 ms]
+  Passed TombstoneHealthAndRemovalReplicateWhileForgedOutcomesAndDuplicatePublicationsAreRejected [11 ms]
+
+Total tests: 433
+     Passed: 432
+     Failed: 1
+Test Run Failed.
+ Total time: 2.1880 Minutes
+=== transport-targeted ===
+Test run for C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\bin\Debug\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\bin\Debug\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 1 of 1 NUnit test cases using Current Discovery mode, Non-Explicit run
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0081m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=7
+players=2; outbound delay=25ms; jitter=5ms; loss=0%; corrections=237; p99=0.0000m; max=0.0081m; snapshots/client=238; stale packets rejected
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,25,5,0.0f,0.0f) [12 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 12.6166 Seconds
+=== transport-godot ===
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Transport peer 1: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connected; None;
+Transport Godot integration passed: 3 node creation/poll/message/cleanup cycles.
+=== project ===
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org

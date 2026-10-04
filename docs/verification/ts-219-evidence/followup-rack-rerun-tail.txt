@@ -1,0 +1,20 @@
+Completed load for: 'res://assets/audio/kenney/scifi/forceField_000.ogg' remapped 'res://assets/audio/kenney/scifi/forceField_000.ogg' at thread -1
+Loading resource: res://assets/audio/kenney/scifi/forceField_001.ogg remapped: res://assets/audio/kenney/scifi/forceField_001.ogg
+Loading resource: res://.godot/imported/forceField_001.ogg-2ee102abfba835460749a736d95bdfea.oggvorbisstr remapped: res://.godot/imported/forceField_001.ogg-2ee102abfba835460749a736d95bdfea.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/scifi/forceField_001.ogg' remapped 'res://assets/audio/kenney/scifi/forceField_001.ogg' at thread -1
+Rapid-use setup visible
+Immediate switch command
+Immediate switched use command
+Loading resource: res://assets/audio/kenney/interface/confirmation_001.ogg remapped: res://assets/audio/kenney/interface/confirmation_001.ogg
+Loading resource: res://.godot/imported/confirmation_001.ogg-14d71e6adfdc83b0f4744935e0b868c8.oggvorbisstr remapped: res://.godot/imported/confirmation_001.ogg-14d71e6adfdc83b0f4744935e0b868c8.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/interface/confirmation_001.ogg' remapped 'res://assets/audio/kenney/interface/confirmation_001.ogg' at thread -1
+Immediate switched use confirmed
+Consumed switched Wrench presented rather than old Salvo
+Rapid switched use closes coherently
+Rapid use preserves unselected Salvo
+Car rack integration passed: 142 checks; seven items, switching/use, duplicates, lifecycle and two UDP peers.
+Unloading: Disposing tracked instances...
+Unloading: Finished disposing tracked instances.
+XR: Clearing primary interface
+XR: Removed interface "Native mobile"
+XR: Removed interface "OpenXR"

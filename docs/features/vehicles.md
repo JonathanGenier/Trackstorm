@@ -145,6 +145,39 @@ The production Car is an original Blender-authored armored coupe with enlarged o
 
 `check-car-articulation.ps1 -GodotPath <exe> [-Visual]` exercises native acceleration, steering, four-wheel rotation, landing compression/rebound, repeated deployment and reversal, stable mounts and separable lights. Rendered evidence and a per-tick trace are written to `.godot/ts259-round8/car`. The ordinary vehicle and network harnesses cover surrounding driving and presentation-root behavior. The physical hull remains the shared simplified sprung envelope, with raised bumper undersides and no solid wheel colliders; physics is not derived from decorative meshes.
 
+The [Shield carriage](../../assets/items/tombstone/README.md) uses the rear rack socket pair
+and extends aft of the production wrap guards. The selected shield follows the full interpolated
+Car pose. A bolted saddle, twin boxed arms, hydraulic rams and four-jaw cradle carry
+the shield. The folded stack appears at 0.42 scale once the deck clears and rides
+the rack through its lift. After the production rack rises, it travels aft, reaches full size, pitches
+upright, opens its two center halves, side wings and four horizontal hinges, and draws forward into its rear
+position. Deselecting reverses that 1.15-second motion before allowing rack retraction;
+an empty carriage also returns after world release. Three full-height physical
+panels match the rear plate and short wraparound side wings. Original vehicle geometry,
+wheel articulation and force laws remain unchanged. Shield/wall presentation is described
+under [held items](items.md#shield-rear-armor-and-persistent-health).
+
+A local early-use press waits for the exact selected shield to finish this path
+before requesting world deployment. Readiness includes the confirmed selection
+revision, capability and life, fully raised rack and completed mount motion;
+an old item's raised carriage cannot release the new request. The existing Core
+placement/consumption path remains authoritative.
+
+Mounted armor skims authored driveable ground instead of acting as a rear skid on
+slopes. The native adapter sweeps chassis and armor separately, excludes contacted
+authored terrain bodies from the armor query only, then chooses the earlier blocking
+result. The chassis retains its complete terrain response. Armor still collides
+with vehicles and solid obstacles; weapon cover and deployed-wall collision remain
+unchanged. Up to eight armor queries handle overlapping support bodies, retaining
+contact if that bound is exhausted. The low visual edge may briefly enter terrain
+at sharp slope transitions; no automatic shield lift or new suspension is applied.
+Armor filtering uses the support body's authored identity, regardless of the
+sweep normal: concave track edges can return lateral/downward separating axes.
+This exemption includes all faces of that terrain body, while distinct barrier
+and obstacle bodies keep their shield collision. The production track regression
+uses the committed concave mesh; `check-tombstone-presentation.ps1 -ProductionTrack`
+drives the actual west-bank join with two UDP peers.
+
 ## Player-controlled airborne rotation
 
 Outside a latched crash, Core `VehicleMovement` uses body-axis angular-rate control only when the recorded Air Control modifier is held and the vehicle has no supported wheels. Becoming airborne or waiting in flight never grants player intent. Grounded driving remains unchanged even when the modifier and aerial axes are held. Releasing the modifier after active air control immediately zeros angular velocity on all axes, retaining the reached attitude without altering linear jump travel. Previously passive flight and latched crash recovery retain physical rotation; released-axis stabilization only runs with the modifier held. Shift/LB activation and independent recorded pitch/yaw/roll axes are described in [input](input.md).
@@ -289,4 +322,4 @@ Braking effectiveness scales both opposing longitudinal demand and its friction 
 Below `HandbrakeHoldSpeed` (0.5 m/s contact-plane speed), a held handbrake with at least two supported wheels uses static tire friction instead of deliberate grip release. Engine drive is interrupted immediately. After gravity, a bounded opposing impulse removes tangential creep and yaw, limited by available support load, material purchase, Oil reduction and mechanical handbrake strength. Suspension motion, pose integration and collision impulses remain physical; there is no anchored position or new continuation state. No wheel support, disabled driving or water immersion disables the hold. Insufficient or zero configured traction cannot hold a slope. Releasing the button immediately removes static holding while the ordinary moving-brake envelope releases progressively.
 
 The terrain harness compares normal driving, service braking, deliberate handbrake entry/countersteer/recovery, twenty repeated material changes during sustained driving, and ten-second settled holds at ±20 degrees facing uphill/downhill and across the slope. Both practice and host/prediction adapters execute these cases. Core tests also cover zero traction, unsupported/moving cases, split braking torque, configuration persistence and deterministic restoration. These fixtures complement actual production-map transition and bank checks.
-[Tombstone rear armor](items.md#tombstone-rear-shield-and-persistent-health) extends the network body's collision envelope behind the bumper. Before the vehicle step, item authority routes actual plate contacts to the persistent shield pool using this vehicle's unchanged collision tuning. Intercepted vehicle-pair manifold points cannot also damage the protected car; unrelated contacts retain ordinary damage. Core also resolves weapon interception against the same oriented envelope. Native collision response remains physical, while shield HP and removal remain item authority.
+[Shield rear armor](items.md#shield-rear-armor-and-persistent-health) extends the network body's collision envelope behind the bumper. Before the vehicle step, item authority routes actual plate contacts to the persistent shield pool using this vehicle's unchanged collision tuning. Intercepted vehicle-pair manifold points cannot also damage the protected car; unrelated contacts retain ordinary damage. Core also resolves weapon interception against the same oriented envelope. Native collision response remains physical, while shield HP and removal remain item authority.

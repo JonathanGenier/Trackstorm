@@ -1,0 +1,85 @@
+Loading resource: res://assets/audio/kenney/impact/impactMetal_medium_000.ogg remapped: res://assets/audio/kenney/impact/impactMetal_medium_000.ogg
+Loading resource: res://.godot/imported/impactMetal_medium_000.ogg-6daa45f0973796947d6ba16efecd640a.oggvorbisstr remapped: res://.godot/imported/impactMetal_medium_000.ogg-6daa45f0973796947d6ba16efecd640a.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/impact/impactMetal_medium_000.ogg' remapped 'res://assets/audio/kenney/impact/impactMetal_medium_000.ogg' at thread -1
+Loading resource: res://assets/audio/freesound/combat/explosion.wav remapped: res://assets/audio/freesound/combat/explosion.wav
+Loading resource: res://.godot/imported/explosion.wav-8fb57bd54ad39dfd3f6a3f7f2846f4b3.sample remapped: res://.godot/imported/explosion.wav-8fb57bd54ad39dfd3f6a3f7f2846f4b3.sample
+Completed load for: 'res://assets/audio/freesound/combat/explosion.wav' remapped 'res://assets/audio/freesound/combat/explosion.wav' at thread -1
+Rack returns and stows after second release
+Car rack consecutive mine passed: 20 checks on two UDP peers.
+Unloading: Disposing tracked instances...
+Unloading: Finished disposing tracked instances.
+XR: Clearing primary interface
+XR: Removed interface "Native mobile"
+XR: Removed interface "OpenXR"
+Leaked instance: AudioStreamPlaybackMP3:9223372077875070805 - Reference count: 1
+Leaked instance: AudioStreamMP3:9223372077824739159 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372078093174617 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372078109951834 - Reference count: 1
+Leaked instance: AudioStreamPlaybackMP3:9223372085508704471 - Reference count: 1
+Leaked instance: AudioStreamMP3:9223372085458372825 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372085575813339 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372085592590556 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372107369417947 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372107386195164 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372107621076193 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372107637853410 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372107872734439 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372107889511656 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372108124392685 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372108141169902 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372132686238206 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372132703015423 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372132786901507 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372132803678724 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372132887564808 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372132904342025 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372132988228109 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372133005005326 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372133105668627 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372133122445844 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372133206331928 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372133223109145 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372133306995229 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372133323772446 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372133407658530 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372133424435747 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372133525099048 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372133541876265 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372133625762349 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372133642539566 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372133726425650 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372133743202867 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372133827088951 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372133843866168 - Reference count: 1
+Leaked instance: OggPacketSequence:9223372236604314302 - Reference count: 5
+Leaked instance: AudioStreamOggVorbis:9223372236621091519 - Reference count: 2
+Leaked instance: AudioStreamPlaybackOggVorbis:9223372236738532033 - Reference count: 1
+Leaked instance: OggPacketSequencePlayback:9223372236755309250 - Reference count: 1
+Leaked instance: OggPacketSequence:9223372236889526981 - Reference count: 5
+Leaked instance: AudioStreamOggVorbis:9223372236906304198 - Reference count: 2
+Leaked instance: AudioStreamPlaybackOggVorbis:9223372237023744712 - Reference count: 1
+Leaked instance: OggPacketSequencePlayback:9223372237040521929 - Reference count: 1
+Leaked instance: AudioStreamWAV:9223372237174739660 - Reference count: 2
+Leaked instance: AudioStreamPlaybackWAV:9223372237275402958 - Reference count: 1
+Leaked instance: AudioStreamPlaybackOggVorbis:9223372238030377714 - Reference count: 1
+Leaked instance: OggPacketSequencePlayback:9223372238047154931 - Reference count: 1
+Leaked instance: AudioStreamPlaybackOggVorbis:9223372238131041015 - Reference count: 1
+Leaked instance: OggPacketSequencePlayback:9223372238147818232 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372238231704316 - Reference count: 1
+Hint: Leaked instances typically happen when nodes are removed from the scene tree (with `remove_child()`) but not freed (with `free()` or `queue_free()`).
+Resource still in use: res://assets/audio/project/music/Welcome to the Carnage Circus Arena.mp3 (AudioStreamMP3)
+Resource still in use: res://assets/audio/project/music/Welcome to the Carnage Circus Arena 3.mp3 (AudioStreamMP3)
+Resource still in use: res://assets/audio/kenney/impact/impactMetal_medium_001.ogg::OggPacketSequence_l5wyj (OggPacketSequence)
+Resource still in use: res://assets/audio/kenney/impact/impactMetal_medium_001.ogg (AudioStreamOggVorbis)
+Resource still in use: res://assets/audio/kenney/impact/impactMetal_medium_000.ogg::OggPacketSequence_bilwr (OggPacketSequence)
+Resource still in use: res://assets/audio/kenney/impact/impactMetal_medium_000.ogg (AudioStreamOggVorbis)
+Resource still in use: res://assets/audio/freesound/combat/explosion.wav (AudioStreamWAV)
+Orphan StringName: SFX (static: 0, total: 4)
+Orphan StringName: Vehicle (static: 0, total: 34)
+Orphan StringName: Music (static: 0, total: 4)
+Orphan StringName: Weapons (static: 0, total: 4)
+StringName: 4 unclaimed string names at exit.
+WARNING: 55 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 7 resources still in use at exit.
+   at: clear (core/io/resource.cpp:817)

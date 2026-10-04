@@ -1,0 +1,23 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Tombstone playtest capture: r3-astra-mounted
+Tombstone playtest capture: r3-astra-center-return
+Tombstone playtest capture: r3-astra-center-opening
+Tombstone playtest capture: r3-astra-drive
+Tombstone playtest capture: r3-astra-hurt-mounted
+Tombstone playtest capture: r3-astra-deploy
+Tombstone playtest capture: r3-astra-wall
+Tombstone playtest capture: r3-astra-remote-early
+Tombstone playtest capture: r3-astra-remote-release
+Tombstone playtest capture: r3-astra-two-walls
+Tombstone playtest capture: r3-astra-heavy
+Tombstone playtest capture: r3-astra-broken
+Tombstone playtest capture: r3-astra-cleaned
+Tombstone playtest capture: r3-astra-repeat-mount
+Tombstone playtest capture: r3-astra-rapid-out
+Tombstone playtest capture: r3-astra-rapid-in
+Tombstone playtest capture: r3-astra-repeat-wall
+Tombstone playtest capture: r3-astra-rapid-base
+Tombstone playtest capture: r3-astra-rapid-away2
+Tombstone playtest capture: r3-astra-rapid-settle

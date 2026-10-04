@@ -60,6 +60,8 @@ EOS ownership may lag a committed gameplay migration indefinitely. The replaceme
 
 ## Restore and rebind
 
+Permanent item discard adds a monotonic watermark to the existing complete item boundary. A retained arena checkpoint must meet both the currently confirmed discard watermark and the greatest watermark in the retained copies. Older common checkpoints cannot resurrect a deleted held item. If no eligible common boundary survives that floor, migration fails closed; its normal coherent rollback remains available for other state. See [item discard](items.md#permanent-selected-slot-discard).
+
 1. Freeze gameplay and native prop progression while authority is uncertain.
 2. Reconnect the EOS star to the deterministic candidate, using authenticated membership and the retained subject map.
 3. Select the latest safe external checkpoint for a sole two-player survivor, or exchange digests and collect votes on the newest common boundary for a larger roster.
@@ -116,14 +118,14 @@ Circus Active entry tick, duration and accumulated recovery debit travel in the 
 This prevents checkpoint rollback and lease/election waits from restarting or granting another duration. Receipt-based measurement does not estimate the packet's pre-receipt transit time; very small transport/clock rounding uncertainty remains, and stalled native scheduling is not a synchronized wall-clock benchmark. The existing bounded rollback/freshness and lease policies remain unchanged. A peer that has accepted Finished refuses an older Active migration checkpoint; absent a recoverable Finished checkpoint, recovery fails closed instead of changing final results.
 
 The native migration harness checks that remaining ticks never increase and only the bounded recovery interval is deducted, alongside retained score/state assertions. Separate-device EOS and long Internet latency remain separate acceptance work.
-Movable [Tombstone walls](items.md#movable-tombstone-world-walls) retain their full committed
+Movable [Shield walls](items.md#movable-shield-world-walls) retain their full committed
 pose, linear/angular velocity, captured dimensions/mass, HP and ordered damage/collision
 watermarks in item protocol 20 inside the existing checkpoint. Recovery installs that exact
 selected boundary, rather than the original deployment pose. The new host reconstructs its
 native rigid bodies and continues independently of former-owner life; replicas stay frozen.
 Native solver contact caches and cosmetic wing-expansion progress are not checkpoint state.
 
-Tombstone world-wall recovery retains the original absolute expiry deadline and whether
+Shield world-wall recovery retains the original absolute expiry deadline and whether
 a strong impact released tipping. The timer never restarts on recovery. A wall that expired
 while a player was disconnected is absent from the accepted live set and has no replica
 collider after resync; an attached shield has no deployed-wall timer.

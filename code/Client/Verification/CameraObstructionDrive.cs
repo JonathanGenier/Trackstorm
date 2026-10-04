@@ -61,7 +61,7 @@ public sealed partial class CameraObstructionDrive : Node
             Vector3 position = pose.Origin;
             _reference.Follow(pose, _arena.Player.Snapshot, (float)delta, _arena.Player.GetRid());
             float distance = _camera.GlobalPosition.DistanceTo(pose * VehicleBody.ToGodot(WeaponAim.Pivot));
-            float chaseRadius = new Vector2(_camera.FollowDistance, _camera.CameraHeight).Length();
+            float chaseRadius = new Vector2(_camera.FollowDistance * 1.15f, _camera.CameraHeight).Length();
             if (_time > 0.5f && _time < 10)
             {
                 _minimum = Math.Min(_minimum, distance);

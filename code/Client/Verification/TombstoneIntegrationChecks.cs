@@ -16,6 +16,7 @@ public sealed partial class TombstoneIntegrationChecks : Node
 {
     private readonly List<GameNetworkingSocketsTransport> _gateways = new();
     private readonly List<VehicleNetworkDriver> _drivers = new();
+    private readonly List<Hud.CombatHud> _huds = new();
     private readonly List<string> _evidence = new();
     private string _endpoint = string.Empty;
     private ulong[] _ids = [];
@@ -46,6 +47,11 @@ public sealed partial class TombstoneIntegrationChecks : Node
         _gateways.Add(gateway);
         _drivers.Add(new(gateway, host ? 88ul : 0, server,
             configuration: host ? new() { Match = new() { MinimumPlayers = 1, CountdownTicks = 1 }, Damage = new() { MaxHP = 1500 } } : null));
+        var driver = _drivers[^1];
+        var hud = new Hud.CombatHud { Vehicle = () => driver.LocalState, Slot = () => driver.LocalItem,
+            Tombstones = () => driver.ItemState?.Tombstones ?? Array.Empty<TombstoneState>() };
+        AddChild(hud);
+        _huds.Add(hud);
     }
 
     public override void _PhysicsProcess(double delta)
@@ -58,6 +64,20 @@ public sealed partial class TombstoneIntegrationChecks : Node
             {
                 driver.Advance(default, state => new(state.Movement.Physics, N.Vector3.UnitY));
                 Check(driver.Failure.Length == 0, driver.Failure);
+                if (driver.LocalState is { } local && driver.ItemState is { } accepted && driver.LocalItem is { } inventory)
+                {
+                    var nativeHud = _huds[_drivers.IndexOf(driver)];
+                    nativeHud.Refresh();
+                    var hud = nativeHud.Displayed!;
+                    foreach (bool second in new[] { false, true })
+                    {
+                        var slot = second ? hud.SecondSlot : hud.FirstSlot;
+                        ulong token = second ? inventory.SecondToken : inventory.Token;
+                        var pool = accepted.Tombstones.FirstOrDefault(s => s.Attached && s.Owner == local.VehicleId && s.Life == local.LifeId && s.Token == token);
+                        Check(slot.Resource?.Fraction == (slot.Item == HeldItem.Tombstone && pool is not null ? pool.HP / (double)TombstoneState.DefaultHP : null),
+                            "HUD follows each accepted physical pool through UDP damage, deployment, destruction and late admission.");
+                    }
+                }
             }
             Check(_frames - _boundary < 1800, $"Tombstone stage {_stage} timed out.");
             var host = _drivers[0].Host!;
@@ -127,6 +147,21 @@ public sealed partial class TombstoneIntegrationChecks : Node
                     Check(host.World.State.Vehicles.All(vehicle => vehicle.Damage.CurrentHP == 1500), "Vehicles still undamaged.");
                     Check(host.World.Events.Entries.Count(entry => entry.Cause == "Tombstone" && entry.Kind == "Destroyed") == 2, "Exactly two committed destruction events.");
                     Next("Three UDP peers agree on remaining entities, stages, health and cleared slots; exactly two destruction outcomes and no vehicle damage.");
+                    Check(_drivers[0].RequestItemSwitch(), "Select the surviving second physical pool.");
+                    break;
+                case 6 when Converged() && _drivers[0].LocalItem?.ActiveSlot == 1:
+                    Check(_drivers[0].RequestItemDiscard() && _drivers[1].RequestItemDiscard(), "Ordinary host/remote discard requests.");
+                    Next("Selection switched to the surviving pool without refill; ordinary discard requested on both peers.");
+                    break;
+                case 7 when Converged() && host.Items.Tombstones.Count == 0:
+                    Check(_huds.Take(2).All(hud => hud.Displayed!.FirstSlot.Resource is null && hud.Displayed.SecondSlot.Resource is null), "Native HUD clears both discarded pools.");
+                    Check(host.Items.Grant(host.World, 1, HeldItem.Tombstone) && host.Items.Grant(host.World, 1, HeldItem.Wrench), "Replacement grants.");
+                    Next("Both native slot resources cleared after discard; replacement Tombstone acquired with a fresh pool.");
+                    break;
+                case 8 when Converged():
+                    Check(_huds[0].Displayed!.FirstSlot.Resource?.Text == "1000" && _huds[0].Displayed!.SecondSlot.Resource is null, "Fresh shield HP and Wrench replacement stay independent.");
+                    Check(host.Items.Tombstones.Single().Id > _ids.Max(), "Replacement never resurrects discarded identity.");
+                    Next("Native HUD displays fresh replacement HP, independent non-resource second slot, and no stale discarded durability.");
                     Finish();
                     break;
             }

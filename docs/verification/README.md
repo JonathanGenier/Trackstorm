@@ -11,6 +11,11 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 | Evidence | Reports |
 | --- | --- |
 | Story verification and sustained rock-pressure correction | [TS-280 verification evidence](ts-280.md) |
+
+| Physical-slot Shield HP, armor-plate HUD, independence, clearing/reconstruction and native lifecycle verification | [TS-176 verification evidence](ts-176.md) |
+| Shield naming, Carnage Circus shield/wall, reinforced rack mount, queued deployment after eight-section unfolding, production-track skimming and multiplayer runtime evidence | [TS-219 verification evidence](ts-219.md) |
+| Permanent selected-slot discard, native input, reliable authority, recovery and respawn | [TS-277 verification evidence](ts-277.md) |
+| Responsive chase camera, progressive aerial framing, local preferences and fixed-height upward aiming | [TS-279 verification evidence](ts-279.md) |
 | Story verification, terrain alignment, contact spin, tipping/breakage, expiry, vehicle-launch and sliding corrections | [TS-218 verification evidence](ts-218.md) |
 | Tunnel fall/scrape sweep cost, native query bounds and collision regressions | [TS-275 verification evidence](ts-275.md) |
 | TS-274 world collision stability | [Terrain bake, collision recovery and network verification](ts-274.md) |

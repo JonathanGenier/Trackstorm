@@ -9,15 +9,31 @@ namespace Trackstorm.Client.Items;
 internal sealed partial class TombstoneWorld : Node3D
 {
     private readonly Dictionary<ulong, TombstoneWallBody> _bodies = new();
+    private readonly Dictionary<ulong, Transform3D> _mounted = new();
+    private readonly List<TombstoneVisual> _debris = [];
     internal IReadOnlyDictionary<ulong, TombstoneWallBody> Bodies => _bodies;
+    internal Func<ulong, (Transform3D Pose, float Fold, float CenterFold, float HorizontalFold)?>? MountedPose { get; set; }
 
     internal void Apply(ItemPublication publication, bool host, bool reseed = false)
     {
         var walls = publication.Tombstones.Where(s => !s.Attached).ToDictionary(s => s.Id);
+        _debris.RemoveAll(v => !GodotObject.IsInstanceValid(v) || v.IsQueuedForDeletion());
+        if (reseed)
+        {
+            foreach (var fragment in _debris) { fragment.QueueFree(); }
+            _debris.Clear();
+            _mounted.Clear();
+        }
         foreach (ulong id in _bodies.Keys.Except(walls.Keys).ToArray())
         {
             var body = _bodies[id];
             body.CollisionLayer = 0; body.CollisionMask = 0; body.Freeze = true;
+            if (!reseed && _debris.Count < 32)
+            {
+                body.Visual.Reparent(this);
+                body.Visual.BreakApart();
+                _debris.Add(body.Visual);
+            }
             body.QueueFree(); _bodies.Remove(id);
         }
         foreach (var wall in walls.Values)
@@ -25,10 +41,25 @@ internal sealed partial class TombstoneWorld : Node3D
             if (!_bodies.TryGetValue(wall.Id, out var body))
             {
                 body = new(); AddChild(body);
-                body.Initialize(wall, host, !reseed && publication.Events.Any(e => e.Item == HeldItem.Tombstone && e.Owner == wall.Owner && e.Position == wall.Position));
+                bool animate = !reseed && _mounted.ContainsKey(wall.Id);
+                var release = animate ? MountedPose?.Invoke(wall.Owner) ?? (_mounted[wall.Id], 0f, 0f, 0f) : ((Transform3D Pose, float Fold, float CenterFold, float HorizontalFold)?)null;
+                body.Initialize(wall, host, animate, release?.Pose, release?.Fold ?? 0, release?.CenterFold ?? 0, release?.HorizontalFold ?? 0);
                 _bodies.Add(wall.Id, body);
             }
-            else { body.Install(wall, host); }
+            else
+            {
+                body.Install(wall, host, reseed);
+                if (reseed) { body.Visual.SetWorld(VehicleBody.ToGodot(wall.WallSize), false); }
+            }
+        }
+        _mounted.Clear();
+        foreach (var shield in publication.Tombstones.Where(s => s.Stage == TombstoneStage.RearShield))
+        {
+            var vehicle = publication.World.Vehicles.FirstOrDefault(v => v.State.VehicleId == shield.Owner)?.State;
+            if (vehicle is null || vehicle.LifeId != shield.Life) { continue; }
+            var pose = vehicle.Movement.Physics;
+            var transform = new Transform3D(new Basis(VehicleBody.ToGodot(pose.Orientation)), VehicleBody.ToGodot(pose.Position));
+            _mounted[shield.Id] = transform * new Transform3D(Basis.Identity, TombstoneVisual.MountedCenter);
         }
     }
 
@@ -42,11 +73,19 @@ internal sealed partial class TombstoneWorld : Node3D
         Transform3D previous = owner.GlobalTransform;
         try
         {
+            // The selected armor is consumed by this transition. Its taller side/rear
+            // panels must not obstruct their own replacement on sloping terrain.
+            // Retain the chassis and every other vehicle's armor in the query.
+            if (owner is Networking.NetworkVehicleBody car) { car.SetShieldQueryEnabled(false); }
             owner.GlobalTransform = new(new Basis(VehicleBody.ToGodot(vehicle.Orientation)), VehicleBody.ToGodot(vehicle.Position));
             owner.ForceUpdateTransform();
             return FindPlacement(vehicle, tuning);
         }
-        finally { owner.GlobalTransform = previous; owner.ForceUpdateTransform(); }
+        finally
+        {
+            owner.GlobalTransform = previous; owner.ForceUpdateTransform();
+            if (owner is Networking.NetworkVehicleBody car) { car.SetShieldQueryEnabled(true); }
+        }
     }
 
     private VehiclePhysicsState? FindPlacement(VehiclePhysicsState vehicle, ItemConfiguration tuning)

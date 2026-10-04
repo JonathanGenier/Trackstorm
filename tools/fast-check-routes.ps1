@@ -227,10 +227,12 @@ function Get-FastCheckPlan {
             $path -match 'Camera.*\.cs$' -or
             $path -eq 'scenes/verification/camera_checks.tscn' -or
             $path -eq 'scenes/verification/camera_shake_playtest.tscn' -or
+            $path -match 'camera_responsiveness|check-camera-responsiveness' -or
             $path -match '^scenes/verification/camera_obstruction_' -or
             $path -eq 'check-camera-obstruction.ps1' -or
             $path -eq 'check-camera-shake.ps1') {
             Add-Runtime 'check-camera.ps1'
+            Add-Runtime 'check-camera-responsiveness.ps1'
             Add-Runtime 'check-camera-shake.ps1'
             Add-Runtime 'check-camera-obstruction.ps1'
             Add-Manual 'Playtest mouse/controller orbit and return, wall/terrain obstruction and clearing, camera framing, perceptible collision/damage shake and lifecycle transitions in practice and network gameplay. Run check-camera-obstruction.ps1 -Drive for native driving evidence.'
@@ -280,6 +282,7 @@ function Get-FastCheckPlan {
 
         if ($path -match '(?i)Tombstone|WorldWall|world.wall|ItemAuthority|NetworkVehicleBody|NetworkVehicleArena') { Add-Runtime 'check-world-wall.ps1'; Add-Manual 'Run check-world-wall.ps1 -ProductionMap -Impaired -Visual for production oval/infield deployment, then inspect upright sliding and yaw after vehicle impacts.' }
         if ($path -match '(?i)Tombstone|tombstone_checks|check-tombstone') { Add-Runtime 'check-tombstone.ps1' }
+        if ($path -match '(?i)Tombstone|assets/items/tombstone') { Add-Runtime 'check-tombstone-presentation.ps1' }
         if ($path -match '(?i)Tombstone|RearShield|rear.shield|ItemAuthority|NetworkVehicleBody|NetworkVehicleArena') { Add-Runtime 'check-rear-shield.ps1' }
         if ($path -match '(?i)MachineGun|machine_gun|check-machine-gun') { Add-Runtime 'check-machine-gun.ps1' }
 

@@ -107,6 +107,9 @@ public sealed partial class SettingsIntegrationChecks : Node
             MusicVolume = 0.25,
             SfxVolume = 0.75,
             CameraShakeIntensity = 0.35,
+            CameraDistance = 1.2,
+            CameraInertia = .3,
+            CameraAerialPullback = 1.4,
             Fullscreen = true,
             WindowWidth = 960,
             WindowHeight = 540,
@@ -134,6 +137,7 @@ public sealed partial class SettingsIntegrationChecks : Node
         Check(Math.Abs(_player.Adapter.SteeringSensitivity - 2.3f) < 0.001f && Math.Abs(_player.Adapter.AerialSensitivity - 0.4f) < 0.001f, "independent controller settings survive process restart and apply");
         Check(Math.Abs(_player.Adapter.KeyboardSteeringSensitivity - 0.3f) < 0.001f && Math.Abs(_player.Adapter.KeyboardAerialSensitivity - 0.6f) < 0.001f, "keyboard/mouse settings independently survive restart and apply");
         Check(settings.CameraShakeIntensity == 0.35, "camera shake intensity survives process restart");
+        Check(settings.CameraDistance == 1.2 && settings.CameraInertia == .3 && settings.CameraAerialPullback == 1.4, "camera preferences survive process restart independently");
         Check(settings.MasterVolume == 0 && settings.MusicVolume == 0.25 && settings.SfxVolume == 0.75, "audio gains survive process restart");
         Check(settings.Fullscreen && settings.WindowWidth == 960 && settings.WindowHeight == 540, "display preferences survive process restart");
         Check(settings.SpeedUnit == SpeedUnit.MilesPerHour && settings.ShowFps && !settings.ShowPing, "independent HUD preferences survive process restart");
@@ -246,7 +250,17 @@ public sealed partial class SettingsIntegrationChecks : Node
 
         Press(panel, "Back");
         Press(panel, "Gameplay");
-        HSlider shake = Descendants(panel).OfType<HSlider>().Single(slider => slider.IsVisibleInTree());
+        foreach (string name in new[] { "CameraDistance", "CameraInertia", "CameraAerialPullback" })
+        {
+            var slider = Descendants(panel).OfType<HSlider>().Single(control => control.Name == name);
+            foreach (double value in new[] { slider.MinValue, (slider.MinValue + slider.MaxValue) / 2, slider.MaxValue })
+            {
+                slider.Value = value;
+                double actual = name == "CameraDistance" ? _settings.Current.CameraDistance : name == "CameraInertia" ? _settings.Current.CameraInertia : _settings.Current.CameraAerialPullback;
+                Check(Math.Abs(actual - slider.Value) < .0001, name + " applies across its supported range");
+            }
+        }
+        HSlider shake = Descendants(panel).OfType<HSlider>().Single(slider => slider.IsVisibleInTree() && slider.MaxValue == 100);
         foreach (double amount in new[] { 0d, 25d, 50d, 100d })
         {
             shake.Value = amount;

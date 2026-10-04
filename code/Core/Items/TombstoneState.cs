@@ -21,7 +21,7 @@ public sealed record TombstoneState(ulong Id, ulong Owner, ulong Life, ulong Tok
     /// <summary>World-space angular velocity in radians per second.</summary>
     public Vector3 AngularVelocity { get; init; }
     /// <summary>Dimensions captured on deployment; live tuning never resizes an installed collider.</summary>
-    public Vector3 WallSize { get; init; } = new(6, 2.5f, 0.6f);
+    public Vector3 WallSize { get; init; } = new(6.6f, 2.5f, 0.6f);
     /// <summary>Physical mass captured on deployment in kilograms.</summary>
     public float WallMass { get; init; } = 250;
     /// <summary>Captured absolute simulation deadline; zero only while held or attached.</summary>

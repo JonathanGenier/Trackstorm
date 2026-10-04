@@ -59,7 +59,7 @@ internal static class RuntimeStatistics
         var balances = driver?.Host?.Spawns?.Balances ?? driver?.ItemState?.Balances;
         var balance = balances?.SingleOrDefault(b => b.Player == selected);
         player.Add(new("Item category balance", balances is null ? "Unavailable" :
-            $"Total pickups: {balance?.Total ?? 0} · Last category: {balance?.SelectedCategory?.ToString() ?? "None"} · Last item: {balance?.SelectedItem.ToString() ?? "None"}\n" +
+            $"Total pickups: {balance?.Total ?? 0} · Last category: {balance?.SelectedCategory?.ToString() ?? "None"} · Last item: {ItemRegistry.Find(balance?.SelectedItem ?? HeldItem.None)?.DisplayName ?? "None"}\n" +
             string.Join("\n", ItemRegistry.Categories.Select(c => $"{c.Identity}: credit {balance?.Credits[c.Identity] ?? 0:0.######} · pickups {balance?.Counts[c.Identity] ?? 0}"))));
         var member = roster?.Players.SingleOrDefault(value => value.Id == selected);
         int? ping = roster is null || lobby is null ? null : lobby.Latency.Get(roster, selected);

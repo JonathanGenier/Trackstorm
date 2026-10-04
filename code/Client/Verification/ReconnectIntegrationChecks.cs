@@ -296,6 +296,8 @@ public sealed partial class ReconnectIntegrationChecks : Node
             Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["environment.preset"] = (int)Core.Development.EnvironmentPreset.EmberSky, ["vehicle.acceleration"] = 7, ["damage.max_hp"] = 1500, ["items.missile_speed"] = 60, ["spawns.cooldown_ticks"] = 90 }, out _), "Live host configuration commits before interruption.");
             _arenas[0].Driver.Host!.Items.Grant(_arenas[0].Driver.Host!.World, _player, HeldItem.Wrench);
             Require(_arenas[0].Driver.Host!.Items.Switch(_arenas[0].Driver.Host!.World, _player, _arenas[0].Driver.Host!.World.GetVehicle(_player).LifeId, 1), "Select second slot before reconnect.");
+            var discarded = _arenas[0].Driver.Host!.Items.Slots.Single(slot => slot.Vehicle == _player);
+            Require(_arenas[0].Driver.Host!.Items.Discard(_arenas[0].Driver.Host!.World, _player, discarded.Life, discarded.Active.Token, discarded.SelectionRevision), "Discard selected second slot before native reconnect.");
             Drop();
             _stage = 5;
         }
@@ -314,7 +316,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             OilRecoveryFixture.Verify(_arenas[1].Driver.ItemState!, _oil!);
             EnvironmentRecoveryFixture.Verify(_arenas[1], _environment!);
             Require(_arenas[1].Driver.LocalItem is { Item: HeldItem.Nitro, NitroCharge: 37.5 }, "Returning player retains partial Nitro through match-long retention and three reconnects.");
-            Require(_arenas[1].Driver.LocalItem is { SecondItem: HeldItem.Wrench, ActiveSlot: 1, SelectionRevision: 1 }, "Second slot and selection survive reconnect exactly.");
+            Require(_arenas[1].Driver.LocalItem is { SecondItem: HeldItem.None, ActiveSlot: 1, SelectionRevision: 1 } && _arenas[1].Driver.ItemState!.DiscardRevision == 1, "Discarded second slot and watermark survive three native reconnects exactly.");
             if (!OS.GetCmdlineUserArgs().Contains("--tombstone-recovery")) { MachineGunRecoveryFixture.Verify(_arenas[1].Driver.ItemState!, 1); }
             Require(_arenas[1].Driver.ItemState?.Spawns.Count == 27 && _arenas[1].Driver.Match?.Players.Count == 2, "Twenty-seven-marker map pickup layout and match state arrive in the checkpoint.");
             Require(CategoryBalanceRecoveryFixture.Signature(_arenas[1].Driver.ItemState!.Balances) == _categoryHistory, "Reconnect retains exact per-player credits, counts and last selection.");

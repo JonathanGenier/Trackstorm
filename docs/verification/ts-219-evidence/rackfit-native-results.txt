@@ -1,0 +1,53 @@
+COMMAND OUTPUT: ts219-rackfit-articulation.log
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.08
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Car articulation passed: 226 assertions.
+
+COMMAND OUTPUT: ts219-rackfit-rear.log
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Scenario 0: shield 900 -> 810, protected vehicle 1000 -> 1000; other shield 900 HP.
+Scenario 1: shield 900 -> 810, protected vehicle 1000 -> 1000; other shield 900 HP.
+Scenario 2: shield 900 -> 810, protected vehicle 1000 -> 1000; other shield 900 HP.
+Scenario 3: shield 900 -> 900, protected vehicle 1000 -> 911.19385; other shield 900 HP.
+Scenario 4: shield 900 -> 900, protected vehicle 911.19385 -> 821.19385; other shield 900 HP.
+Scenario 5: shield 900 -> 900, protected vehicle 821.19385 -> 731.19385; other shield 900 HP.
+Scenario 6: shield 10 -> 0, protected vehicle 731.19385 -> 652.44385; other shield 900 HP.
+Scenario 7: shield 900 -> 822.76117, protected vehicle 652.44385 -> 652.44385; other shield 900 HP.
+Rear shield integration passed: selection/stow cycles without use, persistent damaged identity, native rays, moving fire, edge/front/side, destruction, collision and UDP replication.
+
+COMMAND OUTPUT: ts219-rackfit-world.log
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Blocked normal use retained the shield; retry after clearing the obstruction uses the same capability.
+Scenario 0: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 1: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 2: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 3: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 4: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 5: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 6: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 7: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+World wall integration passed: sixteen one-use deployments on the production oval/infield with upright motion and exact UDP convergence.
+
+COMMAND OUTPUT: ts219-rackfit-smoke.log
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+
+COMMAND OUTPUT: ts219-rackfit-version.log
+Trackstorm Story version: expected '0.2.25'; actual '0.2.25'.
+Trackstorm export preset versions: expected '0.2.25.0'; actual file/product '0.2.25.0'.

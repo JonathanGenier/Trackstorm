@@ -80,6 +80,10 @@ $cameraPlan = Get-FastCheckPlan -Paths @("code/Client/Vehicles/ChaseCamera.cs", 
 Assert-True ($cameraPlan.ManualScenarios.Count -gt 0) "Camera changes must preserve manual/playtest verification."
 Assert-True ($cameraPlan.RuntimeScripts -contains "check-vehicle.ps1") "Vehicle-mounted camera changes should retain vehicle integration verification."
 Assert-True ($cameraPlan.RuntimeScripts -contains "check-camera.ps1") "Camera changes run the native camera harness."
+Assert-True ($cameraPlan.RuntimeScripts -contains "check-camera-responsiveness.ps1") "Camera changes exercise native driving and aerial framing."
+foreach ($path in @('check-camera-responsiveness.ps1', 'scenes/verification/camera_responsiveness_playtest.tscn')) {
+    Assert-True ((Get-FastCheckPlan -Paths @($path)).RuntimeScripts -contains 'check-camera-responsiveness.ps1') 'Standalone responsiveness harness changes retain native verification.'
+}
 Assert-True ($cameraPlan.RuntimeScripts -contains "check-camera-shake.ps1") "Camera changes run projected native impact verification."
 Assert-True ($cameraPlan.RuntimeScripts -contains "check-camera-obstruction.ps1") "Camera changes run native world obstruction verification."
 foreach ($path in @("scenes/verification/camera_obstruction_checks.tscn", "scenes/verification/camera_obstruction_drive.tscn", "check-camera-obstruction.ps1")) {
@@ -209,5 +213,6 @@ Assert-True ($boundaryPlan.ExtendedScripts -contains "check-death-respawn.ps1") 
 
 $tombstonePlan = Get-FastCheckPlan -Paths @('code/Core/Items/TombstoneState.cs')
 Assert-True ($tombstonePlan.RuntimeScripts -contains 'check-tombstone.ps1') 'Tombstone changes route their native lifecycle harness.'
+Assert-True ($tombstonePlan.RuntimeScripts -contains 'check-tombstone-presentation.ps1') 'Tombstone changes route independent visual-state and repeated-use checks.'
 
 Assert-True ($tombstonePlan.RuntimeScripts -contains 'check-world-wall.ps1') 'Tombstone changes route movable wall verification.'

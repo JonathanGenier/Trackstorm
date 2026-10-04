@@ -4,7 +4,7 @@ using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-eighteen item protocol. Reliable outcomes and replaceable aim share existing item ownership.</summary>
+/// <summary>Bounded version-twenty-one item protocol. Reliable outcomes and replaceable aim share existing item ownership.</summary>
 public static partial class ItemCodec
 {
     /// <summary>Accommodates the maximum lifetime-derived Oil set and its pass counts and overlap latches.</summary>
@@ -23,6 +23,27 @@ public static partial class ItemCodec
 
     /// <summary>Identifies selection intent; decoding still validates the whole message.</summary>
     public static bool IsSwitch(ReadOnlySpan<byte> bytes) => IsItem(bytes) && bytes.Length >= 4 && bytes[3] == 3;
+
+    /// <summary>Identifies discard intent; complete decoding remains mandatory.</summary>
+    public static bool IsDiscard(ReadOnlySpan<byte> bytes) => IsItem(bytes) && bytes.Length >= 4 && bytes[3] == 6;
+
+    /// <summary>Encodes the selected life/grant and selection boundary without a claimed player.</summary>
+    public static byte[] EncodeDiscard(ulong session, ulong life, ulong token, ulong selection) => Write(6, writer =>
+    {
+        if (session == 0 || life == 0 || token == 0) { throw new ArgumentException("Invalid discard capability."); }
+        writer.Write(session);
+        writer.Write(life);
+        writer.Write(token);
+        writer.Write(selection);
+    });
+
+    /// <summary>Decodes a complete discard command, rejecting malformed and stale layouts.</summary>
+    public static (ulong Session, ulong Life, ulong Token, ulong Selection) DecodeDiscard(ReadOnlySpan<byte> bytes) => Read(bytes, 6, reader =>
+    {
+        var value = (Session: reader.ReadUInt64(), Life: reader.ReadUInt64(), Token: reader.ReadUInt64(), Selection: reader.ReadUInt64());
+        if (value.Session == 0 || value.Life == 0 || value.Token == 0) { throw new ArgumentException("Invalid discard capability."); }
+        return value;
+    });
 
     /// <summary>Encodes an ordered life-scoped selection command without a claimed player.</summary>
     public static byte[] EncodeSwitch(ulong session, ulong life, ulong revision) => Write(3, writer =>
@@ -88,6 +109,7 @@ public static partial class ItemCodec
     public static byte[] EncodeState(ItemPublication state, ItemPublication? previous = null) => Write(2, writer =>
     {
         writer.Write(state.Revision);
+        writer.Write(state.DiscardRevision);
         byte[] world = VehicleNetworkCodec.EncodeSnapshot(state.World);
         writer.Write(world.Length);
         writer.Write(world);
@@ -242,6 +264,7 @@ public static partial class ItemCodec
     public static ItemPublication DecodeState(ReadOnlySpan<byte> bytes, ItemPublication? previous = null) => Read(bytes, 2, reader =>
     {
         ulong revision = reader.ReadUInt64();
+        ulong discardRevision = reader.ReadUInt64();
         int length = reader.ReadInt32();
         if (length is < 4 or > 16384)
         {
@@ -338,14 +361,14 @@ public static partial class ItemCodec
             events[i] = new(token, owner, item, position, impact) { Origin = Vector(reader), Tracer = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid tracer flag.") } };
         }
 
-        return new ItemPublication(revision, world, slots, missiles, events, spawns, patches, contacts, balances, mines, tombstones);
+        return new ItemPublication(revision, world, slots, missiles, events, spawns, patches, contacts, balances, mines, tombstones, discardRevision);
     });
 
     private static byte[] Write(byte kind, Action<BinaryWriter> encode)
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 20, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 21, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {
@@ -357,7 +380,7 @@ public static partial class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 20 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 21 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }

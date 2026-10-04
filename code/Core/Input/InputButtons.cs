@@ -34,4 +34,6 @@ public enum InputButtons : ushort
 	Brake = 4096,
 	/// <summary>Deliberate held permission for airborne rotation.</summary>
 	AirControl = 8192,
+	/// <summary>Permanently delete the selected held item.</summary>
+	DiscardItem = 16384,
 }

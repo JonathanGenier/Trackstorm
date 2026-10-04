@@ -1,0 +1,45 @@
+Completed load for: 'res://assets/audio/kenney/scifi/forceField_000.ogg' remapped 'res://assets/audio/kenney/scifi/forceField_000.ogg' at thread -1
+New-life Nitro readies its rack-mounted jet
+Normal driving with deployed rack
+Both UDP peers show coasting lamps
+Both UDP peers show moving brake lamps
+Both UDP peers show reverse lamps from accepted movement
+Loading resource: res://assets/audio/kenney/impact/impactMetal_heavy_000.ogg remapped: res://assets/audio/kenney/impact/impactMetal_heavy_000.ogg
+Loading resource: res://.godot/imported/impactMetal_heavy_000.ogg-2145852346d2186ce661b81033cfdbdc.oggvorbisstr remapped: res://.godot/imported/impactMetal_heavy_000.ogg-2145852346d2186ce661b81033cfdbdc.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/impact/impactMetal_heavy_000.ogg' remapped 'res://assets/audio/kenney/impact/impactMetal_heavy_000.ogg' at thread -1
+Loading resource: res://assets/audio/kenney/impact/impactMetal_light_000.ogg remapped: res://assets/audio/kenney/impact/impactMetal_light_000.ogg
+Loading resource: res://.godot/imported/impactMetal_light_000.ogg-125acd62cfb9a631d59d28200f7b2ed3.oggvorbisstr remapped: res://.godot/imported/impactMetal_light_000.ogg-125acd62cfb9a631d59d28200f7b2ed3.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/impact/impactMetal_light_000.ogg' remapped 'res://assets/audio/kenney/impact/impactMetal_light_000.ogg' at thread -1
+Loading resource: res://assets/audio/kenney/impact/impactMetal_medium_001.ogg remapped: res://assets/audio/kenney/impact/impactMetal_medium_001.ogg
+Loading resource: res://.godot/imported/impactMetal_medium_001.ogg-818349e4a7d3917e9f0d320d392cddcd.oggvorbisstr remapped: res://.godot/imported/impactMetal_medium_001.ogg-818349e4a7d3917e9f0d320d392cddcd.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/impact/impactMetal_medium_001.ogg' remapped 'res://assets/audio/kenney/impact/impactMetal_medium_001.ogg' at thread -1
+Loading resource: res://assets/audio/kenney/scifi/forceField_000.ogg remapped: res://assets/audio/kenney/scifi/forceField_000.ogg
+Loading resource: res://.godot/imported/forceField_000.ogg-e3642a603e8ccef3783d2c9c19045824.oggvorbisstr remapped: res://.godot/imported/forceField_000.ogg-e3642a603e8ccef3783d2c9c19045824.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/scifi/forceField_000.ogg' remapped 'res://assets/audio/kenney/scifi/forceField_000.ogg' at thread -1
+Native proximity pickup fills selected slot
+Authoritative marker claim recorded
+Actual pickup deploys correct rack on both peers
+Rapid-use first slot
+Rapid-use second slot
+Loading resource: res://assets/audio/kenney/scifi/forceField_000.ogg remapped: res://assets/audio/kenney/scifi/forceField_000.ogg
+Loading resource: res://.godot/imported/forceField_000.ogg-e3642a603e8ccef3783d2c9c19045824.oggvorbisstr remapped: res://.godot/imported/forceField_000.ogg-e3642a603e8ccef3783d2c9c19045824.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/scifi/forceField_000.ogg' remapped 'res://assets/audio/kenney/scifi/forceField_000.ogg' at thread -1
+Loading resource: res://assets/audio/kenney/scifi/forceField_001.ogg remapped: res://assets/audio/kenney/scifi/forceField_001.ogg
+Loading resource: res://.godot/imported/forceField_001.ogg-2ee102abfba835460749a736d95bdfea.oggvorbisstr remapped: res://.godot/imported/forceField_001.ogg-2ee102abfba835460749a736d95bdfea.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/scifi/forceField_001.ogg' remapped 'res://assets/audio/kenney/scifi/forceField_001.ogg' at thread -1
+Rapid-use setup visible
+Immediate switch command
+Immediate switched use command
+Loading resource: res://assets/audio/kenney/interface/confirmation_001.ogg remapped: res://assets/audio/kenney/interface/confirmation_001.ogg
+Loading resource: res://.godot/imported/confirmation_001.ogg-14d71e6adfdc83b0f4744935e0b868c8.oggvorbisstr remapped: res://.godot/imported/confirmation_001.ogg-14d71e6adfdc83b0f4744935e0b868c8.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/interface/confirmation_001.ogg' remapped 'res://assets/audio/kenney/interface/confirmation_001.ogg' at thread -1
+Immediate switched use confirmed
+Consumed switched Wrench presented rather than old Salvo
+Rapid switched use closes coherently
+Rapid use preserves unselected Salvo
+Car rack integration passed: 142 checks; seven items, switching/use, duplicates, lifecycle and two UDP peers.
+Unloading: Disposing tracked instances...
+Unloading: Finished disposing tracked instances.
+XR: Clearing primary interface
+XR: Removed interface "Native mobile"
+XR: Removed interface "OpenXR"

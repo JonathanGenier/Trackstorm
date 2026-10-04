@@ -10,6 +10,7 @@ namespace Trackstorm.Client.Networking;
 internal sealed partial class NetworkVehicleBody : StaticBody3D
 {
     private VehicleMotionQuery _motionQuery = null!;
+    private VehicleMotionQuery _shieldMotionQuery = null!;
     /// <summary>Current native support material, independent of simulation handling.</summary>
     internal SurfaceIdentity? DetectedSurface { get; private set; }
 
@@ -26,8 +27,18 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     internal CarRackPresentation Rack { get; private set; } = null!;
     private VehicleSnapshot? _feedbackState;
     private bool _lifeCorrectionPending;
-    private CollisionShape3D _rearCollision = null!;
-    private MeshInstance3D _rearVisual = null!;
+    private CollisionShape3D[] _rearCollisions = [];
+    private Items.TombstoneVisual _rearVisual = null!;
+    private TombstoneState? _presentedShield;
+    private TombstoneState? _shownShield;
+    private float _mountProgress;
+    internal float ShieldMountProgress => _mountProgress;
+    internal bool ShieldVisible => _rearVisual.Visible;
+    internal float ShieldCenterFold => _rearVisual.CenterFold;
+    internal float ShieldHorizontalFold => _rearVisual.HorizontalFold;
+    internal float ShieldScale => _rearVisual.Scale.X;
+    internal (Transform3D Pose, float Fold, float CenterFold, float HorizontalFold) ShieldRelease => (_rearVisual.GlobalTransform, _rearVisual.Fold, _rearVisual.CenterFold, _rearVisual.HorizontalFold);
+    private readonly List<Items.TombstoneVisual> _shieldDebris = [];
     internal bool HasRearShield { get; private set; }
     /// <summary>Host-assigned identity used only to attribute contact observations.</summary>
     internal ulong VehicleId { get; init; }
@@ -52,13 +63,12 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         var chassis = VehicleVisual.CreateCollision();
         AddChild(chassis);
         AddChild(_visual);
-        _rearCollision = new CollisionShape3D { Shape = new BoxShape3D { Size = VehicleBody.ToGodot(TombstoneGeometry.Size) },
-            Position = VehicleBody.ToGodot(TombstoneGeometry.Center), Disabled = true };
-        AddChild(_rearCollision);
-        _motionQuery = new VehicleMotionQuery(this, chassis, _rearCollision);
-        _rearVisual = new MeshInstance3D { Mesh = new BoxMesh { Size = VehicleBody.ToGodot(TombstoneGeometry.Size) },
-            Position = VehicleBody.ToGodot(TombstoneGeometry.Center), Visible = false,
-            MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.3f, 0.36f, 0.4f), Metallic = 0.65f, Roughness = 0.7f } };
+        _rearCollisions = TombstoneGeometry.MountedBoxes.Select(box => new CollisionShape3D
+        { Shape = new BoxShape3D { Size = VehicleBody.ToGodot(box.Size) }, Position = VehicleBody.ToGodot(box.Center), Disabled = true }).ToArray();
+        foreach (var panel in _rearCollisions) { AddChild(panel); }
+        _motionQuery = new VehicleMotionQuery(this, chassis);
+        _shieldMotionQuery = new VehicleMotionQuery(this, _rearCollisions);
+        _rearVisual = new Items.TombstoneVisual { Position = Items.TombstoneVisual.MountedCenter, Visible = false };
         _visual.AddChild(_rearVisual);
         _visual.TopLevel = true;
         AddChild(new TireFeedback { Source = () => _feedbackState is { } state ? (VisualTransform, state, _configuration) : null });
@@ -70,6 +80,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         _boost = new BoostExhaust { Source = () => _feedbackState };
         Rack = new CarRackPresentation { Boost = _boost };
         model.AddChild(Rack);
+        Rack.TombstoneReturning = () => _mountProgress > 0;
     }
 
     /// <inheritdoc/>
@@ -77,11 +88,13 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     {
         _flash = Math.Max(0, _flash - ((float)delta * 5));
         _damageMaterial.SetShaderParameter("flash", _flash);
+        PresentShield(Math.Max(0, (float)delta));
     }
 
     public override void _ExitTree()
     {
         _motionQuery?.Dispose();
+        _shieldMotionQuery?.Dispose();
     }
 
     /// <summary>Drives a shader parameter only from accepted health outcomes.</summary>
@@ -100,17 +113,117 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     /// <param name="configuration">Validated effective gameplay tuning.</param>
     internal void ApplyConfiguration(VehicleConfiguration configuration) => _configuration = configuration;
 
-    /// <summary>Reconstructs temporary hardware from accepted state, independently of slot selection.</summary>
+    /// <summary>Reconstructs the production three-panel armor from accepted state.</summary>
     internal void ObserveTombstones(VehicleSnapshot vehicle, IEnumerable<TombstoneState> states)
     {
-        HasRearShield = vehicle.CanInteract && states.Any(s => s.Owner == VehicleId && s.Life == vehicle.LifeId && s.Stage == TombstoneStage.RearShield);
-        _rearCollision.Disabled = !HasRearShield;
-        _rearVisual.Visible = HasRearShield;
+        var live = states.ToArray();
+        _shieldDebris.RemoveAll(v => !GodotObject.IsInstanceValid(v) || v.IsQueuedForDeletion());
+        var shield = vehicle.CanInteract ? live.FirstOrDefault(s => s.Owner == VehicleId && s.Life == vehicle.LifeId && s.Stage == TombstoneStage.RearShield) : null;
+        HasRearShield = shield is not null;
+        if (_presentedShield is { } previous && shield?.Id != previous.Id && vehicle.CanInteract && vehicle.LifeId == previous.Life &&
+            live.All(s => s.Id != previous.Id) && _shieldDebris.Count < 4 && _rearVisual.Visible)
+        {
+            var broken = new Items.TombstoneVisual();
+            GetParent().AddChild(broken);
+            broken.GlobalTransform = _rearVisual.GlobalTransform;
+            broken.Observe(previous, true);
+            broken.SetFold(_rearVisual.Fold, _rearVisual.CenterFold, _rearVisual.HorizontalFold);
+            broken.BreakApart();
+            _shieldDebris.Add(broken);
+        }
+        _presentedShield = shield;
+        bool retain = vehicle.CanInteract && _shownShield is { } shown && shown.Life == vehicle.LifeId &&
+            live.Any(s => s.Id == shown.Id && s.Attached);
+        if (!retain)
+        {
+            bool invalidLife = _shownShield is { } old && old.Life != vehicle.LifeId;
+            _shownShield = null;
+            _rearVisual.Visible = false;
+            // An empty carriage returns after release/destruction. Death/reseed
+            // discards the old pose together with the vehicle's rack lifecycle.
+            if (!vehicle.CanInteract || invalidLife) { _mountProgress = 0; }
+        }
+        if (shield is not null && (_shownShield?.Id == shield.Id || _mountProgress == 0))
+        {
+            _rearVisual.Observe(shield, _shownShield?.Id != shield.Id);
+            _shownShield = shield;
+        }
+        foreach (var panel in _rearCollisions) { panel.Disabled = !HasRearShield; }
     }
+
+    private void PresentShield(float delta)
+    {
+        bool extend = HasRearShield && _shownShield?.Id == _presentedShield?.Id &&
+            Rack.TombstoneRequested && Rack.Progress >= .999f;
+        _mountProgress = Mathf.MoveToward(_mountProgress, extend ? 1 : 0, delta / 1.15f);
+        float t = _mountProgress;
+        float Ease(float start, float end) => Mathf.SmoothStep(0, 1, Mathf.Clamp((t - start) / (end - start), 0, 1));
+        // Center the folded geometry over the deck; its hinge origin is offset
+        // from the packed mesh bounds. Keep the wider stack inside the open lids.
+        Vector3 parked = new(0, 1.59f, 1.645f);
+        if (Rack.TombstoneCarrier is { } carrier)
+        { parked = _rearVisual.GetParent<Node3D>().GlobalTransform.AffineInverse() * (carrier.GlobalTransform * new Vector3(0, .25f, -.20f)); }
+        Vector3 lifted = new(0, 2.60f, 4.9f);
+        Vector3 aft = new(0, .25f, 4.9f);
+        Vector3 position = t < .20f ? parked.Lerp(lifted, Ease(0, .20f)) :
+            t < .32f ? lifted.Lerp(aft, Ease(.20f, .32f)) : aft.Lerp(Items.TombstoneVisual.MountedCenter, Ease(.87f, 1));
+        // Keep the rack payload compact and visible through its lift. Restore
+        // full size aft of the Car before the rigid center leaves start opening.
+        float size = Mathf.Lerp(.42f, 1, Ease(.20f, .32f));
+        _rearVisual.Transform = new(new Basis(Vector3.Right, -MathF.PI / 2 * (1 - Ease(.20f, .32f))).Scaled(Vector3.One * size), position);
+        _rearVisual.SetFold(1 - Ease(.52f, .67f), 1 - Ease(.32f, .52f), 1 - Ease(.67f, .87f));
+        _rearVisual.Visible = _shownShield is not null && (t > 0 || (Rack.TombstoneCarrier is not null && Rack.Progress >= .45f));
+        _rearVisual.SetProcess(_rearVisual.Visible);
+        if (Rack.TombstoneCarrier is { } carriage)
+        {
+            carriage.Shield = carriage.GlobalTransform.AffineInverse() * _rearVisual.GlobalTransform;
+            carriage.CenterFold = _rearVisual.CenterFold;
+        }
+    }
+
+    /// <summary>Releases a local queued use only after this exact accepted selection has fully unfolded.</summary>
+    internal bool CanDeployTombstone(ItemSlot inventory) => HasRearShield && _mountProgress == 1 &&
+        _shownShield?.Token == inventory.Active.Token && _shownShield.Life == inventory.Life &&
+        Rack.IsTombstoneSelection(inventory);
 
     // Weapon intersection is decided in Core against current candidate state. Excluding this
     // reconstructable shape also prevents a same-step destroyed shield from masking the chassis.
-    internal void SetShieldQueryEnabled(bool enabled) => _rearCollision.Disabled = !enabled || !HasRearShield;
+    internal void SetShieldQueryEnabled(bool enabled)
+    { foreach (var panel in _rearCollisions) { panel.Disabled = !enabled || !HasRearShield; } }
+
+    private bool TestShieldMotion(PhysicsTestMotionParameters3D parameters, PhysicsTestMotionResult3D result)
+    {
+        // Armor may skim authored driveable support without becoming a rear skid.
+        // Query the chassis separately so excluding terrain here never removes its
+        // ground response. Repeat the armor sweep to retain obstacles behind ground.
+        var original = parameters.ExcludeBodies;
+        var excluded = new Godot.Collections.Array<Rid>(original);
+        try
+        {
+            for (int pass = 0; pass < 8; pass++)
+            {
+                parameters.ExcludeBodies = excluded;
+                if (!_shieldMotionQuery.Test(parameters, result)) { return false; }
+                int before = excluded.Count;
+                for (int i = 0; i < result.GetCollisionCount(); i++)
+                {
+                    var collider = result.GetCollider(i);
+                    // A concave road's internal triangle edges can report sideways or
+                    // downward separating axes. The authored support body identifies
+                    // skimmable terrain; the sweep normal cannot reliably do so.
+                    if (collider is SurfaceBody || collider is Node terrain && terrain.IsInGroup("landing_terrain"))
+                    {
+                        var rid = result.GetColliderRid(i);
+                        if (!excluded.Contains(rid)) { excluded.Add(rid); }
+                    }
+                }
+                if (excluded.Count == before) { return true; }
+            }
+            // Retain contact if unusually dense overlapping support exhausts the bound.
+            return true;
+        }
+        finally { parameters.ExcludeBodies = original; }
+    }
 
     /// <summary>Resolves the preceding Core command through bounded native sweep/slide queries.</summary>
     /// <returns>Solved numeric physics/support/contact observations for the next Core step.</returns>
@@ -156,12 +269,17 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         var pushed = new HashSet<ulong>();
         var contacts = new List<VehicleContact>();
         using var parameters = new PhysicsTestMotionParameters3D { Margin = 0.005f, MaxCollisions = 4, RecoveryAsCollision = true };
-        using var result = new PhysicsTestMotionResult3D();
+        using var chassisResult = new PhysicsTestMotionResult3D();
+        using var shieldResult = new PhysicsTestMotionResult3D();
         for (int slide = 0; slide < 4; slide++)
         {
             parameters.From = transform;
             parameters.Motion = remaining;
-            bool collided = _motionQuery.Test(parameters, result);
+            bool collided = _motionQuery.Test(parameters, chassisResult);
+            var result = chassisResult;
+            if (HasRearShield && TestShieldMotion(parameters, shieldResult) &&
+                (!collided || shieldResult.GetCollisionSafeFraction() < chassisResult.GetCollisionSafeFraction()))
+            { result = shieldResult; collided = true; }
             transform.Origin += collided ? result.GetTravel() : remaining;
             if (!collided)
             {

@@ -28,13 +28,14 @@ public sealed partial class HudIntegrationChecks : Node
             VehicleSnapshot state = arena.Player.Snapshot;
             Require(state.Damage.MaxHP == 1000, "Production practice capacity");
             ItemSlot? slot = null;
+            IReadOnlyList<TombstoneState> tombstones = [];
             var input = new Input.PlayerInput();
             AddChild(input);
             input.SetPhysicsProcess(false);
             var settings = new Settings.PlayerSettingsController();
             settings.Initialize(input.Adapter, System.IO.Path.Combine(output, "settings.json"));
             AddChild(settings);
-            var hud = new CombatHud { Vehicle = () => state, Slot = () => slot, Units = () => settings.Current.SpeedUnit };
+            var hud = new CombatHud { Vehicle = () => state, Slot = () => slot, Tombstones = () => tombstones, Units = () => settings.Current.SpeedUnit };
             viewport.AddChild(hud);
             var timerMatch = new Core.Matches.MatchState(180, 1, 5, Core.Matches.MatchPhase.Active, null, null,
                 [new Core.Matches.PlayerScore(1, 0, 0, 0, 0)], activeStartedAtTick: 180);
@@ -64,7 +65,7 @@ public sealed partial class HudIntegrationChecks : Node
             settings.UpdateSettings(settings.Current with { ShowFps = true, ShowPing = true });
             preferences.SetConnectionTelemetry(new(Networking.ConnectionDiagnosticState.Reconnecting, default));
             var pixels = new List<(int Health, int Speed)>();
-            foreach (var sample in new[] { (1000f, 200 / 3.6f, HeldItem.None), (500f, 100 / 3.6f, HeldItem.Wrench), (0f, 0f, HeldItem.None), (850f, 200 / 3.6f, HeldItem.Missile), (850f, 200 / 3.6f, HeldItem.Oil), (850f, 200 / 3.6f, HeldItem.Nitro), (850f, 200 / 3.6f, HeldItem.ProxyMine), (850f, 200 / 3.6f, HeldItem.Salvo) })
+            foreach (var sample in new[] { (1000f, 200 / 3.6f, HeldItem.None), (500f, 100 / 3.6f, HeldItem.Wrench), (0f, 0f, HeldItem.None), (850f, 200 / 3.6f, HeldItem.Missile), (850f, 200 / 3.6f, HeldItem.Oil), (850f, 200 / 3.6f, HeldItem.Nitro), (850f, 200 / 3.6f, HeldItem.ProxyMine), (850f, 200 / 3.6f, HeldItem.Salvo), (850f, 200 / 3.6f, HeldItem.Tombstone) })
             {
                 state = Sample(state, sample.Item1, sample.Item2);
                 slot = new ItemSlot(state.VehicleId, state.LifeId, 1, sample.Item3);
@@ -93,6 +94,63 @@ public sealed partial class HudIntegrationChecks : Node
                 using Image frame = viewport.GetTexture().GetImage();
                 Require(frame.SavePng(System.IO.Path.Combine(output, $"salvo-{shots}.png")) == Error.Ok, "Ammunition screenshot");
             }
+            slot = new ItemSlot(state.VehicleId, state.LifeId, 10, HeldItem.Tombstone)
+            { SecondToken = 20, SecondItem = HeldItem.Tombstone };
+            var shieldPixels = new List<int>();
+            int? otherPixels = null;
+            foreach (float hp in new[] { 1000f, 675f, 250f, 20f, 0.1f, 0f })
+            {
+                tombstones = hp > 0 ? [new(100, state.VehicleId, state.LifeId, 10, TombstoneStage.RearShield, hp),
+                    new(200, state.VehicleId, state.LifeId, 20, TombstoneStage.Held, 900)] :
+                    [new(200, state.VehicleId, state.LifeId, 20, TombstoneStage.Held, 900)];
+                slot = slot with { Item = hp > 0 ? HeldItem.Tombstone : HeldItem.None };
+                hud.Refresh();
+                CheckSlot(hud, "FirstSlot", hp > 0 ? "SHIELD" : "EMPTY", hp > 0 ? $"{Math.Ceiling(hp):0}" : null, true);
+                CheckSlot(hud, "SecondSlot", "SHIELD", "900", false);
+                Require(hud.Displayed!.SecondSlot.Resource!.Fraction == 0.9, "Other Tombstone retains its independent HP");
+                Require(((Label)hud.FindChild("FirstSlot", true, false).FindChild("ResourceUnit", true, false)).Visible == (hp > 0), "HP legend clears with destruction");
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                using Image frame = viewport.GetTexture().GetImage();
+                int count = DurabilityPixels(frame, ScreenArea(hud, "FirstSlot", new Rect2(65, 59, 78, 23)));
+                shieldPixels.Add(count);
+                int secondCount = DurabilityPixels(frame, ScreenArea(hud, "SecondSlot", new Rect2(65, 59, 78, 23)));
+                otherPixels ??= secondCount;
+                Require(secondCount == otherPixels, "Rendered second shield is unchanged while first takes damage");
+                frame.SavePng(System.IO.Path.Combine(output, $"shield-{hp:0.0}.png"));
+            }
+            Require(shieldPixels[0] > shieldPixels[1] && shieldPixels[1] > shieldPixels[2] && shieldPixels[2] > shieldPixels[3] && shieldPixels[5] == 0,
+                "Rendered armor plates drain, warn at low HP and disappear on destruction");
+            slot = slot with { Item = HeldItem.Tombstone, ActiveSlot = 1 };
+            tombstones = [new(100, state.VehicleId, state.LifeId, 10, TombstoneStage.Held, 675),
+                new(200, state.VehicleId, state.LifeId, 20, TombstoneStage.RearShield, 123)];
+            foreach (byte selection in new byte[] { 0, 1, 0, 1 })
+            {
+                slot = slot with { ActiveSlot = selection };
+                hud.Refresh();
+                CheckSlot(hud, "FirstSlot", "SHIELD", "675", selection == 0);
+                CheckSlot(hud, "SecondSlot", "SHIELD", "123", selection == 1);
+            }
+            var shieldInventory = slot;
+            foreach (ItemSlot? retired in new[] { slot with { Item = HeldItem.None }, slot with { Item = HeldItem.Wrench },
+                slot with { Token = 99 }, slot with { Life = slot.Life + 1 }, null })
+            {
+                slot = retired;
+                hud.Refresh();
+                Require(hud.Displayed!.FirstSlot.Resource is null, "Discard/clear/replacement/retired capability/life clears shield resource");
+            }
+            slot = shieldInventory;
+            VehicleSnapshot alive = state;
+            state = Sample(state, 0, 0); hud.Refresh();
+            CheckSlot(hud, "FirstSlot", "EMPTY", null, true);
+            state = alive; hud.Refresh();
+            CheckSlot(hud, "FirstSlot", "SHIELD", "675", false);
+            // Reconstruct a new native HUD from the accepted damaged checkpoint, with no presentation history.
+            var rebuilt = new CombatHud { Vehicle = () => state, Slot = () => slot, Tombstones = () => tombstones };
+            viewport.AddChild(rebuilt); rebuilt.Refresh();
+            CheckSlot(rebuilt, "SecondSlot", "SHIELD", "123", true);
+            rebuilt.QueueFree();
+            // Keep both shield slots for the same nine-size readability/layout captures below.
+            ItemSlot resolutionShields = shieldInventory;
             var resourcePixels = new List<(int First, int Second)>();
             foreach (double charge in new[] { 100.0, 37.5, 0.1, 0.0 })
             {
@@ -175,7 +233,7 @@ public sealed partial class HudIntegrationChecks : Node
             hud.Refresh();
             Require(hud.Displayed!.Speed == "124" && hud.Displayed.Unit == "mph", "Preferred units");
             Require(ReferenceEquals(before, state), "Unit change is presentation only");
-            slot = validInventory with { Item = HeldItem.MachineGun, Ammo = new(187, 500), SecondItem = HeldItem.Nitro, SecondNitroCharge = 42 };
+            slot = resolutionShields;
             hud.Refresh();
             foreach (Vector2I size in new[] { new Vector2I(640, 360), new Vector2I(960, 540), new Vector2I(1280, 720), new Vector2I(1600, 900), new Vector2I(1920, 1080), new Vector2I(2560, 1440), new Vector2I(3840, 2160), new Vector2I(1024, 768), new Vector2I(2560, 1080) })
             {
@@ -275,6 +333,18 @@ public sealed partial class HudIntegrationChecks : Node
         var control = (Control)hud.FindChild(node, true, false);
         return new Rect2I((Vector2I)(control.GlobalPosition + localArea.Position * control.GetGlobalTransform().Scale),
             (Vector2I)(localArea.Size * control.GetGlobalTransform().Scale));
+    }
+
+    private static int DurabilityPixels(Image frame, Rect2I area)
+    {
+        int count = 0;
+        for (int y = area.Position.Y; y < area.End.Y; y++)
+            for (int x = area.Position.X; x < area.End.X; x++)
+            {
+                Color c = frame.GetPixel(x, y);
+                if ((c.G > 0.5f && c.R > 0.4f && c.B > 0.4f) || (c.R > 0.7f && c.G > 0.25f && c.G < 0.55f && c.B < 0.4f)) count++;
+            }
+        return count;
     }
 
     private static int RedPixels(Image frame, Rect2I area)
