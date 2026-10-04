@@ -11,7 +11,7 @@ PASS: Rack stays raised until the shield folds safely back.
 PASS: Folded shield and carriage stow with the closed deck.
 PASS: Host and remote peer finish the same selection animation.
 PASS: Rapid reselection settles into one coherent mounted shield on both peers.
-PASS: Second slot retains an independently stored Tombstone.
+PASS: Second slot retains an independently stored Shield.
 PASS: Slot switching restores the original shield identity.
 PASS: Mounted health presentation follows accepted damage.
 PASS: Normal input deploys the original entity.
@@ -33,4 +33,4 @@ PASS: Early release continues the captured horizontal fold without snapping the 
 PASS: Empty carriage returns cleanly after early deployment.
 PASS: Mounted armor clears articulated rear tires and trunk lids during rack motion, landing, driving and steering.
 PASS: Runtime exits cleanly without errors, warnings or exceptions.
-Tombstone presentation passed. Evidence: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-219\playtest/check-20261003-191143*
+Shield presentation passed. Evidence: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-219\playtest/check-20261003-191143*

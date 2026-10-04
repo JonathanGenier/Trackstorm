@@ -1,0 +1,21 @@
+Test run for C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+  Skipped TenMinuteEightPlayerImpairmentSoak [< 1 ms]
+  Failed VehicleLoopConvergesAcrossNetworkConditions(2,50,10,0.0f,0.0f) [5 s]
+  Error Message:
+     Assert.That(clients.All(client => client.Latest?.Tick > staleTick), Is.True)
+  Expected: True
+  But was:  False
+
+  Stack Trace:
+     at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss)
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 34
+   at InvokeStub_NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Object, Span`1)
+
+1)    at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss)
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 34
+   at InvokeStub_NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Object, Span`1)
+
+
+
+Failed!  - Failed:     1, Passed:    14, Skipped:     0, Total:    15, Duration: 2 m - Trackstorm.Transport.Tests.dll (net10.0)

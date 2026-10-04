@@ -4,19 +4,19 @@ namespace Trackstorm.Core.Items;
 public sealed record ItemConfiguration
 {
     /// <summary>Expanded wall width, captured at deployment (m).</summary>
-    public float TombstoneWidth { get; init; } = 6.6f;
+    public float ShieldWidth { get; init; } = 6.6f;
     /// <summary>Expanded wall height (m).</summary>
-    public float TombstoneHeight { get; init; } = 2.5f;
+    public float ShieldHeight { get; init; } = 2.5f;
     /// <summary>Expanded wall depth (m).</summary>
-    public float TombstoneDepth { get; init; } = 0.6f;
+    public float ShieldDepth { get; init; } = 0.6f;
     /// <summary>Deployed rigid-body mass (kg).</summary>
-    public float TombstoneMass { get; init; } = 250;
+    public float ShieldMass { get; init; } = 250;
     /// <summary>Clearance behind the chassis before ground queries (m).</summary>
-    public float TombstoneClearance { get; init; } = 1;
+    public float ShieldClearance { get; init; } = 1;
     /// <summary>Lifetime captured on successful deployment, in simulation seconds.</summary>
-    public float TombstoneLifetimeSeconds { get; init; } = 120;
+    public float ShieldLifetimeSeconds { get; init; } = 120;
     /// <summary>Impact impulse per wall mass that releases tipping, in metres per second.</summary>
-    public float TombstoneTipSpeed { get; init; } = 20;
+    public float ShieldTipSpeed { get; init; } = 20;
     /// <summary>Shared direct-fire aiming rules.</summary>
     public WeaponAimConfiguration Aim { get; init; } = new();
     /// <summary>Individually fired shots per pickup.</summary>
@@ -106,14 +106,14 @@ public sealed record ItemConfiguration
     /// <summary>Rejects nonfinite or excessive host configuration before simulation.</summary>
     public void Validate()
     {
-        if (!float.IsFinite(TombstoneWidth) || TombstoneWidth is < 3 or > 12 ||
-            !float.IsFinite(TombstoneHeight) || TombstoneHeight is < 2 or > 6 ||
-            !float.IsFinite(TombstoneDepth) || TombstoneDepth is < 0.3f or > 2 ||
-            !float.IsFinite(TombstoneMass) || TombstoneMass is < 50 or > 2000 ||
-            !float.IsFinite(TombstoneClearance) || TombstoneClearance is < 0.5f or > 5 ||
-            !float.IsFinite(TombstoneLifetimeSeconds) || TombstoneLifetimeSeconds is < 1 or > 600 ||
-            !float.IsFinite(TombstoneTipSpeed) || TombstoneTipSpeed is < 1 or > 100)
-        { throw new ArgumentException("Invalid Tombstone wall tuning."); }
+        if (!float.IsFinite(ShieldWidth) || ShieldWidth is < 3 or > 12 ||
+            !float.IsFinite(ShieldHeight) || ShieldHeight is < 2 or > 6 ||
+            !float.IsFinite(ShieldDepth) || ShieldDepth is < 0.3f or > 2 ||
+            !float.IsFinite(ShieldMass) || ShieldMass is < 50 or > 2000 ||
+            !float.IsFinite(ShieldClearance) || ShieldClearance is < 0.5f or > 5 ||
+            !float.IsFinite(ShieldLifetimeSeconds) || ShieldLifetimeSeconds is < 1 or > 600 ||
+            !float.IsFinite(ShieldTipSpeed) || ShieldTipSpeed is < 1 or > 100)
+        { throw new ArgumentException("Invalid Shield wall tuning."); }
         ArgumentNullException.ThrowIfNull(Aim);
         Aim.Validate();
         if (!double.IsFinite(SalvoCount) || SalvoCount < 1 || SalvoCount > 16) { throw new ArgumentException("Invalid salvo count."); }

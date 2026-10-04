@@ -30,12 +30,12 @@ internal sealed partial class CarRackPresentation : Node
 
     internal HeldItem PresentedItem => _payload?.Visible == true ? _mounted : HeldItem.None;
     internal float Progress => _mechanism.Progress;
-    internal Func<bool>? TombstoneReturning { get; set; }
-    internal bool TombstoneRequested => _desired == HeldItem.Tombstone && !_replace;
-    internal bool IsTombstoneSelection(ItemSlot inventory) => TombstoneRequested && Progress >= .999f &&
+    internal Func<bool>? ShieldReturning { get; set; }
+    internal bool ShieldRequested => _desired == HeldItem.Shield && !_replace;
+    internal bool IsShieldSelection(ItemSlot inventory) => ShieldRequested && Progress >= .999f &&
         _previous?.SelectionRevision == inventory.SelectionRevision && _previous.Active.Token == inventory.Active.Token &&
         _previous.Life == inventory.Life;
-    internal Items.TombstoneRack? TombstoneCarrier => _payload as Items.TombstoneRack;
+    internal Items.ShieldRack? ShieldCarrier => _payload as Items.ShieldRack;
     internal void ObserveAim(WeaponAimSolution? aim)
     {
         _aim = aim is not null && aim.Life == _life && aim.Token == _previous?.Active.Token ? aim : null;
@@ -51,7 +51,7 @@ internal sealed partial class CarRackPresentation : Node
     }
 
     /// <summary>Installs a fresh accepted publication, including remote inventories and recovery snapshots.</summary>
-    internal void Observe(ulong life, bool alive, ItemSlot? inventory, IEnumerable<ItemEvent> events, ProxyMineState? placement = null, ulong tick = 0, IEnumerable<TombstoneState>? tombstones = null)
+    internal void Observe(ulong life, bool alive, ItemSlot? inventory, IEnumerable<ItemEvent> events, ProxyMineState? placement = null, ulong tick = 0, IEnumerable<ShieldState>? shields = null)
     {
         if (_life != life || !alive)
         {
@@ -100,7 +100,7 @@ internal sealed partial class CarRackPresentation : Node
         // Even an immediate switch+use must display the consumed selected item,
         // never borrow the old model while its replacement is retracting.
         if (_usePending) { _desired = _useItem; }
-        if (_useItem == HeldItem.Tombstone) { _usePending = false; _desired = active?.Item ?? HeldItem.None; }
+        if (_useItem == HeldItem.Shield) { _usePending = false; _desired = active?.Item ?? HeldItem.None; }
         _previous = inventory;
         if (_placement is not null || _mineReturning)
         {
@@ -113,7 +113,7 @@ internal sealed partial class CarRackPresentation : Node
             float confirmedRemaining = inventory!.NitroDeploymentTicks / 60f;
             _nitroReadyTick = checked(tick + (ulong)inventory.NitroDeploymentTicks);
             _nitroRemaining = selection || acquired ? confirmedRemaining : Math.Min(_nitroRemaining, confirmedRemaining);
-            if (TombstoneReturning?.Invoke() != true) { AnimateNitroDeployment(0); }
+            if (ShieldReturning?.Invoke() != true) { AnimateNitroDeployment(0); }
         }
     }
 
@@ -138,7 +138,7 @@ internal sealed partial class CarRackPresentation : Node
         {
             // The wide shield must finish nesting before the Boost timeline can
             // lower or replace its rack. This never delays authoritative Boost.
-            if (TombstoneReturning?.Invoke() == true)
+            if (ShieldReturning?.Invoke() == true)
             { _mechanism.SetTimelineProgress(null); _mechanism.Deployed = true; return; }
             AnimateNitroDeployment(Math.Max(0, (float)delta));
             return;
@@ -149,7 +149,7 @@ internal sealed partial class CarRackPresentation : Node
         if (_replace || (_desired != _mounted && _mounted != HeldItem.None))
         {
             // Nest the barrel before lowering the rack through the open deck.
-            _mechanism.Deployed = (_mounted == HeldItem.Nitro && Boost.Deployment > 0) || TombstoneReturning?.Invoke() == true;
+            _mechanism.Deployed = (_mounted == HeldItem.Nitro && Boost.Deployment > 0) || ShieldReturning?.Invoke() == true;
             if (_mechanism.Progress <= 0)
             {
                 ClearPayload();
@@ -170,7 +170,7 @@ internal sealed partial class CarRackPresentation : Node
 
         if (_payload is not null)
         {
-            if (_payload is Items.TombstoneRack)
+            if (_payload is Items.ShieldRack)
             {
                 _payload.Visible = _mechanism.Progress >= .45f;
                 _payload.Scale = Vector3.One;
@@ -203,7 +203,7 @@ internal sealed partial class CarRackPresentation : Node
             float reveal = Mathf.SmoothStep(0, 1, Mathf.Clamp((_mechanism.Progress - 0.92f) / 0.08f, 0, 1));
             _payload.Visible = reveal > 0;
             _payload.Scale = Vector3.One * Math.Max(0.001f, reveal);
-            _payload.Position = new Vector3(0, _mounted == HeldItem.Tombstone ? 0 : _payload is Items.WeaponAimMount ? WeaponAim.Pivot.Y - 1.34f : 0.17f, 0);
+            _payload.Position = new Vector3(0, _mounted == HeldItem.Shield ? 0 : _payload is Items.WeaponAimMount ? WeaponAim.Pivot.Y - 1.34f : 0.17f, 0);
             if (_payload is Items.WeaponAimMount mount) { mount.Present(_replace || _mechanism.Progress < .999f ? null : _aim, (float)delta); }
             if (_usePending && _mounted == _useItem && !_replace && _mechanism.Progress >= 0.999f)
             {

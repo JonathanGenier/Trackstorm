@@ -10,9 +10,9 @@ internal static class RackItemVisual
     {
         if (item == HeldItem.Nitro) { throw new ArgumentException("Nitro uses the rack's persistent Boost jet.", nameof(item)); }
         if (item == HeldItem.ProxyMine) { return new ProxyMineRack { Name = "RackItem_ProxyMine" }; }
-        if (item == HeldItem.Tombstone)
+        if (item == HeldItem.Shield)
         {
-            return new TombstoneRack();
+            return new ShieldRack();
         }
         var root = new Node3D { Name = "RackItem_" + item };
         var definition = ItemRegistry.Find(item) ?? throw new ArgumentOutOfRangeException(nameof(item));

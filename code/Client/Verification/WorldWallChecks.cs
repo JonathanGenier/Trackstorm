@@ -17,10 +17,10 @@ public sealed partial class WorldWallChecks : Node
     private readonly List<NetworkVehicleArena> _arenas = [];
     private readonly List<SubViewport> _views = [];
     private readonly List<string> _evidence = [];
-    private readonly Dictionary<ulong, TombstoneState[]> _boundaries = new();
+    private readonly Dictionary<ulong, ShieldState[]> _boundaries = new();
     private string _endpoint = "", _output = "";
     private int _frame, _stage, _boundary, _scenario;
-    private TombstoneState[] _seeds = [];
+    private ShieldState[] _seeds = [];
     private N.Vector3 _pushStart;
     private bool _done;
     private int _stressCount;
@@ -50,8 +50,8 @@ public sealed partial class WorldWallChecks : Node
         AddPeer(); AddPeer();
         _arenas[0].Driver.ItemsReceived += p =>
         {
-            _boundaries[p.World.Tick] = p.Tombstones.ToArray();
-            foreach (var wall in p.Tombstones.Where(s => !s.Attached && !_releasedFacing.ContainsKey(s.Id)))
+            _boundaries[p.World.Tick] = p.Shields.ToArray();
+            foreach (var wall in p.Shields.Where(s => !s.Attached && !_releasedFacing.ContainsKey(s.Id)))
             {
                 var vehicle = p.World.Vehicles.Single(v => v.State.VehicleId == wall.Owner).State;
                 var facing = HorizontalFacing(vehicle.ObservedPhysics.Orientation);
@@ -96,7 +96,7 @@ public sealed partial class WorldWallChecks : Node
         try
         {
             var host = _arenas[0].Driver.Host!;
-            foreach (var wall in host.Items.Tombstones.Where(s => !s.Attached && !s.Tipping))
+            foreach (var wall in host.Items.Shields.Where(s => !s.Attached && !s.Tipping))
             {
                 Check(N.Vector3.Transform(N.Vector3.UnitY, wall.Orientation).Y > 0.55f, "Wall remains standing throughout native motion and impacts");
                 Check(Math.Abs(wall.AngularVelocity.X) < 0.001f && Math.Abs(wall.AngularVelocity.Z) < 0.001f, "No pitch/roll velocity");
@@ -104,7 +104,7 @@ public sealed partial class WorldWallChecks : Node
             if (_stage == 6) { AimAtWall(); }
             if (_stage is 12 or 13 && elapsed == 15)
             {
-                var target = host.Items.Tombstones.Single();
+                var target = host.Items.Shields.Single();
                 Position(1, target.Position + new N.Vector3(0, 3, _stage == 12 ? 8 : 65), N.Vector3.Zero,
                     _stage == 12 ? N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitX, -MathF.Atan2(3, 8)) : N.Quaternion.Identity);
             }
@@ -117,7 +117,7 @@ public sealed partial class WorldWallChecks : Node
                 _arenas[i].Advance(new((ulong)_frame, 0, throttle, 0, use ? InputButtons.UseItem : 0, pressed ? InputButtons.UseItem : 0, 0));
                 Check(_arenas[i].Driver.Failure.Length == 0, _arenas[i].Driver.Failure);
             }
-            if (_stage == 4 && _impactSpeed is null && host.Items.Tombstones.Last().HP < 875)
+            if (_stage == 4 && _impactSpeed is null && host.Items.Shields.Last().HP < 875)
             {
                 _impactSpeed = host.World.GetVehicle(2).ObservedPhysics.LinearVelocity.Length();
                 Check(_impactSpeed > incomingSpeed * 0.65f && _impactSpeed < incomingSpeed, $"Wall slows the car without stopping it: {incomingSpeed:F2} -> {_impactSpeed:F2} m/s");
@@ -125,7 +125,7 @@ public sealed partial class WorldWallChecks : Node
             }
             if (_stage == 4) { ObserveRam(host.World.GetVehicle(2).ObservedPhysics); }
             if (_stage == 6 && elapsed == 15) { Capture("firing.png"); }
-            _boundaries[host.World.State.Tick] = host.Items.Tombstones.ToArray();
+            _boundaries[host.World.State.Tick] = host.Items.Shields.ToArray();
             Check(elapsed < 1500, $"Stage {_stage}, scenario {_scenario} timed out");
             switch (_stage)
             {
@@ -136,7 +136,7 @@ public sealed partial class WorldWallChecks : Node
                 case 1 when host.World.State.Match?.Phase == Core.Matches.MatchPhase.Active:
                     Setup(); Next(10); break;
                 case 10 when elapsed > 50 && _arenas.All(a => a.Driver.LocalItem is { } inventory &&
-                    a.Bodies[a.Driver.LocalVehicleId].CanDeployTombstone(inventory)):
+                    a.Bodies[a.Driver.LocalVehicleId].CanDeployShield(inventory)):
                     Check(_arenas.All(a => a.Bodies.Values.All(b => b.HasRearShield)), "Selected shields visible before use");
                     foreach (var vehicle in host.World.State.Vehicles)
                     { Check(_arenas[0].Walls.Place(vehicle.ObservedPhysics, host.Items.Configuration, _arenas[0].Bodies[vehicle.VehicleId]) is not null, $"Rear placement available at {vehicle.ObservedPhysics}"); }
@@ -157,16 +157,16 @@ public sealed partial class WorldWallChecks : Node
                     else { Next(2); }
                     break;
                 case 14 when elapsed > 30:
-                    Check(host.Items.Tombstones.SequenceEqual(_seeds), "Blocked normal use preserves exact identity, HP, slot capability and attached state");
+                    Check(host.Items.Shields.SequenceEqual(_seeds), "Blocked normal use preserves exact identity, HP, slot capability and attached state");
                     Check(_arenas[0].Walls.Bodies.Count == 0, "Blocked use creates no world collider");
                     _blocker!.CollisionLayer = 0; _blocker.QueueFree(); _blocker = null;
                     Record("Blocked normal use retained the shield; retry after clearing the obstruction uses the same capability.");
                     Next(2); break;
                 case 2 when elapsed > 50:
-                    Check(host.Items.Tombstones.Count(s => !s.Attached) == 2, "One ordinary use per player deploys exactly two walls");
+                    Check(host.Items.Shields.Count(s => !s.Attached) == 2, "One ordinary use per player deploys exactly two walls");
                     foreach (var seed in _seeds)
                     {
-                        var wall = host.Items.Tombstones.Single(s => s.Id == seed.Id);
+                        var wall = host.Items.Shields.Single(s => s.Id == seed.Id);
                         Check(wall.HP == 875 && wall.DamageSequence == 7, "Same damaged pool and watermark");
                         Check(host.Items.Slots.Single(s => s.Vehicle == seed.Owner).Active.Item == HeldItem.None, "Exact slot clears");
                         Check(!host.Items.RequestUse(host.World, seed.Owner, seed.Life, seed.Token), "Retired use capability rejects replay");
@@ -179,13 +179,13 @@ public sealed partial class WorldWallChecks : Node
                         }
                     }
                     Check(_arenas.All(a => a.Walls.Bodies.Count == 2 && a.Bodies.Values.All(b => !b.HasRearShield)), "Native shield-to-world transition on both peers");
-                    _seeds = host.Items.Tombstones.ToArray(); Capture($"{_scenario}-expanded.png"); Next(3); break;
+                    _seeds = host.Items.Shields.ToArray(); Capture($"{_scenario}-expanded.png"); Next(3); break;
                 case 3 when elapsed >= 90:
                     // Straight-line driving is valid on the grid/platforms. Infield pickup
                     // areas include walls/water and do not imply a drivable forward corridor.
                     if (!ProductionMap || _scenario < 4)
                     {
-                        foreach (var wall in host.Items.Tombstones)
+                        foreach (var wall in host.Items.Shields)
                         { Check(N.Vector3.Distance(wall.Position, host.World.GetVehicle(wall.Owner).ObservedPhysics.Position) > 8, "Drive away leaves independent wall"); }
                     }
                     Record($"Scenario {_scenario}: {(ProductionMap ? "production map" : "flat/banked fixture")} deployment keeps identity, 875 HP, exact slot, independent upright native walls.");
@@ -197,14 +197,14 @@ public sealed partial class WorldWallChecks : Node
                     }
                     if (_scenario++ < (ProductionMap ? 7 : 3))
                     {
-                        foreach (var wall in host.Items.Tombstones.ToArray()) { host.Items.DamageTombstone(host.World, wall.Id, wall.DamageSequence + 1, 1000, new("world", 0, "fixture-reset")); }
+                        foreach (var wall in host.Items.Shields.ToArray()) { host.Items.DamageShield(host.World, wall.Id, wall.DamageSequence + 1, 1000, new("world", 0, "fixture-reset")); }
                         Next(1); break;
                     }
-                    var sliding = host.Items.Tombstones.Last(); _groundStart = sliding.Position;
+                    var sliding = host.Items.Shields.Last(); _groundStart = sliding.Position;
                     _arenas[0].Walls.Bodies[sliding.Id].ApplyCentralImpulse(new(-sliding.WallMass * 5, 0, 0));
                     Next(15); break;
                 case 15 when elapsed >= 60:
-                    var grounded = host.Items.Tombstones.Last();
+                    var grounded = host.Items.Shields.Last();
                     Check(grounded.Position.X < _groundStart.X - 1 && grounded.Position.Y < _groundStart.Y - 0.1f, "Sliding wall follows changing ground elevation");
                     Check(N.Vector3.Dot(new(-MathF.Sin(0.12f), MathF.Cos(0.12f), 0), N.Vector3.Transform(N.Vector3.UnitY, grounded.Orientation)) > 0.9999f, "Sliding wall stays aligned to the bank");
                     Record($"Bank slide follows elevation: {_groundStart.Y:F2} -> {grounded.Position.Y:F2} m; both ends remain terrain-aligned.");
@@ -213,7 +213,7 @@ public sealed partial class WorldWallChecks : Node
                     _arenas[0].Walls.Bodies[grounded.Id].ApplyCentralImpulse(new(grounded.WallMass * 30, 0, 0));
                     Next(16); break;
                 case 16:
-                    var uphill = host.Items.Tombstones.Last();
+                    var uphill = host.Items.Shields.Last();
                     float expectedHeight = _groundStart.Y + (uphill.Position.X - _groundStart.X) * MathF.Tan(0.12f);
                     Check(Math.Abs(uphill.Position.Y - expectedHeight) < 0.03f, "Fast uphill slide follows support rather than being classified as airborne");
                     if (elapsed < 30) { break; }
@@ -224,9 +224,9 @@ public sealed partial class WorldWallChecks : Node
                     _ramStart = host.World.GetVehicle(2).ObservedPhysics.Position;
                     _ramNormal = new(-MathF.Sin(0.12f), MathF.Cos(0.12f), 0);
                     _beforeImpact = uphill.Orientation;
-                    _pushStart = host.Items.Tombstones.Last().Position; Next(4); break;
+                    _pushStart = host.Items.Shields.Last().Position; Next(4); break;
                 case 4 when elapsed >= 90:
-                    var pushed = host.Items.Tombstones.Last();
+                    var pushed = host.Items.Shields.Last();
                     Check(N.Vector3.Distance(pushed.Position, _pushStart) > 0.25f, $"Other vehicle physically moves wall: start {_pushStart}, wall {pushed.Position}, vehicle {host.World.GetVehicle(2).ObservedPhysics.Position}, HP {pushed.HP}, frozen {_arenas[0].Walls.Bodies[pushed.Id].Freeze}");
                     Check(pushed.HP < 875, "Native wall contact damages its independent pool");
                     Check(Math.Abs(N.Quaternion.Dot(pushed.Orientation, _beforeImpact)) < 0.999f, "An off-centre vehicle hit rotates the wall without an artificial torque impulse");
@@ -240,7 +240,7 @@ public sealed partial class WorldWallChecks : Node
                     _arenas[0].Walls.Bodies[pushed.Id].ApplyCentralImpulse(new(0, 0, -pushed.WallMass * 8));
                     Next(20); break;
                 case 20 when elapsed >= 180:
-                    var coasted = host.Items.Tombstones.Last();
+                    var coasted = host.Items.Shields.Last();
                     float coastDistance = N.Vector3.Distance(coasted.Position, _groundStart);
                     Record($"Unpowered wall coast from 8 m/s: {coastDistance:F2} m travel; {coasted.LinearVelocity.Length():F2} m/s after three seconds.");
                     Check(coastDistance > 0.5f && coastDistance < 5 && coasted.LinearVelocity.Length() < 0.5f,
@@ -254,8 +254,8 @@ public sealed partial class WorldWallChecks : Node
                 case 11 when elapsed > 30:
                     Next(6); break;
                 case 6 when elapsed >= 75:
-                    Check(host.Items.Tombstones.All(s => s.Id != _seeds[0].Id), "Sustained ordinary fire destroys only targeted wall");
-                    Check(host.Items.Tombstones.Count == 1, "Second wall survives independently");
+                    Check(host.Items.Shields.All(s => s.Id != _seeds[0].Id), "Sustained ordinary fire destroys only targeted wall");
+                    Check(host.Items.Shields.Count == 1, "Second wall survives independently");
                     Record("Late join restored both walls; sustained native Machine Gun fire destroyed the targeted pool and removed its collider.");
                     Capture("destroyed.png"); Next(7); break;
                 case 7 when elapsed > 300:
@@ -264,32 +264,32 @@ public sealed partial class WorldWallChecks : Node
                     Record("Three UDP peers retained the surviving movable wall through 300 further native physics frames.");
                     host.Items.RemovePlayer(1);
                     RestWall(flatWeaponTarget: true);
-                    _weaponHP = host.Items.Tombstones.Single().HP;
+                    _weaponHP = host.Items.Shields.Single().HP;
                     Check(host.Items.Grant(host.World, 1, HeldItem.Missile), "Native missile grant"); Next(12); break;
                 case 12 when elapsed > 90:
-                    Check(host.Items.Tombstones.Single().HP < _weaponHP, "Native Missile sweep/blast damages wall");
-                    Record($"Native Missile wall damage: {_weaponHP:F1} -> {host.Items.Tombstones.Single().HP:F1} HP.");
-                    host.Items.RemovePlayer(1); _weaponHP = host.Items.Tombstones.Single().HP; RestWall(flatWeaponTarget: true);
+                    Check(host.Items.Shields.Single().HP < _weaponHP, "Native Missile sweep/blast damages wall");
+                    Record($"Native Missile wall damage: {_weaponHP:F1} -> {host.Items.Shields.Single().HP:F1} HP.");
+                    host.Items.RemovePlayer(1); _weaponHP = host.Items.Shields.Single().HP; RestWall(flatWeaponTarget: true);
                     Check(host.Items.Grant(host.World, 1, HeldItem.Salvo), "Native Salvo grant"); Next(13); break;
                 case 13 when elapsed > 120:
-                    Check(host.Items.Tombstones.Single().HP < _weaponHP, "Native Salvo sweep/blast damages wall");
-                    Record($"Native Salvo wall damage: {_weaponHP:F1} -> {host.Items.Tombstones.Single().HP:F1} HP.");
+                    Check(host.Items.Shields.Single().HP < _weaponHP, "Native Salvo sweep/blast damages wall");
+                    Record($"Native Salvo wall damage: {_weaponHP:F1} -> {host.Items.Shields.Single().HP:F1} HP.");
                     host.Items.RemovePlayer(1); StressGrant(); break;
-                case 8 when elapsed >= 30 && host.Items.Tombstones.Count(s => !s.Attached) >= _stressCount + 1:
-                    Check(host.Items.Tombstones.Count(s => !s.Attached) == _stressCount + 1, "Stress use commits one independent wall");
+                case 8 when elapsed >= 30 && host.Items.Shields.Count(s => !s.Attached) >= _stressCount + 1:
+                    Check(host.Items.Shields.Count(s => !s.Attached) == _stressCount + 1, "Stress use commits one independent wall");
                     if (_stressCount < 15) { StressGrant(); }
                     else { Next(9); }
                     break;
                 case 9 when elapsed >= 600:
-                    Check(host.Items.Tombstones.Count == 16 && _arenas.All(a => a.Walls.Bodies.Count == 16), "Sixteen live native walls remain bounded and replicated");
-                    Check(host.Items.Tombstones.All(s => VehiclePhysicsState.IsFinite(s.Position) && VehiclePhysicsState.IsFinite(s.LinearVelocity)), "Finite sustained wall state");
+                    Check(host.Items.Shields.Count == 16 && _arenas.All(a => a.Walls.Bodies.Count == 16), "Sixteen live native walls remain bounded and replicated");
+                    Check(host.Items.Shields.All(s => VehiclePhysicsState.IsFinite(s.Position) && VehiclePhysicsState.IsFinite(s.LinearVelocity)), "Finite sustained wall state");
                     VerifyBoundaries(); Capture("sixteen-walls.png");
                     Record("Sixteen walls deployed via ordinary use, then sustained for 600 physics frames across three UDP arenas.");
                     BeginRam(); break;
                 case 17:
                     var struckCar = host.World.GetVehicle(RammingVehicle).ObservedPhysics;
                     ObserveRam(struckCar);
-                    var tipping = host.Items.Tombstones.FirstOrDefault(s => s.Id == _impactWall);
+                    var tipping = host.Items.Shields.FirstOrDefault(s => s.Id == _impactWall);
                     if (tipping is { Tipping: true } && !_sawTipping)
                     {
                         _sawTipping = true; Capture($"tipping-{_ramCase}.png");
@@ -313,19 +313,19 @@ public sealed partial class WorldWallChecks : Node
                     Capture($"toppled-removed-{_ramCase}.png");
                     Position(RammingVehicle, new(120, 204, 60), N.Vector3.Zero);
                     if (++_ramCase < 5) { BeginRam(); break; }
-                    Check(host.TryConfigure(0, new Dictionary<string, double> { ["items.tombstone_lifetime"] = 2 }, out _), "Configure short native expiry fixture");
+                    Check(host.TryConfigure(0, new Dictionary<string, double> { ["items.shield_lifetime"] = 2 }, out _), "Configure short native expiry fixture");
                     Position(1, new(0, 201.65f, 0), N.Vector3.Zero);
-                    Check(host.Items.Grant(host.World, 1, HeldItem.Tombstone), "Expiry fixture grant");
-                    _expiryWall = host.Items.Tombstones.Last().Id; Next(18); break;
+                    Check(host.Items.Grant(host.World, 1, HeldItem.Shield), "Expiry fixture grant");
+                    _expiryWall = host.Items.Shields.Last().Id; Next(18); break;
                 case 18:
-                    var expiring = host.Items.Tombstones.Single(s => s.Id == _expiryWall);
+                    var expiring = host.Items.Shields.Single(s => s.Id == _expiryWall);
                     if (expiring.Attached) { break; }
                     _expiryTick = expiring.ExpiresAtTick;
                     Check(_expiryTick == host.World.State.Tick + 120, "Lifetime starts on deployment");
-                    Check(host.TryConfigure(0, new Dictionary<string, double> { ["items.tombstone_lifetime"] = 120 }, out _), "Retuning cannot restart captured expiry");
+                    Check(host.TryConfigure(0, new Dictionary<string, double> { ["items.shield_lifetime"] = 120 }, out _), "Retuning cannot restart captured expiry");
                     Next(19); break;
                 case 19:
-                    Check(host.Items.Tombstones.Any(s => s.Id == _expiryWall) == (host.World.State.Tick < _expiryTick), "Expiry removes the wall at its exact captured deadline");
+                    Check(host.Items.Shields.Any(s => s.Id == _expiryWall) == (host.World.State.Tick < _expiryTick), "Expiry removes the wall at its exact captured deadline");
                     if (host.World.State.Tick < _expiryTick + 60) { break; }
                     Check(_arenas.All(a => !a.Walls.Bodies.ContainsKey(_expiryWall) && !a.Walls.Bodies.ContainsKey(_impactWall)), "Break and expiry remove every peer collider");
                     VerifyBoundaries();
@@ -344,8 +344,8 @@ public sealed partial class WorldWallChecks : Node
         for (ulong id = 1; id <= 2; id++)
         {
             host.Items.RemovePlayer(id);
-            Check(host.Items.Grant(host.World, id, HeldItem.Tombstone), "Ordinary Tombstone grant");
-            var stone = host.Items.Tombstones.Last(); host.Items.DamageTombstone(host.World, stone.Id, 7, 125, new("world", 0, "fixture"));
+            Check(host.Items.Grant(host.World, id, HeldItem.Shield), "Ordinary Shield grant");
+            var shield = host.Items.Shields.Last(); host.Items.DamageShield(host.World, shield.Id, 7, 125, new("world", 0, "fixture"));
             float x = (_scenario == 3 ? 100 : 0) + (id == 1 ? 0 : 12);
             Position(id, new(x, 201.65f + (_scenario == 3 ? (x - 100) * 0.12f : 0), 0), new(0, 0, _scenario == 1 ? -6 : _scenario == 2 ? 3 : 0));
             if (ProductionMap)
@@ -355,7 +355,7 @@ public sealed partial class WorldWallChecks : Node
                 Position(id, spawn.Position + (_scenario < 4 ? N.Vector3.Zero : N.Vector3.UnitY * VehicleDimensions.RideHeight), N.Vector3.Zero, N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitY, spawn.Yaw));
             }
         }
-        _seeds = host.Items.Tombstones.ToArray();
+        _seeds = host.Items.Shields.ToArray();
         var camera = _arenas[0].GetNode<Camera3D>("WallCamera");
         camera.Position = new((_scenario == 3 ? 100 : 0) + 20, 214, 24); camera.LookAt(new((_scenario == 3 ? 100 : 0) + 6, 201, 3));
         if (ProductionMap)
@@ -368,7 +368,7 @@ public sealed partial class WorldWallChecks : Node
     private void BeginRam()
     {
         var host = _arenas[0].Driver.Host!;
-        _impactWall = host.Items.Tombstones.Last().Id;
+        _impactWall = host.Items.Shields.Last().Id;
         RestWall(flatWeaponTarget: true);
         _sawTipping = _sawFalling = _sawBreak = false;
         _peakCarRise = _peakCarUpSpeed = 0;
@@ -410,13 +410,13 @@ public sealed partial class WorldWallChecks : Node
             camera.Position = new(35, 235, 28); camera.LookAt(new(0, 201, -24));
         }
         Position(1, new(-24 + (index % 5) * 11, 201.65f, -20 - (index / 5) * 10), N.Vector3.Zero);
-        Check(host.Items.Grant(host.World, 1, HeldItem.Tombstone), "Stress grant respects live bound");
+        Check(host.Items.Grant(host.World, 1, HeldItem.Shield), "Stress grant respects live bound");
         Next(8);
     }
 
     private void AimAtWall()
     {
-        var wall = _arenas[0].Driver.Host!.Items.Tombstones.FirstOrDefault(s => s.Id == _seeds[0].Id);
+        var wall = _arenas[0].Driver.Host!.Items.Shields.FirstOrDefault(s => s.Id == _seeds[0].Id);
         if (wall is not null) { Position(1, wall.Position + new N.Vector3(0, 0, 9), N.Vector3.Zero); }
     }
     private void VerifyBoundaries()
@@ -424,7 +424,7 @@ public sealed partial class WorldWallChecks : Node
         foreach (var arena in _arenas.Skip(1))
         {
             var p = arena.Driver.ItemState!;
-            Check(_boundaries.TryGetValue(p.World.Tick, out var expected) && p.Tombstones.SequenceEqual(expected), "Accepted peer wall publication equals exact committed host boundary");
+            Check(_boundaries.TryGetValue(p.World.Tick, out var expected) && p.Shields.SequenceEqual(expected), "Accepted peer wall publication equals exact committed host boundary");
         }
     }
     private void Capture(string name)
@@ -436,7 +436,7 @@ public sealed partial class WorldWallChecks : Node
     private void RestWall(bool flatWeaponTarget = false)
     {
         // Isolate later weapon aiming from the preceding movement test's travelling target.
-        var body = _arenas[0].Walls.Bodies[_arenas[0].Driver.Host!.Items.Tombstones.Last().Id];
+        var body = _arenas[0].Walls.Bodies[_arenas[0].Driver.Host!.Items.Shields.Last().Id];
         if (flatWeaponTarget) { body.GlobalTransform = new(Basis.Identity, new(0, 201.765f, -60)); }
         body.LinearVelocity = Vector3.Zero; body.AngularVelocity = Vector3.Zero; body.Sleeping = true;
     }

@@ -60,7 +60,7 @@ public sealed partial class ItemAuthority
     /// <param name="token">Highest ever issued token in this match.</param>
     public void Restore(ItemPublication publication, ulong revision, ulong token)
     {
-        if (publication.DiscardRevision < DiscardRevision || publication.DiscardRevision > token || publication.DiscardRevision > revision || publication.Events.Count != 0 || publication.Tombstones.Any(state => state.Id > token || state.Token > token) || publication.Mines.Any(mine => mine.Id > token) || publication.Patches.Any(patch => patch.Id > token) || publication.Slots.Any(slot => slot.Token > token || slot.SecondToken > token) ||
+        if (publication.DiscardRevision < DiscardRevision || publication.DiscardRevision > token || publication.DiscardRevision > revision || publication.Events.Count != 0 || publication.Shields.Any(state => state.Id > token || state.Token > token) || publication.Mines.Any(mine => mine.Id > token) || publication.Patches.Any(patch => patch.Id > token) || publication.Slots.Any(slot => slot.Token > token || slot.SecondToken > token) ||
             publication.Spawns.Any(spawn => spawn.Token > token) || publication.Missiles.Any(missile => missile.Id > token ||
                 !publication.World.Vehicles.Any(vehicle => vehicle.State.VehicleId == missile.Owner && vehicle.State.CanInteract)))
         {
@@ -80,8 +80,8 @@ public sealed partial class ItemAuthority
         _patches.AddRange(publication.Patches);
         _mines.Clear();
         _mines.AddRange(publication.Mines);
-        _tombstones.Clear();
-        _tombstones.AddRange(publication.Tombstones);
+        _shields.Clear();
+        _shields.AddRange(publication.Shields);
         _contacts.Clear();
         _contacts.AddRange(publication.OilContacts);
         _pending.Clear();
@@ -107,7 +107,7 @@ public sealed partial class ItemAuthority
         changed |= _contacts.RemoveAll(contact => contact.Vehicle == vehicle) > 0;
         changed |= _missiles.RemoveAll(missile => missile.Owner == vehicle) > 0;
         changed |= _mines.RemoveAll(mine => mine.Owner == vehicle && mine.IsPlacing) > 0;
-        changed |= _tombstones.RemoveAll(state => state.Owner == vehicle && state.Attached) > 0;
+        changed |= _shields.RemoveAll(state => state.Owner == vehicle && state.Attached) > 0;
         if (changed)
         {
             Revision++;
@@ -125,7 +125,7 @@ public sealed partial class ItemAuthority
     {
         VehicleSnapshot? state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == vehicle);
         if (state is null || !state.CanInteract || ItemRegistry.Find(item) is null ||
-            (item == HeldItem.Tombstone && _tombstones.Count >= MaximumTombstones) ||
+            (item == HeldItem.Shield && _shields.Count >= MaximumShields) ||
             (_slots.TryGetValue(vehicle, out var previous) && previous.Life == state.LifeId && previous.Full))
         {
             return false;
@@ -134,7 +134,7 @@ public sealed partial class ItemAuthority
         var inventory = _slots.GetValueOrDefault(vehicle);
         if (inventory is null || inventory.Life != state.LifeId) { inventory = new(vehicle, state.LifeId, 0, HeldItem.None); }
         ulong token = checked(++_token);
-        if (item == HeldItem.Tombstone) { _tombstones.Add(new(token, vehicle, state.LifeId, token, TombstoneStage.Held, TombstoneState.DefaultHP)); }
+        if (item == HeldItem.Shield) { _shields.Add(new(token, vehicle, state.LifeId, token, ShieldStage.Held, ShieldState.DefaultHP)); }
         _slots[vehicle] = inventory.Item == HeldItem.None
             ? inventory with { Token = token, Item = item, NitroCharge = item == HeldItem.Nitro ? 100 : 0, SalvoShots = item == HeldItem.Salvo ? Configuration.SalvoCount : 0, SalvoReadyTick = 0, Ammo = item == HeldItem.MachineGun ? new(Configuration.MachineGunCapacity, Configuration.MachineGunCapacity) : null }
             : inventory with { SecondToken = token, SecondItem = item, SecondNitroCharge = item == HeldItem.Nitro ? 100 : 0, SecondSalvoShots = item == HeldItem.Salvo ? Configuration.SalvoCount : 0, SecondSalvoReadyTick = 0, SecondAmmo = item == HeldItem.MachineGun ? new(Configuration.MachineGunCapacity, Configuration.MachineGunCapacity) : null };
@@ -142,7 +142,7 @@ public sealed partial class ItemAuthority
         {
             _slots[vehicle] = _slots[vehicle] with { NitroDeploymentTicks = ItemSlot.NitroDeploymentDurationTicks };
         }
-        SynchronizeTombstoneSelection(_slots[vehicle]);
+        SynchronizeShieldSelection(_slots[vehicle]);
         Revision++;
         ReliableRevision++;
         if (!pickup)
@@ -185,7 +185,7 @@ public sealed partial class ItemAuthority
         // Retain the retired grant token and match high-water mark, as on consumption.
         // A pending use of the other physical slot keeps its original capability.
         if (_pending.TryGetValue(vehicle, out var pending) && pending.Token == token) { _pending.Remove(vehicle); }
-        _tombstones.RemoveAll(wall => wall.Attached && wall.Owner == vehicle && wall.Token == token);
+        _shields.RemoveAll(wall => wall.Attached && wall.Owner == vehicle && wall.Token == token);
         ResetAim(vehicle);
         DiscardRevision = discardRevision;
         Revision++;
@@ -207,7 +207,7 @@ public sealed partial class ItemAuthority
         {
             _slots[vehicle] = _slots[vehicle] with { NitroDeploymentTicks = _slots[vehicle].Active.Item == HeldItem.Nitro ? ItemSlot.NitroDeploymentDurationTicks : 0 };
         }
-        SynchronizeTombstoneSelection(_slots[vehicle]);
+        SynchronizeShieldSelection(_slots[vehicle]);
         Revision++;
         ReliableRevision++;
         return true;
@@ -224,9 +224,9 @@ public sealed partial class ItemAuthority
     /// <param name="acknowledgedInputs">Host-consumed remote input sequences; never client-authored acknowledgements.</param>
     /// <param name="raycastWeapon">Host closest collision on an authoritative weapon ray.</param>
     /// <param name="ground">Host terrain projection at the fixed salvo range; missing terrain rejects use.</param>
-    /// <param name="placeTombstone">Host-only native rear placement and clearance query.</param>
-    /// <param name="observeTombstone">Host-only native wall motion observation.</param>
-    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeTombstone = null, Func<TombstoneState, TombstoneObservation?>? observeTombstone = null)
+    /// <param name="placeShield">Host-only native rear placement and clearance query.</param>
+    /// <param name="observeShield">Host-only native wall motion observation.</param>
+    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeShield = null, Func<ShieldState, ShieldObservation?>? observeShield = null)
     {
         ulong token = _token;
         ulong NextToken() => checked(++token);
@@ -245,7 +245,7 @@ public sealed partial class ItemAuthority
         var boosts = new Dictionary<ulong, NitroState>();
         var waiting = new Dictionary<ulong, (ulong Token, ulong Expires, uint? InputSequence)>();
         var shields = new RearShieldBatch(this, world, requests, slots, journal, input.Tick);
-        shields.ObserveWalls(observeTombstone);
+        shields.ObserveWalls(observeShield);
         var effects = requests.ToDictionary(request => request.VehicleId, request => request.Effects.ToList());
         foreach (var pair in slots.ToArray())
         {
@@ -272,11 +272,11 @@ public sealed partial class ItemAuthority
             ItemSlot slot = (inventory with { ActiveSlot = usedIndex }).Active;
             if (slot.Token != pair.Value.Token || slot.Item == HeldItem.None) { continue; }
             VehicleStepRequest request = requests.Single(value => value.VehicleId == pair.Key);
-            if (slot.Item == HeldItem.Tombstone)
+            if (slot.Item == HeldItem.Shield)
             {
                 if (!request.Reset.HasValue && inventory.Active.Token == slot.Token &&
                     world.State.Match is not { Phase: not Matches.MatchPhase.Active } &&
-                    placeTombstone?.Invoke(slot, request.Observation.Physics, Configuration) is { } placement &&
+                    placeShield?.Invoke(slot, request.Observation.Physics, Configuration) is { } placement &&
                     shields.Deploy(slot, placement, Configuration))
                 {
                     slots[pair.Key] = usedIndex == 0 ? inventory with { Item = HeldItem.None } : inventory with { SecondItem = HeldItem.None };
@@ -574,11 +574,11 @@ public sealed partial class ItemAuthority
         advanced.RemoveAll(missile => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == missile.Owner && vehicle.CanInteract));
         movingMines.RemoveAll(mine => mine.IsPlacing && !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == mine.Owner && vehicle.LifeId == mine.PlacementLife && vehicle.CanInteract));
         if (world.State.Match?.Phase == Matches.MatchPhase.Finished) { advanced.RemoveAll(missile => missile.Arc is not null); }
-        bool tombstonesChanged = !_tombstones.SequenceEqual(shields.States);
-        _tombstones.Clear();
-        _tombstones.AddRange(shields.States);
-        tombstonesChanged |= ReconcileTombstones(world, slots);
-        bool reliableChanged = tombstonesChanged || !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) ||
+        bool shieldsChanged = !_shields.SequenceEqual(shields.States);
+        _shields.Clear();
+        _shields.AddRange(shields.States);
+        shieldsChanged |= ReconcileShields(world, slots);
+        bool reliableChanged = shieldsChanged || !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) ||
             !patches.SequenceEqual(_patches) || !contacts.SequenceEqual(_contacts) || journal.Count > 0 ||
             !movingMines.SequenceEqual(_mines) || events.Count > 0 ||
             !_missiles.Select(missile => missile.Id).SequenceEqual(advanced.Select(missile => missile.Id));

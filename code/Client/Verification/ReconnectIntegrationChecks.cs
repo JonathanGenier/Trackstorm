@@ -17,7 +17,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Real UDP and native Godot worlds exercising the production resume boundary with a trusted test identity.</summary>
 public sealed partial class ReconnectIntegrationChecks : Node
 {
-    private IReadOnlyList<TombstoneState> _tombstones = [];
+    private IReadOnlyList<ShieldState> _shields = [];
     private readonly Dictionary<ulong, ItemPublication> _salvoBoundaries = new();
     private readonly List<ReplicationTrafficGateway> _gateways = new();
     private readonly List<SubViewport> _views = new();
@@ -187,7 +187,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
 
                 _resyncs++;
                 SalvoRecoveryFixture.Verify(_arenas[1].Driver.ItemState!, _salvoBoundaries);
-                TombstoneRecoveryFixture.Verify(_arenas[1].Driver.ItemState!.Tombstones, _tombstones, _salvoBoundaries[world.Tick].Tombstones, world.Tick);
+                ShieldRecoveryFixture.Verify(_arenas[1].Driver.ItemState!.Shields, _shields, _salvoBoundaries[world.Tick].Shields, world.Tick);
                 if (_resyncs <= 3)
                 {
                     Require(_arenas[1].Driver.ItemState!.Mines.Single().Id == _mine, "Mine identity restored exactly once.");
@@ -276,7 +276,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
         else if (_stage == 4 && _arenas[1].Driver.Prediction is not null && _arenas[1].Driver.Match?.Phase == Trackstorm.Core.Matches.MatchPhase.Active)
         {
             _categoryHistory = CategoryBalanceRecoveryFixture.Seed(_arenas[0]);
-            _tombstones = TombstoneRecoveryFixture.Seed(_arenas[0], rearShield: OS.GetCmdlineUserArgs().Contains("--tombstone-recovery"));
+            _shields = ShieldRecoveryFixture.Seed(_arenas[0], rearShield: OS.GetCmdlineUserArgs().Contains("--shield-recovery"));
             GD.Print("Category pickup history before reconnect: " + _categoryHistory);
             _oil = OilRecoveryFixture.Seed(_arenas[0]);
             EnvironmentRecoveryFixture.Seed(_arenas[0]);
@@ -285,7 +285,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             NitroRecoveryFixture.Seed(_arenas[0], _player);
             // The optional shield occupies the slot otherwise used by Machine Gun; Salvo
             // fills the other slot at resume. Keep the default recovery regression intact.
-            if (!OS.GetCmdlineUserArgs().Contains("--tombstone-recovery")) { MachineGunRecoveryFixture.Seed(_arenas[0], 1); }
+            if (!OS.GetCmdlineUserArgs().Contains("--shield-recovery")) { MachineGunRecoveryFixture.Seed(_arenas[0], 1); }
             _originalBody = _arenas[1].Bodies[_player];
             SetScores(false);
             ItemDamageRecoveryFixture.Seed(_arenas[0], _player);
@@ -316,7 +316,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             EnvironmentRecoveryFixture.Verify(_arenas[1]);
             Require(_arenas[1].Driver.LocalItem is { Item: HeldItem.Nitro, NitroCharge: 37.5 }, "Returning player retains partial Nitro through match-long retention and three reconnects.");
             Require(_arenas[1].Driver.LocalItem is { SecondItem: HeldItem.None, ActiveSlot: 1, SelectionRevision: 1 } && _arenas[1].Driver.ItemState!.DiscardRevision == 1, "Discarded second slot and watermark survive three native reconnects exactly.");
-            if (!OS.GetCmdlineUserArgs().Contains("--tombstone-recovery")) { MachineGunRecoveryFixture.Verify(_arenas[1].Driver.ItemState!, 1); }
+            if (!OS.GetCmdlineUserArgs().Contains("--shield-recovery")) { MachineGunRecoveryFixture.Verify(_arenas[1].Driver.ItemState!, 1); }
             Require(_arenas[1].Driver.ItemState?.Spawns.Count == 27 && _arenas[1].Driver.Match?.Players.Count == 2, "Twenty-seven-marker map pickup layout and match state arrive in the checkpoint.");
             Require(CategoryBalanceRecoveryFixture.Signature(_arenas[1].Driver.ItemState!.Balances) == _categoryHistory, "Reconnect retains exact per-player credits, counts and last selection.");
             GD.Print("Category history verified after reconnect " + _resyncs);

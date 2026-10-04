@@ -1,0 +1,34 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Two native UDP peers ready; Oil requested through the normal held slot.
+Host terrain query deployed on a 14-degree bank; peer received the exact patch.
+Fresh late join restored one identical patch without duplication; owner enters at speed.
+Owner receives temporary traction loss without a forced spin, score; one pass is consumed.
+Owner exits, recovers, and returns for a second pass.
+The owner's second pass removed the patch on all peers without score; deploy again.
+Remote enemy begins the first pass through a new patch.
+Remote first pass applied and scored once; remain inside.
+Continuous overlap counted once; deploy another simultaneous patch.
+Two simultaneous patches replicated; enemy leaves the original patch.
+The same enemy returns for the second pass.
+Seeded 1,500 detached patches with one consumed pass to exercise complete continuation.
+Large publication converged atomically; a fourth peer requests a complete join checkpoint.
+Oil integration passed: Two native UDP peers ready; Oil requested through the normal held slot.
+Host terrain query deployed on a 14-degree bank; peer received the exact patch.
+Fresh late join restored one identical patch without duplication; owner enters at speed.
+Owner receives temporary traction loss without a forced spin, score; one pass is consumed.
+Owner exits, recovers, and returns for a second pass.
+The owner's second pass removed the patch on all peers without score; deploy again.
+Remote enemy begins the first pass through a new patch.
+Remote first pass applied and scored once; remain inside.
+Continuous overlap counted once; deploy another simultaneous patch.
+Two simultaneous patches replicated; enemy leaves the original patch.
+The same enemy returns for the second pass.
+Two owner passes removed their patch for zero points; two passes by the same enemy removed another patch and banked 50 each on all three peers.
+Seeded 1,500 detached patches with one consumed pass to exercise complete continuation.
+Large publication converged atomically; a fourth peer requests a complete join checkpoint.
+All four peers retain 1,500 exact patch identities, deadlines and consumed-pass counts after fresh admission.
+REPLICATION_TRAFFIC {"seconds":7.4067642,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":5439,"messages":3,"peak":1813},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":12569,"messages":11,"peak":1295},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":7210,"messages":23,"peak":364},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":2141,"messages":4,"peak":933},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":104762,"messages":268,"peak":933},{"peer":1,"protocol":"TZ","delivery":"Reliable","bytes":13910,"messages":2,"peak":6968},{"peer":2,"protocol":"TC","delivery":"Reliable","bytes":3626,"messages":2,"peak":1813},{"peer":2,"protocol":"TI","delivery":"Reliable","bytes":10778,"messages":9,"peak":1295},{"peer":2,"protocol":"TM","delivery":"Reliable","bytes":6828,"messages":21,"peak":364},{"peer":2,"protocol":"TS","delivery":"Reliable","bytes":1660,"messages":3,"peak":933},{"peer":2,"protocol":"TS","delivery":"Unreliable","bytes":64685,"messages":146,"peak":933},{"peer":2,"protocol":"TZ","delivery":"Reliable","bytes":13910,"messages":2,"peak":6968},{"peer":3,"protocol":"TC","delivery":"Reliable","bytes":1813,"messages":1,"peak":1813},{"peer":3,"protocol":"TM","delivery":"Reliable","bytes":303,"messages":1,"peak":303},{"peer":3,"protocol":"TS","delivery":"Reliable","bytes":953,"messages":2,"peak":933},{"peer":3,"protocol":"TS","delivery":"Unreliable","bytes":1109,"messages":2,"peak":933},{"peer":3,"protocol":"TZ","delivery":"Reliable","bytes":6968,"messages":1,"peak":6968}]}
+REPLICATION_TRAFFIC {"seconds":7.2160794,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":43648,"messages":403,"peak":145}]}
+REPLICATION_TRAFFIC {"seconds":4.0540312,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":17919,"messages":220,"peak":114}]}
+REPLICATION_TRAFFIC {"seconds":0.1947743,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":249,"messages":3,"peak":114}]}

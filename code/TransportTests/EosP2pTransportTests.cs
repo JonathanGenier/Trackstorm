@@ -1295,7 +1295,7 @@ internal sealed class EosP2pTransportTests
         Assert.That(pair.Host.ConnectionState, Is.EqualTo(TransportConnectionState.Connected));
     }
 
-    /// <summary>Idle polling expires incomplete work at its original deadline and retains duplicate tombstones.</summary>
+    /// <summary>Idle polling expires incomplete work at its original deadline and retains duplicate-rejection entries.</summary>
     [Test]
     public void ExpiresIncompleteMessagesWithoutAllowingLateRestart()
     {

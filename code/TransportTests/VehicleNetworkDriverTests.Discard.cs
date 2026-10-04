@@ -23,7 +23,7 @@ internal sealed partial class VehicleNetworkDriverTests
         }
         host.Advance(default, Observe); Transfer();
         var authority = host.Host!;
-        authority.Items.Grant(authority.World, 2, HeldItem.Tombstone);
+        authority.Items.Grant(authority.World, 2, HeldItem.Shield);
         authority.Items.Grant(authority.World, 2, HeldItem.MachineGun);
         host.Advance(default, Observe); Transfer();
         var initial = client.ItemState!;
@@ -36,9 +36,9 @@ internal sealed partial class VehicleNetworkDriverTests
         host.Advance(default, Observe); Transfer();
         var cleared = client.LocalItem!;
         Assert.That(cleared.Active.Item, Is.EqualTo(HeldItem.None));
-        Assert.That(second ? cleared.Item : cleared.SecondItem, Is.EqualTo(second ? HeldItem.Tombstone : HeldItem.MachineGun));
+        Assert.That(second ? cleared.Item : cleared.SecondItem, Is.EqualTo(second ? HeldItem.Shield : HeldItem.MachineGun));
         Assert.That(authority.Items.Events, Is.Empty, "Use after discard is rejected.");
-        Assert.That(authority.Items.Tombstones.Count, Is.EqualTo(second ? 1 : 0));
+        Assert.That(authority.Items.Shields.Count, Is.EqualTo(second ? 1 : 0));
         Assert.That(client.RequestItemDiscard(), Is.False, "Empty discard emits no request.");
         authority.Items.Grant(authority.World, 2, HeldItem.Wrench);
         var replacement = authority.Items.Slots.Single();
@@ -51,7 +51,7 @@ internal sealed partial class VehicleNetworkDriverTests
         Assert.That(authority.Items.Slots.Single().SecondItem, Is.EqualTo(replacement.SecondItem));
         var current = client.ItemState;
         Assert.That(current!.DiscardRevision, Is.EqualTo(1));
-        var regressed = new ItemPublication(current.Revision + 1, current.World, current.Slots, current.Missiles, [], current.Spawns, current.Patches, current.OilContacts, current.Balances, current.Mines, current.Tombstones);
+        var regressed = new ItemPublication(current.Revision + 1, current.World, current.Slots, current.Missiles, [], current.Spawns, current.Patches, current.OilContacts, current.Balances, current.Mines, current.Shields);
         clientWire.Receive(new(ServerPeer, ItemCodec.EncodeState(regressed), TransportDelivery.Reliable));
         clientWire.Receive(new(ServerPeer, ItemCodec.EncodeState(initial), TransportDelivery.Reliable));
         clientWire.Receive(new(ServerPeer, ItemCodec.EncodeState(current!), TransportDelivery.Reliable));

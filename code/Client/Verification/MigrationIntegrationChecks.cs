@@ -11,7 +11,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Two or three real UDP peers and isolated Godot worlds; identity is an explicit local test seam.</summary>
 public sealed partial class MigrationIntegrationChecks : Node
 {
-    private IReadOnlyList<TombstoneState> _tombstones = [];
+    private IReadOnlyList<ShieldState> _shields = [];
     private readonly Dictionary<ulong, Core.Items.ItemPublication> _salvoBoundaries = new();
     private OilPatch? _oil;
     private ulong _mine;
@@ -279,7 +279,7 @@ public sealed partial class MigrationIntegrationChecks : Node
         {
             int nextHost = _players == 2 ? 0 : 2;
             _categoryHistory = CategoryBalanceRecoveryFixture.Seed(_arenas[1]!);
-            _tombstones = TombstoneRecoveryFixture.Seed(_arenas[1]!);
+            _shields = ShieldRecoveryFixture.Seed(_arenas[1]!);
             GD.Print("Category pickup history before migration: " + _categoryHistory);
             _arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _drivers[nextHost]!.LocalPlayerId, HeldItem.Wrench);
             _arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _drivers[nextHost]!.LocalPlayerId, HeldItem.Oil);
@@ -339,7 +339,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             _arenas[survivor]!.Driver.Resynchronized += _ =>
             {
                 SalvoRecoveryFixture.Verify(_arenas[survivor]!.Driver.ItemState!, _salvoBoundaries);
-                TombstoneRecoveryFixture.Verify(_arenas[survivor]!.Driver.ItemState!.Tombstones, _tombstones, _salvoBoundaries[_arenas[survivor]!.Driver.ItemState!.World.Tick].Tombstones, _arenas[survivor]!.Driver.ItemState!.World.Tick);
+                ShieldRecoveryFixture.Verify(_arenas[survivor]!.Driver.ItemState!.Shields, _shields, _salvoBoundaries[_arenas[survivor]!.Driver.ItemState!.World.Tick].Shields, _arenas[survivor]!.Driver.ItemState!.World.Tick);
                 Require(_arenas[survivor]!.Driver.Inputs!.Pending.Count == 0, "No old pending input.");
                 Require(_arenas[survivor]!.Driver.History!.Snapshots.Count == 1, "Interpolation reseeded at one boundary.");
                 if (_players == 3)

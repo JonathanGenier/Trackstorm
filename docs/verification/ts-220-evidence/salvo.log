@@ -1,0 +1,21 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Three UDP peers joined; native bank prepared.
+Remote player receives Salvo and second-slot Wrench.
+Wave 1: five separately pressed launches/impacts, held input preserves ammo, damage to both targets, remote marker privacy.
+Banked ring visible only to owner; remote use sent over UDP.
+ERROR: System.InvalidOperationException: Marker follows current vehicle forward aim during the volley
+   at Trackstorm.Client.Verification.SalvoIntegrationChecks.Check(Boolean condition, String message) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\SalvoIntegrationChecks.cs:line 247
+   at Trackstorm.Client.Verification.SalvoIntegrationChecks._PhysicsProcess(Double delta) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\SalvoIntegrationChecks.cs:line 162
+   at: void Trackstorm.Client.Verification.SalvoIntegrationChecks._PhysicsProcess(double) (res://code/Client/Verification/SalvoIntegrationChecks.cs:162)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.SalvoIntegrationChecks._PhysicsProcess(double) (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\SalvoIntegrationChecks.cs:162)
+       [2] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2648)
+       [3] bool Trackstorm.Client.Verification.SalvoIntegrationChecks.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Verification.SalvoIntegrationChecks_ScriptMethods.generated.cs:100)
+       [4] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)
+Exception: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\check-salvo.ps1:16
+Line |
+  16 |  … h 'Salvo integration passed:')) { throw 'Salvo integration failed.' }
+     |                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Salvo integration failed.

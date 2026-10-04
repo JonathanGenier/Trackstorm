@@ -25,7 +25,7 @@ The overall score is an experiential judgment, not a rounded arithmetic threshol
 
 ## What Was Exercised
 
-**VERIFIED — direct independent execution.** Launched Godot 4.7.2 Mono in rendered mode against `res://scenes/verification/tombstone_playtest.tscn`, using two production `NetworkVehicleArena` instances with native local UDP and a flat elevated inspection floor. This was a new run with independent camera positions, timing choices and commands; existing implementation screenshots were not used as the basis for scoring. Ignored orchestration script: `.godot/ts-219/astra-r3.ps1`. Owned Godot PID: 51964; the user's unrelated process was untouched.
+**VERIFIED — direct independent execution.** Launched Godot 4.7.2 Mono in rendered mode against `res://scenes/verification/shield_playtest.tscn`, using two production `NetworkVehicleArena` instances with native local UDP and a flat elevated inspection floor. This was a new run with independent camera positions, timing choices and commands; existing implementation screenshots were not used as the basis for scoring. Ignored orchestration script: `.godot/ts-219/astra-r3.ps1`. Owned Godot PID: 51964; the user's unrelated process was untouched.
 
 - Acquired a shield and allowed 120 frames to settle. [Mounted image](r3-astra-mounted-peer0.png) shows the split face and support structure. The trace records a complete progressive opening.
 - Deselected and captured after 26 frames: mount 0.5614243, centerFold 0.4933238, scale 1. [Center return](r3-astra-center-return-peer0.png) visibly shows two angled center halves with nested wings.

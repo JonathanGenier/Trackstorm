@@ -1,0 +1,16 @@
+{
+  "author": "Original Trackstorm project work",
+  "tool": "5.2.2 LTS",
+  "source": "source/Shield.blend",
+  "export": "Shield.glb",
+  "reference": "../../vehicles/source/TrackstormCar.blend",
+  "reference_sha256": "be3c808a8d32fd995e2eab1cce24f5bf7139e3b686108b3b2a1d786985c0fbee",
+  "concept": "reference/concepts-v4/carnage-circus.png; user-approved built-in imagegen reference, not a runtime texture",
+  "no_car_geometry_exported": true,
+  "sha256": {
+    "Shield.glb": "882b51fd2bbc3de409845772c20ed49193801c616e013fe6762be81d69ee8249",
+    "ShieldRack.glb": "cd02bf6c869837ab37598b2e21e959dc2602d13b278c1b0d43b13c674da80b73",
+    "Shield.blend": "0f451af58803b1b75130fa9e87a051097a1dfc08d471a2f90b53640b41eb1542"
+  },
+  "naming_revision": "TS-220: Shield identifiers; GLB binary geometry and materials unchanged."
+}

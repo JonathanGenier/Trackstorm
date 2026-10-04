@@ -492,7 +492,7 @@ Completed load for: 'res://assets/audio/kenney/impact/impactMetal_light_000.ogg'
 Confirmed use/fire outcome for Machine Gun
 Usable item stays deployed after release on both peers
 Use preserves second physical slot
-Pickup Tombstone
+Pickup Shield
 Two occupied slots
 Loading resource: res://assets/audio/kenney/scifi/forceField_000.ogg remapped: res://assets/audio/kenney/scifi/forceField_000.ogg
 Loading resource: res://.godot/imported/forceField_000.ogg-e3642a603e8ccef3783d2c9c19045824.oggvorbisstr remapped: res://.godot/imported/forceField_000.ogg-e3642a603e8ccef3783d2c9c19045824.oggvorbisstr
@@ -500,12 +500,12 @@ Completed load for: 'res://assets/audio/kenney/scifi/forceField_000.ogg' remappe
 Loading resource: res://assets/audio/kenney/scifi/forceField_001.ogg remapped: res://assets/audio/kenney/scifi/forceField_001.ogg
 Loading resource: res://.godot/imported/forceField_001.ogg-2ee102abfba835460749a736d95bdfea.oggvorbisstr remapped: res://.godot/imported/forceField_001.ogg-2ee102abfba835460749a736d95bdfea.oggvorbisstr
 Completed load for: 'res://assets/audio/kenney/scifi/forceField_001.ogg' remapped 'res://assets/audio/kenney/scifi/forceField_001.ogg' at thread -1
-Tombstone visible to owner and other peer
+Shield visible to owner and other peer
 Switch away
 Wrench selected on both peers
 Switch back
 Selected item re-deployed
-Remote Tombstone use intent sent for authoritative rejection
+Remote Shield use intent sent for authoritative rejection
 Use leaves selected armor and inventory intact without an outcome
 Five-shot lifecycle grant
 Loading resource: res://assets/audio/kenney/scifi/forceField_000.ogg remapped: res://assets/audio/kenney/scifi/forceField_000.ogg

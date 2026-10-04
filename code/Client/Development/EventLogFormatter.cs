@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.Text;
 using Trackstorm.Core.Events;
-using Trackstorm.Core.Items;
 
 namespace Trackstorm.Client.Development;
 
@@ -29,9 +28,7 @@ internal static class EventLogFormatter
     {
         string actor = entry.ActorName;
         string target = entry.TargetName;
-        // Keep the journal identity stable while presenting the current item name.
-        string cause = entry.Category is EventCategory.Item or EventCategory.Developer && entry.Cause == nameof(HeldItem.Tombstone)
-            ? ItemRegistry.Find(HeldItem.Tombstone)!.DisplayName : entry.Cause;
+        string cause = entry.Cause;
         string Number(double? value) => value?.ToString("R", CultureInfo.InvariantCulture) ?? "--";
         string source = cause.Length == 0 ? string.Empty : $" from {cause}";
         void ActorSuffix()

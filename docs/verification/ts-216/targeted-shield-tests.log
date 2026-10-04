@@ -1,0 +1,25 @@
+Test run for C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll
+   NUnit3TestExecutor discovered 14 of 14 NUnit test cases using Current Discovery mode, Non-Explicit run
+  Passed SingleWeightedItemClaimsAndRoundTripsWithoutSecondAuthority(Shield) [76 ms]
+  Passed DeathResetAndDepartureClearAttachmentsButKeepReleasedWalls [39 ms]
+  Passed DestroyingEitherPhysicalSlotPreservesOtherItemAndSelection(False) [1 ms]
+  Passed DestroyingEitherPhysicalSlotPreservesOtherItemAndSelection(True) [< 1 ms]
+  Passed ExplicitResetClearsAttachmentsAndRejectedWorldBatchCannotClearThem [3 ms]
+  Passed FinishedClearsLiveWallsAndAttachedSlotsAndCannotBeRevivedByFurtherActions [9 ms]
+  Passed FullCheckpointJoinAndAuthorityRestorePreservePoolPoseAndDuplicateMemory(Held) [17 ms]
+  Passed FullCheckpointJoinAndAuthorityRestorePreservePoolPoseAndDuplicateMemory(RearShield) [1 ms]
+  Passed FullCheckpointJoinAndAuthorityRestorePreservePoolPoseAndDuplicateMemory(WorldWall) [< 1 ms]
+NUnit Adapter 5.0.0.0: Test execution complete
+  Passed InvalidPublicationsAndCodecLayoutsCannotManufactureHealthOrOwnership [2 ms]
+  Passed LiveEntityBoundRejectsGrantWithoutSpendingCapabilityAndDestructionReleasesCapacity [< 1 ms]
+  Passed MultiplePoolsRemainIndependentAndDamageGuardsDoNotHeal [7 ms]
+  Passed OnePoolSurvivesForwardTransitionsAndDestroysExactlyOnceWithoutVehicleDamage [< 1 ms]
+  Passed RetainedRespawnChangesCapabilitiesWithoutRefillingOrReplacingEntity [3 ms]
+
+Test Run Successful.
+Total tests: 14
+     Passed: 14
+ Total time: 0.6294 Seconds

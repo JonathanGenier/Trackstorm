@@ -1,7 +1,7 @@
-00:01.516  blend            | Read blend: "C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\assets\items\tombstone\source\Tombstone.blend"
+00:01.516  blend            | Read blend: "C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\assets\items\shield\source\Shield.blend"
 Info: Read library: 'C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\assets\vehicles\source\TrackstormCar.blend', '//..\..\..\vehicles\source\TrackstormCar.blend', parent '<direct>'
-TOMBSTONE_MOUNT_MESH_PASS {"closed_outward_meshes": 64}
-TOMBSTONE_AUDIT_PASS {"mesh_objects": 51, "closed_outward_meshes": true, "production_car_rear_extent_m": 2.9853618144989014, "production_car_half_width_m": 1.6850000619888306, "minimum_separating_clearance_m": 0.029638051986694336, "deployment_samples": 61, "mounted_road_clearance_m": 0.14499988079071047, "vehicle_local_top_m": 1.4001456499099731, "shield_local_top_m": 1.5221033096313477, "expanded_width_m": 6.614999771118164, "expanded_height_including_lamps_m": 2.522103428840637, "limitations": "Conservative mesh sweep at authored frame-32 Car reference pose; runtime must cover articulated wheels, trunk/rack, terrain and gameplay contacts."}
+SHIELD_MOUNT_MESH_PASS {"closed_outward_meshes": 64}
+SHIELD_AUDIT_PASS {"mesh_objects": 51, "closed_outward_meshes": true, "production_car_rear_extent_m": 2.9853618144989014, "production_car_half_width_m": 1.6850000619888306, "minimum_separating_clearance_m": 0.029638051986694336, "deployment_samples": 61, "mounted_road_clearance_m": 0.14499988079071047, "vehicle_local_top_m": 1.4001456499099731, "shield_local_top_m": 1.5221033096313477, "expanded_width_m": 6.614999771118164, "expanded_height_including_lamps_m": 2.522103428840637, "limitations": "Conservative mesh sweep at authored frame-32 Car reference pose; runtime must cover articulated wheels, trunk/rack, terrain and gameplay contacts."}
 Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
 
 Blender quit

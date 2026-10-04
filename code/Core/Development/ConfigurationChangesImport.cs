@@ -45,7 +45,7 @@ public static class ConfigurationChangesImport
             }
             else if (line.StartsWith('[') && line.EndsWith(']'))
             {
-                group = line[1..^1];
+                group = ConfigurationKeyMigration.CanonicalGroup(line[1..^1]);
                 if (!GameplayOptions.All.Any(option => option.Group == group) || !groups.Add(group))
                 { error = $"Unknown or repeated category at line {index + 1}."; return false; }
             }
@@ -53,7 +53,7 @@ public static class ConfigurationChangesImport
             {
                 int separator = line.IndexOf('=');
                 if (separator < 1 || group is null) return false;
-                string key = line[..separator].Trim();
+                string key = ConfigurationKeyMigration.CanonicalKey(line[..separator].Trim());
                 var option = GameplayOptions.All.SingleOrDefault(option => option.Key == key);
                 if (option is null || option.Group != group)
                 { error = $"Unknown setting or incorrect category at line {index + 1}."; return false; }

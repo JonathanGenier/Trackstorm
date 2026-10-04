@@ -58,9 +58,9 @@ public sealed partial class MountedShieldGroundChecks : Node3D
                     new(rotation.X, rotation.Y, rotation.Z, rotation.W), VehicleBody.ToCore(surface * new Vector3(0, -2, -12)), N.Vector3.Zero);
                 var snapshot = Snapshot(pose);
                 _body.Apply(pose);
-                _body.ObserveTombstones(snapshot, []);
+                _body.ObserveShields(snapshot, []);
                 var baseline = _body.Observe(snapshot);
-                _body.ObserveTombstones(snapshot, [new(1, 1, 1, 1, TombstoneStage.RearShield, 1000)]);
+                _body.ObserveShields(snapshot, [new(1, 1, 1, 1, ShieldStage.RearShield, 1000)]);
                 parameters.From = new(basis, VehicleBody.ToGodot(pose.Position));
                 parameters.Motion = VehicleBody.ToGodot(pose.LinearVelocity) / 60;
                 if (legacy.Test(parameters, result) && Enumerable.Range(0, result.GetCollisionCount()).Any(i => result.GetCollisionLocalShape(i) > 0)) { previouslySnagged++; }
@@ -69,7 +69,7 @@ public sealed partial class MountedShieldGroundChecks : Node3D
                     N.Vector3.Distance(baseline.Physics.LinearVelocity, shielded.Physics.LinearVelocity) < .001f &&
                     N.Vector3.Distance(baseline.Physics.AngularVelocity, shielded.Physics.AngularVelocity) < .001f,
                     $"Ground response differs at slope/pitch/roll/height {slope}/{pitch}/{roll}/{height}.");
-                Check(shielded.Contacts.All(c => !TombstoneGeometry.Contains(c.LocalPosition)), "Ground contact reached mounted armor damage routing.");
+                Check(shielded.Contacts.All(c => !ShieldGeometry.Contains(c.LocalPosition)), "Ground contact reached mounted armor damage routing.");
                 chassisContacts += shielded.Contacts.Count;
                 cases++;
             }
@@ -80,8 +80,8 @@ public sealed partial class MountedShieldGroundChecks : Node3D
             var impact = new VehiclePhysicsState(new(30, 1.6f, 0), N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitX, Mathf.DegToRad(20)), new(0, 0, 20), N.Vector3.Zero);
             _body.Apply(impact);
             var wallHit = _body.Observe(Snapshot(impact));
-            Check(wallHit.Contacts.Any(c => c.StaticObstacle && TombstoneGeometry.Contains(c.LocalPosition)), "Ground filtering lost a solid rear obstacle.");
-            Check(wallHit.Contacts.All(c => !c.Terrain || !TombstoneGeometry.Contains(c.LocalPosition)), "Mixed obstacle contact reintroduced armor ground damage.");
+            Check(wallHit.Contacts.Any(c => c.StaticObstacle && ShieldGeometry.Contains(c.LocalPosition)), "Ground filtering lost a solid rear obstacle.");
+            Check(wallHit.Contacts.All(c => !c.Terrain || !ShieldGeometry.Contains(c.LocalPosition)), "Mixed obstacle contact reintroduced armor ground damage.");
             GD.Print($"Mounted shield ground passed: {cases} slope/pitch/roll/height comparisons; {previouslySnagged} old armor snags; {chassisContacts} retained chassis contacts; mixed ground/solid-obstacle protection.");
             CheckProductionTrack();
             _body.Free(); _ground.Free(); _obstacle.Free(); _track.Free();
@@ -106,14 +106,14 @@ public sealed partial class MountedShieldGroundChecks : Node3D
                 VehicleBody.ToCore(basis * new Vector3(0, -2, -12)), N.Vector3.Zero);
             var snapshot = Snapshot(pose);
             _body.Apply(pose);
-            _body.ObserveTombstones(snapshot, []);
+            _body.ObserveShields(snapshot, []);
             var baseline = _body.Observe(snapshot);
-            _body.ObserveTombstones(snapshot, [new(1, 1, 1, 1, TombstoneStage.RearShield, 1000)]);
+            _body.ObserveShields(snapshot, [new(1, 1, 1, 1, ShieldStage.RearShield, 1000)]);
             var shielded = _body.Observe(snapshot);
             bool same = N.Vector3.Distance(baseline.Physics.Position, shielded.Physics.Position) < .001f &&
                 N.Vector3.Distance(baseline.Physics.LinearVelocity, shielded.Physics.LinearVelocity) < .001f &&
                 N.Vector3.Distance(baseline.Physics.AngularVelocity, shielded.Physics.AngularVelocity) < .001f;
-            if (!same || shielded.Contacts.Any(c => TombstoneGeometry.Contains(c.LocalPosition)))
+            if (!same || shielded.Contacts.Any(c => ShieldGeometry.Contains(c.LocalPosition)))
             {
                 failures++;
                 if (failures <= 5) { GD.Print($"Track snag triangle={i / 3}, point={point}, yaw/pitch/height={yaw}/{pitch}/{height}, contacts={System.Text.Json.JsonSerializer.Serialize(shielded.Contacts, new System.Text.Json.JsonSerializerOptions { IncludeFields = true })}"); }

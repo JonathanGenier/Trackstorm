@@ -105,10 +105,10 @@ Passed!  - Failed:     0, Passed:   418, Skipped:     0, Total:   418, Duration:
 
 All checks passed.
 === final-audit ===
-00:01.578  blend            | Read blend: "C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\assets\items\tombstone\source\Tombstone.blend"
+00:01.578  blend            | Read blend: "C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\assets\items\shield\source\Shield.blend"
 Info: Read library: 'C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\assets\vehicles\source\TrackstormCar.blend', '//..\..\..\vehicles\source\TrackstormCar.blend', parent '<direct>'
-TOMBSTONE_MOUNT_MESH_PASS {"closed_outward_meshes": 64}
-TOMBSTONE_AUDIT_PASS {"mesh_objects": 31, "closed_outward_meshes": true, "production_car_rear_extent_m": 2.9853618144989014, "production_car_half_width_m": 1.6850000619888306, "minimum_separating_clearance_m": 0.04463791847229004, "deployment_samples": 61, "mounted_road_clearance_m": 0.14500000000000002, "vehicle_local_top_m": 1.4001456499099731, "shield_local_top_m": 1.5221033096313477, "expanded_width_m": 6.614999771118164, "expanded_height_including_lamps_m": 2.5221033096313477, "limitations": "Conservative mesh sweep at authored frame-32 Car reference pose; runtime must cover articulated wheels, trunk/rack, terrain and gameplay contacts."}
+SHIELD_MOUNT_MESH_PASS {"closed_outward_meshes": 64}
+SHIELD_AUDIT_PASS {"mesh_objects": 31, "closed_outward_meshes": true, "production_car_rear_extent_m": 2.9853618144989014, "production_car_half_width_m": 1.6850000619888306, "minimum_separating_clearance_m": 0.04463791847229004, "deployment_samples": 61, "mounted_road_clearance_m": 0.14500000000000002, "vehicle_local_top_m": 1.4001456499099731, "shield_local_top_m": 1.5221033096313477, "expanded_width_m": 6.614999771118164, "expanded_height_including_lamps_m": 2.5221033096313477, "limitations": "Conservative mesh sweep at authored frame-32 Car reference pose; runtime must cover articulated wheels, trunk/rack, terrain and gameplay contacts."}
 Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
 
 Blender quit
@@ -179,14 +179,14 @@ Rear shield integration passed: selection/stow cycles without use, persistent da
 === lifecycle ===
 Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
 
-Two UDP peers admitted; four independent Tombstones acquired through normal authority.
+Two UDP peers admitted; four independent Shields acquired through normal authority.
 Damage and duplicate hit/transition exercised; rear state retains slots and persistent pools.
 World transition releases its slot; the second damaged rear shield retains its slot. HP 550/900/900/1000, vehicles 1500 HP.
 Full checkpoint/authority restoration preserved pools, lifecycle, pose and replay memory; third UDP peer connecting.
 Late join converged; lethal world/held damage and twenty repeated destruction attempts produced two removals.
 Three UDP peers agree on remaining entities, stages, health and cleared slots; exactly two destruction outcomes and no vehicle damage.
-Tombstone integration passed: authoritative pools, lifecycle, repeated events, three-peer UDP and full state restoration.
-Tombstone verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\tombstone-checks\b54887fd89624ba5b46d5711a85d1181
+Shield integration passed: authoritative pools, lifecycle, repeated events, three-peer UDP and full state restoration.
+Shield verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\shield-checks\b54887fd89624ba5b46d5711a85d1181
 === rack ===
 Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
 
@@ -271,17 +271,17 @@ Use request accepted for Machine Gun
 Confirmed use/fire outcome for Machine Gun
 Usable item stays deployed after release on both peers
 Use preserves second physical slot
-Pickup Tombstone
+Pickup Shield
 Two occupied slots
-Tombstone visible to owner and other peer
+Shield visible to owner and other peer
 Switch away
 Wrench selected on both peers
 Switch back
 Selected item re-deployed
-Remote Tombstone deployment request
+Remote Shield deployment request
 Deployment retracts the carriage on both peers
 Use transfers the same shield and health to one world wall
-Tombstone use preserves the other physical slot
+Shield use preserves the other physical slot
 Five-shot lifecycle grant
 Multi-shot rack deployed
 Select empty physical slot
@@ -562,21 +562,21 @@ Remote tags passed over two-peer UDP: damaged snapshot, actual Wrench healing, c
 Category pickup history before reconnect: 1:3:Oil:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;3:3:Wrench:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1
 Item recovery seed: three distinct applied hits, 2.25 points, rate 0.375, target watermark 3.
 Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 8083; no historical events.
-Tombstone recovery verified: 1 retained pools; 1 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
+Shield recovery verified: 1 retained pools; 1 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
 Proxy Mine reconnect 1: complete state restored without impact replay.
 Nitro reconnect 1: remaining 0, exact checkpoint state and returning player charge 37.5%.
 Circus timer reconnect 1: 07:51, start 300, complete standings retained.
 Environment recovery verified: Stage 2 damage 17, final rock and persistent cleared plants.
 Category history verified after reconnect 1
 Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 8113; no historical events.
-Tombstone recovery verified: 1 retained pools; 1 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
+Shield recovery verified: 1 retained pools; 1 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
 Proxy Mine reconnect 2: complete state restored without impact replay.
 Nitro reconnect 2: remaining 0, exact checkpoint state and returning player charge 37.5%.
 Circus timer reconnect 2: 07:50, start 300, complete standings retained.
 Environment recovery verified: Stage 2 damage 17, final rock and persistent cleared plants.
 Category history verified after reconnect 2
 Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 8173; no historical events.
-Tombstone recovery verified: 1 retained pools; 1 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
+Shield recovery verified: 1 retained pools; 1 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
 Proxy Mine reconnect 3: complete state restored without impact replay.
 Nitro reconnect 3: remaining 0, exact checkpoint state and returning player charge 37.5%.
 Circus timer reconnect 3: 07:49, start 300, complete standings retained.
@@ -594,7 +594,7 @@ Migration native arena 2 prepared in 81 ms.
 Category pickup history before migration: 2:3:Missile:Weapon=-0.5/2,Consumable=-0.25/1,Droppable=0.75/0;3:3:MachineGun:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;4:3:MachineGun:Weapon=-0.5/2,Consumable=-0.25/1,Droppable=0.75/0
 Item recovery seed: three distinct applied hits, 2.25 points, rate 0.375, target watermark 3.
 Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 437; no historical events.
-Tombstone recovery verified: 2 retained pools; 0 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
+Shield recovery verified: 2 retained pools; 0 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
 Machine gun recovery verified: 299/800 rounds, phase 0.25, no historical shot.
 Nitro migration verified: partial charge retained without unwanted activation; Circus totals restore without historical awards.
 Proxy Mine migration verified: same hazard survives authority replacement.
@@ -1180,7 +1180,7 @@ NUnit Adapter 5.0.0.0: Test execution complete
   Passed SnapshotBurstReplaysNewestBoundaryAndPreservesReliableOrder(True) [1 ms]
   Passed SwitchCommandsAreReliableOrderedAndCannotSelectAnotherPlayer [1 ms]
   Passed ThreeFinishedCyclesDisposeMatchStateAndKeepSessionOwnership [48 ms]
-  Passed TombstoneHealthAndRemovalReplicateWhileForgedOutcomesAndDuplicatePublicationsAreRejected [11 ms]
+  Passed ShieldHealthAndRemovalReplicateWhileForgedOutcomesAndDuplicatePublicationsAreRejected [11 ms]
 
 Total tests: 433
      Passed: 432

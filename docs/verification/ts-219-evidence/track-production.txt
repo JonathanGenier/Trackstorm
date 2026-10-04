@@ -12,4 +12,4 @@ PASS: Production bank driving phase 6 preserves mounted shield HP.
 PASS: Ordinary input crosses the production infield-to-track join and climbs the west bank.
 PASS: Remote shield remains undamaged after production bank traversal.
 PASS: Runtime exits cleanly without errors, warnings or exceptions.
-Tombstone presentation passed. Evidence: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-219\playtest/check-20261003-205655*
+Shield presentation passed. Evidence: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-219\playtest/check-20261003-205655*
