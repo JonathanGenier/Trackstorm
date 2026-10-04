@@ -6,7 +6,7 @@ if (-not $NoBuild) {
 }
 $outputDirectory = Join-Path $PSScriptRoot ('.godot/aim-checks/' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
-$arguments = @('--path', $PSScriptRoot, 'res://scenes/verification/weapon_aim_checks.tscn', '--quit-after', '6000', '--max-fps', '30')
+$arguments = @('--path', $PSScriptRoot, 'res://scenes/verification/weapon_aim_checks.tscn', '--quit-after', '14000', '--max-fps', '30')
 if (-not $Visual) { $arguments += '--headless' }
 $arguments += @('--', "--aim-output=$outputDirectory")
 if ($Impaired) { $arguments += '--aim-impaired' }

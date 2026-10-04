@@ -110,6 +110,13 @@ public sealed partial class SettingsIntegrationChecks : Node
             CameraDistance = 1.2,
             CameraInertia = .3,
             CameraAerialPullback = 1.4,
+            HorizontalLookSensitivity = .4,
+            VerticalLookSensitivity = 2.6,
+            StickAimSensitivity = 1.7,
+            InvertY = true,
+            CameraRecenterSpeed = .7,
+            CameraFov = 87,
+            CameraHeight = 2.3,
             Fullscreen = true,
             WindowWidth = 960,
             WindowHeight = 540,
@@ -138,6 +145,8 @@ public sealed partial class SettingsIntegrationChecks : Node
         Check(Math.Abs(_player.Adapter.KeyboardSteeringSensitivity - 0.3f) < 0.001f && Math.Abs(_player.Adapter.KeyboardAerialSensitivity - 0.6f) < 0.001f, "keyboard/mouse settings independently survive restart and apply");
         Check(settings.CameraShakeIntensity == 0.35, "camera shake intensity survives process restart");
         Check(settings.CameraDistance == 1.2 && settings.CameraInertia == .3 && settings.CameraAerialPullback == 1.4, "camera preferences survive process restart independently");
+        Check(settings.HorizontalLookSensitivity == .4 && settings.VerticalLookSensitivity == 2.6 && settings.StickAimSensitivity == 1.7 && settings.InvertY &&
+            settings.CameraRecenterSpeed == .7 && settings.CameraFov == 87 && settings.CameraHeight == 2.3, "all new camera controls survive separate-process restart");
         Check(settings.MasterVolume == 0 && settings.MusicVolume == 0.25 && settings.SfxVolume == 0.75, "audio gains survive process restart");
         Check(settings.Fullscreen && settings.WindowWidth == 960 && settings.WindowHeight == 540, "display preferences survive process restart");
         Check(settings.SpeedUnit == SpeedUnit.MilesPerHour && settings.ShowFps && !settings.ShowPing, "independent HUD preferences survive process restart");
@@ -250,6 +259,23 @@ public sealed partial class SettingsIntegrationChecks : Node
 
         Press(panel, "Back");
         Press(panel, "Gameplay");
+        Check(!Descendants(panel).OfType<HSlider>().Any(control => control.IsVisibleInTree()), "Gameplay contains no camera sliders");
+        Press(panel, "Back");
+        Press(panel, "Camera");
+        Check(panel.CurrentPage == MenuPage.Camera, "dedicated Camera page navigates through existing hierarchy");
+        foreach (string name in new[] { "HorizontalLookSensitivity", "VerticalLookSensitivity", "StickAimSensitivity", "CameraRecenterSpeed", "CameraFov", "CameraHeight" })
+        {
+            var slider = Descendants(panel).OfType<HSlider>().Single(control => control.Name == name && control.IsVisibleInTree());
+            foreach (double value in new[] { slider.MinValue, slider.MaxValue })
+            {
+                slider.Value = value;
+                double actual = (double)typeof(PlayerSettings).GetProperty(name)!.GetValue(_settings.Current)!;
+                Check(actual == slider.Value, name + " UI applies supported bounds independently");
+            }
+        }
+        var inversion = Descendants(panel).OfType<CheckButton>().Single(control => control.Text == "Invert Y");
+        inversion.ButtonPressed = false; Check(!_settings.Current.InvertY, "Invert Y disables through UI");
+        inversion.ButtonPressed = true; Check(_settings.Current.InvertY, "Invert Y enables through UI");
         foreach (string name in new[] { "CameraDistance", "CameraInertia", "CameraAerialPullback" })
         {
             var slider = Descendants(panel).OfType<HSlider>().Single(control => control.Name == name);
@@ -264,7 +290,7 @@ public sealed partial class SettingsIntegrationChecks : Node
         foreach (double amount in new[] { 0d, 25d, 50d, 100d })
         {
             shake.Value = amount;
-            Check(_settings.Current.CameraShakeIntensity == amount / 100, "Gameplay camera shake slider applies immediately");
+            Check(_settings.Current.CameraShakeIntensity == amount / 100, "Camera shake slider applies immediately");
         }
         shake.Value = 35;
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);

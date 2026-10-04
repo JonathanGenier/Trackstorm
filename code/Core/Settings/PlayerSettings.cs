@@ -18,6 +18,11 @@ public sealed record PlayerSettings
     private double _mouseAimSensitivity = 1;
     private double _stickAimSensitivity = 1;
     private double _stickAimCurve = 2;
+    private double _horizontalLookSensitivity = 1;
+    private double _verticalLookSensitivity = 1;
+    private double _cameraRecenterSpeed = 1;
+    private double _cameraFov = 65;
+    private double _cameraHeight = 1.25;
     private SpeedUnit _speedUnit;
     private int _windowWidth = 1280;
     private int _windowHeight = 720;
@@ -48,10 +53,23 @@ public sealed record PlayerSettings
     public double CameraAerialPullback { get => _cameraAerialPullback; init => _cameraAerialPullback = double.IsFinite(value) ? Math.Clamp(value, 0, 1.5) : 1; }
     /// <summary>Local direct-fire mouse sensitivity multiplier.</summary>
     public double MouseAimSensitivity { get => _mouseAimSensitivity; init => _mouseAimSensitivity = double.IsFinite(value) ? Math.Clamp(value, .25, 3) : 1; }
-    /// <summary>Local direct-fire stick turn-speed multiplier.</summary>
+    /// <summary>Local controller camera turn-speed multiplier, shared by armed and unarmed views.</summary>
     public double StickAimSensitivity { get => _stickAimSensitivity; init => _stickAimSensitivity = double.IsFinite(value) ? Math.Clamp(value, .25, 3) : 1; }
     /// <summary>Radial stick response exponent after the existing dead zone.</summary>
     public double StickAimCurve { get => _stickAimCurve; init => _stickAimCurve = double.IsFinite(value) ? Math.Clamp(value, 1, 3) : 2; }
+
+    /// <summary>Horizontal camera input gain for mouse and controller in [0.25,3].</summary>
+    public double HorizontalLookSensitivity { get => _horizontalLookSensitivity; init => _horizontalLookSensitivity = LookGain(value); }
+    /// <summary>Vertical camera input gain, independent of lens height, in [0.25,3].</summary>
+    public double VerticalLookSensitivity { get => _verticalLookSensitivity; init => _verticalLookSensitivity = LookGain(value); }
+    /// <summary>Local vertical look inversion for both devices.</summary>
+    public bool InvertY { get; init; }
+    /// <summary>Neutral-input recenter rate multiplier in [0.25,3]; default retains 6/s.</summary>
+    public double CameraRecenterSpeed { get => _cameraRecenterSpeed; init => _cameraRecenterSpeed = LookGain(value); }
+    /// <summary>Local base field of view in degrees [50,90], before bounded speed feedback.</summary>
+    public double CameraFov { get => _cameraFov; init => _cameraFov = double.IsFinite(value) ? Math.Clamp(value, 50, 90) : 65; }
+    /// <summary>Lens follow height above the deployed rack reference in metres [0.5,3].</summary>
+    public double CameraHeight { get => _cameraHeight; init => _cameraHeight = double.IsFinite(value) ? Math.Clamp(value, .5, 3) : 1.25; }
 
     /// <summary>Whether to request fullscreen; defaults to a recoverable window.</summary>
     public bool Fullscreen { get; init; }
@@ -121,6 +139,7 @@ public sealed record PlayerSettings
     public double KeyboardAerialSensitivity { get => _keyboardAerialSensitivity; init => _keyboardAerialSensitivity = double.IsFinite(value) ? Math.Clamp(value, 0.1, 1) : 1; }
 
     private static double Sensitivity(double value) => double.IsFinite(value) ? Math.Clamp(value, 0.1, 3) : 1;
+    private static double LookGain(double value) => double.IsFinite(value) ? Math.Clamp(value, .25, 3) : 1;
 
     private static double Volume(double value) => double.IsFinite(value) ? Math.Clamp(value, 0, 1) : 1;
 }

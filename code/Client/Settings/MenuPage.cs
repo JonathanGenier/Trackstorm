@@ -15,6 +15,8 @@ internal enum MenuPage
     Video,
     /// <summary>Gameplay navigation page.</summary>
     Gameplay,
+    /// <summary>Local camera presentation and look preferences.</summary>
+    Camera,
     /// <summary>Interface navigation page.</summary>
     Interface,
     /// <summary>Controls navigation page.</summary>
