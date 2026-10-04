@@ -549,7 +549,7 @@ NUnit Adapter 5.0.0.0: Test execution complete
   Passed SnapshotBurstReplaysNewestBoundaryAndPreservesReliableOrder(True) [6 ms]
   Passed SwitchCommandsAreReliableOrderedAndCannotSelectAnotherPlayer [4 ms]
   Passed ThreeFinishedCyclesDisposeMatchStateAndKeepSessionOwnership [224 ms]
-  Passed ShieldHealthAndRemovalReplicateWhileForgedOutcomesAndDuplicatePublicationsAreRejected [29 ms]
+  Passed TombstoneHealthAndRemovalReplicateWhileForgedOutcomesAndDuplicatePublicationsAreRejected [29 ms]
 
 Test Run Successful.
 Total tests: 427

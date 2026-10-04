@@ -37,7 +37,7 @@ Driver 0, case 3, closest 1.197 m, inventory Nitro/None: Nitro passed.
 Driver 0, case 4, closest 1.197 m, inventory ProxyMine/None: ProxyMine passed.
 Driver 0, case 5, closest 1.197 m, inventory Salvo/None: Salvo passed.
 Driver 0, case 6, closest 1.197 m, inventory MachineGun/None: MachineGun passed.
-Driver 0, case 7, closest 1.197 m, inventory Shield/None: Shield passed.
+Driver 0, case 7, closest 1.197 m, inventory Tombstone/None: Tombstone passed.
 Driver 0, case 8, closest 1.197 m, inventory Wrench/None: Wrench passed.
 Driver 0, case 9, closest 1.197 m, inventory Wrench/ProxyMine: ProxyMine passed.
 Driver 0, case 10, closest 1.197 m, inventory Wrench/ProxyMine: full rejection passed.
@@ -49,7 +49,7 @@ Driver 1, case 3, closest 1.191 m, inventory Nitro/None: Nitro passed.
 Driver 1, case 4, closest 1.191 m, inventory ProxyMine/None: ProxyMine passed.
 Driver 1, case 5, closest 1.191 m, inventory Salvo/None: Salvo passed.
 Driver 1, case 6, closest 1.191 m, inventory MachineGun/None: MachineGun passed.
-Driver 1, case 7, closest 1.191 m, inventory Shield/None: Shield passed.
+Driver 1, case 7, closest 1.191 m, inventory Tombstone/None: Tombstone passed.
 Driver 1, case 8, closest 1.191 m, inventory Wrench/None: Wrench passed.
 Driver 1, case 9, closest 1.191 m, inventory Wrench/ProxyMine: ProxyMine passed.
 System.InvalidOperationException: Sequence contains no matching element

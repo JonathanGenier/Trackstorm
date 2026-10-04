@@ -82,17 +82,17 @@ Use request accepted for Machine Gun
 Confirmed use/fire outcome for Machine Gun
 Usable item stays deployed after release on both peers
 Use preserves second physical slot
-Pickup Shield
+Pickup Tombstone
 Two occupied slots
-Shield visible to owner and other peer
+Tombstone visible to owner and other peer
 Switch away
 Wrench selected on both peers
 Switch back
 Selected item re-deployed
-Remote Shield deployment request
+Remote Tombstone deployment request
 Deployment retracts the carriage on both peers
 Use transfers the same shield and health to one world wall
-Shield use preserves the other physical slot
+Tombstone use preserves the other physical slot
 Five-shot lifecycle grant
 Multi-shot rack deployed
 Select empty physical slot
@@ -236,14 +236,14 @@ World wall integration passed: native contact spin, tipping/breakage, expiry, de
 COMMAND OUTPUT: ts219-horizontal-lifecycle.log
 Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
 
-Two UDP peers admitted; four independent Shields acquired through normal authority.
+Two UDP peers admitted; four independent Tombstones acquired through normal authority.
 Damage and duplicate hit/transition exercised; rear state retains slots and persistent pools.
 World transition releases its slot; the second damaged rear shield retains its slot. HP 550/900/900/1000, vehicles 1500 HP.
 Full checkpoint/authority restoration preserved pools, lifecycle, pose and replay memory; third UDP peer connecting.
 Late join converged; lethal world/held damage and twenty repeated destruction attempts produced two removals.
 Three UDP peers agree on remaining entities, stages, health and cleared slots; exactly two destruction outcomes and no vehicle damage.
-Shield integration passed: authoritative pools, lifecycle, repeated events, three-peer UDP and full state restoration.
-Shield verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\shield-checks\94e6e4451847447d916b45bb56221eef
+Tombstone integration passed: authoritative pools, lifecycle, repeated events, three-peer UDP and full state restoration.
+Tombstone verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\tombstone-checks\94e6e4451847447d916b45bb56221eef
 
 COMMAND OUTPUT: ts219-horizontal-items.log
 Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
@@ -292,21 +292,21 @@ Remote tags passed over two-peer UDP: damaged snapshot, actual Wrench healing, c
 Category pickup history before reconnect: 1:3:ProxyMine:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;3:3:Nitro:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1
 Item recovery seed: three distinct applied hits, 2.25 points, rate 0.375, target watermark 3.
 Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 8083; no historical events.
-Shield recovery verified: 1 retained pools; 1 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
+Tombstone recovery verified: 1 retained pools; 1 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
 Proxy Mine reconnect 1: complete state restored without impact replay.
 Nitro reconnect 1: remaining 0, exact checkpoint state and returning player charge 37.5%.
 Circus timer reconnect 1: 07:51, start 300, complete standings retained.
 Environment recovery verified: Stage 2 damage 17, final rock and persistent cleared plants.
 Category history verified after reconnect 1
 Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 8113; no historical events.
-Shield recovery verified: 1 retained pools; 1 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
+Tombstone recovery verified: 1 retained pools; 1 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
 Proxy Mine reconnect 2: complete state restored without impact replay.
 Nitro reconnect 2: remaining 0, exact checkpoint state and returning player charge 37.5%.
 Circus timer reconnect 2: 07:50, start 300, complete standings retained.
 Environment recovery verified: Stage 2 damage 17, final rock and persistent cleared plants.
 Category history verified after reconnect 2
 Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 8173; no historical events.
-Shield recovery verified: 1 retained pools; 1 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
+Tombstone recovery verified: 1 retained pools; 1 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
 Proxy Mine reconnect 3: complete state restored without impact replay.
 Nitro reconnect 3: remaining 0, exact checkpoint state and returning player charge 37.5%.
 Circus timer reconnect 3: 07:49, start 300, complete standings retained.
@@ -325,7 +325,7 @@ Migration native arena 2 prepared in 54 ms.
 Category pickup history before migration: 2:3:Missile:Weapon=-0.5/2,Consumable=0.75/0,Droppable=-0.25/1;3:3:Missile:Weapon=-0.5/2,Consumable=0.75/0,Droppable=-0.25/1;4:3:Salvo:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1
 Item recovery seed: three distinct applied hits, 2.25 points, rate 0.375, target watermark 3.
 Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 450; no historical events.
-Shield recovery verified: 2 retained pools; 0 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
+Tombstone recovery verified: 2 retained pools; 0 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
 Machine gun recovery verified: 299/800 rounds, phase 0.25, no historical shot.
 Nitro migration verified: partial charge retained without unwanted activation; Circus totals restore without historical awards.
 Proxy Mine migration verified: same hazard survives authority replacement.

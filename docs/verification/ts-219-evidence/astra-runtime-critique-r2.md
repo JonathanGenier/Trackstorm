@@ -34,7 +34,7 @@ Audio, competitive fun/balance, general vehicle feel and sustained frame-time pe
 
 ## What Was Exercised
 
-**VERIFIED — independent direct runtime session:** Launched the production two-peer `shield_playtest.tscn` fixture with Godot 4.7.2, Compatibility renderer, RTX 4070 Ti. Chose and issued commands independently, then inspected actual screenshots and per-frame traces. This was command-driven playtesting, not physical keyboard/controller play or continuous human observation.
+**VERIFIED — independent direct runtime session:** Launched the production two-peer `tombstone_playtest.tscn` fixture with Godot 4.7.2, Compatibility renderer, RTX 4070 Ti. Chose and issued commands independently, then inspected actual screenshots and per-frame traces. This was command-driven playtesting, not physical keyboard/controller play or continuous human observation.
 
 The 23 captures are locally available as `.godot/ts-219/playtest/r2-astra-*`; the session logs are `r2-astra.log` and `r2-astra-errors.log` in that directory.
 

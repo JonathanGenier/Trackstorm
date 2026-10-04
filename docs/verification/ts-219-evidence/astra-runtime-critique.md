@@ -29,7 +29,7 @@ Audio, competitive fun/balance, physical-controller responsiveness and performan
 
 All following evidence is under `.godot/ts-219/playtest/`; names refer to `astra-r1-<name>.json` and corresponding `-peer0.png` / `-peer1.png`.
 
-- `clean-mounted`, `rear-straight`: full-height rear coverage, wrapped right/left wings, road gap, hardware and face readability. Compared with `assets/items/shield/reference/concepts-v4/carnage-circus.png`.
+- `clean-mounted`, `rear-straight`: full-height rear coverage, wrapped right/left wings, road gap, hardware and face readability. Compared with `assets/items/tombstone/reference/concepts-v4/carnage-circus.png`.
 - `chase-stationary`: actual chase-camera framing with mounted armor.
 - `damage-mounted`, `unfold`, `flat`: 1,000 -> 650 HP, normal deployment retaining identity 1 and 650 HP; expansion trace from 0 through 0.43648812 in the intermediate capture and 1.0 in the completed wall.
 - `reverse-side`: structural rear surface and relationship to the production Car after deployment.

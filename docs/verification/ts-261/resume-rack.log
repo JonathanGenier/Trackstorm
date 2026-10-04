@@ -81,14 +81,14 @@ Use request accepted for Machine Gun
 Confirmed use/fire outcome for Machine Gun
 Usable item stays deployed after release on both peers
 Use preserves second physical slot
-Pickup Shield
+Pickup Tombstone
 Two occupied slots
-Shield visible to owner and other peer
+Tombstone visible to owner and other peer
 Switch away
 Wrench selected on both peers
 Switch back
 Selected item re-deployed
-Remote Shield use intent sent for authoritative rejection
+Remote Tombstone use intent sent for authoritative rejection
 Use leaves selected armor and inventory intact without an outcome
 Five-shot lifecycle grant
 Multi-shot rack deployed

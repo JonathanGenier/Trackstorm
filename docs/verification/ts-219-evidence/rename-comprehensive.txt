@@ -103,7 +103,7 @@ A total of 1 test files matched the specified pattern.
   Error Message:
      Assert.That(view.ItemName, Is.EqualTo(item == HeldItem.None ? "EMPTY" : item == HeldItem.Nitro ? "NITRO 100%" : item == HeldItem.ProxyMine ? "PROXY MINE" : item == HeldItem.MachineGun ? "MACHINE GUN 100%" : item == HeldItem.Salvo ? "SALVO 5" : item.ToString().ToUpperInvariant()))
   Expected string length 9 but was 6. Strings differ at index 0.
-  Expected: "SHIELD"
+  Expected: "TOMBSTONE"
   But was:  "SHIELD"
   -----------^
 

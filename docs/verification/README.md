@@ -4,9 +4,11 @@ This directory is excluded from Godot resource importing by `.gdignore`. Evidenc
 
 This directory records historical verification evidence for particular implementations, builds and review rounds. Its reports are not current policy, repository instructions, Jira requirements or substitutes for current verification. Earlier acceptance gaps and delivery decisions describe their recorded point in time; later reports or code may differ.
 
-TS-220 normalized Shield identifiers and linked paths in older reports and text logs.
-These editorial updates do not represent rerunning earlier commands or critiques.
-Screenshots remain original captures; their displayed text reflects the historical build.
+TS-220 uses Shield in current implementation and descriptive documentation. Historical
+raw execution artifacts retain their exact original contents and paths; quoted commands
+and symbols in earlier reports retain their point-in-time spelling. These verified
+provenance exceptions are excluded from the canonical-name audit. Screenshots remain
+original captures. Terminology edits to descriptive prose do not represent new execution.
 
 Use [workflow](../workflow.md#verification) for current completion checks, Jira for assigned requirements, and the [feature index](../features/README.md) for current system behavior. Read a report only when its historical evidence is relevant.
 

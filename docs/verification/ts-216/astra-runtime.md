@@ -24,10 +24,10 @@ The overall score is a judgment of the observed operational result, not a test-c
 ### VERIFIED — directly executed during this critique
 
 ```powershell
-./check-shield.ps1 -GodotPath '.godot/godot-ci/4.7.2/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe' -NoBuild -Impaired
+./check-tombstone.ps1 -GodotPath '.godot/godot-ci/4.7.2/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe' -NoBuild -Impaired
 ```
 
-Exit code **0**, Godot **4.7.2.stable.mono.official.ed1daf0bf**. The harness uses production vehicle/item drivers and real local UDP sockets, with 30 ms outbound delay, 5 ms jitter and 2% configured native packet loss. Configured loss is not a measurement that every short run actually lost a packet. The retained console evidence is [astra-shield-runtime.log](astra-shield-runtime.log); original artifacts are `.godot/shield-checks/bfc65e9d043245b5bfd2d7d26ed1df5c/`.
+Exit code **0**, Godot **4.7.2.stable.mono.official.ed1daf0bf**. The harness uses production vehicle/item drivers and real local UDP sockets, with 30 ms outbound delay, 5 ms jitter and 2% configured native packet loss. Configured loss is not a measurement that every short run actually lost a packet. The retained console evidence is [astra-shield-runtime.log](astra-tombstone-runtime.log); original artifacts are `.godot/tombstone-checks/bfc65e9d043245b5bfd2d7d26ed1df5c/`.
 
 - Two initial peers acquired four Shields through normal item grants. All pools started at 1000 HP despite vehicle maximum HP of 1500.
 - Separate damage produced 675/900/950/1000 HP. Two entities advanced to RearShield, retaining their slots and damage. Duplicate transition/hit attempts had no additional effect.
@@ -39,7 +39,7 @@ Exit code **0**, Godot **4.7.2.stable.mono.official.ed1daf0bf**. The harness use
 
 - `.godot/ts216-reconnect-final.log`: three arena resyncs including 125 seconds offline; each explicitly verifies two world walls at **700/600 HP**, exact pose and damage watermark, without refill. The complete run passes alongside native-body reuse and other item recovery checks.
 - `.godot/ts216-migration-final.log`: three native UDP peers, live authority loss and sequential epochs pass; exact Shield recovery is logged alongside retained vehicles, item resources, environment and match state.
-- `.godot/ts216-shield-final.log`: the earlier completed Shield integration run has the same successful state/removal outcomes as the critique rerun.
+- `.godot/ts216-tombstone-final.log`: the earlier completed Shield integration run has the same successful state/removal outcomes as the critique rerun.
 - `.godot/ts216-items-runtime.log`: eight-peer ordinary item use and missile scenarios pass. `.godot/ts216-network-vehicles.log` records successful host/client vehicle and camera harness outcomes. These support surrounding integration, not Shield physical collisions.
 - `.godot/ts216-startup.log` records successful headless startup/navigation checks; `.godot/ts216-hud.log` records the existing HUD checks across nine resolutions. This reviewer did not visually inspect rendered HUD frames and assigns no visual/UI score.
 - `.godot/ts216-check.log` confirms zero-warning/zero-error Debug and Release builds, 943 Core tests and 412 transport tests passing. `.godot/ts216-core-targeted-final.log` records 14 passing focused cases, including lifecycle cleanup, retained respawn and malformed-state rejection; weighted acquisition is covered by the full suite. These establish the preceding verification boundary and supplementary coverage; they do not replace direct runtime observation.

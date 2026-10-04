@@ -1,7 +1,7 @@
 [ts217-check-car-rack.log]
     0 Warning(s)
     0 Error(s)
-Shield moves from rack to rear armor while retaining its slot on both peers
+Tombstone moves from rack to rear armor while retaining its slot on both peers
 Car rack integration passed: 142 checks; seven items, switching/use, duplicates, lifecycle and two UDP peers.
 Car rack consecutive mine passed: 20 checks on two UDP peers.
 [ts217-check-environment-collision-network.log]
@@ -41,7 +41,7 @@ Driver 0, case 3, closest 1.111 m, inventory Nitro/None: Nitro passed.
 Driver 0, case 4, closest 1.111 m, inventory ProxyMine/None: ProxyMine passed.
 Driver 0, case 5, closest 1.111 m, inventory Salvo/None: Salvo passed.
 Driver 0, case 6, closest 1.111 m, inventory MachineGun/None: MachineGun passed.
-Driver 0, case 7, closest 1.111 m, inventory Shield/None: Shield passed.
+Driver 0, case 7, closest 1.111 m, inventory Tombstone/None: Tombstone passed.
 Driver 0, case 8, closest 1.111 m, inventory Wrench/None: Wrench passed.
 Driver 0, case 9, closest 1.111 m, inventory Wrench/ProxyMine: ProxyMine passed.
 Driver 0, case 10, closest 1.111 m, inventory Wrench/ProxyMine: full rejection passed.
@@ -53,7 +53,7 @@ Driver 1, case 3, closest 1.109 m, inventory Nitro/None: Nitro passed.
 Driver 1, case 4, closest 1.109 m, inventory ProxyMine/None: ProxyMine passed.
 Driver 1, case 5, closest 1.109 m, inventory Salvo/None: Salvo passed.
 Driver 1, case 6, closest 1.109 m, inventory MachineGun/None: MachineGun passed.
-Driver 1, case 7, closest 1.108 m, inventory Shield/None: Shield passed.
+Driver 1, case 7, closest 1.108 m, inventory Tombstone/None: Tombstone passed.
 Driver 1, case 8, closest 1.108 m, inventory Wrench/None: Wrench passed.
 Driver 1, case 9, closest 1.108 m, inventory Wrench/ProxyMine: ProxyMine passed.
 Driver 1, case 10, closest 1.108 m, inventory Wrench/ProxyMine: full rejection passed.
@@ -75,15 +75,15 @@ Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbi
 Vehicle integration passed: 147 assertions.
 [ts217-check-reconnect.log]
 Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 8083; no historical events.
-Shield recovery verified: WorldWall/WorldWall at 700/600 HP, exact attachment/pose and damage watermark; no refill.
+Tombstone recovery verified: WorldWall/WorldWall at 700/600 HP, exact attachment/pose and damage watermark; no refill.
 Environment recovery verified: Stage 2 damage 17, final rock and persistent cleared plants.
 Machine gun recovery verified: 299/800 rounds, phase 0.25, no historical shot.
 Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 8113; no historical events.
-Shield recovery verified: WorldWall/WorldWall at 700/600 HP, exact attachment/pose and damage watermark; no refill.
+Tombstone recovery verified: WorldWall/WorldWall at 700/600 HP, exact attachment/pose and damage watermark; no refill.
 Environment recovery verified: Stage 2 damage 17, final rock and persistent cleared plants.
 Machine gun recovery verified: 299/800 rounds, phase 0.25, no historical shot.
 Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 8173; no historical events.
-Shield recovery verified: WorldWall/WorldWall at 700/600 HP, exact attachment/pose and damage watermark; no refill.
+Tombstone recovery verified: WorldWall/WorldWall at 700/600 HP, exact attachment/pose and damage watermark; no refill.
 Environment recovery verified: Stage 2 damage 17, final rock and persistent cleared plants.
 Machine gun recovery verified: 299/800 rounds, phase 0.25, no historical shot.
 Reconnect integration passed: immediate lobby removal/fresh admission, three arena resyncs including 125 seconds offline, native body reuse, prediction/interpolation reset, held-item/spawn/match continuity, dimmed retained standings, final results and new-generation reset over real UDP. EOS identity and initial scores are test seams.

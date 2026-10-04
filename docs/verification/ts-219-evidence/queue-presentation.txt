@@ -15,7 +15,7 @@ PASS: Rack stays raised until the shield folds safely back.
 PASS: Folded shield and carriage stow with the closed deck.
 PASS: Host and remote peer finish the same selection animation.
 PASS: Rapid reselection settles into one coherent mounted shield on both peers.
-PASS: Second slot retains an independently stored Shield.
+PASS: Second slot retains an independently stored Tombstone.
 PASS: Slot switching restores the original shield identity.
 PASS: Mounted health presentation follows accepted damage.
 PASS: Normal input deploys the original entity.
@@ -49,4 +49,4 @@ PASS: Slope driving phase 6 preserves mounted shield HP.
 PASS: Ordinary driving climbs, crests and descends the twenty-degree slope course.
 PASS: Remote peer retains the same undamaged mounted shield after slope traversal.
 PASS: Runtime exits cleanly without errors, warnings or exceptions.
-Shield presentation passed. Evidence: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-219\playtest/check-20261003-213511*
+Tombstone presentation passed. Evidence: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-219\playtest/check-20261003-213511*

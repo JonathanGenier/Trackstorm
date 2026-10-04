@@ -1,6 +1,6 @@
 {
   "result": "PASS",
   "scope": "Local maintained Markdown links whose target contains Shield; anchors not evaluated",
-  "checked": 39,
+  "checked": 32,
   "missing": []
 }

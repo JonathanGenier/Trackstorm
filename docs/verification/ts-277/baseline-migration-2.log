@@ -2,8 +2,8 @@ Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
 
 Migration native arena 1 prepared in 147 ms.
 Migration native arena 0 prepared in 61 ms.
-System.InvalidOperationException: Shield fixture transition failed.
-   at Trackstorm.Client.Verification.ShieldRecoveryFixture.Seed(NetworkVehicleArena arena, Boolean rearShield) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\ShieldRecoveryFixture.cs:line 23
+System.InvalidOperationException: Tombstone fixture transition failed.
+   at Trackstorm.Client.Verification.TombstoneRecoveryFixture.Seed(NetworkVehicleArena arena, Boolean rearShield) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\TombstoneRecoveryFixture.cs:line 23
    at Trackstorm.Client.Verification.MigrationIntegrationChecks.Scenario() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\MigrationIntegrationChecks.cs:line 282
    at Trackstorm.Client.Verification.MigrationIntegrationChecks._PhysicsProcess(Double delta) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\MigrationIntegrationChecks.cs:line 117
 REPLICATION_TRAFFIC {"seconds":3.7313546,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TD","delivery":"Reliable","bytes":1844,"messages":1,"peak":1844},{"peer":1,"protocol":"TE","delivery":"Reliable","bytes":282,"messages":1,"peak":282},{"peer":1,"protocol":"TL","delivery":"Reliable","bytes":224,"messages":2,"peak":112},{"peer":1,"protocol":"TX","delivery":"Reliable","bytes":5807,"messages":5,"peak":2780},{"peer":2,"protocol":"TG","delivery":"Reliable","bytes":78,"messages":2,"peak":39},{"peer":2,"protocol":"TG","delivery":"Unreliable","bytes":79,"messages":1,"peak":79},{"peer":2,"protocol":"TL","delivery":"Reliable","bytes":298,"messages":2,"peak":150}]}

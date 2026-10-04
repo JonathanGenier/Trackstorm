@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="449fe855-5c88-42c4-bd6d-b60348a108c2" name="j_gen@JO-DT 2026-10-04 10:02:19" runUser="JO-DT\j_gen" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-04T10:02:19.2225604-04:00" queuing="2026-10-04T10:02:19.2225608-04:00" start="2026-10-04T10:02:13.3580691-04:00" finish="2026-10-04T10:04:14.2066146-04:00" />
+  <TestSettings name="default" id="25ad98bd-c146-4650-ab03-7ef1cd4bf7ea">
+    <Deployment runDeploymentRoot="j_gen_JO-DT_2026-10-04_10_02_19" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="be2e22ca-1e57-4aee-bf67-327db18a69e3" testId="e46a139d-a42b-40a4-02d9-86e9298515af" testName="TenMinuteEightPlayerImpairmentSoak" computerName="JO-DT" duration="00:00:00.0004260" startTime="2026-10-04T10:02:44.8785575-04:00" endTime="2026-10-04T10:02:44.8789838-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="NotExecuted" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="be2e22ca-1e57-4aee-bf67-327db18a69e3">
+      <Output>
+        <StdOut>Sustained native soak; run separately from the ordinary fast gate.</StdOut>
+        <ErrorInfo>
+          <Message>Sustained native soak; run separately from the ordinary fast gate.</Message>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="3a6f5818-5a16-4d8f-b928-14a53da1d644" testId="2c090e36-44af-68c1-434b-abb5e6314b5a" testName="VehicleLoopConvergesAcrossNetworkConditions(2,50,10,0.0f,0.0f)" computerName="JO-DT" duration="00:00:12.0306490" startTime="2026-10-04T10:03:14.0025890-04:00" endTime="2026-10-04T10:03:26.0332372-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3a6f5818-5a16-4d8f-b928-14a53da1d644">
+      <Output>
+        <StdOut>prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0&#xD;
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+startup max=0.0261m; steady p99=0.0000m; steady max=0.0118m; steady &gt;1cm=1; max pending at completion=13&#xD;
+players=2; outbound delay=50ms; jitter=10ms; loss=0%; corrections=232; p99=0.0000m; max=0.0261m; snapshots/client=235; stale packets rejected</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="6b7c8818-c6f7-4884-91b1-d4816b19884f" testId="ab749f5d-bfeb-9906-21e7-e8d88807051e" testName="AdversePacketsPreserveReliableOrderAndExposeDiagnostics" computerName="JO-DT" duration="00:00:05.2650450" startTime="2026-10-04T10:02:13.9344393-04:00" endTime="2026-10-04T10:02:19.1994121-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6b7c8818-c6f7-4884-91b1-d4816b19884f">
+      <Output>
+        <StdOut>Reliable=100/100; unreliable=75/100; ping=80ms; incoming loss=0.21428573; outgoing loss=</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="dbd1a5f3-20f6-4f2c-8878-f728bcb1fad3" testId="0dba2ed0-5e24-765d-000b-6117969d0e36" testName="VehicleLoopConvergesAcrossNetworkConditions(2,30,10,2.0f,10.0f)" computerName="JO-DT" duration="00:00:12.0259840" startTime="2026-10-04T10:03:50.1048057-04:00" endTime="2026-10-04T10:04:02.1307890-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="dbd1a5f3-20f6-4f2c-8878-f728bcb1fad3">
+      <Output>
+        <StdOut>prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0&#xD;
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+startup max=0.0206m; steady p99=0.0000m; steady max=0.0000m; steady &gt;1cm=0; max pending at completion=12&#xD;
+players=2; outbound delay=30ms; jitter=10ms; loss=2%; corrections=228; p99=0.0000m; max=0.0206m; snapshots/client=230; stale packets rejected</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="632f3221-edcc-41d3-840f-df28af66c8a8" testId="5b37d75a-d573-6e85-4c03-747cd0be1800" testName="OccupiedListenerReportsBindErrorAndCanRecoverAfterOwnerCloses" computerName="JO-DT" duration="00:00:00.0131870" startTime="2026-10-04T10:02:32.1210925-04:00" endTime="2026-10-04T10:02:32.1342788-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="632f3221-edcc-41d3-840f-df28af66c8a8" />
+    <UnitTestResult executionId="52e1a8a6-4822-4eb4-ad7e-a6cfc77a87db" testId="0e118782-f461-b13f-204c-b9be18068783" testName="VehicleLoopConvergesAcrossNetworkConditions(2,25,5,0.0f,0.0f)" computerName="JO-DT" duration="00:00:05.0532100" startTime="2026-10-04T10:03:08.9493162-04:00" endTime="2026-10-04T10:03:14.0025259-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="52e1a8a6-4822-4eb4-ad7e-a6cfc77a87db">
+      <Output>
+        <ErrorInfo>
+          <Message>  Assert.That(clients.All(client =&gt; client.Latest?.Tick &gt; staleTick), Is.True)&#xD;
+  Expected: True&#xD;
+  But was:  False&#xD;
+</Message>
+          <StackTrace>   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss)&#xD;
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\NativeVehicleReplicationTests.cs:line 34&#xD;
+   at InvokeStub_NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Object, Span`1)&#xD;
+
+1)    at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss)&#xD;
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\NativeVehicleReplicationTests.cs:line 34&#xD;
+   at InvokeStub_NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Object, Span`1)&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="9a0ec4d3-ec14-4955-a75c-6e5d9c54c603" testId="e00b18cc-2ba5-8d58-e1a8-be597a939092" testName="EightPlayerControlledSnapshotLossConverges" computerName="JO-DT" duration="00:00:12.1048800" startTime="2026-10-04T10:02:32.7736342-04:00" endTime="2026-10-04T10:02:44.8785135-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9a0ec4d3-ec14-4955-a75c-6e5d9c54c603">
+      <Output>
+        <StdOut>prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0&#xD;
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable&#xD;
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable&#xD;
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable&#xD;
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable&#xD;
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable&#xD;
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable&#xD;
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable&#xD;
+startup max=0.2181m; steady p99=0.0000m; steady max=0.2103m; steady &gt;1cm=1; max pending at completion=13&#xD;
+players=8; outbound delay=30ms; jitter=10ms; loss=0%; corrections=1611; p99=0.0000m; max=0.2181m; snapshots/client=230; stale packets rejected</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="9668e2c9-ee0a-4ed7-8a4a-f31052f18902" testId="9fb4a8ef-5b2b-7331-539e-3ca5ac2a3788" testName="VehicleLoopConvergesAcrossNetworkConditions(2,30,0,0.0f,0.0f)" computerName="JO-DT" duration="00:00:12.0399420" startTime="2026-10-04T10:02:56.9093441-04:00" endTime="2026-10-04T10:03:08.9492860-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9668e2c9-ee0a-4ed7-8a4a-f31052f18902">
+      <Output>
+        <StdOut>prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0&#xD;
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+startup max=0.1225m; steady p99=0.0000m; steady max=0.0000m; steady &gt;1cm=0; max pending at completion=7&#xD;
+players=2; outbound delay=30ms; jitter=0ms; loss=0%; corrections=237; p99=0.0000m; max=0.1225m; snapshots/client=238; stale packets rejected</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="180a6b59-43e7-40e7-8295-ead6520ca44e" testId="87ad3d23-3eb4-1859-c379-6a99c9879844" testName="HostAndSevenClientsRejectExcessAndReconnect" computerName="JO-DT" duration="00:00:00.2007600" startTime="2026-10-04T10:02:31.9202979-04:00" endTime="2026-10-04T10:02:32.1210569-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="180a6b59-43e7-40e7-8295-ead6520ca44e" />
+    <UnitTestResult executionId="c955bb9c-6dfa-4fc6-b704-99771e132458" testId="08c7a26d-b08a-702b-2f04-ca74425d7231" testName="VehicleLoopConvergesAcrossNetworkConditions(2,0,0,2.0f,0.0f)" computerName="JO-DT" duration="00:00:12.0305910" startTime="2026-10-04T10:03:26.0333605-04:00" endTime="2026-10-04T10:03:38.0639510-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c955bb9c-6dfa-4fc6-b704-99771e132458">
+      <Output>
+        <StdOut>prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0&#xD;
+delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+startup max=0.2437m; steady p99=0.0000m; steady max=0.0000m; steady &gt;1cm=0; max pending at completion=5&#xD;
+players=2; outbound delay=0ms; jitter=0ms; loss=2%; corrections=234; p99=0.0000m; max=0.2437m; snapshots/client=235; stale packets rejected</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="21f736c0-f772-4d21-a315-b2e3a73f9741" testId="1f33a62e-33e9-4d88-8c8b-ab4ed5c9ddc4" testName="VehicleLoopConvergesAcrossNetworkConditions(8,30,10,2.0f,0.0f)" computerName="JO-DT" duration="00:00:12.0407890" startTime="2026-10-04T10:03:38.0639857-04:00" endTime="2026-10-04T10:03:50.1047742-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="21f736c0-f772-4d21-a315-b2e3a73f9741">
+      <Output>
+        <StdOut>prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0&#xD;
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+startup max=0.1773m; steady p99=0.0000m; steady max=0.1501m; steady &gt;1cm=4; max pending at completion=13&#xD;
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=1572; p99=0.0000m; max=0.1773m; snapshots/client=221; stale packets rejected</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="028504cb-7a6e-46f7-aa11-0b79f2e2df6d" testId="8b788194-34a4-dc94-224e-c32dafa30707" testName="VehicleLoopConvergesAcrossNetworkConditions(2,0,0,0.0f,0.0f)" computerName="JO-DT" duration="00:00:12.0302690" startTime="2026-10-04T10:02:44.8790410-04:00" endTime="2026-10-04T10:02:56.9093099-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="028504cb-7a6e-46f7-aa11-0b79f2e2df6d">
+      <Output>
+        <StdOut>prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0&#xD;
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+startup max=0.0000m; steady p99=0.0000m; steady max=0.1559m; steady &gt;1cm=1; max pending at completion=5&#xD;
+players=2; outbound delay=0ms; jitter=0ms; loss=0%; corrections=238; p99=0.0000m; max=0.1559m; snapshots/client=239; stale packets rejected</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="1d0e8403-9e46-41a7-91c1-981d728a1bc1" testId="3a4c9b67-48c1-e9f9-4ee7-4de65f39f724" testName="ConnectionAndEstablishedTimeoutsReleaseResources" computerName="JO-DT" duration="00:00:12.7196980" startTime="2026-10-04T10:02:19.2005539-04:00" endTime="2026-10-04T10:02:31.9202517-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1d0e8403-9e46-41a7-91c1-981d728a1bc1" />
+    <UnitTestResult executionId="226b0622-7264-4c19-bc17-6bc48ae30a41" testId="7ad9f308-2eab-1fda-6212-e1bbc38ae713" testName="RejectsInvalidOperationsAndBoundsReceiveQueue" computerName="JO-DT" duration="00:00:00.2039860" startTime="2026-10-04T10:02:32.1343093-04:00" endTime="2026-10-04T10:02:32.3382947-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="226b0622-7264-4c19-bc17-6bc48ae30a41" />
+    <UnitTestResult executionId="64871bc3-ad15-48f7-842d-fd25dbae56c5" testId="294c250f-f93a-ed65-1b56-aa6dcc115b59" testName="RepeatedHostJoinAndStopReleasesListenerAndPeers" computerName="JO-DT" duration="00:00:00.4335500" startTime="2026-10-04T10:02:32.3383532-04:00" endTime="2026-10-04T10:02:32.7719020-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="64871bc3-ad15-48f7-842d-fd25dbae56c5" />
+    <UnitTestResult executionId="5809e352-0236-40bc-92dc-f2c82dffce5a" testId="db17c327-9e61-c29b-759d-79660756485b" testName="VehicleLoopConvergesAcrossNetworkConditions(8,30,10,2.0f,10.0f)" computerName="JO-DT" duration="00:00:12.0311820" startTime="2026-10-04T10:04:02.1308482-04:00" endTime="2026-10-04T10:04:14.1620301-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5809e352-0236-40bc-92dc-f2c82dffce5a">
+      <Output>
+        <StdOut>prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0&#xD;
+delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+startup max=0.1494m; steady p99=0.0000m; steady max=0.0912m; steady &gt;1cm=2; max pending at completion=13&#xD;
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=1567; p99=0.0000m; max=0.1494m; snapshots/client=221; stale packets rejected</StdOut>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="HostAndSevenClientsRejectExcessAndReconnect" storage="c:\users\j_gen\onedrive\documents\game_projects\trackstorm\.godot\ts-220\main-baseline\code\transporttests\bin\release\net10.0\trackstorm.transport.tests.dll" id="87ad3d23-3eb4-1859-c379-6a99c9879844">
+      <Execution id="180a6b59-43e7-40e7-8295-ead6520ca44e" />
+      <TestMethod codeBase="C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="Trackstorm.Transport.Tests.NativeTransportTests" name="HostAndSevenClientsRejectExcessAndReconnect" />
+    </UnitTest>
+    <UnitTest name="VehicleLoopConvergesAcrossNetworkConditions(8,30,10,2.0f,0.0f)" storage="c:\users\j_gen\onedrive\documents\game_projects\trackstorm\.godot\ts-220\main-baseline\code\transporttests\bin\release\net10.0\trackstorm.transport.tests.dll" id="1f33a62e-33e9-4d88-8c8b-ab4ed5c9ddc4">
+      <Execution id="21f736c0-f772-4d21-a315-b2e3a73f9741" />
+      <TestMethod codeBase="C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="Trackstorm.Transport.Tests.NativeVehicleReplicationTests" name="VehicleLoopConvergesAcrossNetworkConditions(8,30,10,2.0f,0.0f)" />
+    </UnitTest>
+    <UnitTest name="RejectsInvalidOperationsAndBoundsReceiveQueue" storage="c:\users\j_gen\onedrive\documents\game_projects\trackstorm\.godot\ts-220\main-baseline\code\transporttests\bin\release\net10.0\trackstorm.transport.tests.dll" id="7ad9f308-2eab-1fda-6212-e1bbc38ae713">
+      <Execution id="226b0622-7264-4c19-bc17-6bc48ae30a41" />
+      <TestMethod codeBase="C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="Trackstorm.Transport.Tests.NativeTransportTests" name="RejectsInvalidOperationsAndBoundsReceiveQueue" />
+    </UnitTest>
+    <UnitTest name="OccupiedListenerReportsBindErrorAndCanRecoverAfterOwnerCloses" storage="c:\users\j_gen\onedrive\documents\game_projects\trackstorm\.godot\ts-220\main-baseline\code\transporttests\bin\release\net10.0\trackstorm.transport.tests.dll" id="5b37d75a-d573-6e85-4c03-747cd0be1800">
+      <Execution id="632f3221-edcc-41d3-840f-df28af66c8a8" />
+      <TestMethod codeBase="C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="Trackstorm.Transport.Tests.NativeTransportTests" name="OccupiedListenerReportsBindErrorAndCanRecoverAfterOwnerCloses" />
+    </UnitTest>
+    <UnitTest name="ConnectionAndEstablishedTimeoutsReleaseResources" storage="c:\users\j_gen\onedrive\documents\game_projects\trackstorm\.godot\ts-220\main-baseline\code\transporttests\bin\release\net10.0\trackstorm.transport.tests.dll" id="3a4c9b67-48c1-e9f9-4ee7-4de65f39f724">
+      <Execution id="1d0e8403-9e46-41a7-91c1-981d728a1bc1" />
+      <TestMethod codeBase="C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="Trackstorm.Transport.Tests.NativeTransportTests" name="ConnectionAndEstablishedTimeoutsReleaseResources" />
+    </UnitTest>
+    <UnitTest name="EightPlayerControlledSnapshotLossConverges" storage="c:\users\j_gen\onedrive\documents\game_projects\trackstorm\.godot\ts-220\main-baseline\code\transporttests\bin\release\net10.0\trackstorm.transport.tests.dll" id="e00b18cc-2ba5-8d58-e1a8-be597a939092">
+      <Execution id="9a0ec4d3-ec14-4955-a75c-6e5d9c54c603" />
+      <TestMethod codeBase="C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="Trackstorm.Transport.Tests.NativeVehicleReplicationTests" name="EightPlayerControlledSnapshotLossConverges" />
+    </UnitTest>
+    <UnitTest name="VehicleLoopConvergesAcrossNetworkConditions(2,25,5,0.0f,0.0f)" storage="c:\users\j_gen\onedrive\documents\game_projects\trackstorm\.godot\ts-220\main-baseline\code\transporttests\bin\release\net10.0\trackstorm.transport.tests.dll" id="0e118782-f461-b13f-204c-b9be18068783">
+      <Execution id="52e1a8a6-4822-4eb4-ad7e-a6cfc77a87db" />
+      <TestMethod codeBase="C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="Trackstorm.Transport.Tests.NativeVehicleReplicationTests" name="VehicleLoopConvergesAcrossNetworkConditions(2,25,5,0.0f,0.0f)" />
+    </UnitTest>
+    <UnitTest name="VehicleLoopConvergesAcrossNetworkConditions(2,30,10,2.0f,10.0f)" storage="c:\users\j_gen\onedrive\documents\game_projects\trackstorm\.godot\ts-220\main-baseline\code\transporttests\bin\release\net10.0\trackstorm.transport.tests.dll" id="0dba2ed0-5e24-765d-000b-6117969d0e36">
+      <Execution id="dbd1a5f3-20f6-4f2c-8878-f728bcb1fad3" />
+      <TestMethod codeBase="C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="Trackstorm.Transport.Tests.NativeVehicleReplicationTests" name="VehicleLoopConvergesAcrossNetworkConditions(2,30,10,2.0f,10.0f)" />
+    </UnitTest>
+    <UnitTest name="VehicleLoopConvergesAcrossNetworkConditions(2,0,0,0.0f,0.0f)" storage="c:\users\j_gen\onedrive\documents\game_projects\trackstorm\.godot\ts-220\main-baseline\code\transporttests\bin\release\net10.0\trackstorm.transport.tests.dll" id="8b788194-34a4-dc94-224e-c32dafa30707">
+      <Execution id="028504cb-7a6e-46f7-aa11-0b79f2e2df6d" />
+      <TestMethod codeBase="C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="Trackstorm.Transport.Tests.NativeVehicleReplicationTests" name="VehicleLoopConvergesAcrossNetworkConditions(2,0,0,0.0f,0.0f)" />
+    </UnitTest>
+    <UnitTest name="VehicleLoopConvergesAcrossNetworkConditions(2,30,0,0.0f,0.0f)" storage="c:\users\j_gen\onedrive\documents\game_projects\trackstorm\.godot\ts-220\main-baseline\code\transporttests\bin\release\net10.0\trackstorm.transport.tests.dll" id="9fb4a8ef-5b2b-7331-539e-3ca5ac2a3788">
+      <Execution id="9668e2c9-ee0a-4ed7-8a4a-f31052f18902" />
+      <TestMethod codeBase="C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="Trackstorm.Transport.Tests.NativeVehicleReplicationTests" name="VehicleLoopConvergesAcrossNetworkConditions(2,30,0,0.0f,0.0f)" />
+    </UnitTest>
+    <UnitTest name="VehicleLoopConvergesAcrossNetworkConditions(2,0,0,2.0f,0.0f)" storage="c:\users\j_gen\onedrive\documents\game_projects\trackstorm\.godot\ts-220\main-baseline\code\transporttests\bin\release\net10.0\trackstorm.transport.tests.dll" id="08c7a26d-b08a-702b-2f04-ca74425d7231">
+      <Execution id="c955bb9c-6dfa-4fc6-b704-99771e132458" />
+      <TestMethod codeBase="C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="Trackstorm.Transport.Tests.NativeVehicleReplicationTests" name="VehicleLoopConvergesAcrossNetworkConditions(2,0,0,2.0f,0.0f)" />
+    </UnitTest>
+    <UnitTest name="VehicleLoopConvergesAcrossNetworkConditions(2,50,10,0.0f,0.0f)" storage="c:\users\j_gen\onedrive\documents\game_projects\trackstorm\.godot\ts-220\main-baseline\code\transporttests\bin\release\net10.0\trackstorm.transport.tests.dll" id="2c090e36-44af-68c1-434b-abb5e6314b5a">
+      <Execution id="3a6f5818-5a16-4d8f-b928-14a53da1d644" />
+      <TestMethod codeBase="C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="Trackstorm.Transport.Tests.NativeVehicleReplicationTests" name="VehicleLoopConvergesAcrossNetworkConditions(2,50,10,0.0f,0.0f)" />
+    </UnitTest>
+    <UnitTest name="TenMinuteEightPlayerImpairmentSoak" storage="c:\users\j_gen\onedrive\documents\game_projects\trackstorm\.godot\ts-220\main-baseline\code\transporttests\bin\release\net10.0\trackstorm.transport.tests.dll" id="e46a139d-a42b-40a4-02d9-86e9298515af">
+      <Execution id="be2e22ca-1e57-4aee-bf67-327db18a69e3" />
+      <TestMethod codeBase="C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="Trackstorm.Transport.Tests.NativeVehicleReplicationTests" name="TenMinuteEightPlayerImpairmentSoak" />
+    </UnitTest>
+    <UnitTest name="AdversePacketsPreserveReliableOrderAndExposeDiagnostics" storage="c:\users\j_gen\onedrive\documents\game_projects\trackstorm\.godot\ts-220\main-baseline\code\transporttests\bin\release\net10.0\trackstorm.transport.tests.dll" id="ab749f5d-bfeb-9906-21e7-e8d88807051e">
+      <Execution id="6b7c8818-c6f7-4884-91b1-d4816b19884f" />
+      <TestMethod codeBase="C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="Trackstorm.Transport.Tests.NativeTransportTests" name="AdversePacketsPreserveReliableOrderAndExposeDiagnostics" />
+    </UnitTest>
+    <UnitTest name="VehicleLoopConvergesAcrossNetworkConditions(8,30,10,2.0f,10.0f)" storage="c:\users\j_gen\onedrive\documents\game_projects\trackstorm\.godot\ts-220\main-baseline\code\transporttests\bin\release\net10.0\trackstorm.transport.tests.dll" id="db17c327-9e61-c29b-759d-79660756485b">
+      <Execution id="5809e352-0236-40bc-92dc-f2c82dffce5a" />
+      <TestMethod codeBase="C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="Trackstorm.Transport.Tests.NativeVehicleReplicationTests" name="VehicleLoopConvergesAcrossNetworkConditions(8,30,10,2.0f,10.0f)" />
+    </UnitTest>
+    <UnitTest name="RepeatedHostJoinAndStopReleasesListenerAndPeers" storage="c:\users\j_gen\onedrive\documents\game_projects\trackstorm\.godot\ts-220\main-baseline\code\transporttests\bin\release\net10.0\trackstorm.transport.tests.dll" id="294c250f-f93a-ed65-1b56-aa6dcc115b59">
+      <Execution id="64871bc3-ad15-48f7-842d-fd25dbae56c5" />
+      <TestMethod codeBase="C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="Trackstorm.Transport.Tests.NativeTransportTests" name="RepeatedHostJoinAndStopReleasesListenerAndPeers" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="e46a139d-a42b-40a4-02d9-86e9298515af" executionId="be2e22ca-1e57-4aee-bf67-327db18a69e3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2c090e36-44af-68c1-434b-abb5e6314b5a" executionId="3a6f5818-5a16-4d8f-b928-14a53da1d644" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ab749f5d-bfeb-9906-21e7-e8d88807051e" executionId="6b7c8818-c6f7-4884-91b1-d4816b19884f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0dba2ed0-5e24-765d-000b-6117969d0e36" executionId="dbd1a5f3-20f6-4f2c-8878-f728bcb1fad3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5b37d75a-d573-6e85-4c03-747cd0be1800" executionId="632f3221-edcc-41d3-840f-df28af66c8a8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0e118782-f461-b13f-204c-b9be18068783" executionId="52e1a8a6-4822-4eb4-ad7e-a6cfc77a87db" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e00b18cc-2ba5-8d58-e1a8-be597a939092" executionId="9a0ec4d3-ec14-4955-a75c-6e5d9c54c603" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9fb4a8ef-5b2b-7331-539e-3ca5ac2a3788" executionId="9668e2c9-ee0a-4ed7-8a4a-f31052f18902" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="87ad3d23-3eb4-1859-c379-6a99c9879844" executionId="180a6b59-43e7-40e7-8295-ead6520ca44e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="08c7a26d-b08a-702b-2f04-ca74425d7231" executionId="c955bb9c-6dfa-4fc6-b704-99771e132458" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1f33a62e-33e9-4d88-8c8b-ab4ed5c9ddc4" executionId="21f736c0-f772-4d21-a315-b2e3a73f9741" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8b788194-34a4-dc94-224e-c32dafa30707" executionId="028504cb-7a6e-46f7-aa11-0b79f2e2df6d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3a4c9b67-48c1-e9f9-4ee7-4de65f39f724" executionId="1d0e8403-9e46-41a7-91c1-981d728a1bc1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7ad9f308-2eab-1fda-6212-e1bbc38ae713" executionId="226b0622-7264-4c19-bc17-6bc48ae30a41" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="294c250f-f93a-ed65-1b56-aa6dcc115b59" executionId="64871bc3-ad15-48f7-842d-fd25dbae56c5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="db17c327-9e61-c29b-759d-79660756485b" executionId="5809e352-0236-40bc-92dc-f2c82dffce5a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="16" executed="15" passed="14" failed="1" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 5.0.0.0: Test execution started&#xD;
+Running selected tests in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-220\main-baseline\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll&#xD;
+   NUnit3TestExecutor discovered 15 of 16 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+Reliable=100/100; unreliable=75/100; ping=80ms; incoming loss=0.21428573; outgoing loss=&#xD;
+&#xD;
+CORRECTION tick=75; vehicle=2; error=0.1277; scheduleLag=0.0106; age=0.0009; pending=9; clientAck=55; authorityAck=59; hostTick=76; snapshotTick=72&#xD;
+CORRECTION tick=93; vehicle=4; error=0.1690; scheduleLag=0.0034; age=0.0000; pending=9; clientAck=70; authorityAck=74; hostTick=94; snapshotTick=90&#xD;
+CORRECTION tick=111; vehicle=7; error=0.2181; scheduleLag=0.0133; age=0.0000; pending=9; clientAck=87; authorityAck=91; hostTick=112; snapshotTick=108&#xD;
+CORRECTION tick=314; vehicle=8; error=0.2103; scheduleLag=0.0138; age=0.0000; pending=9; clientAck=290; authorityAck=293; hostTick=315; snapshotTick=312&#xD;
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0&#xD;
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable&#xD;
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable&#xD;
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable&#xD;
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable&#xD;
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable&#xD;
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable&#xD;
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable&#xD;
+startup max=0.2181m; steady p99=0.0000m; steady max=0.2103m; steady &gt;1cm=1; max pending at completion=13&#xD;
+players=8; outbound delay=30ms; jitter=10ms; loss=0%; corrections=1611; p99=0.0000m; max=0.2181m; snapshots/client=230; stale packets rejected&#xD;
+&#xD;
+TenMinuteEightPlayerImpairmentSoak: Sustained native soak; run separately from the ordinary fast gate.&#xD;
+CORRECTION tick=471; vehicle=2; error=0.1559; scheduleLag=0.0043; age=0.0001; pending=2; clientAck=466; authorityAck=467; hostTick=472; snapshotTick=471&#xD;
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0&#xD;
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+startup max=0.0000m; steady p99=0.0000m; steady max=0.1559m; steady &gt;1cm=1; max pending at completion=5&#xD;
+players=2; outbound delay=0ms; jitter=0ms; loss=0%; corrections=238; p99=0.0000m; max=0.1559m; snapshots/client=239; stale packets rejected&#xD;
+&#xD;
+CORRECTION tick=70; vehicle=2; error=0.1225; scheduleLag=0.0070; age=0.0000; pending=5; clientAck=56; authorityAck=58; hostTick=71; snapshotTick=69&#xD;
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0&#xD;
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+startup max=0.1225m; steady p99=0.0000m; steady max=0.0000m; steady &gt;1cm=0; max pending at completion=7&#xD;
+players=2; outbound delay=30ms; jitter=0ms; loss=0%; corrections=237; p99=0.0000m; max=0.1225m; snapshots/client=238; stale packets rejected&#xD;
+&#xD;
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0&#xD;
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+startup max=0.0261m; steady p99=0.0000m; steady max=0.0118m; steady &gt;1cm=1; max pending at completion=13&#xD;
+players=2; outbound delay=50ms; jitter=10ms; loss=0%; corrections=232; p99=0.0000m; max=0.0261m; snapshots/client=235; stale packets rejected&#xD;
+&#xD;
+CORRECTION tick=111; vehicle=2; error=0.2437; scheduleLag=0.0150; age=0.0000; pending=2; clientAck=106; authorityAck=107; hostTick=112; snapshotTick=111&#xD;
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0&#xD;
+delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+startup max=0.2437m; steady p99=0.0000m; steady max=0.0000m; steady &gt;1cm=0; max pending at completion=5&#xD;
+players=2; outbound delay=0ms; jitter=0ms; loss=2%; corrections=234; p99=0.0000m; max=0.2437m; snapshots/client=235; stale packets rejected&#xD;
+&#xD;
+CORRECTION tick=90; vehicle=4; error=0.1607; scheduleLag=0.0091; age=0.0000; pending=9; clientAck=67; authorityAck=71; hostTick=91; snapshotTick=87&#xD;
+CORRECTION tick=96; vehicle=5; error=0.1773; scheduleLag=0.0017; age=0.0000; pending=9; clientAck=73; authorityAck=77; hostTick=97; snapshotTick=93&#xD;
+CORRECTION tick=422; vehicle=6; error=0.1337; scheduleLag=0.0110; age=0.0000; pending=8; clientAck=399; authorityAck=402; hostTick=423; snapshotTick=420&#xD;
+CORRECTION tick=434; vehicle=3; error=0.1501; scheduleLag=0.0120; age=0.0000; pending=8; clientAck=412; authorityAck=415; hostTick=435; snapshotTick=432&#xD;
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0&#xD;
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+startup max=0.1773m; steady p99=0.0000m; steady max=0.1501m; steady &gt;1cm=4; max pending at completion=13&#xD;
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=1572; p99=0.0000m; max=0.1773m; snapshots/client=221; stale packets rejected&#xD;
+&#xD;
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0&#xD;
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+startup max=0.0206m; steady p99=0.0000m; steady max=0.0000m; steady &gt;1cm=0; max pending at completion=12&#xD;
+players=2; outbound delay=30ms; jitter=10ms; loss=2%; corrections=228; p99=0.0000m; max=0.0206m; snapshots/client=230; stale packets rejected&#xD;
+&#xD;
+CORRECTION tick=85; vehicle=3; error=0.1467; scheduleLag=0.0145; age=0.0000; pending=10; clientAck=61; authorityAck=66; hostTick=86; snapshotTick=81&#xD;
+CORRECTION tick=86; vehicle=2; error=0.1494; scheduleLag=0.0134; age=0.0000; pending=8; clientAck=63; authorityAck=66; hostTick=87; snapshotTick=84&#xD;
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0&#xD;
+delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable&#xD;
+startup max=0.1494m; steady p99=0.0000m; steady max=0.0912m; steady &gt;1cm=2; max pending at completion=13&#xD;
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=1567; p99=0.0000m; max=0.1494m; snapshots/client=221; stale packets rejected&#xD;
+&#xD;
+NUnit Adapter 5.0.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

@@ -6,5 +6,8 @@ World transition releases its slot; the second damaged rear shield retains its s
 Full checkpoint/authority restoration preserved pools, lifecycle, pose and replay memory; third UDP peer connecting.
 Late join converged; lethal world/held damage and twenty repeated destruction attempts produced two removals.
 Three UDP peers agree on remaining entities, stages, health and cleared slots; exactly two destruction outcomes and no vehicle damage.
+Selection switched to the surviving pool without refill; ordinary discard requested on both peers.
+Both native slot resources cleared after discard; replacement Shield acquired with a fresh pool.
+Native HUD displays fresh replacement HP, independent non-resource second slot, and no stale discarded durability.
 Shield integration passed: authoritative pools, lifecycle, repeated events, three-peer UDP and full state restoration.
-Shield verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\shield-checks\0d6b3b47ca3f44389208756af2d90b47
+Shield verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\shield-checks\cff5037e385f48558877a17b8bb797de
