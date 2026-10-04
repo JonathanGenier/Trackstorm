@@ -1,0 +1,117 @@
+=== rack-mines ===
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Two native UDP peers ready
+Fixture configuration accepted
+First consecutive mine granted
+Second consecutive mine granted
+First mine mounted on both peers
+First consecutive mine used
+First mine placement starts
+First mine releases
+Empty arms begin returning on both peers
+Select second mine during empty return
+Second mine selected
+Previous empty return remains unfinished at second use
+Second consecutive mine used
+Second authoritative placement starts
+Both peers receive second placement
+Second placement keeps the rack requested through a publication gap
+Second placement keeps the rack requested through a publication gap
+Second mine stays mounted and visible through placement on both peers
+Second mine completes its full authoritative placement (frames 59, ticks 0, car <150, 21.64568, 35>)
+Rack returns and stows after second release
+Car rack consecutive mine passed: 20 checks on two UDP peers.
+=== articulation ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.11
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Car articulation passed: 226 assertions.
+=== rear ===
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Scenario 0: shield 900 -> 810, protected vehicle 1000 -> 1000; other shield 900 HP.
+Scenario 1: shield 900 -> 810, protected vehicle 1000 -> 1000; other shield 900 HP.
+Scenario 2: shield 900 -> 810, protected vehicle 1000 -> 1000; other shield 900 HP.
+Scenario 3: shield 900 -> 900, protected vehicle 1000 -> 911.19385; other shield 900 HP.
+Scenario 4: shield 900 -> 900, protected vehicle 911.19385 -> 821.19385; other shield 900 HP.
+Scenario 5: shield 900 -> 900, protected vehicle 821.19385 -> 731.19385; other shield 900 HP.
+Scenario 6: shield 10 -> 0, protected vehicle 731.19385 -> 652.44385; other shield 900 HP.
+Scenario 7: shield 900 -> 822.76117, protected vehicle 652.44385 -> 652.44385; other shield 900 HP.
+Rear shield integration passed: selection/stow cycles without use, persistent damaged identity, native rays, moving fire, edge/front/side, destruction, collision and UDP replication.
+=== lifecycle ===
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Two UDP peers admitted; four independent Tombstones acquired through normal authority.
+Damage and duplicate hit/transition exercised; rear state retains slots and persistent pools.
+World transition releases its slot; the second damaged rear shield retains its slot. HP 550/900/900/1000, vehicles 1500 HP.
+Full checkpoint/authority restoration preserved pools, lifecycle, pose and replay memory; third UDP peer connecting.
+Late join converged; lethal world/held damage and twenty repeated destruction attempts produced two removals.
+Three UDP peers agree on remaining entities, stages, health and cleared slots; exactly two destruction outcomes and no vehicle damage.
+Tombstone integration passed: authoritative pools, lifecycle, repeated events, three-peer UDP and full state restoration.
+Tombstone verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\tombstone-checks\4f669568c8e4410ea86a9b2631e7a82c
+=== items ===
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Eight native peers assigned and initialized.
+E and controller X switch all eight players; immediate use selects Wrench in slot two.
+All eight use Wrench at full HP, including repeated requests.
+Every full-health use consumed once and replicated; preparing damaged Wrench use.
+All eight damaged players use Wrench.
+Damaged Wrench outcomes match on all eight peers.
+Remote client requested missile scenario 0; host owns creation.
+Remote client requested missile scenario 1; host owns creation.
+Remote client requested missile scenario 2; host owns creation.
+Remote client requested missile scenario 3; host owns creation.
+Item integration passed: Eight native peers assigned and initialized.
+E and controller X switch all eight players; immediate use selects Wrench in slot two.
+All eight use Wrench at full HP, including repeated requests.
+Every full-health use consumed once and replicated; preparing damaged Wrench use.
+All eight damaged players use Wrench.
+Damaged Wrench outcomes match on all eight peers.
+Remote client requested missile scenario 0; host owns creation.
+Scenario 0: one remote launch/impact on every peer at <-40, 1.9726641, -2.521462>; host-only damage/impulse.
+Remote client requested missile scenario 1; host owns creation.
+Scenario 1: one remote launch/impact on every peer at <8, 1.9604418, -5.4000072>; host-only damage/impulse.
+Remote client requested missile scenario 2; host owns creation.
+Scenario 2: one remote launch/impact on every peer at <-17, 1.9726641, 2>; host-only damage/impulse.
+Remote client requested missile scenario 3; host owns creation.
+Scenario 3: one remote launch/impact on every peer at <-45, 1.9726641, -50>; host-only damage/impulse.
+Vehicles, movable prop, static container and arena boundary all stop missiles. VFX consume replicated events only.
+REPLICATION_TRAFFIC {"seconds":5.9907223,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":1813,"messages":1,"peak":1813},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":68018,"messages":23,"peak":3280},{"peer":1,"protocol":"TJ","delivery":"Unreliable","bytes":680,"messages":10,"peak":68},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":17465,"messages":17,"peak":1327},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":1857,"messages":2,"peak":1837},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":215923,"messages":212,"peak":1999},{"peer":2,"protocol":"TC","delivery":"Reliable","bytes":1813,"messages":1,"peak":1813},{"peer":2,"protocol":"TI","delivery":"Reliable","bytes":68018,"messages":23,"peak":3280},{"peer":2,"protocol":"TJ","delivery":"Unreliable","bytes":680,"messages":10,"peak":68},{"peer":2,"protocol":"TM","delivery":"Reliable","bytes":17465,"messages":17,"peak":1327},{"peer":2,"protocol":"TS","delivery":"Reliable","bytes":1857,"messages":2,"peak":1837},{"peer":2,"protocol":"TS","delivery":"Unreliable","bytes":215923,"messages":212,"peak":1999},{"peer":3,"protocol":"TC","delivery":"Reliable","bytes":1813,"messages":1,"peak":1813},{"peer":3,"protocol":"TI","delivery":"Reliable","bytes":68018,"messages":23,"peak":3280},{"peer":3,"protocol":"TJ","delivery":"Unreliable","bytes":680,"messages":10,"peak":68},{"peer":3,"protocol":"TM","delivery":"Reliable","bytes":17465,"messages":17,"peak":1327},{"peer":3,"protocol":"TS","delivery":"Reliable","bytes":1857,"messages":2,"peak":1837},{"peer":3,"protocol":"TS","delivery":"Unreliable","bytes":215923,"messages":212,"peak":1999},{"peer":4,"protocol":"TC","delivery":"Reliable","bytes":1813,"messages":1,"peak":1813},{"peer":4,"protocol":"TI","delivery":"Reliable","bytes":68018,"messages":23,"peak":3280},{"peer":4,"protocol":"TJ","delivery":"Unreliable","bytes":680,"messages":10,"peak":68},{"peer":4,"protocol":"TM","delivery":"Reliable","bytes":17465,"messages":17,"peak":1327},{"peer":4,"protocol":"TS","delivery":"Reliable","bytes":1857,"messages":2,"peak":1837},{"peer":4,"protocol":"TS","delivery":"Unreliable","bytes":215923,"messages":212,"peak":1999},{"peer":5,"protocol":"TC","delivery":"Reliable","bytes":1813,"messages":1,"peak":1813},{"peer":5,"protocol":"TI","delivery":"Reliable","bytes":68018,"messages":23,"peak":3280},{"peer":5,"protocol":"TJ","delivery":"Unreliable","bytes":680,"messages":10,"peak":68},{"peer":5,"protocol":"TM","delivery":"Reliable","bytes":17465,"messages":17,"peak":1327},{"peer":5,"protocol":"TS","delivery":"Reliable","bytes":1857,"messages":2,"peak":1837},{"peer":5,"protocol":"TS","delivery":"Unreliable","bytes":215923,"messages":212,"peak":1999},{"peer":6,"protocol":"TC","delivery":"Reliable","bytes":1813,"messages":1,"peak":1813},{"peer":6,"protocol":"TI","delivery":"Reliable","bytes":68018,"messages":23,"peak":3280},{"peer":6,"protocol":"TJ","delivery":"Unreliable","bytes":680,"messages":10,"peak":68},{"peer":6,"protocol":"TM","delivery":"Reliable","bytes":17465,"messages":17,"peak":1327},{"peer":6,"protocol":"TS","delivery":"Reliable","bytes":1857,"messages":2,"peak":1837},{"peer":6,"protocol":"TS","delivery":"Unreliable","bytes":215923,"messages":212,"peak":1999},{"peer":7,"protocol":"TC","delivery":"Reliable","bytes":1813,"messages":1,"peak":1813},{"peer":7,"protocol":"TI","delivery":"Reliable","bytes":68018,"messages":23,"peak":3280},{"peer":7,"protocol":"TJ","delivery":"Unreliable","bytes":680,"messages":10,"peak":68},{"peer":7,"protocol":"TM","delivery":"Reliable","bytes":17465,"messages":17,"peak":1327},{"peer":7,"protocol":"TS","delivery":"Reliable","bytes":1857,"messages":2,"peak":1837},{"peer":7,"protocol":"TS","delivery":"Unreliable","bytes":215923,"messages":212,"peak":1999}]}
+REPLICATION_TRAFFIC {"seconds":5.7388906,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":353,"messages":11,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":46214,"messages":320,"peak":145}]}
+REPLICATION_TRAFFIC {"seconds":5.7264987,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":221,"messages":7,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":45054,"messages":312,"peak":145}]}
+REPLICATION_TRAFFIC {"seconds":5.7137245,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":221,"messages":7,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":45054,"messages":312,"peak":145}]}
+REPLICATION_TRAFFIC {"seconds":5.7006945,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":221,"messages":7,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":45054,"messages":312,"peak":145}]}
+REPLICATION_TRAFFIC {"seconds":5.6919845,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":221,"messages":7,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":45054,"messages":312,"peak":145}]}
+REPLICATION_TRAFFIC {"seconds":5.6829333,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":221,"messages":7,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":45054,"messages":312,"peak":145}]}
+REPLICATION_TRAFFIC {"seconds":5.6740485,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":221,"messages":7,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":45054,"messages":312,"peak":145}]}
+Item verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\item-checks\fe4ac77be04a4e778e30005630ba2759
+=== world-production ===
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Blocked normal use retained the shield; retry after clearing the obstruction uses the same capability.
+Scenario 0: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 1: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 2: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 3: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 4: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 5: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 6: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 7: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+World wall integration passed: sixteen one-use deployments on the production oval/infield with upright motion and exact UDP convergence.
+=== project ===
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org

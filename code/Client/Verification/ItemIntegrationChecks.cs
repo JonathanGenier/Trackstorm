@@ -86,6 +86,12 @@ public sealed partial class ItemIntegrationChecks : Node
             var arena = new NetworkVehicleArena { PrototypeMapForVerification = true };
             arena.Initialize(gateway, index == 0 ? 88ul : 0, server);
             viewport.AddChild(arena);
+            // The production Car fires from its taller chassis center (~2 m).
+            // Use a tall movable target so this scenario actually intersects a prop.
+            var target = arena.Layout.Props[2];
+            target.GetChildren().OfType<CollisionShape3D>().Single().Shape = new BoxShape3D { Size = new(1.2f, 3, 1.2f) };
+            target.GetChildren().OfType<Node3D>().Single(child => child is not CollisionShape3D).Scale = new(1, 3 / 1.6f, 1);
+            target.Position = new(8, 1.5f, -6);
             _arenas.Add(arena);
             var hud = new Hud.CombatHud { Vehicle = () => arena.LocalState, Slot = () => arena.Driver.LocalItem };
             viewport.AddChild(hud);

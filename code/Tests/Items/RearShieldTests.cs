@@ -57,8 +57,9 @@ internal sealed class RearShieldTests
     [TestCase(10, 0, false)]
     [TestCase(0, -10, false)]
     [TestCase(4, 10, true)]
-    [TestCase(7, 10, false)]
-    public void RaysUsePhysicalBoxAndLeaveUncoveredFrontSideAndRearQuarterVulnerable(float x, float z, bool blocked)
+    [TestCase(7, 10, true)]
+    [TestCase(12, 10, false)]
+    public void RaysUsePhysicalPanelsAndLeaveUncoveredFrontAndForwardSidesVulnerable(float x, float z, bool blocked)
     {
         Deploy();
         _shooter = new(x, 0.2f, z);
@@ -128,6 +129,27 @@ internal sealed class RearShieldTests
         Assert.That(TombstoneGeometry.Intersect(pose, World(new(0, 0.2f, 8)), World(Vector3.Zero)), Is.Not.Null);
         Assert.That(TombstoneGeometry.Intersect(pose, World(new(4, 0.2f, 8)), World(new(4, 0.2f, -8))), Is.Null);
         Assert.That(TombstoneGeometry.Intersect(pose, World(new(0, 3, 8)), World(new(0, 3, -8))), Is.Null);
+    }
+
+    [TestCase(-5, 2.4f, true)]
+    [TestCase(5, 2.4f, true)]
+    [TestCase(-5, 0, false)]
+    [TestCase(5, 0, false)]
+    public void WraparoundWingsProtectRearSidesButLeaveForwardSidesOpen(float x, float z, bool covered)
+    {
+        var pose = new VehiclePhysicsState(new(20, 4, 80), Quaternion.CreateFromYawPitchRoll(.7f, .2f, -.3f), Vector3.Zero, Vector3.Zero);
+        Vector3 World(Vector3 p) => pose.Position + Vector3.Transform(p, pose.Orientation);
+        Assert.That(TombstoneGeometry.Intersect(pose, World(new(x, 1.1f, z)), World(new(0, 1.1f, z))).HasValue, Is.EqualTo(covered));
+        Assert.That(TombstoneGeometry.Contains(new(Math.Sign(x) * 1.85f, 1.1f, z)), Is.EqualTo(covered));
+        Assert.That(TombstoneGeometry.Contains(new(0, .25f, 2.4f)), Is.False, "The open interior is not solid armor.");
+    }
+
+    [Test]
+    public void FullHeightRearArmorStopsRoofLevelHitsAndAllowsHitsAboveIt()
+    {
+        var pose = Pose(Vector3.Zero);
+        Assert.That(TombstoneGeometry.Intersect(pose, new(0, 1.3f, 6), new(0, 1.3f, 0)), Is.Not.Null);
+        Assert.That(TombstoneGeometry.Intersect(pose, new(0, 1.7f, 6), new(0, 1.7f, 0)), Is.Null);
     }
 
     [Test]

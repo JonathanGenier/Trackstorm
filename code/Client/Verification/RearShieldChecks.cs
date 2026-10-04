@@ -178,7 +178,7 @@ public sealed partial class RearShieldChecks : Node
     {
         var host = _arenas[0].Driver.Host!;
         var world = host.World.State;
-        N.Vector3 shooter = _scenario switch { 2 => new(4, 201.65f, 10), 3 => new(7, 201.65f, 10),
+        N.Vector3 shooter = _scenario switch { 2 => new(7, 201.65f, 10), 3 => new(12, 201.65f, 10),
             4 => new(10, 201.65f, 0), 5 => new(0, 201.65f, -10), 7 => new(0, 201.65f, 8), _ => new(0, 201.65f, 10) };
         host.World.Restore(new(world.Tick, world.LastInput, world.Vehicles.Select(v =>
         {

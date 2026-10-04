@@ -135,7 +135,8 @@ public sealed partial class WorldWallChecks : Node
                     Next(1); break;
                 case 1 when host.World.State.Match?.Phase == Core.Matches.MatchPhase.Active:
                     Setup(); Next(10); break;
-                case 10 when elapsed > 50:
+                case 10 when elapsed > 50 && _arenas.All(a => a.Driver.LocalItem is { } inventory &&
+                    a.Bodies[a.Driver.LocalVehicleId].CanDeployTombstone(inventory)):
                     Check(_arenas.All(a => a.Bodies.Values.All(b => b.HasRearShield)), "Selected shields visible before use");
                     foreach (var vehicle in host.World.State.Vehicles)
                     { Check(_arenas[0].Walls.Place(vehicle.ObservedPhysics, host.Items.Configuration, _arenas[0].Bodies[vehicle.VehicleId]) is not null, $"Rear placement available at {vehicle.ObservedPhysics}"); }
@@ -274,7 +275,7 @@ public sealed partial class WorldWallChecks : Node
                     Check(host.Items.Tombstones.Single().HP < _weaponHP, "Native Salvo sweep/blast damages wall");
                     Record($"Native Salvo wall damage: {_weaponHP:F1} -> {host.Items.Tombstones.Single().HP:F1} HP.");
                     host.Items.RemovePlayer(1); StressGrant(); break;
-                case 8 when elapsed >= 30:
+                case 8 when elapsed >= 30 && host.Items.Tombstones.Count(s => !s.Attached) >= _stressCount + 1:
                     Check(host.Items.Tombstones.Count(s => !s.Attached) == _stressCount + 1, "Stress use commits one independent wall");
                     if (_stressCount < 15) { StressGrant(); }
                     else { Next(9); }

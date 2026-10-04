@@ -81,12 +81,12 @@ public sealed partial class EventLogIntegrationChecks : Node
             follow.ButtonPressed = false;
             await Frames(2);
             string frozen = text.GetParsedText();
-            authority.GiveItem(0, HeldItem.Missile);
+            authority.GiveItem(0, HeldItem.Tombstone);
             await Frames(3);
             Check(text.GetParsedText() == frozen, "freeze preserves inspected history while collection continues");
             follow.ButtonPressed = true;
             await Frames(3);
-            Check(text.GetParsedText().Contains("Missile", StringComparison.Ordinal), "unfreeze displays collected outcomes");
+            Check(text.GetParsedText().Contains("Shield", StringComparison.Ordinal) && !text.GetParsedText().Contains("Tombstone", StringComparison.Ordinal), "unfreeze displays collected Shield outcomes");
             var filter = Descendants(panel).OfType<OptionButton>().Single();
             filter.Select((int)EventCategory.Item + 1);
             filter.EmitSignal(OptionButton.SignalName.ItemSelected, filter.Selected);

@@ -4,7 +4,7 @@
 
 ## Behavior and Acquisition
 
-Network arenas register Wrench, Missile, Oil, Nitro, Proxy Mine, Salvo, Machine Gun and Tombstone, with two fixed held slots per player. Acquisition fills the first empty slot without changing selection or replacing either held item. **E** or controller **X / left face button** switches the active slot, including empty slots; use targets only the selected item. Switching and use together in a captured frame switch first. Oil deploys a persistent terrain-aligned hazard. Nitro retains its slot as a percentage resource: hold use to boost, release to preserve charge, and reuse until exhausted. Use **LMB** or controller **Y / top face button** through the remappable **UseItem** action. One press generates one capability-bound request; discrete items do not repeat while held. Nitro and Machine Gun require held input to sustain use; a tap released before the next tick consumes neither charge nor ammunition. Empty-slot requests fail safely. The local HUD and vehicle rack show confirmed selected ownership; remote racks use the same accepted item publication. The host development grant API grants registered items to the living host's first empty slot; they cannot overwrite either occupied slot. The internal all-vehicle grant seam remains for integration fixtures. Normal acquisition happens by driving within range of an available arena pickup, as described in [item spawning](item-spawns.md). Local rigid-body practice retains its generic blast demonstration on the same developer page.
+Network arenas register Wrench, Missile, Oil, Nitro, Proxy Mine, Salvo, Machine Gun and Shield, with two fixed held slots per player. Acquisition fills the first empty slot without changing selection or replacing either held item. **E** or controller **X / left face button** switches the active slot, including empty slots; use targets only the selected item. Switching and use together in a captured frame switch first. Oil deploys a persistent terrain-aligned hazard. Nitro retains its slot as a percentage resource: hold use to boost, release to preserve charge, and reuse until exhausted. Use **LMB** or controller **Y / top face button** through the remappable **UseItem** action. One press generates one capability-bound request; discrete items do not repeat while held. Nitro and Machine Gun require held input to sustain use; a tap released before the next tick consumes neither charge nor ammunition. Empty-slot requests fail safely. The local HUD and vehicle rack show confirmed selected ownership; remote racks use the same accepted item publication. The host development grant API grants registered items to the living host's first empty slot; they cannot overwrite either occupied slot. The internal all-vehicle grant seam remains for integration fixtures. Normal acquisition happens by driving within range of an available arena pickup, as described in [item spawning](item-spawns.md). Local rigid-body practice retains its generic blast demonstration on the same developer page.
 
 Wrench repairs 500 HP by default, clamped to the vehicle's existing maximum. A living player can always consume it at full health: zero effective healing still clears the slot and produces a confirmed use outcome. It cannot revive a destroyed vehicle.
 
@@ -16,7 +16,7 @@ The explosion linearly fades from 300 HP and 15,000 N·s at the center to zero a
 
 **X** on keyboard or controller **D-pad Left** requests permanent deletion of the selected held item. Discard uses the remappable `DiscardItem` action and one captured press edge. The host clears only that physical slot immediately on acceptance; selection and the other slot's identity, capability and resources remain unchanged. Empty-slot discard has no item effect. It creates no pickup, projectile, hazard, world wall, use sound or use outcome. Existing deployed entities are unaffected.
 
-The existing `ItemAuthority` validates sender-owned vehicle, participation, arena generation, life, selected grant token and exact selection command watermark. Accepted deletion retires the capability, clears that slot's charge/ammunition/Salvo state, cancels only its pending use, disengages sustained use and removes its attached Tombstone pool. The same reliable publication updates HUD, rack and remote representations. A remote player sees confirmation after network delivery; there is no predicted inventory. Switching and discard in one frame select first; discard precedes use, so the deleted capability cannot fire or deploy. A delayed command for a replacement grant, former selection boundary or old life fails closed.
+The existing `ItemAuthority` validates sender-owned vehicle, participation, arena generation, life, selected grant token and exact selection command watermark. Accepted deletion retires the capability, clears that slot's charge/ammunition/Salvo state, cancels only its pending use, disengages sustained use and removes its attached Shield pool. The same reliable publication updates HUD, rack and remote representations. A remote player sees confirmation after network delivery; there is no predicted inventory. Switching and discard in one frame select first; discard precedes use, so the deleted capability cannot fire or deploy. A delayed command for a replacement grant, former selection boundary or old life fails closed.
 
 `DiscardRevision` is a monotonic deletion watermark on the existing item authority/publication, serialized in item protocol 21 and nested complete checkpoints. It is not another inventory. Resume and ordinary publication reject a regressed watermark. Migration excludes retained checkpoints before either the currently confirmed watermark or a newer retained checkpoint's watermark; when no safe common checkpoint remains, recovery fails closed. This preserves confirmed deletion rather than rolling it back. A request interrupted before authoritative confirmation is not a committed client outcome; as with other host-authoritative requests, remote deletion is confirmed by the reliable boundary.
 
@@ -169,51 +169,133 @@ Item protocol version twenty-one carries remaining shots and absolute ready tick
 
 ## Vehicle rack presentation
 
-`CarRackPresentation` consumes accepted item slots, life/participation and use events for every network body. It adds no independent authority or packet. Proxy Mine consumes the authoritative placement state described above; other items retain their existing immediate use/fire rules. A selected acquisition opens the split deck, raises the rack above the roof lamps, then reveals its payload. Separate accepted trunk/rack speeds control the ordered motion; defaults take 0.24 s and 0.2933 s respectively, without delaying ordinary authoritative use/fire. A committed mine placement establishes a minimum rack progress during its preparation phase, including reconstruction after admission and unusually slow cosmetic rack tuning. Selecting another physical slot retracts/closes before presenting the latest selection; selection revisions distinguish duplicate items. Rapid changes coalesce to the current selection. Confirmed use gives a short payload motion cue alongside existing world VFX/audio. For rack-mounted items, the rack stays deployed while the confirmed selected slot remains occupied, including cooldowns and trigger release. Authority clears depleted items; after the final use cue, the rack retracts and the trunk closes. Switching to an empty slot closes and stays stowed. Nitro raises the rack-mounted booster on selection, then extends its barrel modestly once the rack is raised. Accepted active Boost alone starts sparks/fumes and then ignites it after 0.30 seconds; release cancels pending ignition or fades the lit flame over .45 seconds while leaving the hardware ready. Confirmed exhaustion produces a distinct .60-second burst. Switching/depletion waits for combustion to finish before nesting the barrel and lowering the rack. Client does not duplicate ammunition rules.
+`CarRackPresentation` consumes accepted item slots, life/participation and use events for every network body. It adds no independent authority or packet. Proxy Mine consumes the authoritative placement state described above; Shield queues local early use until unfolding finishes, as described below. Other items retain their existing use/fire rules. A selected acquisition opens the split deck, raises the rack above the roof lamps, then reveals its payload. Separate accepted trunk/rack speeds control the ordered motion; defaults take 0.24 s and 0.2933 s respectively, without delaying ordinary authoritative use/fire. A committed mine placement establishes a minimum rack progress during its preparation phase, including reconstruction after admission and unusually slow cosmetic rack tuning. Selecting another physical slot retracts/closes before presenting the latest selection; selection revisions distinguish duplicate items. Rapid changes coalesce to the current selection. Confirmed use gives a short payload motion cue alongside existing world VFX/audio. For rack-mounted items, the rack stays deployed while the confirmed selected slot remains occupied, including cooldowns and trigger release. Authority clears depleted items; after the final use cue, the rack retracts and the trunk closes. Switching to an empty slot closes and stays stowed. Nitro raises the rack-mounted booster on selection, then extends its barrel modestly once the rack is raised. Accepted active Boost alone starts sparks/fumes and then ignites it after 0.30 seconds; release cancels pending ignition or fades the lit flame over .45 seconds while leaving the hardware ready. Confirmed exhaustion produces a distinct .60-second burst. Switching/depletion waits for combustion to finish before nesting the barrel and lowering the rack. Client does not duplicate ammunition rules.
 
 Ordinary payloads scale in/out only above the compartment's clearance height. The booster rides the rack at full size after the deck opens. Death/life change removes the payload immediately. Checkpoint reseeding clears animation memory and reconstructs current selected ownership without replaying historical shots; ordinary cosmetic pre-disconnect animation phase is intentionally not replicated. A carried Proxy Mine reconstructs from its accepted placement timer and ground target instead of replaying pickup.
 
 Missile reuses the registered rocket mesh; Proxy Mine reuses its production Blender model and beacon through the same `ProxyMineVisual` as deployed mines. Wrench, Oil, Salvo and Machine Gun use small colour-coded labelled boxes by explicit art direction. These are temporary representations, not new weapon models. Nitro uses the production [rack-mounted jet](boost-exhaust.md), with no placeholder. `check-car-rack.ps1` exercises the catalog, two physical slots, duplicate types, use/switch transitions, native proximity pickup and lifecycle/restoration presentation through two local UDP peers.
 
-## Tombstone rear shield and persistent health
+<a id="tombstone-rear-shield-and-persistent-health"></a>
 
-Slot selection atomically exposes the selected Tombstone as `RearShield` and stows unselected Tombstones as `Held`. Acquisition into the selected slot exposes it immediately; acquisition into the other slot stores it. No use press is required. Switching away removes rear protection and presents the newly selected item; switching back exposes the same identity with its existing HP and damage/collision watermarks. Both states reserve the physical slot. One normal use press while selected deploys that same pool as a world wall and immediately clears its exact physical slot. Switching away before the use commits stows it and cancels deployment; failed native placement retains the rear shield and capability for a later press.
+## Shield rear armor and persistent health
 
-`TombstoneGeometry` defines a temporary box 1.5 m high, vehicle-width, and 0.35 m thick, centered at local `(0, 0.2, VehicleDimensions.Length / 2 + 0.25)`. It follows the complete authoritative orientation, including pitch/roll. Core tests segments against that oriented box using the current observation batch; native world/chassis hits still win when closer. Machine Gun rounds stop at the first shield. Missile/Salvo segments can impact it, and each radial target's center path is tested against its own shield before applying that target's unchanged radial damage. Proxy Mine contact paths likewise test the attached shield. An intercepted hit spends shield HP and suppresses that target's vehicle damage/weapon impulse, including the lethal shield hit; subsequent hits reach the now-exposed car. Other blast targets retain their ordinary damage. This is finite spatial cover, not a rear-angle immunity rule, and does not add general wall occlusion to explosions.
+Shield is the displayed item name. The existing `HeldItem.Tombstone` identity,
+`tombstone` configuration namespace, journal causes, resource paths and verification
+commands remain stable compatibility identifiers. HUD, developer controls, item
+event text and statistics resolve the displayed name independently of those keys.
 
-Native contact points inside the armor envelope route the existing collision severity and host damage tuning to the shield. A collision reported by the striking car also reaches the stationary defender's shield. Multiple manifold/slide observations collapse to the strongest shield contact for the step, with the existing collision cooldown retained per pool through checkpoints. The attacking car keeps its own normal collision damage. Damage uses the same evaluator as `DamageTombstone`; candidate changes, destroyed-slot cleanup and the single destruction journal entry commit only after the vehicle step succeeds. Sequential world ticks, capability validation, per-entity ordered damage and collision cooldown prevent replay or manifold duplication. When both slots contain Tombstones, only the selected pool is exposed and receives intercepted damage; the other remains stored.
+An early use press is retained locally while the selected shield's rack/unfold
+animation completes. The production arena reports readiness only for the exact
+confirmed life, grant token and selection revision, with the rack raised and
+mount progress at one. `VehicleNetworkDriver` then sends one ordinary reliable
+use request (or invokes the same host use path locally). Repeated taps coalesce;
+releasing the button does not discard the queued press. Simultaneous select/use
+selects first and waits for that confirmed shield. Switching, discard, destruction,
+death/life change and session recovery cancel pending local intent. A blocked
+placement consumes that attempt and requires another press, retaining the item.
+Protection begins with accepted selection as before. The queue is presentation
+input state, not replicated gameplay state or a new server cooldown; Core still
+owns placement validation, consumption, HP and the deployed wall. Direct authority
+fixtures without an arena presentation continue to use the existing immediate API.
+`check-tombstone-presentation.ps1 -Impaired` exercises this flow over local UDP
+with 30 ms delay, 5 ms jitter and 2% loss.
 
-Client reconstructs a box collision shape on the vehicle and a matching temporary metal plate under its interpolated visual transform. Core remains the hit authority. Native weapon queries temporarily omit that reconstructed shield shape so an earlier hit's same-step destruction cannot leave phantom cover; Core supplies the current candidate intersection. Accepted lifecycle/item state removes the shape on death, reset, destruction and permanent departure, and reinstalls it after retained recovery. The rack stops showing the selected payload once it is rear-mounted. World deployment uses the expanding temporary three-panel wall below; final production model, VFX and damage balance remain separate work.
+Slot selection atomically exposes the selected Shield as `RearShield` and stows unselected Shields as `Held`. Acquisition into the selected slot exposes it immediately; acquisition into the other slot stores it. No use press is required. Switching away removes rear protection and presents the newly selected item; switching back exposes the same identity with its existing HP and damage/collision watermarks. Both states reserve the physical slot. One normal use press while selected deploys that same pool as a world wall and immediately clears its exact physical slot. Switching away before the use commits stows it and cancels deployment; failed native placement retains the rear shield and capability for a later press.
 
-`check-rear-shield.ps1 -GodotPath <exe> [-Impaired] [-Visual]` runs two production arenas over real local UDP, with independent shields, repeated ordinary selection/stow input from both peers without use, stationary/moving fire, inner/outer rear-quarter edge shots, exposed side/front shots, shield destruction while driving, and a native vehicle collision into the rear plate. Temporary fixture poses isolate shot geometry; moving scenarios advance native physics. Rendered captures use a fixed observation camera. Impairment adds 30 ms outbound delay, 5 ms jitter and 2% loss. Core tests additionally cover rejected-batch atomicity, exact slot retention, collision cooldown restoration, rotated geometry and missile interception.
+`TombstoneGeometry` defines three full-height armor boxes: a 3.7 × 2.5 × 0.28 m rear panel centered at local `(0, .25, 3.25)`, plus 0.28 × 2.5 × 1.45 m side wings centered at `(±1.85, .25, 2.525)`. The wings wrap forward around the rear quarters; the interior and forward sides remain open. The panels follow the complete authoritative orientation, including pitch/roll. Core tests segments against their union using the current observation batch; native world/chassis hits still win when closer. Machine Gun rounds stop at the first shield. Missile/Salvo segments can impact it, and each radial target's center path is tested against its own shield before applying that target's unchanged radial damage. Proxy Mine contact paths likewise test the attached shield. An intercepted hit spends shield HP and suppresses that target's vehicle damage/weapon impulse, including the lethal shield hit; subsequent hits reach the now-exposed car. Other blast targets retain their ordinary damage. This is finite spatial cover, not a rear-angle immunity rule, and does not add general wall occlusion to explosions.
 
-Tombstone is registered as a Droppable (wire identity 8) in the existing two-slot inventory. Acquisition creates one match-unique live entity with **1000 HP**, independent of vehicle HP or vehicle-health tuning. Its normal default within-category spawn weight is **1**, using the existing registry-generated configuration and authoritative weighted pickup flow. Dedicated HUD art remains pending. Existing inventory names remain available; the HUD omits its pending icon.
+Native contact points inside the armor envelope route the existing collision severity and host damage tuning to the shield. A collision reported by the striking car also reaches the stationary defender's shield. Multiple manifold/slide observations collapse to the strongest shield contact for the step, with the existing collision cooldown retained per pool through checkpoints. The attacking car keeps its own normal collision damage. Damage uses the same evaluator as `DamageTombstone`; candidate changes, destroyed-slot cleanup and the single destruction journal entry commit only after the vehicle step succeeds. Sequential world ticks, capability validation, per-entity ordered damage and collision cooldown prevent replay or manifold duplication. When both slots contain Shields, only the selected pool is exposed and receives intercepted damage; the other remains stored.
 
-`ItemAuthority` owns the complete live Tombstone set, bounded at sixteen including stored/exposed items and released walls. Each pool retains its original entity ID, HP and ordered host-damage watermark. Immutable `TombstoneState` records carry attachment life/capability or the installed wall pose. Attached `Held <-> RearShield` state follows accepted slot selection; publications reject exposure that disagrees with ownership/selection. `TransitionTombstone` remains a host-only recovery fixture seam. Ordinary selected use stages `RearShield -> WorldWall` inside the same transaction as vehicle simulation, slot clearing and the use event. Rejected world steps commit none of those changes. Final models/VFX and final HUD/balance remain separate work.
+Client reconstructs those three native collision shapes and the Blender-authored Carnage Circus armor under the interpolated production Car transform. Crimson/ivory stripes, painted grin, welded chevron, brass stars, scraping shoes and caged amber lamps identify the same model mounted and deployed. Its wings wrap forward while mounted and rotate outward to a flat wall. A separate carriage attaches at the production rack's rear socket pair and appears with the compact shield as the cleared rack starts lifting. Core remains the hit authority; the local input path queues early deployment intent until the confirmed selected shield finishes unfolding. Native weapon queries temporarily omit all three reconstructed shield shapes so same-step destruction cannot leave phantom cover. Accepted lifecycle/item state removes them on death, reset, destruction and permanent departure, and reinstalls them after retained recovery. Bevels, lamps and the shallow peaked trim are cosmetic details on conservative panel boxes. [Shield asset notes](../../assets/items/tombstone/README.md) define editable source, pivots and clearances.
 
-`DamageTombstone` accepts a positive finite host-observed amount and a monotonic sequence scoped to that persistent entity, using the shared `VehicleHealth` clamping and destruction semantics on an independent pool. It returns the actual `DamageEvent` without changing vehicle health, kill attribution or player scoring. Host adapters must allocate ordered damage-observation sequences; neither HP nor damage/transition outcomes are accepted in client packets. Duplicate/older sequences are ignored, including after recovery. At zero HP the entity leaves the complete live set, its attached slot clears and one committed Tombstone destruction event is recorded. Absence is the existing authoritative item-destruction representation; no dead pool is retained or resurrected. Further damage/transitions cannot recreate it. A later acquisition is a new entity with a fresh ID and pool.
+The mounted armor's own sweep ignores contacted driveable support (`landing_terrain`
+or legacy `SurfaceBody`), so ordinary slope contact
+does not snag the shield or submit armor-ground damage observations. A separate
+chassis sweep always retains ground contact. Solid obstacles, other vehicles,
+weapon interception and deployed-wall physics retain their existing paths. This
+is ground-skimming behavior; the low visual edge may intersect a sharp terrain
+transition. Terrain exclusions apply to the contacted body's RID for that sweep;
+other faces of the same terrain body remain covered by the chassis query.
+The armor filter deliberately ignores sweep-normal direction: concave road seams
+can report lateral separating axes even on driveable asphalt. All faces of a
+tagged support body are skimmable by the armor; separately authored barriers and
+obstacles still block it. Chassis contact classification is unchanged.
+`check-tombstone-presentation.ps1 -ProductionTrack -GodotPath <exe> [-Visual]`
+exercises ordinary input across the actual west-bank track join with two peers.
+Both presentation modes also compare mounted/unmounted native responses against
+sampled production track triangles, including pitched poses that exposed seam snagging.
+
+`check-rear-shield.ps1 -GodotPath <exe> [-Impaired] [-Visual]` runs two production arenas over real local UDP, with independent shields, repeated ordinary selection/stow input from both peers without use, stationary/moving fire, inner/outer rear-quarter edge shots, exposed side/front shots, shield destruction while driving, and a native vehicle collision into the rear plate. Temporary fixture poses isolate shot geometry; moving scenarios advance native physics. Rendered captures use a fixed observation camera. Impairment adds 30 ms outbound delay, 5 ms jitter and 2% loss. Core tests additionally cover rejected-batch atomicity, exact slot retention, collision cooldown restoration, rotated geometry and missile interception. `check-tombstone-presentation.ps1` also runs native ground/obstacle comparisons and ordinary driving over a twenty-degree climb, crest and descent on two UDP peers.
+
+Shield is registered as a Droppable (wire identity 8) in the existing two-slot inventory. Acquisition creates one match-unique live entity with **1000 HP**, independent of vehicle HP or vehicle-health tuning. Its normal default within-category spawn weight is **1**, using the existing registry-generated configuration and authoritative weighted pickup flow. Dedicated HUD art remains pending. Existing inventory names remain available; the HUD omits its pending icon.
+
+`ItemAuthority` owns the complete live Shield set, bounded at sixteen including stored/exposed items and released walls. Each pool retains its original entity ID, HP and ordered host-damage watermark. Immutable `TombstoneState` records carry attachment life/capability or the installed wall pose. Attached `Held <-> RearShield` state follows accepted slot selection; publications reject exposure that disagrees with ownership/selection. `TransitionTombstone` remains a host-only recovery fixture seam. Ordinary selected use stages `RearShield -> WorldWall` inside the same transaction as vehicle simulation, slot clearing and the use event. Rejected world steps commit none of those changes. Final HUD/balance remain separate work.
+
+`DamageTombstone` accepts a positive finite host-observed amount and a monotonic sequence scoped to that persistent entity, using the shared `VehicleHealth` clamping and destruction semantics on an independent pool. It returns the actual `DamageEvent` without changing vehicle health, kill attribution or player scoring. Host adapters must allocate ordered damage-observation sequences; neither HP nor damage/transition outcomes are accepted in client packets. Duplicate/older sequences are ignored, including after recovery. At zero HP the entity leaves the complete live set, its attached slot clears and one committed Shield destruction event is recorded. Absence is the existing authoritative item-destruction representation; no dead pool is retained or resurrected. Further damage/transitions cannot recreate it. A later acquisition is a new entity with a fresh ID and pool.
 
 Complete item protocol version twenty-one publishes health, stage, entity ID, attachment capability, installed pose, damage watermark and last damaging collision tick through the existing reliable item envelope and nested admission/resume/migration checkpoints. Publications validate each attached pool against exactly one matching inventory slot and reject malformed health, stage, pose, ownership, count and cross-entity IDs. Authority restoration checks the existing token high-water bound, emits no historical destruction and retains damage replay memory. Selection changes, checkpoint installation and lifecycle transitions cannot refill a pool.
 
-Attached Tombstones follow existing inventory policy: ordinary death/reset/permanent departure removes them, temporary disconnect retains them, and optional retained respawn changes life/capability while preserving ID, HP, stage and watermark. Released walls survive owner death/departure. Finished clears all live Tombstones and attached Tombstone slots; new matches start empty.
+Attached Shields follow existing inventory policy: ordinary death/reset/permanent departure removes them, temporary disconnect retains them, and optional retained respawn changes life/capability while preserving ID, HP, stage and watermark. Released walls survive owner death/departure. Finished clears all live Shields and attached Shield slots; new matches start empty.
 
 `check-tombstone.ps1 -GodotPath <exe> [-Impaired]` runs production drivers over three real local UDP peers, exercising four independent pools, state/slot transitions, repeated damage/destruction, late admission and full authority restoration. Impairment is 30 ms outbound delay, 5 ms jitter and 2% native packet loss. The production reconnect fixture retains a damaged rear shield and world wall; migration retains two damaged world walls. These preserve exact ownership/pose and replay memory. The separate rear-shield harness exercises native blocking and temporary presentation; these checks do not establish remote EOS, independent-device performance or competitive balance.
 
-## Movable Tombstone world walls
+<a id="movable-tombstone-world-walls"></a>
+
+## Movable Shield world walls
 
 Normal use asks the host native adapter for rear ground and full expanded-box clearance. The
 adapter projects behind the current heading, samples the center and four footprint ends,
 and fits the standing wall to their support plane without changing its horizontal heading.
 It searches up to one metre upward for a clear box. Its clearance query synchronously
-places the deploying car's native proxy at the current observed pose, then restores it. This
+places the deploying car's native proxy at the current observed pose and excludes only its
+consumed mounted armor panels, then restores both pose and panels. This
 avoids rejecting fast forward deployment against the car's preceding-frame collider while
 still checking the actual chassis and other obstructions. A missing/steep support or blocked volume rejects that use
 without consuming the shield. Core also rejects overlapping wall candidates within the same batch, before either native body exists. Deployment retains the entity ID, exact HP, damage sequence and
 collision cooldown. It captures horizontal vehicle velocity, wall dimensions and mass; it does
-not retain an attachment or dependency on the former owner's vehicle life. The temporary
-three-panel visual expands over 0.2 seconds; the full collision envelope is active immediately.
+not retain an attachment or dependency on the former owner's vehicle life. The Blender visual
+releases from the displayed mounted pose over 0.18 seconds while its full-height hinged wings
+open from 90 degrees to a flat wall over 0.42 seconds. The full collision envelope remains active
+immediately. Captured dimensions scale the installed visual; configured sizes preserve the
+same silhouette rather than authoring a separate model for each tuning combination.
 
-Host Configs exposes `items.tombstone_width` (6 m), `height` (2.5 m), `depth` (0.6 m),
+Selected presentation reveals the compact folded stack as soon as the deck clears,
+as the rack begins lifting. It rides the rack out of the bay. Each center half and
+wing has a top and bottom section, forming eight sections in two rows. The subsequent
+1.15-second carriage motion carries the stack aft, pitches it upright, opens the two
+center halves around a visible central hinge, unfolds the side wings, then opens
+all four horizontal hinges before pulling the shield into rear position. Center
+tops fold backward and wing tops forward to nest the rows. Deselection reverses
+this sequence and holds the rack open until the shield is nested. All panel
+folding keeps full constant size. Inventory packing stays at 0.42 scale during rack
+rise and initial aft travel, reaching full size behind the Car before the center
+hinge opens; it does not represent exact mechanical packing. Accepted protection still
+starts/stops immediately with selection. Early player use waits for the completed
+mount animation, then releases through existing authority. The wall still inherits
+the displayed pose/folds for continuity; the empty carriage returns independently. Rapid switching,
+duplicate identities and remote publications share the same reconstructable path.
+
+`TombstoneVisual` owns per-instance accepted-HP weathering, impact scars, a brief hit flash
+and bounded sparks. Switching stored identities reconstructs their current damage without
+replaying an old impact. Late admission and explicit reseeding install a fully expanded wall,
+without replaying release. Ordinary world-wall removal detaches a non-colliding visual for an
+0.8-second panel breakup; this also represents expiry. At most 32 such world effects coexist.
+Reseeding clears those effects. Mounted destruction is shown only when the identity disappears
+while its owner remains alive in the same life; switching, deployment and death are not shield
+destruction. These effects add no authoritative state, particles with collision, or network fields.
+
+`check-tombstone-presentation.ps1 -GodotPath <exe> [-Visual]` drives two production arenas over
+local UDP and checks mounted/rack state, duplicate inventory, selection, health persistence,
+intermediate expansion, remote deployment, simultaneous independent damage, destruction,
+repeated deployment, reacquisition, chase-camera driving and landing. Conservative imported
+mesh bounds check clearance from articulated rear tires and trunk lids throughout the captured
+commands. The opt-in `tombstone_playtest.tscn` also accepts
+bounded JSON input/camera/damage fixture commands in `.godot/ts-219/playtest/input.json`; captures
+and traces identify each command. Run only one instance per workspace. This supplements the
+rear-shield, world-wall, vehicle/articulation and recovery checks; it does not establish physical
+controller ergonomics, real WAN behavior or final competitive balance.
+
+Host Configs exposes `items.tombstone_width` (6.6 m), `height` (2.5 m), `depth` (0.6 m),
 `mass` (250 kg), and `clearance` (1 m behind the chassis envelope). Bounds are respectively
 3–12 m, 2–6 m, 0.3–2 m, 50–2000 kg, and 0.5–5 m. Dimensions and mass are captured at
 deployment, so later tuning cannot resize an installed collider. Configuration protocol 41
@@ -228,10 +310,10 @@ contact-normal momentum using the car and captured wall masses plus the wall box
 wall while slowing instead of retaining the generic sweep's stationary-obstacle stop.
 Distinct manifold points form one contact centroid per wall; the contact offset produces
 angular momentum as well as translation. Duplicate points cannot add duplicate torque.
-Unrelated blocking contacts keep their resolved motion. Tombstone contacts bypass the
+Unrelated blocking contacts keep their resolved motion. Shield contacts bypass the
 native adapter's additional fixed-prop pitch/roll kick: applying it before restoring shared
 horizontal momentum could drive the chassis into the floor and launch it through suspension.
-Native Tombstone side-contact normals use the same horizontal plane as that Core response,
+Native Shield side-contact normals use the same horizontal plane as that Core response,
 so a banked side face cannot turn a sustained push into vertical lift. Top contacts and
 terrain support retain their existing normals.
 General car handling, suspension, tuning and other collision responses are unchanged. Writing an unchanged host

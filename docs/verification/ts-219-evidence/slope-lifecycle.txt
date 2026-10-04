@@ -1,0 +1,10 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Two UDP peers admitted; four independent Tombstones acquired through normal authority.
+Damage and duplicate hit/transition exercised; rear state retains slots and persistent pools.
+World transition releases its slot; the second damaged rear shield retains its slot. HP 550/900/900/1000, vehicles 1500 HP.
+Full checkpoint/authority restoration preserved pools, lifecycle, pose and replay memory; third UDP peer connecting.
+Late join converged; lethal world/held damage and twenty repeated destruction attempts produced two removals.
+Three UDP peers agree on remaining entities, stages, health and cleared slots; exactly two destruction outcomes and no vehicle damage.
+Tombstone integration passed: authoritative pools, lifecycle, repeated events, three-peer UDP and full state restoration.
+Tombstone verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\tombstone-checks\c000f4fe6fd346d0b47f1b5fbfd48bf3

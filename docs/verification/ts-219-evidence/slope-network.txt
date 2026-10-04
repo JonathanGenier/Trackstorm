@@ -1,0 +1,21 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+NETWORK_CONNECTION {"RemotePeerId":1,"State":1,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":1,"State":2,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":1,"State":0,"Reason":2,"Detail":"Transport stopped"}
+Network vehicle metrics: host=True, entry=False, maximum=0, startup=0, steady=0, snaps=0; full report: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\network-vehicle-checks\a1e9cc13e0954a57b1081e564bde5bc7\player-0.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":31.6237763,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":1813,"messages":1,"peak":1813},{"peer":1,"protocol":"TD","delivery":"Unreliable","bytes":430771,"messages":79,"peak":5501},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":1704,"messages":1,"peak":1704},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":1055,"messages":5,"peak":291},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":501,"messages":2,"peak":481},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":273758,"messages":472,"peak":603}]}
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+NETWORK_CONNECTION {"RemotePeerId":1,"State":1,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":1,"State":2,"Reason":0,"Detail":""}
+Network vehicle metrics: host=False, entry=False, maximum=0.10364776, startup=0.10364776104688644, steady=0, snaps=0; full report: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\network-vehicle-checks\a1e9cc13e0954a57b1081e564bde5bc7\player-1.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":24.5822766,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":138973,"messages":961,"peak":145}]}
+
+Network vehicle verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\network-vehicle-checks\a1e9cc13e0954a57b1081e564bde5bc7

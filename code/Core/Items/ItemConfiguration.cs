@@ -4,7 +4,7 @@ namespace Trackstorm.Core.Items;
 public sealed record ItemConfiguration
 {
     /// <summary>Expanded wall width, captured at deployment (m).</summary>
-    public float TombstoneWidth { get; init; } = 6;
+    public float TombstoneWidth { get; init; } = 6.6f;
     /// <summary>Expanded wall height (m).</summary>
     public float TombstoneHeight { get; init; } = 2.5f;
     /// <summary>Expanded wall depth (m).</summary>

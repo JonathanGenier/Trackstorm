@@ -1,0 +1,15 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Mounted shield ground passed: 54 slope/pitch/roll/height comparisons; 21 old armor snags; 93 retained chassis contacts; mixed ground/solid-obstacle protection.
+Production track: 660 native comparisons, 0 mounted-armor failures.
+PASS: Production bank driving phase 0 preserves mounted shield HP.
+PASS: Production bank driving phase 1 preserves mounted shield HP.
+PASS: Production bank driving phase 2 preserves mounted shield HP.
+PASS: Production bank driving phase 3 preserves mounted shield HP.
+PASS: Production bank driving phase 4 preserves mounted shield HP.
+PASS: Production bank driving phase 5 preserves mounted shield HP.
+PASS: Production bank driving phase 6 preserves mounted shield HP.
+PASS: Ordinary input crosses the production infield-to-track join and climbs the west bank.
+PASS: Remote shield remains undamaged after production bank traversal.
+PASS: Runtime exits cleanly without errors, warnings or exceptions.
+Tombstone presentation passed. Evidence: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-219\playtest/check-20261003-205655*

@@ -1,0 +1,8 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Blocked normal use retained the shield; retry after clearing the obstruction uses the same capability.
+Scenario 0: flat/banked fixture deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+System.InvalidOperationException: One ordinary use per player deploys exactly two walls
+   at Trackstorm.Client.Verification.WorldWallChecks.Check(Boolean condition, String message) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WorldWallChecks.cs:line 455
+   at Trackstorm.Client.Verification.WorldWallChecks._PhysicsProcess(Double delta) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WorldWallChecks.cs:line 165

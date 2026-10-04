@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Blocked normal use retained the shield; retry after clearing the obstruction uses the same capability.
+Scenario 0: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 1: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 2: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 3: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 4: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 5: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 6: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 7: production map deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+World wall integration passed: sixteen one-use deployments on the production oval/infield with upright motion and exact UDP convergence.

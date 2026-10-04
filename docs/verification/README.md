@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Shield naming, Carnage Circus shield/wall, reinforced rack mount, queued deployment after eight-section unfolding, production-track skimming and multiplayer runtime evidence | [TS-219 verification evidence](ts-219.md) |
 | Permanent selected-slot discard, native input, reliable authority, recovery and respawn | [TS-277 verification evidence](ts-277.md) |
 | Responsive chase camera, progressive aerial framing, local preferences and fixed-height upward aiming | [TS-279 verification evidence](ts-279.md) |
 | Story verification, terrain alignment, contact spin, tipping/breakage, expiry, vehicle-launch and sliding corrections | [TS-218 verification evidence](ts-218.md) |

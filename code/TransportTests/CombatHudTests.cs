@@ -148,7 +148,7 @@ internal sealed class CombatHudTests
             Assert.That(view.SecondItem, Is.EqualTo(HeldItem.Oil));
             Assert.That(view.ActiveSlot, Is.EqualTo(1));
             Assert.That(CombatHudView.From(initial, slot with { Vehicle = 2 }, 0).SecondItem, Is.EqualTo(HeldItem.None));
-            Assert.That(view.ItemName, Is.EqualTo(item == HeldItem.None ? "EMPTY" : item == HeldItem.Nitro ? "NITRO 100%" : item == HeldItem.ProxyMine ? "PROXY MINE" : item == HeldItem.MachineGun ? "MACHINE GUN 100%" : item == HeldItem.Salvo ? "SALVO 5" : item.ToString().ToUpperInvariant()));
+            Assert.That(view.ItemName, Is.EqualTo(item == HeldItem.None ? "EMPTY" : item == HeldItem.Nitro ? "NITRO 100%" : item == HeldItem.ProxyMine ? "PROXY MINE" : item == HeldItem.MachineGun ? "MACHINE GUN 100%" : item == HeldItem.Salvo ? "SALVO 5" : item == HeldItem.Tombstone ? "SHIELD" : item.ToString().ToUpperInvariant()));
             Assert.That(view.Standing, Is.EqualTo("--"));
             Assert.That(view.Timer, Is.EqualTo("--:--"));
             Assert.That(view.HealthFill, Is.EqualTo(0.85));
