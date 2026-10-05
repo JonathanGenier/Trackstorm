@@ -2,7 +2,7 @@
 
 Escape opens a centered overlay whenever an arena exists, including a lone player in `MatchPhase.Waiting`, countdown, Active and Finished. The existing remappable Pause action (P / gamepad Start by default) also opens it. Escape, logical Cancel or Pause goes Back one level; at the top level it closes. Back to Game closes directly. The gamepad B/handbrake binding does not open the overlay during driving.
 
-The hierarchy is Game Menu → Settings → Audio, Video, Gameplay, Interface or Controls. Category Back returns to Settings; Settings Back returns to Game Menu. Settings opened from the main menu returns to its caller. Developer Options remains a Settings entry but opens the shared [DevTools](devtools.md) Configs tab rather than another category page. F1 directly opens or selects that same Configs surface in development builds. Escape requests DevTools closure, protecting unapplied Configs edits with Apply / Discard / Stay, then restores the underlying Settings focus; numeric editors retain native text entry.
+The hierarchy is Game Menu → Settings → Audio, Video, Gameplay, Camera, Interface or Controls. Camera consolidates local camera framing and look controls; Gameplay retains speed units. Category Back returns to Settings; Settings Back returns to Game Menu. Settings opened from the main menu returns to its caller. Developer Options remains a Settings entry but opens the shared [DevTools](devtools.md) Configs tab rather than another category page. F1 directly opens or selects that same Configs surface in development builds. Escape requests DevTools closure, protecting unapplied Configs edits with Apply / Discard / Stay, then restores the underlying Settings focus; numeric editors retain native text entry.
 
 ## Ownership and input
 

@@ -8,6 +8,38 @@ namespace Trackstorm.Core.Tests.Settings;
 internal sealed class PlayerSettingsTests
 {
     [Test]
+    public void NewCameraPreferencesClampDefaultAndRoundTripIndependently()
+    {
+        foreach (double value in new[] { -10d, .25, 1, 3, 100, double.NaN, double.PositiveInfinity })
+        {
+            var settings = new PlayerSettings { HorizontalLookSensitivity = value, VerticalLookSensitivity = value,
+                CameraRecenterSpeed = value, CameraFov = value, CameraHeight = value, InvertY = true };
+            var saved = PlayerSettingsJson.Deserialize(PlayerSettingsJson.Serialize(settings));
+            Assert.That(saved.HorizontalLookSensitivity, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, .25, 3) : 1));
+            Assert.That(saved.VerticalLookSensitivity, Is.EqualTo(saved.HorizontalLookSensitivity));
+            Assert.That(saved.CameraRecenterSpeed, Is.EqualTo(saved.HorizontalLookSensitivity));
+            Assert.That(saved.CameraFov, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, 50, 90) : 65));
+            Assert.That(saved.CameraHeight, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, .5, 3) : 1.25));
+            Assert.That(saved.InvertY, Is.True);
+        }
+        foreach (string json in new[] { "{}", "{\"horizontalLookSensitivity\":null,\"verticalLookSensitivity\":\"bad\",\"cameraRecenterSpeed\":1e999,\"cameraFov\":false,\"cameraHeight\":[],\"invertY\":1}" })
+        {
+            var saved = PlayerSettingsJson.Deserialize(json);
+            Assert.That(saved.HorizontalLookSensitivity, Is.EqualTo(1));
+            Assert.That(saved.VerticalLookSensitivity, Is.EqualTo(1));
+            Assert.That(saved.CameraRecenterSpeed, Is.EqualTo(1));
+            Assert.That(saved.CameraFov, Is.EqualTo(65));
+            Assert.That(saved.CameraHeight, Is.EqualTo(1.25));
+            Assert.That(saved.InvertY, Is.False);
+        }
+        var legacy = PlayerSettingsJson.Deserialize("{\"mouseAimSensitivity\":2,\"stickAimSensitivity\":0.4,\"cameraInertia\":0.8}");
+        Assert.That(legacy.MouseAimSensitivity, Is.EqualTo(2));
+        Assert.That(legacy.StickAimSensitivity, Is.EqualTo(.4));
+        Assert.That(legacy.CameraInertia, Is.EqualTo(.8));
+        Assert.That(legacy.CameraHeight, Is.EqualTo(1.25));
+    }
+
+    [Test]
     public void CameraPreferencesAreCompatibleValidatedAndIndependent()
     {
         foreach (double value in new[] { -10d, 0, .5, 1, 1.5, 10, double.NaN, double.PositiveInfinity })

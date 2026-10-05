@@ -83,7 +83,8 @@ public sealed partial class CameraResponsivenessPlaytest : Node3D
             if (phase >= Phases.Length) { Finish(); return; }
             if (local == 0)
             {
-                _settings.UpdateSettings(_settings.Current with { CameraDistance = phase == 12 ? 1.5 : 1.15, CameraInertia = phase == 11 ? 0 : phase == 12 ? 1 : .5, CameraAerialPullback = phase == 11 ? 0 : phase == 12 ? 1.5 : 1 });
+                _settings.UpdateSettings(_settings.Current with { CameraDistance = phase == 12 ? 1.5 : 1.15, CameraInertia = phase == 11 ? 0 : phase == 12 ? 1 : .5, CameraAerialPullback = phase == 11 ? 0 : phase == 12 ? 1.5 : 1,
+                    CameraFov = phase == 11 ? 50 : phase == 12 ? 90 : 65, CameraHeight = phase == 11 ? .5 : phase == 12 ? 3 : 1.25 });
                 for (int i = 0; i < _cars.Count; i++) _cars[i].ResetBody(Pose(i, phase));
             }
             if (phase == 15 && local % 90 == 0 && local > 0) _cars[0].ResetBody(Pose(0, phase));
