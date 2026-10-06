@@ -1,0 +1,5 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ROCK network-RockLedge-3-0.0: contacts=1204 repeat=958 final=0 depth=0.0002 overlapFrames=0 angular=0.083 contactMeanMs=1.042 p95Ms=1.467
+ROCK practice-RockLedge-3-0.0: contacts=1205 repeat=959 final=0 depth=0.0004 overlapFrames=0 angular=0.083 contactMeanMs=0.876 p95Ms=1.104
+Rock collision checks: failures=0

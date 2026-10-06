@@ -11,6 +11,8 @@ public sealed class EnvironmentAuthority
     public const int MaximumMoving = 16;
     public const float IntactHealth = 180;
     public const float BrokenHealth = 60;
+    /// <summary>Ten seconds at the match's fixed sixty-Hz simulation rate, captured on first fracture.</summary>
+    public const ulong DebrisLifetimeTicks = 600;
     public static float Health(byte stage) => stage == 1 ? IntactHealth : Math.Max(20, BrokenHealth * MathF.Pow(0.72f, stage - 2));
     private readonly EnvironmentLayout _layout;
     private EnvironmentRockState[] _rocks;
@@ -32,11 +34,13 @@ public sealed class EnvironmentAuthority
         for (int i = 0; i < snapshot.Rocks.Count; i++)
         {
             var rock = snapshot.Rocks[i];
-            if (rock.Stage > _layout.FinalStage(i) || (i % EnvironmentLayout.PiecesPerRock == 0 && rock.Stage == 0) ||
+            if (rock.Stage > _layout.FinalStage(i) ||
                 (i % EnvironmentLayout.PiecesPerRock != 0 && rock.Stage == 1) || (rock.Stage == _layout.FinalStage(i) && rock.Damage != 0)) { throw new ArgumentException("Invalid size-dependent rock continuation."); }
             int root = i / EnvironmentLayout.PiecesPerRock * EnvironmentLayout.PiecesPerRock;
-            if ((_layout.InitialStages[root] == 2 && rock.Stage != _layout.InitialStages[i]) ||
-                (snapshot.Rocks[root].Stage == 1 && i != root && rock.Stage != 0)) { throw new ArgumentException("Impossible rock split continuation."); }
+            if ((_layout.InitialStages[root] == 2 && (rock.Stage != _layout.InitialStages[i] || rock.ExpiresAtTick != 0)) ||
+                (snapshot.Rocks[root].Stage <= 1 && i != root && rock.Stage != 0) ||
+                (rock.Stage > 1 && _layout.InitialStages[root] == 1 && rock.ExpiresAtTick == 0) ||
+                (rock.Stage > 1 && rock.ExpiresAtTick != snapshot.Rocks[root].ExpiresAtTick)) { throw new ArgumentException("Impossible rock split continuation."); }
         }
         _rocks = snapshot.Rocks.ToArray();
         _plants = snapshot.Plants.ToArray();
@@ -49,6 +53,11 @@ public sealed class EnvironmentAuthority
         tuning ??= DefaultTuning;
         tuning.Validate();
         if (tick <= _tick) { return; }
+        // Expire before collecting impacts so a hit at the deadline cannot revive or split debris.
+        for (int i = 0; i < _rocks.Length; i++)
+        {
+            if (_rocks[i].ExpiresAtTick != 0 && tick >= _rocks[i].ExpiresAtTick) { _rocks[i] = default; }
+        }
         float VehicleDamage(float speed) => Math.Min(360, tuning.ImpactScale * MathF.Pow(Math.Max(0, speed - tuning.ImpactThreshold), 1.5f));
         var damage = new float[_rocks.Length];
         var pushes = new Vector3[_rocks.Length];
@@ -106,7 +115,8 @@ public sealed class EnvironmentAuthority
                 float total = rock.Damage + damage[i] / tuning.HealthScale;
                 if (total >= Health(rock.Stage))
                 {
-                    rock = rock with { Stage = (byte)(rock.Stage + 1), Damage = 0, ImpactReadyTick = tick + 12 };
+                    rock = rock with { Stage = (byte)(rock.Stage + 1), Damage = 0, ImpactReadyTick = tick + 12,
+                        ExpiresAtTick = rock.ExpiresAtTick == 0 ? checked(tick + DebrisLifetimeTicks) : rock.ExpiresAtTick };
                     int root = i / EnvironmentLayout.PiecesPerRock * EnvironmentLayout.PiecesPerRock;
                     int sibling = Enumerable.Range(root, EnvironmentLayout.PiecesPerRock).FirstOrDefault(slot => slot != i && _rocks[slot].Stage == 0, -1);
                     if (sibling >= 0)

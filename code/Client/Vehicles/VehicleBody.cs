@@ -13,6 +13,7 @@ public sealed partial class VehicleBody : RigidBody3D
 
     private readonly List<VehicleEffectRequest> _effects = new();
     private readonly VehicleFeedback _feedback = new();
+    private CollisionShape3D _chassis = null!;
     private VehiclePhysicsState? _reset;
     private Trackstorm.Core.Simulation.Simulation _simulation = null!;
 
@@ -57,7 +58,8 @@ public sealed partial class VehicleBody : RigidBody3D
         CenterOfMassMode = CenterOfMassModeEnum.Custom;
         CenterOfMass = new Vector3(0, (-0.25f * VehicleDimensions.Scale) + VehicleDimensions.OriginShift, 0);
         PhysicsMaterialOverride = new PhysicsMaterial { Friction = 0.15f, Bounce = 0, Absorbent = true };
-        AddChild(VehicleVisual.CreateCollision());
+        _chassis = VehicleVisual.CreateCollision();
+        AddChild(_chassis);
         var identification = new StandardMaterial3D { AlbedoColor = Paint, Roughness = 0.8f };
         var model = VehicleVisual.Create(identification, () => (State, Configuration));
         AddChild(model);
@@ -128,7 +130,7 @@ public sealed partial class VehicleBody : RigidBody3D
             Vector3 normal = body.GetContactLocalNormal(contact);
             if (EnvironmentContact.IsObstacle(body.GetContactColliderObject(contact), normal))
             {
-                normal = EnvironmentContact.ExposedNormal(this, body.Transform.Origin, body.GetContactLocalPosition(contact), normal);
+                normal = EnvironmentContact.ExposedNormal(this, body.GetContactColliderObject(contact), body.Transform.Origin, body.GetContactLocalPosition(contact), normal);
             }
             if (normal.Y >= Configuration.SupportNormalMinimum && !EnvironmentContact.IsObstacle(body.GetContactColliderObject(contact), normal))
             {
@@ -210,6 +212,7 @@ public sealed partial class VehicleBody : RigidBody3D
             }
             physics = new(physics.Position, physics.Orientation, velocity, physics.AngularVelocity);
         }
+        EnvironmentContact.AddRockDriveContacts(this, _chassis, body.Transform, contacts);
         var observation = new VehicleObservation(physics, ToCore(support.IsZeroApprox() ? Vector3.Zero : support.Normalized()), contacts, surface, suspension.Wheels, ToCore(suspension.TerrainNormal), WaterObservation.Observe(this, body.Transform));
         return new VehicleStepRequest(VehicleId, InputSource?.Invoke(input.Tick) ?? input, observation, _effects, _reset);
     }

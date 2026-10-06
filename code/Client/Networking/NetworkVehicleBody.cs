@@ -10,6 +10,7 @@ namespace Trackstorm.Client.Networking;
 internal sealed partial class NetworkVehicleBody : StaticBody3D
 {
     private VehicleMotionQuery _motionQuery = null!;
+    private CollisionShape3D _chassis = null!;
     private VehicleMotionQuery _shieldMotionQuery = null!;
     /// <summary>Current native support material, independent of simulation handling.</summary>
     internal SurfaceIdentity? DetectedSurface { get; private set; }
@@ -66,6 +67,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         _rearCollisions = ShieldGeometry.MountedBoxes.Select(box => new CollisionShape3D
         { Shape = new BoxShape3D { Size = VehicleBody.ToGodot(box.Size) }, Position = VehicleBody.ToGodot(box.Center), Disabled = true }).ToArray();
         foreach (var panel in _rearCollisions) { AddChild(panel); }
+        _chassis = chassis;
         _motionQuery = new VehicleMotionQuery(this, chassis);
         _shieldMotionQuery = new VehicleMotionQuery(this, _rearCollisions);
         _rearVisual = new Items.ShieldVisual { Position = Items.ShieldVisual.MountedCenter, Visible = false };
@@ -292,7 +294,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                 Vector3 normal = EnvironmentContact.SupportFaceNormal(this, result.GetCollider(i), result.GetCollisionPoint(i), result.GetCollisionNormal(i).Normalized());
                 if (EnvironmentContact.IsObstacle(result.GetCollider(i), normal))
                 {
-                    normal = EnvironmentContact.ExposedNormal(this, transform.Origin, result.GetCollisionPoint(i), normal);
+                    normal = EnvironmentContact.ExposedNormal(this, result.GetCollider(i), transform.Origin, result.GetCollisionPoint(i), normal);
                 }
                 var other = result.GetCollider(i) as NetworkVehicleBody;
                 var wall = result.GetCollider(i) as Items.ShieldWallBody;
@@ -411,6 +413,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
             }
         }
 
+        EnvironmentContact.AddRockDriveContacts(this, _chassis, transform, contacts);
         float waterDepth = WaterObservation.Observe(this, transform);
         var observation = new VehicleObservation(new VehiclePhysicsState(VehicleBody.ToCore(transform.Origin), new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular)), VehicleBody.ToCore(support), contacts, surface, suspension.Wheels, VehicleBody.ToCore(suspension.TerrainNormal), waterDepth);
         if (solveVehicles)
@@ -465,9 +468,16 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         }
 
         _previous = _initialized && !correction ? _current : state;
-        _current = state;
         _initialized = true;
+        SetQueryPose(state);
+    }
+
+    /// <summary>Moves only the native collision proxy; used transiently for matching prediction ticks.</summary>
+    internal void SetQueryPose(VehiclePhysicsState state)
+    {
+        _current = state;
         GlobalTransform = new Transform3D(new Basis(VehicleBody.ToGodot(state.Orientation)), VehicleBody.ToGodot(state.Position));
+        ForceUpdateTransform();
         ConstantLinearVelocity = VehicleBody.ToGodot(state.LinearVelocity);
         ConstantAngularVelocity = VehicleBody.ToGodot(state.AngularVelocity);
     }

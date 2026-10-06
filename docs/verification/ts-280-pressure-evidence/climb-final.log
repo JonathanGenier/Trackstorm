@@ -1,0 +1,6 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+FAIL: network-BoulderLow-12-1.2 contact step budget: 8.611ms
+ROCK network-BoulderLow-12-1.2: contacts=272 repeat=82 final=0 depth=0.0000 overlapFrames=0 angular=0.313 contactMeanMs=8.611 p95Ms=16.248
+ROCK practice-BoulderLow-12-1.2: contacts=3 repeat=0 final=0 depth=0.0052 overlapFrames=0 angular=0.727 contactMeanMs=0.000 p95Ms=0.000
+Rock collision checks: failures=1

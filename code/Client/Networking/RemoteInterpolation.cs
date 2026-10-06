@@ -4,7 +4,7 @@ using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Client.Networking;
 
-/// <summary>Render-time sampling of ordered Core snapshot data, with endpoint holding and no extrapolation.</summary>
+/// <summary>Buffered remote sampling, with bounded time alignment for nearby predicted vehicle contact.</summary>
 internal sealed class RemoteInterpolation
 {
     /// <summary>One publication interval on a stable stream; measured arrival variation adds bounded headroom.</summary>
@@ -21,6 +21,36 @@ internal sealed class RemoteInterpolation
     internal double TimelineDelayMilliseconds { get; private set; }
     /// <summary>Explicit cursor recoveries after a stall exhausts the presentation buffer.</summary>
     internal int BufferRecoveries { get; private set; }
+
+    /// <summary>Aligns a remote collision proxy to the local prediction tick within its existing horizon.</summary>
+    internal static VehiclePhysicsState Predict(VehicleSnapshot remote, ulong tick)
+    {
+        ulong ticks = tick > remote.Movement.Tick ? tick - remote.Movement.Tick : 0;
+        float seconds = Math.Min(ticks, (ulong)PredictedVehicle.MaximumPredictionSteps) / (float)HostVehicleSession.TickRate;
+        var pose = remote.Movement.Physics;
+        var angular = pose.AngularVelocity;
+        var orientation = pose.Orientation;
+        if (angular.LengthSquared() > 0.000001f)
+            orientation = Quaternion.Normalize(Quaternion.CreateFromAxisAngle(Vector3.Normalize(angular), angular.Length() * seconds) * orientation);
+        return new(pose.Position + pose.LinearVelocity * seconds, orientation, pose.LinearVelocity, angular);
+    }
+
+    /// <summary>Renders close cars on the local timeline so buffered opponents cannot overlap a predicted bumper.
+    /// Distance blends continuously back to ordinary interpolation outside the physical interaction envelope.</summary>
+    internal static VehiclePhysicsState ContactPose(VehiclePhysicsState buffered, VehicleSnapshot remote, VehicleSnapshot local, Vector3 localVisualPosition)
+    {
+        var aligned = Predict(remote, local.Movement.Tick);
+        float diameter = VehicleDimensions.SpawnClearance;
+        float distance = Vector3.Distance(aligned.Position, local.Movement.Physics.Position);
+        float weight = Math.Clamp((2 * diameter - distance) / diameter, 0, 1);
+        weight = weight * weight * (3 - 2 * weight);
+        // Carry the local render interpolation/correction offset across a touching pair.
+        // This changes presentation only; neither native query poses nor authority move.
+        Vector3 position = aligned.Position + localVisualPosition - local.Movement.Physics.Position;
+        return new(Vector3.Lerp(buffered.Position, position, weight),
+            Quaternion.Normalize(Quaternion.Slerp(buffered.Orientation, aligned.Orientation, weight)),
+            buffered.LinearVelocity, buffered.AngularVelocity);
+    }
 
     /// <summary>Samples a remote pose, clamping before/after known data and never blending distinct lives.</summary>
     /// <param name="history">Ordered immutable snapshots.</param>

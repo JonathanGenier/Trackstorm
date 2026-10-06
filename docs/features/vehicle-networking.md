@@ -43,7 +43,8 @@ crash torque controls keep eccentric hits bounded. Raw contacts remain intact fo
 the existing authority; this response introduces no damage rule or damage curve.
 Other vehicles are excluded from suspension rays so contact cannot become spring
 launch energy. Local prediction uses the same pair calculation with the latest
-remote proxy and changes only the predicted vehicle; the host owns both outcomes.
+remote proxy aligned to the local query tick and changes only the predicted vehicle;
+the host owns both outcomes.
 Multi-car contact chains remain a bounded pair solver, without full-world rollback.
 
 Application sessions instead require the completed [loading barrier](match-entry.md) and the accepted [Game Loop](game-loop.md) Active phase. Waiting, Countdown and Finished send/predict neutral controls after synchronization, retaining acknowledgements and ordinary state presentation. Host Core independently neutralizes remote and local inputs outside Active and rejects item-use requests. Reliable phase receipt neutralizes pending prediction history before later replay. A client timer or world snapshot cannot advance its accepted phase. Standalone fixtures explicitly omit application entry to isolate the original vehicle protocol.
@@ -56,13 +57,13 @@ Obstacle momentum still uses the shared anti-climb response normal. Remaining di
 
 Driveable mesh sweep contacts use a short vertical ray at the collision point to recover the authored triangle face normal. The ray must hit the same tagged terrain collider and a compatible support face; obstacles, ceilings and unmatched probes retain their native normals. This prevents internal triangle-edge separating axes from projecting high tangential road velocity upward. It does not alter mesh geometry, gravity, suspension, steering range or genuine ramp normals. Host and prediction share this observation correction.
 
-This is a replay-capable collision adapter, not full native rigid-body rollback. Network vehicles use kinematic collision proxies; they do not reproduce the offline arena's rigid-body impulse exchange with movable props. During local replay, other vehicles use their latest authoritative collision proxies, so unpredictable vehicle-to-vehicle contacts can require larger corrections. The static environment and scene-derived eight-grid configuration are shared by host and clients. Initial admission, rejoin, respawn and restored authority use that local map contract. The active oval publishes no prop state; its 20 pickups use the existing reliable item publication. Cross-platform bit-identical Godot collision solving is not promised.
+This is a replay-capable collision adapter, not full native rigid-body rollback. Network vehicles use kinematic collision proxies; they do not reproduce the offline arena's rigid-body impulse exchange with movable props. During local replay, other vehicles use bounded estimates from their latest authoritative poses and velocities, so unpredictable vehicle-to-vehicle contacts can require larger corrections. The static environment and scene-derived eight-grid configuration are shared by host and clients. Initial admission, rejoin, respawn and restored authority use that local map contract. The active oval publishes no prop state; its 20 pickups use the existing reliable item publication. Cross-platform bit-identical Godot collision solving is not promised.
 
 The shared suspension observation uses one temporary native ray query for all four wheels and the center, with fixed-size stack scratch storage. Each native hit dictionary is released after use. Water footprint offsets are immutable shared data. This reduces per-step/replay allocation without caching collision results, changing sample order, skipping support queries or moving physics work off the simulation boundary.
 
-Core retains at most 20 ordered world snapshots. Remote rendering targets one publication interval (three ticks / 50 ms) behind the locally advancing received timeline. Absolute variation between render-observed arrival intervals and host-tick intervals adds up to three ticks of headroom, decaying at 0.25 ticks per second. This is arrival variation including scheduling, not transport-measured jitter. The cursor advances monotonically at 90–110% speed for ordinary variation. If a stall leaves it more than one publication interval behind its target, it explicitly recovers to the target inside retained history; it cannot accumulate seconds of presentation debt. A lone initial sample holds its actual endpoint. Positions and velocities interpolate linearly; orientations use normalized spherical interpolation. Rendering never extrapolates. New lives remain discrete and departed identities leave the roster.
+Core retains at most 20 ordered world snapshots. Remote rendering targets one publication interval (three ticks / 50 ms) behind the locally advancing received timeline. Absolute variation between render-observed arrival intervals and host-tick intervals adds up to three ticks of headroom, decaying at 0.25 ticks per second. This is arrival variation including scheduling, not transport-measured jitter. The cursor advances monotonically at 90–110% speed for ordinary variation. If a stall leaves it more than one publication interval behind its target, it explicitly recovers to the target inside retained history; it cannot accumulate seconds of presentation debt. A lone initial sample holds its actual endpoint. Positions and velocities interpolate linearly; orientations use normalized spherical interpolation. Buffered sampling holds endpoints. Close vehicle contact uses the bounded alignment described below. New lives remain discrete and departed identities leave the roster.
 
-The buffered-delay diagnostic is latest accepted host tick minus actual render cursor, clamped to retained data. Received-timeline delay additionally includes local snapshot age. Neither measures end-to-end one-way WAN transit; adding half an RTT is only a symmetric-path estimate. An extended data outage holds the endpoint and increases timeline age; explicit cursor recovery may skip remote movement after a severe stall. No interpolation scheme restores frames that were never rendered.
+The buffered-delay diagnostic is latest accepted host tick minus the buffer's render cursor, clamped to retained data. Nearby contact presentation may advance beyond that ordinary buffer. Received-timeline delay additionally includes local snapshot age. Neither measures end-to-end one-way WAN transit; adding half an RTT is only a symmetric-path estimate. An extended data outage holds the buffered endpoint and increases timeline age; explicit cursor recovery may skip remote movement after a severe stall. No interpolation scheme restores frames that were never rendered.
 
 Snapshot age uses monotonic elapsed time since the latest accepted snapshot or checkpoint. It continues aging during a stalled frame and does not grow merely because several fixed simulation callbacks catch up in a burst. Stale/rejected traffic cannot refresh it. Interpolation and Stats read the same clock; Core ticks, session timers and authority remain unchanged. A controlled clock keeps these freshness invariants deterministic in transport tests.
 
@@ -73,6 +74,32 @@ Local authoritative corrections apply to gameplay immediately. Client preserves 
 The existing Stats panel also shows constant-space local correction counters for the first two seconds of prediction and steady state separately: reconciliations, counts above 1 cm and at least 10 cm / 1 m / 3 m, maximum error, pending inputs and whether prediction is held for acknowledgements. These cumulative counters reset on checkpoint installation. They measure corrected gameplay poses; the separate hard-snap counter belongs to presentation and can include an accumulated smoothing offset. No per-packet logs or replicated diagnostics are added.
 
 ## Verification and Boundaries
+
+During local prediction and replay, remote vehicle collision proxies temporarily
+advance from the accepted snapshot to the local query tick using their published
+linear/angular velocity, bounded by the existing 24-tick prediction horizon.
+Native transforms are flushed before the synchronous sweep and restored afterward.
+This prevents repeated rear contact against a frozen 20-Hz collider from stopping
+the local car between publications. Host pair solving, damage,
+snapshot history and authority are unchanged. Extrapolation is a bounded collision
+estimate, not remote input simulation or full-world rollback; abrupt remote turns
+and stops still require authoritative correction.
+
+Nearby remote presentation uses that same estimate plus the local visible
+interpolation/correction offset. This keeps touching bumpers on one timeline:
+otherwise a smoothly predicted local car can visibly pass through a buffered lead
+car. Full alignment applies within the existing conservative vehicle diameter
+(`SpawnClearance`); a smooth distance weight returns to ordinary buffering over the
+next diameter. The presentation policy has no contact timer, moves no colliders,
+and changes no authority. Distant vehicles retain buffered interpolation. Near
+unpredictable stops/turns can still show correction because future remote input
+and world contacts are unknown.
+
+`check-following-contact-network.ps1 [-Visual]` records continuous predicted travel,
+correction bounds, visible bumper separation and four-peer damage agreement under 30 ms outbound delay,
+5 ms jitter and 2% loss. The rendered variant captures the follower's chase view
+after measurement. The fixture uses separate native worlds on one PC, not separate
+physical devices or authenticated EOS identities.
 
 Selected-slot discard travels reliably through the existing item protocol, with sender, arena, life, exact grant capability and selection-watermark validation. The host deletes immediately on acceptance and publishes the existing complete inventory; clients render confirmation after delivery. Resume and migration retain the item deletion watermark and reject recovery before a confirmed discard. See [permanent discard](items.md#permanent-selected-slot-discard).
 

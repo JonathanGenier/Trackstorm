@@ -1,0 +1,3833 @@
+[
+  {
+    "name": "twitch-after-large-approach",
+    "frames": 360,
+    "first": {
+      "observationMs": 1.6352,
+      "renderFrameMs": 6.9262,
+      "tick": 601,
+      "position": [
+        102.62538,
+        1.1453128,
+        -28.103682
+      ],
+      "velocity": [
+        0,
+        -0.18333334,
+        0
+      ],
+      "orientation": [
+        -5.760755E-05,
+        -2.560576E-10,
+        4.4448616E-06,
+        1
+      ],
+      "compression": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "support": [
+        0,
+        1,
+        0
+      ],
+      "contacts": 3,
+      "observedVelocity": [
+        3.681342E-06,
+        -1.4454126E-06,
+        0
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            0,
+            0,
+            1
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0,
+            0,
+            1
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0,
+            0,
+            1
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 0,
+      "sideAcceleration": 0,
+      "up": 1,
+      "speed": 0,
+      "yaw": 0,
+      "lateral": -1.6297827E-06,
+      "longitudinal": 2.1122769E-05,
+      "slip": 0,
+      "throttle": 0.0030377356,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 7864,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0,
+      "surface": "Concrete",
+      "grounded": false,
+      "airSeconds": 0.016666668,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0,
+        0,
+        0
+      ],
+      "hp": 1000
+    },
+    "last": {
+      "observationMs": 4.2149,
+      "renderFrameMs": 7.0846,
+      "tick": 960,
+      "position": [
+        102.62538,
+        1.144724,
+        -35.670033
+      ],
+      "velocity": [
+        -8.01008E-05,
+        1.1563301E-05,
+        5.7546273E-05
+      ],
+      "orientation": [
+        0.0015470688,
+        -0.00072946097,
+        5.8433554E-05,
+        0.9999986
+      ],
+      "compression": [
+        0.49626005,
+        0.496158,
+        0.5040406,
+        0.50400937
+      ],
+      "support": [
+        -0.00012275852,
+        0.99999994,
+        0.0003143263
+      ],
+      "contacts": 2,
+      "observedVelocity": [
+        -7.986091E-05,
+        1.1935914E-05,
+        5.73739E-05
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            -0.0014597144,
+            -0.0030960445,
+            0.99999416
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -0.0014597144,
+            -0.0030960445,
+            0.99999416
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 0.9974227,
+      "sideAcceleration": 0.0013318841,
+      "up": 0.9999954,
+      "speed": 9.833377E-05,
+      "yaw": -1.1340818E-06,
+      "lateral": -8.001544E-05,
+      "longitudinal": -5.7627007E-05,
+      "slip": 0,
+      "throttle": 0.11998519,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 7864,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0.0022261143,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.000871659,
+        -1.1340818E-06,
+        7.238729E-06
+      ],
+      "hp": 997.43463
+    },
+    "contacts": 144,
+    "maxAngular": 0.019333638496920054
+  },
+  {
+    "name": "twitch-after-large-held",
+    "frames": 600,
+    "first": {
+      "observationMs": 6.3922,
+      "renderFrameMs": 6.6158,
+      "tick": 961,
+      "position": [
+        102.62538,
+        1.1447242,
+        -35.670033
+      ],
+      "velocity": [
+        -8.011391E-05,
+        1.1190772E-05,
+        5.7548135E-05
+      ],
+      "orientation": [
+        0.0015470688,
+        -0.00072946097,
+        5.8433554E-05,
+        0.9999986
+      ],
+      "compression": [
+        0.4962597,
+        0.49615765,
+        0.5040405,
+        0.50400925
+      ],
+      "support": [
+        -0.00012275852,
+        0.99999994,
+        0.0003143263
+      ],
+      "contacts": 2,
+      "observedVelocity": [
+        -7.986086E-05,
+        1.1563385E-05,
+        5.7373905E-05
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            -0.0014597144,
+            -0.0030960445,
+            0.99999416
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -0.0014597144,
+            -0.0030960445,
+            0.99999416
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 1.1815476,
+      "sideAcceleration": 0.0013312739,
+      "up": 0.9999954,
+      "speed": 9.833373E-05,
+      "yaw": -1.1350812E-06,
+      "lateral": -8.0028585E-05,
+      "longitudinal": -5.7630044E-05,
+      "slip": 0,
+      "throttle": 0.14226286,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 65535,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0.0031261146,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.0005279188,
+        -1.1350812E-06,
+        7.739627E-06
+      ],
+      "hp": 997.43463
+    },
+    "last": {
+      "observationMs": 4.1764,
+      "renderFrameMs": 7.7043,
+      "tick": 1560,
+      "position": [
+        102.62538,
+        1.1441993,
+        -35.670033
+      ],
+      "velocity": [
+        -8.536945E-05,
+        -8.046627E-07,
+        5.753708E-05
+      ],
+      "orientation": [
+        0.009331941,
+        -0.0007436036,
+        6.51908E-05,
+        0.9999562
+      ],
+      "compression": [
+        0.47634137,
+        0.4762361,
+        0.5246439,
+        0.5245924
+      ],
+      "support": [
+        -0.00012275852,
+        0.99999994,
+        0.0003143263
+      ],
+      "contacts": 2,
+      "observedVelocity": [
+        -8.511373E-05,
+        -8.0457716E-07,
+        5.7364727E-05
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            -0.0014862976,
+            -0.01866344,
+            0.9998247
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -0.0014862975,
+            -0.018663438,
+            0.9998247
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 7.4830656,
+      "sideAcceleration": 0.0013326488,
+      "up": 0.99982584,
+      "speed": 0.000102640435,
+      "yaw": -1.45007125E-05,
+      "lateral": -8.528381E-05,
+      "longitudinal": -5.7668865E-05,
+      "slip": 0,
+      "throttle": 0.99999887,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 65535,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0.10182583,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0.0009900732,
+        -1.45007125E-05,
+        1.4092711E-06
+      ],
+      "hp": 997.43463
+    },
+    "contacts": 600,
+    "maxAngular": 0.01263926602515935
+  },
+  {
+    "name": "twitch-after-large-reverse",
+    "frames": 120,
+    "first": {
+      "observationMs": 4.4058,
+      "renderFrameMs": 25.9782,
+      "tick": 1561,
+      "position": [
+        102.62538,
+        1.1441993,
+        -35.670033
+      ],
+      "velocity": [
+        -0.00019803943,
+        -2.4914742E-05,
+        0.07672856
+      ],
+      "orientation": [
+        0.009331941,
+        -0.0007436036,
+        6.51908E-05,
+        0.9999562
+      ],
+      "compression": [
+        0.47634137,
+        0.4762361,
+        0.5246439,
+        0.5245924
+      ],
+      "support": [
+        -0.00012275852,
+        0.99999994,
+        0.0003143263
+      ],
+      "contacts": 2,
+      "observedVelocity": [
+        -8.511373E-05,
+        -8.0457716E-07,
+        5.7364727E-05
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            -0.0014862976,
+            -0.01866344,
+            0.9998247
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -0.0014862975,
+            -0.018663438,
+            0.9998247
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": -4.605413,
+      "sideAcceleration": 0.0014168376,
+      "up": 0.99982584,
+      "speed": 0.000102640435,
+      "yaw": -1.276802E-05,
+      "lateral": -8.3842475E-05,
+      "longitudinal": -0.07671587,
+      "slip": 0,
+      "throttle": 0,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 0,
+      "inputBrake": 65535,
+      "brakeMode": "Reversing",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0.0050033927,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.021570407,
+        -1.276802E-05,
+        -3.2011616E-05
+      ],
+      "hp": 997.43463
+    },
+    "last": {
+      "observationMs": 0.3784,
+      "renderFrameMs": 6.0272,
+      "tick": 1680,
+      "position": [
+        102.612465,
+        1.1444845,
+        -27.074415
+      ],
+      "velocity": [
+        -0.01290922,
+        0.0011708736,
+        8.660468
+      ],
+      "orientation": [
+        -0.0059382957,
+        -0.0007445547,
+        9.065909E-06,
+        0.9999822
+      ],
+      "compression": [
+        0.51618075,
+        0.5161513,
+        0.48524487,
+        0.4852513
+      ],
+      "support": [
+        -1.999276E-05,
+        1,
+        -3.9275033E-05
+      ],
+      "contacts": 0,
+      "observedVelocity": [
+        -0.012798107,
+        0.0011938363,
+        8.585852
+      ],
+      "contactDetails": [],
+      "longAcceleration": -4.8413076,
+      "sideAcceleration": 0.0002203011,
+      "up": 0.9999296,
+      "speed": 8.585861,
+      "yaw": -1.1485062E-06,
+      "lateral": -1.3954006E-05,
+      "longitudinal": -8.6598835,
+      "slip": 0,
+      "throttle": 0,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 0,
+      "inputBrake": 65535,
+      "brakeMode": "Reversing",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0.009089172,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.00077653094,
+        -1.1485062E-06,
+        -2.1251944E-05
+      ],
+      "hp": 997.43463
+    },
+    "contacts": 3,
+    "maxAngular": 0.06124003478230571
+  },
+  {
+    "name": "twitch-after-large-reset",
+    "frames": 360,
+    "first": {
+      "observationMs": 0.2909,
+      "renderFrameMs": 6.9248,
+      "tick": 1681,
+      "position": [
+        102.62538,
+        1.1453128,
+        -28.103682
+      ],
+      "velocity": [
+        0,
+        -0.18333334,
+        0
+      ],
+      "orientation": [
+        -5.760755E-05,
+        -2.560576E-10,
+        4.4448616E-06,
+        1
+      ],
+      "compression": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "support": [
+        -2.203515E-05,
+        1,
+        -3.2994416E-05
+      ],
+      "contacts": 0,
+      "observedVelocity": [
+        -0.01290922,
+        0.0011708736,
+        8.660468
+      ],
+      "contactDetails": [],
+      "longAcceleration": 0,
+      "sideAcceleration": 0,
+      "up": 1,
+      "speed": 0,
+      "yaw": 0,
+      "lateral": -1.6297827E-06,
+      "longitudinal": 2.1122769E-05,
+      "slip": 0,
+      "throttle": 0.0030377356,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 7864,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0,
+      "surface": "Concrete",
+      "grounded": false,
+      "airSeconds": 0.016666668,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0,
+        0,
+        0
+      ],
+      "hp": 1000
+    },
+    "last": {
+      "observationMs": 6.0698,
+      "renderFrameMs": 9.6787,
+      "tick": 2040,
+      "position": [
+        102.62538,
+        1.144724,
+        -35.670033
+      ],
+      "velocity": [
+        -8.01008E-05,
+        1.1563301E-05,
+        5.7546273E-05
+      ],
+      "orientation": [
+        0.0015470688,
+        -0.00072946097,
+        5.8433554E-05,
+        0.9999986
+      ],
+      "compression": [
+        0.49626005,
+        0.496158,
+        0.5040406,
+        0.50400937
+      ],
+      "support": [
+        -0.00012275852,
+        0.99999994,
+        0.0003143263
+      ],
+      "contacts": 2,
+      "observedVelocity": [
+        -7.986091E-05,
+        1.1935914E-05,
+        5.73739E-05
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            -0.0014597144,
+            -0.0030960445,
+            0.99999416
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -0.0014597144,
+            -0.0030960445,
+            0.99999416
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 0.9974227,
+      "sideAcceleration": 0.0013318841,
+      "up": 0.9999954,
+      "speed": 9.833377E-05,
+      "yaw": -1.1340818E-06,
+      "lateral": -8.001544E-05,
+      "longitudinal": -5.7627007E-05,
+      "slip": 0,
+      "throttle": 0.11998519,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 7864,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0.0022261143,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.000871659,
+        -1.1340818E-06,
+        7.238729E-06
+      ],
+      "hp": 997.43463
+    },
+    "contacts": 143,
+    "maxAngular": 0.019333638496920054
+  },
+  {
+    "name": "twitch-after-large-steer",
+    "frames": 600,
+    "first": {
+      "observationMs": 4.304,
+      "renderFrameMs": 5.9046,
+      "tick": 2041,
+      "position": [
+        102.62538,
+        1.1447242,
+        -35.670033
+      ],
+      "velocity": [
+        -8.024341E-05,
+        1.1190772E-05,
+        5.7548135E-05
+      ],
+      "orientation": [
+        0.0015470688,
+        -0.00072946097,
+        5.8433554E-05,
+        0.9999986
+      ],
+      "compression": [
+        0.4962597,
+        0.49615765,
+        0.5040405,
+        0.50400925
+      ],
+      "support": [
+        -0.00012275852,
+        0.99999994,
+        0.0003143263
+      ],
+      "contacts": 2,
+      "observedVelocity": [
+        -7.986086E-05,
+        1.1563385E-05,
+        5.7373905E-05
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            -0.0014597144,
+            -0.0030960445,
+            0.99999416
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -0.0014597144,
+            -0.0030960445,
+            0.99999416
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 1.1815374,
+      "sideAcceleration": 0.0013235041,
+      "up": 0.9999954,
+      "speed": 9.833373E-05,
+      "yaw": -1.0611594E-06,
+      "lateral": -8.015808E-05,
+      "longitudinal": -5.7630234E-05,
+      "slip": 0,
+      "throttle": 0.14226286,
+      "oilTicks": 0,
+      "steering": 0.015833333,
+      "inputSteering": 32767,
+      "inputThrottle": 65535,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0.0031261146,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.000527938,
+        -1.0611594E-06,
+        7.7251225E-06
+      ],
+      "hp": 997.43463
+    },
+    "last": {
+      "observationMs": 4.1559,
+      "renderFrameMs": 7.3392,
+      "tick": 2640,
+      "position": [
+        102.62538,
+        1.1441997,
+        -35.67003
+      ],
+      "velocity": [
+        -0.00016908644,
+        -1.1771917E-06,
+        5.743277E-05
+      ],
+      "orientation": [
+        0.009331014,
+        -0.0006830108,
+        6.461949E-05,
+        0.9999563
+      ],
+      "compression": [
+        0.47634327,
+        0.47623837,
+        0.5246407,
+        0.5245894
+      ],
+      "support": [
+        -0.00012275852,
+        0.99999994,
+        0.0003143263
+      ],
+      "contacts": 2,
+      "observedVelocity": [
+        -0.00016857995,
+        -1.1770754E-06,
+        5.726073E-05
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            -0.0013645268,
+            -0.018663427,
+            0.99982494
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -0.001364527,
+            -0.018663423,
+            0.99982494
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 7.482405,
+      "sideAcceleration": 0.0013135325,
+      "up": 0.999826,
+      "speed": 0.00017803929,
+      "yaw": 4.7122612E-05,
+      "lateral": -0.00016900792,
+      "longitudinal": -5.7675457E-05,
+      "slip": 0,
+      "throttle": 0.99999887,
+      "oilTicks": 0,
+      "steering": 0.89999944,
+      "inputSteering": 32767,
+      "inputThrottle": 65535,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0.101828426,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0.0009907112,
+        4.7122612E-05,
+        1.3796316E-06
+      ],
+      "hp": 997.43463
+    },
+    "contacts": 600,
+    "maxAngular": 0.012638258355251385
+  },
+  {
+    "name": "twitch-after-barrier-approach",
+    "frames": 360,
+    "first": {
+      "observationMs": 4.1829,
+      "renderFrameMs": 6.7869,
+      "tick": 2641,
+      "position": [
+        0,
+        1.145,
+        91
+      ],
+      "velocity": [
+        0,
+        -0.18333334,
+        0
+      ],
+      "orientation": [
+        0,
+        1,
+        0,
+        -4.371139E-08
+      ],
+      "compression": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "support": [
+        -0.00012275852,
+        0.99999994,
+        0.0003143263
+      ],
+      "contacts": 2,
+      "observedVelocity": [
+        -0.00016857995,
+        -1.1770754E-06,
+        5.726073E-05
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            -0.0013645268,
+            -0.018663427,
+            0.99982494
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -0.001364527,
+            -0.018663423,
+            0.99982494
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 0,
+      "sideAcceleration": 0,
+      "up": 1,
+      "speed": 0,
+      "yaw": 0,
+      "lateral": 0,
+      "longitudinal": 0,
+      "slip": 0,
+      "throttle": 0.0030377356,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 7864,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0,
+      "surface": "Concrete",
+      "grounded": false,
+      "airSeconds": 0.016666668,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0,
+        0,
+        0
+      ],
+      "hp": 1000
+    },
+    "last": {
+      "observationMs": 4.0122,
+      "renderFrameMs": 6.759,
+      "tick": 3000,
+      "position": [
+        -0.00011219901,
+        1.1449468,
+        97.41355
+      ],
+      "velocity": [
+        5.440149E-07,
+        6.4969063E-06,
+        0.030840533
+      ],
+      "orientation": [
+        3.455738E-09,
+        0.99999756,
+        -0.0022419929,
+        -6.6065336E-06
+      ],
+      "compression": [
+        0.49421,
+        0.4942099,
+        0.50587356,
+        0.50587344
+      ],
+      "support": [
+        0,
+        1,
+        0
+      ],
+      "contacts": 4,
+      "observedVelocity": [
+        2.1523242E-08,
+        6.8098307E-06,
+        0
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            0,
+            0,
+            -1
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0,
+            0,
+            -1
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0,
+            0,
+            -1
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0,
+            0,
+            -1
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 1.8504319,
+      "sideAcceleration": -6.8992376E-06,
+      "up": 0.9999901,
+      "speed": 2.1523242E-08,
+      "yaw": -0.0012594287,
+      "lateral": -1.3651817E-07,
+      "longitudinal": 0.030840257,
+      "slip": 0,
+      "throttle": 0.11998519,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 7864,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 1.1920929E-07,
+      "rearSlip": 0.00041496754,
+      "surface": "Asphalt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -1.9565457E-05,
+        -0.0012594287,
+        1.3406417E-07
+      ],
+      "hp": 996.28723
+    },
+    "contacts": 169,
+    "maxAngular": 0.08072357374711762
+  },
+  {
+    "name": "twitch-after-barrier-held",
+    "frames": 600,
+    "first": {
+      "observationMs": 1.5739,
+      "renderFrameMs": 6.5945,
+      "tick": 3001,
+      "position": [
+        -0.00011218995,
+        1.1449469,
+        97.41356
+      ],
+      "velocity": [
+        -3.1768684E-07,
+        6.273389E-06,
+        0.03652732
+      ],
+      "orientation": [
+        2.5869866E-08,
+        0.99999756,
+        -0.0022421558,
+        3.8886824E-06
+      ],
+      "compression": [
+        0.49420953,
+        0.49420953,
+        0.5058738,
+        0.5058738
+      ],
+      "support": [
+        0,
+        1,
+        0
+      ],
+      "contacts": 4,
+      "observedVelocity": [
+        2.711927E-08,
+        6.4969063E-06,
+        0
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            0,
+            0,
+            -1
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0,
+            0,
+            -1
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0,
+            0,
+            -1
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0,
+            0,
+            -1
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 2.1916392,
+      "sideAcceleration": 3.6437996E-06,
+      "up": 0.9999901,
+      "speed": 2.711927E-08,
+      "yaw": 0.00015406226,
+      "lateral": 3.3597246E-08,
+      "longitudinal": 0.03652699,
+      "slip": 0,
+      "throttle": 0.14226286,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 65535,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0.0014913678,
+      "surface": "Asphalt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.00065694994,
+        0.00015406226,
+        1.10980785E-07
+      ],
+      "hp": 996.28723
+    },
+    "last": {
+      "observationMs": 1.9083,
+      "renderFrameMs": 7.0965,
+      "tick": 3600,
+      "position": [
+        -0.00013686711,
+        1.1427624,
+        97.41326
+      ],
+      "velocity": [
+        5.604428E-05,
+        -6.392598E-06,
+        0.25277072
+      ],
+      "orientation": [
+        -5.256478E-07,
+        0.9998285,
+        -0.018521577,
+        -2.9496756E-05
+      ],
+      "compression": [
+        0.45325136,
+        0.45325136,
+        0.549654,
+        0.549654
+      ],
+      "support": [
+        0,
+        1,
+        0
+      ],
+      "contacts": 4,
+      "observedVelocity": [
+        1.5529606E-06,
+        3.7401915E-06,
+        0
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            0,
+            0,
+            -1
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0,
+            0,
+            -1
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0,
+            0,
+            -1
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0,
+            0,
+            -1
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 15.166243,
+      "sideAcceleration": -0.0023746043,
+      "up": 0.999314,
+      "speed": 1.5529606E-06,
+      "yaw": -0.010194999,
+      "lateral": -4.1130086E-05,
+      "longitudinal": 0.2525971,
+      "slip": 0,
+      "throttle": 0.99999887,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 65535,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 1.591444E-05,
+      "rearSlip": 0.017005324,
+      "surface": "Asphalt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.00021674763,
+        -0.010194999,
+        3.5069545E-06
+      ],
+      "hp": 996.28723
+    },
+    "contacts": 600,
+    "maxAngular": 0.02512302692701853
+  },
+  {
+    "name": "twitch-after-dirt-approach",
+    "frames": 500,
+    "first": {
+      "observationMs": 1.9782,
+      "renderFrameMs": 8.9854,
+      "tick": 3601,
+      "position": [
+        0,
+        1.145,
+        0
+      ],
+      "velocity": [
+        0,
+        -0.18333334,
+        0
+      ],
+      "orientation": [
+        0,
+        -0.70710677,
+        0,
+        0.70710677
+      ],
+      "compression": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "support": [
+        0,
+        1,
+        0
+      ],
+      "contacts": 3,
+      "observedVelocity": [
+        2.7938206E-06,
+        -6.392598E-06,
+        0
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            0,
+            0,
+            -1
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0,
+            0,
+            -1
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0,
+            0,
+            -1
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 0,
+      "sideAcceleration": 0,
+      "up": 0.99999994,
+      "speed": 0,
+      "yaw": 0,
+      "lateral": 0,
+      "longitudinal": 0,
+      "slip": 0,
+      "throttle": 0.0030377356,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 7864,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0,
+      "surface": "Concrete",
+      "grounded": false,
+      "airSeconds": 0.016666668,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0,
+        0,
+        0
+      ],
+      "hp": 1000
+    },
+    "last": {
+      "observationMs": 2.0481,
+      "renderFrameMs": 7.2752,
+      "tick": 4100,
+      "position": [
+        6.68943,
+        1.1530402,
+        -0.0010957347
+      ],
+      "velocity": [
+        0.023386965,
+        -0.014646098,
+        -0.0003763301
+      ],
+      "orientation": [
+        0.001182824,
+        -0.7068267,
+        0.0011952483,
+        0.7073848
+      ],
+      "compression": [
+        0.4876423,
+        0.4876101,
+        0.49643028,
+        0.49642944
+      ],
+      "support": [
+        2.84493E-05,
+        1,
+        -4.407839E-05
+      ],
+      "contacts": 3,
+      "observedVelocity": [
+        -1.1812107E-06,
+        -0.014647683,
+        -0.0004849964
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            -0.84551924,
+            0.531402,
+            -0.052049324
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -0.8493467,
+            0.52783376,
+            0.0013140157
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -0.8493467,
+            0.52783376,
+            0.0013140157
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 1.4039521,
+      "sideAcceleration": 0.008112098,
+      "up": 0.99999434,
+      "speed": 0.0004849978,
+      "yaw": 0.00012604897,
+      "lateral": -0.00035814737,
+      "longitudinal": 0.023337869,
+      "slip": 0,
+      "throttle": 0.11999661,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 7864,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0.0021986961,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -9.466717E-05,
+        0.00012604897,
+        3.1433243E-05
+      ],
+      "hp": 997.3014
+    },
+    "contacts": 298,
+    "maxAngular": 0.02104508129798489
+  },
+  {
+    "name": "twitch-after-dirt-held",
+    "frames": 600,
+    "first": {
+      "observationMs": 2.0477,
+      "renderFrameMs": 6.8758,
+      "tick": 4101,
+      "position": [
+        6.6894293,
+        1.1530386,
+        -0.0011016084
+      ],
+      "velocity": [
+        0.027703175,
+        -0.01464358,
+        -0.00044285198
+      ],
+      "orientation": [
+        0.001182824,
+        -0.7068267,
+        0.0011952483,
+        0.7073848
+      ],
+      "compression": [
+        0.4876449,
+        0.48761284,
+        0.49643278,
+        0.49643075
+      ],
+      "support": [
+        2.84493E-05,
+        1,
+        -4.407839E-05
+      ],
+      "contacts": 3,
+      "observedVelocity": [
+        -1.3186477E-06,
+        -0.01464544,
+        -0.0005723296
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            -0.84551924,
+            0.531402,
+            -0.052049324
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -0.84551924,
+            0.531402,
+            -0.052049324
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -0.8493467,
+            0.52783376,
+            0.0013140157
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 1.6631134,
+      "sideAcceleration": 0.009565171,
+      "up": 0.99999434,
+      "speed": 0.00057233113,
+      "yaw": 7.146924E-05,
+      "lateral": -0.0004212623,
+      "longitudinal": 0.027654117,
+      "slip": 0,
+      "throttle": 0.14227399,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 65535,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0.0030875802,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.000105427425,
+        7.146924E-05,
+        0.00051494513
+      ],
+      "hp": 997.3014
+    },
+    "last": {
+      "observationMs": 2.1284,
+      "renderFrameMs": 6.607,
+      "tick": 4700,
+      "position": [
+        6.7595863,
+        1.2047943,
+        -0.019263485
+      ],
+      "velocity": [
+        0.17757417,
+        -0.111348204,
+        -0.0030732362
+      ],
+      "orientation": [
+        0.009397723,
+        -0.70713663,
+        0.009526851,
+        0.7069503
+      ],
+      "compression": [
+        0.40515375,
+        0.40485287,
+        0.47483027,
+        0.47454858
+      ],
+      "support": [
+        2.6586396E-05,
+        1,
+        7.959752E-07
+      ],
+      "contacts": 3,
+      "observedVelocity": [
+        -9.517804E-06,
+        -0.11127984,
+        -0.004240999
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            -0.84551924,
+            0.531402,
+            -0.052049324
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -0.8493467,
+            0.52783376,
+            0.0013140157
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -0.8493467,
+            0.52783376,
+            0.0013140157
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 10.662207,
+      "sideAcceleration": 0.06727525,
+      "up": 0.9996419,
+      "speed": 0.0042410097,
+      "yaw": -0.00036554574,
+      "lateral": -0.0031403946,
+      "longitudinal": 0.17452998,
+      "slip": 0,
+      "throttle": 0.99999887,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 65535,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 1.3709068E-06,
+      "rearSlip": 0.09069833,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        5.531646E-05,
+        -0.00036554574,
+        0.00051857764
+      ],
+      "hp": 997.3014
+    },
+    "contacts": 600,
+    "maxAngular": 0.01824519257715196
+  },
+  {
+    "name": "twitch-after-tunnel-approach",
+    "frames": 360,
+    "first": {
+      "observationMs": 2.3349,
+      "renderFrameMs": 10.2476,
+      "tick": 4701,
+      "position": [
+        0,
+        1.145,
+        -10
+      ],
+      "velocity": [
+        0,
+        -0.18333334,
+        0
+      ],
+      "orientation": [
+        0,
+        -0.70710677,
+        0,
+        0.70710677
+      ],
+      "compression": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "support": [
+        2.6586396E-05,
+        1,
+        7.959752E-07
+      ],
+      "contacts": 3,
+      "observedVelocity": [
+        -1.2892822E-06,
+        -0.11134348,
+        -0.004426955
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            -0.84551924,
+            0.531402,
+            -0.052049324
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -0.84551924,
+            0.531402,
+            -0.052049324
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -0.8494793,
+            0.52762175,
+            -0.00032026347
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 0,
+      "sideAcceleration": 0,
+      "up": 0.99999994,
+      "speed": 0,
+      "yaw": 0,
+      "lateral": 0,
+      "longitudinal": 0,
+      "slip": 0,
+      "throttle": 0.0030377356,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 7864,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0,
+      "surface": "Concrete",
+      "grounded": false,
+      "airSeconds": 0.016666668,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0,
+        0,
+        0
+      ],
+      "hp": 1000
+    },
+    "last": {
+      "observationMs": 1.7978,
+      "renderFrameMs": 6.9014,
+      "tick": 5060,
+      "position": [
+        6.413532,
+        1.1449502,
+        -10.001573
+      ],
+      "velocity": [
+        0.023340998,
+        0.00010274351,
+        4.3448556E-05
+      ],
+      "orientation": [
+        0.0013859362,
+        -0.70709413,
+        0.0012627869,
+        0.70711696
+      ],
+      "compression": [
+        0.49502754,
+        0.49544752,
+        0.5048506,
+        0.5051311
+      ],
+      "support": [
+        -0.0002161652,
+        0.99999994,
+        0.00023567323
+      ],
+      "contacts": 4,
+      "observedVelocity": [
+        -2.3209617E-08,
+        0.00010712531,
+        2.2033398E-06
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            -1,
+            0,
+            0
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -1,
+            0,
+            0
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -1,
+            0,
+            0
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -1,
+            0,
+            0
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 1.4038212,
+      "sideAcceleration": -7.1512535E-05,
+      "up": 0.999993,
+      "speed": 2.2034621E-06,
+      "yaw": -0.0011496155,
+      "lateral": 4.4191976E-05,
+      "longitudinal": 0.023341218,
+      "slip": 0,
+      "throttle": 0.11998519,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 7864,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 2.3841858E-07,
+      "rearSlip": 0.0021971762,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        2.6546415E-05,
+        -0.0011496155,
+        -0.00040803023
+      ],
+      "hp": 997.8146
+    },
+    "contacts": 162,
+    "maxAngular": 0.11463618536889084
+  },
+  {
+    "name": "twitch-after-tunnel-held",
+    "frames": 600,
+    "first": {
+      "observationMs": 1.6615,
+      "renderFrameMs": 6.908,
+      "tick": 5061,
+      "position": [
+        6.4135494,
+        1.1449512,
+        -10.001572
+      ],
+      "velocity": [
+        0.027656648,
+        9.4383955E-05,
+        4.311748E-05
+      ],
+      "orientation": [
+        0.0013836762,
+        -0.7071009,
+        0.0012602394,
+        0.70711017
+      ],
+      "compression": [
+        0.49503505,
+        0.49545586,
+        0.5048405,
+        0.5051217
+      ],
+      "support": [
+        -0.0002161652,
+        0.99999994,
+        0.00023567323
+      ],
+      "contacts": 4,
+      "observedVelocity": [
+        -7.867844E-07,
+        9.770762E-05,
+        1.871463E-06
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            -1,
+            0,
+            0
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -1,
+            0,
+            0
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -1,
+            0,
+            0
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -0.92387676,
+            0,
+            -0.38269022
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 1.6629872,
+      "sideAcceleration": -9.498559E-05,
+      "up": 0.99999297,
+      "speed": 2.030124E-06,
+      "yaw": -0.0014944791,
+      "lateral": 4.347175E-05,
+      "longitudinal": 0.027656808,
+      "slip": 0,
+      "throttle": 0.14226286,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 65535,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 3.5762787E-07,
+      "rearSlip": 0.0030854344,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        2.694037E-05,
+        -0.0014944791,
+        5.317526E-05
+      ],
+      "hp": 997.8146
+    },
+    "last": {
+      "observationMs": 1.4146,
+      "renderFrameMs": 6.6735,
+      "tick": 5660,
+      "position": [
+        6.4121504,
+        1.1435153,
+        -9.995503
+      ],
+      "velocity": [
+        0.1774398,
+        0.00013525784,
+        0.0022192504
+      ],
+      "orientation": [
+        0.009760417,
+        -0.7066852,
+        0.009562586,
+        0.70739615
+      ],
+      "compression": [
+        0.4652897,
+        0.46587813,
+        0.53646994,
+        0.5369005
+      ],
+      "support": [
+        -0.0002161652,
+        0.99999994,
+        0.00023567323
+      ],
+      "contacts": 4,
+      "observedVelocity": [
+        -2.5243887E-08,
+        0.00011581823,
+        0.003222885
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            -0.92387676,
+            0,
+            0.38269022
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -0.92387676,
+            0,
+            0.38269022
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -1,
+            0,
+            0
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -1,
+            0,
+            0
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 10.6562805,
+      "sideAcceleration": -0.05207239,
+      "up": 0.9996266,
+      "speed": 0.003222885,
+      "yaw": -0.00047648806,
+      "lateral": 0.0023982825,
+      "longitudinal": 0.17737491,
+      "slip": 0,
+      "throttle": 0.99999887,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 65535,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 1.6093254E-06,
+      "rearSlip": 0.09120339,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0.00010232745,
+        -0.00047648806,
+        -0.0025073155
+      ],
+      "hp": 997.8146
+    },
+    "contacts": 600,
+    "maxAngular": 0.022952982353845002
+  },
+  {
+    "name": "twitch-after-oblique-approach",
+    "frames": 330,
+    "first": {
+      "observationMs": 1.4528,
+      "renderFrameMs": 7.1991,
+      "tick": 5661,
+      "position": [
+        104.62538,
+        1.1453357,
+        -28.103682
+      ],
+      "velocity": [
+        0,
+        -0.18333334,
+        2.2737368E-13
+      ],
+      "orientation": [
+        -5.77635E-05,
+        0.09983341,
+        -1.3285022E-06,
+        0.9950042
+      ],
+      "compression": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "support": [
+        -0.0002161652,
+        0.99999994,
+        0.00023567323
+      ],
+      "contacts": 4,
+      "observedVelocity": [
+        -2.149691E-08,
+        9.7398384E-05,
+        0.0001109807
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            -1,
+            0,
+            0
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -1,
+            0,
+            0
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -1,
+            0,
+            0
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            -1,
+            0,
+            0
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 0,
+      "sideAcceleration": 0,
+      "up": 1,
+      "speed": 2.2737368E-13,
+      "yaw": 0,
+      "lateral": 2.5986024E-06,
+      "longitudinal": 2.1026197E-05,
+      "slip": 0,
+      "throttle": 0.0030377356,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 7864,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0,
+      "surface": "Concrete",
+      "grounded": false,
+      "airSeconds": 0.016666668,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0,
+        0,
+        0
+      ],
+      "hp": 1000
+    },
+    "last": {
+      "observationMs": 4.1827,
+      "renderFrameMs": 7.3333,
+      "tick": 5990,
+      "position": [
+        103.08937,
+        1.1447554,
+        -35.680767
+      ],
+      "velocity": [
+        -2.8014158E-05,
+        2.9593706E-05,
+        1.3983933E-05
+      ],
+      "orientation": [
+        0.0014486177,
+        0.09883848,
+        -0.00011606239,
+        0.99510247
+      ],
+      "compression": [
+        0.49642348,
+        0.49642563,
+        0.50382495,
+        0.5038284
+      ],
+      "support": [
+        -3.6540056E-05,
+        1,
+        5.2928837E-05
+      ],
+      "contacts": 2,
+      "observedVelocity": [
+        -2.793071E-05,
+        3.0457979E-05,
+        1.3940189E-05
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            0.1967087,
+            -0.0029043423,
+            0.9804577
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0.1967087,
+            -0.0029043416,
+            0.9804577
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 0.9973092,
+      "sideAcceleration": 0.00050297333,
+      "up": 0.9999959,
+      "speed": 3.1216237E-05,
+      "yaw": 1.0514602E-07,
+      "lateral": -3.0215942E-05,
+      "longitudinal": -8.114035E-06,
+      "slip": 0,
+      "throttle": 0.11997158,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 7864,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0.0022265315,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.00083870196,
+        1.0514602E-07,
+        0.00015173528
+      ],
+      "hp": 997.179
+    },
+    "contacts": 112,
+    "maxAngular": 0.02616530314305855
+  },
+  {
+    "name": "twitch-after-oblique-steer",
+    "frames": 240,
+    "first": {
+      "observationMs": 4.4439,
+      "renderFrameMs": 6.9222,
+      "tick": 5991,
+      "position": [
+        103.08937,
+        1.1447558,
+        -35.680767
+      ],
+      "velocity": [
+        -2.8000653E-05,
+        2.8729439E-05,
+        1.398207E-05
+      ],
+      "orientation": [
+        0.0014486177,
+        0.09883848,
+        -0.00011606239,
+        0.99510247
+      ],
+      "compression": [
+        0.4964229,
+        0.4964249,
+        0.5038245,
+        0.5038278
+      ],
+      "support": [
+        -3.6540056E-05,
+        1,
+        5.2928837E-05
+      ],
+      "contacts": 2,
+      "observedVelocity": [
+        -2.7930244E-05,
+        2.9593712E-05,
+        1.3942049E-05
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            0.1967087,
+            -0.0029043423,
+            0.9804577
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0.1967087,
+            -0.0029043416,
+            0.9804577
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 1.1814407,
+      "sideAcceleration": 0.0005037651,
+      "up": 0.9999959,
+      "speed": 3.1216652E-05,
+      "yaw": 1.1607408E-07,
+      "lateral": -3.0202385E-05,
+      "longitudinal": -8.117377E-06,
+      "slip": 0,
+      "throttle": 0.1422496,
+      "oilTicks": 0,
+      "steering": -0.015833333,
+      "inputSteering": -32767,
+      "inputThrottle": 65535,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0.0031268299,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.00050168275,
+        1.1607408E-07,
+        8.411678E-05
+      ],
+      "hp": 997.179
+    },
+    "last": {
+      "observationMs": 4.1856,
+      "renderFrameMs": 7.9787,
+      "tick": 6230,
+      "position": [
+        103.08937,
+        1.144227,
+        -35.680767
+      ],
+      "velocity": [
+        -5.016008E-05,
+        1.5988946E-05,
+        1.842821E-05
+      ],
+      "orientation": [
+        0.0091829365,
+        0.0988487,
+        -0.00088718993,
+        0.9950598
+      ],
+      "compression": [
+        0.4765377,
+        0.47654772,
+        0.52437997,
+        0.5243927
+      ],
+      "support": [
+        -3.6540056E-05,
+        1,
+        5.2928837E-05
+      ],
+      "contacts": 2,
+      "observedVelocity": [
+        -4.9998685E-05,
+        1.6748914E-05,
+        1.8358152E-05
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            0.19670348,
+            -0.018453414,
+            0.9802894
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0.19670348,
+            -0.018453414,
+            0.9802894
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 7.471572,
+      "sideAcceleration": 0.0005055035,
+      "up": 0.99982995,
+      "speed": 5.3262465E-05,
+      "yaw": 1.6740887E-05,
+      "lateral": -5.280449E-05,
+      "longitudinal": -7.903263E-06,
+      "slip": 0,
+      "throttle": 0.99812967,
+      "oilTicks": 0,
+      "steering": -0.8999959,
+      "inputSteering": -32767,
+      "inputThrottle": 65535,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0.10156742,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0.00097579556,
+        1.6740887E-05,
+        -0.00019567076
+      ],
+      "hp": 997.179
+    },
+    "contacts": 240,
+    "maxAngular": 0.012646276235154614
+  },
+  {
+    "name": "twitch-after-destroy",
+    "frames": 1,
+    "first": {
+      "observationMs": 4.5136,
+      "renderFrameMs": 7.145,
+      "tick": 6231,
+      "position": [
+        90.566246,
+        1.1451602,
+        -24.604074
+      ],
+      "velocity": [
+        0,
+        -0.18333334,
+        0
+      ],
+      "orientation": [
+        -2.4039344E-05,
+        6.9224926E-10,
+        -2.8796512E-05,
+        1
+      ],
+      "compression": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "support": [
+        -3.6540056E-05,
+        1,
+        5.2928837E-05
+      ],
+      "contacts": 2,
+      "observedVelocity": [
+        -5.000983E-05,
+        1.5988955E-05,
+        1.8373012E-05
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            0.19670348,
+            -0.018453417,
+            0.9802894
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0.19670348,
+            -0.018453417,
+            0.9802894
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 0,
+      "sideAcceleration": 0,
+      "up": 1,
+      "speed": 0,
+      "yaw": 0,
+      "lateral": 1.0558721E-05,
+      "longitudinal": 8.814427E-06,
+      "slip": 0,
+      "throttle": 0,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 0,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0,
+      "surface": "Concrete",
+      "grounded": false,
+      "airSeconds": 0.016666668,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0,
+        0,
+        0
+      ],
+      "hp": 1000
+    },
+    "last": {
+      "observationMs": 4.5136,
+      "renderFrameMs": 7.145,
+      "tick": 6231,
+      "position": [
+        90.566246,
+        1.1451602,
+        -24.604074
+      ],
+      "velocity": [
+        0,
+        -0.18333334,
+        0
+      ],
+      "orientation": [
+        -2.4039344E-05,
+        6.9224926E-10,
+        -2.8796512E-05,
+        1
+      ],
+      "compression": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "support": [
+        -3.6540056E-05,
+        1,
+        5.2928837E-05
+      ],
+      "contacts": 2,
+      "observedVelocity": [
+        -5.000983E-05,
+        1.5988955E-05,
+        1.8373012E-05
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            0.19670348,
+            -0.018453417,
+            0.9802894
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0.19670348,
+            -0.018453417,
+            0.9802894
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 0,
+      "sideAcceleration": 0,
+      "up": 1,
+      "speed": 0,
+      "yaw": 0,
+      "lateral": 1.0558721E-05,
+      "longitudinal": 8.814427E-06,
+      "slip": 0,
+      "throttle": 0,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 0,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0,
+      "surface": "Concrete",
+      "grounded": false,
+      "airSeconds": 0.016666668,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0,
+        0,
+        0
+      ],
+      "hp": 1000
+    },
+    "contacts": 1,
+    "maxAngular": 0.0
+  },
+  {
+    "name": "twitch-after-debris-599",
+    "frames": 599,
+    "first": {
+      "observationMs": 0.3265,
+      "renderFrameMs": 8.787,
+      "tick": 6232,
+      "position": [
+        90.566246,
+        1.1421046,
+        -24.604074
+      ],
+      "velocity": [
+        8.227011E-06,
+        -0.14554432,
+        -9.827014E-06
+      ],
+      "orientation": [
+        -2.4039344E-05,
+        6.9224926E-10,
+        -2.8796512E-05,
+        1
+      ],
+      "compression": [
+        0.5030534,
+        0.5030837,
+        0.5030534,
+        0.5030534
+      ],
+      "support": [
+        4.8379683E-05,
+        1,
+        -4.4639615E-05
+      ],
+      "contacts": 0,
+      "observedVelocity": [
+        0,
+        -0.18333334,
+        0
+      ],
+      "contactDetails": [],
+      "longAcceleration": 0,
+      "sideAcceleration": -0.00014824915,
+      "up": 1,
+      "speed": 0,
+      "yaw": 6.810376E-11,
+      "lateral": 1.6609349E-05,
+      "longitudinal": 1.6824593E-05,
+      "slip": 0,
+      "throttle": 0,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 0,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        3.2121195E-06,
+        6.810376E-11,
+        5.0296994E-06
+      ],
+      "hp": 1000
+    },
+    "last": {
+      "observationMs": 0.3366,
+      "renderFrameMs": 6.6833,
+      "tick": 6830,
+      "position": [
+        90.566246,
+        1.1451619,
+        -24.614813
+      ],
+      "velocity": [
+        3.1839743E-05,
+        2.4735928E-06,
+        -0.0014679452
+      ],
+      "orientation": [
+        -2.4039344E-05,
+        6.9224926E-10,
+        -2.8796512E-05,
+        1
+      ],
+      "compression": [
+        0.4999956,
+        0.5000262,
+        0.4999956,
+        0.4999956
+      ],
+      "support": [
+        4.8379683E-05,
+        1,
+        -4.4639615E-05
+      ],
+      "contacts": 0,
+      "observedVelocity": [
+        3.1839743E-05,
+        2.4735928E-06,
+        -0.0014676164
+      ],
+      "contactDetails": [],
+      "longAcceleration": 0,
+      "sideAcceleration": -0.0005321766,
+      "up": 1,
+      "speed": 0.0014679617,
+      "yaw": 4.5058093E-10,
+      "lateral": 3.18396E-05,
+      "longitudinal": 0.001467945,
+      "slip": 0,
+      "throttle": 0,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 0,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        1.07490405E-05,
+        4.5058093E-10,
+        2.2148195E-05
+      ],
+      "hp": 1000
+    },
+    "contacts": 0,
+    "maxAngular": 2.462027478610944E-05
+  },
+  {
+    "name": "twitch-after-debris-600",
+    "frames": 1,
+    "first": {
+      "observationMs": 0.3016,
+      "renderFrameMs": 6.9056,
+      "tick": 6831,
+      "position": [
+        90.566246,
+        1.1451619,
+        -24.614838
+      ],
+      "velocity": [
+        3.1839743E-05,
+        2.4735928E-06,
+        -0.0014682722
+      ],
+      "orientation": [
+        -2.4039344E-05,
+        6.9224926E-10,
+        -2.8796512E-05,
+        1
+      ],
+      "compression": [
+        0.4999956,
+        0.5000262,
+        0.4999956,
+        0.4999956
+      ],
+      "support": [
+        4.8379683E-05,
+        1,
+        -4.4639615E-05
+      ],
+      "contacts": 0,
+      "observedVelocity": [
+        3.1839743E-05,
+        2.4735928E-06,
+        -0.0014679452
+      ],
+      "contactDetails": [],
+      "longAcceleration": 0,
+      "sideAcceleration": -0.0005321766,
+      "up": 1,
+      "speed": 0.0014682905,
+      "yaw": 4.5030885E-10,
+      "lateral": 3.18396E-05,
+      "longitudinal": 0.0014682721,
+      "slip": 0,
+      "throttle": 0,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 0,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        1.0749961E-05,
+        4.5030885E-10,
+        2.2149408E-05
+      ],
+      "hp": 1000
+    },
+    "last": {
+      "observationMs": 0.3016,
+      "renderFrameMs": 6.9056,
+      "tick": 6831,
+      "position": [
+        90.566246,
+        1.1451619,
+        -24.614838
+      ],
+      "velocity": [
+        3.1839743E-05,
+        2.4735928E-06,
+        -0.0014682722
+      ],
+      "orientation": [
+        -2.4039344E-05,
+        6.9224926E-10,
+        -2.8796512E-05,
+        1
+      ],
+      "compression": [
+        0.4999956,
+        0.5000262,
+        0.4999956,
+        0.4999956
+      ],
+      "support": [
+        4.8379683E-05,
+        1,
+        -4.4639615E-05
+      ],
+      "contacts": 0,
+      "observedVelocity": [
+        3.1839743E-05,
+        2.4735928E-06,
+        -0.0014679452
+      ],
+      "contactDetails": [],
+      "longAcceleration": 0,
+      "sideAcceleration": -0.0005321766,
+      "up": 1,
+      "speed": 0.0014682905,
+      "yaw": 4.5030885E-10,
+      "lateral": 3.18396E-05,
+      "longitudinal": 0.0014682721,
+      "slip": 0,
+      "throttle": 0,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 0,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        1.0749961E-05,
+        4.5030885E-10,
+        2.2149408E-05
+      ],
+      "hp": 1000
+    },
+    "contacts": 0,
+    "maxAngular": 2.4620274906157386E-05
+  },
+  {
+    "name": "twitch-after-edge-approach",
+    "frames": 330,
+    "first": {
+      "observationMs": 0.3127,
+      "renderFrameMs": 7.1072,
+      "tick": 6832,
+      "position": [
+        105.52538,
+        1.1453433,
+        -28.103682
+      ],
+      "velocity": [
+        0,
+        -0.18333334,
+        0
+      ],
+      "orientation": [
+        -5.760755E-05,
+        -2.560576E-10,
+        4.4448616E-06,
+        1
+      ],
+      "compression": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "support": [
+        4.8379683E-05,
+        1,
+        -4.4639615E-05
+      ],
+      "contacts": 0,
+      "observedVelocity": [
+        3.1839743E-05,
+        2.4735928E-06,
+        -0.0014682722
+      ],
+      "contactDetails": [],
+      "longAcceleration": 0,
+      "sideAcceleration": 0,
+      "up": 1,
+      "speed": 0,
+      "yaw": 0,
+      "lateral": -1.6297827E-06,
+      "longitudinal": 2.1122769E-05,
+      "slip": 0,
+      "throttle": 0.0030377356,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 7864,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0,
+      "surface": "Concrete",
+      "grounded": false,
+      "airSeconds": 0.016666668,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0,
+        0,
+        0
+      ],
+      "hp": 1000
+    },
+    "last": {
+      "observationMs": 2.867,
+      "renderFrameMs": 5.7145,
+      "tick": 7161,
+      "position": [
+        105.52526,
+        1.1448438,
+        -36.194637
+      ],
+      "velocity": [
+        -1.6387492E-05,
+        2.977252E-05,
+        6.962028E-06
+      ],
+      "orientation": [
+        0.0014490135,
+        0.006738919,
+        3.373776E-06,
+        0.9999763
+      ],
+      "compression": [
+        0.49640942,
+        0.49636102,
+        0.5038512,
+        0.5038953
+      ],
+      "support": [
+        -2.4506619E-05,
+        1,
+        3.7080805E-05
+      ],
+      "contacts": 1,
+      "observedVelocity": [
+        -1.6387505E-05,
+        3.065169E-05,
+        6.962025E-06
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            0.013477415,
+            -0.0028995574,
+            0.999905
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 0.9973093,
+      "sideAcceleration": 0.00027515815,
+      "up": 0.99999595,
+      "speed": 1.7805058E-05,
+      "yaw": 1.165012E-06,
+      "lateral": -1.6479054E-05,
+      "longitudinal": -6.6542257E-06,
+      "slip": 0,
+      "throttle": 0.11997158,
+      "oilTicks": 0,
+      "steering": 0,
+      "inputSteering": 0,
+      "inputThrottle": 7864,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0.002226323,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.00088217924,
+        1.165012E-06,
+        1.0743668E-05
+      ],
+      "hp": 996.77264
+    },
+    "contacts": 102,
+    "maxAngular": 0.17210306070459397
+  },
+  {
+    "name": "twitch-after-edge-steer",
+    "frames": 180,
+    "first": {
+      "observationMs": 3.0835,
+      "renderFrameMs": 6.6437,
+      "tick": 7162,
+      "position": [
+        105.52526,
+        1.1448443,
+        -36.194637
+      ],
+      "velocity": [
+        -1.6375458E-05,
+        2.8893352E-05,
+        6.962028E-06
+      ],
+      "orientation": [
+        0.0014490135,
+        0.006738919,
+        3.373776E-06,
+        0.9999763
+      ],
+      "compression": [
+        0.49640882,
+        0.49636054,
+        0.5038508,
+        0.5038947
+      ],
+      "support": [
+        -2.4506619E-05,
+        1,
+        3.7080805E-05
+      ],
+      "contacts": 1,
+      "observedVelocity": [
+        -1.6387492E-05,
+        2.977252E-05,
+        6.962028E-06
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            0.013477415,
+            -0.0028995574,
+            0.999905
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 1.1814394,
+      "sideAcceleration": 0.00027589983,
+      "up": 0.99999595,
+      "speed": 1.7805049E-05,
+      "yaw": 1.2122338E-06,
+      "lateral": -1.6467044E-05,
+      "longitudinal": -6.6569355E-06,
+      "slip": 0,
+      "throttle": 0.1422496,
+      "oilTicks": 0,
+      "steering": -0.015833333,
+      "inputSteering": -32767,
+      "inputThrottle": 65535,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0.0031266212,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.000538473,
+        1.2122338E-06,
+        6.1060996E-06
+      ],
+      "hp": 996.77264
+    },
+    "last": {
+      "observationMs": 4.4315,
+      "renderFrameMs": 7.6321,
+      "tick": 7341,
+      "position": [
+        105.52526,
+        1.1442683,
+        -36.194542
+      ],
+      "velocity": [
+        -3.302385E-05,
+        0.00011692941,
+        7.192885E-06
+      ],
+      "orientation": [
+        0.009156888,
+        0.006757177,
+        -4.8944996E-05,
+        0.9999353
+      ],
+      "compression": [
+        0.47674477,
+        0.4766972,
+        0.52429307,
+        0.52433765
+      ],
+      "support": [
+        -2.4506619E-05,
+        1,
+        3.7080805E-05
+      ],
+      "contacts": 2,
+      "observedVelocity": [
+        -3.292227E-05,
+        0.000120803714,
+        7.171356E-06
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            0.013512848,
+            -0.018312719,
+            0.999741
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0.013512848,
+            -0.018312719,
+            0.999741
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 7.4290442,
+      "sideAcceleration": 0.0002669627,
+      "up": 0.9998324,
+      "speed": 3.3694276E-05,
+      "yaw": 2.0688618E-05,
+      "lateral": -3.3115026E-05,
+      "longitudinal": -4.603427E-06,
+      "slip": 0,
+      "throttle": 0.99128914,
+      "oilTicks": 0,
+      "steering": -0.89988804,
+      "inputSteering": -32767,
+      "inputThrottle": 65535,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0.10050899,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0.0010029259,
+        2.0688618E-05,
+        -1.35770315E-05
+      ],
+      "hp": 996.77264
+    },
+    "contacts": 180,
+    "maxAngular": 0.012636075885655967
+  },
+  {
+    "name": "twitch-after-edge-reverse-turn",
+    "frames": 45,
+    "first": {
+      "observationMs": 4.362,
+      "renderFrameMs": 7.024,
+      "tick": 7342,
+      "position": [
+        105.52526,
+        1.1442702,
+        -36.194542
+      ],
+      "velocity": [
+        0.0010024515,
+        0.00010967255,
+        0.07661502
+      ],
+      "orientation": [
+        0.009165245,
+        0.006757348,
+        -4.9003225E-05,
+        0.99993515
+      ],
+      "compression": [
+        0.4767207,
+        0.47667325,
+        0.52431226,
+        0.52435696
+      ],
+      "support": [
+        -2.4506619E-05,
+        1,
+        3.7080805E-05
+      ],
+      "contacts": 2,
+      "observedVelocity": [
+        -3.2924938E-05,
+        0.00011692941,
+        7.1713516E-06
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            0.013512847,
+            -0.018329635,
+            0.9997407
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0.013512847,
+            -0.018329633,
+            0.9997407
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": -4.6050754,
+      "sideAcceleration": 0.00027187186,
+      "up": 0.9998319,
+      "speed": 3.369688E-05,
+      "yaw": 1.7100094E-05,
+      "lateral": -3.3067656E-05,
+      "longitudinal": -0.07660668,
+      "slip": 0,
+      "throttle": 0,
+      "oilTicks": 0,
+      "steering": -0.89989406,
+      "inputSteering": -32767,
+      "inputThrottle": 0,
+      "inputBrake": 65535,
+      "brakeMode": "Reversing",
+      "handbrake": 0,
+      "frontSlip": 0,
+      "rearSlip": 0.005016327,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.021462088,
+        1.7100094E-05,
+        0.00029008026
+      ],
+      "hp": 996.77264
+    },
+    "last": {
+      "observationMs": 0.4553,
+      "renderFrameMs": 6.7158,
+      "tick": 7386,
+      "position": [
+        105.79631,
+        1.1424791,
+        -35.40895
+      ],
+      "velocity": [
+        0.6196109,
+        0.0016598105,
+        2.0086737
+      ],
+      "orientation": [
+        -0.0017001592,
+        -0.10664286,
+        0.0013845498,
+        0.99429506
+      ],
+      "compression": [
+        0.50907314,
+        0.5039811,
+        0.50090504,
+        0.49587274
+      ],
+      "support": [
+        -2.4506619E-05,
+        1,
+        3.7080805E-05
+      ],
+      "contacts": 0,
+      "observedVelocity": [
+        0.6223179,
+        0.0016119927,
+        1.9659983
+      ],
+      "contactDetails": [],
+      "longAcceleration": -2.741593,
+      "sideAcceleration": 0.3844695,
+      "up": 0.9999906,
+      "speed": 2.062142,
+      "yaw": -0.70584196,
+      "lateral": 1.0314884,
+      "longitudinal": -1.8315765,
+      "slip": 0,
+      "throttle": 0,
+      "oilTicks": 0,
+      "steering": -0.8999907,
+      "inputSteering": -32767,
+      "inputThrottle": 0,
+      "inputBrake": 65535,
+      "brakeMode": "Reversing",
+      "handbrake": 0,
+      "frontSlip": 0.0022656026,
+      "rearSlip": 0.009101331,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.009149637,
+        -0.70584196,
+        -0.005500245
+      ],
+      "hp": 996.77264
+    },
+    "contacts": 3,
+    "maxAngular": 0.7059226877278654
+  },
+  {
+    "name": "twitch-after-edge-drive-away",
+    "frames": 240,
+    "first": {
+      "observationMs": 0.3166,
+      "renderFrameMs": 4.8657,
+      "tick": 7387,
+      "position": [
+        105.80664,
+        1.1425067,
+        -35.375473
+      ],
+      "velocity": [
+        0.54149956,
+        0.001708731,
+        1.7609334
+      ],
+      "orientation": [
+        -0.001788973,
+        -0.112489246,
+        0.0013370829,
+        0.99365044
+      ],
+      "compression": [
+        0.50921893,
+        0.50421846,
+        0.50060964,
+        0.49566758
+      ],
+      "support": [
+        -2.4506619E-05,
+        1,
+        3.7080805E-05
+      ],
+      "contacts": 0,
+      "observedVelocity": [
+        0.6196109,
+        0.0016598105,
+        2.0086737
+      ],
+      "contactDetails": [],
+      "longAcceleration": 13.262098,
+      "sideAcceleration": -7.890921,
+      "up": 0.99999005,
+      "speed": 2.1020675,
+      "yaw": -0.63032985,
+      "lateral": 0.921447,
+      "longitudinal": -1.595308,
+      "slip": 0,
+      "throttle": 0.025315106,
+      "oilTicks": 0,
+      "steering": -0.89999115,
+      "inputSteering": -32767,
+      "inputThrottle": 65535,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0.5809604,
+      "rearSlip": 0.80502784,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0.023853937,
+        -0.63032985,
+        -0.014153708
+      ],
+      "hp": 996.77264
+    },
+    "last": {
+      "observationMs": 5.8757,
+      "renderFrameMs": 9.3342,
+      "tick": 7626,
+      "position": [
+        107.062546,
+        1.1490026,
+        -40.448097
+      ],
+      "velocity": [
+        -2.0662682,
+        -0.024602085,
+        -2.898274
+      ],
+      "orientation": [
+        -0.0033898447,
+        0.30456853,
+        -0.023953877,
+        0.9521832
+      ],
+      "compression": [
+        0.44506717,
+        0.5230179,
+        0.46625674,
+        0.54420793
+      ],
+      "support": [
+        3.2024218E-06,
+        1,
+        -3.8726266E-06
+      ],
+      "contacts": 2,
+      "observedVelocity": [
+        -2.012063,
+        -0.02720265,
+        -2.9013987
+      ],
+      "contactDetails": [
+        {
+          "normal": [
+            0.8133288,
+            -0.047682952,
+            -0.57984716
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        },
+        {
+          "normal": [
+            0.81332874,
+            -0.047682956,
+            -0.57984716
+          ],
+          "Impulse": 0,
+          "Terrain": false,
+          "StaticObstacle": true
+        }
+      ],
+      "longAcceleration": 2.127842,
+      "sideAcceleration": -16.719841,
+      "up": 0.99882954,
+      "speed": 3.5307949,
+      "yaw": 0.7861006,
+      "lateral": 0.0011751652,
+      "longitudinal": 3.5591002,
+      "slip": 0,
+      "throttle": 0.99787474,
+      "oilTicks": 0,
+      "steering": -0.89999944,
+      "inputSteering": -32767,
+      "inputThrottle": 65535,
+      "inputBrake": 0,
+      "brakeMode": "Ready",
+      "handbrake": 0,
+      "frontSlip": 0.22189629,
+      "rearSlip": 0.09944406,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.018145941,
+        0.7861006,
+        -0.013726672
+      ],
+      "hp": 996.77264
+    },
+    "contacts": 176,
+    "maxAngular": 1.0257445917435268
+  }
+]

@@ -1,0 +1,5 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Following contact: closeFrames=528, stopped=0, backwards=0, correctionP95=0.029666, correctionMax=0.142949, minimumVisualGap=5.331
+Following contact network checks passed: four UDP worlds, two following pairs, 30ms delay/5ms jitter/2% loss.

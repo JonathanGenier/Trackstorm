@@ -1,0 +1,32 @@
+[
+  {
+    "name": "network-RockLedge-3-0.0",
+    "from": 900,
+    "to": 1200,
+    "frames": 300,
+    "net": 0.003279299999999985,
+    "range": 0.003279299999999985,
+    "backwardTravel": 0.0,
+    "repeatedTravel": 0.0,
+    "reversalsAbove10Microns": 0,
+    "peakStep": 1.100000000064938E-05,
+    "minVelocity": 0.0006636381,
+    "maxVelocity": 0.0006636381,
+    "contactFrames": 300
+  },
+  {
+    "name": "practice-RockLedge-3-0.0",
+    "from": 900,
+    "to": 1200,
+    "frames": 300,
+    "net": 0.0022199999999994446,
+    "range": 0.0022199999999994446,
+    "backwardTravel": 0.0,
+    "repeatedTravel": 0.0,
+    "reversalsAbove10Microns": 0,
+    "peakStep": 8.300000000183161E-06,
+    "minVelocity": 0.00039556623,
+    "maxVelocity": 0.00049975514,
+    "contactFrames": 300
+  }
+]

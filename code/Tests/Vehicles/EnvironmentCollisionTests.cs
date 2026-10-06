@@ -8,6 +8,21 @@ namespace Trackstorm.Core.Tests.Vehicles;
 internal sealed class EnvironmentCollisionTests
 {
     [Test]
+    public void RockUndersideImpactRetainsRotationWhileSideResponseStaysDissipative()
+    {
+        var incoming = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(0, -10, 0), Vector3.Zero);
+        var top = new VehicleContact(incoming.LinearVelocity, Vector3.UnitY, 0, 0,
+            localPosition: new(0.5f, -0.6f, 0.8f), environmentRock: 1);
+        Assert.That(TerrainCollision.IsBodyImpact(incoming.Orientation, top), Is.True);
+        var resolved = TerrainCollision.Resolve(incoming, top, new());
+        Assert.That(resolved.AngularVelocity.Length(), Is.GreaterThan(0));
+        float inertia = new VehicleConfiguration().Wheelbase * new VehicleConfiguration().Wheelbase / 3;
+        Assert.That(resolved.LinearVelocity.LengthSquared() + inertia * resolved.AngularVelocity.LengthSquared(), Is.LessThanOrEqualTo(100.001f));
+        var side = new VehicleContact(new(0, 0, -0.2f), Vector3.UnitZ, 0, 0, staticObstacle: true, environmentRock: 1);
+        Assert.That(TerrainCollision.IsBodyImpact(incoming.Orientation, side), Is.False);
+    }
+
+    [Test]
     public void ManifoldDuplicatesDoNotMultiplyDragOrTorque()
     {
         var incoming = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(-2, 0, -45), Vector3.Zero);

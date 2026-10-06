@@ -1,0 +1,27 @@
+[
+  {
+    "path": "code/Client/Verification/HandlingPlaytest.cs",
+    "main": "00bd6146dbcf9b874a323993b97569231137c16f",
+    "archive": "00bd6146dbcf9b874a323993b97569231137c16f"
+  },
+  {
+    "path": "code/Client/Verification/RockCollisionChecks.cs",
+    "main": "a3aa15e2740e648e61581314655d9b5259a5706c",
+    "archive": "a3aa15e2740e648e61581314655d9b5259a5706c"
+  },
+  {
+    "path": "code/Client/Networking/NetworkVehicleBody.cs",
+    "main": "017d0fa712b0e98d45ff73b4ee5e59bacde7b604",
+    "archive": "017d0fa712b0e98d45ff73b4ee5e59bacde7b604"
+  },
+  {
+    "path": "code/Client/Vehicles/EnvironmentContact.cs",
+    "main": "b86f74b7187ea239d97906473c062a7df7e9815a",
+    "archive": "b86f74b7187ea239d97906473c062a7df7e9815a"
+  },
+  {
+    "path": "code/Core/Vehicles/VehicleMovement.cs",
+    "main": "49cc827a486a172d643158f1173d80b3400eae6a",
+    "archive": "49cc827a486a172d643158f1173d80b3400eae6a"
+  }
+]

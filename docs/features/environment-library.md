@@ -42,6 +42,13 @@ frame times. `check-rock-collision-network.ps1` additionally exercises two real
 UDP worlds with delay/loss, authority/prediction, repeated contact, reverse exits
 and authoritative damage convergence.
 
+The repeated-contact extension `check-repeated-collisions.ps1` retains intact
+geometry while testing slow pressure, close/embedded poses and drops onto all five
+rock models. Full-throttle starts at the rock face also record longitudinal
+position/command velocity and reject repeated fore/aft reversals after settling.
+It supplements the speed/angle matrix and verifies physical recovery
+without relying on destruction to clear the obstacle.
+
 The existing `handling_playtest.tscn` also accepts `--rock-playtest` to isolate
 interactive commands, traces and screenshots under `.godot/ts-267/playtest` on
 the real map. Combine with `--handling-network` for the production network

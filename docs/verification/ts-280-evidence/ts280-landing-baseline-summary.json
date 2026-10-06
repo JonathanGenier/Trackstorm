@@ -1,0 +1,62 @@
+[
+  {
+    "name": "network-RockCluster-3-0.0",
+    "contactFrames": 682,
+    "repeatContacts": 180,
+    "finalContacts": 30,
+    "deepest": 0.00015187263,
+    "overlaps": 0,
+    "peakStep": 0.2005558,
+    "peakAngular": 0,
+    "contactMeanMs": 3.357097398373983,
+    "contactP95Ms": 3.7802
+  },
+  {
+    "name": "network-RockLedge-3-0.0",
+    "contactFrames": 55,
+    "repeatContacts": 0,
+    "finalContacts": 0,
+    "deepest": 0.0024482324,
+    "overlaps": 0,
+    "peakStep": 0.19649875,
+    "peakAngular": 3.016802,
+    "contactMeanMs": 0,
+    "contactP95Ms": 0
+  },
+  {
+    "name": "network-BoulderTall-3-0.0",
+    "contactFrames": 682,
+    "repeatContacts": 180,
+    "finalContacts": 30,
+    "deepest": 0.00014686584,
+    "overlaps": 0,
+    "peakStep": 0.2005558,
+    "peakAngular": 0,
+    "contactMeanMs": 3.544430243902444,
+    "contactP95Ms": 4.0202
+  },
+  {
+    "name": "network-RockSlab-3-0.0",
+    "contactFrames": 183,
+    "repeatContacts": 4,
+    "finalContacts": 30,
+    "deepest": 5.9972648E-05,
+    "overlaps": 0,
+    "peakStep": 0.21277785,
+    "peakAngular": 1.4185526,
+    "contactMeanMs": 3.8332115384615397,
+    "contactP95Ms": 6.7831
+  },
+  {
+    "name": "network-BoulderLow-3-0.0",
+    "contactFrames": 673,
+    "repeatContacts": 180,
+    "finalContacts": 30,
+    "deepest": 0.000109910965,
+    "overlaps": 0,
+    "peakStep": 0.22805548,
+    "peakAngular": 0,
+    "contactMeanMs": 3.483159837398375,
+    "contactP95Ms": 4.0251
+  }
+]

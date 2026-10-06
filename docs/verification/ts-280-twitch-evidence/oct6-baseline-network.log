@@ -1,0 +1,44 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+NETWORK_CONNECTION {"RemotePeerId":1,"State":1,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":2,"State":1,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":3,"State":1,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":1,"State":2,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":2,"State":2,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":3,"State":2,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":2,"State":0,"Reason":2,"Detail":"Transport stopped"}
+NETWORK_CONNECTION {"RemotePeerId":3,"State":0,"Reason":2,"Detail":"Transport stopped"}
+NETWORK_CONNECTION {"RemotePeerId":1,"State":0,"Reason":2,"Detail":"Transport stopped"}
+Network vehicle metrics: host=True, entry=False, maximum=0, startup=0, steady=0, snaps=0; full report: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-280\twitch\baseline-current\.godot\network-vehicle-checks\95352187e8f34d9da6a492e040df5462\player-0.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":34.2698371,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":5439,"messages":3,"peak":1813},{"peer":1,"protocol":"TD","delivery":"Unreliable","bytes":520665,"messages":93,"peak":5781},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":6119,"messages":3,"peak":2164},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":3130,"messages":10,"peak":403},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":2446,"messages":4,"peak":933},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":509316,"messages":454,"peak":1177},{"peer":2,"protocol":"TC","delivery":"Reliable","bytes":1813,"messages":1,"peak":1813},{"peer":2,"protocol":"TD","delivery":"Unreliable","bytes":514884,"messages":92,"peak":5781},{"peer":2,"protocol":"TI","delivery":"Reliable","bytes":2164,"messages":1,"peak":2164},{"peer":2,"protocol":"TM","delivery":"Reliable","bytes":2524,"messages":8,"peak":403},{"peer":2,"protocol":"TS","delivery":"Reliable","bytes":953,"messages":2,"peak":933},{"peer":2,"protocol":"TS","delivery":"Unreliable","bytes":507220,"messages":451,"peak":1177},{"peer":3,"protocol":"TC","delivery":"Reliable","bytes":3626,"messages":2,"peak":1813},{"peer":3,"protocol":"TD","delivery":"Unreliable","bytes":514884,"messages":92,"peak":5781},{"peer":3,"protocol":"TI","delivery":"Reliable","bytes":4285,"messages":2,"peak":2164},{"peer":3,"protocol":"TM","delivery":"Reliable","bytes":2827,"messages":9,"peak":403},{"peer":3,"protocol":"TS","delivery":"Reliable","bytes":1843,"messages":3,"peak":933},{"peer":3,"protocol":"TS","delivery":"Unreliable","bytes":508110,"messages":452,"peak":1177}]}
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+NETWORK_CONNECTION {"RemotePeerId":1,"State":1,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":1,"State":2,"Reason":0,"Detail":""}
+Network vehicle metrics: host=False, entry=False, maximum=0.12279284, startup=0.12279284000396729, steady=0.002631204202771187, snaps=0; full report: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-280\twitch\baseline-current\.godot\network-vehicle-checks\95352187e8f34d9da6a492e040df5462\player-1.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":27.0330408,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":139180,"messages":962,"peak":145}]}
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+NETWORK_CONNECTION {"RemotePeerId":1,"State":1,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":1,"State":2,"Reason":0,"Detail":""}
+Network vehicle metrics: host=False, entry=False, maximum=0.21526633, startup=0.21526633203029633, steady=0.030036386102437973, snaps=0; full report: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-280\twitch\baseline-current\.godot\network-vehicle-checks\95352187e8f34d9da6a492e040df5462\player-2.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":26.8913576,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":139242,"messages":962,"peak":145}]}
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+NETWORK_CONNECTION {"RemotePeerId":1,"State":1,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":1,"State":2,"Reason":0,"Detail":""}
+Network vehicle metrics: host=False, entry=False, maximum=0.11732471, startup=0.11732470989227295, steady=0.04489179328083992, snaps=0; full report: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-280\twitch\baseline-current\.godot\network-vehicle-checks\95352187e8f34d9da6a492e040df5462\player-3.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":26.9164796,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":139263,"messages":963,"peak":145}]}
+
+Network vehicle verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-280\twitch\baseline-current\.godot\network-vehicle-checks\95352187e8f34d9da6a492e040df5462

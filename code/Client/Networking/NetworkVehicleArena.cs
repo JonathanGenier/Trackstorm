@@ -224,14 +224,22 @@ internal sealed partial class NetworkVehicleArena : Node3D
             _interpolation.Advance(_driver.History, delta, clientSnapshotAge);
         }
 
+        if (_driver.Host is null && _bodies.TryGetValue(_driver.LocalVehicleId, out var predictedBody))
+        {
+            predictedBody.PresentLocal((float)delta);
+        }
+
         foreach (var pair in _bodies)
         {
-            if (_driver.Host is not null || pair.Key == _driver.LocalVehicleId)
+            if (_driver.Host is not null)
             {
                 pair.Value.PresentLocal((float)delta);
             }
-            else if (_driver.History is not null && RemoteInterpolation.Sample(_driver.History, pair.Key, _interpolation.RenderTick, _driver.Latest?.Vehicles.Single(vehicle => vehicle.State.VehicleId == pair.Key).State.LifeId) is VehiclePhysicsState remote)
+            else if (pair.Key != _driver.LocalVehicleId && _driver.History is not null && RemoteInterpolation.Sample(_driver.History, pair.Key, _interpolation.RenderTick, _driver.Latest?.Vehicles.Single(vehicle => vehicle.State.VehicleId == pair.Key).State.LifeId) is VehiclePhysicsState remote)
             {
+                if (_driver.LocalState is { CanInteract: true } predicted &&
+                    _driver.Latest!.Vehicles.Single(vehicle => vehicle.State.VehicleId == pair.Key).State is { CanInteract: true } accepted)
+                    remote = RemoteInterpolation.ContactPose(remote, accepted, predicted, VehicleBody.ToCore(_bodies[predicted.VehicleId].VisualPosition));
                 pair.Value.PresentRemote(remote);
             }
         }
@@ -348,7 +356,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
                 hostObservations ??= NetworkVehicleBody.ObserveBatch(_bodies, host.World.State.Vehicles);
                 observation = hostObservations[state.VehicleId];
             }
-            else { observation = _bodies[state.VehicleId].Observe(state); }
+            else { observation = ObservePrediction(state); }
             // Prediction replay must not replay already presented contact impulses.
             if (state.VehicleId == _driver.LocalVehicleId && (state.LifeId != _collisionLife || state.Movement.Tick > _collisionTick))
             {
@@ -386,6 +394,28 @@ internal sealed partial class NetworkVehicleArena : Node3D
         else if (_driver.LocalState is VehicleSnapshot state)
         {
             _bodies[state.VehicleId].Apply(state);
+        }
+    }
+
+    private VehicleObservation ObservePrediction(VehicleSnapshot local)
+    {
+        // Replaying several local ticks against one frozen 20-Hz remote pose makes
+        // a following car stop repeatedly, then jump forward at each publication.
+        // Use the same tick for collision geometry, within the existing prediction
+        // horizon. This is a temporary query pose; authority and rendering keep
+        // their accepted snapshots and interpolation history.
+        var remotes = _driver.Latest!.Vehicles.Where(v => v.State.VehicleId != local.VehicleId).Select(v => v.State).ToArray();
+        try
+        {
+            foreach (var remote in remotes)
+            {
+                _bodies[remote.VehicleId].SetQueryPose(RemoteInterpolation.Predict(remote, local.Movement.Tick));
+            }
+            return _bodies[local.VehicleId].Observe(local);
+        }
+        finally
+        {
+            foreach (var remote in remotes) { _bodies[remote.VehicleId].SetQueryPose(remote.Movement.Physics); }
         }
     }
 

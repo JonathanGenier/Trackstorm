@@ -84,9 +84,10 @@ public sealed partial class TrophyTruckChecks : Node3D
                 _resources.Advance();
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             }
-            // Keep the wake shader wrapper alive across repeated fixture destruction/reload.
-            // It is normally retained by live match vehicles; the stress harness removes all of them.
+            // Keep tire shader wrappers alive across repeated fixture destruction/reload.
+            // They are normally retained by live match vehicles; this harness removes all of them.
             _fixtureResources.Add(MatchResourceLoader.LoadResource<Shader>("res://assets/effects/WaterWake.gdshader"));
+            _fixtureResources.Add(MatchResourceLoader.LoadResource<Shader>("res://assets/effects/TireTrack.gdshader"));
             _output = ProjectSettings.GlobalizePath("res://.godot/ts-197/trophy");
             System.IO.Directory.CreateDirectory(_output);
             if (OS.GetCmdlineUserArgs().Contains("--trophy-rwd"))

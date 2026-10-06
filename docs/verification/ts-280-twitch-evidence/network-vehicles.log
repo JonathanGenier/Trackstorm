@@ -1,0 +1,32 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+NETWORK_CONNECTION {"RemotePeerId":1,"State":1,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":2,"State":1,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":3,"State":1,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":1,"State":2,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":2,"State":2,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":3,"State":2,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":3,"State":0,"Reason":2,"Detail":"Transport stopped"}
+NETWORK_CONNECTION {"RemotePeerId":2,"State":0,"Reason":2,"Detail":"Transport stopped"}
+Network vehicle metrics: host=True, entry=False, maximum=0, startup=0, steady=0, snaps=0; full report: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\network-vehicle-checks\f779294104254899926a73a4cf294d74\player-0.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":44.0303528,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":5439,"messages":3,"peak":1813},{"peer":1,"protocol":"TD","delivery":"Unreliable","bytes":933003,"messages":135,"peak":7129},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":6113,"messages":3,"peak":2164},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":3064,"messages":10,"peak":337},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":2440,"messages":4,"peak":933},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":414221,"messages":481,"peak":1171},{"peer":2,"protocol":"TC","delivery":"Reliable","bytes":3626,"messages":2,"peak":1813},{"peer":2,"protocol":"TD","delivery":"Unreliable","bytes":834276,"messages":120,"peak":7129},{"peer":2,"protocol":"TI","delivery":"Reliable","bytes":4279,"messages":2,"peak":2164},{"peer":2,"protocol":"TM","delivery":"Reliable","bytes":2761,"messages":9,"peak":337},{"peer":2,"protocol":"TS","delivery":"Reliable","bytes":1837,"messages":3,"peak":933},{"peer":2,"protocol":"TS","delivery":"Unreliable","bytes":283370,"messages":264,"peak":1171},{"peer":3,"protocol":"TC","delivery":"Reliable","bytes":1813,"messages":1,"peak":1813},{"peer":3,"protocol":"TD","delivery":"Unreliable","bytes":827147,"messages":119,"peak":7129},{"peer":3,"protocol":"TI","delivery":"Reliable","bytes":2164,"messages":1,"peak":2164},{"peer":3,"protocol":"TM","delivery":"Reliable","bytes":2458,"messages":8,"peak":337},{"peer":3,"protocol":"TS","delivery":"Reliable","bytes":953,"messages":2,"peak":933},{"peer":3,"protocol":"TS","delivery":"Unreliable","bytes":279834,"messages":260,"peak":1171}]}
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+NETWORK_CONNECTION {"RemotePeerId":1,"State":1,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":1,"State":2,"Reason":0,"Detail":""}
+Network vehicle metrics: host=False, entry=False, maximum=1.1371901, startup=0.4492485225200653, steady=1.1371901035308838, snaps=0; full report: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\network-vehicle-checks\f779294104254899926a73a4cf294d74\player-1.json
+REPLICATION_TRAFFIC {"seconds":25.2428502,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":138994,"messages":962,"peak":145}]}
+
+ERROR: System.InvalidOperationException: Network vehicle runtime acceptance checks failed; inspect the recorded metrics.
+   at Trackstorm.Client.Verification.NetworkVehicleChecks.Finish() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\NetworkVehicleChecks.cs:line 441
+   at Trackstorm.Client.Verification.NetworkVehicleChecks._PhysicsProcess(Double delta) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\NetworkVehicleChecks.cs:line 257
+   at: void Trackstorm.Client.Verification.NetworkVehicleChecks._PhysicsProcess(double) (res://code/Client/Verification/NetworkVehicleChecks.cs:257)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.NetworkVehicleChecks._PhysicsProcess(double) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\NetworkVehicleChecks.cs:257)
+       [2] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2648)
+       [3] bool Trackstorm.Client.Verification.NetworkVehicleChecks.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Verification.NetworkVehicleChecks_ScriptMethods.generated.cs:110)
+       [4] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)

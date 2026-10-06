@@ -1,0 +1,82 @@
+{"name":"twitch-final-large-approach","frames":360,"contacts":143,"maxAngular":0.019333638496920054,"position":[102.62538,1.144724,-35.670033],"up":0.9999954,"hp":997.43463}
+{"name":"twitch-final-large-held","frames":600,"contacts":600,"maxAngular":0.01263926602515935,"position":[102.62538,1.1441993,-35.670033],"up":0.99982584,"hp":997.43463}
+{"name":"twitch-final-large-reverse","frames":120,"contacts":3,"maxAngular":0.06124003478208797,"position":[102.612465,1.1444845,-27.074415],"up":0.9999296,"hp":997.43463}
+{"name":"twitch-final-large-reset","frames":360,"contacts":143,"maxAngular":0.019333638496920054,"position":[102.62538,1.144724,-35.670033],"up":0.9999954,"hp":997.43463}
+{"name":"twitch-final-large-steer","frames":600,"contacts":600,"maxAngular":0.012638258355251385,"position":[102.62538,1.1441997,-35.67003],"up":0.999826,"hp":997.43463}
+{"name":"twitch-final-barrier-approach","frames":360,"contacts":169,"maxAngular":0.08072357374711762,"position":[-0.00011219901,1.1449468,97.41355],"up":0.9999901,"hp":996.28723}
+{"name":"twitch-final-barrier-held","frames":600,"contacts":600,"maxAngular":0.02512302692701853,"position":[-0.00013686711,1.1427624,97.41326],"up":0.999314,"hp":996.28723}
+{"name":"twitch-final-dirt-approach","frames":500,"contacts":298,"maxAngular":0.02104508129798489,"position":[6.68943,1.1530402,-0.0010957347],"up":0.99999434,"hp":997.3014}
+{"name":"twitch-final-dirt-held","frames":600,"contacts":600,"maxAngular":0.01824519257715196,"position":[6.7595863,1.2047943,-0.019263485],"up":0.9996419,"hp":997.3014}
+{"name":"twitch-final-tunnel-approach","frames":360,"contacts":162,"maxAngular":0.11463618536889084,"position":[6.413532,1.1449502,-10.001573],"up":0.999993,"hp":997.8146}
+{"name":"twitch-final-tunnel-held","frames":600,"contacts":600,"maxAngular":0.022952982353845002,"position":[6.4121504,1.1435153,-9.995503],"up":0.9996266,"hp":997.8146}
+{"name":"twitch-final-oblique-approach","frames":330,"contacts":112,"maxAngular":0.02616530314305855,"position":[103.08937,1.1447554,-35.680767],"up":0.9999959,"hp":997.179}
+{"name":"twitch-final-oblique-steer","frames":240,"contacts":240,"maxAngular":0.012646276235154614,"position":[103.08937,1.1442271,-35.680767],"up":0.99982995,"hp":997.179}
+{"name":"twitch-final-destroy","frames":1,"contacts":1,"maxAngular":0.0,"position":[90.566246,1.1451602,-24.604074],"up":1,"hp":1000}
+{"name":"twitch-final-debris-599","frames":599,"contacts":0,"maxAngular":2.462027478610944E-05,"position":[90.566246,1.1451619,-24.614813],"up":1,"hp":1000}
+{"name":"twitch-final-debris-600","frames":1,"contacts":0,"maxAngular":2.4620274906157386E-05,"position":[90.566246,1.1451619,-24.614838],"up":1,"hp":1000}
+{"name":"twitch-final-edge-approach","frames":330,"contacts":102,"maxAngular":0.17210306070459397,"position":[105.52526,1.1448438,-36.194637],"up":0.99999595,"hp":996.77264}
+{"name":"twitch-final-edge-steer","frames":180,"contacts":180,"maxAngular":0.012636075890958073,"position":[105.52526,1.1442683,-36.194542],"up":0.9998324,"hp":996.77264}
+{"name":"twitch-final-edge-reverse-turn","frames":45,"contacts":3,"maxAngular":0.7059226876365678,"position":[105.79631,1.1424791,-35.40895],"up":0.9999906,"hp":996.77264}
+{"name":"twitch-final-edge-drive-away","frames":240,"contacts":176,"maxAngular":1.0257445917435268,"position":[107.06253,1.1490003,-40.448112],"up":0.99882954,"hp":996.77264}
+[
+  {
+    "kind": "large",
+    "frames": 420,
+    "contacts": 420,
+    "net": 0.0,
+    "range": 0.0,
+    "backward": 0.0,
+    "repeated": 0.0,
+    "reversalsAbove10Microns": 0,
+    "peakStep": 0.0,
+    "minObservedVelocity": -5.7400794E-05,
+    "maxObservedVelocity": -5.7364537E-05,
+    "hp": 997.43463,
+    "up": 0.99982584
+  },
+  {
+    "kind": "barrier",
+    "frames": 420,
+    "contacts": 420,
+    "net": -7.00000000080081E-05,
+    "range": 0.00014399999999170632,
+    "backward": 0.017683000000673132,
+    "repeated": 0.03522600000133025,
+    "reversalsAbove10Microns": 418,
+    "peakStep": 0.0001239999999995689,
+    "minObservedVelocity": 0.0,
+    "maxObservedVelocity": 0.0,
+    "hp": 996.28723,
+    "up": 0.999314
+  },
+  {
+    "kind": "dirt",
+    "frames": 420,
+    "contacts": 420,
+    "net": 0.0027722999999992837,
+    "range": 0.0037025999999995562,
+    "backward": 0.012848800000000438,
+    "repeated": 0.025697600000000875,
+    "reversalsAbove10Microns": 42,
+    "peakStep": 0.0010881000000004803,
+    "minObservedVelocity": -0.00016359461,
+    "maxObservedVelocity": -1.4007791E-06,
+    "hp": 997.3014,
+    "up": 0.9996419
+  },
+  {
+    "kind": "tunnel",
+    "frames": 420,
+    "contacts": 420,
+    "net": -0.0005541000000004459,
+    "range": 0.0026216000000003348,
+    "backward": 0.05838380000000054,
+    "repeated": 0.11565940000000019,
+    "reversalsAbove10Microns": 150,
+    "peakStep": 0.0012273000000000422,
+    "minObservedVelocity": -0.0034654015,
+    "maxObservedVelocity": 0.005294612,
+    "hp": 997.8146,
+    "up": 0.9996266
+  }
+]

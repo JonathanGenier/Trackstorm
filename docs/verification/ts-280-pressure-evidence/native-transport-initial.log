@@ -1,0 +1,35 @@
+Test run for C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+  Failed EightPlayerControlledSnapshotLossConverges [12 s]
+  Error Message:
+     Startup is independently gated, not hidden in a long settled window.
+Assert.That(startup.Max(), Is.LessThan(0.75))
+  Expected: less than 0.75d
+  But was:  0.776920736f
+
+  Stack Trace:
+     at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 188
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.EightPlayerControlledSnapshotLossConverges() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 39
+
+1)    at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.<>c__DisplayClass3_0.<RunVehicleLoop>b__0() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 218
+   at NUnit.Framework.Assert.Multiple(TestDelegate testDelegate)
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 188
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.EightPlayerControlledSnapshotLossConverges() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 39
+
+
+  Standard Output Messages:
+ prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+ delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+ delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+ delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+ delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+ delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+ delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+ delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+ startup max=0.7769m; steady p99=0.0000m; steady max=0.1237m; steady >1cm=2; max pending at completion=14
+ players=8; outbound delay=30ms; jitter=10ms; loss=0%; corrections=1596; p99=0.4715m; max=0.7769m; snapshots/client=230; stale packets rejected
+
+
+  Skipped TenMinuteEightPlayerImpairmentSoak [< 1 ms]
+
+Failed!  - Failed:     1, Passed:    14, Skipped:     0, Total:    15, Duration: 2 m 6 s - Trackstorm.Transport.Tests.dll (net10.0)

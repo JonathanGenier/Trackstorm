@@ -1,0 +1,5 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ROCK network-BoulderLow-12-1.2: contacts=0 repeat=0 final=0 depth=0.0000 overlapFrames=0 angular=1.363 contactMeanMs=0.000 p95Ms=0.000
+ROCK practice-BoulderLow-12-1.2: contacts=0 repeat=0 final=0 depth=0.0000 overlapFrames=0 angular=1.357 contactMeanMs=0.000 p95Ms=0.000
+Rock collision checks: failures=0

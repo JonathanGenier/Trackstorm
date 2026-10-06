@@ -1,0 +1,12 @@
+{"command":{"id":"ts280-slow-01","speed":0,"yaw":0,"brake":0,"frames":300,"spawn":[58.657337,1.2,-67.91336],"steer":0,"throttle":0.12,"groundSpawn":true},"name":"initial-slow"}
+{"command":{"frames":240,"steer":0,"throttle":0.12,"brake":0,"id":"24fa1a143bcb4dca9d237a740fb14ede"},"name":"slow-press"}
+{"command":{"frames":35,"steer":0,"throttle":0,"brake":0.4,"id":"ac10c69b18484246a9235fd56f4eba82"},"name":"contact-release"}
+{"command":{"frames":120,"steer":0,"throttle":0.18,"brake":0,"id":"c6698b0de77e4fc79d8d7ca992f9fd2f"},"name":"contact-return"}
+{"name":"sustained-return","command":{"frames":300,"steer":0,"throttle":0.18,"brake":0,"id":"21e718550bd7485e8cb5989dedcad5b5"}}
+{"name":"reverse-clear","command":{"frames":180,"steer":0.2,"throttle":0,"brake":1,"id":"f304b38d262248aeae16e61a2252de6b"}}
+{"name":"landing-impact","command":{"frames":50,"steer":0,"throttle":0,"brake":0,"spawn":[58.657337,8,-73.91336],"yaw":0,"speed":0,"verticalSpeed":-8,"id":"4ec121a0390a4e90a7e0719ed149628b"}}
+{"name":"landing-recovery","command":{"frames":360,"steer":0.2,"throttle":0.5,"brake":0,"id":"3ffae28aa3964c608040959f040fc4b6"}}
+{"name":"cleanup-before","command":{"frames":1,"steer":0,"throttle":0,"brake":0,"spawn":[90.56618,1.2,-24.60402],"groundSpawn":true,"yaw":0,"speed":0,"id":"cdc6b5a62d1f4c9880715e35501f4311"}}
+{"name":"cleanup-fracture","command":{"frames":1,"steer":0,"throttle":0,"brake":0,"blast":[90.56618,-0.28787,-32.60402],"id":"d17bdaa8fe8a42ccbd4dcd6e7c6b6b9c"}}
+{"name":"cleanup-599","command":{"frames":599,"steer":0,"throttle":0,"brake":0,"id":"d6be9b770ac541b2af8bb845e9227e9e"}}
+{"name":"cleanup-600","command":{"frames":1,"steer":0,"throttle":0,"brake":0,"id":"1be824278d46413e866e7ba46505e750"}}

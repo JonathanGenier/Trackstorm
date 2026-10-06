@@ -1,0 +1,72 @@
+[
+  {
+    "name": "network-RockCluster-3-0.0",
+    "beforeMeanMs": 4.338604734848483,
+    "afterMeanMs": 1.3470886363636365,
+    "reversals": 0,
+    "repeatedTravel": 0
+  },
+  {
+    "name": "network-RockLedge-3-0.0",
+    "beforeMeanMs": 3.812332958801498,
+    "afterMeanMs": 1.1904205992509358,
+    "reversals": 0,
+    "repeatedTravel": 0
+  },
+  {
+    "name": "network-BoulderTall-3-0.0",
+    "beforeMeanMs": 4.313724242424241,
+    "afterMeanMs": 1.1080785984848478,
+    "reversals": 1,
+    "repeatedTravel": 0.0038309097
+  },
+  {
+    "name": "network-RockSlab-3-0.0",
+    "beforeMeanMs": 4.388667602996254,
+    "afterMeanMs": 1.1186659176029956,
+    "reversals": 0,
+    "repeatedTravel": 0
+  },
+  {
+    "name": "network-BoulderLow-3-0.0",
+    "beforeMeanMs": 6.911101869158874,
+    "afterMeanMs": 3.6936515887850465,
+    "reversals": 1,
+    "repeatedTravel": 0.02722025
+  },
+  {
+    "name": "practice-RockCluster-3-0.0",
+    "beforeMeanMs": 3.5301831758034035,
+    "afterMeanMs": 0.881412476370511,
+    "reversals": 0,
+    "repeatedTravel": 0
+  },
+  {
+    "name": "practice-RockLedge-3-0.0",
+    "beforeMeanMs": 3.506230280373832,
+    "afterMeanMs": 0.900949158878504,
+    "reversals": 0,
+    "repeatedTravel": 0
+  },
+  {
+    "name": "practice-BoulderTall-3-0.0",
+    "beforeMeanMs": 3.470220566037735,
+    "afterMeanMs": 0.8917741509433963,
+    "reversals": 0,
+    "repeatedTravel": 0
+  },
+  {
+    "name": "practice-RockSlab-3-0.0",
+    "beforeMeanMs": 3.348328838951311,
+    "afterMeanMs": 0.9463393258426962,
+    "reversals": 0,
+    "repeatedTravel": 0
+  },
+  {
+    "name": "practice-BoulderLow-3-0.0",
+    "beforeMeanMs": 3.4469504655493477,
+    "afterMeanMs": 0.8696437616387348,
+    "reversals": 0,
+    "repeatedTravel": 0
+  }
+]

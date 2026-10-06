@@ -16,6 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Story verification, sustained rock pressure and rock-only fore/aft correction | [TS-280 verification evidence](ts-280.md) |
 | Dedicated Camera settings, persistence, camera input/framing and three-peer aiming compatibility | [TS-285 verification evidence](ts-285.md) |
 | Shield repository rename, explicit migration boundaries and integrated native lifecycle/state validation | [TS-220 verification evidence](ts-220.md) |
 | Physical-slot Shield HP, armor-plate HUD, independence, clearing/reconstruction and native lifecycle verification | [TS-176 verification evidence](ts-176.md) |

@@ -1,0 +1,87 @@
+[
+  {
+    "name": "check",
+    "result": "PASS",
+    "time": "2026-10-06T17:39:25.2433478Z"
+  },
+  {
+    "name": "repeated-collisions",
+    "result": "PASS",
+    "time": "2026-10-06T17:40:46.5708675Z"
+  },
+  {
+    "name": "rock-collisions",
+    "result": "PASS",
+    "time": "2026-10-06T17:42:50.4344846Z"
+  },
+  {
+    "name": "rock-collision-network",
+    "result": "PASS",
+    "time": "2026-10-06T17:44:14.9657459Z"
+  },
+  {
+    "name": "following-contact-network",
+    "result": "PASS",
+    "time": "2026-10-06T17:44:33.0683335Z"
+  },
+  {
+    "name": "destructible-environment",
+    "result": "PASS",
+    "time": "2026-10-06T17:45:47.3213449Z"
+  },
+  {
+    "name": "world-collisions",
+    "result": "PASS",
+    "time": "2026-10-06T17:47:56.4645192Z"
+  },
+  {
+    "name": "environment-collisions",
+    "result": "PASS",
+    "time": "2026-10-06T17:48:08.2949599Z"
+  },
+  {
+    "name": "environment-collision-network",
+    "result": "PASS",
+    "time": "2026-10-06T17:48:29.6233102Z"
+  },
+  {
+    "name": "world-collision-network",
+    "result": "PASS",
+    "time": "2026-10-06T17:49:07.6306798Z"
+  },
+  {
+    "name": "landing",
+    "result": "PASS",
+    "time": "2026-10-06T17:49:23.1674417Z"
+  },
+  {
+    "name": "vehicle",
+    "result": "PASS",
+    "time": "2026-10-06T17:50:06.6916540Z"
+  },
+  {
+    "name": "terrain-handling",
+    "result": "PASS",
+    "time": "2026-10-06T17:50:46.7987908Z"
+  },
+  {
+    "name": "integrated-driving",
+    "result": "PASS",
+    "time": "2026-10-06T17:52:00.7369717Z"
+  },
+  {
+    "name": "camera",
+    "result": "PASS",
+    "time": "2026-10-06T17:52:02.6508593Z"
+  },
+  {
+    "name": "network-vehicles",
+    "result": "PASS",
+    "time": "2026-10-06T17:52:36.2358282Z"
+  },
+  {
+    "name": "render",
+    "result": "commands completed; inspect motion and error log",
+    "time": "2026-10-06T17:53:40.5602115Z"
+  }
+]

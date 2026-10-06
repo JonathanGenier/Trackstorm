@@ -1,0 +1,140 @@
+[
+  {
+    "name": "destroy",
+    "tick": 5631,
+    "root4pieces": [
+      {
+        "Stage": 2,
+        "Damage": 0,
+        "size": 1.2301214,
+        "offset": [
+          -0.5174462,
+          0,
+          0.1966522
+        ]
+      },
+      {
+        "Stage": 2,
+        "Damage": 0,
+        "size": 1.2301214,
+        "offset": [
+          0.5174462,
+          0,
+          -0.1966522
+        ]
+      },
+      {
+        "Stage": 0,
+        "Damage": 0,
+        "size": 0,
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "Stage": 0,
+        "Damage": 0,
+        "size": 0,
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "debris-599",
+    "tick": 6230,
+    "root4pieces": [
+      {
+        "Stage": 2,
+        "Damage": 0,
+        "size": 1.2301214,
+        "offset": [
+          -0.5174462,
+          0,
+          0.1966522
+        ]
+      },
+      {
+        "Stage": 2,
+        "Damage": 0,
+        "size": 1.2301214,
+        "offset": [
+          0.5174462,
+          0,
+          -0.1966522
+        ]
+      },
+      {
+        "Stage": 0,
+        "Damage": 0,
+        "size": 0,
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "Stage": 0,
+        "Damage": 0,
+        "size": 0,
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "debris-600",
+    "tick": 6231,
+    "root4pieces": [
+      {
+        "Stage": 0,
+        "Damage": 0,
+        "size": 0,
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "Stage": 0,
+        "Damage": 0,
+        "size": 0,
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "Stage": 0,
+        "Damage": 0,
+        "size": 0,
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "Stage": 0,
+        "Damage": 0,
+        "size": 0,
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "landing",
+    "exit": 1
+  },
+  {
+    "name": "close",
+    "exit": 0
+  },
+  {
+    "name": "embedded",
+    "exit": 0
+  },
+  {
+    "name": "baseline-world",
+    "exit": 0
+  },
+  {
+    "name": "baseline-network",
+    "status": "PASS"
+  }
+]

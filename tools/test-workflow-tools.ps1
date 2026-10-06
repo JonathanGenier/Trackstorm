@@ -14,6 +14,11 @@ function Assert-True {
 . "$PSScriptRoot/fast-check-routes.ps1"
 
 # Route-selection regression coverage.
+foreach ($path in @('code/Client/Networking/NetworkVehicleBody.cs', 'code/Client/Networking/RemoteInterpolation.cs', 'code/Client/Verification/FollowingContactNetworkChecks.cs', 'check-repeated-collisions.ps1')) {
+    $contactPlan = Get-FastCheckPlan -Paths @($path)
+    Assert-True ($contactPlan.RuntimeScripts -contains 'check-repeated-collisions.ps1') 'Repeated rock and vehicle contacts retain native coverage.'
+    Assert-True ($contactPlan.ExtendedScripts -contains 'check-following-contact-network.ps1') 'Following contact requires impaired four-peer prediction coverage.'
+}
 foreach ($path in @('code/Client/Vehicles/BoostExhaust.cs', 'assets/vehicles/boost/BoostJet.glb', 'assets/effects/BoostFlame.gdshader')) {
     $boostPlan = Get-FastCheckPlan -Paths @($path)
     Assert-True ($boostPlan.RuntimeScripts -contains 'check-boost-exhaust.ps1') 'Boost changes require rendered lifecycle verification.'

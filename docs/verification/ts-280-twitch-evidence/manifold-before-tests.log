@@ -1,0 +1,37 @@
+  Determining projects to restore...
+  Restored C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Trackstorm.Core.Tests.csproj (in 669 ms).
+  1 of 2 projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Trackstorm.Core.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll
+Test run for C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+  Failed OpposingRockFacesBlockDriveWithoutCreatingReverseMotion(False) [160 ms]
+  Error Message:
+     Assert.That(state.Physics.LinearVelocity.X, Is.EqualTo(0).Within(0.000001))
+  Expected: 0.0d +/- 9.9999999999999995E-07d
+  But was:  0.00159283169f
+  Off by:   -0.0015928316861391068d
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Vehicles.RockPressureTests.OpposingRockFacesBlockDriveWithoutCreatingReverseMotion(Boolean reverseOrder) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\RockPressureTests.cs:line 22
+
+1)    at Trackstorm.Core.Tests.Vehicles.RockPressureTests.OpposingRockFacesBlockDriveWithoutCreatingReverseMotion(Boolean reverseOrder) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\RockPressureTests.cs:line 22
+
+
+  Failed OpposingRockFacesBlockDriveWithoutCreatingReverseMotion(True) [4 ms]
+  Error Message:
+     Assert.That(state.Physics.LinearVelocity.X, Is.EqualTo(0).Within(0.000001))
+  Expected: 0.0d +/- 9.9999999999999995E-07d
+  But was:  -0.00159283169f
+  Off by:   0.0015928316861391068d
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Vehicles.RockPressureTests.OpposingRockFacesBlockDriveWithoutCreatingReverseMotion(Boolean reverseOrder) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\RockPressureTests.cs:line 22
+   at InvokeStub_RockPressureTests.OpposingRockFacesBlockDriveWithoutCreatingReverseMotion(Object, Span`1)
+
+1)    at Trackstorm.Core.Tests.Vehicles.RockPressureTests.OpposingRockFacesBlockDriveWithoutCreatingReverseMotion(Boolean reverseOrder) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\RockPressureTests.cs:line 22
+   at InvokeStub_RockPressureTests.OpposingRockFacesBlockDriveWithoutCreatingReverseMotion(Object, Span`1)
+
+
+
+Failed!  - Failed:     2, Passed:     0, Skipped:     0, Total:     2, Duration: 184 ms - Trackstorm.Core.Tests.dll (net10.0)

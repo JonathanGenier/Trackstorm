@@ -1,0 +1,14 @@
+[
+  {
+    "name": "repeated-collisions",
+    "status": "FAIL: Repeated collision check failed."
+  },
+  {
+    "name": "network-vehicles",
+    "status": "FAIL: Network vehicle instance 3 failed. Artifacts: C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\network-vehicle-checks\\070257308e7a40baaa00baafb188512c"
+  },
+  {
+    "name": "world-recheck",
+    "exit": 1
+  }
+]

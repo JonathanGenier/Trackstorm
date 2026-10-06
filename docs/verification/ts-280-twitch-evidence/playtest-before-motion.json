@@ -1,0 +1,62 @@
+[
+  {
+    "kind": "large",
+    "frames": 420,
+    "contacts": 419,
+    "net": -0.0001469999999983429,
+    "range": 0.005813000000003399,
+    "backward": 0.160579000000034,
+    "repeated": 0.3208640000000713,
+    "reversalsAbove10Microns": 224,
+    "peakStep": 0.003951999999998179,
+    "minObservedVelocity": -0.019565409,
+    "maxObservedVelocity": 0.2297646,
+    "hp": 998.10126,
+    "up": 0.999628
+  },
+  {
+    "kind": "barrier",
+    "frames": 420,
+    "contacts": 420,
+    "net": -7.00000000080081E-05,
+    "range": 0.00014399999999170632,
+    "backward": 0.017683000000673132,
+    "repeated": 0.03522600000133025,
+    "reversalsAbove10Microns": 418,
+    "peakStep": 0.0001239999999995689,
+    "minObservedVelocity": 0.0,
+    "maxObservedVelocity": 0.0,
+    "hp": 996.28723,
+    "up": 0.999314
+  },
+  {
+    "kind": "dirt",
+    "frames": 420,
+    "contacts": 420,
+    "net": 0.002578500000000261,
+    "range": 0.004982000000000042,
+    "backward": 0.013184699999997385,
+    "repeated": 0.02636939999999477,
+    "reversalsAbove10Microns": 37,
+    "peakStep": 0.0010991000000002416,
+    "minObservedVelocity": -0.00016085042,
+    "maxObservedVelocity": -3.586665E-07,
+    "hp": 997.3014,
+    "up": 0.9996554
+  },
+  {
+    "kind": "tunnel",
+    "frames": 420,
+    "contacts": 420,
+    "net": -0.0003283000000005032,
+    "range": 0.002795599999999787,
+    "backward": 0.05185840000000308,
+    "repeated": 0.10306020000000515,
+    "reversalsAbove10Microns": 155,
+    "peakStep": 0.001196000000000197,
+    "minObservedVelocity": -0.0014518346,
+    "maxObservedVelocity": 0.005292722,
+    "hp": 997.8146,
+    "up": 0.9996124
+  }
+]

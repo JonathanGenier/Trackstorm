@@ -7,6 +7,8 @@ namespace Trackstorm.Client.Arenas;
 /// <summary>Reconstructable staged meshes and batched cover; authority contains no Godot resources.</summary>
 internal sealed class DestructibleEnvironment
 {
+    /// <summary>Additional query-only layer for intact rock proximity; ordinary world collision remains on layer 1.</summary>
+    internal const uint RockContactLayer = 64;
     private readonly Node3D _map;
     private readonly Node3D[] _rocks;
     private readonly (MultiMeshInstance3D Batch, int Index, Transform3D Pose)[] _plants;
@@ -26,7 +28,7 @@ internal sealed class DestructibleEnvironment
         _rocks = Rocks(map);
         _layout = ReadLayout(map)!;
         _plants = Plants(map);
-        _stages = new byte[_layout.Rocks.Count];
+        _stages = Enumerable.Repeat(byte.MaxValue, _layout.Rocks.Count).ToArray();
         _cleared = new bool[_plants.Length];
         _clearAt = new ulong[_plants.Length];
         _offsets = new System.Numerics.Vector3[_layout.Rocks.Count];
@@ -42,7 +44,11 @@ internal sealed class DestructibleEnvironment
         for (int i = 0; i < _rocks.Length; i++)
         {
             var rock = _rocks[i];
-            foreach (var collider in rock.FindChildren("*", "StaticBody3D", true, false).OfType<StaticBody3D>()) { collider.SetMeta("environment_rock", i * EnvironmentLayout.PiecesPerRock + 1); }
+            foreach (var collider in rock.FindChildren("*", "StaticBody3D", true, false).OfType<StaticBody3D>())
+            {
+                collider.SetMeta("environment_rock", i * EnvironmentLayout.PiecesPerRock + 1);
+                collider.CollisionLayer |= RockContactLayer;
+            }
         }
     }
 
@@ -81,7 +87,7 @@ internal sealed class DestructibleEnvironment
                     original.Visible = state.Stage == 1;
                     foreach (var collider in original.FindChildren("*", "StaticBody3D", true, false).OfType<StaticBody3D>())
                     {
-                        collider.CollisionLayer = state.Stage == 1 ? 1u : 0u;
+                        collider.CollisionLayer = state.Stage == 1 ? 1u | RockContactLayer : 0u;
                         collider.CollisionMask = state.Stage == 1 ? 1u : 0u;
                     }
                 }
@@ -104,6 +110,12 @@ internal sealed class DestructibleEnvironment
                     piece.Visual.Visible = state.Stage > 1;
                     piece.Visual.GetNode<StaticBody3D>("WeaponTarget").CollisionLayer = state.Stage > 1 ? 16u : 0u;
                     piece.Support.CollisionLayer = state.Stage > 1 ? 8u : 0u;
+                    if (state.Stage < 2)
+                    {
+                        piece.Visual.QueueFree();
+                        piece.Support.QueueFree();
+                        _pieces.Remove(i);
+                    }
                 }
             }
             if (state.Stage < 2 || !changed) { continue; }

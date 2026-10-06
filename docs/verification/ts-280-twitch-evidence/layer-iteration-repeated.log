@@ -1,0 +1,148 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Repeated vehicle contact: frames=513, travelError=0.004115, speedChange=0.076719
+Repeated vehicle contact checks passed.
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ROCK network-RockCluster-3-0.0: contacts=602 repeat=360 final=0 depth=0.0002 overlapFrames=0 angular=0.083 contactMeanMs=4.061 p95Ms=5.928
+ROCK network-RockLedge-3-0.0: contacts=619 repeat=360 final=0 depth=0.0002 overlapFrames=0 angular=0.079 contactMeanMs=3.612 p95Ms=4.873
+ROCK network-BoulderTall-3-0.0: contacts=607 repeat=360 final=0 depth=0.0002 overlapFrames=0 angular=0.083 contactMeanMs=3.725 p95Ms=5.063
+ROCK network-RockSlab-3-0.0: contacts=607 repeat=360 final=0 depth=0.0001 overlapFrames=0 angular=0.084 contactMeanMs=3.962 p95Ms=6.179
+ROCK network-BoulderLow-3-0.0: contacts=613 repeat=360 final=0 depth=0.0001 overlapFrames=0 angular=0.080 contactMeanMs=6.398 p95Ms=7.903
+ROCK practice-RockCluster-3-0.0: contacts=604 repeat=360 final=0 depth=0.0011 overlapFrames=0 angular=0.087 contactMeanMs=3.513 p95Ms=3.930
+ROCK practice-RockLedge-3-0.0: contacts=618 repeat=360 final=0 depth=0.0003 overlapFrames=0 angular=0.095 contactMeanMs=3.328 p95Ms=3.785
+ROCK practice-BoulderTall-3-0.0: contacts=609 repeat=360 final=0 depth=0.0008 overlapFrames=0 angular=0.090 contactMeanMs=3.469 p95Ms=3.919
+ROCK practice-RockSlab-3-0.0: contacts=609 repeat=360 final=0 depth=0.0004 overlapFrames=0 angular=0.100 contactMeanMs=3.291 p95Ms=3.809
+ROCK practice-BoulderLow-3-0.0: contacts=616 repeat=360 final=0 depth=0.0003 overlapFrames=0 angular=0.086 contactMeanMs=3.478 p95Ms=3.911
+Rock collision checks: failures=0
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ROCK network-RockCluster-3-0.0: contacts=422 repeat=180 final=0 depth=0.0002 overlapFrames=0 angular=0.083 contactMeanMs=4.983 p95Ms=8.058
+ROCK network-RockLedge-3-0.0: contacts=439 repeat=180 final=0 depth=0.0002 overlapFrames=0 angular=0.079 contactMeanMs=3.663 p95Ms=6.019
+ROCK network-BoulderTall-3-0.0: contacts=427 repeat=180 final=0 depth=0.0002 overlapFrames=0 angular=0.083 contactMeanMs=3.652 p95Ms=5.756
+ROCK network-RockSlab-3-0.0: contacts=427 repeat=180 final=0 depth=0.0001 overlapFrames=0 angular=0.084 contactMeanMs=3.822 p95Ms=6.407
+ROCK network-BoulderLow-3-0.0: contacts=433 repeat=180 final=0 depth=0.0002 overlapFrames=0 angular=0.080 contactMeanMs=5.774 p95Ms=7.467
+ROCK practice-RockCluster-3-0.0: contacts=424 repeat=180 final=0 depth=0.0011 overlapFrames=0 angular=0.087 contactMeanMs=3.567 p95Ms=4.143
+ROCK practice-RockLedge-3-0.0: contacts=438 repeat=180 final=0 depth=0.0003 overlapFrames=0 angular=0.095 contactMeanMs=3.329 p95Ms=3.739
+ROCK practice-BoulderTall-3-0.0: contacts=429 repeat=180 final=0 depth=0.0008 overlapFrames=0 angular=0.090 contactMeanMs=3.513 p95Ms=3.986
+ROCK practice-RockSlab-3-0.0: contacts=430 repeat=180 final=0 depth=0.0004 overlapFrames=0 angular=0.100 contactMeanMs=3.357 p95Ms=3.781
+ROCK practice-BoulderLow-3-0.0: contacts=436 repeat=180 final=0 depth=0.0003 overlapFrames=0 angular=0.086 contactMeanMs=3.440 p95Ms=3.953
+Rock collision checks: failures=0
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ROCK network-RockCluster-3-0.0: contacts=121 repeat=0 final=0 depth=0.0001 overlapFrames=0 angular=0.057 contactMeanMs=5.712 p95Ms=6.768
+ROCK network-RockLedge-3-0.0: contacts=136 repeat=0 final=0 depth=0.0002 overlapFrames=0 angular=0.057 contactMeanMs=5.037 p95Ms=8.933
+ROCK network-BoulderTall-3-0.0: contacts=112 repeat=0 final=0 depth=0.0002 overlapFrames=0 angular=0.057 contactMeanMs=7.439 p95Ms=14.775
+ERROR: System.InvalidOperationException: Handle is not initialized.
+   at System.Runtime.InteropServices.GCHandle.FromIntPtr(IntPtr value)
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak) in /root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:line 1284
+   at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/NativeInterop/ExceptionUtils.cs:113)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/NativeInterop/ExceptionUtils.cs:113)
+       [2] Godot.NativeInterop.godot_bool Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(nint, System.IntPtr*, Godot.NativeInterop.godot_bool) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:1284)
+       [3] void Godot.NativeInterop.NativeFuncs.godotsharp_method_bind_ptrcall(nint, nint, System.Void**, System.Void*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Godot.SourceGenerators.Internal/Godot.SourceGenerators.Internal.UnmanagedCallbacksGenerator/Godot.NativeInterop.NativeFuncs.generated.cs:380)
+       [4] Godot.GodotObject Godot.NativeCalls.godot_icall_3_1268(nint, nint, string, string, int) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/NativeCalls.cs:11611)
+       [5] Godot.Resource Godot.ResourceLoader.Load(string, string, Godot.ResourceLoader+CacheMode) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/ResourceLoader.cs:120)
+       [6] T Godot.ResourceLoader.Load<T>(string, string, Godot.ResourceLoader+CacheMode) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Extensions/ResourceLoaderExtensions.cs:27)
+       [7] T Trackstorm.Client.Networking.MatchResourceLoader.LoadResource<T>(string) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Networking\MatchResourceLoader.cs:64)
+       [8] void Trackstorm.Client.Vehicles.BoostExhaust._Ready() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Vehicles\BoostExhaust.cs:63)
+       [9] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2660)
+       [10] bool Godot.Node3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node3D.cs:1127)
+       [11] bool Trackstorm.Client.Vehicles.BoostExhaust.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Vehicles.BoostExhaust_ScriptMethods.generated.cs:100)
+       [12] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)
+       [13] void Godot.NativeInterop.NativeFuncs.godotsharp_method_bind_ptrcall(nint, nint, System.Void**, System.Void*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Godot.SourceGenerators.Internal/Godot.SourceGenerators.Internal.UnmanagedCallbacksGenerator/Godot.NativeInterop.NativeFuncs.generated.cs:380)
+       [14] void Godot.NativeCalls.godot_icall_3_912(nint, nint, nint, Godot.NativeInterop.godot_bool, int) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/NativeCalls.cs:8061)
+       [15] void Godot.Node.AddChild(Godot.Node, bool, Godot.Node+InternalMode) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:848)
+       [16] void Trackstorm.Client.Vehicles.CarRackPresentation._Ready() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Vehicles\CarRackPresentation.cs:50)
+       [17] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2660)
+       [18] bool Trackstorm.Client.Vehicles.CarRackPresentation.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Vehicles.CarRackPresentation_ScriptMethods.generated.cs:80)
+       [19] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)
+       [20] void Godot.NativeInterop.NativeFuncs.godotsharp_method_bind_ptrcall(nint, nint, System.Void**, System.Void*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Godot.SourceGenerators.Internal/Godot.SourceGenerators.Internal.UnmanagedCallbacksGenerator/Godot.NativeInterop.NativeFuncs.generated.cs:380)
+       [21] void Godot.NativeCalls.godot_icall_3_912(nint, nint, nint, Godot.NativeInterop.godot_bool, int) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/NativeCalls.cs:8061)
+       [22] void Godot.Node.AddChild(Godot.Node, bool, Godot.Node+InternalMode) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:848)
+       [23] void Trackstorm.Client.Networking.NetworkVehicleBody._Ready() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Networking\NetworkVehicleBody.cs:82)
+       [24] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2660)
+       [25] bool Godot.Node3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node3D.cs:1127)
+       [26] bool Godot.CollisionObject3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/CollisionObject3D.cs:607)
+       [27] bool Godot.PhysicsBody3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/PhysicsBody3D.cs:239)
+       [28] bool Godot.StaticBody3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/StaticBody3D.cs:153)
+       [29] bool Trackstorm.Client.Networking.NetworkVehicleBody.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Networking.NetworkVehicleBody_ScriptMethods.generated.cs:100)
+       [30] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)
+       [31] void Godot.NativeInterop.NativeFuncs.godotsharp_method_bind_ptrcall(nint, nint, System.Void**, System.Void*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Godot.SourceGenerators.Internal/Godot.SourceGenerators.Internal.UnmanagedCallbacksGenerator/Godot.NativeInterop.NativeFuncs.generated.cs:380)
+       [32] void Godot.NativeCalls.godot_icall_3_912(nint, nint, nint, Godot.NativeInterop.godot_bool, int) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/NativeCalls.cs:8061)
+       [33] void Godot.Node.AddChild(Godot.Node, bool, Godot.Node+InternalMode) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:848)
+       [34] void Trackstorm.Client.Verification.RockCollisionChecks+<Scenario>d__5.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\RockCollisionChecks.cs:79)
+       [35] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [36] System.Threading.Tasks.Task Trackstorm.Client.Verification.RockCollisionChecks.Scenario(string, bool, string, float, float)
+       [37] void Trackstorm.Client.Verification.RockCollisionChecks+<Run>d__4.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\RockCollisionChecks.cs:41)
+       [38] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [39] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [40] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [41] void System.Threading.Tasks.Task.RunContinuations(object)
+       [42] bool System.Threading.Tasks.Task`1.TrySetResult(TResult)
+       [43] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetExistingTaskResult(System.Threading.Tasks.Task`1[TResult], TResult)
+       [44] void Trackstorm.Client.Verification.RockCollisionChecks+<Scenario>d__5.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\RockCollisionChecks.cs:258)
+       [45] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [46] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [47] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)
+ERROR: System.InvalidOperationException: Handle is not initialized.
+   at System.Runtime.InteropServices.GCHandle.FromIntPtr(IntPtr value)
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak) in /root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:line 1284
+   at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/NativeInterop/ExceptionUtils.cs:113)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/NativeInterop/ExceptionUtils.cs:113)
+       [2] Godot.NativeInterop.godot_bool Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(nint, System.IntPtr*, Godot.NativeInterop.godot_bool) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:1284)
+       [3] void Godot.NativeInterop.NativeFuncs.godotsharp_method_bind_ptrcall(nint, nint, System.Void**, System.Void*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Godot.SourceGenerators.Internal/Godot.SourceGenerators.Internal.UnmanagedCallbacksGenerator/Godot.NativeInterop.NativeFuncs.generated.cs:380)
+       [4] Godot.GodotObject Godot.NativeCalls.godot_icall_1_363(nint, nint, int) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/NativeCalls.cs:3348)
+       [5] Godot.Node Godot.PackedScene.Instantiate(Godot.PackedScene+GenEditState) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/PackedScene.cs:132)
+       [6] T Godot.PackedScene.Instantiate<T>(Godot.PackedScene+GenEditState) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Extensions/PackedSceneExtensions.cs:20)
+       [7] void Trackstorm.Client.Vehicles.BoostExhaust._Ready() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Vehicles\BoostExhaust.cs:63)
+       [8] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2660)
+       [9] bool Godot.Node3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node3D.cs:1127)
+       [10] bool Trackstorm.Client.Vehicles.BoostExhaust.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Vehicles.BoostExhaust_ScriptMethods.generated.cs:100)
+       [11] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)
+       [12] void Godot.NativeInterop.NativeFuncs.godotsharp_method_bind_ptrcall(nint, nint, System.Void**, System.Void*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Godot.SourceGenerators.Internal/Godot.SourceGenerators.Internal.UnmanagedCallbacksGenerator/Godot.NativeInterop.NativeFuncs.generated.cs:380)
+       [13] void Godot.NativeCalls.godot_icall_3_912(nint, nint, nint, Godot.NativeInterop.godot_bool, int) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/NativeCalls.cs:8061)
+       [14] void Godot.Node.AddChild(Godot.Node, bool, Godot.Node+InternalMode) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:848)
+       [15] void Trackstorm.Client.Vehicles.CarRackPresentation._Ready() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Vehicles\CarRackPresentation.cs:50)
+       [16] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2660)
+       [17] bool Trackstorm.Client.Vehicles.CarRackPresentation.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Vehicles.CarRackPresentation_ScriptMethods.generated.cs:80)
+       [18] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)
+       [19] void Godot.NativeInterop.NativeFuncs.godotsharp_method_bind_ptrcall(nint, nint, System.Void**, System.Void*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Godot.SourceGenerators.Internal/Godot.SourceGenerators.Internal.UnmanagedCallbacksGenerator/Godot.NativeInterop.NativeFuncs.generated.cs:380)
+       [20] void Godot.NativeCalls.godot_icall_3_912(nint, nint, nint, Godot.NativeInterop.godot_bool, int) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/NativeCalls.cs:8061)
+       [21] void Godot.Node.AddChild(Godot.Node, bool, Godot.Node+InternalMode) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:848)
+       [22] void Trackstorm.Client.Networking.NetworkVehicleBody._Ready() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Networking\NetworkVehicleBody.cs:82)
+       [23] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2660)
+       [24] bool Godot.Node3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node3D.cs:1127)
+       [25] bool Godot.CollisionObject3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/CollisionObject3D.cs:607)
+       [26] bool Godot.PhysicsBody3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/PhysicsBody3D.cs:239)
+       [27] bool Godot.StaticBody3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/StaticBody3D.cs:153)
+       [28] bool Trackstorm.Client.Networking.NetworkVehicleBody.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Networking.NetworkVehicleBody_ScriptMethods.generated.cs:100)
+       [29] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)
+       [30] void Godot.NativeInterop.NativeFuncs.godotsharp_method_bind_ptrcall(nint, nint, System.Void**, System.Void*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Godot.SourceGenerators.Internal/Godot.SourceGenerators.Internal.UnmanagedCallbacksGenerator/Godot.NativeInterop.NativeFuncs.generated.cs:380)
+       [31] void Godot.NativeCalls.godot_icall_3_912(nint, nint, nint, Godot.NativeInterop.godot_bool, int) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/NativeCalls.cs:8061)
+       [32] void Godot.Node.AddChild(Godot.Node, bool, Godot.Node+InternalMode) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:848)
+       [33] void Trackstorm.Client.Verification.RockCollisionChecks+<Scenario>d__5.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\RockCollisionChecks.cs:79)
+       [34] void System.Runtime.CompilerServices.AsyncMethodBuilderCore.Start<TStateMachine>(TStateMachine&)
+       [35] System.Threading.Tasks.Task Trackstorm.Client.Verification.RockCollisionChecks.Scenario(string, bool, string, float, float)
+       [36] void Trackstorm.Client.Verification.RockCollisionChecks+<Run>d__4.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\RockCollisionChecks.cs:41)
+       [37] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [38] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [39] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [40] void System.Threading.Tasks.Task.RunContinuations(object)
+       [41] bool System.Threading.Tasks.Task`1.TrySetResult(TResult)
+       [42] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetExistingTaskResult(System.Threading.Tasks.Task`1[TResult], TResult)
+       [43] void Trackstorm.Client.Verification.RockCollisionChecks+<Scenario>d__5.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\RockCollisionChecks.cs:258)
+       [44] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [45] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [46] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)
+ROCK network-RockSlab-3-0.0: contacts=101 repeat=0 final=0 depth=0.0002 overlapFrames=0 angular=0.057 contactMeanMs=4.051 p95Ms=5.273
+ROCK network-BoulderLow-3-0.0: contacts=77 repeat=0 final=0 depth=0.0002 overlapFrames=0 angular=0.057 contactMeanMs=7.128 p95Ms=8.293
+ROCK practice-RockCluster-3-0.0: contacts=123 repeat=0 final=0 depth=0.0024 overlapFrames=0 angular=0.057 contactMeanMs=3.446 p95Ms=3.903
+ROCK practice-RockLedge-3-0.0: contacts=137 repeat=0 final=0 depth=0.0002 overlapFrames=0 angular=0.057 contactMeanMs=3.316 p95Ms=3.827
+ROCK practice-BoulderTall-3-0.0: contacts=115 repeat=0 final=0 depth=0.0021 overlapFrames=0 angular=0.057 contactMeanMs=3.428 p95Ms=3.800
+ROCK practice-RockSlab-3-0.0: contacts=104 repeat=0 final=0 depth=0.0034 overlapFrames=0 angular=0.057 contactMeanMs=3.793 p95Ms=4.288
+ROCK practice-BoulderLow-3-0.0: contacts=80 repeat=0 final=0 depth=0.0004 overlapFrames=0 angular=0.057 contactMeanMs=4.037 p95Ms=6.866
+Rock collision checks: failures=0
