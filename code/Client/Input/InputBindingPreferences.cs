@@ -26,7 +26,7 @@ internal static class InputBindingPreferences
     /// <returns>Snapshot containing current input preferences.</returns>
     public static PlayerSettings Capture(PlayerInputAdapter adapter, PlayerSettings settings)
     {
-        settings = settings with { InvertSteering = adapter.InvertSteering, DeadZone = adapter.DeadZone, SteeringSensitivity = adapter.SteeringSensitivity, AerialSensitivity = adapter.AerialSensitivity, KeyboardSteeringSensitivity = adapter.KeyboardSteeringSensitivity, KeyboardAerialSensitivity = adapter.KeyboardAerialSensitivity, BindingDefaultsVersion = 2 };
+        settings = settings with { InvertSteering = adapter.InvertSteering, DeadZone = adapter.DeadZone, SteeringSensitivity = adapter.SteeringSensitivity, AerialSensitivity = adapter.AerialSensitivity, KeyboardSteeringSensitivity = adapter.KeyboardSteeringSensitivity, KeyboardAerialSensitivity = adapter.KeyboardAerialSensitivity, BindingDefaultsVersion = 3 };
         foreach (InputAction action in Enum.GetValues<InputAction>())
         {
             InputEvent[] bindings = adapter.Bindings.CopyBindings(action);
@@ -65,6 +65,8 @@ internal static class InputBindingPreferences
             && handbrake.Order(StringComparer.Ordinal).SequenceEqual(new[] { "button:0:0", "key:32" });
         foreach ((InputAction action, IReadOnlyList<string> tokens) in settings.Bindings)
         {
+            if (!Enum.IsDefined(action)) { continue; }
+            if (settings.BindingDefaultsVersion < 3 && IsPreviousAerialDefault(action, tokens)) { continue; }
             if (legacyDrivingDefaults && action is InputAction.UseItem or InputAction.Drift)
             {
                 continue;
@@ -100,6 +102,22 @@ internal static class InputBindingPreferences
                 }
             }
         }
+    }
+
+    private static bool IsPreviousAerialDefault(InputAction action, IReadOnlyList<string> tokens)
+    {
+        string[] expected = action switch
+        {
+            InputAction.AirRoll => ["button:0:0"],
+            InputAction.AirPitchDown => ["key:87", "axis:0:1:-1"],
+            InputAction.AirPitchUp => ["key:83", "axis:0:1:1"],
+            InputAction.AirYawLeft => ["key:81", "axis:0:0:-1"],
+            InputAction.AirYawRight => ["key:69", "axis:0:0:1"],
+            InputAction.AirRollLeft => ["key:65"],
+            InputAction.AirRollRight => ["key:68"],
+            _ => [],
+        };
+        return expected.Length > 0 && tokens.Order(StringComparer.Ordinal).SequenceEqual(expected.Order(StringComparer.Ordinal));
     }
 
     private static bool IsPreviousDefault(InputAction action, IReadOnlyList<string> tokens)

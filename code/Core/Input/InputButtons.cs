@@ -32,7 +32,7 @@ public enum InputButtons : ushort
 	AirRoll = 2048,
 	/// <summary>Unsmoothed brake intent edges; pedal strength remains the independent analog axis.</summary>
 	Brake = 4096,
-	/// <summary>Deliberate held permission for airborne rotation.</summary>
+	/// <summary>Legacy wire bit; ignored by movement and never emitted by current bindings.</summary>
 	AirControl = 8192,
 	/// <summary>Permanently delete the selected held item.</summary>
 	DiscardItem = 16384,

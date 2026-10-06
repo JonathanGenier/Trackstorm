@@ -25,21 +25,22 @@ public sealed partial class InputIntegrationChecks
         var controllerSteer = adapter.Capture(1).Steering;
         adapter.KeyboardSteeringSensitivity = 0.1f;
         Check(adapter.Capture(2).Steering == controllerSteer, "keyboard steering setting cannot change controller steering");
-        Axis(0); KeyState(Key.Shift, true);
-        foreach (var key in new[] { Key.W, Key.E, Key.D })
+        Axis(0);
+        foreach (var key in new[] { Key.W, Key.A, Key.D })
         {
+            KeyState(Key.Shift, key == Key.D);
             KeyState(key, true); adapter.KeyboardAerialSensitivity = 0.1f;
             var low = adapter.Capture(1);
             adapter.KeyboardAerialSensitivity = 1;
             var high = adapter.Capture(2);
-            short Value(InputFrame frame) => key == Key.W ? frame.AirPitch : key == Key.E ? frame.AirYaw : frame.AirRoll;
+            short Value(InputFrame frame) => key == Key.W ? frame.AirPitch : key == Key.A ? frame.AirYaw : frame.AirRoll;
             Check(Math.Abs(Value(high)) > Math.Abs(Value(low)) * 9, "keyboard aerial sensitivity changes each axis");
             adapter.AerialSensitivity = 0.1f; adapter.DeadZone = 0.95f;
             Check(Value(adapter.Capture(3)) == Value(high), "controller aerial setting/deadzone cannot change keys");
             KeyState(key, false);
         }
         KeyState(Key.Shift, false);
-        Send(new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.LeftShoulder, Pressed = true });
+        Send(new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.LeftShoulder, Pressed = false });
         adapter.DeadZone = 0.15f; adapter.AerialSensitivity = 1; Axis(0.6f);
         var controllerAir = adapter.Capture(1).AirYaw;
         adapter.KeyboardAerialSensitivity = 0.1f;
@@ -54,88 +55,100 @@ public sealed partial class InputIntegrationChecks
         adapter.Bindings.RestoreDefaults(); adapter.KeyboardAerialSensitivity = adapter.KeyboardSteeringSensitivity = adapter.AerialSensitivity = adapter.SteeringSensitivity = 1; adapter.DeadZone = 0.15f; Reset();
     }
 
-    private void VerifyDeliberateAirControl()
+    private void VerifyAutomaticAirControls()
     {
         var adapter = _player.Adapter;
         adapter.Bindings.RestoreDefaults();
         void KeyState(Key key, bool held) => Send(new InputEventKey { PhysicalKeycode = key, Pressed = held });
         void Button(JoyButton button, bool held) => Send(new InputEventJoypadButton { Device = 0, ButtonIndex = button, Pressed = held });
         void Axis(JoyAxis axis, float value) => Send(new InputEventJoypadMotion { Device = 0, Axis = axis, AxisValue = value });
+        Check(!InputMap.HasAction("trackstorm_AirControl"), "retired activation action is absent from native controls");
         foreach (var key in new[] { Key.W, Key.S, Key.A, Key.D, Key.Q, Key.E })
         {
             KeyState(key, true);
-            var idle = adapter.Capture(1);
-            Check(idle.AirPitch == 0 && idle.AirYaw == 0 && idle.AirRoll == 0, "keys never supply aerial axes without modifier");
+            var normal = adapter.Capture(1);
+            int pitch = key == Key.W ? 32767 : key == Key.S ? -32767 : 0;
+            int horizontal = key == Key.A ? -32767 : key == Key.D ? 32767 : 0;
+            Check(normal.AirPitch == pitch && normal.AirYaw == horizontal && normal.AirRoll == 0, "unmodified keyboard pitch/yaw mapping");
+            Check((normal.Held & InputButtons.AirControl) == 0, "capture never emits legacy enable bit");
             KeyState(Key.Shift, true);
-            var active = adapter.Capture(2);
-            Check((active.Held & InputButtons.AirControl) != 0, "Shift explicitly enables air control");
-            Check(active.AirPitch == (key == Key.W ? -32767 : key == Key.S ? 32767 : 0), "keyboard pitch mapping");
-            Check(active.AirYaw == (key == Key.Q ? -32767 : key == Key.E ? 32767 : 0), "keyboard yaw mapping");
-            Check(active.AirRoll == (key == Key.A ? -32767 : key == Key.D ? 32767 : 0), "keyboard roll mapping");
-            if (key == Key.E) { Check(((active.Held | active.Pressed) & InputButtons.SwitchItem) == 0, "aerial E does not switch weapon"); }
+            var roll = adapter.Capture(2);
+            Check(roll.AirPitch == pitch && roll.AirYaw == 0 && roll.AirRoll == horizontal, "Shift changes only horizontal aerial intent to roll");
+            if (key == Key.E) { Check((roll.Held & InputButtons.SwitchItem) != 0, "E remains weapon switch with Shift"); }
             KeyState(Key.Shift, false);
             var released = adapter.Capture(3);
-            Check(released.AirPitch == 0 && released.AirYaw == 0 && released.AirRoll == 0 && (released.Held & InputButtons.AirControl) == 0, "modifier release immediately clears all aerial axes");
+            Check(released.AirPitch == pitch && released.AirYaw == horizontal && released.AirRoll == 0, "Shift release restores yaw without disabling pitch");
             KeyState(key, false); adapter.Capture(4);
         }
-        KeyState(Key.E, true); KeyState(Key.Shift, true);
-        Check((adapter.Capture(4).Pressed & InputButtons.SwitchItem) == 0, "E before Shift within one tick cannot leak a weapon-switch edge");
-        KeyState(Key.Shift, false);
-        Check((adapter.Capture(4).Pressed & InputButtons.SwitchItem) == 0, "held yaw E requires release after Shift");
-        KeyState(Key.E, false); adapter.Capture(4);
-        KeyState(Key.E, true); KeyState(Key.Shift, true); KeyState(Key.E, false);
-        Check((adapter.Capture(4).Pressed & InputButtons.SwitchItem) == 0, "quick E release retains pending contextual edge suppression");
-        KeyState(Key.Shift, false); adapter.Capture(4);
-        KeyState(Key.E, true);
-        Check((adapter.Capture(4).Pressed & InputButtons.SwitchItem) != 0, "fresh E after contextual capture switches normally");
-        KeyState(Key.E, false); adapter.Capture(4);
-        Button(JoyButton.LeftShoulder, true);
-        Axis(JoyAxis.LeftX, 1); Axis(JoyAxis.LeftY, -1);
-        var yaw = adapter.Capture(5);
-        Check(yaw.AirPitch == -32767 && yaw.AirYaw == 32767 && yaw.AirRoll == 0, "LB stick commands pitch and yaw");
-        Button(JoyButton.A, true);
-        var roll = adapter.Capture(6);
-        Check(roll.AirPitch == -32767 && roll.AirYaw == 0 && roll.AirRoll == 32767 && (roll.Held & InputButtons.UseItem) == 0, "LB+A switches horizontal stick to roll without firing");
-        Button(JoyButton.A, false);
-        Check(adapter.Capture(7).AirYaw == 32767 && adapter.Capture(8).AirRoll == 0, "A release immediately restores yaw");
-        Axis(JoyAxis.LeftX, -1); Axis(JoyAxis.LeftY, 1);
-        Check(adapter.Capture(9).AirPitch == 32767 && adapter.Capture(10).AirYaw == -32767, "opposite stick pitch and yaw signs");
-        Button(JoyButton.A, true);
-        Check(adapter.Capture(11).AirRoll == -32767, "controller roll left");
-        Button(JoyButton.A, false);
+        foreach (float direction in new[] { -1f, 1f })
+        {
+            Axis(JoyAxis.LeftX, direction);
+            Axis(JoyAxis.TriggerRight, direction > 0 ? 1 : 0);
+            Axis(JoyAxis.TriggerLeft, direction < 0 ? 1 : 0);
+            var yaw = adapter.Capture(5);
+            Check(yaw.AirPitch == direction * 32767 && yaw.AirYaw == direction * 32767 && yaw.AirRoll == 0, "triggers pitch and left stick yaws without enable button");
+            Button(JoyButton.LeftShoulder, true);
+            var roll = adapter.Capture(6);
+            Check(roll.AirPitch == yaw.AirPitch && roll.AirYaw == 0 && roll.AirRoll == yaw.AirYaw, "LB redirects horizontal stick to roll and preserves trigger pitch");
+            Button(JoyButton.LeftShoulder, false);
+            Check(adapter.Capture(7).AirYaw == yaw.AirYaw && adapter.Capture(8).AirRoll == 0, "LB release restores yaw");
+        }
+        Axis(JoyAxis.TriggerLeft, 0); Axis(JoyAxis.TriggerRight, 0); Axis(JoyAxis.LeftX, 0);
+        Axis(JoyAxis.LeftY, -1); Button(JoyButton.A, true);
+        var unused = adapter.Capture(9);
+        Check(unused.AirPitch == 0 && unused.AirRoll == 0, "old stick pitch and A roll controls no longer rotate");
+        Button(JoyButton.A, false); Axis(JoyAxis.LeftY, 0);
         foreach (float deadzone in new[] { 0f, 0.15f, 0.5f, 0.95f })
         foreach (float sensitivity in new[] { 0.1f, 1f, 3f })
         {
             adapter.DeadZone = deadzone; adapter.AerialSensitivity = sensitivity; adapter.SteeringSensitivity = sensitivity;
-            Axis(JoyAxis.LeftX, deadzone); Axis(JoyAxis.LeftY, -deadzone);
+            Axis(JoyAxis.LeftX, deadzone); Axis(JoyAxis.TriggerRight, deadzone);
             var neutral = adapter.Capture(12);
-            Check(neutral.Steering == 0 && neutral.AirYaw == 0 && neutral.AirPitch == 0, "shared stick deadzone rejects center in both modes");
+            Check(neutral.Steering == 0 && neutral.AirYaw == 0 && neutral.AirPitch == 0, "stick and trigger deadzone reject center");
             float raw = deadzone + (1 - deadzone) * 0.5f;
-            Axis(JoyAxis.LeftX, raw); Axis(JoyAxis.LeftY, -raw);
+            Axis(JoyAxis.LeftX, raw); Axis(JoyAxis.TriggerRight, raw);
             var sample = adapter.Capture(13);
             float airExpected = Math.Clamp(0.5f * sensitivity, 0, 1);
             float groundExpected = MathF.Pow(0.5f, 3.5f) * sensitivity;
-            Check(Math.Abs(sample.AirYaw / 32767f - airExpected) < 0.0001f && Math.Abs(sample.AirPitch / 32767f + airExpected) < 0.0001f, "aerial sensitivity scales linear recognized stick input");
-            Check(Math.Abs(sample.Steering / 32767f - groundExpected) < 0.0001f, "ground sensitivity retains TS-268 precision curve even while LB held");
-            adapter.AerialSensitivity = 3; adapter.SteeringSensitivity = 0.1f;
-            var independent = adapter.Capture(14);
-            Check(independent.AirYaw == 32767 && independent.Steering < sample.Steering + 1, "ground and aerial sensitivity are independent");
+            Check(Math.Abs(sample.AirYaw / 32767f - airExpected) < 0.0001f && Math.Abs(sample.AirPitch / 32767f - airExpected) < 0.0001f, "aerial sensitivity retains linear analog precision");
+            Check(Math.Abs(sample.Steering / 32767f - groundExpected) < 0.0001f, "ground precision curve remains independent");
         }
         adapter.DeadZone = 0.15f; adapter.AerialSensitivity = adapter.SteeringSensitivity = 1;
-        Button(JoyButton.X, true);
-        Check((adapter.Capture(14).Pressed & InputButtons.SwitchItem) != 0, "controller X remains available while LB is held");
-        Button(JoyButton.X, false);
-        Button(JoyButton.LeftShoulder, false);
-        Check(adapter.Capture(15).AirYaw == 0, "LB release exits air control while stick remains deflected");
-        Axis(JoyAxis.LeftX, 0); Axis(JoyAxis.LeftY, 0);
-        Button(JoyButton.Y, true); Check((adapter.Capture(16).Pressed & InputButtons.UseItem) != 0, "Y fires"); Button(JoyButton.Y, false);
-        Button(JoyButton.X, true); Check((adapter.Capture(17).Pressed & InputButtons.SwitchItem) != 0, "X switches weapon"); Button(JoyButton.X, false);
-        Button(JoyButton.LeftShoulder, true); Axis(JoyAxis.LeftY, 1);
+        Axis(JoyAxis.LeftX, 0); Axis(JoyAxis.TriggerRight, 1); Axis(JoyAxis.TriggerLeft, 1);
+        Check(adapter.Capture(14).AirPitch == 0, "equal opposing triggers cancel pitch");
+        Axis(JoyAxis.TriggerLeft, 0);
         adapter.GameplaySuppressed = true;
-        Check(adapter.Capture(18).AirPitch == 0, "UI suppression clears aerial intent");
+        Check(adapter.Capture(15).AirPitch == 0, "UI suppression clears aerial intent");
         adapter.GameplaySuppressed = false; adapter.Enabled = false;
-        Check(adapter.Capture(19).AirPitch == 0, "focus loss clears aerial intent");
-        Button(JoyButton.LeftShoulder, false); Axis(JoyAxis.LeftY, 0); adapter.Enabled = true; adapter.Capture(20);
+        Check(adapter.Capture(16).AirPitch == 0, "focus loss clears aerial intent");
+        Axis(JoyAxis.TriggerRight, 0); adapter.Enabled = true; adapter.Capture(17);
+        VerifyAerialBindingMigration();
         VerifyDeviceSensitivity();
+    }
+
+    private void VerifyAerialBindingMigration()
+    {
+        var adapter = _player.Adapter;
+        var old = new Trackstorm.Core.Settings.PlayerSettings { BindingDefaultsVersion = 2 }
+            .WithBindings(InputAction.AirRoll, ["button:0:0"])
+            .WithBindings(InputAction.AirPitchDown, ["key:87", "axis:0:1:-1"])
+            .WithBindings(InputAction.AirPitchUp, ["key:83", "axis:0:1:1"])
+            .WithBindings(InputAction.AirYawLeft, ["key:81", "axis:0:0:-1"])
+            .WithBindings(InputAction.AirYawRight, ["key:69", "axis:0:0:1"])
+            .WithBindings(InputAction.AirRollLeft, ["key:65"])
+            .WithBindings(InputAction.AirRollRight, ["key:68"]);
+        var defaults = Input.InputBindingPreferences.Capture(adapter, new());
+        Input.InputBindingPreferences.Apply(adapter, old);
+        var migrated = Input.InputBindingPreferences.Capture(adapter, old);
+        foreach (var action in old.Bindings.Keys)
+            Check(migrated.Bindings[action].SequenceEqual(defaults.Bindings[action]), "previous aerial default migrates: " + action);
+        var custom = old.WithBindings(InputAction.AirPitchUp, ["key:74"]).WithBindings(InputAction.AirRoll, []);
+        Input.InputBindingPreferences.Apply(adapter, custom);
+        var captured = Input.InputBindingPreferences.Capture(adapter, custom);
+        Check(captured.Bindings[InputAction.AirPitchUp].SequenceEqual(new[] { "key:74" }) && captured.Bindings[InputAction.AirRoll].Count == 0, "custom aerial binding and explicit unbind survive migration");
+        adapter.Bindings.RestoreDefaults();
+        Input.InputBindingPreferences.Apply(adapter, migrated);
+        Check(Input.InputBindingPreferences.Capture(adapter, migrated).Bindings[InputAction.AirPitchUp].SequenceEqual(defaults.Bindings[InputAction.AirPitchUp]), "migrated aerial bindings survive restart");
+        adapter.Bindings.RestoreDefaults();
     }
 }

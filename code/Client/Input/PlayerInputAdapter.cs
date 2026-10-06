@@ -10,7 +10,6 @@ internal sealed class PlayerInputAdapter
         (InputAction.Drift, InputButtons.Drift),
         (InputAction.Brake, InputButtons.Brake),
         (InputAction.AirRoll, InputButtons.AirRoll),
-        (InputAction.AirControl, InputButtons.AirControl),
         (InputAction.UseItem, InputButtons.UseItem),
         (InputAction.SwitchItem, InputButtons.SwitchItem),
         (InputAction.DiscardItem, InputButtons.DiscardItem),
@@ -32,7 +31,6 @@ internal sealed class PlayerInputAdapter
     private bool _itemNeedsRelease;
     private bool _switchNeedsRelease;
     private bool _discardNeedsRelease;
-    private bool _suppressPendingSwitch;
     private bool _enabled = true;
     private bool _gameplaySuppressed;
     private bool _diagnosticSuppressed;
@@ -188,14 +186,6 @@ internal sealed class PlayerInputAdapter
                 }
                 if (action == InputAction.SwitchItem)
                 {
-                    // E is contextual yaw while the modifier is held. Require release
-                    // before a held yaw key may become a weapon-switch press.
-                    if (Bindings.Strength(InputAction.AirControl, DeadZone) > 0.5f &&
-                        strength > Bindings.Strength(action, DeadZone, excluding: InputAction.AirYawRight))
-                    {
-                        _switchNeedsRelease = true;
-                        _suppressPendingSwitch = true;
-                    }
                     _switchNeedsRelease &= strength > 0.5f;
                     if (_switchNeedsRelease) { continue; }
                 }
@@ -261,29 +251,28 @@ internal sealed class PlayerInputAdapter
             AirAxis(InputAction.AirPitchUp, InputAction.AirPitchDown, active),
             AirAxis(InputAction.AirYawRight, InputAction.AirYawLeft, active, yaw: true),
             AirAxis(InputAction.AirRollRight, InputAction.AirRollLeft, active, roll: true));
-        if (_switchNeedsRelease || _suppressPendingSwitch)
+        if (_switchNeedsRelease)
         {
-            // A direction pressed just before Shift within this tick must not leak
-            // its accumulated weapon-switch edge into the aerial context.
             frame = new InputFrame(frame.Tick, frame.Steering, frame.Accelerate, frame.Brake,
                 frame.Held, frame.Pressed & ~InputButtons.SwitchItem, frame.Released,
                 frame.AirPitch, frame.AirYaw, frame.AirRoll);
         }
-        _suppressPendingSwitch = false;
         return active ? frame : new InputFrame(tick, 0, 0, 0, InputButtons.None, InputButtons.None, frame.Released);
     }
 
     private short AirAxis(InputAction positive, InputAction negative, bool active, bool yaw = false, bool roll = false)
     {
-        if (!active || Bindings.Strength(InputAction.AirControl, DeadZone) <= 0.5f) { return 0; }
+        if (!active) { return 0; }
         bool rollHeld = Bindings.Strength(InputAction.AirRoll, DeadZone) > 0.5f;
-        float digital = (Bindings.Strength(positive, DeadZone, controller: false) - Bindings.Strength(negative, DeadZone, controller: false)) * KeyboardAerialSensitivity;
+        float digital = Bindings.Strength(positive, DeadZone, controller: false) - Bindings.Strength(negative, DeadZone, controller: false);
         float analog = Bindings.Strength(positive, DeadZone, controller: true) - Bindings.Strength(negative, DeadZone, controller: true);
-        if (yaw && rollHeld) { analog = 0; }
+        if (yaw && rollHeld) { digital = analog = 0; }
         if (roll && rollHeld)
         {
+            digital += Bindings.Strength(InputAction.AirYawRight, DeadZone, controller: false) - Bindings.Strength(InputAction.AirYawLeft, DeadZone, controller: false);
             analog += Bindings.Strength(InputAction.AirYawRight, DeadZone, controller: true) - Bindings.Strength(InputAction.AirYawLeft, DeadZone, controller: true);
         }
+        digital = Math.Clamp(digital * KeyboardAerialSensitivity, -1, 1);
         analog = Math.Clamp(analog * AerialSensitivity, -1, 1);
         float intent = Math.Abs(digital) >= Math.Abs(analog) ? digital : analog;
         return InputAxis.QuantizeSteering(InputAxis.Normalize(intent, inverted: (yaw || roll) && InvertSteering));

@@ -40,7 +40,10 @@ public sealed partial class LandingIntegrationChecks : Node3D
         bool correcting = tick >= correctionStart && tick < correctionStart + 8;
         bool rollCorrection = _case.EndsWith("-roll45", StringComparison.Ordinal) && correcting;
         bool pitchCorrection = _case.EndsWith("-pitch35", StringComparison.Ordinal) && correcting;
-        bool airRoll = _case.EndsWith("-air-roll", StringComparison.Ordinal);
+        // Automatic neutral-axis damping now arrests an uncommanded airborne tumble.
+        // Keep this deliberate secondary-crash pilot rolling until an actual impact;
+        // the production crash latch still suppresses all subsequent pilot input.
+        bool airRoll = _case.EndsWith("-air-roll", StringComparison.Ordinal) || (_tumble && _kicked);
         var input = new InputFrame(tick, rollCorrection ? (short)-32767 : airRoll ? (short)32767 : (short)0,
             pitchCorrection ? (ushort)65535 : (ushort)0, 0, (_case.EndsWith("-roll45", StringComparison.Ordinal) || _case.EndsWith("-pitch35", StringComparison.Ordinal) || airRoll) ? InputButtons.AirControl : 0, 0, 0, pitchCorrection ? (short)-32767 : (short)0, 0, rollCorrection ? (short)-32767 : airRoll ? (short)32767 : (short)0);
         var request = _native is not null ? _native.Capture(input) : new VehicleStepRequest(1, input, _network!.Observe(_world.GetVehicle(1)));
@@ -137,7 +140,7 @@ public sealed partial class LandingIntegrationChecks : Node3D
         Vector3 position = point + Vector3.Up * 8;
         Vector3 velocity = new(name is "yawed" or "spin" ? -_side * 8 : 0, -12, 0);
         // These two scenarios test a deliberate midair correction, so allow genuine
-        // airtime for a deliberate correction pulse and held-modifier stabilization.
+        // airtime for a deliberate correction pulse and released-axis stabilization.
         bool corrected = name is "roll45" or "pitch35";
         if (corrected) { position = point + Vector3.Up * 20; velocity = Vector3.Zero; }
         Vector3 angular = name == "spin" ? Vector3.Up * 3 : Vector3.Zero;
