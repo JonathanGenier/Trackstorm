@@ -29,7 +29,7 @@ public sealed partial class InputIntegrationChecks : Node
             GD.Print($"Connected physical gamepads before synthetic input: {Godot.Input.GetConnectedJoypads().Count}");
             VerifyEveryDefaultBinding();
             VerifySteeringPrecision();
-            VerifyDeliberateAirControl();
+            VerifyAutomaticAirControls();
             VerifyAnalogAndIndependentLeaderboard();
             VerifyRemappingAndMultipleBindings();
             VerifyTapFocusAndTickCapture();
@@ -65,7 +65,6 @@ public sealed partial class InputIntegrationChecks : Node
         InputAction.Brake => frame.Brake == 65535,
         InputAction.SteerLeft => frame.Steering == -32767,
         InputAction.SteerRight => frame.Steering == 32767,
-        InputAction.AirControl => (frame.Held & InputButtons.AirControl) != 0,
         InputAction.AirRoll => (frame.Held & InputButtons.AirRoll) != 0,
         InputAction.SwitchItem => (frame.Held & InputButtons.SwitchItem) != 0,
         InputAction.DiscardItem => (frame.Held & InputButtons.DiscardItem) != 0,
@@ -153,7 +152,7 @@ public sealed partial class InputIntegrationChecks : Node
         _player.Adapter.Bindings.RestoreDefaults();
         InputBindingPreferences.Apply(_player.Adapter, previous);
         var revised = InputBindingPreferences.Capture(_player.Adapter, previous);
-        Check(revised.BindingDefaultsVersion == 2 && revised.Bindings[InputAction.UseItem].Contains("button:0:3") && revised.Bindings[InputAction.SwitchItem].Contains("button:0:2") && revised.Bindings[InputAction.AirRoll].SequenceEqual(new[] { "button:0:0" }), "revision one exact defaults migrate to Y/X/A");
+        Check(revised.BindingDefaultsVersion == 3 && revised.Bindings[InputAction.UseItem].Contains("button:0:3") && revised.Bindings[InputAction.SwitchItem].Contains("button:0:2") && revised.Bindings[InputAction.AirRoll].Contains("button:0:9"), "revision one exact defaults migrate to Y/X and Shift/LB");
         var deliberateOld = previous with { BindingDefaultsVersion = 2 };
         InputBindingPreferences.Apply(_player.Adapter, deliberateOld);
         Check(InputBindingPreferences.Capture(_player.Adapter, deliberateOld).Bindings[InputAction.UseItem].Contains("button:0:0"), "revision two deliberate old assignment is preserved");
@@ -178,7 +177,7 @@ public sealed partial class InputIntegrationChecks : Node
         {
             if (action >= InputAction.AirPitchDown && action <= InputAction.AirRollRight) { continue; } // Contextual aerial mappings are exercised together below.
             var bindings = InputMap.ActionGetEvents(PlayerInputBindings.Name(action));
-            Check(bindings.Count == ((action >= InputAction.CameraLeft && action <= InputAction.CameraDown) || action == InputAction.AirRoll ? 1 : 2), $"{action} has keyboard and gamepad defaults");
+            Check(bindings.Count == ((action >= InputAction.CameraLeft && action <= InputAction.CameraDown) ? 1 : 2), $"{action} has keyboard and gamepad defaults");
             foreach (InputEvent binding in bindings)
             {
                 using var pressed = (InputEvent)binding.Duplicate();

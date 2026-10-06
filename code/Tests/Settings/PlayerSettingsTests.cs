@@ -144,7 +144,7 @@ internal sealed class PlayerSettingsTests
     public void BindingDefaultsRevisionDistinguishesLegacySaves()
     {
         Assert.That(PlayerSettingsJson.Deserialize("{\"version\":1}").BindingDefaultsVersion, Is.Zero);
-        Assert.That(PlayerSettingsJson.Deserialize(PlayerSettingsJson.Serialize(new PlayerSettings())).BindingDefaultsVersion, Is.EqualTo(2));
+        Assert.That(PlayerSettingsJson.Deserialize(PlayerSettingsJson.Serialize(new PlayerSettings())).BindingDefaultsVersion, Is.EqualTo(3));
     }
 
     /// <summary>Malformed or unsupported documents restore defaults.</summary>

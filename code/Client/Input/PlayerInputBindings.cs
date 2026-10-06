@@ -44,17 +44,15 @@ internal sealed class PlayerInputBindings : IDisposable
         using var mouse = new InputEventMouseButton { ButtonIndex = MouseButton.Left };
         using var itemButton = Button(JoyButton.Y, gamepadDevice);
         Replace(InputAction.UseItem, mouse, itemButton);
-        Set(InputAction.AirControl, Key.Shift, Button(JoyButton.LeftShoulder, gamepadDevice));
-        using var rollModifier = Button(JoyButton.A, gamepadDevice);
-        Replace(InputAction.AirRoll, rollModifier);
-        Set(InputAction.AirPitchDown, Key.W, Axis(JoyAxis.LeftY, -1, gamepadDevice));
-        Set(InputAction.AirPitchUp, Key.S, Axis(JoyAxis.LeftY, 1, gamepadDevice));
-        Set(InputAction.AirYawLeft, Key.Q, Axis(JoyAxis.LeftX, -1, gamepadDevice));
-        Set(InputAction.AirYawRight, Key.E, Axis(JoyAxis.LeftX, 1, gamepadDevice));
-        using var rollLeft = new InputEventKey { PhysicalKeycode = Key.A };
-        using var rollRight = new InputEventKey { PhysicalKeycode = Key.D };
-        Replace(InputAction.AirRollLeft, rollLeft);
-        Replace(InputAction.AirRollRight, rollRight);
+        Set(InputAction.AirRoll, Key.Shift, Button(JoyButton.LeftShoulder, gamepadDevice));
+        Set(InputAction.AirPitchDown, Key.S, Axis(JoyAxis.TriggerLeft, 1, gamepadDevice));
+        Set(InputAction.AirPitchUp, Key.W, Axis(JoyAxis.TriggerRight, 1, gamepadDevice));
+        Set(InputAction.AirYawLeft, Key.A, Axis(JoyAxis.LeftX, -1, gamepadDevice));
+        Set(InputAction.AirYawRight, Key.D, Axis(JoyAxis.LeftX, 1, gamepadDevice));
+        // Optional dedicated roll bindings remain remappable; the default modifier
+        // redirects the same horizontal intent for both keyboard and controller.
+        Replace(InputAction.AirRollLeft);
+        Replace(InputAction.AirRollRight);
         Set(InputAction.SwitchItem, Key.E, Button(JoyButton.X, gamepadDevice));
         Set(InputAction.DiscardItem, Key.X, Button(JoyButton.DpadLeft, gamepadDevice));
         Set(InputAction.Leaderboard, Key.Tab, Button(JoyButton.Back, gamepadDevice));

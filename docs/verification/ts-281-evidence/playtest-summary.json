@@ -1,0 +1,614 @@
+[
+  {
+    "scenario": "key-at-threshold",
+    "frames": 1,
+    "maxAirSeconds": 0.15,
+    "firstCommandFrame": 1,
+    "commandFrames": 1,
+    "final": {
+      "airSeconds": 0.15,
+      "airInput": [
+        0.24253488,
+        0,
+        0
+      ],
+      "angular": [
+        0.26666668,
+        0,
+        0
+      ],
+      "orientation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "position": [
+        0,
+        10.497775,
+        -0.93333334
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "key-before-threshold",
+    "frames": 8,
+    "maxAirSeconds": 0.13333334,
+    "firstCommandFrame": null,
+    "commandFrames": 0,
+    "final": {
+      "airSeconds": 0.13333334,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "angular": [
+        0,
+        0,
+        0
+      ],
+      "orientation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "position": [
+        0,
+        10.497775,
+        -0.93333334
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "key-nose-down",
+    "frames": 45,
+    "maxAirSeconds": 0.74999994,
+    "firstCommandFrame": 9,
+    "commandFrames": 37,
+    "final": {
+      "airSeconds": 0.74999994,
+      "airInput": [
+        -0.9999656,
+        0,
+        0
+      ],
+      "angular": [
+        -2.5199132,
+        0,
+        0
+      ],
+      "orientation": [
+        -0.61382425,
+        0,
+        0,
+        0.7894427
+      ],
+      "position": [
+        0,
+        30.465027,
+        -7.560523
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "key-nose-up",
+    "frames": 30,
+    "maxAirSeconds": 0.65000004,
+    "firstCommandFrame": 1,
+    "commandFrames": 30,
+    "final": {
+      "airSeconds": 0.65000004,
+      "airInput": [
+        0.9998179,
+        0,
+        0
+      ],
+      "angular": [
+        2.5195413,
+        0,
+        0
+      ],
+      "orientation": [
+        0.5078493,
+        0,
+        0,
+        0.86144596
+      ],
+      "position": [
+        0,
+        10.6668625,
+        -4.5948896
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "key-release",
+    "frames": 90,
+    "maxAirSeconds": 1.6999991,
+    "firstCommandFrame": 1,
+    "commandFrames": 41,
+    "final": {
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "angular": [
+        -2.3783255,
+        -0.22104144,
+        0.29600602
+      ],
+      "orientation": [
+        0.16567111,
+        0.009046462,
+        0.2381564,
+        0.9569498
+      ],
+      "position": [
+        -0.93786615,
+        1.8724861,
+        -15.332092
+      ],
+      "grounded": true,
+      "hp": 951.4988,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "key-roll-left",
+    "frames": 45,
+    "maxAirSeconds": 0.74999994,
+    "firstCommandFrame": 9,
+    "commandFrames": 37,
+    "final": {
+      "airSeconds": 0.74999994,
+      "airInput": [
+        0,
+        0,
+        0.9999656
+      ],
+      "angular": [
+        0,
+        0,
+        3.2398887
+      ],
+      "orientation": [
+        0,
+        0,
+        0.7492083,
+        0.6623345
+      ],
+      "position": [
+        -0.23265314,
+        30.378511,
+        -7.3333306
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "key-roll-right",
+    "frames": 45,
+    "maxAirSeconds": 0.74999994,
+    "firstCommandFrame": 9,
+    "commandFrames": 37,
+    "final": {
+      "airSeconds": 0.74999994,
+      "airInput": [
+        0,
+        0,
+        -0.9999656
+      ],
+      "angular": [
+        0,
+        0,
+        -3.2398887
+      ],
+      "orientation": [
+        0,
+        0,
+        -0.7492083,
+        0.6623345
+      ],
+      "position": [
+        0.23265314,
+        30.378511,
+        -7.3333306
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "key-short-gap",
+    "frames": 120,
+    "maxAirSeconds": 0.083333336,
+    "firstCommandFrame": null,
+    "commandFrames": 0,
+    "final": {
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "angular": [
+        0.005740567,
+        -2.647826e-11,
+        -1.1847074e-09
+      ],
+      "orientation": [
+        0.016498685,
+        -7.837944e-11,
+        -1.1817691e-10,
+        0.9998639
+      ],
+      "position": [
+        9.048169e-10,
+        1.1516194,
+        -13.143445
+      ],
+      "grounded": true,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "key-yaw-left",
+    "frames": 45,
+    "maxAirSeconds": 0.74999994,
+    "firstCommandFrame": 9,
+    "commandFrames": 37,
+    "final": {
+      "airSeconds": 0.74999994,
+      "airInput": [
+        0,
+        0.9999656,
+        0
+      ],
+      "angular": [
+        0,
+        2.159926,
+        0
+      ],
+      "orientation": [
+        0,
+        0.53787184,
+        0,
+        0.84302664
+      ],
+      "position": [
+        0,
+        30.641678,
+        -7.3333306
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "key-yaw-right",
+    "frames": 45,
+    "maxAirSeconds": 0.74999994,
+    "firstCommandFrame": 9,
+    "commandFrames": 37,
+    "final": {
+      "airSeconds": 0.74999994,
+      "airInput": [
+        0,
+        -0.9999656,
+        0
+      ],
+      "angular": [
+        0,
+        -2.159926,
+        0
+      ],
+      "orientation": [
+        0,
+        -0.53787184,
+        0,
+        0.84302664
+      ],
+      "position": [
+        0,
+        30.641678,
+        -7.3333306
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "pad-nose-down",
+    "frames": 45,
+    "maxAirSeconds": 0.74999994,
+    "firstCommandFrame": 9,
+    "commandFrames": 37,
+    "final": {
+      "airSeconds": 0.74999994,
+      "airInput": [
+        -0.52938634,
+        0,
+        0
+      ],
+      "angular": [
+        -1.3340536,
+        0,
+        0
+      ],
+      "orientation": [
+        -0.35670802,
+        0,
+        0,
+        0.93421596
+      ],
+      "position": [
+        0,
+        30.582026,
+        -7.4895697
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "pad-nose-up",
+    "frames": 45,
+    "maxAirSeconds": 0.74999994,
+    "firstCommandFrame": 9,
+    "commandFrames": 37,
+    "final": {
+      "airSeconds": 0.74999994,
+      "airInput": [
+        0.52938634,
+        0,
+        0
+      ],
+      "angular": [
+        1.3340536,
+        0,
+        0
+      ],
+      "orientation": [
+        0.35670802,
+        0,
+        0,
+        0.93421596
+      ],
+      "position": [
+        0,
+        30.582026,
+        -7.1770926
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "pad-release",
+    "frames": 90,
+    "maxAirSeconds": 2.5833316,
+    "firstCommandFrame": 1,
+    "commandFrames": 39,
+    "final": {
+      "airSeconds": 2.5833316,
+      "airInput": [
+        0,
+        -7.323913e-12,
+        -2.8422573e-14
+      ],
+      "angular": [
+        -8.560717e-06,
+        -4.000962e-06,
+        -1.1622906e-06
+      ],
+      "orientation": [
+        -0.117545255,
+        -0.19728318,
+        -0.5426746,
+        0.8079398
+      ],
+      "position": [
+        0.21643645,
+        6.3901772,
+        -25.327648
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "pad-roll-left",
+    "frames": 45,
+    "maxAirSeconds": 0.74999994,
+    "firstCommandFrame": 9,
+    "commandFrames": 37,
+    "final": {
+      "airSeconds": 0.74999994,
+      "airInput": [
+        0,
+        0,
+        0.52938634
+      ],
+      "angular": [
+        0,
+        0,
+        1.7152119
+      ],
+      "orientation": [
+        0,
+        0,
+        0.4517408,
+        0.89214927
+      ],
+      "position": [
+        -0.18895379,
+        30.546003,
+        -7.3333306
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "pad-roll-right",
+    "frames": 45,
+    "maxAirSeconds": 0.74999994,
+    "firstCommandFrame": 9,
+    "commandFrames": 37,
+    "final": {
+      "airSeconds": 0.74999994,
+      "airInput": [
+        0,
+        0,
+        -0.52938634
+      ],
+      "angular": [
+        0,
+        0,
+        -1.7152119
+      ],
+      "orientation": [
+        0,
+        0,
+        -0.4517408,
+        0.89214927
+      ],
+      "position": [
+        0.18895379,
+        30.546003,
+        -7.3333306
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "pad-roll-to-yaw",
+    "frames": 20,
+    "maxAirSeconds": 1.083333,
+    "firstCommandFrame": 1,
+    "commandFrames": 20,
+    "final": {
+      "airSeconds": 1.083333,
+      "airInput": [
+        0,
+        -0.52735794,
+        -0.0020465648
+      ],
+      "angular": [
+        -1.0225568,
+        -0.49777257,
+        -0.17326754
+      ],
+      "orientation": [
+        -0.07500156,
+        -0.13005534,
+        -0.5427754,
+        0.82635057
+      ],
+      "position": [
+        0.2148607,
+        28.891191,
+        -10.495963
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "pad-yaw-left",
+    "frames": 45,
+    "maxAirSeconds": 0.74999994,
+    "firstCommandFrame": 9,
+    "commandFrames": 37,
+    "final": {
+      "airSeconds": 0.74999994,
+      "airInput": [
+        0,
+        0.52938634,
+        0
+      ],
+      "angular": [
+        0,
+        1.1434748,
+        0
+      ],
+      "orientation": [
+        0,
+        0.30768114,
+        0,
+        0.9514896
+      ],
+      "position": [
+        0,
+        30.641678,
+        -7.3333306
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "pad-yaw-right",
+    "frames": 45,
+    "maxAirSeconds": 0.74999994,
+    "firstCommandFrame": 9,
+    "commandFrames": 37,
+    "final": {
+      "airSeconds": 0.74999994,
+      "airInput": [
+        0,
+        -0.52938634,
+        0
+      ],
+      "angular": [
+        0,
+        -1.1434748,
+        0
+      ],
+      "orientation": [
+        0,
+        -0.30768114,
+        0,
+        0.9514896
+      ],
+      "position": [
+        0,
+        30.641678,
+        -7.3333306
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  }
+]

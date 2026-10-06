@@ -1,0 +1,662 @@
+[
+  {
+    "scenario": "astra-delay",
+    "frames": 8,
+    "maxAirSeconds": 0.13333334,
+    "firstCommandFrame": null,
+    "final": {
+      "airSeconds": 0.13333334,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "angular": [
+        0,
+        0,
+        0
+      ],
+      "orientation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "position": [
+        0,
+        30.497782,
+        -1.1666666
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-down",
+    "frames": 33,
+    "maxAirSeconds": 0.55000013,
+    "firstCommandFrame": 9,
+    "final": {
+      "airSeconds": 0.55000013,
+      "airInput": [
+        -0.999036,
+        0,
+        0
+      ],
+      "angular": [
+        -2.5175707,
+        0,
+        0
+      ],
+      "orientation": [
+        -0.39767018,
+        0,
+        0,
+        0.91752845
+      ],
+      "position": [
+        0,
+        30.9792,
+        -5.5044017
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-ground-turn",
+    "frames": 90,
+    "maxAirSeconds": 0,
+    "firstCommandFrame": null,
+    "final": {
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "angular": [
+        -0.11193151,
+        -2.2035956,
+        0.020795897
+      ],
+      "orientation": [
+        -0.012551743,
+        -0.5554121,
+        0.03281026,
+        0.83083296
+      ],
+      "position": [
+        6.286643,
+        1.1412741,
+        -31.58716
+      ],
+      "grounded": true,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-land",
+    "frames": 120,
+    "maxAirSeconds": 0.8666665,
+    "firstCommandFrame": null,
+    "final": {
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "angular": [
+        0,
+        0,
+        0
+      ],
+      "orientation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "position": [
+        0,
+        1.1288877,
+        -18.23382
+      ],
+      "grounded": true,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-net-combined",
+    "frames": 33,
+    "maxAirSeconds": 0.55000013,
+    "firstCommandFrame": 9,
+    "final": {
+      "airSeconds": 0.55000013,
+      "airInput": [
+        0.52889425,
+        0,
+        -0.52889425
+      ],
+      "angular": [
+        1.332819,
+        0.00063467026,
+        -1.7136135
+      ],
+      "orientation": [
+        0.2259366,
+        5.2301446e-05,
+        -0.2902675,
+        0.92989117
+      ],
+      "position": [
+        0,
+        31.053345,
+        -5.3333325
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-net-gap",
+    "frames": 120,
+    "maxAirSeconds": 0.083333336,
+    "firstCommandFrame": null,
+    "final": {
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "angular": [
+        0.005740649,
+        1.16327045e-10,
+        2.4311895e-09
+      ],
+      "orientation": [
+        0.016498676,
+        3.5330686e-11,
+        6.4399425e-10,
+        0.9998639
+      ],
+      "position": [
+        -2.0218675e-10,
+        1.1516601,
+        -13.151176
+      ],
+      "grounded": true,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-net-land",
+    "frames": 150,
+    "maxAirSeconds": 0.8666665,
+    "firstCommandFrame": null,
+    "final": {
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "angular": [
+        0,
+        0,
+        0
+      ],
+      "orientation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "position": [
+        0,
+        1.1373744,
+        -21.638855
+      ],
+      "grounded": true,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-net-relaunch",
+    "frames": 25,
+    "maxAirSeconds": 0.4166668,
+    "firstCommandFrame": 9,
+    "final": {
+      "airSeconds": 0.4166668,
+      "airInput": [
+        0,
+        0.9911046,
+        0
+      ],
+      "angular": [
+        0,
+        2.140786,
+        0
+      ],
+      "orientation": [
+        0,
+        0.20705935,
+        0,
+        0.9783284
+      ],
+      "position": [
+        0,
+        13.083334,
+        -4.0000005
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-net-release",
+    "frames": 90,
+    "maxAirSeconds": 2.0499988,
+    "firstCommandFrame": 1,
+    "final": {
+      "airSeconds": 2.0499988,
+      "airInput": [
+        7.345249e-12,
+        0,
+        -7.345249e-12
+      ],
+      "angular": [
+        1.1152977e-05,
+        5.9604645e-08,
+        -1.4394522e-05
+      ],
+      "orientation": [
+        0.3209902,
+        7.505391e-05,
+        -0.41249743,
+        0.85253227
+      ],
+      "position": [
+        0,
+        17.24083,
+        -20.333328
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-onset",
+    "frames": 1,
+    "maxAirSeconds": 0.15,
+    "firstCommandFrame": 1,
+    "final": {
+      "airSeconds": 0.15,
+      "airInput": [
+        0.24253488,
+        0,
+        0
+      ],
+      "angular": [
+        0.26666668,
+        0,
+        0
+      ],
+      "orientation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "position": [
+        0,
+        30.497782,
+        -1.1666666
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-pad-down",
+    "frames": 33,
+    "maxAirSeconds": 0.55000013,
+    "firstCommandFrame": 9,
+    "final": {
+      "airSeconds": 0.55000013,
+      "airInput": [
+        -0.52889425,
+        0,
+        0
+      ],
+      "angular": [
+        -1.3328135,
+        0,
+        0
+      ],
+      "orientation": [
+        -0.22931546,
+        0,
+        0,
+        0.97335213
+      ],
+      "position": [
+        0,
+        31.028694,
+        -5.4379816
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-pad-left-roll",
+    "frames": 33,
+    "maxAirSeconds": 0.55000013,
+    "firstCommandFrame": 9,
+    "final": {
+      "airSeconds": 0.55000013,
+      "airInput": [
+        0,
+        0,
+        0.52889425
+      ],
+      "angular": [
+        0,
+        0,
+        1.7136177
+      ],
+      "orientation": [
+        0,
+        0,
+        0.29288554,
+        0.9561476
+      ],
+      "position": [
+        -0.13129602,
+        31.013128,
+        -5.3333325
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-pad-left-yaw-transition",
+    "frames": 20,
+    "maxAirSeconds": 0.88333315,
+    "firstCommandFrame": 1,
+    "final": {
+      "airSeconds": 0.88333315,
+      "airInput": [
+        0,
+        0.52735794,
+        0.002044663
+      ],
+      "angular": [
+        -0.7956047,
+        0.812657,
+        0.1733354
+      ],
+      "orientation": [
+        -0.051707048,
+        0.1409468,
+        0.39380684,
+        0.9068499
+      ],
+      "position": [
+        -0.17085236,
+        30.066326,
+        -8.495958
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-pad-neutral",
+    "frames": 80,
+    "maxAirSeconds": 2.2166653,
+    "firstCommandFrame": 1,
+    "final": {
+      "airSeconds": 2.2166653,
+      "airInput": [
+        0,
+        1.1779228e-10,
+        4.567021e-13
+      ],
+      "angular": [
+        -2.5376678e-05,
+        2.5197864e-05,
+        4.2021275e-06
+      ],
+      "orientation": [
+        -0.08215466,
+        0.21444888,
+        0.39685267,
+        0.8886902
+      ],
+      "position": [
+        -0.17361176,
+        14.197449,
+        -21.660992
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-pad-up",
+    "frames": 33,
+    "maxAirSeconds": 0.55000013,
+    "firstCommandFrame": 9,
+    "final": {
+      "airSeconds": 0.55000013,
+      "airInput": [
+        0.52889425,
+        0,
+        0
+      ],
+      "angular": [
+        1.3328135,
+        0,
+        0
+      ],
+      "orientation": [
+        0.22931546,
+        0,
+        0,
+        0.97335213
+      ],
+      "position": [
+        0,
+        31.028694,
+        -5.2286844
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-release",
+    "frames": 40,
+    "maxAirSeconds": 1.2166662,
+    "firstCommandFrame": 1,
+    "final": {
+      "airSeconds": 1.2166662,
+      "airInput": [
+        1.4930932e-05,
+        0,
+        0
+      ],
+      "angular": [
+        0.021611392,
+        0,
+        0
+      ],
+      "orientation": [
+        0.58236325,
+        0,
+        0,
+        0.8129287
+      ],
+      "position": [
+        0,
+        27.713772,
+        -11.27804
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-roll",
+    "frames": 33,
+    "maxAirSeconds": 0.55000013,
+    "firstCommandFrame": 9,
+    "final": {
+      "airSeconds": 0.55000013,
+      "airInput": [
+        0,
+        0,
+        -0.999036
+      ],
+      "angular": [
+        0,
+        0,
+        -3.2368765
+      ],
+      "orientation": [
+        0,
+        0,
+        -0.49945486,
+        0.8663399
+      ],
+      "position": [
+        0.20286794,
+        30.93639,
+        -5.3333325
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-small-gap",
+    "frames": 120,
+    "maxAirSeconds": 0.083333336,
+    "firstCommandFrame": null,
+    "final": {
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "angular": [
+        0.005740567,
+        -2.647826e-11,
+        -1.1847074e-09
+      ],
+      "orientation": [
+        0.016498685,
+        -7.837944e-11,
+        -1.1817691e-10,
+        0.9998639
+      ],
+      "position": [
+        9.048169e-10,
+        1.1516194,
+        -13.143445
+      ],
+      "grounded": true,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-up",
+    "frames": 24,
+    "maxAirSeconds": 0.55000013,
+    "firstCommandFrame": 1,
+    "final": {
+      "airSeconds": 0.55000013,
+      "airInput": [
+        0.999036,
+        0,
+        0
+      ],
+      "angular": [
+        2.517571,
+        0,
+        0
+      ],
+      "orientation": [
+        0.39563027,
+        0,
+        0,
+        0.9184099
+      ],
+      "position": [
+        0,
+        30.865234,
+        -4.8296447
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  },
+  {
+    "scenario": "astra-yaw",
+    "frames": 33,
+    "maxAirSeconds": 0.55000013,
+    "firstCommandFrame": 9,
+    "final": {
+      "airSeconds": 0.55000013,
+      "airInput": [
+        0,
+        -0.999036,
+        0
+      ],
+      "angular": [
+        0,
+        -2.157918,
+        0
+      ],
+      "orientation": [
+        0,
+        -0.34475672,
+        0,
+        0.9386921
+      ],
+      "position": [
+        0,
+        31.053345,
+        -5.3333325
+      ],
+      "grounded": false,
+      "hp": 1000,
+      "crashSeconds": 0
+    }
+  }
+]

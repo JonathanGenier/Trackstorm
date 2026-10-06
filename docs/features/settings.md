@@ -20,7 +20,7 @@ The Main Menu and joined Lobby each provide a **Settings** entry. The joined Lob
 | Invert steering | Off | Applies to the existing signed steering axis. |
 | Controller Deadzone | 0.15 | Controls slider 0–0.95; stick neutral range before ground or aerial response. Existing valid saved values below 1 still load. |
 | Controller Steering Sensitivity | 1.0 | Controls slider 0.1–3; ground controller gain after the precision curve. |
-| Controller Aerial Sensitivity | 1.0 | Controls slider 0.1–3; independent linear controller pitch/yaw/roll gain while Air Control is held. |
+| Controller Aerial Sensitivity | 1.0 | Controls slider 0.1–3; independent linear controller pitch/yaw/roll gain during automatically activated aerial control. |
 | Keyboard/Mouse Steering Sensitivity | 1.0 | Controls slider 0.1-3; scales existing keyboard/mouse steering ramp rates while retaining full range. |
 | Keyboard/Mouse Aerial Sensitivity | 1.0 | Controls slider 0.1-1; independent keyboard/mouse pitch/yaw/roll rate gain. |
 | Mouse aim sensitivity | 1× | Camera page retains the existing armed-only mouse multiplier from 0.25–3×. |
@@ -70,6 +70,6 @@ The diagnostics display consumes a fresh provider-neutral connection projection 
 
 [Feature index](README.md)
 
-Controls separates controller tuning, keyboard/mouse tuning and button/key rebinding and explains Shift/LB activation, keyboard pitch/yaw/roll and LB+A roll. Air Control defaults to Shift/LB; Air Roll defaults to gamepad A. It uses normal remapping, explicit unbinding and persistence; standalone Shift is accepted during physical-key capture. See [input](input.md).
+Controls separates controller tuning, keyboard/mouse tuning and button/key rebinding. It explains automatic activation after 0.15 seconds airborne, W/RT nose-up, S/LT nose-down, A/D or left-stick yaw, and Shift/LB horizontal roll modification. The retired Air Control action is absent from the binding editor; Air Roll defaults to Shift/LB. Normal remapping, explicit unbinding and persistence remain supported. See [input](input.md).
 
 `steeringSensitivity` and `aerialSensitivity` are optional version-one JSON fields. Missing, wrongly typed or nonfinite values default independently to 1; finite values clamp to 0.1–3. `deadZone` remains the existing field. These and the optional `keyboardSteeringSensitivity` (0.1-3) and `keyboardAerialSensitivity` (0.1-1) fields default independently to 1 when absent/invalid. Existing controller field names retain saved values. All five apply immediately, save through the existing debounce/retry path, and survive restart. Restore default bindings leaves scalar tuning intact.

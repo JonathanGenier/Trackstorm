@@ -20,13 +20,15 @@ public sealed partial class AirControlIntegrationChecks : Node3D
     private int _landings;
     private float _rotation;
     private float _peak;
+    private float _maximumAirSeconds;
+    private int _airCommandFrames;
     private N.Quaternion _released;
     private readonly List<string> _evidence = new();
     private string _output = "";
     private readonly List<object> _trace = new();
     private Input.PlayerInputAdapter? _physical;
-    private N.Quaternion _modifierReleasePose;
-    private N.Vector3 _modifierReleasePosition;
+    private N.Quaternion _releasePose;
+    private N.Vector3 _releasePosition;
     private const int ObservationExtension = 21;
 
     public override void _Ready() => CallDeferred(MethodName.Run);
@@ -38,7 +40,7 @@ public sealed partial class AirControlIntegrationChecks : Node3D
         if (!_advance) { return; }
         _frame++;
         bool held = _frame <= (_case == "sustained" ? 180 : 100) + ObservationExtension;
-        short steer = held && _case is "yaw" or "roll" or "combined" or "sustained" or "release-modifier" ? (short)32767 : (short)0;
+        short steer = held && _case is "yaw" or "roll" or "combined" or "sustained" or "release-command" ? (short)32767 : (short)0;
         ushort throttle = held && _case is "pitch" or "combined" ? (ushort)65535 : (ushort)0;
         bool roll = _case is "roll" or "combined" or "sustained";
         var previous = _world.GetVehicle(1).Movement;
@@ -50,27 +52,29 @@ public sealed partial class AirControlIntegrationChecks : Node3D
             float sign = error.W < 0 ? -1 : 1;
             float pitch = Math.Clamp(error.X * sign * 3, -1, 1);
             float turn = Math.Clamp((_case == "heading" ? error.Y : error.Z) * sign * -3, -1, 1);
-            throttle = (ushort)(Math.Max(0, -pitch) * 65535);
-            brake = (ushort)(Math.Max(0, pitch) * 65535);
+            throttle = (ushort)(Math.Max(0, pitch) * 65535);
+            brake = (ushort)(Math.Max(0, -pitch) * 65535);
             steer = (short)(turn * 32767);
             roll = _case == "correction";
         }
         if (_case == "coast") { throttle = 65535; steer = 32767; }
-        var input = new InputFrame(_world.State.Tick + 1, steer, throttle, brake, (_case == "coast" || (_case == "release-modifier" && !held)) ? 0 : InputButtons.AirControl, 0, 0, (short)((brake - throttle) / 65535f * 32767), roll ? (short)0 : steer, roll ? steer : (short)0);
+        if (_case == "short-gap") { throttle = 65535; }
+        if (_case == "repeat" && !previous.Grounded && previous.Air.Seconds < 0.4f) { steer = 32767; }
+        var input = new InputFrame(_world.State.Tick + 1, steer, throttle, brake, InputButtons.None, 0, 0, (short)((throttle - brake) / 65535f * 32767), roll ? (short)0 : steer, roll ? steer : (short)0);
         if (_case.StartsWith("device-", StringComparison.Ordinal))
         {
             bool pad = _case.Contains("pad", StringComparison.Ordinal);
             bool pitchAxis = _case.EndsWith("pitch", StringComparison.Ordinal);
             bool rollAxis = _case.EndsWith("roll", StringComparison.Ordinal);
             void Send(InputEvent e) { Godot.Input.ParseInputEvent(e); e.Dispose(); }
-            Send(new InputEventKey { PhysicalKeycode = Key.Shift, Pressed = !pad && held });
-            Send(new InputEventKey { PhysicalKeycode = Key.W, Pressed = !pad && pitchAxis });
-            Send(new InputEventKey { PhysicalKeycode = Key.D, Pressed = !pad && rollAxis });
-            Send(new InputEventKey { PhysicalKeycode = Key.E, Pressed = !pad && !pitchAxis && !rollAxis });
-            Send(new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.LeftShoulder, Pressed = pad && held });
-            Send(new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.A, Pressed = pad && rollAxis });
-            Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftX, AxisValue = pad && !pitchAxis ? 0.6f : 0 });
-            Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftY, AxisValue = pad && pitchAxis ? -0.6f : 0 });
+            Send(new InputEventKey { PhysicalKeycode = Key.Shift, Pressed = !pad && held && rollAxis });
+            Send(new InputEventKey { PhysicalKeycode = Key.W, Pressed = !pad && held && pitchAxis });
+            Send(new InputEventKey { PhysicalKeycode = Key.D, Pressed = !pad && held && !pitchAxis });
+            Send(new InputEventKey { PhysicalKeycode = Key.E, Pressed = false });
+            Send(new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.LeftShoulder, Pressed = pad && held && rollAxis });
+            Send(new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.A, Pressed = false });
+            Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftX, AxisValue = pad && held && !pitchAxis ? 0.6f : 0 });
+            Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.TriggerRight, AxisValue = pad && held && pitchAxis ? 0.6f : 0 });
             Godot.Input.FlushBufferedEvents();
             input = _physical!.Capture(_world.State.Tick + 1);
         }
@@ -79,22 +83,24 @@ public sealed partial class AirControlIntegrationChecks : Node3D
         if (_native is not null) { _native.Apply(result); }
         else { _network!.Apply(result.Snapshot); }
         var state = result.Snapshot.Movement;
-        if (_case.StartsWith("device-", StringComparison.Ordinal) && !held)
+        _maximumAirSeconds = Math.Max(_maximumAirSeconds, state.Air.Seconds);
+        if (state.Air.Input != N.Vector3.Zero) { _airCommandFrames++; }
+        if (state.Air.Seconds > 0 && state.Air.Seconds < 0.15f)
         {
-            Require(state.Physics.AngularVelocity.Length() < 0.001f, "modifier release must arrest every axis on the first accepted frame");
-            if (_frame == 101 + ObservationExtension)
-            {
-                Require(previous.Physics.AngularVelocity.Length() > 0.5f, "release follows meaningful commanded rotation");
-                _modifierReleasePose = state.Physics.Orientation;
-                _modifierReleasePosition = state.Physics.Position;
-                Require(Math.Abs(state.Physics.LinearVelocity.Z - previous.Physics.LinearVelocity.Z) < 0.01f, "release preserves horizontal travel");
-                Require(state.Physics.LinearVelocity.Y < previous.Physics.LinearVelocity.Y, "gravity continues on release");
-            }
+            Require(state.Air.Input == N.Vector3.Zero && state.Air.Stabilization == N.Vector3.Zero, "short support loss cannot activate aerial control");
+        }
+        if (_case.StartsWith("device-", StringComparison.Ordinal) && _frame == 101 + ObservationExtension)
+        {
+            Require(previous.Physics.AngularVelocity.Length() > 0.5f, "release follows meaningful commanded rotation");
+            _releasePosition = state.Physics.Position;
+            Require(Math.Abs(state.Physics.LinearVelocity.Z - previous.Physics.LinearVelocity.Z) < 0.01f, "release preserves horizontal travel");
+            Require(state.Physics.LinearVelocity.Y < previous.Physics.LinearVelocity.Y, "gravity continues on release");
         }
         var p = state.Physics; var w = state.Wheels.Compression;
         _trace.Add(new { frame = _frame, position = new[] { p.Position.X, p.Position.Y, p.Position.Z },
             velocity = new[] { p.LinearVelocity.X, p.LinearVelocity.Y, p.LinearVelocity.Z },
-            angular = new[] { p.AngularVelocity.X, p.AngularVelocity.Y, p.AngularVelocity.Z }, airControl = (input.Held & InputButtons.AirControl) != 0,
+            angular = new[] { p.AngularVelocity.X, p.AngularVelocity.Y, p.AngularVelocity.Z }, airSeconds = state.Air.Seconds, airInput = new[] { state.Air.Input.X, state.Air.Input.Y, state.Air.Input.Z },
+            inputAxes = new[] { input.AirPitch, input.AirYaw, input.AirRoll },
             up = N.Vector3.Transform(N.Vector3.UnitY, p.Orientation).Y, state.Grounded,
             compression = new[] { w.X, w.Y, w.Z, w.W }, contacts = request.Observation.Contacts.Count });
         if (state.Grounded && !previous.Grounded) { _landings++; }
@@ -104,7 +110,7 @@ public sealed partial class AirControlIntegrationChecks : Node3D
             _rotation += speed / 60;
             _peak = Math.Max(_peak, speed);
         }
-        if (_frame == (_case == "sustained" ? 240 : 160) + ObservationExtension) { _released = state.Physics.Orientation; }
+        if (_frame == (_case == "sustained" ? 240 : 160) + ObservationExtension) { _released = state.Physics.Orientation; _releasePose = _released; }
         if (_camera is not null)
         {
             Vector3 position = VehicleBody.ToGodot(state.Physics.Position);
@@ -129,12 +135,12 @@ public sealed partial class AirControlIntegrationChecks : Node3D
                 _camera = new Camera3D { Current = true }; AddChild(_camera);
             }
             foreach (bool network in new[] { false, true })
-            foreach (string scenario in new[] { "pitch", "yaw", "roll", "combined", "sustained", "crooked", "landing", "repeat", "correction", "heading", "coast", "release-modifier", "device-key-pitch", "device-key-yaw", "device-key-roll", "device-pad-pitch", "device-pad-yaw", "device-pad-roll" })
+            foreach (string scenario in new[] { "short-gap", "pitch", "yaw", "roll", "combined", "sustained", "crooked", "landing", "repeat", "correction", "heading", "coast", "release-command", "device-key-pitch", "device-key-yaw", "device-key-roll", "device-pad-pitch", "device-pad-yaw", "device-pad-roll" })
             {
                 if (OS.GetCmdlineUserArgs().Contains("--air-correction-only") && scenario != "correction") { continue; }
                 await Exercise(network, scenario);
             }
-            GD.Print(OS.GetCmdlineUserArgs().Contains("--air-correction-only") ? "Air correction diagnostic passed: 2 production-adapter scenarios." : "Air control integration passed: 36 production-adapter scenarios.");
+            GD.Print(OS.GetCmdlineUserArgs().Contains("--air-correction-only") ? "Air correction diagnostic passed: 2 production-adapter scenarios." : "Air control integration passed: 38 production-adapter scenarios.");
             GetTree().Quit();
         }
         catch (Exception exception)
@@ -148,10 +154,10 @@ public sealed partial class AirControlIntegrationChecks : Node3D
         _physical?.Bindings.Dispose();
         _physical = new(new Input.PlayerInputBindings());
         _trace.Clear();
-        _case = scenario; _frame = 0; _rotation = 0; _peak = 0; _landings = 0;
+        _case = scenario; _frame = 0; _rotation = 0; _peak = 0; _landings = 0; _maximumAirSeconds = 0; _airCommandFrames = 0;
         _world = new(new Core.Simulation.SimulationConfiguration(60));
         bool landing = scenario is "landing" or "repeat" or "correction" or "heading";
-        var position = new Vector3(0, landing ? 2 : 200, 0);
+        var position = new Vector3(0, scenario == "short-gap" ? 1.68f : landing ? 2 : 200, 0);
         var rotation = scenario == "crooked" ? Quaternion.FromEuler(new Vector3(0.6f, 0.4f, 1.2f)) : Quaternion.Identity;
         if (scenario is "correction" or "heading")
         {
@@ -179,20 +185,26 @@ public sealed partial class AirControlIntegrationChecks : Node3D
         System.IO.File.WriteAllText(System.IO.Path.Combine(_output, $"{(network ? "network" : "native")}-{scenario}.json"), System.Text.Json.JsonSerializer.Serialize(_trace));
         float drift = 2 * MathF.Acos(Math.Clamp(Math.Abs(N.Quaternion.Dot(_released, state.Physics.Orientation)), 0, 1));
         Log($"{(network ? "network" : "native")}-{scenario}: rotation={_rotation:F3} peak={_peak:F3} releaseSpeed={state.Physics.AngularVelocity.Length():F4} lateOrientationDrift={drift:F4} landings={_landings} grounded={state.Grounded} airSeconds={state.Air.Seconds:F3}");
-        if (scenario == "coast")
+        if (scenario == "short-gap")
         {
-            Require(state.Air.Input == N.Vector3.Zero && state.Physics.AngularVelocity.Length() < 0.001f, "held driving controls cannot create aerial rotation during prolonged flight");
+            Require(_maximumAirSeconds > 0 && _maximumAirSeconds < 0.15f, "native tire observations expose a genuine short support gap");
+            Require(_airCommandFrames == 0 && state.Grounded && state.Air == default, "brief gap never activates held pitch and landing resets continuation");
+            Log($"{(network ? "network" : "native")}-short-gap: maxAir={_maximumAirSeconds:F4}s, commandedFrames={_airCommandFrames}");
         }
-        else if (scenario == "release-modifier")
+        else if (scenario == "coast")
         {
-            Require(state.Air.Input == N.Vector3.Zero && state.Physics.AngularVelocity.Length() < 0.001f && drift < 0.001f, "releasing modifier stops spin and holds chosen attitude");
+            Require(state.Air.Input.Length() > 0.9f && state.Physics.AngularVelocity.Length() > 1, "unmodified driving controls automatically rotate in sustained flight");
+        }
+        else if (scenario == "release-command")
+        {
+            Require(state.Air.Input.Length() < 0.001f && state.Physics.AngularVelocity.Length() < 0.02f && drift < 0.02f, "releasing directional controls damps spin and holds chosen attitude");
         }
         else if (scenario.StartsWith("device-", StringComparison.Ordinal))
         {
-            float releaseDrift = 2 * MathF.Acos(Math.Clamp(Math.Abs(N.Quaternion.Dot(_modifierReleasePose, state.Physics.Orientation)), 0, 1));
-            Require(releaseDrift < 0.002f, "chosen release attitude remains stable");
-            Require(N.Vector3.Distance(_modifierReleasePosition, state.Physics.Position) > 10, "vehicle keeps travelling after rotation stops");
-            Log($"{scenario}: first release angular speed <0.001; attitude drift={releaseDrift:F5}; continued travel={N.Vector3.Distance(_modifierReleasePosition, state.Physics.Position):F2}m");
+            float releaseDrift = 2 * MathF.Acos(Math.Clamp(Math.Abs(N.Quaternion.Dot(_releasePose, state.Physics.Orientation)), 0, 1));
+            Require(state.Physics.AngularVelocity.Length() < 0.02f && releaseDrift < 0.02f, "chosen release attitude remains stable");
+            Require(N.Vector3.Distance(_releasePosition, state.Physics.Position) > 10, "vehicle keeps travelling after rotation stops");
+            Log($"{scenario}: settled angular speed <0.02; attitude drift={releaseDrift:F5}; continued travel={N.Vector3.Distance(_releasePosition, state.Physics.Position):F2}m");
         }
         else if (!landing)
         {
@@ -209,6 +221,7 @@ public sealed partial class AirControlIntegrationChecks : Node3D
             {
                 for (int jump = 0; jump < 3; jump++)
                 {
+                    int commandsBeforeJump = _airCommandFrames;
                     ulong tick = _world.State.Tick + 1;
                     var input = new InputFrame(tick, 0, 0, 0, 0, 0, 0);
                     var observation = _native is not null ? _native.Capture(input).Observation : _network!.Observe(_world.GetVehicle(1));
@@ -217,6 +230,7 @@ public sealed partial class AirControlIntegrationChecks : Node3D
                     if (_native is not null) { _native.Apply(result); } else { _network!.Apply(result.Snapshot); }
                     _advance = true; await Frames(240); _advance = false;
                     Require(_world.GetVehicle(1).Movement.Grounded, "repeated jump must land");
+                    Require(_airCommandFrames > commandsBeforeJump, "every repeated jump regains automatic yaw control after its fresh delay");
                 }
                 Require(_landings >= 4, "repeated launches must create separate landing transitions");
                 Log($"{(network ? "network" : "native")}-repeat: {_landings} landing transitions");

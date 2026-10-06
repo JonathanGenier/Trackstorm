@@ -105,7 +105,7 @@ public sealed record PlayerSettings
     public IReadOnlyDictionary<InputAction, IReadOnlyList<string>> Bindings => _bindings;
 
     /// <summary>Client binding-default revision; zero identifies saves predating default migration tracking.</summary>
-    public int BindingDefaultsVersion { get; init; } = 2;
+    public int BindingDefaultsVersion { get; init; } = 3;
 
     /// <summary>Copies an override without exposing mutable collections or interpreting native binding tokens.</summary>
     /// <param name="action">Existing logical action.</param>

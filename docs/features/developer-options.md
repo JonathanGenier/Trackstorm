@@ -378,7 +378,7 @@ Low/medium Dirt corner strength (`vehicle.dirt_cornering`, 0–2), body-supporte
 
 ### TS-197 latest handling correction tuning
 
-The complete 224-key catalog uses wire version 41 (1813 bytes). `vehicle.steering_speed` remains a retired legacy key; the current speed envelope uses the explicit full/fade/scale controls below. Old saved unknown keys do not affect handling. Retired `vehicle.air_delay` and `vehicle.air_dead_zone` overrides are ignored. Intent comes only from held Air Control; player controller deadzone and sensitivity live in Controls.
+The complete 224-key catalog uses wire version 41 (1813 bytes). `vehicle.steering_speed` remains a retired legacy key; the current speed envelope uses the explicit full/fade/scale controls below. Old saved unknown keys do not affect handling. Retired `vehicle.air_delay` and `vehicle.air_dead_zone` overrides are ignored. Aerial intent is accepted automatically after 0.15 seconds continuously airborne; player controller deadzone and sensitivity live in Controls.
 
 The following previously fixed values now use the same Configs draft, validation, persistence, host replication and authority/prediction path:
 

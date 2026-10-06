@@ -51,6 +51,7 @@ public sealed partial class HandlingPlaytest : Node3D
         _directory = ProjectSettings.GlobalizePath(OS.GetCmdlineUserArgs().Contains("--air-playtest") ? "res://.godot/ts-269/playtest" : OS.GetCmdlineUserArgs().Contains("--surface-playtest") ? "res://.godot/ts-266/playtest" : OS.GetCmdlineUserArgs().Contains("--steering-playtest") ? "res://.godot/ts-268/playtest" : OS.GetCmdlineUserArgs().Contains("--rock-playtest") ? "res://.godot/ts-267/playtest" : OS.GetCmdlineUserArgs().Contains("--oil-playtest") ? "res://.godot/ts-172/playtest" : OS.GetCmdlineUserArgs().Contains("--destructible-playtest") ? "res://.godot/ts-162/playtest" : "res://.godot/ts-160/playtest");
         if (OS.GetCmdlineUserArgs().Contains("--world-collision-playtest")) { _directory = ProjectSettings.GlobalizePath("res://.godot/ts-274/playtest"); }
         if (OS.GetCmdlineUserArgs().Contains("--tunnel-scrape-playtest")) { _directory = ProjectSettings.GlobalizePath("res://.godot/ts-275/playtest"); }
+        if (OS.GetCmdlineUserArgs().Contains("--automatic-air-playtest")) { _directory = ProjectSettings.GlobalizePath("res://.godot/ts-281/playtest"); }
         System.IO.Directory.CreateDirectory(_directory);
         if (OS.GetCmdlineUserArgs().Contains("--handling-flat"))
         {
@@ -172,18 +173,11 @@ public sealed partial class HandlingPlaytest : Node3D
                 if (command.TryGetProperty("keyboardSteeringSensitivity", out var keyboardSteering)) { _physical.KeyboardSteeringSensitivity = keyboardSteering.GetSingle(); }
                 if (command.TryGetProperty("keyboardAerialSensitivity", out var keyboardAerial)) { _physical.KeyboardAerialSensitivity = keyboardAerial.GetSingle(); }
                 if (command.TryGetProperty("deadzone", out var deadzone)) { _physical.DeadZone = deadzone.GetSingle(); }
-                bool airHeld = command.TryGetProperty("airControl", out var airControl) && airControl.GetBoolean();
-                bool rollHeld = command.TryGetProperty("controllerRoll", out var controllerRoll) && controllerRoll.GetBoolean();
+                bool rollHeld = command.TryGetProperty("airRoll", out var rollModifier) && rollModifier.GetBoolean();
                 bool analog = command.TryGetProperty("analog", out var analogValue) && analogValue.GetBoolean();
-                using var modifier = new InputEventKey { PhysicalKeycode = Key.Shift, Pressed = airHeld && !analog };
-                using var shoulder = new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.LeftShoulder, Pressed = airHeld && analog };
-                using var rollButton = new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.A, Pressed = rollHeld };
-                float airY = command.TryGetProperty("stickY", out var stickY) ? stickY.GetSingle() : 0;
-                float yawKey = command.TryGetProperty("yawKey", out var yawInput) ? yawInput.GetSingle() : 0;
-                using var pitchStick = new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftY, AxisValue = analog ? airY : 0 };
-                using var yawLeft = new InputEventKey { PhysicalKeycode = Key.Q, Pressed = !analog && yawKey < 0 };
-                using var yawRight = new InputEventKey { PhysicalKeycode = Key.E, Pressed = !analog && yawKey > 0 };
-                Godot.Input.ParseInputEvent(modifier); Godot.Input.ParseInputEvent(shoulder); Godot.Input.ParseInputEvent(rollButton); Godot.Input.ParseInputEvent(pitchStick); Godot.Input.ParseInputEvent(yawLeft); Godot.Input.ParseInputEvent(yawRight);
+                using var modifier = new InputEventKey { PhysicalKeycode = Key.Shift, Pressed = rollHeld && !analog };
+                using var shoulder = new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.LeftShoulder, Pressed = rollHeld && analog };
+                Godot.Input.ParseInputEvent(modifier); Godot.Input.ParseInputEvent(shoulder);
                 using var left = new InputEventKey { PhysicalKeycode = Key.A, Pressed = _physicalSteering && _steer < 0 };
                 using var rightKey = new InputEventKey { PhysicalKeycode = Key.D, Pressed = _physicalSteering && _steer > 0 };
                 using var accelerate = new InputEventKey { PhysicalKeycode = Key.W, Pressed = _physicalSteering && _throttle > 0 };
