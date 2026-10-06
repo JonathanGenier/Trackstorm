@@ -34,18 +34,19 @@ public sealed partial class LandingIntegrationChecks : Node3D
     {
         if (!_advance) { return; }
         ulong tick = _world.State.Tick + 1;
-        // These high-angle fixtures previously relied on automatic airborne leveling.
-        // Supply explicit pilot correction now; intentional air-roll holds its command.
-        ulong correctionStart = 31;
-        bool correcting = tick >= correctionStart && tick < correctionStart + 8;
-        bool rollCorrection = _case.EndsWith("-roll45", StringComparison.Ordinal) && correcting;
-        bool pitchCorrection = _case.EndsWith("-pitch35", StringComparison.Ordinal) && correcting;
-        // Automatic neutral-axis damping now arrests an uncommanded airborne tumble.
-        // Keep this deliberate secondary-crash pilot rolling until an actual impact;
-        // the production crash latch still suppresses all subsequent pilot input.
+        // Correct the high-angle fixtures using actual player counter-input, including
+        // angular braking. Neutral flight no longer stabilizes a released pulse.
+        var previous = _world.GetVehicle(1).Movement;
+        bool correcting = !previous.Grounded && (_case.EndsWith("-roll45", StringComparison.Ordinal) || _case.EndsWith("-pitch35", StringComparison.Ordinal));
+        var orientation = previous.Physics.Orientation;
+        var localError = N.Vector3.Transform(N.Vector3.Cross(N.Vector3.Transform(N.Vector3.UnitY, orientation), N.Vector3.UnitY), N.Quaternion.Conjugate(orientation));
+        var localSpin = N.Vector3.Transform(previous.Physics.AngularVelocity, N.Quaternion.Conjugate(orientation));
+        short pitchCorrection = correcting ? (short)(Math.Clamp(localError.X * 3 - localSpin.X * 0.8f, -1, 1) * 32767) : (short)0;
+        short rollCorrection = correcting ? (short)(-Math.Clamp(localError.Z * 3 - localSpin.Z * 0.8f, -1, 1) * 32767) : (short)0;
+        // The deliberate secondary-crash pilot holds roll until impact; the existing
+        // crash latch then suppresses input without suppressing physical rotation.
         bool airRoll = _case.EndsWith("-air-roll", StringComparison.Ordinal) || (_tumble && _kicked);
-        var input = new InputFrame(tick, rollCorrection ? (short)-32767 : airRoll ? (short)32767 : (short)0,
-            pitchCorrection ? (ushort)65535 : (ushort)0, 0, (_case.EndsWith("-roll45", StringComparison.Ordinal) || _case.EndsWith("-pitch35", StringComparison.Ordinal) || airRoll) ? InputButtons.AirControl : 0, 0, 0, pitchCorrection ? (short)-32767 : (short)0, 0, rollCorrection ? (short)-32767 : airRoll ? (short)32767 : (short)0);
+        var input = new InputFrame(tick, 0, 0, 0, 0, 0, 0, pitchCorrection, 0, correcting ? rollCorrection : airRoll ? (short)32767 : (short)0);
         var request = _native is not null ? _native.Capture(input) : new VehicleStepRequest(1, input, _network!.Observe(_world.GetVehicle(1)));
         // Long-travel suspension may absorb the initial landing without a chassis contact.
         // Start from recovered support so the secondary impulse is not cancelled by the initial fall.
@@ -140,7 +141,7 @@ public sealed partial class LandingIntegrationChecks : Node3D
         Vector3 position = point + Vector3.Up * 8;
         Vector3 velocity = new(name is "yawed" or "spin" ? -_side * 8 : 0, -12, 0);
         // These two scenarios test a deliberate midair correction, so allow genuine
-        // airtime for a deliberate correction pulse and released-axis stabilization.
+        // airtime for deliberate rotation and counter-input before landing.
         bool corrected = name is "roll45" or "pitch35";
         if (corrected) { position = point + Vector3.Up * 20; velocity = Vector3.Zero; }
         Vector3 angular = name == "spin" ? Vector3.Up * 3 : Vector3.Zero;

@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace Trackstorm.Core.Vehicles;
 
-/// <summary>Complete airborne continuation for authoritative stepping, prediction and recovery.</summary>
+/// <summary>Complete airborne continuation. Stabilization is a reserved legacy wire field and applies no damping.</summary>
 public readonly record struct AirControlState(float Seconds, Vector3 Input, Vector3 Stabilization)
 {
     /// <summary>Rejects malformed continuation before restoring a vehicle.</summary>

@@ -205,14 +205,14 @@ internal sealed partial class SettingsPanel : CanvasLayer
         ControllerSlider(column, "Controller Steering Sensitivity", "SteeringSensitivity", _settings.Current.SteeringSensitivity, 0.1, 3, 0.1,
             "Ground steering response after the precision curve. Does not change aerial control.", value => _settings.Current with { SteeringSensitivity = value });
         ControllerSlider(column, "Controller Aerial Sensitivity", "AerialSensitivity", _settings.Current.AerialSensitivity, 0.1, 3, 0.1,
-            "Controller pitch, yaw and roll response after 0.15 seconds airborne.", value => _settings.Current with { AerialSensitivity = value });
+            "Controller pitch, yaw and roll response as soon as the wheels leave the ground.", value => _settings.Current with { AerialSensitivity = value });
         column.AddChild(new Label { Text = "Keyboard / Mouse tuning" });
         ControllerSlider(column, "Keyboard/Mouse Steering Sensitivity", "KeyboardSteeringSensitivity", _settings.Current.KeyboardSteeringSensitivity, 0.1, 3, 0.1,
             "Keyboard/mouse steering buildup, return and reversal speed. Full steering range is retained.", value => _settings.Current with { KeyboardSteeringSensitivity = value });
         ControllerSlider(column, "Keyboard/Mouse Aerial Sensitivity", "KeyboardAerialSensitivity", _settings.Current.KeyboardAerialSensitivity, 0.1, 1, 0.1,
             "Keyboard/mouse pitch, yaw and roll strength. 1 gives full aerial rotation speed.", value => _settings.Current with { KeyboardAerialSensitivity = value });
         column.AddChild(new Label { Text = "Button / key bindings" });
-        var airHint = new Label { Text = "Air control activates after 0.15 seconds airborne. W / RT: nose up; S / LT: nose down. A/D or left stick: turn. Hold Shift / LB to barrel roll.", AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        var airHint = new Label { Text = "Air control is immediate when the wheels leave the ground. W / RT: nose up; S / LT: nose down. A/D or left stick: turn. Hold Shift / LB to barrel roll. Release keeps your spin; use opposite input to correct it.", AutowrapMode = TextServer.AutowrapMode.WordSmart };
         column.AddChild(airHint);
         _hint.Text = "Select a binding, then press a key or gamepad control. Shared bindings are allowed.";
         _hint.AutowrapMode = TextServer.AutowrapMode.WordSmart;

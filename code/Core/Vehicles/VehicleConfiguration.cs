@@ -196,10 +196,6 @@ public sealed record VehicleConfiguration
     public float AirYawAcceleration { get; init; } = 14;
     /// <summary>Roll acceleration (rad/s2).</summary>
     public float AirRollAcceleration { get; init; } = 20;
-    /// <summary>Residual rotation damping (1/s).</summary>
-    public float AirStabilization { get; init; } = 8;
-    /// <summary>Stabilization ramp (s).</summary>
-    public float AirStabilizationResponse { get; init; } = 0.08f;
     /// <summary>Input smoothing (s).</summary>
     public float AirInputResponse { get; init; } = 0.06f;
     /// <summary>Minimum ground normal Y.</summary>
@@ -298,8 +294,7 @@ public sealed record VehicleConfiguration
         }
         if (new[] { AirPitchRate, AirYawRate, AirRollRate }.Any(v => !float.IsFinite(v) || v is < 0 or > 8) ||
             new[] { AirPitchAcceleration, AirYawAcceleration, AirRollAcceleration }.Any(v => !float.IsFinite(v) || v is < 0.1f or > 60) ||
-            new[] { AirInputResponse, AirStabilizationResponse }.Any(v => !float.IsFinite(v) || v is < 0.01f or > 1) ||
-            !float.IsFinite(AirStabilization) || AirStabilization is < 0 or > 30 ||
+            !float.IsFinite(AirInputResponse) || AirInputResponse is < 0.01f or > 1 ||
             !float.IsFinite(SupportNormalMinimum) || SupportNormalMinimum is < 0.55f or > 1)
         {
             throw new ArgumentException("Invalid air-control tuning.");

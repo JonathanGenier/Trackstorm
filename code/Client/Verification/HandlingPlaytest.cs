@@ -52,6 +52,7 @@ public sealed partial class HandlingPlaytest : Node3D
         if (OS.GetCmdlineUserArgs().Contains("--world-collision-playtest")) { _directory = ProjectSettings.GlobalizePath("res://.godot/ts-274/playtest"); }
         if (OS.GetCmdlineUserArgs().Contains("--tunnel-scrape-playtest")) { _directory = ProjectSettings.GlobalizePath("res://.godot/ts-275/playtest"); }
         if (OS.GetCmdlineUserArgs().Contains("--automatic-air-playtest")) { _directory = ProjectSettings.GlobalizePath("res://.godot/ts-281/playtest"); }
+        if (OS.GetCmdlineUserArgs().Contains("--inertia-playtest")) { _directory = ProjectSettings.GlobalizePath("res://.godot/ts-282/playtest"); }
         System.IO.Directory.CreateDirectory(_directory);
         if (OS.GetCmdlineUserArgs().Contains("--handling-flat"))
         {
@@ -164,7 +165,8 @@ public sealed partial class HandlingPlaytest : Node3D
                         var rotation = Basis.LookingAt(heading, normal).GetRotationQuaternion();
                         orientation = new(rotation.X, rotation.Y, rotation.Z, rotation.W);
                     }
-                    var reset = new VehiclePhysicsState(spawnPosition, orientation, N.Vector3.Transform(new(0, 0, -speed), orientation) + new N.Vector3(0, vertical, 0), N.Vector3.Zero);
+                    var spin = command.TryGetProperty("angular", out var angular) ? new N.Vector3(angular[0].GetSingle(), angular[1].GetSingle(), angular[2].GetSingle()) : N.Vector3.Zero;
+                    var reset = new VehiclePhysicsState(spawnPosition, orientation, N.Vector3.Transform(new(0, 0, -speed), orientation) + new N.Vector3(0, vertical, 0), spin);
                     if (_body is not null) { _body.ResetBody(reset); } else { _pendingReset = reset; }
                 }
                 _physicalSteering = command.TryGetProperty("keyboard", out var keyboard) && keyboard.GetBoolean();
