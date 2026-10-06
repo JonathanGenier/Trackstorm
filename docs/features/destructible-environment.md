@@ -53,7 +53,10 @@ that share the terrain collision layer so pieces cannot ride on their roofs. The
 active visual pieces in production, with no free rigid-body debris, rock-to-rock
 collision chains or independent Client damage rules.
 Their shallow wheel-only collision envelope occupies layer 8. Chassis queries
-exclude it; suspension rays include it. Both layer and mask are disabled on the
+exclude it; suspension rays include it. Intact rocks additionally carry query bit
+64 for the chassis's short proximity probe, while retaining ordinary world layer
+1. The additional bit excludes terrain/infrastructure from that probe; it does
+not change ordinary vehicle or weapon masks. Both layer and mask are disabled on the
 replaced intact collider. A separate simple layer-16 weapon target follows the
 broken mesh and is included only in projectile queries. This intentionally
 prioritizes stable drive-through

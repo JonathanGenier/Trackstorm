@@ -373,13 +373,7 @@ public sealed class VehicleMovement
         // native bevel recovery would repeatedly lift the otherwise stalled body.
         // Preserve the adapter's solved momentum and the suspension/gravity below,
         // including landing/recovery motion. Throttle and tire slip stay natural.
-        foreach (VehicleContact contact in contacts ?? Array.Empty<VehicleContact>())
-        {
-            if (contact.EnvironmentRock == 0 || !contact.StaticObstacle) { continue; }
-            Vector3 normal = EnvironmentCollision.ResponseNormal(contact.Normal, groundNormal);
-            float permitted = Math.Min(0, Vector3.Dot(collisionVelocity, normal));
-            velocity += normal * Math.Max(0, permitted - Vector3.Dot(velocity, normal));
-        }
+        velocity = EnvironmentCollision.ConstrainRockDrive(velocity, collisionVelocity, groundNormal, contacts);
 
         // Remove only excess road speed at a bounded rate, preserving direction and vertical motion.
         float roadSpeed = new Vector2(velocity.X, velocity.Z).Length();

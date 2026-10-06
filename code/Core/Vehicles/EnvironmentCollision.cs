@@ -13,6 +13,45 @@ public static class EnvironmentCollision
         return side.LengthSquared() > 0.01f ? Vector3.Normalize(side) : normal;
     }
 
+    /// <summary>Constrains fresh drive against the whole rock manifold without projecting one face into another.</summary>
+    internal static Vector3 ConstrainRockDrive(Vector3 desired, Vector3 incoming, Vector3 support, IReadOnlyList<VehicleContact>? contacts)
+    {
+        if (contacts is null) { return desired; }
+        var planes = contacts.Where(c => c.EnvironmentRock != 0 && c.StaticObstacle).Select(c =>
+        {
+            Vector3 normal = ResponseNormal(c.Normal, support);
+            return (Normal: normal, Limit: Math.Min(0, Vector3.Dot(incoming, normal)));
+        }).ToArray();
+        bool Allowed(Vector3 value) => planes.All(p => Vector3.Dot(value, p.Normal) >= p.Limit - 0.000001f);
+        if (Allowed(desired)) { return desired; }
+        Vector3 best = incoming;
+        float distance = Vector3.DistanceSquared(desired, best);
+        void Consider(Vector3 value)
+        {
+            float change = Vector3.DistanceSquared(desired, value);
+            if (change < distance && Allowed(value)) { best = value; distance = change; }
+        }
+        // Side normals lie in the support plane. Its nearest feasible velocity
+        // is free, on one face, or at the intersection of two faces. Solving the
+        // set together avoids order-dependent outward kicks in a rock crevice.
+        for (int i = 0; i < planes.Length; i++)
+        {
+            var first = planes[i];
+            float a = first.Limit - Vector3.Dot(desired, first.Normal);
+            Consider(desired + first.Normal * a);
+            for (int j = 0; j < i; j++)
+            {
+                var second = planes[j];
+                float dot = Vector3.Dot(first.Normal, second.Normal);
+                float denominator = 1 - dot * dot;
+                if (denominator < 0.000001f) { continue; }
+                float b = second.Limit - Vector3.Dot(desired, second.Normal);
+                Consider(desired + first.Normal * ((a - dot * b) / denominator) + second.Normal * ((b - dot * a) / denominator));
+            }
+        }
+        return best;
+    }
+
     /// <summary>Continuous incidence weighting; shallow rubbing has no damaging component.</summary>
     public static float Severity(Vector3 velocity, Vector3 normal)
     {

@@ -84,6 +84,9 @@ public sealed partial class DestructibleEnvironmentChecks : Node3D
         authority.Restore(new(1, 0, initial, [false]));
         var presentation = new DestructibleEnvironment(fixture);
         presentation.Apply(authority.Snapshot(1, 0), true);
+        Check(rock.FindChildren("*", "StaticBody3D", true, false).OfType<StaticBody3D>()
+            .All(c => c.CollisionLayer == (stage == 1 ? 1u | DestructibleEnvironment.RockContactLayer : 0u)),
+            "rock proximity is active only for intact geometry");
         var world = new Core.Simulation.Simulation(new Core.Simulation.SimulationConfiguration(60));
         var damage = new DamageConfiguration { MaxHP = 10000, CollisionScale = 5 };
         var orientation = N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitY, angle);

@@ -44,7 +44,9 @@ and authoritative damage convergence.
 
 The repeated-contact extension `check-repeated-collisions.ps1` retains intact
 geometry while testing slow pressure, close/embedded poses and drops onto all five
-rock models. It supplements the speed/angle matrix and verifies physical recovery
+rock models. Full-throttle starts at the rock face also record longitudinal
+position/command velocity and reject repeated fore/aft reversals after settling.
+It supplements the speed/angle matrix and verifies physical recovery
 without relying on destruction to clear the obstacle.
 
 The existing `handling_playtest.tscn` also accepts `--rock-playtest` to isolate

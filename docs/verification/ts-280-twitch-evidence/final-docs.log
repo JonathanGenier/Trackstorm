@@ -1,0 +1,3 @@
+Docs-only iteration selected; no build/test command required.
+
+Fast targeted checks passed. Run ./check.ps1 before final Story handoff.

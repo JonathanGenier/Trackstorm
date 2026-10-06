@@ -1,0 +1,8 @@
+{
+  "sequentialCommands": 60,
+  "readerExceptionReproduced": false,
+  "commit": "6e3d1cbf7cb65762085232479a2ee3443e671c6a",
+  "rapidReplacementAttempts": 300,
+  "rapidWriterSharingFailures": 9,
+  "source": "git archive origin/main; production source unchanged; reused pinned SDK/assets/import cache"
+}

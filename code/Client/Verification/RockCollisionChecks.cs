@@ -58,7 +58,11 @@ public sealed partial class RockCollisionChecks : Node3D
         fixture.AddChild(floor);
         var rock = GD.Load<PackedScene>($"res://assets/environment/models/{model}.glb").Instantiate<Node3D>();
         rock.Scale = Vector3.One * Number("scale", 2); fixture.AddChild(rock);
-        foreach (var collider in rock.FindChildren("*", "StaticBody3D", true, false).OfType<StaticBody3D>()) collider.SetMeta("environment_rock", 1);
+        foreach (var collider in rock.FindChildren("*", "StaticBody3D", true, false).OfType<StaticBody3D>())
+        {
+            collider.SetMeta("environment_rock", 1);
+            collider.CollisionLayer |= Arenas.DestructibleEnvironment.RockContactLayer;
+        }
         foreach (var shape in rock.FindChildren("*", "CollisionShape3D", true, false).OfType<CollisionShape3D>())
             Check(shape.Shape is ConvexPolygonShape3D hull && hull.Points.Length is >= 4 and <= 32, name + " imported hull budget");
 
@@ -114,6 +118,9 @@ public sealed partial class RockCollisionChecks : Node3D
         float settledSpeedChange = 0;
         float pressureMinimum = float.PositiveInfinity, pressureMaximum = float.NegativeInfinity;
         float pressureFirst = 0, pressureLast = 0, pressureTravel = 0, pressureLiftStep = 0;
+        N.Vector3 approach = N.Vector3.Transform(-N.Vector3.UnitZ, rotation);
+        float longitudinalFirst = 0, longitudinalLast = 0, longitudinalTravel = 0, longitudinalPeakStep = 0;
+        int longitudinalDirection = 0, longitudinalReversals = 0;
         N.Vector3 previousVelocity = pose.LinearVelocity;
         using var query = new PhysicsTestMotionParameters3D { Margin = 0.001f, MaxCollisions = 16, RecoveryAsCollision = true };
         using var hit = new PhysicsTestMotionResult3D();
@@ -141,6 +148,26 @@ public sealed partial class RockCollisionChecks : Node3D
             if (depth > 0.02f) overlaps++;
             deepest = Math.Max(deepest, depth);
             var p = observation.Physics;
+            if (holdFrames > 180 && frame >= 180 && frame < holdFrames)
+            {
+                float position = N.Vector3.Dot(p.Position, approach);
+                if (frame == 180) { longitudinalFirst = position; }
+                else
+                {
+                    float step = position - longitudinalLast;
+                    longitudinalTravel += Math.Abs(step);
+                    longitudinalPeakStep = Math.Max(longitudinalPeakStep, Math.Abs(step));
+                    // Ignore only float/native recovery noise below ten microns
+                    // when counting reversals; retain every step in travel.
+                    if (Math.Abs(step) >= 0.00001f)
+                    {
+                        int direction = Math.Sign(step);
+                        if (longitudinalDirection != 0 && direction != longitudinalDirection) { longitudinalReversals++; }
+                        longitudinalDirection = direction;
+                    }
+                }
+                longitudinalLast = position;
+            }
             if (holdFrames > 120 && frame >= 120 && frame < holdFrames)
             {
                 if (frame == 120) { pressureFirst = p.Position.Y; }
@@ -173,6 +200,8 @@ public sealed partial class RockCollisionChecks : Node3D
             traces.Add(new { frame, x = p.Position.X, y = p.Position.Y, z = p.Position.Z, vx = p.LinearVelocity.X, vy = p.LinearVelocity.Y, vz = p.LinearVelocity.Z,
                 angular = p.AngularVelocity.Length(), up = finalUp, wheels = observation.Wheels?.Compression.ToString(),
                 support = observation.Support.ToString(), terrainSupport = observation.TerrainSupport.ToString(),
+                commandVx = result.Snapshot.Movement.Physics.LinearVelocity.X,
+                commandVz = result.Snapshot.Movement.Physics.LinearVelocity.Z,
                 commandVy = result.Snapshot.Movement.Physics.LinearVelocity.Y, throttle = result.Snapshot.Movement.Throttle,
                 crashSeconds = result.Snapshot.Movement.CrashSeconds,
                 normals = observation.Contacts.Where(c => c.EnvironmentRock != 0).Select(c => c.Normal.ToString()).ToArray(),
@@ -191,6 +220,14 @@ public sealed partial class RockCollisionChecks : Node3D
         double contactP95Ms = contactTimes.Count == 0 ? 0 : contactTimes.Order().ElementAt((int)((contactTimes.Count - 1) * 0.95));
         float pressureRange = holdFrames > 120 ? pressureMaximum - pressureMinimum : 0;
         float pressureRepeatedTravel = pressureTravel - Math.Abs(pressureLast - pressureFirst);
+        float longitudinalRepeatedTravel = longitudinalTravel - Math.Abs(longitudinalLast - longitudinalFirst);
+        if (Number("fore-aft-check", 0) > 0)
+        {
+            // A blocked start may settle once as suspension loads. It must not
+            // cycle forward/recovery/backward throughout sustained full throttle.
+            Check(holdFrames == 600 && longitudinalReversals <= 2 && longitudinalRepeatedTravel < 0.04f && longitudinalPeakStep < 0.005f,
+                name + $" settled fore/aft: reversals={longitudinalReversals}, repeatedTravel={longitudinalRepeatedTravel:F6}, peakStep={longitudinalPeakStep:F6}");
+        }
         if (Number("pressure-check", 0) > 0)
         {
             // These starts face a blocking side, without momentum to mount it.
@@ -212,7 +249,7 @@ public sealed partial class RockCollisionChecks : Node3D
         Check(peakStep < 1.2f && peakAngular <= 8.01f, name + " bounded correction/motion");
         // Wall-time measurements include OS scheduling; budget the mean, retain p95 evidence.
         Check(contactMeanMs < 8, name + $" contact step budget: {contactMeanMs:F3}ms");
-        _summaries.Add(new { name, initialPenetration, initialRecovery, contactFrames, repeatContacts, finalContacts, deepest, overlaps, peakStep, peakAngular, finalHeight, finalUp, finalVertical, finalDistance, finalAngular, settledSpeedChange, pressureRange, pressureLiftStep, pressureRepeatedTravel, contactMeanMs, contactP95Ms });
+        _summaries.Add(new { name, initialPenetration, initialRecovery, contactFrames, repeatContacts, finalContacts, deepest, overlaps, peakStep, peakAngular, finalHeight, finalUp, finalVertical, finalDistance, finalAngular, settledSpeedChange, pressureRange, pressureLiftStep, pressureRepeatedTravel, longitudinalReversals, longitudinalRepeatedTravel, longitudinalPeakStep, contactMeanMs, contactP95Ms });
         GD.Print($"ROCK {name}: contacts={contactFrames} repeat={repeatContacts} final={finalContacts} depth={deepest:F4} overlapFrames={overlaps} angular={peakAngular:F3} contactMeanMs={contactMeanMs:F3} p95Ms={contactP95Ms:F3}");
         System.IO.File.WriteAllText(System.IO.Path.Combine(directory, name + ".json"), JsonSerializer.Serialize(traces));
         fixture.QueueFree();

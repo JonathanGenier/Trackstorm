@@ -8,6 +8,7 @@ $arguments = @('--path', $PSScriptRoot, '--fixed-fps', '60')
 if (-not $Visual) { $arguments += '--headless' }
 $cases = @(
     @('res://scenes/verification/repeated_vehicle_contact_checks.tscn'),
+    @('res://scenes/verification/rock_collision_checks.tscn', '--', 'speed=3', 'angle=0', 'initial-speed=0', 'throttle=1', 'hold=600', 'frames=810', 'scale=1.2', 'approach-gap=0.01', 'fore-aft-check=1', 'label=ts280-fore-aft'),
     @('res://scenes/verification/rock_collision_checks.tscn', '--', 'speed=3', 'angle=0', 'initial-speed=0', 'throttle=1', 'hold=420', 'frames=630', 'scale=1.2', 'approach-gap=0.01', 'pressure-check=1', 'label=ts280-pressure'),
     @('res://scenes/verification/rock_collision_checks.tscn', '--', 'speed=3', 'angle=0', 'initial-speed=0', 'throttle=0.12', 'distance=6', 'label=ts280-slow'),
     @('res://scenes/verification/rock_collision_checks.tscn', '--', 'speed=3', 'angle=0', 'initial-speed=0', 'throttle=0.12', 'distance=0', 'height=8', 'vertical-speed=-8', 'label=ts280-landing'),

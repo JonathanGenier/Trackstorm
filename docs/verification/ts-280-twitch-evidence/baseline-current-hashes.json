@@ -1,0 +1,32 @@
+[
+  {
+    "path": "code/Client/Networking/NetworkVehicleBody.cs",
+    "main": "017d0fa712b0e98d45ff73b4ee5e59bacde7b604",
+    "archive": "017d0fa712b0e98d45ff73b4ee5e59bacde7b604",
+    "matches": true
+  },
+  {
+    "path": "code/Client/Vehicles/EnvironmentContact.cs",
+    "main": "b86f74b7187ea239d97906473c062a7df7e9815a",
+    "archive": "b86f74b7187ea239d97906473c062a7df7e9815a",
+    "matches": true
+  },
+  {
+    "path": "code/Core/Vehicles/VehicleMovement.cs",
+    "main": "49cc827a486a172d643158f1173d80b3400eae6a",
+    "archive": "49cc827a486a172d643158f1173d80b3400eae6a",
+    "matches": true
+  },
+  {
+    "path": "code/Client/Verification/NetworkVehicleChecks.cs",
+    "main": "040fa4bfb6f38313f7d699666db8598fff389c11",
+    "archive": "040fa4bfb6f38313f7d699666db8598fff389c11",
+    "matches": true
+  },
+  {
+    "path": "check-network-vehicles.ps1",
+    "main": "4322cd0eac66731cc09d708710e53981e2677730",
+    "archive": "4322cd0eac66731cc09d708710e53981e2677730",
+    "matches": true
+  }
+]

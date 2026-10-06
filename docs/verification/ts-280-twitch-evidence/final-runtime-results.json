@@ -1,0 +1,150 @@
+[
+  {
+    "check": "native-transport",
+    "result": 0
+  },
+  {
+    "check": "repeated-collisions",
+    "result": "FAIL: Repeated collision check failed.",
+    "seconds": 45.4856321,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    }
+  },
+  {
+    "check": "rock-collisions",
+    "result": "PASS",
+    "seconds": 195.3755594,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    }
+  },
+  {
+    "check": "rock-collision-network",
+    "result": "PASS",
+    "seconds": 86.6924049,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    }
+  },
+  {
+    "check": "following-contact-network",
+    "result": "PASS",
+    "seconds": 18.1616191,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    }
+  },
+  {
+    "check": "destructible-environment",
+    "result": "PASS",
+    "seconds": 74.4013422,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    }
+  },
+  {
+    "check": "environment-collisions",
+    "result": "PASS",
+    "seconds": 13.6281059,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    }
+  },
+  {
+    "check": "environment-collision-network",
+    "result": "PASS",
+    "seconds": 21.563902,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    }
+  },
+  {
+    "check": "world-collisions",
+    "result": "FAIL: World collision checks failed.",
+    "seconds": 163.4478003,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    }
+  },
+  {
+    "check": "world-collision-network",
+    "result": "PASS",
+    "seconds": 38.0610265,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    }
+  },
+  {
+    "check": "tunnel-scrape",
+    "result": "PASS",
+    "seconds": 71.289499,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    }
+  },
+  {
+    "check": "landing",
+    "result": "PASS",
+    "seconds": 16.9772818,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    }
+  },
+  {
+    "check": "vehicle",
+    "result": "PASS",
+    "seconds": 43.7830017,
+    "options": {
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    }
+  },
+  {
+    "check": "terrain-handling",
+    "result": "PASS",
+    "seconds": 41.5076123,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    }
+  },
+  {
+    "check": "integrated-driving",
+    "result": "PASS",
+    "seconds": 86.4090893,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    }
+  },
+  {
+    "check": "rear-shield",
+    "result": "PASS",
+    "seconds": 57.8306395,
+    "options": {
+      "Impaired": true,
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    }
+  },
+  {
+    "check": "world-wall",
+    "result": "PASS",
+    "seconds": 119.8897682,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    }
+  }
+]

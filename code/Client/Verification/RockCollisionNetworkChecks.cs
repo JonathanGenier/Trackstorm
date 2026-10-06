@@ -47,7 +47,11 @@ public sealed partial class RockCollisionNetworkChecks : Node
                 rock.Position = new(x, 20, 1200); rock.Scale = Vector3.One * 2; arena.AddChild(rock);
                 // Prototype worlds have no destructible authority; retain these
                 // intact fixtures while exercising the production rock contact path.
-                foreach (var collider in rock.FindChildren("*", "StaticBody3D", true, false).OfType<StaticBody3D>()) collider.SetMeta("environment_rock", 1);
+                foreach (var collider in rock.FindChildren("*", "StaticBody3D", true, false).OfType<StaticBody3D>())
+                {
+                    collider.SetMeta("environment_rock", 1);
+                    collider.CollisionLayer |= Arenas.DestructibleEnvironment.RockContactLayer;
+                }
             }
         }
         _arenas[1].Driver.LocalCorrected += _ =>

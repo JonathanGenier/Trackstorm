@@ -7,6 +7,23 @@ namespace Trackstorm.Core.Tests.Vehicles;
 [TestFixture]
 internal sealed class RockPressureTests
 {
+    [TestCase(false)]
+    [TestCase(true)]
+    public void OpposingRockFacesBlockDriveWithoutCreatingReverseMotion(bool reverseOrder)
+    {
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+        var contacts = new[] {
+            new VehicleContact(Vector3.Zero, Vector3.Normalize(new(0.4f, 0.4f, 1)), 0, 0, staticObstacle: true, environmentRock: 1),
+            new VehicleContact(Vector3.Zero, Vector3.Normalize(new(-0.4f, 0.4f, 1)), 0, 0, staticObstacle: true, environmentRock: 1)
+        };
+        if (reverseOrder) { Array.Reverse(contacts); }
+        var input = new InputFrame(1, 0, ushort.MaxValue, 0, 0, 0, 0);
+        var state = new VehicleMovement(new(), pose).Step(input, pose, Vector3.UnitY, contacts: contacts);
+        Assert.That(state.Physics.LinearVelocity.X, Is.EqualTo(0).Within(0.000001));
+        Assert.That(state.Physics.LinearVelocity.Z, Is.EqualTo(0).Within(0.000001));
+        Assert.That(state.Throttle, Is.GreaterThan(0));
+    }
+
     [Test]
     public void InclinedRockContactDoesNotTurnGravityIntoAnArtificialSupportForce()
     {

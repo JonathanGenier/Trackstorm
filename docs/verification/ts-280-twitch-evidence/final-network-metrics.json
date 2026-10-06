@@ -1,0 +1,214 @@
+[
+  {
+    "peer": "player-0",
+    "host": true,
+    "steady": {
+      "Distribution": {
+        "Samples": 0,
+        "Mean": 0,
+        "P50": 0,
+        "P95": 0,
+        "P99": 0,
+        "Maximum": 0
+      },
+      "AboveCentimetrePerSecond": 0,
+      "UnderCentimetre": 0,
+      "CentimetreToDecimetre": 0,
+      "DecimetreToMetre": 0,
+      "MetreToThree": 0,
+      "AtLeastThree": 0
+    },
+    "startup": {
+      "Distribution": {
+        "Samples": 0,
+        "Mean": 0,
+        "P50": 0,
+        "P95": 0,
+        "P99": 0,
+        "Maximum": 0
+      },
+      "AboveCentimetrePerSecond": 0,
+      "UnderCentimetre": 0,
+      "CentimetreToDecimetre": 0,
+      "DecimetreToMetre": 0,
+      "MetreToThree": 0,
+      "AtLeastThree": 0
+    },
+    "hardSnaps": 0,
+    "frameTime": {
+      "Samples": 1387,
+      "Mean": 17.1697483777938,
+      "P50": 16.659,
+      "P95": 23.28,
+      "P99": 40.216,
+      "Maximum": 119.427
+    },
+    "stepTime": {
+      "Samples": 1441,
+      "Mean": 3.4160922970159606,
+      "P50": 2.281,
+      "P95": 9.172,
+      "P99": 23.055,
+      "Maximum": 58.598
+    }
+  },
+  {
+    "peer": "player-1",
+    "host": false,
+    "steady": {
+      "Distribution": {
+        "Samples": 275,
+        "Mean": 0.0019284274703915633,
+        "P50": 0,
+        "P95": 0.008392389863729477,
+        "P99": 0.06396767497062683,
+        "Maximum": 0.15702182054519653
+      },
+      "AboveCentimetrePerSecond": 0.8571428571428343,
+      "UnderCentimetre": 263,
+      "CentimetreToDecimetre": 11,
+      "DecimetreToMetre": 1,
+      "MetreToThree": 0,
+      "AtLeastThree": 0
+    },
+    "startup": {
+      "Distribution": {
+        "Samples": 40,
+        "Mean": 0.010299955355003476,
+        "P50": 0,
+        "P95": 0.10518527030944824,
+        "P99": 0.11944419145584106,
+        "Maximum": 0.11944419145584106
+      },
+      "AboveCentimetrePerSecond": 4.5,
+      "UnderCentimetre": 31,
+      "CentimetreToDecimetre": 7,
+      "DecimetreToMetre": 2,
+      "MetreToThree": 0,
+      "AtLeastThree": 0
+    },
+    "hardSnaps": 0,
+    "frameTime": {
+      "Samples": 943,
+      "Mean": 17.723747613997897,
+      "P50": 16.675,
+      "P95": 19.855,
+      "P99": 34.414,
+      "Maximum": 699.864
+    },
+    "stepTime": {
+      "Samples": 960,
+      "Mean": 1.094547916666667,
+      "P50": 0.538,
+      "P95": 3.592,
+      "P99": 12.499,
+      "Maximum": 52.601
+    }
+  },
+  {
+    "peer": "player-2",
+    "host": false,
+    "steady": {
+      "Distribution": {
+        "Samples": 276,
+        "Mean": 0.000451256954651056,
+        "P50": 0,
+        "P95": 0,
+        "P99": 0.008528979495167732,
+        "Maximum": 0.08178359270095825
+      },
+      "AboveCentimetrePerSecond": 0.14285714285713905,
+      "UnderCentimetre": 274,
+      "CentimetreToDecimetre": 2,
+      "DecimetreToMetre": 0,
+      "MetreToThree": 0,
+      "AtLeastThree": 0
+    },
+    "startup": {
+      "Distribution": {
+        "Samples": 38,
+        "Mean": 0.013079159942112471,
+        "P50": 0,
+        "P95": 0.10114312171936035,
+        "P99": 0.17335161566734314,
+        "Maximum": 0.17335161566734314
+      },
+      "AboveCentimetrePerSecond": 3,
+      "UnderCentimetre": 32,
+      "CentimetreToDecimetre": 4,
+      "DecimetreToMetre": 2,
+      "MetreToThree": 0,
+      "AtLeastThree": 0
+    },
+    "hardSnaps": 0,
+    "frameTime": {
+      "Samples": 940,
+      "Mean": 17.57564787234042,
+      "P50": 16.62,
+      "P95": 19.727,
+      "P99": 41.562,
+      "Maximum": 520.761
+    },
+    "stepTime": {
+      "Samples": 960,
+      "Mean": 1.3848114583333326,
+      "P50": 0.545,
+      "P95": 4.804,
+      "P99": 14.768,
+      "Maximum": 67.027
+    }
+  },
+  {
+    "peer": "player-3",
+    "host": false,
+    "steady": {
+      "Distribution": {
+        "Samples": 276,
+        "Mean": 0.0009430585613818434,
+        "P50": 0,
+        "P95": 0.0025073760189116,
+        "P99": 0.020106427371501923,
+        "Maximum": 0.0873892605304718
+      },
+      "AboveCentimetrePerSecond": 0.6428571428571257,
+      "UnderCentimetre": 267,
+      "CentimetreToDecimetre": 9,
+      "DecimetreToMetre": 0,
+      "MetreToThree": 0,
+      "AtLeastThree": 0
+    },
+    "startup": {
+      "Distribution": {
+        "Samples": 38,
+        "Mean": 0.011729276359179303,
+        "P50": 0,
+        "P95": 0.0936664342880249,
+        "P99": 0.20676077902317047,
+        "Maximum": 0.20676077902317047
+      },
+      "AboveCentimetrePerSecond": 2.5,
+      "UnderCentimetre": 33,
+      "CentimetreToDecimetre": 4,
+      "DecimetreToMetre": 1,
+      "MetreToThree": 0,
+      "AtLeastThree": 0
+    },
+    "hardSnaps": 0,
+    "frameTime": {
+      "Samples": 941,
+      "Mean": 17.518092454835273,
+      "P50": 16.643,
+      "P95": 19.55,
+      "P99": 32.193,
+      "Maximum": 513.331
+    },
+    "stepTime": {
+      "Samples": 960,
+      "Mean": 1.0924041666666657,
+      "P50": 0.539,
+      "P95": 3.121,
+      "P99": 9.106,
+      "Maximum": 102.899
+    }
+  }
+]
