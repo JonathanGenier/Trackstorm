@@ -1,6 +1,6 @@
 # Player Input System
 
-Selected direct-fire camera input uses [shared weapon aiming](weapon-aiming.md). Existing dead zone/remapping precede the local radial stick response. Controls settings persist independent mouse/stick sensitivities and stick exponent. Mouse displacement stays direct; existing suppression discards aiming cues and intent.
+Selected direct-fire camera input uses [shared weapon aiming](weapon-aiming.md). Existing dead zone/remapping precede the local radial stick response. Camera settings persist independent axis gains, controller camera sensitivity, Invert Y and recenter speed alongside the existing armed mouse gain/stick exponent. Mouse displacement stays direct; existing suppression discards aiming cues and intent.
 
 ## Purpose and Behavior
 

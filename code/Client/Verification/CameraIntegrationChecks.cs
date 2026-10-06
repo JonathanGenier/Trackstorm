@@ -184,6 +184,7 @@ public sealed partial class CameraIntegrationChecks : Node3D
             VerifyShakeSettings(camera, input, state);
             VerifyFramingSettings(camera, input, state);
             VerifyUpwardFraming(camera, input, state);
+            VerifyLookSettings(camera, input, state);
             camera.QueueFree();
             input.QueueFree();
             GD.Print("Camera integration passed: armed/unarmed chase framing, upward/downward 85-degree tilt bounds, fixed-height upward aim, RMB orbit/hold/release, controller/dead-zone return, suppression, identity/life/reseed resets, 30/60/144 FPS, unchanged gameplay input, heading/inertia/feedback regressions.");
@@ -202,6 +203,58 @@ public sealed partial class CameraIntegrationChecks : Node3D
         {
             throw new InvalidOperationException(message);
         }
+    }
+
+    private void VerifyLookSettings(VehicleChaseCamera camera, PlayerInput input, VehicleSnapshot state)
+    {
+        var settings = new Settings.PlayerSettingsController();
+        settings.Initialize(input.Adapter, ProjectSettings.GlobalizePath($"res://.godot/camera-checks/{Guid.NewGuid():N}.look.json"));
+        AddChild(settings); camera.SettingsSource = settings; camera.InputSource = input.Adapter;
+        input.GameplayAvailable = () => true; input._Process(0);
+        input.Adapter.Enabled = true; input.Adapter.CameraAvailable = true;
+        void Send(InputEvent value) { using (value) { Godot.Input.ParseInputEvent(value); Godot.Input.FlushBufferedEvents(); } }
+        foreach (bool armed in new[] { false, true })
+        foreach (int fps in new[] { 30, 60, 144 })
+        foreach (double gain in new[] { .25, 1, 3 })
+        foreach (bool invert in new[] { false, true })
+        {
+            settings.UpdateSettings(new() { HorizontalLookSensitivity = gain, VerticalLookSensitivity = gain,
+                StickAimSensitivity = gain, CameraRecenterSpeed = gain, InvertY = invert });
+            camera.ResetFollow(); camera.WeaponAiming = armed;
+            camera.Follow(Transform3D.Identity, state, 1f / fps);
+            Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true });
+            Send(new InputEventMouseMotion { ScreenRelative = new(10, -10) });
+            camera.Follow(Transform3D.Identity, state, 1f / fps);
+            float expectedPitch = -Mathf.DegToRad(camera.ViewDownAngle) + .03f * (float)gain * (invert ? -1 : 1);
+            Require(Math.Abs(camera.Rotation.Y + .03f * gain) < .0001 && Math.Abs(camera.Rotation.X - expectedPitch) < .0001,
+                "Native mouse axis sensitivity and inversion apply equally armed/unarmed");
+            Basis held = camera.GlobalBasis;
+            for (int i = 0; i < fps; i++) camera.Follow(Transform3D.Identity, state, 1f / fps);
+            Require(camera.GlobalBasis.IsEqualApprox(held), "Active RMB aiming never fights recenter speed");
+            Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
+            for (int i = 0; i < fps; i++) camera.Follow(Transform3D.Identity, state, 1f / fps);
+            Require(Math.Abs(camera.Rotation.Y + .03f * gain * Math.Exp(-6 * gain)) < .0001, "Native recenter honors low/default/high gain");
+            camera.ResetFollow(); camera.Follow(Transform3D.Identity, state, 1f / fps);
+            Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightY, AxisValue = -.5f });
+            float raw = input.Adapter.CameraIntent.Y;
+            for (int i = 0; i < fps / 10; i++) camera.Follow(Transform3D.Identity, state, 1f / fps);
+            float shaped = armed ? raw * Math.Abs(raw) : raw;
+            float stickPitch = -Mathf.DegToRad(camera.ViewDownAngle) - shaped * 2.2f * (fps / 10) / fps * (float)(gain * gain) * (invert ? -1 : 1);
+            Require(Math.Abs(camera.Rotation.X - stickPitch) < .0002, "Native controller sensitivity and inversion honor radial shaping");
+            Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightY, AxisValue = 0 });
+        }
+        foreach (double fov in new[] { 50d, 65, 90 })
+        foreach (double height in new[] { .5, 1.25, 3 })
+        {
+            settings.UpdateSettings(new() { CameraFov = fov, CameraHeight = height });
+            camera.ResetFollow(); camera.Follow(Transform3D.Identity, state, 1f / 60);
+            Require(Math.Abs(camera.Fov - fov) < .001 && Math.Abs(camera.GlobalPosition.Y - WeaponAim.Pivot.Y - height) < .001,
+                "FOV and vertical follow height apply independently of look sensitivity");
+            Vector2 center = camera.GetViewport().GetVisibleRect().GetCenter();
+            Require(camera.ProjectRayNormal(center).Dot(-camera.GlobalBasis.Z) > .99999f, "FOV/height preserve the exact centered view ray");
+        }
+        camera.SettingsSource = null; camera.WeaponAiming = false; camera.ResetFollow(); settings.QueueFree();
+        GD.Print("Camera look settings passed: 36 armed/device/rate/gain/inversion combinations plus nine FOV/height bounds.");
     }
 
     private void VerifyFramingSettings(VehicleChaseCamera camera, PlayerInput input, VehicleSnapshot state)

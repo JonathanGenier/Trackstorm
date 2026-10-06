@@ -205,6 +205,7 @@ public sealed partial class WeaponAimChecks : Node
             Require(crossingFrames > 0 && misplacedBrackets == 0,
                 $"Crossing-car brackets surround the visible center-ray hit under interpolation ({crossingFrames} bracket frames, {misplacedBrackets} misses)");
             await CheckAssistanceAndOutage();
+            await CheckCameraPreferences();
             Position(new(0, Ground, 35), new(-8, Ground, 5), new(-3, Ground, 5));
             // Real native driving; allow five seconds for the heavier chassis to accelerate.
             // Target trajectories above are explicitly fixture-authored.
@@ -294,6 +295,75 @@ public sealed partial class WeaponAimChecks : Node
     }
 
     private Vector2 ViewCenter => _views[1].GetVisibleRect().GetCenter();
+    private async Task CheckCameraPreferences()
+    {
+        var settings = new Settings.PlayerSettingsController();
+        settings.Initialize(_input.Adapter, System.IO.Path.Combine(_output, "camera-settings.json")); AddChild(settings);
+        _arenas[1].CameraSettings = settings;
+        var host = _arenas[0].Driver.Host!;
+        var configuration = host.Configuration.Configuration;
+        float observerFov = _arenas[2].GetNode<VehicleChaseCamera>("ChaseCamera").Fov;
+        var cases = new (string Name, double[] Values)[]
+        {
+            ("CameraDistance", [1.15, 1.3, 1.5]), ("CameraInertia", [0, .5, 1]),
+            ("CameraAerialPullback", [0, 1, 1.5]), ("CameraShakeIntensity", [0, .5, 1]),
+            ("HorizontalLookSensitivity", [.25, 1, 3]), ("VerticalLookSensitivity", [.25, 1, 3]),
+            ("StickAimSensitivity", [.25, 1, 3]), ("CameraRecenterSpeed", [.25, 1, 3]),
+            ("CameraFov", [50, 65, 90]), ("CameraHeight", [.5, 1.25, 3]),
+            ("InvertY", [0, 1]), ("MouseAimSensitivity", [.25, 1, 3]), ("StickAimCurve", [1, 2, 3]),
+        };
+        foreach (var option in cases)
+        foreach (double value in option.Values)
+        foreach (bool airborne in new[] { false, true })
+        foreach (bool upward in new[] { false, true })
+        {
+            // The production codec creates one changed preference; no synchronized configuration is edited.
+            string key = char.ToLowerInvariant(option.Name[0]) + option.Name[1..];
+            string jsonValue = option.Name == "InvertY" ? (value == 1 ? "true" : "false") : value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            settings.UpdateSettings(Core.Settings.PlayerSettingsJson.Deserialize($"{{\"{key}\":{jsonValue}}}"));
+            Position(new(0, Ground + (airborne ? 35 : 0), 35), new(80, Ground, 0), new(-80, Ground, 0));
+            Camera.ResetFollow(); await Frames(6);
+            Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true });
+            float vertical = (float)settings.Current.VerticalLookSensitivity * (float)settings.Current.MouseAimSensitivity * (settings.Current.InvertY ? -1 : 1);
+            Send(new InputEventMouseMotion { ScreenRelative = new(0, (upward ? -70 : 70) / vertical) });
+            // Real controller input also contributes; hold RMB to retain the resulting view.
+            Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = .3f });
+            await Frames(4);
+            Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = 0 });
+            if (option.Name == "CameraShakeIntensity") Camera.Motion.Impulse(.6f);
+            await Frames(36);
+            // Sample after arena render-follow and PresentAiming, not at the pre-process signal.
+            await ToSignal(GetTree().CreateTimer(0), SceneTreeTimer.SignalName.Timeout);
+            Vector3 lens = Camera.ProjectRayOrigin(ViewCenter);
+            Vector3 end = lens + Camera.ProjectRayNormal(ViewCenter) * 300;
+            using var query = PhysicsRayQueryParameters3D.Create(lens, end, 1); query.HitFromInside = true;
+            using var hit = Camera.GetWorld3D().DirectSpaceState.IntersectRay(query);
+            Vector3 target = hit.Count == 0 ? end : hit["position"].AsVector3();
+            var local = _arenas[1].Driver.LocalState!;
+            N.Vector3 pivot = local.ObservedPhysics.Position + N.Vector3.Transform(WeaponAim.Pivot, local.ObservedPhysics.Orientation);
+            N.Vector3 expected = N.Vector3.Normalize(VehicleBody.ToCore(target) - pivot);
+            string phase = $"{option.Name}={value} air={airborne} up={upward}";
+            GD.Print($"CAMERA_AIM_SAMPLE {phase} expected={expected} actual={_arenas[1].Driver.DesiredAim} lens={lens} target={target} pitch={Camera.Rotation.X}");
+            Require(_arenas[1].Driver.DesiredAim is { } desired && N.Vector3.Dot(expected, desired) > .9999f,
+                "Final centered rendered ray and pivot-relative intent agree: " + phase);
+            RequireCentered("Camera settings retain centered HUD: " + phase);
+            var accepted = host.Items.Aims.Single(aim => aim.Vehicle == Shooter);
+            // Solve to convergence independently, retaining existing angular/clearance limits.
+            WeaponAimSolution? solved = null;
+            var hostState = host.World.GetVehicle(Shooter);
+            for (ulong tick = 1; tick <= 240; tick++) solved = WeaponAim.Solve(hostState, accepted.Token, expected, solved, configuration.Items.Aim, tick);
+            Require(N.Vector3.Dot(solved!.Direction, accepted.Direction) > .995f,
+                "Authoritative articulation follows camera intent within network/pose tolerance: " + phase);
+            Require(!WeaponAim.IntersectsBody(WeaponAim.Pivot, WeaponAim.Direction(accepted.Yaw, accepted.Pitch)), "Shared body clearance remains safe: " + phase);
+            RequireObserverMount(phase);
+            Require(host.Configuration.Configuration == configuration && _arenas[2].GetNode<VehicleChaseCamera>("ChaseCamera").Fov == observerFov,
+                "Local preference leaves host tuning and peer camera unchanged: " + phase);
+            if (option.Name is "CameraFov" or "CameraHeight") await Capture("settings-" + option.Name + "-" + value + "-" + airborne + "-" + upward);
+            Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
+        }
+        _arenas[1].CameraSettings = null; settings.QueueFree(); Camera.ResetFollow(); await Frames(6);
+        GD.Print("Camera preference aiming matrix passed: 152 low/default/high ground/air upward/downward cases through three real UDP peers.");
+    }
     private void RequireCentered(string evidence) => Require(_arenas[1].AimOverlay.Marker is Vector2 marker && marker.DistanceTo(ViewCenter) < .01f, evidence);
 
     private void LogTargetGeometry(string phase, ulong target)

@@ -77,7 +77,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
     internal Input.PlayerInputAdapter? InputSource { get; set; }
     /// <summary>Local preferences supplied by composition; never replicated or read from disk here.</summary>
     internal Settings.PlayerSettingsController? SettingsSource { get; set; }
-    /// <summary>Enables local aiming input preferences; chase framing and recentering stay unchanged.</summary>
+    /// <summary>Enables the existing armed input curve, mouse gain and near-target friction.</summary>
     internal bool WeaponAiming { get; set; }
     /// <summary>Local near-target friction; scales only deliberate input and never steers the camera.</summary>
     internal Func<Vector2, Vector2, float, (float Mouse, float Stick)>? AimFriction { get; set; }
@@ -90,7 +90,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
         _initialized = false;
         _boost.Reset();
         _aerial.Reset();
-        if (IsNodeReady()) { Fov = _baseFov; _streaks.Reset(); _streaks.Hide(); }
+        if (IsNodeReady()) { Fov = (float)(SettingsSource?.Current.CameraFov ?? _baseFov); _streaks.Reset(); _streaks.Hide(); }
         _look.Reset();
         InputSource?.ResetCameraMotion();
     }
@@ -213,7 +213,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
             _boost.Advance(reset ? 0 : delta, state.Movement.Nitro.Active, state.Speed);
         }
         else { _boost.Reset(); }
-        Fov = Math.Clamp(_baseFov + _boost.FovExpansion, 1, 110);
+        Fov = Math.Clamp((float)(preferences?.CameraFov ?? _baseFov) + _boost.FovExpansion, 1, 110);
         if (ShakeIntensity == 0)
         {
             _motion.ClearShake();
@@ -227,16 +227,22 @@ public sealed partial class VehicleChaseCamera : Camera3D
         Vector3 backward = new(MathF.Sin(_heading), 0, MathF.Cos(_heading));
         Vector3 right = new(MathF.Cos(_heading), 0, -MathF.Sin(_heading));
         float distance = Math.Max(2, FollowDistance) * _distanceScale + _aerial.Pullback;
-        float height = Math.Max(0, CameraHeight);
+        float height = Math.Max(0, (float)(preferences?.CameraHeight ?? CameraHeight));
         float basePitch = -Mathf.DegToRad(Math.Clamp(ViewDownAngle, 0, 30));
         Vector2 mouse = InputSource?.ConsumeCameraMotion() ?? Vector2.Zero;
         Vector2 stick = InputSource is { CameraEnabled: true } source ? source.CameraIntent.LimitLength() : Vector2.Zero;
         if (!reset)
         {
-            var friction = WeaponAiming ? AimFriction?.Invoke(mouse, stick, delta) ?? (1f, 1f) : (1f, 1f);
+            // Friction must see the intended vertical direction after inversion.
+            // Shape the radial stick before applying independent axis gains.
+            if (preferences?.InvertY == true) { mouse.Y = -mouse.Y; stick.Y = -stick.Y; }
+            Vector2 axisGain = new((float)(preferences?.HorizontalLookSensitivity ?? 1), (float)(preferences?.VerticalLookSensitivity ?? 1));
+            float mouseGain = WeaponAiming ? (float)(preferences?.MouseAimSensitivity ?? 1) : 1;
+            float stickGain = (float)(preferences?.StickAimSensitivity ?? 1);
+            var friction = WeaponAiming ? AimFriction?.Invoke(mouse * axisGain * mouseGain, (stick * axisGain * stickGain).LimitLength(), delta) ?? (1f, 1f) : (1f, 1f);
             _look.Advance(new(mouse.X, mouse.Y), InputSource?.MouseLookHeld == true, new(stick.X, stick.Y), delta, basePitch, WeaponAiming,
-                friction.Item1 * (WeaponAiming ? (float)(preferences?.MouseAimSensitivity ?? 1) : 1),
-                friction.Item2 * (WeaponAiming ? (float)(preferences?.StickAimSensitivity ?? 1) : 1), (float)(preferences?.StickAimCurve ?? 2));
+                friction.Item1 * mouseGain, friction.Item2 * stickGain, (float)(preferences?.StickAimCurve ?? 2), axisGain.X, axisGain.Y,
+                (float)(preferences?.CameraRecenterSpeed ?? 1));
         }
 
         GlobalBasis = Basis.FromEuler(new Vector3(basePitch + _look.Pitch, _heading + _look.Yaw, 0));

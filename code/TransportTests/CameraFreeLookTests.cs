@@ -9,6 +9,33 @@ internal sealed class CameraFreeLookTests
     [TestCase(30)]
     [TestCase(60)]
     [TestCase(144)]
+    public void IndependentAxisAndReturnGainsRetainDeviceTimeSemantics(int fps)
+    {
+        foreach (float gain in new[] { .25f, 1, 3 })
+        {
+            var mouse = new CameraFreeLook();
+            var stick = new CameraFreeLook();
+            for (int i = 0; i < fps; i++)
+            {
+                mouse.Advance(new(10f / fps, -10f / fps), true, Vector2.Zero, 1f / fps, 0,
+                    horizontalScale: gain, verticalScale: -gain);
+                stick.Advance(Vector2.Zero, false, new(.1f, -.1f), 1f / fps, 0,
+                    stickScale: gain, horizontalScale: .5f, verticalScale: 2);
+            }
+            Assert.That(mouse.Yaw, Is.EqualTo(-.03f * gain).Within(.00001));
+            Assert.That(mouse.Pitch, Is.EqualTo(-.03f * gain).Within(.00001));
+            Assert.That(stick.Yaw, Is.EqualTo(-.11f * gain).Within(.00001));
+            Assert.That(stick.Pitch, Is.EqualTo(.44f * gain).Within(.00001));
+            mouse.Advance(Vector2.Zero, true, Vector2.Zero, 1, 0, recenterScale: gain);
+            Assert.That(mouse.Yaw, Is.EqualTo(-.03f * gain).Within(.00001), "Active mouse hold never recenters");
+            for (int i = 0; i < fps; i++) mouse.Advance(Vector2.Zero, false, Vector2.Zero, 1f / fps, 0, recenterScale: gain);
+            Assert.That(mouse.Yaw, Is.EqualTo(-.03f * gain * MathF.Exp(-6 * gain)).Within(.00001));
+        }
+    }
+
+    [TestCase(30)]
+    [TestCase(60)]
+    [TestCase(144)]
     public void ArmedInputKeepsMouseDirectAndStickPreciseThenReturnsLikeOrdinaryCamera(int fps)
     {
         var mouse = new CameraFreeLook();
