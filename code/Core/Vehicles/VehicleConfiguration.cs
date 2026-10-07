@@ -198,6 +198,8 @@ public sealed record VehicleConfiguration
     public float AirRollAcceleration { get; init; } = 20;
     /// <summary>Input smoothing (s).</summary>
     public float AirInputResponse { get; init; } = 0.06f;
+    /// <summary>Angular decay per second after releasing aerial input; never applies to untouched flight.</summary>
+    public float AirReleaseDamping { get; init; } = 10;
     /// <summary>Minimum ground normal Y.</summary>
     public float SupportNormalMinimum { get; init; } = 0.55f;
 
@@ -220,6 +222,12 @@ public sealed record VehicleConfiguration
     public float CrashRotation { get; init; } = 0.08f;
     /// <summary>Maximum angular velocity change from one obstacle/vehicle manifold, rad/s.</summary>
     public float CrashAngularLimit { get; init; } = 1.2f;
+    /// <summary>Minimum translational closing speed for additional rear-quarter yaw response, m/s.</summary>
+    public float PitClosingSpeed { get; init; } = 1.5f;
+    /// <summary>Rear-quarter yaw inverse-inertia multiplier at a fully qualifying impact.</summary>
+    public float PitYawResponse { get; init; } = 1;
+    /// <summary>Maximum angular change from one rear-quarter contact, rad/s.</summary>
+    public float PitAngularLimit { get; init; } = 2.5f;
 
     /// <summary>Resolves explicit surface tuning without engine or mutable state.</summary>
     /// <param name="surface">Supported surface identifier.</param>
@@ -292,9 +300,14 @@ public sealed record VehicleConfiguration
         {
             throw new ArgumentException("Collision tuning requires wall drag 0–5/s, dissipation/rotation 0–1 and angular change 0–3 rad/s.");
         }
+        if (!float.IsFinite(PitClosingSpeed) || PitClosingSpeed is < 0.1f or > 10 ||
+            !float.IsFinite(PitYawResponse) || PitYawResponse is < 0 or > 1 ||
+            !float.IsFinite(PitAngularLimit) || PitAngularLimit is < 0 or > 3)
+        { throw new ArgumentException("Invalid rear-quarter collision tuning."); }
         if (new[] { AirPitchRate, AirYawRate, AirRollRate }.Any(v => !float.IsFinite(v) || v is < 0 or > 8) ||
             new[] { AirPitchAcceleration, AirYawAcceleration, AirRollAcceleration }.Any(v => !float.IsFinite(v) || v is < 0.1f or > 60) ||
             !float.IsFinite(AirInputResponse) || AirInputResponse is < 0.01f or > 1 ||
+            !float.IsFinite(AirReleaseDamping) || AirReleaseDamping is < 1 or > 30 ||
             !float.IsFinite(SupportNormalMinimum) || SupportNormalMinimum is < 0.55f or > 1)
         {
             throw new ArgumentException("Invalid air-control tuning.");

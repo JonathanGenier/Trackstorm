@@ -49,7 +49,7 @@ internal sealed class TrophyTruckTests
     {
         var a = new VehiclePhysicsState(new(-2, 0, 0), Quaternion.Identity, new(30, 0, 8), Vector3.Zero);
         var b = new VehiclePhysicsState(new(2, 0, 0), Quaternion.Identity, Vector3.Zero, Vector3.Zero);
-        var tuning = new VehicleConfiguration();
+        var tuning = new VehicleConfiguration { PitYawResponse = 0 };
         var result = VehicleCollision.ResolvePair(a, tuning, b, tuning, -Vector3.UnitX, new(0, 0, 2));
         Assert.That(result.First.LinearVelocity.Z, Is.EqualTo(8));
         Assert.That(result.First.LinearVelocity + result.Second.LinearVelocity, Is.EqualTo(a.LinearVelocity));

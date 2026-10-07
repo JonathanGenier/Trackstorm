@@ -5,7 +5,7 @@ namespace Trackstorm.Core.Vehicles;
 /// <summary>Complete airborne continuation. The legacy stabilization X field carries the release-hold latch; Y/Z remain reserved.</summary>
 public readonly record struct AirControlState(float Seconds, Vector3 Input, Vector3 Stabilization)
 {
-    /// <summary>Player aerial input has armed neutral rotational hold since the last wheel/body contact.</summary>
+    /// <summary>Player aerial input has armed neutral rotational settling since the last wheel/body contact.</summary>
     public bool ReleaseHoldArmed => Stabilization.X > 0;
 
     /// <summary>Rejects malformed continuation before restoring a vehicle.</summary>

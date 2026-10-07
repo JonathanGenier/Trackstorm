@@ -53,6 +53,9 @@ function Get-FastCheckPlan {
             Add-Runtime 'check-crash-recovery.ps1'
             Add-Manual 'Observe nose, rear, roof, side, awkward and repeated tumbles, first-wheel control restoration, and extreme tire landings through both vehicle adapters.'
         }
+        if ($path -match 'PitCollision|pit_collision|check-pit-collision|VehicleCollision|VehicleBody.cs|NetworkVehicleBody') {
+            Add-Runtime 'check-pit-collisions.ps1'
+        }
         if ($path -match 'TrophyTruck|trophy_truck|check-trophy-truck|VehicleCollision|NetworkVehicleBody') {
             Add-Runtime 'check-trophy-truck.ps1'
         }

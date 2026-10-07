@@ -14,6 +14,9 @@ function Assert-True {
 . "$PSScriptRoot/fast-check-routes.ps1"
 
 # Route-selection regression coverage.
+foreach ($path in @('code/Core/Vehicles/VehicleCollision.cs', 'code/Client/Verification/PitCollisionChecks.cs', 'scenes/verification/pit_collision_checks.tscn')) {
+    Assert-True ((Get-FastCheckPlan -Paths @($path)).RuntimeScripts -contains 'check-pit-collisions.ps1') 'Rear-quarter collision changes require native pair coverage.'
+}
 foreach ($path in @('code/Client/Networking/NetworkVehicleBody.cs', 'code/Client/Networking/RemoteInterpolation.cs', 'code/Client/Verification/FollowingContactNetworkChecks.cs', 'check-repeated-collisions.ps1')) {
     $contactPlan = Get-FastCheckPlan -Paths @($path)
     Assert-True ($contactPlan.RuntimeScripts -contains 'check-repeated-collisions.ps1') 'Repeated rock and vehicle contacts retain native coverage.'

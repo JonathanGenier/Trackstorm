@@ -53,6 +53,7 @@ public sealed partial class HandlingPlaytest : Node3D
         if (OS.GetCmdlineUserArgs().Contains("--tunnel-scrape-playtest")) { _directory = ProjectSettings.GlobalizePath("res://.godot/ts-275/playtest"); }
         if (OS.GetCmdlineUserArgs().Contains("--automatic-air-playtest")) { _directory = ProjectSettings.GlobalizePath("res://.godot/ts-281/playtest"); }
         if (OS.GetCmdlineUserArgs().Contains("--inertia-playtest")) { _directory = ProjectSettings.GlobalizePath("res://.godot/ts-282/playtest"); }
+        if (OS.GetCmdlineUserArgs().Contains("--settle-playtest")) { _directory = ProjectSettings.GlobalizePath("res://.godot/ts-283/playtest"); }
         System.IO.Directory.CreateDirectory(_directory);
         if (OS.GetCmdlineUserArgs().Contains("--handling-flat"))
         {
