@@ -3,22 +3,19 @@ name: TS-287 maintenance validation
 on:
   push:
     branches: [ts-287-jg]
-    paths:
-      - '.github/workflows/ts-287-maintenance.yml'
-      - 'tools/ts-287-apply.py'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: ts-287-maintenance
   cancel-in-progress: true
 
 jobs:
-  inspect:
+  validate:
     if: github.repository == 'JonathanGenier/Trackstorm' && github.ref == 'refs/heads/ts-287-jg'
     runs-on: windows-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with:
@@ -26,34 +23,65 @@ jobs:
           fetch-depth: 0
           lfs: false
           persist-credentials: false
-      - name: Inspect maintenance inputs
-        shell: python
-        run: |
-          from pathlib import Path
-          import re
-          for directory in ('tools', 'docs', '.github'):
-              for path in Path(directory).rglob('AGENTS.md'):
-                  print(f'INSTRUCTIONS {path}\n{path.read_text(encoding="utf-8-sig")}')
-          for name in ('items', 'vehicles', 'developer-options'):
-              path = Path(f'docs/features/{name}.md')
-              text = path.read_text(encoding='utf-8-sig')
-              print(f'\nDOCUMENT {path}: {len(text.encode("utf-8"))} bytes')
-              for match in re.finditer(r'^#{1,3} .+$', text, re.M):
-                  print(match.group())
-          print('\nHARNESS BUILD CONTRACTS')
-          for path in sorted(Path('.').glob('check-*.ps1')):
-              lines = path.read_text(encoding='utf-8-sig').splitlines()
-              print(f'\n{path}')
-              print('\n'.join(lines[:12]))
-              for i, line in enumerate(lines):
-                  if re.search(r'dotnet (build|test|restore)|SkipBuild|NoBuild', line):
-                      print(f'{i+1}: {line}')
-          print('\nCURRENT CI TOOLS')
-          for path in ('tools/test-workflow-tools.ps1', 'tools/check-version.ps1', 'tools/check-root-artifacts.ps1'):
-              print(f'\nFILE {path}\n{Path(path).read_text(encoding="utf-8-sig")}')
-      - name: Verify available interpreter versions
+      - name: Apply bounded maintenance edits
         shell: pwsh
         run: |
-          $PSVersionTable.PSVersion.ToString()
-          dotnet --version
-          git --version
+          python tools/ts-287-apply.py
+          if ($LASTEXITCODE -ne 0) { throw 'Maintenance patch refused unexpected source structure.' }
+          ./tools/sync-story-version.ps1
+          ./tools/check-version.ps1 -StoryBranch ts-287-jg
+          git diff --check
+          if ($LASTEXITCODE -ne 0) { throw 'Whitespace check failed.' }
+      - name: Targeted tooling regression tests
+        shell: pwsh
+        run: |
+          . ./tools/agent-checks.ps1
+          $folder = Join-Path $PWD '.godot/ts-287-checks'
+          $result = Invoke-AgentCheck -Name 'tools/test-workflow-tools.ps1' -Executable (Join-Path $PWD 'tools/test-workflow-tools.ps1') -Root $PWD -LogDirectory $folder
+          @($result) | ConvertTo-Json -Depth 8 -AsArray | Set-Content (Join-Path $folder 'results.json')
+          if ($result.Status -ne 'PASS') { throw 'Targeted tooling regressions failed.' }
+      - name: Prepare existing pinned prerequisites
+        shell: pwsh
+        run: |
+          git lfs pull
+          if ($LASTEXITCODE -ne 0) { throw 'Media materialization failed.' }
+          ./setup-eos.ps1
+          $godot = ./tools/setup-godot-ci.ps1
+          "GODOT_PATH=$godot" >> $env:GITHUB_ENV
+      - name: Comprehensive verification and native operational checks
+        shell: pwsh
+        run: |
+          . ./tools/agent-checks.ps1
+          $folder = Join-Path $PWD '.godot/ts-287-checks'
+          $results = [Collections.Generic.List[object]]::new()
+          foreach ($entry in @(Get-Content (Join-Path $folder 'results.json') -Raw | ConvertFrom-Json)) { $results.Add($entry) }
+          function Run-Evidence([string]$Name, [string]$Executable, [hashtable]$Parameters = @{}) {
+            $result = Invoke-AgentCheck -Name $Name -Executable $Executable -Parameters $Parameters -Root $PWD -LogDirectory $folder
+            $results.Add($result)
+            $results.ToArray() | ConvertTo-Json -Depth 8 -AsArray | Set-Content (Join-Path $folder 'results.json')
+            if ($result.Status -ne 'PASS') { throw "$Name failed." }
+          }
+          Run-Evidence 'check.ps1' (Join-Path $PWD 'check.ps1')
+          Run-Evidence 'import-godot.ps1' (Join-Path $PWD 'import-godot.ps1') @{ GodotPath = $env:GODOT_PATH }
+          Run-Evidence 'check-agent-environment.ps1' (Join-Path $PWD 'tools/check-agent-environment.ps1') @{ GodotPath = $env:GODOT_PATH; RequireRuntime = $true }
+          Run-Evidence 'check-fast.ps1 -Plan -Explain -Json' (Join-Path $PWD 'tools/check-fast.ps1') @{ Plan = $true; Explain = $true; Json = $true }
+          Run-Evidence 'check-fast.ps1 -Area Client' (Join-Path $PWD 'tools/check-fast.ps1') @{ Area = 'Client' }
+          foreach ($script in @('check-camera.ps1', 'check-car-articulation.ps1', 'check-input.ps1', 'check-settings.ps1', 'check-menu.ps1', 'check-developer-options.ps1', 'check-vehicle.ps1', 'check-gdunit.ps1')) {
+            Run-Evidence "$script -NoBuild" (Join-Path $PWD $script) @{ GodotPath = $env:GODOT_PATH; NoBuild = $true }
+          }
+          Run-Evidence 'tools/check-version.ps1' (Join-Path $PWD 'tools/check-version.ps1') @{ StoryBranch = 'ts-287-jg' }
+      - name: Propose verified tree without updating any branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          python tools/ts-287-apply.py publish
+          if ($LASTEXITCODE -ne 0) { throw 'Candidate publication failed; no branch ref was updated.' }
+      - name: Retain actual validation output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ts-287-validation-${{ github.sha }}
+          path: .godot/ts-287-checks/
+          include-hidden-files: true
+          if-no-files-found: ignore

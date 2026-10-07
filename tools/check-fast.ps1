@@ -1,231 +1,147 @@
 param(
-    [ValidateSet("Auto", "Core", "Client", "Transport", "Docs")]
-    [string]$Area = "Auto",
-
+    [ValidateSet('Auto', 'Core', 'Client', 'Transport', 'Docs')][string]$Area = 'Auto',
     [string]$GodotPath = $env:GODOT_PATH,
-
     [switch]$IncludeExtended,
-
-    [switch]$RequireRuntime
+    [switch]$RequireRuntime,
+    [switch]$Plan,
+    [switch]$Explain,
+    [switch]$Json,
+    [string]$OutputDirectory = '',
+    [switch]$DetailedOutput
 )
-
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-
 . "$PSScriptRoot/fast-check-routes.ps1"
-
-function Invoke-Check {
-    param(
-        [Parameter(Mandatory)][string]$Name,
-        [Parameter(Mandatory)][scriptblock]$Action
-    )
-
-    Write-Host "`n>> $Name"
-    & $Action
-    if ($LASTEXITCODE -ne 0) {
-        throw "$Name failed with exit code $LASTEXITCODE."
-    }
+. "$PSScriptRoot/agent-checks.ps1"
+if ($Json -and -not $Plan) { throw '-Json requires -Plan; execution evidence is written to results.json.' }
+$paths = @()
+if ($Area -eq 'Auto') {
+    $paths = @(Get-StoryChangedPaths -Root $root)
+    $checkPlan = Get-FastCheckPlan -Paths $paths
 }
-
-function Get-ChangedPaths {
-    $base = "origin/main"
-    git -C "$root" rev-parse --verify $base *> $null
-    if ($LASTEXITCODE -ne 0) {
-        $base = "main"
-        git -C "$root" rev-parse --verify $base *> $null
-    }
-
-    if ($LASTEXITCODE -ne 0) {
-        throw "Cannot resolve origin/main or main. Fetch main or pass -Area explicitly."
-    }
-
-    $paths = @(git -C "$root" diff --name-only "$base...HEAD")
-    if ($LASTEXITCODE -ne 0) {
-        throw "Cannot determine changed paths against $base."
-    }
-
-    return $paths
-}
-
-function Resolve-GodotExecutable {
-    param([string]$Candidate)
-
-    if ([string]::IsNullOrWhiteSpace($Candidate)) {
-        return $null
-    }
-
-    if (Test-Path -LiteralPath $Candidate) {
-        return (Resolve-Path -LiteralPath $Candidate).Path
-    }
-
-    $command = Get-Command $Candidate -ErrorAction SilentlyContinue
-    if ($command) {
-        return $command.Source
-    }
-
-    throw "Godot executable '$Candidate' was not found."
-}
-
-function Invoke-RoutedRuntimeCheck {
-    param(
-        [Parameter(Mandatory)][string]$Script,
-        [Parameter(Mandatory)][string]$ResolvedGodotPath
-    )
-
-    $scriptPath = Join-Path $root $Script
-    if (-not (Test-Path -LiteralPath $scriptPath)) {
-        throw "Routed runtime check '$Script' does not exist."
-    }
-
-    Invoke-Check $Script {
-        & $scriptPath -GodotPath $ResolvedGodotPath
-    }
-}
-
-if ($Area -ne "Auto") {
+else {
+    $checkPlan = Get-FastCheckPlan -Paths @()
     switch ($Area) {
-        "Core" {
-            Invoke-Check "Core tests" {
-                dotnet test "$root/code/Tests/Trackstorm.Core.Tests.csproj" -c Release
-            }
-        }
-        "Client" {
-            Invoke-Check "Client Debug build" {
-                dotnet build "$root/Trackstorm.Client.csproj" -c Debug -warnaserror
-            }
-        }
-        "Transport" {
-            Invoke-Check "Transport tests" {
-                dotnet test "$root/code/TransportTests/Trackstorm.Transport.Tests.csproj" -c Release --filter 'TestCategory!=Native'
-            }
-        }
-        "Docs" {
-            Write-Host "Docs-only iteration selected; no build/test command required."
-        }
+        'Core' { $checkPlan.CoreTests = $true }
+        'Client' { $checkPlan.ClientBuild = $true }
+        'Transport' { $checkPlan.TransportTests = $true }
     }
-
-    Write-Host "`nFast targeted checks passed. Run ./check.ps1 before final Story handoff."
+}
+$explanation = if ($Explain -and $Area -eq 'Auto') { Get-FastCheckExplanation -Paths $paths } else { $null }
+if ($Plan) {
+    $view = [pscustomobject]@{ Area = $Area; Paths = $paths; Checks = $checkPlan; Reasons = $explanation; Executed = $false }
+    if ($Json) { $view | ConvertTo-Json -Depth 10 }
+    else {
+        Write-Host "Plan only; no verification executed. Area: $Area; changed paths: $($paths.Count)"
+        Get-PlanCheckNames -Plan $checkPlan | ForEach-Object { Write-Host "  $_" }
+        if ($explanation) { foreach ($key in $explanation.Keys) { Write-Host "$key <- $($explanation[$key] -join ', ')" } }
+    }
     exit 0
 }
-
-$paths = @(Get-ChangedPaths)
-if ($paths.Count -eq 0) {
-    Write-Host "No committed changes against main. Nothing to check."
+$selected = @(Get-PlanCheckNames -Plan $checkPlan)
+if ($selected.Count -eq 0) {
+    Write-Host 'No iteration checks selected. No tests were executed. Final Story verification remains required.'
     exit 0
 }
-
-$plan = Get-FastCheckPlan -Paths $paths
-$resolvedGodot = Resolve-GodotExecutable -Candidate $GodotPath
-$runtimeWillRun = $resolvedGodot -and $plan.RuntimeScripts.Count -gt 0
-
-Write-Host "Fast-check plan for $($paths.Count) changed path(s):"
-if ($plan.CoreTests) { Write-Host "  - Core tests" }
-if ($plan.TransportTests) { Write-Host "  - Non-native transport tests" }
-if ($plan.ServiceTests) { Write-Host "  - Authority-lease service tests" }
-if ($plan.ClientBuild -and -not $runtimeWillRun) { Write-Host "  - Client Debug build" }
-if ($plan.VersionChecks) { Write-Host "  - Version rule regression tests" }
-if ($plan.MediaChecks) { Write-Host "  - Frontend media checks" }
-foreach ($script in $plan.RuntimeScripts) { Write-Host "  - Runtime: $script" }
-foreach ($script in $plan.ExtendedScripts) { Write-Host "  - Extended/native: $script" }
-foreach ($scenario in $plan.ManualScenarios) { Write-Host "  - Playtest/manual: $scenario" }
-
-if ($plan.VersionChecks) {
-    Invoke-Check "Version rule regression tests" {
-        & "$root/tools/test-version.ps1"
-    }
+if (-not $OutputDirectory) { $OutputDirectory = Join-Path $root ('.godot/fast-checks/' + [guid]::NewGuid().ToString('N')) }
+$OutputDirectory = [IO.Path]::GetFullPath($OutputDirectory)
+$relativeOutput = [IO.Path]::GetRelativePath($root, $OutputDirectory).Replace('\', '/')
+if ($relativeOutput -ne '..' -and -not $relativeOutput.StartsWith('../') -and -not [IO.Path]::IsPathRooted($relativeOutput)) {
+    $ignored = Invoke-ContextGit -Root $root -Arguments @('check-ignore', '-q', '--', "$relativeOutput/results.json") -AllowFailure
+    if ($ignored.ExitCode -ne 0) { throw 'Evidence inside the repository must use a Git-ignored directory, such as .godot/fast-checks.' }
 }
-
-if ($plan.MediaChecks) {
-    Invoke-Check "Frontend media verifier regression tests" {
-        & "$root/tools/test-frontend-media.ps1"
-    }
-    Invoke-Check "Frontend media materialization and checksums" {
-        & "$root/tools/check-frontend-media.ps1"
-    }
+New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
+$reportPath = Join-Path $OutputDirectory 'results.json'
+$report = [ordered]@{
+    SchemaVersion = 1; Area = $Area; Status = 'RUNNING'; Scope = 'Targeted iteration only; not final Story verification'
+    Context = $null; GodotPath = $GodotPath; Paths = $paths; Plan = $checkPlan; Reasons = $explanation
+    Checks = [Collections.Generic.List[object]]::new(); Pending = [Collections.Generic.List[string]]::new()
+    Unexecuted = [Collections.Generic.List[string]]::new(); Error = $null
 }
-
-if ($plan.CoreTests) {
-    Invoke-Check "Core tests" {
-        dotnet test "$root/code/Tests/Trackstorm.Core.Tests.csproj" -c Release
-    }
+function Save-Report { [IO.File]::WriteAllText($reportPath, ($report | ConvertTo-Json -Depth 12)) }
+function Run-Check {
+    param([string]$Name, [string]$Executable, [string[]]$Arguments = @(), [hashtable]$Parameters = @{})
+    $result = Invoke-AgentCheck -Name $Name -Executable $Executable -Arguments $Arguments -Parameters $Parameters -Root $root -LogDirectory $OutputDirectory -DetailedOutput:$DetailedOutput
+    $report.Checks.Add($result)
+    [void]$report.Unexecuted.Remove($Name)
+    Save-Report
+    if ($result.Status -ne 'PASS') { throw "$Name failed; inspect $($result.StdoutLog) and $($result.StderrLog)." }
 }
-
-if ($plan.TransportTests) {
-    Invoke-Check "Transport tests" {
-        dotnet test "$root/code/TransportTests/Trackstorm.Transport.Tests.csproj" -c Release --filter 'TestCategory!=Native'
-    }
+function Run-Script {
+    param([string]$Script, [hashtable]$Parameters = @{})
+    Run-Check -Name $Script -Executable (Join-Path $root $Script) -Parameters $Parameters
 }
-
-if ($plan.ServiceTests) {
-    $serviceRoot = Join-Path $root "services/authority-lease"
-    if (-not (Test-Path (Join-Path $serviceRoot "node_modules"))) {
-        Invoke-Check "Authority-lease npm install" {
-            npm ci --prefix $serviceRoot
+try {
+    $report.Context = Get-VerificationContext -Root $root
+    $resolvedGodot = $null
+    $runtimeNames = @($checkPlan.RuntimeScripts)
+    $extendedNames = @($checkPlan.ExtendedScripts | Where-Object { $_ -notin $runtimeNames })
+    if ($runtimeNames.Count -gt 0 -or ($IncludeExtended -and $extendedNames.Count -gt 0)) {
+        if ($GodotPath) {
+            if (Test-Path -LiteralPath $GodotPath -PathType Leaf) { $resolvedGodot = (Resolve-Path -LiteralPath $GodotPath).Path }
+            else { $resolvedGodot = (Get-Command -Name $GodotPath -CommandType Application -ErrorAction Stop).Source }
         }
     }
-
-    Invoke-Check "Authority-lease service tests" {
-        npm test --prefix $serviceRoot
+    $report.GodotPath = $resolvedGodot
+    foreach ($scenario in $checkPlan.ManualScenarios) { $report.Pending.Add("Manual: $scenario") }
+    if (-not $IncludeExtended) { foreach ($script in $extendedNames) { $report.Pending.Add("Extended: $script") } }
+    if (-not $resolvedGodot) {
+        foreach ($script in $runtimeNames) { $report.Pending.Add("Runtime: $script (Godot unavailable)") }
+        if ($IncludeExtended) { foreach ($script in $extendedNames) { $report.Pending.Add("Extended: $script (Godot unavailable)") } }
     }
-}
-
-# Routed runtime scripts already compile the affected solution. Avoid an extra Client build
-# when at least one runtime harness is going to run.
-if ($plan.ClientBuild -and -not $runtimeWillRun) {
-    Invoke-Check "Client Debug build" {
-        dotnet build "$root/Trackstorm.Client.csproj" -c Debug -warnaserror
-    }
-}
-
-if ($plan.RuntimeScripts.Count -gt 0) {
+    $runtimeToRun = @()
     if ($resolvedGodot) {
-        foreach ($script in $plan.RuntimeScripts) {
-            Invoke-RoutedRuntimeCheck -Script $script -ResolvedGodotPath $resolvedGodot
-        }
+        $runtimeToRun = $runtimeNames
+        if ($IncludeExtended) { $runtimeToRun += $extendedNames }
     }
-    else {
-        Write-Warning "Runtime checks were routed but no Godot executable was supplied. Pass -GodotPath <path> or set GODOT_PATH."
-        foreach ($script in $plan.RuntimeScripts) {
-            Write-Host "  pending runtime check: ./$script -GodotPath <path>"
-        }
-
-        if ($RequireRuntime) {
-            throw "Runtime checks are required for this iteration but GodotPath is unavailable."
-        }
+    if ($checkPlan.WorkflowTests) { $report.Unexecuted.Add('tools/test-workflow-tools.ps1') }
+    if ($checkPlan.VersionChecks) { $report.Unexecuted.Add('tools/test-version.ps1') }
+    if ($checkPlan.MediaChecks) { $report.Unexecuted.Add('tools/test-frontend-media.ps1'); $report.Unexecuted.Add('tools/check-frontend-media.ps1') }
+    if ($checkPlan.CoreTests) { $report.Unexecuted.Add('Core tests') }
+    if ($checkPlan.TransportTests) { $report.Unexecuted.Add('Transport tests') }
+    if ($checkPlan.ServiceTests) { $report.Unexecuted.Add('Authority-lease service tests') }
+    if ($runtimeToRun.Count -gt 0) { $report.Unexecuted.Add('Runtime Debug build') }
+    elseif ($checkPlan.ClientBuild) { $report.Unexecuted.Add('Client Debug build') }
+    foreach ($script in $runtimeToRun) { $report.Unexecuted.Add($script) }
+    Save-Report
+    if (($RequireRuntime -and $runtimeNames.Count -gt 0 -and -not $resolvedGodot) -or
+        ($IncludeExtended -and $extendedNames.Count -gt 0 -and -not $resolvedGodot)) {
+        throw 'Required runtime is unavailable. Supply -GodotPath or GODOT_PATH. No runtime check passed.'
     }
+    if ($checkPlan.WorkflowTests) { Run-Script 'tools/test-workflow-tools.ps1' }
+    if ($checkPlan.VersionChecks) { Run-Script 'tools/test-version.ps1' }
+    if ($checkPlan.MediaChecks) { Run-Script 'tools/test-frontend-media.ps1'; Run-Script 'tools/check-frontend-media.ps1' }
+    if ($checkPlan.CoreTests) { Run-Check 'Core tests' 'dotnet' @('test', 'code/Tests/Trackstorm.Core.Tests.csproj', '-c', 'Release') }
+    if ($checkPlan.TransportTests) { Run-Check 'Transport tests' 'dotnet' @('test', 'code/TransportTests/Trackstorm.Transport.Tests.csproj', '-c', 'Release', '--filter', 'TestCategory!=Native') }
+    if ($checkPlan.ServiceTests) {
+        $serviceRoot = Join-Path $root 'services/authority-lease'
+        if (-not (Test-Path (Join-Path $serviceRoot 'node_modules'))) { Run-Check 'Authority-lease npm install' 'npm' @('ci', '--prefix', $serviceRoot) }
+        Run-Check 'Authority-lease service tests' 'npm' @('test', '--prefix', $serviceRoot)
+    }
+    # Build once within this invocation; no persistent build cache or prior-run pass is trusted.
+    $buildFingerprint = $null
+    if ($runtimeToRun.Count -gt 0) {
+        Assert-VerificationContext -Root $root -Fingerprint $report.Context.Fingerprint
+        Run-Check 'Runtime Debug build' 'dotnet' @('build', 'Trackstorm.sln', '-c', 'Debug', '-warnaserror')
+        Assert-VerificationContext -Root $root -Fingerprint $report.Context.Fingerprint
+        $buildFingerprint = $report.Context.Fingerprint
+    }
+    elseif ($checkPlan.ClientBuild) { Run-Check 'Client Debug build' 'dotnet' @('build', 'Trackstorm.Client.csproj', '-c', 'Debug', '-warnaserror') }
+    foreach ($script in $runtimeToRun) {
+        Assert-VerificationContext -Root $root -Fingerprint $buildFingerprint
+        $scriptPath = Join-Path $root $script
+        $parameters = @{ GodotPath = $resolvedGodot }
+        $buildSwitch = Get-RuntimeBuildSwitch -ScriptPath $scriptPath
+        if ($buildSwitch) { $parameters[$buildSwitch] = $true }
+        Run-Script -Script $script -Parameters $parameters
+    }
+    Assert-VerificationContext -Root $root -Fingerprint $report.Context.Fingerprint
+    $report.Status = if ($report.Pending.Count -gt 0) { 'COMPLETED_WITH_PENDING' } else { 'PASS' }
 }
-
-if ($plan.ExtendedScripts.Count -gt 0) {
-    if ($IncludeExtended) {
-        if (-not $resolvedGodot) {
-            throw "-IncludeExtended requires -GodotPath or GODOT_PATH."
-        }
-
-        foreach ($script in $plan.ExtendedScripts) {
-            Invoke-RoutedRuntimeCheck -Script $script -ResolvedGodotPath $resolvedGodot
-        }
-    }
-    else {
-        Write-Host "`nExtended/native checks were identified but not auto-run:"
-        foreach ($script in $plan.ExtendedScripts) {
-            Write-Host "  pending extended check: ./$script -GodotPath <path>"
-        }
-    }
+catch { $report.Status = 'FAIL'; $report.Error = $_.Exception.Message; throw }
+finally {
+    Save-Report
+    foreach ($pending in $report.Pending) { Write-Host "PENDING: $pending" }
+    Write-Host "Targeted result: $($report.Status). Evidence: $reportPath"
+    Write-Host 'Run ./check.ps1 and applicable runtime/native checks before final Story handoff.'
 }
-
-if ($plan.ManualScenarios.Count -gt 0) {
-    Write-Host "`nRequired playtest/manual scenarios for this change:"
-    foreach ($scenario in $plan.ManualScenarios) {
-        Write-Host "  - $scenario"
-    }
-}
-
-$selected = $plan.CoreTests -or $plan.TransportTests -or $plan.ServiceTests -or $plan.ClientBuild -or
-    $plan.VersionChecks -or $plan.MediaChecks -or $plan.RuntimeScripts.Count -gt 0 -or
-    $plan.ExtendedScripts.Count -gt 0 -or $plan.ManualScenarios.Count -gt 0
-
-if (-not $selected) {
-    Write-Host "Only documentation/workflow or unclassified non-production files changed; no iteration check selected."
-}
-
-Write-Host "`nFast targeted checks completed. Run ./check.ps1 before final Story handoff."
