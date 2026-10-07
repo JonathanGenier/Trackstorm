@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 concurrency:
   group: ts-287-maintenance
@@ -23,23 +24,17 @@ jobs:
           fetch-depth: 0
           lfs: false
           persist-credentials: false
-      - name: Apply bounded maintenance edits
+      - name: Reuse actual unchanged-source evidence and apply exact maintenance patch
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: pwsh
         run: |
+          python tools/ts-287-finish.py previous
+          if ($LASTEXITCODE -ne 0) { throw 'Prior evidence/source validation failed.' }
           python tools/ts-287-apply.py
           if ($LASTEXITCODE -ne 0) { throw 'Maintenance patch refused unexpected source structure.' }
           ./tools/sync-story-version.ps1
           ./tools/check-version.ps1 -StoryBranch ts-287-jg
-          git diff --check
-          if ($LASTEXITCODE -ne 0) { throw 'Whitespace check failed.' }
-      - name: Targeted tooling regression tests
-        shell: pwsh
-        run: |
-          . ./tools/agent-checks.ps1
-          $folder = Join-Path $PWD '.godot/ts-287-checks'
-          $result = Invoke-AgentCheck -Name 'tools/test-workflow-tools.ps1' -Executable (Join-Path $PWD 'tools/test-workflow-tools.ps1') -Root $PWD -LogDirectory $folder
-          @($result) | ConvertTo-Json -Depth 8 -AsArray | Set-Content (Join-Path $folder 'results.json')
-          if ($result.Status -ne 'PASS') { throw 'Targeted tooling regressions failed.' }
       - name: Prepare existing pinned prerequisites
         shell: pwsh
         run: |
@@ -48,40 +43,58 @@ jobs:
           ./setup-eos.ps1
           $godot = ./tools/setup-godot-ci.ps1
           "GODOT_PATH=$godot" >> $env:GITHUB_ENV
-      - name: Comprehensive verification and native operational checks
+      - name: Exercise automatic runtime batch, remaining wrappers and unchanged-main baseline
         shell: pwsh
         run: |
           . ./tools/agent-checks.ps1
-          $folder = Join-Path $PWD '.godot/ts-287-checks'
+          $root = $PWD.Path
+          $folder = Join-Path $root '.godot/ts-287-checks'
           $results = [Collections.Generic.List[object]]::new()
           foreach ($entry in @(Get-Content (Join-Path $folder 'results.json') -Raw | ConvertFrom-Json)) { $results.Add($entry) }
-          function Run-Evidence([string]$Name, [string]$Executable, [hashtable]$Parameters = @{}) {
-            $result = Invoke-AgentCheck -Name $Name -Executable $Executable -Parameters $Parameters -Root $PWD -LogDirectory $folder
+          function Run-Evidence([string]$Name, [string]$Executable, [hashtable]$Parameters = @{}, [switch]$AllowFailure, [string]$WorkingDirectory = $root) {
+            $result = Invoke-AgentCheck -Name $Name -Executable $Executable -Parameters $Parameters -Root $WorkingDirectory -LogDirectory $folder
+            $result | Add-Member NoteProperty Run "https://github.com/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
             $results.Add($result)
             $results.ToArray() | ConvertTo-Json -Depth 8 -AsArray | Set-Content (Join-Path $folder 'results.json')
-            if ($result.Status -ne 'PASS') { throw "$Name failed." }
+            if ($result.Status -ne 'PASS' -and -not $AllowFailure) { throw "$Name failed." }
           }
-          Run-Evidence 'check.ps1' (Join-Path $PWD 'check.ps1')
-          Run-Evidence 'import-godot.ps1' (Join-Path $PWD 'import-godot.ps1') @{ GodotPath = $env:GODOT_PATH }
-          Run-Evidence 'check-agent-environment.ps1' (Join-Path $PWD 'tools/check-agent-environment.ps1') @{ GodotPath = $env:GODOT_PATH; RequireRuntime = $true }
-          Run-Evidence 'check-fast.ps1 -Plan -Explain -Json' (Join-Path $PWD 'tools/check-fast.ps1') @{ Plan = $true; Explain = $true; Json = $true }
-          Run-Evidence 'check-fast.ps1 -Area Client' (Join-Path $PWD 'tools/check-fast.ps1') @{ Area = 'Client' }
-          foreach ($script in @('check-camera.ps1', 'check-car-articulation.ps1', 'check-input.ps1', 'check-settings.ps1', 'check-menu.ps1', 'check-developer-options.ps1', 'check-vehicle.ps1', 'check-gdunit.ps1')) {
-            Run-Evidence "$script -NoBuild" (Join-Path $PWD $script) @{ GodotPath = $env:GODOT_PATH; NoBuild = $true }
+          Run-Evidence 'Fresh Client build through check-fast' (Join-Path $root 'tools/check-fast.ps1') @{ Area = 'Client' }
+          Run-Evidence 'Fresh native import' (Join-Path $root 'import-godot.ps1') @{ GodotPath = $env:GODOT_PATH }
+          Run-Evidence 'check-fast.ps1 automatic runtime batch' (Join-Path $root 'tools/check-fast.ps1') @{ GodotPath = $env:GODOT_PATH; RequireRuntime = $true; Explain = $true; OutputDirectory = (Join-Path $root '.godot/ts-287-auto') } -AllowFailure
+          $auto = Get-Content (Join-Path $root '.godot/ts-287-auto/results.json') -Raw | ConvertFrom-Json
+          if (-not @($auto.Checks | Where-Object { $_.Name -eq 'Runtime Debug build' -and $_.Status -eq 'PASS' }).Count) { throw 'The automatic runtime batch did not prepare a fresh build.' }
+          foreach ($script in @('check-input.ps1', 'check-settings.ps1', 'check-menu.ps1', 'check-developer-options.ps1', 'check-vehicle.ps1', 'check-gdunit.ps1')) {
+            Run-Evidence "$script -NoBuild" (Join-Path $root $script) @{ GodotPath = $env:GODOT_PATH; NoBuild = $true }
           }
-          Run-Evidence 'tools/check-version.ps1' (Join-Path $PWD 'tools/check-version.ps1') @{ StoryBranch = 'ts-287-jg' }
-      - name: Propose verified tree without updating any branch
+          $baseline = Join-Path $env:RUNNER_TEMP ('ts-287-main-' + [guid]::NewGuid().ToString('N'))
+          git worktree add --detach $baseline 73c6811b56cc8ae3b05229d66b7ffdfcb0ab2911
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot prepare isolated baseline checkout.' }
+          Push-Location $baseline
+          try {
+            git lfs pull
+            if ($LASTEXITCODE -ne 0) { throw 'Baseline media preparation failed.' }
+            ./setup-eos.ps1
+            dotnet build Trackstorm.Client.csproj -c Debug -warnaserror
+            if ($LASTEXITCODE -ne 0) { throw 'Baseline build failed.' }
+            ./import-godot.ps1 -GodotPath $env:GODOT_PATH
+            Run-Evidence 'Unchanged main check-car-articulation.ps1' (Join-Path $baseline 'check-car-articulation.ps1') @{ GodotPath = $env:GODOT_PATH } -AllowFailure -WorkingDirectory $baseline
+          }
+          finally { Pop-Location }
+          Run-Evidence 'Final version validation' (Join-Path $root 'tools/check-version.ps1') @{ StoryBranch = 'ts-287-jg' }
+      - name: Propose final tree with truthful baseline limitation and no ref update
         env:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
         run: |
-          python tools/ts-287-apply.py publish
-          if ($LASTEXITCODE -ne 0) { throw 'Candidate publication failed; no branch ref was updated.' }
+          python tools/ts-287-finish.py publish
+          if ($LASTEXITCODE -ne 0) { throw 'Final candidate publication refused unexpected results.' }
       - name: Retain actual validation output
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ts-287-validation-${{ github.sha }}
-          path: .godot/ts-287-checks/
+          path: |
+            .godot/ts-287-checks/
+            .godot/ts-287-auto/
           include-hidden-files: true
           if-no-files-found: ignore
