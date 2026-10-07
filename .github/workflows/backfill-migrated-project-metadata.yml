@@ -125,11 +125,11 @@ jobs:
               ((.body | capture("(?m)^Legacy Jira status: (?<v>.+)$").v) // ""),
               ((try (.body | capture("(?m)^Legacy Jira parent: (?<v>TS-[0-9]+)$").v) catch "") // ""),
               ((try (.body | capture("(?m)^Legacy release: (?<v>[0-9]+\\.[0-9]+\\.[0-9]+)$").v) catch "") // "")
-            ] | @tsv
+            ] | join("\u001f")
           ' "$tmp/issues.jsonl" >"$tmp/map.tsv"
 
           declare -A jira_number jira_node jira_db jira_type
-          while IFS=$'\t' read -r jira number node db state type legacy_status parent release; do
+          while IFS=
             jira_number["$jira"]="$number"
             jira_node["$jira"]="$node"
             jira_db["$jira"]="$db"
@@ -157,7 +157,120 @@ jobs:
                   ) {
                     projectV2Item { id }
                   }
-                }'               -F project="$project_id"               -F item="$item"               -F field="$field"               -F option="$option"               >/dev/null
+                }'               -F project="$project_id"               -F item="$item"               -F field="$field"               -f option="$option"               >/dev/null
+          }
+
+          updated=0
+          linked=0
+
+          while IFS=$'\t' read -r jira number node db state type legacy_status parent release; do
+            item_id="$(
+              gh api graphql                 -f query='
+                  query($id: ID!) {
+                    node(id: $id) {
+                      ... on Issue {
+                        projectItems(first: 100) {
+                          nodes { id project { id } }
+                        }
+                      }
+                    }
+                  }'                 -F id="$node"                 --jq ".data.node.projectItems.nodes[] | select(.project.id == \"$project_id\") | .id"                 | head -n1
+            )"
+
+            if [ -z "$item_id" ]; then
+              item_id="$(
+                gh api graphql                   -f query='
+                    mutation($project: ID!, $content: ID!) {
+                      addProjectV2ItemById(input: {projectId: $project, contentId: $content}) {
+                        item { id }
+                      }
+                    }'                   -F project="$project_id"                   -F content="$node"                   --jq '.data.addProjectV2ItemById.item.id'
+              )"
+            fi
+
+            type_option="$(option_id "Work Type" "$type")"
+            set_single_select "$item_id" "$work_type_field" "$type_option" "Work Type=$type for $jira"
+
+            status_value="Backlog"
+            if [ "$state" = "closed" ] || [ "$legacy_status" = "Done" ]; then
+              status_value="Done"
+            elif [ "$legacy_status" = "In Progress" ]; then
+              status_value="In Progress"
+            elif [ "$legacy_status" = "In Review" ]; then
+              status_value="In Review"
+            elif [ "$legacy_status" = "To Do" ]; then
+              status_value="To do"
+            fi
+            status_option="$(option_id "Status" "$status_value")"
+            set_single_select "$item_id" "$status_field" "$status_option" "Status=$status_value for $jira"
+
+            if [ -n "$release" ]; then
+              release_option="$(option_id "Release" "$release")"
+              set_single_select "$item_id" "$release_field" "$release_option" "Release=$release for $jira"
+            fi
+
+            if [ -n "$parent" ] && [ -n "${jira_number[$parent]:-}" ]; then
+              parent_node="${jira_node[$parent]}"
+              current_parent="$(
+                gh api graphql                   -f query='
+                    query($id: ID!) {
+                      node(id: $id) {
+                        ... on Issue {
+                          parent { id }
+                        }
+                      }
+                    }'                   -F id="$node"                   --jq '.data.node.parent.id // empty'
+              )"
+              if [ "$current_parent" != "$parent_node" ]; then
+                gh api graphql                   -f query='
+                    mutation($parent: ID!, $child: ID!) {
+                      addSubIssue(input: {
+                        issueId: $parent
+                        subIssueId: $child
+                        replaceParent: true
+                      }) {
+                        issue { id }
+                        subIssue { id }
+                      }
+                    }'                   -F parent="$parent_node"                   -F child="$node"                   >/dev/null
+                linked=$((linked + 1))
+              fi
+            fi
+
+            updated=$((updated + 1))
+            echo "Backfilled $jira -> #$number ($type, $status_value${release:+, release $release})."
+          done <"$tmp/map.tsv"
+
+          echo "Backfill complete: $updated project items updated; $linked parent relationships added/replaced."
+\x1f' read -r jira number node db state type legacy_status parent release; do
+            jira_number["$jira"]="$number"
+            jira_node["$jira"]="$node"
+            jira_db["$jira"]="$db"
+            jira_type["$jira"]="$type"
+          done <"$tmp/map.tsv"
+
+          set_single_select() {
+            local item="$1"
+            local field="$2"
+            local option="$3"
+            local label="$4"
+            if [ -z "$option" ]; then
+              echo "::error::Project option missing for $label."
+              return 1
+            fi
+            gh api graphql               -f query='
+                mutation($project: ID!, $item: ID!, $field: ID!, $option: String!) {
+                  updateProjectV2ItemFieldValue(
+                    input: {
+                      projectId: $project
+                      itemId: $item
+                      fieldId: $field
+                      value: {singleSelectOptionId: $option}
+                    }
+                  ) {
+                    projectV2Item { id }
+                  }
+                }'               -F project="$project_id"               -F item="$item"               -F field="$field"               -f option="$option"               >/dev/null
           }
 
           updated=0
