@@ -9,12 +9,10 @@ concurrency:
   group: ts-287-maintenance
   cancel-in-progress: true
 jobs:
-  finalize:
+  package:
     if: github.repository == 'JonathanGenier/Trackstorm' && github.ref == 'refs/heads/ts-287-jg'
     runs-on: windows-latest
-    timeout-minutes: 12
-    env:
-      GITHUB_HEAD_REF: ts-287-jg
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v7
         with:
@@ -22,172 +20,93 @@ jobs:
           fetch-depth: 0
           lfs: false
           persist-credentials: false
-      - name: Recover actual completed evidence
+      - name: Retrieve completed verification without rerunning it
         env:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
         run: |
-          gh run download 37698870812 --repo $env:GITHUB_REPOSITORY --name ts-287-final-a82eb4a5bca29cf55629f5b3e037e8ec5acdfd53 --dir .godot/ts-287-final
-          if ($LASTEXITCODE -ne 0) { throw 'Could not recover actual validation evidence.' }
-          python tools/ts-287-apply.py
-          if ($LASTEXITCODE -ne 0) { throw 'Saved patch refused unexpected source.' }
-          ./tools/sync-story-version.ps1
-          ./tools/check-version.ps1 -StoryBranch ts-287-jg
-          Remove-Item tools/ts-287-apply.py, tools/ts-287-finish.py, .github/workflows/ts-287-maintenance.yml
-      - name: Confirm exact tested source and classify generated textures
+          gh run download 37699925566 --repo $env:GITHUB_REPOSITORY --name ts-287-delivery-0503a64a168432b7f113c4c710bb4a4f8874166e --dir .godot/ts-287-final
+          if ($LASTEXITCODE -ne 0) { throw 'Completed evidence could not be retrieved.' }
+      - name: Reconstruct only tested files and save a complete delivery archive
         shell: python
         run: |
-          from pathlib import Path
-          import json, struct, subprocess, zipfile
-          expected='a82eb4a5bca29cf55629f5b3e037e8ec5acdfd53'
-          delta=subprocess.check_output(['git','diff','--name-only',expected,'HEAD','--'],text=True).splitlines()
-          if delta!=['.github/workflows/ts-287-maintenance.yml']: raise SystemExit('Concurrent changes require review: '+str(delta))
-          with zipfile.ZipFile('.godot/ts-287-final/source.zip') as z:
-              for n in z.namelist():
-                  if n.startswith('source/') and Path(n[7:]).read_bytes()!=z.read(n): raise SystemExit('Source differs from tested snapshot: '+n)
-          records=json.loads(Path('.godot/ts-287-final/results.json').read_text(encoding='utf-8-sig'))
-          for r in records: r['Run']='https://github.com/JonathanGenier/Trackstorm/actions/runs/37698870812'
-          Path('.godot/ts-287-final/results.json').write_text(json.dumps(records,indent=2),encoding='utf-8')
-          models=['BoulderLow','BoulderTall','RockCluster','RockLedge','RockSlab']
-          generated=[]; evidence=[]
-          for model in models:
-              p=Path('assets/environment/models')/(model+'.glb')
-              data=p.read_bytes()
-              if data[:4]!=b'glTF' or data[16:20]!=b'JSON': raise SystemExit('Unexpected GLB layout: '+str(p))
-              scene=json.loads(data[20:20+struct.unpack_from('<I',data,12)[0]])
-              images=scene.get('images',[])
-              evidence.append({'source':str(p),'images':images})
-              for key in ['StoneAlbedo','StoneNormal']:
-                  if not any(i.get('name','').endswith(key) and 'bufferView' in i and 'uri' not in i for i in images): raise SystemExit('Embedded image ownership is not established: '+model+'/'+key)
-                  target='assets/environment/models/'+model+'_'+key+'.png'
-                  if subprocess.run(['git','ls-files','--error-unmatch','--',target],capture_output=True).returncode==0: raise SystemExit('Refusing to ignore a tracked asset: '+target)
-                  generated.append(target)
-          Path('.godot/ts-287-final/embedded-images.json').write_text(json.dumps(evidence,indent=2),encoding='utf-8')
-          ignore=Path('.gitignore')
-          ignore.write_text(ignore.read_text(encoding='utf-8-sig').rstrip()+'\n\n# Godot-extracted copies of embedded rock textures; keep their GLB masters tracked.\n'+'\n'.join('/'+p for p in generated)+'\n',encoding='utf-8',newline='\n')
-          test=Path('tools/test-agent-tools.ps1')
-          extra='\n# Only verified embedded-image outputs are ignored; authored asset paths remain visible.\n'
-          extra+='$embeddedOutputs = @(\n'+',\n'.join("    '"+p+"'" for p in generated)+'\n)\n'
-          extra+='foreach ($output in $embeddedOutputs) {\n    $ignored = Invoke-ContextGit -Root $root -Arguments @(\'check-ignore\', \'-q\', \'--\', $output) -AllowFailure\n    Assert-AgentTool ($ignored.ExitCode -eq 0) "Embedded-image output should be ignored: $output"\n}\n'
-          extra+='foreach ($source in @(\'assets/environment/models/BoulderLow.glb\', \'assets/environment/models/new-authored-texture.png\')) {\n    $visible = Invoke-ContextGit -Root $root -Arguments @(\'check-ignore\', \'-q\', \'--\', $source) -AllowFailure\n    Assert-AgentTool ($visible.ExitCode -eq 1) "Authored assets must remain visible: $source"\n}\n'
-          text=test.read_text(encoding='utf-8-sig')
-          anchor='Write-Host "Agent tooling regression tests passed:'
-          index=text.index(anchor)
-          test.write_text(text[:index]+extra+text[index:],encoding='utf-8',newline='\n')
-          print('Every tested snapshot file matched. Confirmed 10 extracted images from five unchanged GLB masters; added exact-path ignores and positive/negative routing regressions.')
-      - name: Verify final metadata and tooling configuration
-        shell: pwsh
-        run: |
-          . ./tools/agent-checks.ps1
-          $folder = "$PWD/.godot/ts-287-final"
-          $records = [Collections.Generic.List[object]]::new()
-          foreach ($r in @(Get-Content "$folder/results.json" -Raw | ConvertFrom-Json)) { $records.Add($r) }
-          function Record-Final([string]$Name, [string]$Script, [int]$Timeout = 120) {
-            $r = Invoke-AgentCheck -Name $Name -Executable "$PWD/$Script" -Root $PWD -LogDirectory $folder -TimeoutSeconds $Timeout
-            $r | Add-Member NoteProperty Run "https://github.com/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
-            $records.Add($r)
-            $records.ToArray() | ConvertTo-Json -Depth 10 -AsArray | Set-Content "$folder/results.json"
-            if ($r.Status -ne 'PASS') { throw "$Name failed." }
-          }
-          Record-Final 'Final tooling and exact generated-output ignores' 'tools/test-workflow-tools.ps1'
-          git lfs pull
-          if ($LASTEXITCODE -ne 0) { throw 'Media preparation failed.' }
-          ./setup-eos.ps1
-          Record-Final 'Final check.ps1 after ignore/test-only correction' 'check.ps1' 360
-          ./tools/check-version.ps1 -StoryBranch ts-287-jg
-          git diff --check
-          if ($LASTEXITCODE -ne 0) { throw 'Whitespace validation failed.' }
-      - name: Persist evidence and create reviewable commit without updating a ref
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: python
-        run: |
-          from pathlib import Path
-          import json, os, subprocess, urllib.request, zipfile
+          from pathlib import Path, PurePosixPath
+          import hashlib, json, subprocess, textwrap, zipfile
           root=Path.cwd(); folder=root/'.godot/ts-287-final'
+          prior='0503a64a168432b7f113c4c710bb4a4f8874166e'
           head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
-          run='https://github.com/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID']
+          delta=subprocess.check_output(['git','diff','--name-only',prior,'HEAD','--'],text=True).splitlines()
+          if delta!=['.github/workflows/ts-287-maintenance.yml']: raise SystemExit('Concurrent source change: '+str(delta))
+          driver=subprocess.check_output(['git','show',prior+':.github/workflows/ts-287-maintenance.yml'],text=True,encoding='utf-8')
+          def prior_python_step(name):
+              section=driver.split('      - name: '+name+'\n',1)[1].split('\n      - name:',1)[0]
+              code=section.split('        run: |\n',1)[1]
+              return textwrap.dedent(code)
+          with zipfile.ZipFile(folder/'source.zip') as z:
+              manifest=json.loads(z.read('manifest.json'))
+              if manifest['head']!='a82eb4a5bca29cf55629f5b3e037e8ec5acdfd53': raise SystemExit('Wrong source snapshot.')
+              present=set()
+              for n in z.namelist():
+                  if not n.startswith('source/'): continue
+                  name=n[7:]; p=PurePosixPath(name)
+                  if p.is_absolute() or '..' in p.parts: raise SystemExit('Unsafe archive path.')
+                  target=root/name; target.parent.mkdir(parents=True,exist_ok=True); target.write_bytes(z.read(n)); present.add(name)
+              for name in manifest['changed']:
+                  if name not in present:
+                      if name not in ['.github/workflows/ts-287-maintenance.yml','tools/ts-287-apply.py','tools/ts-287-finish.py']: raise SystemExit('Unexpected deletion: '+name)
+                      (root/name).unlink(missing_ok=True)
+          # Reapply exactly the generated-output boundary already checked in run 37699925566.
+          code=prior_python_step('Confirm exact tested source and classify generated textures')
+          code=code[code.index("models=['BoulderLow'"):]
+          exec(compile(code,'verified-ignore-boundary','exec'),globals())
           records=json.loads((folder/'results.json').read_text(encoding='utf-8-sig'))
-          summary=[{k:r.get(k) for k in ['Name','Status','ExitCode','DurationSeconds','StartedUtc','Run','Error']} for r in records]
-          Path('docs/verification/ts-287-results.json').write_text(json.dumps(summary,indent=2)+'\n',encoding='utf-8')
-          rows='\n'.join('| `'+r['Name']+'` | '+r['Status']+' | '+str(r['ExitCode'])+' | '+str(r['DurationSeconds'])+' |' for r in records)
-          text='''# TS-287 — Verification tooling and context routing
-
-          ## Delivered implementation
-
-          Automatic fast checks include committed, staged, unstaged and non-ignored new paths, deletion and both sides of renames. Documentation-only routing is guarded before every feature route. Plan/explain/JSON executes no checks. Runtime batches prepare a fresh Debug solution build and use supported build-skip parameters; mixed-configuration soak setup and standalone default builds remain intact. Structured actual results retain full command logs, exit codes, timings, source HEAD/dirty fingerprints, pending work and unexecuted checks after failure. Read-only preflight does not install tools or disable auditing.
-
-          Workflow guidance is divided by stage, preserves Jira model recommendations, makes scores advisory and avoids duplicate verification caused solely by accepting an unchanged critique. Focused item, vehicle and tuning references preserve shared contracts and incoming anchors. NuGet cache fallback retains restore, auditing and every existing CI step.
-
-          The earlier expanded runtime plan was triggered by ten untracked rock-texture paths, as shown in run 37676088720's Reasons. During finalization, the five unchanged source GLBs were parsed and each StoneAlbedo/StoneNormal image was confirmed embedded through a bufferView without an external URI. Only those ten exact extracted PNG paths are now ignored; source GLBs and other authored textures remain visible. Positive and negative regression assertions cover this boundary. No asset bytes or importer settings changed.
-
-          Temporary maintenance workflow and patch/finalizer drivers are removed. No production C#, scenes, gameplay, physics, protocol, architecture or security-policy change is included. Local Codex/account/MCP settings were not accessed or changed.
-
-          ## Actual verification and source provenance
-
-          Native results below come from [run 37698870812](https://github.com/JonathanGenier/Trackstorm/actions/runs/37698870812): source a82eb4a5bca29cf55629f5b3e037e8ec5acdfd53 with the saved patch applied and temporary files removed. A complete source snapshot was retained before runtime execution. Finalization compared every file in that snapshot byte-for-byte against the clean reconstructed checkout. Only the subsequent exact-path .gitignore entries, their tooling regression assertions, and this evidence/index were added afterward. Native production and harness bodies are unchanged from the exercised snapshot. Final tooling and comprehensive checks were then rerun on that correction; no old failing result was relabeled.
-
-          [Finalization execution and retained artifacts]({run}). [Machine-readable actual results](ts-287-results.json) identify the originating run for every row. The later delivered-commit CI is an independent gate and is not claimed by this report.
-
-          | Command / check | Actual result | Exit | Seconds |
-          | --- | --- | --- | --- |
-          {rows}
-
-          Planning success establishes only planning/output operation. The regression suite includes intentional failure, timeout, missing-command/runtime, quoting and stale-source fixtures; their expected failures are not passing production checks. Preflight reports native/media/device capabilities not exercised by that preflight separately.
-
-          ## Static delivery inspection
-
-          Python inspection of the downloaded applied-source archive confirmed preservation of all 46 original level-two sections across items, vehicles and developer-options documents, and resolution of 58 fragment links whose target files were present in the snapshot. This is not a claim of a complete repository-wide link crawl. The seven wrapper diffs only add the explicit NoBuild switch around their existing build/error block; their native commands, assertions, warning/error matching and success markers are preserved. Both CI workflow diffs only add NuGet restore-key fallback; existing steps and permissions are unchanged.
-
-          ## Unresolved native results and prior attempts
-
-          Current car-articulation verification passed 203 functional assertions, then failed strict shutdown with 24 leaked ObjectDB instances and 3 resources still in use. It remains FAIL. An earlier run 37674293176 had the same failure; a subsequent attempt in run 37676088720 was clean. No leak fix or proven unchanged-main baseline classification is claimed, and no assertion was weakened. That unresolved native cleanup result remains a merge-readiness limitation.
-
-          Run 37676088720 was canceled at its 30-minute job limit after its expanded automatic batch reached check-map-budget.ps1 without a completed result. Its retained RUNNING marker is an interrupted result, not a live job or a pass. Its unchanged-main comparison and finalization steps never ran. The map-budget implementation and routing were not removed or relaxed. The later bounded run exercised all seven changed wrappers individually instead of repeating the unrelated texture-triggered map batch. The previous map-budget execution remains UNVERIFIED; its renderer/harness/environment cause was not established.
-
-          ## Remaining gates and limits
-
-          Astra Review: N/A — no independent Astra operational/runtime critique has been performed. This remains a completion gate, not a manufactured score or an exemption. Final-head CI, current-main/version review and human acceptance remain required. No merge or force-update is authorized or performed by this finalization job; it only creates a candidate commit for explicit inspection and publication.
-
-          No human gameplay acceptance, physical input device, rendered experiential review, authenticated EOS, remote-machine test, export, performance benchmark or measured Codex-credit reduction is claimed. The native evidence establishes only its named operational coverage. The branch can be handed off with these facts, but Story/merge readiness must retain the strict articulation failure and missing Astra evidence.
-          '''
-          import textwrap
-          Path('docs/verification/ts-287.md').write_text(textwrap.dedent(text).format(run=run,rows=rows),encoding='utf-8',newline='\n')
-          index=Path('docs/verification/README.md'); body=index.read_text(encoding='utf-8-sig')
-          anchor='| Evidence | Reports |\n| --- | --- |'
-          if '(ts-287.md)' not in body:
-              if body.count(anchor)!=1: raise SystemExit('Unexpected verification index structure.')
-              index.write_text(body.replace(anchor,anchor+'\n| Agent tooling and context routing | [TS-287 verification evidence](ts-287.md) |',1),encoding='utf-8',newline='\n')
+          required={'Final tooling and exact generated-output ignores','Final check.ps1 after ignore/test-only correction'}
+          if required!={r['Name'] for r in records if r['Name'] in required and r['Status']=='PASS'}: raise SystemExit('Final checked evidence is absent.')
+          if len(records)!=15: raise SystemExit('Unexpected result count; inspect instead of rewriting evidence.')
+          # Run only the previously reviewed report/index generation, before any publication code.
+          code=prior_python_step('Persist evidence and create reviewable commit without updating a ref')
+          code=code.split("subprocess.run(['git','diff','--check'],check=True)",1)[0]
+          exec(compile(code,'verified-evidence-report','exec'),globals())
           subprocess.run(['git','diff','--check'],check=True)
           paths=set(subprocess.check_output(['git','diff','--name-only','-z','HEAD','--']).decode().split('\0'))
           paths.update(subprocess.check_output(['git','ls-files','--others','--exclude-standard','-z']).decode().split('\0')); paths.discard('')
           fixed={'.gitignore','AGENTS.md','Directory.Build.props','export_presets.cfg','.github/workflows/ci.yml','.github/workflows/extended-ci.yml','.github/workflows/ts-287-maintenance.yml','tools/ts-287-apply.py','tools/ts-287-finish.py','tools/test-agent-tools.ps1','tools/fast-check-routes.ps1','tools/test-workflow-tools.ps1','docs/critique.md','docs/verification/ts-287.md','docs/verification/ts-287-results.json','docs/verification/README.md','check-car-articulation.ps1','check-developer-options.ps1','check-menu.ps1','check-settings.ps1','check-vehicle.ps1','check-input.ps1','check-gdunit.ps1'}
           for p in paths:
-              if p not in fixed and not p.startswith(('docs/workflow','docs/features/')): raise SystemExit('Unexpected path: '+p)
+              if p not in fixed and not p.startswith(('docs/workflow','docs/features/')): raise SystemExit('Unexpected delivery path: '+p)
           entries=[]
-          for p in sorted(paths):
-              entry={'path':p,'mode':'100644','type':'blob'}
-              if Path(p).is_file(): entry['content']=Path(p).read_text(encoding='utf-8-sig')
-              else: entry['sha']=None
-              entries.append(entry)
-          def post(path,payload):
-              request=urllib.request.Request('https://api.github.com/repos/'+os.environ['GITHUB_REPOSITORY']+'/'+path,data=json.dumps(payload).encode(),method='POST',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json'})
-              with urllib.request.urlopen(request,timeout=60) as response: return json.load(response)
-          tree=post('git/trees',{'base_tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),'tree':entries})['sha']
-          commit=post('git/commits',{'message':'TS-287: Finalize cost-saving tooling and documentation with truthful verification handoff','tree':tree,'parents':[head]})['sha']
-          proposal={'parent':head,'tree':tree,'commit':commit,'run':run,'refUpdated':False,'unresolved':[r['Name'] for r in records if r['Status']!='PASS']}
-          (folder/'proposal.json').write_text(json.dumps(proposal,indent=2),encoding='utf-8')
-          with zipfile.ZipFile(folder/'final-source.zip','w',zipfile.ZIP_DEFLATED) as z:
-              z.writestr('proposal.json',json.dumps(proposal,indent=2))
+          with zipfile.ZipFile(folder/'delivery-source.zip','w',zipfile.ZIP_DEFLATED) as z:
               for p in sorted(paths):
-                  if Path(p).is_file(): z.write(p,'source/'+p)
-          print(json.dumps(proposal,indent=2))
-          print('NO REF UPDATED. Retain the native failure and missing independent Astra gate.')
-      - name: Retain final source and evidence
+                  entry={'path':p,'mode':'100644','type':'blob','sha':None}
+                  if Path(p).is_file():
+                      data=Path(p).read_bytes(); entry['sha']=hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest(); z.write(p,'source/'+p)
+                  entries.append(entry)
+              z.writestr('manifest.json',json.dumps({'parent':head,'baseTree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),'entries':entries},indent=2))
+          (folder/'delivery-entries.json').write_text(json.dumps(entries,indent=2),encoding='utf-8')
+          print('DELIVERY_PARENT='+head)
+          print('DELIVERY_BASE_TREE='+subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip())
+          print('Completed source archive saved before object uploads. No tests rerun or results reclassified.')
+      - name: Upload ordinary content objects only; no tree, commit, workflow or ref mutation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: python
+        run: |
+          from pathlib import Path
+          import base64,json,os,urllib.request
+          folder=Path('.godot/ts-287-final')
+          entries=json.loads((folder/'delivery-entries.json').read_text())
+          for entry in entries:
+              if entry['sha'] is None: continue
+              data=Path(entry['path']).read_bytes()
+              request=urllib.request.Request('https://api.github.com/repos/'+os.environ['GITHUB_REPOSITORY']+'/git/blobs',data=json.dumps({'encoding':'base64','content':base64.b64encode(data).decode()}).encode(),method='POST',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json'})
+              with urllib.request.urlopen(request,timeout=30) as response: uploaded=json.load(response)['sha']
+              if uploaded!=entry['sha']: raise SystemExit('Blob identity mismatch: '+entry['path'])
+              print('BLOB '+entry['path']+' '+uploaded)
+          print('DELIVERY_ENTRIES='+json.dumps(entries,separators=(',',':')))
+          print('All source bytes retained. No tree, commit, branch or PR was changed by this job.')
+      - uses: actions/upload-artifact@v4
         if: always()
-        uses: actions/upload-artifact@v4
         with:
-          name: ts-287-delivery-${{ github.sha }}
+          name: ts-287-publish-${{ github.sha }}
           path: .godot/ts-287-final/
           include-hidden-files: true
           if-no-files-found: error
