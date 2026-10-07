@@ -264,16 +264,17 @@ internal sealed class AirControlTests
     [TestCase(0, 1)]
     [TestCase(1, 12)]
     [TestCase(2, 12)]
+    [TestCase(3, 1)]
     public void BodyContactDisarmsHoldAndRestoredBounceRetainsImpactSpin(int surface, int speed)
     {
         var movement = Create();
         Step(movement, steering: 32767, roll: true);
         Step(movement);
         Assert.That(movement.State.Air.ReleaseHoldArmed, Is.True);
-        Quaternion orientation = surface == 0 ? Quaternion.Identity : Quaternion.CreateFromAxisAngle(surface == 1 ? Vector3.UnitZ : Vector3.UnitX, 1.6f);
+        Quaternion orientation = surface is 0 or 3 ? Quaternion.Identity : Quaternion.CreateFromAxisAngle(surface == 1 ? Vector3.UnitZ : Vector3.UnitX, 1.6f);
         var impactPose = new VehiclePhysicsState(new(0, 5, 0), orientation, new(0, 5, -10), new(2, -1, 3));
-        var contact = new VehicleContact(new(0, -speed, 0), Vector3.UnitY, 0, 0, localPosition: new(0, 0.3f, -1));
-        movement.Step(new(movement.State.Tick + 1, 0, 0, 0, 0, 0, 0), impactPose, Vector3.Zero, contacts: [contact]);
+        var contact = new VehicleContact(new(0, -speed, 0), Vector3.UnitY, 0, 0, terrain: surface == 3, localPosition: new(0, surface == 3 ? -0.3f : 0.3f, -1));
+        movement.Step(new(movement.State.Tick + 1, 0, 0, 0, 0, 0, 0), impactPose, Vector3.Zero, wheels: default(WheelSupport), contacts: [contact]);
         Assert.That(movement.State.Air.ReleaseHoldArmed, Is.False);
         Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(impactPose.AngularVelocity));
         var restored = Create(); restored.Restore(VehicleStateCodec.Decode(VehicleStateCodec.Encode(movement.State)));

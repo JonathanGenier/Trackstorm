@@ -461,7 +461,8 @@ public sealed class VehicleMovement
                 // Only player-controlled flight earns a release hold. Any body contact
                 // cancels it, even below the crash latch's severity threshold, so a
                 // subsequent unsupported bounce cannot erase collision-generated spin.
-                bool holdArmed = !bodyContact && (target != Vector3.Zero || State.Air.ReleaseHoldArmed);
+                // Damage-forgiving underside contacts are still chassis contacts.
+                bool holdArmed = contacts is not { Count: > 0 } && (target != Vector3.Zero || State.Air.ReleaseHoldArmed);
                 if (holdArmed && target == Vector3.Zero) { angular = Vector3.Zero; }
                 air = new AirControlState(seconds, intent, holdArmed ? Vector3.UnitX : Vector3.Zero);
             }
