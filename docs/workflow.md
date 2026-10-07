@@ -70,6 +70,7 @@ If the assignment and Jira issue type/parent disagree, identify the discrepancy.
 - Implement and commit all child checkpoints and authorized corrections directly on that branch. Tasks/Subtasks never receive separate branches, PRs or independent Git reviews/merges.
 - A push to a valid `ts-*` Story branch may mechanically create the Story's single PR to `main` immediately only when that exact branch has no prior PR history targeting `main`. If an open, closed, or merged PR already exists for the branch, automatic creation must not create another one. Automatic PR creation is only delivery plumbing: it does not imply verification, critique, acceptance, merge readiness or Story completion. Tasks/Subtasks still never receive separate PRs.
 - Every Story PR backed by a GitHub Issue must explicitly link its delivery issue in the PR body with `Closes #<issue-number>` (for example, `Closes #312`). The closing reference is the canonical PR-to-Issue link so GitHub can surface the relationship and close the Issue when the PR merges. Use the Story/Bug delivery Issue, not its parent Epic. One Story/Bug still has exactly one delivery branch and one final PR.
+- When a PR body contains a valid closing reference, repository automation moves that linked Issue into the Trackstorm Development project's `In Review` status when the PR is opened, reopened, or edited. Project write access is supplied by the `TRACKSTORM_PROJECT_TOKEN` Actions secret. Merge-time Issue closure remains the canonical transition to `Done`.
 
 ### Delivery handoff
 
