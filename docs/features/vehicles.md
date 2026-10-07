@@ -38,172 +38,25 @@ Reset is a queued new-life intent. Core increments `LifeId`, clears health/event
 
 ## Terrain handling profiles
 
-Core retains stable `SurfaceType` values Concrete = 0 and Mud = 1, and adds Asphalt = 2, Dirt = 3, Grass = 4 and DeepMud = 5. `SurfaceHandling` maps the existing [material identities](surfaces.md) into these portable profiles. `WheelSuspension` supplies center-selected diagnostic identity and individual wheel materials to practice, host and prediction; detection is not duplicated. Unauthored fixtures retain their explicit `SurfaceBody` profile (otherwise Concrete). Rock uses the configured Asphalt profile. [Water](water.md) adds profile 6, immersion observations and deep-water damage through this same authority.
-
-`VehicleConfiguration` owns immutable grip, drag and acceleration multipliers. Asphalt uses an independently tunable grip multiplier with neutral drag/drive. Normal asphalt, dirt and grass purchase is deliberately strong for arcade control; concrete and soft-ground profiles retain their existing tuning:
-
-| Surface | Grip | Drag | Drive |
-| --- | ---: | ---: | ---: |
-| Asphalt | 3 | 1 | 1 |
-| Concrete | 1.5 | 1 | 0.98 |
-| Dirt | 2 | 1.15 | 0.95 |
-| Grass | 1.9 | 1.4 | 0.9 |
-| Mud | 0.6 | 2.5 | 0.85 |
-| Deep Mud | 0.5 | 5 | 0.8 |
-
-Grip scales the asphalt tire coefficient (1.9), giving effective coefficients of 5.7 on Asphalt and 3.8 on Dirt, 3.61 on Grass, 2.85 on Concrete and 0.95 in Deep Mud. These increase supported tire authority, without adding downforce, gravity or suspension changes. Deliberate braking/rear lock and decaying legacy power-slip memory can reduce lateral purchase. Velocity-dependent rolling resistance creates bogging without a static force that prevents every start. Supported-axle grip still bounds climbing; not every grade below the support-normal cutoff is climbable on every material. The defaults are gameplay tuning, not a claim to measured soil properties. [Configs](developer-options.md) exposes asphalt grip and all existing editable profiles through the existing host transaction; deliberate overrides can change their ordering. Multipliers remain finite and bounded 0–100, including zero to disable a contribution.
-
-Core receives surface and wheel observations through `VehicleObservation` on the fixed boundary. Grip scales the combined tire budget, acceleration scales forward/reverse engine demand, and drag scales rolling resistance. Under power, additional resistance is `CoastDrag * max(0, drag - 1)`; coasting uses `CoastDrag * drag`. Surface transitions change force rates without resetting momentum, steering or handbrake recovery. All paths use `VehicleMovement.Step` with identical configuration.
-
-`VehicleState.CurrentSurface` retains the last supported surface in flight for feedback, while airborne tires exert no driving or cornering forces. Wheel rays provide physical spring response upon reacquiring terrain. A center ray selects the diagnostic surface when available, with a deterministic supported-wheel fallback. Each wheel material scales its share of the tire budget. Compression divides the existing axle load between its supported left/right wheels; missing materials use the aggregate fallback. Rear-wheel materials weight engine demand, and all contacts weight rolling resistance. Unequal left/right longitudinal forces produce yaw through the track-width lever arm, so partial grass contact can unsettle the vehicle without an arbitrary spin impulse. Native wheel materials are fresh observations, not retained handling memory; movement snapshots retain compression for presentation.
-
-### Loose-surface slide recovery
-
-Dirt and Grass add a bounded arcade assist to the existing axle model. A smooth squared lateral-speed ratio supplies half authority near a 22-degree slide, with a 2 m/s speed floor; the diagnostic sliding flag never switches physics modes. Supported front Dirt/Grass contacts reserve up to `DirtSteeringReserve` (0.95) / `GrassSteeringReserve` (0.65) of lateral force allocation for the filtered front-wheel direction. The blended force remains inside the existing combined tire budget and does not change braking demand. Grass reservation also fades with actual wheel commitment, restoring passive front correction as the wheel centers. This keeps countersteering readable when ordinary lateral demand is saturated.
-
-`DirtRecovery` (4/s) and `GrassRecovery` (3/s) progressively bring slide yaw toward the filtered wheel's turning direction. The requested rate is bounded by available dirt traction and road speed; each tick's correction is limited by supported front traction and the existing axle inertia. The handbrake reduces this assist to one quarter while yaw follows the requested turn, preserving deliberate rotation. Countersteering retains full recovery authority to arrest wrong-way yaw. The front allocation reserve fades with handbrake application; fully locked rear rotation uses actual front contact velocity. Countersteering yaw recovery remains bounded by front purchase. It never sets heading or linear velocity, adds propulsion, resets handling memory or uses a target drift angle. Missing front support, flight, disabled driving and Water immersion cannot enable it. Mixed contacts weight the assist by each supported front material; Oil's reduced traction also bounds it.
-
-The reserved front Dirt demand includes the front contact velocity caused by chassis yaw and projects it into the steered tire frame. Once that contact follows the wheel direction, the reserve no longer adds torque from forward speed alone. Lateral correction still uses the existing supported tire budget; power-slip and handbrake mechanisms remain independent.
-
-Asphalt uses strong passive tire purchase without the loose-surface yaw assist. Dirt drag and acceleration retain their existing defaults. Straight dirt acceleration is unchanged, preserving kicker approach performance. Existing state and prediction restoration need no extra memory. [Configs](developer-options.md#progressive-handling-controls) owns both tuning controls and their ordinary persistence/replication path.
+<a id="loose-surface-slide-recovery"></a>
+[Read this section](vehicles-ground-handling.md#terrain-handling-profiles).
 
 ## Health, Collision Damage and Combat Hooks
 
-The simulation's vehicle authority is the sole HP owner, using `VehicleHealth` to evaluate changes. Production practice and production hosted arenas configure MaxHP as 1000; the generic damage helper and focused legacy fixtures retain their 100 HP default. Damage carries a finite amount, source category, stable instigator identity, bounded context and an ordered global tick. Negative/zero requests cannot heal or overwrite attribution. Actual damage clamps HP to zero; repair clamps living vehicles to MaxHP. Reaching zero emits exactly one destroyed outcome and enters the authoritative Dead lifecycle. Further damage cannot duplicate it, and repair cannot revive a wreck. Production arenas automatically respawn after the configured tick delay; explicit development resets remain available. Inactive bodies are hidden and non-colliding, and Core suppresses driving, items and damage participation. The [lifecycle document](death-respawn.md) describes death, respawn and reset policy.
-
-Static obstacle severity uses pre-solver normal approach speed, weighted continuously from harmless shallow incidence (normal fraction at most 0.2) to full crash severity (0.8). Tangential speed and solver friction impulses cannot damage a scrape. Other contacts retain the larger of relative normal closing speed and impulse divided by receiving mass, including the existing landing recovery rules. Each vehicle authority selects the strongest received contact and assigns the other vehicle's stable ID for attribution; walls/props use world identity zero. Core computes zero damage at or below the default 4 m/s threshold, then 5 HP per excess m/s in production (3 in the generic record), capped at 100 HP. The Core-owned 12-tick victim cooldown coalesces general vehicle/obstacle impacts; separate terrain body impacts use the contact continuation below.
-
-### Static environment response
-
-Rock tops can supply downward wheel-ray support at the ordinary support-normal
-threshold while their side faces retain the anti-climb obstacle response. Chassis
-landings on a rock top retain the existing inelastic lever-arm response with the
-native chassis friction coefficient (0.15), rather than pinning the car without
-rotation. Slow bodywork contact above a rock can leave an upright car high-centred.
-The existing delayed crash-roll recovery also covers that case when fewer than two
-wheels support it or driven-axle weighted suspension travel is below 0.1 m. The
-condition requires speed below 1 m/s, an upward rock contact beneath the chassis,
-and uses the existing crash delay/rate/ramp and serialized `CrashSeconds`. Tiny
-flickering droop contacts cannot continually restart that delay. Useful wheel
-support clears recovery and restores driving. Ordinary terrain/vehicle contacts
-retain their existing first-wheel recovery behavior; no collision cooldown is added.
-
-After applying tire drive and thrust, Core prevents fresh drive from increasing
-inward velocity into an observed blocking rock side. It uses the existing
-support-plane response normals, preserving the adapter's already-solved momentum.
-The closest permitted drive velocity satisfies all blocking rock faces together;
-sequential projections could push outward from an earlier face in a crevice.
-Fresh throttle cannot repeatedly feed native bevel recovery and lift a stalled
-chassis. Engine demand and natural tire slip continue; reverse/tangential escape
-remains available. Gravity, suspension, landing recovery and supported rock tops
-keep their ordinary motion. The constraint uses current contacts only, with no
-timer or extra replicated state.
-
-Both adapters retain native rock contact normals instead of substituting the
-infrastructure union-ray normal, which can hit a different convex-rock facet.
-After resolving actual impacts, they sample blocking rock faces at the solved
-pose with a 1 cm skin covering the native 5 mm separation margin. This prevents
-recovery gaps from alternately dropping contact and reapplying inward drive.
-The sample uses a dedicated intact-rock query bit, excluding terrain and other
-infrastructure from the extra narrow-phase work. Both adapters query the chassis
-shape directly for each nearby rock's contact point/normal, without running a
-second motion/recovery solve or creating an additional physics body.
-The sample applies no displacement and carries zero impact velocity/impulse;
-non-rock contacts keep their existing normal and response paths.
-
-`check-repeated-collisions.ps1` covers slow rock pressure, full throttle from rest
-immediately against five rock shapes with measured vertical settling and sustained
-longitudinal position/reversal checks, centred rock landings,
-close contact and deliberately shallow embedding through both adapters, plus
-sustained vehicle-pair momentum. `check-following-contact-network.ps1` exercises
-two following pairs across four native UDP worlds with delay, jitter and loss.
-
-Both native adapters call the pure `EnvironmentCollision` response. It removes inward velocity without restitution, applies exponential along-surface resistance at 0.18/s once per observation, progressively dissipates residual tangential crash motion as incidence becomes direct, and retains only bounded severity/lever-arm crash torque. Duplicate manifold contacts do not multiply drag or crash torque. A grounded side response lies in the support plane; obstacle bevels cannot convert along-road speed into a launch. Practice replaces the static solver's velocity contribution using the preceding command and retained effects while keeping the native solved pose. Network sweeps use the same projected normals and response before returning observations. There are no collision pose or heading snaps.
-
-`EnvironmentContact` distinguishes tagged driveable terrain and legacy `SurfaceBody` support from untagged obstacle bevels. Non-terrain obstacle faces with upward normal below 0.95 remain blocking sides rather than wheel ramps; flat tops, tagged terrain, suspension and landing recovery retain their support path. Short contact rays select exposed surfaces at overlapping module joins. The oval additionally uses a continuous collision perimeter without internal end caps. Practice native restitution is zero; friction remains 0.15 for other native contacts. Severe eccentric crashes retain bounded rotation, while shallow rubbing adds no torque.
-
-Current temporary Nitro remains unchanged. Its ordinary acceleration can overcome scrape resistance, which remains active while boosted. Direct boosted impacts use the same stopping and authoritative damage path. Fresh contacts require no additional replicated state or collision codec; host and prediction use the shared adapter and the existing snapshot boundary.
-
-`check-environment-collisions.ps1 -GodotPath <exe>` exercises both adapters with sustained real-oval contact, box seams, shallow entry/exit, direct and oblique impacts, imported boulders and piers, repeated setup/impact runs, and ordinary/Nitro scrape-to-corner transitions. Per-tick evidence is written under `.godot/environment-collision-checks`. These synchronous adapter checks supplement actual transport harnesses; they are not multi-device evidence.
-
-`check-tunnel-scrape.ps1 -GodotPath <exe> [-Visual] [-Case <prefix>]` repeatedly drops tilted vehicles against both tunnel inner banks at 3/12/25 m/s and three headings, through practice and hosted adapters. It records contact processing times, managed-GC pauses and motion, and checks bounded corrections and falling contact. An isolated native-query corpus compares collision/travel with the original query path and measures relative sweep cost; separate native checks cover masks, self-exclusion, rear-shield enablement, disposal and absence of phantom rigid-body support. Rendered fixed-step fixtures and input/observe playtests supplement these measurements; absolute timing remains dependent on machine load.
-
-`check-environment-collision-network.ps1 -GodotPath <exe>` exercises two actual UDP peers in separate native worlds with 30 ms delay, 5 ms jitter and 2% loss. Both vehicles scrape and then strike a static wall; the check compares host/client HP and damage sequence after convergence. It is an extended local check, not Internet/EOS or separate-device evidence.
-
-`DamageEffect` carries nonnegative requested damage, a world-space impulse and a world-space application offset. It is independent of missiles, inventory and item classes. The pure explosion helper linearly fades damage and impulse to zero at the radius, biases the outward direction upward, and uses up as the defined direction exactly at the center. Client queues effect intents for the next coordinated fixed step. Core evaluates damage and returns accepted impulses/outcomes; Client applies the impulses at their supplied offsets, allowing native inertia to create rotational response. The arena demonstration uses an 8-metre radius, 55 HP center damage and 15,000 N·s center impulse. Landing or secondary impacts can cause additional collision damage.
-
-Damage feedback is Client-only: identification-panel flashes, a dark panel color, a visible expanding blast, HP/destruction text and [arena audio](audio.md) for engines, skids, collisions, damage, destruction and respawn. Audio consumes confirmed state and routes through the Vehicle/SFX hierarchy. Camera, feedback and UI cannot change HP or damage math.
+<a id="static-environment-response"></a>
+[Read this section](vehicles-collision.md#health-collision-damage-and-combat-hooks).
 
 ## Terrain landing recovery
 
-Tire-down landings are safe at any impact speed, including suspension bottom-out. Core excludes a terrain underside contact before damage selection when its point is below the local origin by more than 0.15 m and the truck is within the terrain-relative landing envelope (50 degrees roll / 40 degrees pitch), or an actual wheel is supported with the chassis underside facing the terrain and the contact inside the longitudinal wheel footprint. The latter admits partial-wheel touchdowns outside the ordinary attitude envelope while preserving steep outboard bumper strikes. This immunity does not expire, depend on an airborne episode, or consume a damage cooldown. Roof, side and bumper/body contacts remain eligible, including during the same observation as a safe tire contact. Obstacles and other vehicles never receive terrain landing immunity.
-
-`LandingState` retains airborne/recovery classification for feedback and a six-bit body-contact mask for damage continuation. A terrain body impact is eligible when it starts after separation or reaches a new body face. Multiple points on that face and continuing contact coalesce. Fresh impacts use the existing severity-to-HP curve immediately, even inside the general collision cooldown; three separate roof hits can therefore damage three times in one crash. Static obstacles and vehicle collisions retain their existing strongest-contact/cooldown policy. The complete aggregate and network codecs preserve the mask, preventing a restore from manufacturing a fresh hit.
-
-`VehicleState.CrashSeconds` latches a significant non-wheel impact (severity above 4 m/s) or stranded body support. With no wheel touching, Core suppresses steering, pedals, handbrake, Nitro thrust and player airborne rotation, while retaining physical rotation. Unsupported crash bounces preserve angular velocity; body contact retains the existing gentle angular decay. One supported wheel clears the latch and immediately restores normal controls. New lives clear it; retuning, prediction, replay, reconnect and authority migration retain the same movement continuation. Ordinary flight without a preceding crash keeps the existing player air-control rules.
-
-Both production adapters retain inelastic body-impact rotation through `TerrainCollision`: contact lever arms, effective rotational mass and bounded tangential friction convert incoming momentum into pitch/roll. Friction is resolved after the normal impulse to avoid adding kinetic energy. Native practice keeps its solver-resolved pose and replaces only the terrain body-contact velocity response; network sweeps integrate the same response. Tire suspension and mixed vehicle/obstacle contact retain their existing solving paths. There are no contact pose or heading snaps.
-
-During a crash, body contact dissipates sliding/separating motion and angular energy. Assistance starts after 0.5 seconds and ramps over 0.35 seconds toward a 2 rad/s minimum roll/flip rate. It continues existing rotation through inversion; if nearly stationary it chooses the shortest tipping axis, with a stable roof tie-break. It stops adding rotation once the chassis approaches tire-down, allowing gravity and suspension to catch it. Assistance changes angular velocity only, with no teleport, orientation assignment or upward launch impulse. High-energy motion may complete multiple flips; the bounded assistance prevents a roof/side stall after that energy dissipates. The existing host crash tuning still applies.
-
-Both adapters report explicit terrain identity, local contact position and terrain wheel-support normal. The oval road and infield terrain use the `landing_terrain` group; tunnel structures, containment, props and other vehicles are excluded. Only faces meeting the accepted suspension support-normal cutoff carry terrain identity. Material identifiers alone do not grant forgiveness.
-
-`check-crash-recovery.ps1 -GodotPath <exe> [-Visual] [-Case <prefix>]` exercises both adapters with 13/25/45-metre tire drops, fast/slow nose impacts, rear, side, roof, resting-roof, awkward and repeated-flip crashes. It records per-tick contacts, HP, crash duration, wheel support and motion; conflicting held controls test crash suppression. Rendered mode captures sequences for direct review. `check-landing.ps1` covers both authored oval landing zones, banks, partial-wheel landings, secondary tumbles, obstacles and vehicles. Fixture setup poses and impulses are verification inputs, not gameplay recovery mechanisms.
+[Read this section](vehicles-collision.md#terrain-landing-recovery).
 
 ## Current vehicle presentation
 
-The production Car is an original Blender-authored armored coupe with enlarged off-road tires, narrow rounded wheel arches, window guards and a split rear deployment bay. The hood, doors, front fenders, rear quarters and working deck halves remain separate physical meshes through export, with formed edges and geometric panel gaps. This is an asset-authoring contract, without panel damage or customization behavior. Its editable master, import pipeline, lighting parts and attachment contracts are documented in the [vehicle asset notes](../../assets/vehicles/README.md). The existing `WastelandVehicle.tscn` resource path remains shared by startup, Lobby, practice, matches and Podium.
-
-`VehicleVisual` instances the art under the unchanged practice/native and network presentation roots. `WheelPresentation` uses accepted signed velocity for four-wheel spin, the accepted steering angle for front carriers, and per-wheel compression for suspension travel. Chassis links and coil-over sleeves aim at explicit inboard carrier-local hub brackets, with rotated local-axis scaling and retained twin shocks; no force, ray, authority or network state is added. All four tires have the same 1.094 m outside tread diameter, with a common nominal 0.54 m radius driving spin and contact height. Authored wheel-center heights match. Tire centres are +/-1.38 m front and +/-1.30 m rear, with 0.526 m rubber width and slight fender overhang. Central coachwork is widened independently of wheelbase and shoulder height. The authored visual wheelbase is 3.351105 m, with the additional length carried through doors, cabin and quarter surfaces. Tires use connected closed rubber meshes with integrated tread. The closed deck meets the quarter shoulders, and bonnet returns support its panel seams. Hood and rear deck extend another 0.220/0.160 m beyond the earlier 0.025 m end refinements without moving axle stations. The exterior silhouette is defined by painted pillars and roof edges, with a separately batched internal roll cage tied to floor rails. Rear twin-shock upper anchors sit 0.120 m lower and 0.100 m inward, with connected braces and seats beneath the deck. Continuously rolled quarters and swept end corners retain independent body panels. Surface-fitted arch armor, mounted hood rails and connected bumper stays preserve panel readability. The collision hull length is 5.06 m and spawn exclusion diameter is 5.85 m. Physical ray spacing and the 2.601105 m handling wheelbase retain their established values; the resulting longitudinal/lateral visual support offsets approximate terrain-edge contact.
-
-`CarDeployment.Deployed` is driven by confirmed selected inventory through `CarRackPresentation` in network gameplay. It opens the two deck halves before raising the rack, retracts the rack before closing, and supports mid-cycle reversal. See [held-item rack presentation](items.md#vehicle-rack-presentation) for switching, use and recovery. Offline driving practice has no item authority and keeps it stowed. Four rack-local weapon mounts remain stable throughout deployment. The raised rack origin is 1.34 m with sockets at 1.51 m, above the roof lamps. Independent trunk/rack configuration speeds default to 3× their original rates (0.24/0.2933 s); [Developer Options](developer-options.md#car-deployment) describes live tuning. Selected Nitro instead follows the fixed authoritative deployment timeline described in [Boost exhaust](boost-exhaust.md), so its readiness gate and mechanical pose agree regardless of cosmetic speed tuning. `CarLighting` owns per-instance lens emission and six forward/two reverse spotlights. Headlights, four roof lamps and red running lights stay on. Brake emission follows accepted opposing tire acceleration or handbrake; passive coast/gravity do not light it. Signed accepted velocity activates reverse emission and beams. Local and remote vehicles consume their existing movement snapshots; no simulation rule or additional wire state is introduced. Spotlights are unshadowed and distance-faded. Separate windshield, side and rear panes use reflective alpha glass so the simple cabin remains visible. Authoritative weapon behavior remains in the existing item system. The existing identification surface retains player color and damage-flash feedback. The [rack-mounted Boost jet](boost-exhaust.md) rises with selected Nitro, extends once raised, and ignites only during active use, without changing rack geometry or physics.
-
-`check-car-articulation.ps1 -GodotPath <exe> [-Visual]` exercises native acceleration, steering, four-wheel rotation, landing compression/rebound, repeated deployment and reversal, stable mounts and separable lights. Rendered evidence and a per-tick trace are written to `.godot/ts259-round8/car`. The ordinary vehicle and network harnesses cover surrounding driving and presentation-root behavior. The physical hull remains the shared simplified sprung envelope, with raised bumper undersides and no solid wheel colliders; physics is not derived from decorative meshes.
-
-The [Shield carriage](../../assets/items/shield/README.md) uses the rear rack socket pair
-and extends aft of the production wrap guards. The selected shield follows the full interpolated
-Car pose. A bolted saddle, twin boxed arms, hydraulic rams and four-jaw cradle carry
-the shield. The folded stack appears at 0.42 scale once the deck clears and rides
-the rack through its lift. After the production rack rises, it travels aft, reaches full size, pitches
-upright, opens its two center halves, side wings and four horizontal hinges, and draws forward into its rear
-position. Deselecting reverses that 1.15-second motion before allowing rack retraction;
-an empty carriage also returns after world release. Three full-height physical
-panels match the rear plate and short wraparound side wings. Original vehicle geometry,
-wheel articulation and force laws remain unchanged. Shield/wall presentation is described
-under [held items](items.md#shield-rear-armor-and-persistent-health).
-
-A local early-use press waits for the exact selected shield to finish this path
-before requesting world deployment. Readiness includes the confirmed selection
-revision, capability and life, fully raised rack and completed mount motion;
-an old item's raised carriage cannot release the new request. The existing Core
-placement/consumption path remains authoritative.
-
-Mounted armor skims authored driveable ground instead of acting as a rear skid on
-slopes. The native adapter sweeps chassis and armor separately, excludes contacted
-authored terrain bodies from the armor query only, then chooses the earlier blocking
-result. The chassis retains its complete terrain response. Armor still collides
-with vehicles and solid obstacles; weapon cover and deployed-wall collision remain
-unchanged. Up to eight armor queries handle overlapping support bodies, retaining
-contact if that bound is exhausted. The low visual edge may briefly enter terrain
-at sharp slope transitions; no automatic shield lift or new suspension is applied.
-Armor filtering uses the support body's authored identity, regardless of the
-sweep normal: concave track edges can return lateral/downward separating axes.
-This exemption includes all faces of that terrain body, while distinct barrier
-and obstacle bodies keep their shield collision. The production track regression
-uses the committed concave mesh; `check-shield-presentation.ps1 -ProductionTrack`
-drives the actual west-bank join with two UDP peers.
+[Read this section](vehicles-presentation.md#current-vehicle-presentation).
 
 ## Player-controlled airborne rotation
 
-Outside a latched crash, Core `VehicleMovement` accepts aerial input on the first fixed step with no supported tires. Any supported tire clears input smoothing and elapsed flight time. Chassis contact alone does not count as tire support. W/RT requests nose-up, S/LT nose-down, and A/D or left-stick horizontal requests yaw. Shift/LB redirects horizontal intent to barrel roll without changing pitch or ground driving. See [input](input.md) for bindings and device shaping.
-
-Before any player aerial input, neutral flight preserves observed linear and world-space angular velocity, with gravity continuing normally. While any aerial axis remains held, neutral axes apply no torque. Changing yaw to roll retains existing yaw. Held commands add acceleration in the requested chassis-axis direction, bounded by the configured 16/14/20 rad/s² pitch/yaw/roll acceleration and input magnitude. The 2.52/2.16/3.24 rad/s rates bound player-added rotation; faster existing spin in the same direction is preserved. Opposing input brakes and can reverse rotation. The 0.06-second input response softens command edges; a direction reversal starts smoothing from zero so stale input cannot push the wrong way. Releasing all three axes after using aerial control immediately zeros angular velocity, holding the currently observed orientation without changing linear travel or gravity. There is no upright target: even an inverted chosen pose is held. Reapplying input immediately resumes rotation. Any wheel support, body contact (including sub-crash-threshold and damage-forgiving underside terrain contacts), crash latch or disabled driving clears this hold; an unsupported bounce stays natural until fresh player input arms it again. No new recovery system is introduced. Global angular safety limits still apply.
-
-Contact impulses, suspension and supported crash damping dissipate energy through their existing paths. Unsupported crash bounces no longer add angular drag. The existing crash latch still suppresses player control until useful wheel contact, and its delayed minimum-rate assistance never lowers faster rotation. Tire contact restores normal driving and suspension without an orientation assignment.
-
-The support-normal Y threshold remains 0.55 by default. Wheel rays and native support classification remain unchanged. `AirControlState` retains elapsed flight time and filtered input for prediction/restoration. The existing stabilization X wire field carries the release-hold latch (new steps write 0 or 1); Y/Z remain reserved and new steps write zero. This keeps release/contact history in snapshots rather than a local-only timer. New lives clear continuation; retuning and restoration preserve it. The obsolete stabilization controls are removed from Configs and old saved keys are ignored. See [tuning](developer-options.md#air-control-tuning).
-
-`check-air-control.ps1 -GodotPath <exe>` exercises immediate activation, neutral jumps, inherited multi-axis rotation, held/released pitch/yaw/roll, native synthetic keyboard/controller capture, counter-input landing preparation and repeated jumps through both production adapters. `check-crash-recovery.ps1` covers nose, rear, side, roof, awkward and high-spin impacts, repeated tumbling, safe wheel landings and driving restoration. The rendered handling fixture accepts `--inertia-playtest`, using `.godot/ts-282/playtest`, and an optional three-component `angular` launch velocity for controlled inherited-spin trials. These fixtures do not establish physical-controller ergonomics.
+[Read this section](vehicles-air-control.md#player-controlled-airborne-rotation).
 
 ## Serialization, Replay and Limits
 
@@ -243,94 +96,24 @@ The [Event Log](event-log.md) records every committed positive hit from the Core
 
 ## Material identity observations
 
-The native adapters expose the current [material identity](surfaces.md) through the shared wheel-query path. Core maps this identity to handling; local Stats still reports the raw material separately from the committed handling profile.
-
-`check-terrain-handling.ps1 -GodotPath <path> [-Visual]` compares eight-second acceleration, steering, handbrake recovery and asphalt return through both production adapters, plus standing starts on 20-degree Asphalt/Concrete/Dirt, 15-degree Grass, 12-degree Mud and 10-degree Deep Mud fixtures. The infield suite exercises actual mapped slopes and basin recovery. These are sampled grades, not a universal climb-angle guarantee.
-
-[Water interaction](water.md) uses the existing handling and health/lifecycle owners; it has no parallel damage or respawn system.
+[Read this section](vehicles-ground-handling.md#material-identity-observations).
 
 ## Nitro speed recovery
 
-[Sustained Nitro](items.md#sustained-nitro-resource) supplies boost intent from authoritative inventory each held step. Movement immediately removes rocket thrust and restores the ordinary drive cap on release or exhaustion, then uses `OverspeedDeceleration` (default 3 m/s²) to remove horizontal speed above the normal limit gradually. The serialized inactive recovery continuation survives prediction and restoration; it clears when speed returns to the normal range. Direction, vertical motion, steering and ordinary brake/coast forces remain under the same vehicle owner. Canonical handling is never overwritten.
+[Read this section](vehicles-ground-handling.md#nitro-speed-recovery).
 
 ## Interactive handling verification
 
-`check-world-collisions.ps1` exercises the actual map's steep tunnel dirt face,
-bank neck and side slope, pillar, retaining wing, perimeter and intact rock through
-practice and hosted adapters at 3/12/35 m/s initial speed with front/corner/side
-orientations, pressure, reverse and re-contact. It records penetration, motion and
-contact processing cost under `.godot/world-collision-checks/`. Run the scene with
-`-- surface=bank-face adapter=network speed=12 angle=0 steer=1` for the sustained
-steering repro. `original-terrain` reconstructs the original dense collider only
-inside this verification fixture for a matched baseline comparison.
-
-`check-world-collision-network.ps1` exercises two real UDP worlds on the actual
-tunnel banks, with 30 ms latency, 5 ms jitter and 2% loss, at those three speeds.
-It checks ordinary reverse escape, host-owned damage convergence and native step
-cost. These are separate physics worlds in one process; the separate-process
-`check-network-vehicles.ps1` remains the integration check.
-
-The interactive scene accepts `--world-collision-playtest` for isolated output
-under `.godot/ts-274/playtest` and a camera low enough to inspect the underpass.
-
-The explicit verification scene `scenes/verification/handling_playtest.tscn` uses the production practice adapter on the real oval/infield map. Add `-- --handling-flat` for an isolated surface fixture. Atomically replace `.godot/ts-160/playtest/input.json` with a unique `id`, `frames` (1–600), normalized `steer`, `throttle`, `brake`, and optional `handbrake`. Add `-- --handling-network` to exercise the production hosted/prediction collision adapter in the same rendered scene. `--handling-host-seed` reads the existing host-local tuning without writing it; `--handling-round8` selects the preceding asphalt/brake defaults for comparison. Commands may select `keyboard` or `analog` to exercise actual synthetic native steering/pedal capture. Traces include recorded axes, observed versus commanded velocity and terrain-contact normals for launch diagnosis. Optional `spawn` (three coordinates), `yaw` (radians), and `speed` initialize a fixture; optional `surface` selects a flat-fixture material. Flat fixtures accept `grade` in degrees (±45); optional `pitch`/`roll` in radians and `verticalSpeed` set controlled initial drop poses. `airRoll` selects the existing air-roll input. Traces include orientation, vertical velocity, compression, uprightness and native contact count. The scene pauses between bounded input segments for observation, preserves commanded velocities on resume, and writes per-tick `trace.json` and rendered `view.png`. Run only one instance per workspace. This scene is never loaded by production gameplay. Segment-based observation does not establish physical-controller ergonomics or continuous human play.
-
-[Destructible environment](destructible-environment.md) adds match-owned staged rocks and cleared soft cover. Both native adapters consume the same Core state; version-three resume checkpoints and nested migration retain damage, stages, movement continuation and plant bits without replaying impacts. New matches restore authored state.
-
-The existing static-response coefficients are live host controls under Configs → Collision:
-wall resistance, direct-crash dissipation, eccentric rotation and maximum per-contact
-angular change. Production defaults remain 0.18/s, 0.95, 0.08 and 1.2 rad/s. Both native
-adapters read the accepted `VehicleConfiguration`; no response adds restitution or changes
-separate damage rules. See [control bounds and fixed invariants](developer-options.md#collision-and-destruction-tuning).
-
-[Out-of-bounds damage](out-of-bounds.md) uses the authored oval perimeter, existing health/lifecycle authority and confirmed HUD feedback. Its life-scoped state survives tuning and checkpoint recovery; prediction never originates it.
+[Read this section](vehicles-ground-handling.md#interactive-handling-verification).
 
 ## Dirt cornering and delayed crash recovery
 
-`DirtCornering` scales directed front traction at low/medium Dirt speeds. Full assistance extends through `DirtCornerFullSpeed` (8 m/s) and fades to zero at `DirtCornerFadeSpeed` (28 m/s). Steering commitment increases the supported tire budget by up to `DirtCornerGrip` (20%), turning travel direction along with the nose. The former `DirtCornerPowerSlip` target is retired. Engine demand and full wheel range are unchanged by this assistance. Automatic powered slip is retired; supported tire budgets remain the force limit. This boost applies only to supported Dirt wheels, without using the center diagnostic label. The existing bounded yaw recovery targets the filtered wheel direction, while restored rear grip straightens the exit. Dedicated rear-lock drift remains the stronger sustained rotation option.
-
-Gravity defaults to 11 m/s², with suspension length adjusted to preserve static ride height and extension damping of 16. Spring support scales with the fourth power of chassis/support alignment: an almost sideways ray cannot become a vertical catapult. Bad-attitude terrain/chassis contacts remove upward separation speed, damp tangential scraping at 2/s and retain rolling motion with 0.65/s angular damping, while raw contact velocity, direction and impulse remain available to authority. This does not change collision damage.
-
-The existing crash latch, first-wheel control restoration, delayed minimum rolling rate and stranded-rock handling are described in [terrain landing recovery](#terrain-landing-recovery). Contact dissipates energy; unsupported bounces retain inertia. Faster rotation is never replaced by the recovery rate. No new automatic righting or aerial recovery is added.
-
-The Configs catalog also exposes deep-travel damping gain, landing-envelope decay, front brake share, dirt assistance speed bounds/gains, crash scraping/rolling damping and recovery ramp duration. Fixed-step frequency, geometry, contact classification, unilateral force ceilings and numerical safety bounds remain structural invariants. Retired air-delay and stabilization overrides have no effect.
-
-### Continuous brake-through-zero and reverse
-
-A brake hold during forward travel applies service braking until longitudinal speed is within one available braking step plus `StopSpeed`, then transitions directly into reverse propulsion on the same hold. There is no release/repress requirement or sticky neutral. This threshold includes pedal strength and reference/body mass, preventing native downhill gravity creep from trapping a continuous hold in braking. A new press from rest still tolerates `ReverseEngagementSpeed` slope creep. Physical release marks `ReleaseTail`, so decaying keyboard pressure cannot initiate reverse; a genuine new press takes ownership immediately. `BrakeMode` remains portable across prediction, restore and retuning with the existing version-twelve movement layout. The handbrake remains the separate stop/hold and deliberate grip-release control.
-
-### Progressive braking and deliberate slides
-
-Service braking, pedal buildup, handbrake application/release, surface modifiers, tire force budgets and suspension remain under their existing owners. Ordinary throttle plus steering no longer manufactures `PowerSlip`: neither the old torque/steering target nor the dirt powered-slip/corner boost is evaluated. Physical combined tire demand can still saturate naturally, and handbrake rear release remains deliberate. Legacy saved power-slip memory decays through the retained recovery path instead of snapping momentum; new lives start at zero and never rebuild it from powered steering.
-
-### Speed-sensitive ground steering
-
-Full wheel range remains 0.9 radians below 8 m/s road speed. Between 8 and 35 m/s, a smooth cubic envelope reduces requested range to 25% (0.225 radians), then holds that range. Speed includes contact-plane lateral travel and reverse movement. The range changes the wheel target only: existing wheel filtering/rate bounds retain continuity, and no body direction or velocity is scripted. Initial steering rate remains 0.95 rad/s with a 0.3 s filter; a wheel opposing recorded steering intent can return at 2.8 rad/s. Keyboard release/counter rates are separately tunable through the input catalog. Low-speed full articulation, tight maneuvers, handbrake rotation and the existing physical handling model remain available. Air-control inputs retain their separate existing interpretation.
-
-### Mass and force calibration
-
-The default 3000 kg body retains the 900 kg reference-force convention. Engine,
-reverse, service brake, handbrake and lateral response defaults scale together
-by 3000/1400, preserving the prior per-mass drive and steering response. Fixed
-external impulses now produce smaller velocity changes and collisions retain
-the larger real mass. Springs and gravity already operate per unit mass; this
-calibration does not add downforce or change intentional jump trajectories.
-Ground controller steering uses the [input precision curve](input.md); maximum
-wheel angle, keyboard shaping and active airborne controls remain independent.
+<a id="continuous-brake-through-zero-and-reverse"></a>
+<a id="progressive-braking-and-deliberate-slides"></a>
+<a id="speed-sensitive-ground-steering"></a>
+<a id="mass-and-force-calibration"></a>
+[Read this section](vehicles-ground-handling.md#dirt-cornering-and-delayed-crash-recovery).
 
 ## Deliberate surface braking and stationary handbrake
 
-Each wheel resolves an immutable `SurfaceBraking` response separately from ordinary grip/drive/drag. Normal traction remains Asphalt 3 > Dirt 2 > Grass 1.9. Brake response never changes TS-268 input shaping, wheel filtering or speed-sensitive steering limits. Other materials retain their existing moving-brake response and grip/drag/drive profiles. Static holding uses the shared supported-friction rule, with water immersion excluded.
-
-| Material | Braking effectiveness | Rear lateral grip at full service brake | Multiplier on moving handbrake rear grip |
-| --- | ---: | ---: | ---: |
-| Asphalt | 1 | 0.9 | 1 |
-| Dirt | 0.8 | 0.55 | 0.45 |
-| Grass | 0.6 | 0.2 | 0.16 |
-
-Braking effectiveness scales both opposing longitudinal demand and its friction budget, including rear-lock braking. It does not reduce forward/reverse propulsion. Service-brake rear lateral purchase interpolates with accepted pedal strength; front purchase retains the square root of that fraction to preserve steering authority. Moving handbrake rear purchase multiplies the global `HandbrakeGrip` and interpolates with its existing application/release memory. At the default global 0.5, fully applied handbrake retains 0.5 / 0.225 / 0.08 rear purchase. These values are runtime-tuned gameplay defaults, not measured tire coefficients or enforced ratios. Supported wheel materials determine split braking torque and dirt corner capacity; changing the center diagnostic label alone cannot change those forces.
-
-Below `HandbrakeHoldSpeed` (0.5 m/s contact-plane speed), a held handbrake with at least two supported wheels uses static tire friction instead of deliberate grip release. Engine drive is interrupted immediately. After gravity, a bounded opposing impulse removes tangential creep and yaw, limited by available support load, material purchase, Oil reduction and mechanical handbrake strength. Suspension motion, pose integration and collision impulses remain physical; there is no anchored position or new continuation state. No wheel support, disabled driving or water immersion disables the hold. Insufficient or zero configured traction cannot hold a slope. Releasing the button immediately removes static holding while the ordinary moving-brake envelope releases progressively.
-
-The terrain harness compares normal driving, service braking, deliberate handbrake entry/countersteer/recovery, twenty repeated material changes during sustained driving, and ten-second settled holds at ±20 degrees facing uphill/downhill and across the slope. Both practice and host/prediction adapters execute these cases. Core tests also cover zero traction, unsupported/moving cases, split braking torque, configuration persistence and deterministic restoration. These fixtures complement actual production-map transition and bank checks.
-[Shield rear armor](items.md#shield-rear-armor-and-persistent-health) extends the network body's collision envelope behind the bumper. Before the vehicle step, item authority routes actual plate contacts to the persistent shield pool using this vehicle's unchanged collision tuning. Intercepted vehicle-pair manifold points cannot also damage the protected car; unrelated contacts retain ordinary damage. Core also resolves weapon interception against the same oriented envelope. Native collision response remains physical, while shield HP and removal remain item authority.
+[Read this section](vehicles-ground-handling.md#deliberate-surface-braking-and-stationary-handbrake).

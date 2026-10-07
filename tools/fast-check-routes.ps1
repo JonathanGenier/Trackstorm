@@ -1,11 +1,13 @@
 function Get-FastCheckPlan {
     param(
         [Parameter(Mandatory)]
-        [string[]]$Paths
+        [AllowEmptyCollection()][string[]]$Paths,
+        [switch]$IncludeFeatureDocHints
     )
 
     $normalized = @($Paths | ForEach-Object { $_.Replace('\', '/') })
 
+    $workflowTests = $false
     $coreTests = $false
     $transportTests = $false
     $serviceTests = $false
@@ -28,7 +30,8 @@ function Get-FastCheckPlan {
         [void]$manual.Add($Scenario)
     }
 
-    $hasProductionChanges = [bool]($normalized | Where-Object {
+    $productionPaths = @($normalized | Where-Object { $_ -notmatch '\.md$' })
+    $hasProductionChanges = [bool]($productionPaths | Where-Object {
         $_ -match '^code/' -or
         $_ -match '^test/' -or
         $_ -match '^services/' -or
@@ -38,7 +41,19 @@ function Get-FastCheckPlan {
         $_ -match '\.(cs|csproj|gd|tscn|tres|blend|jsonc|js)$'
     })
 
+    $hasProductionChanges = $hasProductionChanges -or $IncludeFeatureDocHints
+
+    # Focused feature references retain the owning document's integration hints.
+    $normalized += @($normalized | Where-Object { $_ -match '^docs/features/(items|vehicles|developer-options)-.+\.md$' } | ForEach-Object {
+        if ($_ -match '^docs/features/(items|vehicles|developer-options)-') { "docs/features/$($Matches[1]).md" }
+    })
     foreach ($path in $normalized) {
+        # This guard must precede every feature route, including water and surfaces.
+        if ($path -match '\.md$' -and -not $hasProductionChanges) { continue }
+        if ($path -match '^tools/.*\.ps1$' -or $path -eq 'check.ps1' -or $path -match '^\.github/workflows/') {
+            $workflowTests = $true
+        }
+
         if ($path -match 'RepeatedVehicleContact|FollowingContactNetwork|repeated_vehicle_contact|following_contact_network|check-repeated-collisions|check-following-contact|NetworkVehicleBody|NetworkVehicleArena.cs|RemoteInterpolation|TerrainCollision|WheelSuspension|EnvironmentContact') {
             Add-Runtime 'check-repeated-collisions.ps1'
             Add-Extended 'check-following-contact-network.ps1'
@@ -121,11 +136,6 @@ function Get-FastCheckPlan {
         if ($path -match '(?i)SurfaceIdentity|SurfaceField|BuildSurfaces|surface_checks|check-surfaces|surface_field|surface-sources' -or $path -eq 'docs/features/surfaces.md') {
             Add-Runtime 'check-surfaces.ps1'
             Add-Manual 'Inspect material readability, gradual shoulders, designated Water basin and local Stats during driving.'
-        }
-        # Feature-document-only edits stay cheap. Feature docs act as route hints only
-        # when the same change also contains production/runtime files.
-        if ($path -match '^docs/features/' -and -not $hasProductionChanges) {
-            continue
         }
 
         if ($path -match '^assets/environment/' -or $path -match 'environment_library_checks|check-environment' -or $path -eq 'docs/features/environment-library.md') {
@@ -420,6 +430,8 @@ function Get-FastCheckPlan {
     }
 
     [pscustomobject]@{
+        HasProductionChanges = [bool]$hasProductionChanges
+        WorkflowTests = $workflowTests
         CoreTests = $coreTests
         TransportTests = $transportTests
         ServiceTests = $serviceTests

@@ -1,6 +1,7 @@
 param (
     [Parameter(Mandatory)]
-    [string]$GodotPath
+    [string]$GodotPath,
+    [switch]$NoBuild
 )
 
 $ErrorActionPreference = "Stop"
@@ -37,8 +38,10 @@ if ($LASTEXITCODE -ne 0 -or $version -notmatch '^4\.7\.2.*mono') {
 }
 
 Write-Host "`n>> Client build"
-dotnet build (Join-Path $PSScriptRoot 'Trackstorm.Client.csproj') -c Debug -warnaserror
-if ($LASTEXITCODE -ne 0) { throw 'Client verification build failed.' }
+if (-not $NoBuild) {
+    dotnet build (Join-Path $PSScriptRoot 'Trackstorm.Client.csproj') -c Debug -warnaserror
+    if ($LASTEXITCODE -ne 0) { throw 'Client verification build failed.' }
+}
 
 Write-Host "`n>> GdUnit4 plugin import"
 & (Join-Path $PSScriptRoot 'import-godot.ps1') -GodotPath $resolvedGodotPath

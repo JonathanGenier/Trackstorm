@@ -48,10 +48,10 @@ Start with the system being changed. Read its document and only the integration 
 | [Match standings](standings.md) | Shared Core ranking, held leaderboard, final results and per-player ping | [Matches](matches.md), [HUD](hud.md), [sessions](sessions.md), [transport](transport.md) |
 | [Combat HUD](hud.md) | Confirmed HP, speed, inventory, layout and remote vehicle name/HP tags | [Settings](settings.md), [items](items.md), [matches](matches.md), [sessions](sessions.md) |
 
+| [Post-match Application Flow](post-match.md) | Dedicated Podium, authoritative results, rematch, lobby/menu return and controlled exit | [Game Loop](game-loop.md), [match entry](match-entry.md), [sessions](sessions.md), [standings](standings.md) |
+
 ## Specialized routes
 
 - EOS configuration, native prerequisites, portal setup, authenticated checks and export procedures: [EOS development setup](../eos-development.md).
 - Dependency and asset provenance, license records and redistribution: [canonical third-party registry](../../THIRD_PARTY.md).
 - Past verification results: [historical evidence index](../verification/README.md).
-
-| [Post-match Application Flow](post-match.md) | Dedicated Podium, authoritative results, rematch, lobby/menu return and controlled exit | [Game Loop](game-loop.md), [match entry](match-entry.md), [sessions](sessions.md), [standings](standings.md) |
