@@ -1,0 +1,244 @@
+name: Backfill Migrated Project Metadata
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/backfill-migrated-project-metadata.yml'
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.TRACKSTORM_PROJECT_TOKEN }}
+      PROJECT_OWNER: JonathanGenier
+      PROJECT_NUMBER: "2"
+      REPOSITORY: ${{ github.repository }}
+
+    steps:
+      - name: Validate project token
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::error::Repository secret TRACKSTORM_PROJECT_TOKEN is not configured."
+            exit 1
+          fi
+
+      - name: Backfill project fields and Jira hierarchy
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          project_json="$(
+            gh api graphql               -f query='
+                query($login: String!, $number: Int!) {
+                  user(login: $login) {
+                    projectV2(number: $number) {
+                      id
+                      fields(first: 100) {
+                        nodes {
+                          ... on ProjectV2SingleSelectField {
+                            id
+                            name
+                            options { id name }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }'               -F login="$PROJECT_OWNER"               -F number="$PROJECT_NUMBER"
+          )"
+
+          project_id="$(jq -r '.data.user.projectV2.id // empty' <<<"$project_json")"
+          if [ -z "$project_id" ]; then
+            echo "::error::Could not resolve Trackstorm Development project #$PROJECT_NUMBER."
+            exit 1
+          fi
+
+          field_id() {
+            local name="$1"
+            jq -r --arg name "$name" '
+              .data.user.projectV2.fields.nodes[]
+              | select(.name == $name)
+              | .id
+            ' <<<"$project_json" | head -n1
+          }
+
+          option_id() {
+            local field="$1"
+            local option="$2"
+            jq -r --arg field "$field" --arg option "$option" '
+              .data.user.projectV2.fields.nodes[]
+              | select(.name == $field)
+              | .options[]
+              | select(.name == $option)
+              | .id
+            ' <<<"$project_json" | head -n1
+          }
+
+          status_field="$(field_id "Status")"
+          work_type_field="$(field_id "Work Type")"
+          release_field="$(field_id "Release")"
+
+          if [ -z "$status_field" ] || [ -z "$work_type_field" ] || [ -z "$release_field" ]; then
+            echo "::error::Expected Project fields Status, Work Type, and Release were not all found."
+            exit 1
+          fi
+
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+
+          page=1
+          : >"$tmp/issues.jsonl"
+          while :; do
+            response="$(
+              gh api                 -H "Accept: application/vnd.github+json"                 "/search/issues?q=repo:$REPOSITORY+is:issue+%22Migrated+from+Jira:%22&per_page=100&page=$page"
+            )"
+            jq -c '.items[]' <<<"$response" >>"$tmp/issues.jsonl"
+            count="$(jq '.items | length' <<<"$response")"
+            [ "$count" -eq 100 ] || break
+            page=$((page + 1))
+          done
+
+          issue_count="$(wc -l <"$tmp/issues.jsonl" | tr -d ' ')"
+          echo "Found $issue_count migrated Jira issues."
+
+          if [ "$issue_count" -eq 0 ]; then
+            echo "::error::No migrated Jira issues found."
+            exit 1
+          fi
+
+          jq -r '
+            [
+              (.body | capture("(?m)^Migrated from Jira: (?<jira>TS-[0-9]+)$").jira),
+              (.number | tostring),
+              .node_id,
+              (.id | tostring),
+              (.state // ""),
+              ((.body | capture("(?m)^Legacy Jira type: (?<v>.+)$").v) // ""),
+              ((.body | capture("(?m)^Legacy Jira status: (?<v>.+)$").v) // ""),
+              ((try (.body | capture("(?m)^Legacy Jira parent: (?<v>TS-[0-9]+)$").v) catch "") // ""),
+              ((try (.body | capture("(?m)^Legacy release: (?<v>[0-9]+\\.[0-9]+\\.[0-9]+)$").v) catch "") // "")
+            ] | @tsv
+          ' "$tmp/issues.jsonl" >"$tmp/map.tsv"
+
+          declare -A jira_number jira_node jira_db jira_type
+          while IFS=$'\t' read -r jira number node db state type legacy_status parent release; do
+            jira_number["$jira"]="$number"
+            jira_node["$jira"]="$node"
+            jira_db["$jira"]="$db"
+            jira_type["$jira"]="$type"
+          done <"$tmp/map.tsv"
+
+          set_single_select() {
+            local item="$1"
+            local field="$2"
+            local option="$3"
+            local label="$4"
+            if [ -z "$option" ]; then
+              echo "::error::Project option missing for $label."
+              return 1
+            fi
+            gh api graphql               -f query='
+                mutation($project: ID!, $item: ID!, $field: ID!, $option: String!) {
+                  updateProjectV2ItemFieldValue(
+                    input: {
+                      projectId: $project
+                      itemId: $item
+                      fieldId: $field
+                      value: {singleSelectOptionId: $option}
+                    }
+                  ) {
+                    projectV2Item { id }
+                  }
+                }'               -F project="$project_id"               -F item="$item"               -F field="$field"               -F option="$option"               >/dev/null
+          }
+
+          updated=0
+          linked=0
+
+          while IFS=$'\t' read -r jira number node db state type legacy_status parent release; do
+            item_id="$(
+              gh api graphql                 -f query='
+                  query($id: ID!) {
+                    node(id: $id) {
+                      ... on Issue {
+                        projectItems(first: 100) {
+                          nodes { id project { id } }
+                        }
+                      }
+                    }
+                  }'                 -F id="$node"                 --jq ".data.node.projectItems.nodes[] | select(.project.id == \"$project_id\") | .id"                 | head -n1
+            )"
+
+            if [ -z "$item_id" ]; then
+              item_id="$(
+                gh api graphql                   -f query='
+                    mutation($project: ID!, $content: ID!) {
+                      addProjectV2ItemById(input: {projectId: $project, contentId: $content}) {
+                        item { id }
+                      }
+                    }'                   -F project="$project_id"                   -F content="$node"                   --jq '.data.addProjectV2ItemById.item.id'
+              )"
+            fi
+
+            type_option="$(option_id "Work Type" "$type")"
+            set_single_select "$item_id" "$work_type_field" "$type_option" "Work Type=$type for $jira"
+
+            status_value="Backlog"
+            if [ "$state" = "closed" ] || [ "$legacy_status" = "Done" ]; then
+              status_value="Done"
+            elif [ "$legacy_status" = "In Progress" ]; then
+              status_value="In Progress"
+            elif [ "$legacy_status" = "In Review" ]; then
+              status_value="In Review"
+            elif [ "$legacy_status" = "To Do" ]; then
+              status_value="To do"
+            fi
+            status_option="$(option_id "Status" "$status_value")"
+            set_single_select "$item_id" "$status_field" "$status_option" "Status=$status_value for $jira"
+
+            if [ -n "$release" ]; then
+              release_option="$(option_id "Release" "$release")"
+              set_single_select "$item_id" "$release_field" "$release_option" "Release=$release for $jira"
+            fi
+
+            if [ -n "$parent" ] && [ -n "${jira_number[$parent]:-}" ]; then
+              parent_node="${jira_node[$parent]}"
+              current_parent="$(
+                gh api graphql                   -f query='
+                    query($id: ID!) {
+                      node(id: $id) {
+                        ... on Issue {
+                          parent { id }
+                        }
+                      }
+                    }'                   -F id="$node"                   --jq '.data.node.parent.id // empty'
+              )"
+              if [ "$current_parent" != "$parent_node" ]; then
+                gh api graphql                   -f query='
+                    mutation($parent: ID!, $child: ID!) {
+                      addSubIssue(input: {
+                        issueId: $parent
+                        subIssueId: $child
+                        replaceParent: true
+                      }) {
+                        issue { id }
+                        subIssue { id }
+                      }
+                    }'                   -F parent="$parent_node"                   -F child="$node"                   >/dev/null
+                linked=$((linked + 1))
+              fi
+            fi
+
+            updated=$((updated + 1))
+            echo "Backfilled $jira -> #$number ($type, $status_value${release:+, release $release})."
+          done <"$tmp/map.tsv"
+
+          echo "Backfill complete: $updated project items updated; $linked parent relationships added/replaced."
