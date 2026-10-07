@@ -6,7 +6,6 @@ on:
 
 permissions:
   contents: write
-  actions: read
 
 concurrency:
   group: ts-287-maintenance
@@ -16,7 +15,9 @@ jobs:
   validate:
     if: github.repository == 'JonathanGenier/Trackstorm' && github.ref == 'refs/heads/ts-287-jg'
     runs-on: windows-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
+    env:
+      GITHUB_HEAD_REF: ts-287-jg
     steps:
       - uses: actions/checkout@v7
         with:
@@ -24,18 +25,47 @@ jobs:
           fetch-depth: 0
           lfs: false
           persist-credentials: false
-      - name: Reuse actual unchanged-source evidence and apply exact maintenance patch
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Apply the saved patch and remove temporary delivery files
         shell: pwsh
         run: |
-          python tools/ts-287-finish.py previous
-          if ($LASTEXITCODE -ne 0) { throw 'Prior evidence/source validation failed.' }
           python tools/ts-287-apply.py
-          if ($LASTEXITCODE -ne 0) { throw 'Maintenance patch refused unexpected source structure.' }
+          if ($LASTEXITCODE -ne 0) { throw 'Saved patch refused unexpected source.' }
           ./tools/sync-story-version.ps1
           ./tools/check-version.ps1 -StoryBranch ts-287-jg
-      - name: Prepare existing pinned prerequisites
+          Remove-Item tools/ts-287-apply.py, tools/ts-287-finish.py, .github/workflows/ts-287-maintenance.yml
+          git diff --check
+          if ($LASTEXITCODE -ne 0) { throw 'Whitespace check failed.' }
+          New-Item -ItemType Directory -Force .godot/ts-287-final | Out-Null
+      - name: Retain source snapshot before runtime validation
+        shell: python
+        run: |
+          from pathlib import Path
+          import json, subprocess, zipfile
+          root = Path.cwd()
+          paths = set(subprocess.check_output(['git','diff','--name-only','-z','HEAD','--']).decode().split('\0'))
+          paths.update(subprocess.check_output(['git','ls-files','--others','--exclude-standard','-z']).decode().split('\0'))
+          paths.discard('')
+          head = subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          with zipfile.ZipFile('.godot/ts-287-final/source.zip','w',zipfile.ZIP_DEFLATED) as z:
+              z.writestr('manifest.json',json.dumps({'head':head,'changed':sorted(paths)},indent=2))
+              for name in sorted(paths | {'AGENTS.md','tools/agent-checks.ps1','tools/check-fast.ps1','tools/check-agent-environment.ps1','tools/test-agent-tools.ps1','docs/standards.md','docs/critique.md','check.ps1'}):
+                  if Path(name).is_file(): z.write(name,'source/'+name)
+                  old = subprocess.run(['git','show','HEAD:'+name],capture_output=True)
+                  if old.returncode == 0: z.writestr('baseline/'+name,old.stdout)
+              z.writestr('tracked.patch',subprocess.check_output(['git','diff','--no-ext-diff','HEAD','--']))
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ts-287-source-${{ github.sha }}
+          path: .godot/ts-287-final/source.zip
+          if-no-files-found: error
+      - name: Run targeted tooling regressions
+        shell: pwsh
+        run: |
+          . ./tools/agent-checks.ps1
+          $r = Invoke-AgentCheck -Name 'tools/test-workflow-tools.ps1' -Executable "$PWD/tools/test-workflow-tools.ps1" -Root $PWD -LogDirectory "$PWD/.godot/ts-287-final" -TimeoutSeconds 120
+          @($r) | ConvertTo-Json -Depth 10 -AsArray | Set-Content .godot/ts-287-final/results.json
+          if ($r.Status -ne 'PASS') { throw 'Tooling regressions failed.' }
+      - name: Prepare pinned runtime prerequisites
         shell: pwsh
         run: |
           git lfs pull
@@ -43,58 +73,126 @@ jobs:
           ./setup-eos.ps1
           $godot = ./tools/setup-godot-ci.ps1
           "GODOT_PATH=$godot" >> $env:GITHUB_ENV
-      - name: Exercise automatic runtime batch, remaining wrappers and unchanged-main baseline
+      - name: Comprehensive and bounded changed-wrapper verification
         shell: pwsh
         run: |
           . ./tools/agent-checks.ps1
           $root = $PWD.Path
-          $folder = Join-Path $root '.godot/ts-287-checks'
-          $results = [Collections.Generic.List[object]]::new()
-          foreach ($entry in @(Get-Content (Join-Path $folder 'results.json') -Raw | ConvertFrom-Json)) { $results.Add($entry) }
-          function Run-Evidence([string]$Name, [string]$Executable, [hashtable]$Parameters = @{}, [switch]$AllowFailure, [string]$WorkingDirectory = $root) {
-            $result = Invoke-AgentCheck -Name $Name -Executable $Executable -Parameters $Parameters -Root $WorkingDirectory -LogDirectory $folder
-            $result | Add-Member NoteProperty Run "https://github.com/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
-            $results.Add($result)
-            $results.ToArray() | ConvertTo-Json -Depth 8 -AsArray | Set-Content (Join-Path $folder 'results.json')
-            if ($result.Status -ne 'PASS' -and -not $AllowFailure) { throw "$Name failed." }
+          $folder = Join-Path $root '.godot/ts-287-final'
+          $records = [Collections.Generic.List[object]]::new()
+          foreach ($r in @(Get-Content "$folder/results.json" -Raw | ConvertFrom-Json)) { $records.Add($r) }
+          function Record-Check([string]$Name, [string]$Script, [hashtable]$Parameters = @{}, [int]$Timeout = 180) {
+            $r = Invoke-AgentCheck -Name $Name -Executable (Join-Path $root $Script) -Parameters $Parameters -Root $root -LogDirectory $folder -TimeoutSeconds $Timeout
+            $records.Add($r)
+            $records.ToArray() | ConvertTo-Json -Depth 10 -AsArray | Set-Content "$folder/results.json"
+            return $r.Status
           }
-          Run-Evidence 'Fresh Client build through check-fast' (Join-Path $root 'tools/check-fast.ps1') @{ Area = 'Client' }
-          Run-Evidence 'Fresh native import' (Join-Path $root 'import-godot.ps1') @{ GodotPath = $env:GODOT_PATH }
-          Run-Evidence 'check-fast.ps1 automatic runtime batch' (Join-Path $root 'tools/check-fast.ps1') @{ GodotPath = $env:GODOT_PATH; RequireRuntime = $true; Explain = $true; OutputDirectory = (Join-Path $root '.godot/ts-287-auto') } -AllowFailure
-          $auto = Get-Content (Join-Path $root '.godot/ts-287-auto/results.json') -Raw | ConvertFrom-Json
-          if (-not @($auto.Checks | Where-Object { $_.Name -eq 'Runtime Debug build' -and $_.Status -eq 'PASS' }).Count) { throw 'The automatic runtime batch did not prepare a fresh build.' }
-          foreach ($script in @('check-input.ps1', 'check-settings.ps1', 'check-menu.ps1', 'check-developer-options.ps1', 'check-vehicle.ps1', 'check-gdunit.ps1')) {
-            Run-Evidence "$script -NoBuild" (Join-Path $root $script) @{ GodotPath = $env:GODOT_PATH; NoBuild = $true }
+          if ((Record-Check 'check.ps1' 'check.ps1' @{} 360) -ne 'PASS') { throw 'Comprehensive verification failed.' }
+          if ((Record-Check 'import-godot.ps1' 'import-godot.ps1' @{GodotPath=$env:GODOT_PATH}) -ne 'PASS') { throw 'Native import failed.' }
+          [void](Record-Check 'check-agent-environment.ps1 -RequireRuntime' 'tools/check-agent-environment.ps1' @{GodotPath=$env:GODOT_PATH;RequireRuntime=$true})
+          [void](Record-Check 'check-fast.ps1 -Plan -Explain -Json' 'tools/check-fast.ps1' @{Plan=$true;Explain=$true;Json=$true})
+          foreach ($script in @('check-car-articulation.ps1','check-input.ps1','check-settings.ps1','check-menu.ps1','check-developer-options.ps1','check-vehicle.ps1','check-gdunit.ps1')) {
+            [void](Record-Check "$script -NoBuild" $script @{GodotPath=$env:GODOT_PATH;NoBuild=$true})
           }
-          $baseline = Join-Path $env:RUNNER_TEMP ('ts-287-main-' + [guid]::NewGuid().ToString('N'))
-          git worktree add --detach $baseline 73c6811b56cc8ae3b05229d66b7ffdfcb0ab2911
-          if ($LASTEXITCODE -ne 0) { throw 'Cannot prepare isolated baseline checkout.' }
-          Push-Location $baseline
-          try {
-            git lfs pull
-            if ($LASTEXITCODE -ne 0) { throw 'Baseline media preparation failed.' }
-            ./setup-eos.ps1
-            dotnet build Trackstorm.Client.csproj -c Debug -warnaserror
-            if ($LASTEXITCODE -ne 0) { throw 'Baseline build failed.' }
-            ./import-godot.ps1 -GodotPath $env:GODOT_PATH
-            Run-Evidence 'Unchanged main check-car-articulation.ps1' (Join-Path $baseline 'check-car-articulation.ps1') @{ GodotPath = $env:GODOT_PATH } -AllowFailure -WorkingDirectory $baseline
-          }
-          finally { Pop-Location }
-          Run-Evidence 'Final version validation' (Join-Path $root 'tools/check-version.ps1') @{ StoryBranch = 'ts-287-jg' }
-      - name: Propose final tree with truthful baseline limitation and no ref update
+          [void](Record-Check 'tools/check-version.ps1' 'tools/check-version.ps1' @{StoryBranch='ts-287-jg'})
+          if (@($records | Where-Object Status -ne 'PASS').Count) { throw 'One or more checks failed; preserved results are not a passing gate.' }
+      - name: Record actual handoff and propose tree for explicit review
+        if: always()
         env:
           GH_TOKEN: ${{ github.token }}
-        shell: pwsh
+        shell: python
         run: |
-          python tools/ts-287-finish.py publish
-          if ($LASTEXITCODE -ne 0) { throw 'Final candidate publication refused unexpected results.' }
-      - name: Retain actual validation output
+          from pathlib import Path
+          import json, os, subprocess, urllib.request, zipfile
+          root = Path.cwd()
+          folder = root / '.godot/ts-287-final'
+          if not (folder/'source.zip').exists(): raise SystemExit('No applied source snapshot; no proposal.')
+          records = json.loads((folder/'results.json').read_text(encoding='utf-8-sig')) if (folder/'results.json').exists() else []
+          head = subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          run = 'https://github.com/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID']
+          rows = '\n'.join('| `'+r['Name']+'` | '+r['Status']+' | '+str(r['DurationSeconds'])+' |' for r in records)
+          required = ['tools/test-workflow-tools.ps1','check.ps1','import-godot.ps1','check-agent-environment.ps1 -RequireRuntime','check-fast.ps1 -Plan -Explain -Json'] + [s+' -NoBuild' for s in ['check-car-articulation.ps1','check-input.ps1','check-settings.ps1','check-menu.ps1','check-developer-options.ps1','check-vehicle.ps1','check-gdunit.ps1']] + ['tools/check-version.ps1']
+          absent = [n for n in required if not any(r['Name']==n for r in records)]
+          failed = [r['Name'] for r in records if r['Status']!='PASS']
+          text = '''# TS-287 — Verification tooling and context routing
+
+          ## Delivered changes
+
+          Automatic fast-check discovery includes committed Story changes, staged and unstaged edits, non-ignored new files, deletions and both sides of renames. The documentation-only guard precedes all feature routes. Plan/explain/JSON mode identifies selected checks and triggering paths without executing them. Runtime batches prepare a fresh Debug solution build and use supported build-skip switches, retaining independent mixed-configuration soak setup and standalone default builds.
+
+          Structured actual command outcomes retain complete stdout/stderr, exit codes, timings, source HEAD and dirty fingerprint, pending manual/runtime work and unexecuted checks after failure. Read-only prerequisite checks do not install tools, change local settings or disable auditing. Workflow documentation is divided by stage, defers to Jira's model recommendation, makes scores advisory and avoids an unchanged-result duplicate final run. Item, vehicle and tuning references retain shared contracts and compatibility anchors while splitting subsystem detail. NuGet fallback caching leaves restore, auditing and existing CI gates intact.
+
+          Temporary TS-287 workflow and patch/finalizer drivers are removed from the proposed delivered tree. No production C#, scenes, assets, physics, gameplay, network protocol or security-policy change is included. Local Codex/account/MCP settings were not accessed or changed.
+
+          ## Current executed verification
+
+          These results were executed on a Windows runner at source HEAD `{head}` with the saved patch applied, temporary drivers removed and version synchronized. The source archive was retained before runtime checks. The verification report itself was written after execution. This is not a claim that the later delivered commit's CI has passed. [Current execution and artifacts]({run}).
+
+          | Command | Actual result | Seconds |
+          | --- | --- | --- |
+          {rows}
+
+          Not executed in this run: {absent}.
+          Failed checks in this run: {failed}.
+          Plan-mode success proves planning/output operation only, not execution of its selected checks. Negative fixtures in the regression suite intentionally exercise failure, timeout, unavailable commands/runtime and stale source handling; their failures are not successful production checks.
+
+          ## Prior attempts and retained limitations
+
+          [Run 37674293176](https://github.com/JonathanGenier/Trackstorm/actions/runs/37674293176) passed comprehensive check.ps1, import, prerequisite checks, planning, Client build and camera verification on the applied workspace. Car articulation passed 203 assertions but failed strict shutdown with 24 leaked ObjectDB instances and 3 resources still in use. That failure remains real; it was not waived or fixed by this Story.
+
+          [Run 37676088720](https://github.com/JonathanGenier/Trackstorm/actions/runs/37676088720) recorded passing workflow/version regressions, fresh Debug build, car articulation, Developer Options, environment, items and landing. Its automatic batch reached check-map-budget.ps1 without a completed result before the 30-minute job cancellation. The retained RUNNING marker is an interrupted result, not a live job or pass. The unchanged-main comparison and finalization steps were never executed. A later clean articulation run does not prove the intermittent shutdown leak fixed, nor is a baseline cause established.
+
+          The current verification explicitly exercises the changed build wrappers rather than repeating that broad automatic batch. The map-budget implementation, assertions, selected routes and CI gates are unchanged. Native map-budget completion in the earlier expanded batch remains UNVERIFIED; renderer/harness/environment causation is not established. No map-budget or articulation production fix is claimed.
+
+          ## Remaining acceptance and review
+
+          Astra Review: N/A — independent Astra operational/runtime critique has not been performed in this environment. No independent score is fabricated. It remains a completion gate. The delivery reviewer must also inspect the final diff, current main/version and final-head CI; this proposed tree does not advance a branch or merge the PR.
+
+          No physical input device, human gameplay session, rendered experiential review, authenticated EOS, separate-PC test, export, performance benchmark or measured Codex-credit saving is claimed. Native harness results establish only their named operational coverage. Preserve failures and missing evidence in the merge verdict.
+          '''
+          import textwrap
+          text = textwrap.dedent(text).format(head=head,run=run,rows=rows,absent=', '.join(absent) or 'None of the selected checks',failed=', '.join(failed) or 'None')
+          report = Path('docs/verification/ts-287.md')
+          report.write_text(text,encoding='utf-8',newline='\n')
+          index = Path('docs/verification/README.md')
+          body = index.read_text(encoding='utf-8-sig')
+          anchor = '| Evidence | Reports |\n| --- | --- |'
+          if '(ts-287.md)' not in body:
+              if body.count(anchor)!=1: raise SystemExit('Unexpected verification index structure.')
+              body = body.replace(anchor,anchor+'\n| Agent tooling and context routing | [TS-287 verification evidence](ts-287.md) |',1)
+              index.write_text(body,encoding='utf-8',newline='\n')
+          subprocess.run(['git','diff','--check'],check=True)
+          paths=set(subprocess.check_output(['git','diff','--name-only','-z','HEAD','--']).decode().split('\0'))
+          paths.update(subprocess.check_output(['git','ls-files','--others','--exclude-standard','-z']).decode().split('\0'))
+          paths.discard('')
+          fixed={'AGENTS.md','Directory.Build.props','export_presets.cfg','.github/workflows/ci.yml','.github/workflows/extended-ci.yml','.github/workflows/ts-287-maintenance.yml','tools/ts-287-apply.py','tools/ts-287-finish.py','tools/fast-check-routes.ps1','tools/test-workflow-tools.ps1','docs/critique.md','docs/verification/ts-287.md','docs/verification/README.md','check-car-articulation.ps1','check-developer-options.ps1','check-menu.ps1','check-settings.ps1','check-vehicle.ps1','check-input.ps1','check-gdunit.ps1'}
+          for p in paths:
+              if p not in fixed and not p.startswith(('docs/workflow','docs/features/')): raise SystemExit('Unexpected path: '+p)
+          entries=[]
+          for p in sorted(paths):
+              entry={'path':p,'mode':'100644','type':'blob'}
+              if Path(p).is_file(): entry['content']=Path(p).read_text(encoding='utf-8-sig')
+              else: entry['sha']=None
+              entries.append(entry)
+          repo=os.environ['GITHUB_REPOSITORY']
+          def post(path,payload):
+              request=urllib.request.Request('https://api.github.com/repos/'+repo+'/'+path,data=json.dumps(payload).encode(),method='POST',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json'})
+              with urllib.request.urlopen(request,timeout=60) as response: return json.load(response)
+          tree=post('git/trees',{'base_tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),'tree':entries})['sha']
+          commit=post('git/commits',{'message':'TS-287: Finalize verification tooling and focused documentation with actual evidence','tree':tree,'parents':[head]})['sha']
+          proposal={'parent':head,'tree':tree,'commit':commit,'run':run,'failed':failed,'notExecuted':absent,'refUpdated':False}
+          (folder/'proposal.json').write_text(json.dumps(proposal,indent=2),encoding='utf-8')
+          with zipfile.ZipFile(folder/'final-source.zip','w',zipfile.ZIP_DEFLATED) as z:
+              z.writestr('proposal.json',json.dumps(proposal,indent=2))
+              for p in sorted(paths):
+                  if Path(p).is_file(): z.write(p,'source/'+p)
+          print(json.dumps(proposal,indent=2))
+          print('NO REF UPDATED. Review the proposed tree and actual failures before delivery.')
+      - name: Retain all completed results and proposed final source
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ts-287-validation-${{ github.sha }}
-          path: |
-            .godot/ts-287-checks/
-            .godot/ts-287-auto/
+          name: ts-287-final-${{ github.sha }}
+          path: .godot/ts-287-final/
           include-hidden-files: true
-          if-no-files-found: ignore
+          if-no-files-found: error
