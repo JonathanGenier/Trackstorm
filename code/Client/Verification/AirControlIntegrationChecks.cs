@@ -29,6 +29,10 @@ public sealed partial class AirControlIntegrationChecks : Node3D
     private Input.PlayerInputAdapter? _physical;
     private N.Quaternion _releasePose;
     private N.Vector3 _releasePosition;
+    private float _releaseSpeed;
+    private bool _heldBeforeContact;
+    private bool _contactAfterHold;
+    private float _postContactPeak;
     private const int ObservationExtension = 21;
 
     public override void _Ready() => CallDeferred(MethodName.Run);
@@ -50,8 +54,11 @@ public sealed partial class AirControlIntegrationChecks : Node3D
             // Test pilot uses the same logical controls to prepare an upright landing.
             N.Quaternion error = N.Quaternion.Conjugate(previous.Physics.Orientation);
             float sign = error.W < 0 ? -1 : 1;
-            float pitch = Math.Clamp(error.X * sign * 3, -1, 1);
-            float turn = Math.Clamp((_case == "heading" ? error.Y : error.Z) * sign * -3, -1, 1);
+            // This active test pilot uses explicit counter-input until aligned.
+            // These are fixture commands, not production recovery logic.
+            N.Vector3 localSpin = N.Vector3.Transform(previous.Physics.AngularVelocity, N.Quaternion.Conjugate(previous.Physics.Orientation));
+            float pitch = Math.Clamp(error.X * sign * 3 - localSpin.X * 0.8f, -1, 1);
+            float turn = Math.Clamp(-((_case == "heading" ? error.Y : error.Z) * sign * 3 - (_case == "heading" ? localSpin.Y : localSpin.Z) * 0.8f), -1, 1);
             throttle = (ushort)(Math.Max(0, pitch) * 65535);
             brake = (ushort)(Math.Max(0, -pitch) * 65535);
             steer = (short)(turn * 32767);
@@ -61,6 +68,10 @@ public sealed partial class AirControlIntegrationChecks : Node3D
         if (_case == "short-gap") { throttle = 65535; }
         if (_case == "repeat" && !previous.Grounded && previous.Air.Seconds < 0.4f) { steer = 32767; }
         var input = new InputFrame(_world.State.Tick + 1, steer, throttle, brake, InputButtons.None, 0, 0, (short)((throttle - brake) / 65535f * 32767), roll ? (short)0 : steer, roll ? steer : (short)0);
+        if (_case.StartsWith("hold-", StringComparison.Ordinal))
+        {
+            input = new InputFrame(_world.State.Tick + 1, 0, 0, 0, 0, 0, 0, _frame <= 12 ? (short)12000 : (short)0);
+        }
         if (_case.StartsWith("device-", StringComparison.Ordinal))
         {
             bool pad = _case.Contains("pad", StringComparison.Ordinal);
@@ -83,12 +94,28 @@ public sealed partial class AirControlIntegrationChecks : Node3D
         if (_native is not null) { _native.Apply(result); }
         else { _network!.Apply(result.Snapshot); }
         var state = result.Snapshot.Movement;
+        if (_case.StartsWith("hold-", StringComparison.Ordinal))
+        {
+            if (_frame > 12 && state.Air.ReleaseHoldArmed && request.Observation.Contacts.Count == 0)
+            {
+                _heldBeforeContact = true;
+                Require(state.Physics.AngularVelocity.Length() < 0.001f, "released maneuver holds chosen attitude before contact");
+            }
+            if (_heldBeforeContact && _case != "hold-wheels" && request.Observation.Contacts.Count > 0)
+            {
+                _contactAfterHold = true;
+                Require(!state.Air.ReleaseHoldArmed, "non-wheel impact cancels release hold");
+            }
+            if (_contactAfterHold && state.CrashSeconds < new VehicleConfiguration().CrashRecoveryDelay)
+            { _postContactPeak = Math.Max(_postContactPeak, state.Physics.AngularVelocity.Length()); }
+        }
         _maximumAirSeconds = Math.Max(_maximumAirSeconds, state.Air.Seconds);
         if (state.Air.Input != N.Vector3.Zero) { _airCommandFrames++; }
-        if (state.Air.Seconds > 0 && state.Air.Seconds < 0.15f)
+        if (state.Air.Seconds > 0 && (input.AirPitch != 0 || input.AirYaw != 0 || input.AirRoll != 0))
         {
-            Require(state.Air.Input == N.Vector3.Zero && state.Air.Stabilization == N.Vector3.Zero, "short support loss cannot activate aerial control");
+            Require(state.Air.Input != N.Vector3.Zero, "every wheel-free input step has immediate aerial authority");
         }
+        if (_frame == (_case == "sustained" ? 181 : 101) + ObservationExtension) { _releaseSpeed = state.Physics.AngularVelocity.Length(); }
         if (_case.StartsWith("device-", StringComparison.Ordinal) && _frame == 101 + ObservationExtension)
         {
             Require(previous.Physics.AngularVelocity.Length() > 0.5f, "release follows meaningful commanded rotation");
@@ -101,7 +128,7 @@ public sealed partial class AirControlIntegrationChecks : Node3D
             velocity = new[] { p.LinearVelocity.X, p.LinearVelocity.Y, p.LinearVelocity.Z },
             angular = new[] { p.AngularVelocity.X, p.AngularVelocity.Y, p.AngularVelocity.Z }, airSeconds = state.Air.Seconds, airInput = new[] { state.Air.Input.X, state.Air.Input.Y, state.Air.Input.Z },
             inputAxes = new[] { input.AirPitch, input.AirYaw, input.AirRoll },
-            up = N.Vector3.Transform(N.Vector3.UnitY, p.Orientation).Y, state.Grounded,
+            up = N.Vector3.Transform(N.Vector3.UnitY, p.Orientation).Y, state.Grounded, state.CrashSeconds, state.Air.ReleaseHoldArmed,
             compression = new[] { w.X, w.Y, w.Z, w.W }, contacts = request.Observation.Contacts.Count });
         if (state.Grounded && !previous.Grounded) { _landings++; }
         if (held)
@@ -135,12 +162,12 @@ public sealed partial class AirControlIntegrationChecks : Node3D
                 _camera = new Camera3D { Current = true }; AddChild(_camera);
             }
             foreach (bool network in new[] { false, true })
-            foreach (string scenario in new[] { "short-gap", "pitch", "yaw", "roll", "combined", "sustained", "crooked", "landing", "repeat", "correction", "heading", "coast", "release-command", "device-key-pitch", "device-key-yaw", "device-key-roll", "device-pad-pitch", "device-pad-yaw", "device-pad-roll" })
+            foreach (string scenario in new[] { "short-gap", "pitch", "yaw", "roll", "combined", "sustained", "crooked", "landing", "repeat", "correction", "heading", "coast", "release-command", "device-key-pitch", "device-key-yaw", "device-key-roll", "device-pad-pitch", "device-pad-yaw", "device-pad-roll", "hold-wheels", "hold-roof", "hold-side", "hold-nose" })
             {
                 if (OS.GetCmdlineUserArgs().Contains("--air-correction-only") && scenario != "correction") { continue; }
                 await Exercise(network, scenario);
             }
-            GD.Print(OS.GetCmdlineUserArgs().Contains("--air-correction-only") ? "Air correction diagnostic passed: 2 production-adapter scenarios." : "Air control integration passed: 38 production-adapter scenarios.");
+            GD.Print(OS.GetCmdlineUserArgs().Contains("--air-correction-only") ? "Air correction diagnostic passed: 2 production-adapter scenarios." : "Air control integration passed: 46 production-adapter scenarios.");
             GetTree().Quit();
         }
         catch (Exception exception)
@@ -155,6 +182,7 @@ public sealed partial class AirControlIntegrationChecks : Node3D
         _physical = new(new Input.PlayerInputBindings());
         _trace.Clear();
         _case = scenario; _frame = 0; _rotation = 0; _peak = 0; _landings = 0; _maximumAirSeconds = 0; _airCommandFrames = 0;
+        _heldBeforeContact = false; _contactAfterHold = false; _postContactPeak = 0;
         _world = new(new Core.Simulation.SimulationConfiguration(60));
         bool landing = scenario is "landing" or "repeat" or "correction" or "heading";
         var position = new Vector3(0, scenario == "short-gap" ? 1.68f : landing ? 2 : 200, 0);
@@ -166,6 +194,18 @@ public sealed partial class AirControlIntegrationChecks : Node3D
         }
         var velocity = landing || scenario.StartsWith("device-", StringComparison.Ordinal) ? new Vector3(0, 10, -8) : Vector3.Zero;
         var angular = scenario == "crooked" ? new Vector3(2, -1, 3) : Vector3.Zero;
+        if (scenario.StartsWith("hold-", StringComparison.Ordinal))
+        {
+            position.Y = 10;
+            rotation = Quaternion.FromEuler(scenario switch
+            {
+                "hold-roof" => new Vector3(0, 0, 2.9f),
+                "hold-side" => new Vector3(0, 0, 1.6f),
+                "hold-nose" => new Vector3(-1.2f, 0, 0),
+                _ => Vector3.Zero
+            });
+            velocity = scenario == "hold-wheels" ? new Vector3(0, 0, -12) : new Vector3(-18, -8, -30);
+        }
         var physics = new VehiclePhysicsState(VehicleBody.ToCore(position), new N.Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W), VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular));
         var damage = new DamageConfiguration { MaxHP = 1000, CollisionScale = 5 };
         _world.AddVehicle(1, new(), damage, physics);
@@ -185,10 +225,17 @@ public sealed partial class AirControlIntegrationChecks : Node3D
         System.IO.File.WriteAllText(System.IO.Path.Combine(_output, $"{(network ? "network" : "native")}-{scenario}.json"), System.Text.Json.JsonSerializer.Serialize(_trace));
         float drift = 2 * MathF.Acos(Math.Clamp(Math.Abs(N.Quaternion.Dot(_released, state.Physics.Orientation)), 0, 1));
         Log($"{(network ? "network" : "native")}-{scenario}: rotation={_rotation:F3} peak={_peak:F3} releaseSpeed={state.Physics.AngularVelocity.Length():F4} lateOrientationDrift={drift:F4} landings={_landings} grounded={state.Grounded} airSeconds={state.Air.Seconds:F3}");
-        if (scenario == "short-gap")
+        if (scenario.StartsWith("hold-", StringComparison.Ordinal))
+        {
+            Require(_heldBeforeContact, "maneuver release holds before landing");
+            if (scenario == "hold-wheels") { Require(state.Grounded && _world.GetVehicle(1).Damage.CurrentHP == 1000, "held upright attitude produces a clean full-health landing"); }
+            else { Require(_contactAfterHold && _postContactPeak > 1, "bad landing restores substantial collision-driven rotation"); }
+            Log($"{scenario}: held={_heldBeforeContact}, nonWheelImpact={_contactAfterHold}, postContactPeak={_postContactPeak:F3}");
+        }
+        else if (scenario == "short-gap")
         {
             Require(_maximumAirSeconds > 0 && _maximumAirSeconds < 0.15f, "native tire observations expose a genuine short support gap");
-            Require(_airCommandFrames == 0 && state.Grounded && state.Air == default, "brief gap never activates held pitch and landing resets continuation");
+            Require(_airCommandFrames > 0 && state.Grounded && state.Air == default, "brief gap immediately activates held pitch and landing resets continuation");
             Log($"{(network ? "network" : "native")}-short-gap: maxAir={_maximumAirSeconds:F4}s, commandedFrames={_airCommandFrames}");
         }
         else if (scenario == "coast")
@@ -197,19 +244,22 @@ public sealed partial class AirControlIntegrationChecks : Node3D
         }
         else if (scenario == "release-command")
         {
-            Require(state.Air.Input.Length() < 0.001f && state.Physics.AngularVelocity.Length() < 0.02f && drift < 0.02f, "releasing directional controls damps spin and holds chosen attitude");
+            Require(state.Air.ReleaseHoldArmed && state.Physics.AngularVelocity.Length() < 0.001f && drift < 0.001f, "release arrests spin and holds selected attitude");
         }
         else if (scenario.StartsWith("device-", StringComparison.Ordinal))
         {
             float releaseDrift = 2 * MathF.Acos(Math.Clamp(Math.Abs(N.Quaternion.Dot(_releasePose, state.Physics.Orientation)), 0, 1));
-            Require(state.Physics.AngularVelocity.Length() < 0.02f && releaseDrift < 0.02f, "chosen release attitude remains stable");
-            Require(N.Vector3.Distance(_releasePosition, state.Physics.Position) > 10, "vehicle keeps travelling after rotation stops");
-            Log($"{scenario}: settled angular speed <0.02; attitude drift={releaseDrift:F5}; continued travel={N.Vector3.Distance(_releasePosition, state.Physics.Position):F2}m");
+            Require(state.Physics.AngularVelocity.Length() < 0.001f && releaseDrift < 0.001f, "device release holds selected attitude");
+            Require(N.Vector3.Distance(_releasePosition, state.Physics.Position) > 10, "vehicle keeps travelling while orientation holds");
+            Log($"{scenario}: released angular speed={_releaseSpeed:F3}; attitude change={releaseDrift:F5}; continued travel={N.Vector3.Distance(_releasePosition, state.Physics.Position):F2}m");
         }
         else if (!landing)
         {
-            Require(state.Physics.AngularVelocity.Length() < 0.02f, "release must arrest residual rotation");
-            Require(drift < 0.02f, "released chosen attitude must remain stable");
+            if (scenario == "crooked")
+            {
+                Require(Math.Abs(state.Physics.AngularVelocity.Length() - _releaseSpeed) < 0.02f && drift > 0.5f, "never-controlled natural rotation retains inertia");
+            }
+            else { Require(state.Physics.AngularVelocity.Length() < 0.001f && drift < 0.001f, "released maneuver holds chosen attitude"); }
             if (scenario != "crooked") { Require(_rotation > 2.5f, "held command must produce substantial rotation"); }
             if (scenario == "sustained") { Require(_rotation > 8, "sustained roll must not seek wheels-down"); }
         }
@@ -230,7 +280,7 @@ public sealed partial class AirControlIntegrationChecks : Node3D
                     if (_native is not null) { _native.Apply(result); } else { _network!.Apply(result.Snapshot); }
                     _advance = true; await Frames(240); _advance = false;
                     Require(_world.GetVehicle(1).Movement.Grounded, "repeated jump must land");
-                    Require(_airCommandFrames > commandsBeforeJump, "every repeated jump regains automatic yaw control after its fresh delay");
+                    Require(_airCommandFrames > commandsBeforeJump, "every repeated jump regains immediate yaw control");
                 }
                 Require(_landings >= 4, "repeated launches must create separate landing transitions");
                 Log($"{(network ? "network" : "native")}-repeat: {_landings} landing transitions");

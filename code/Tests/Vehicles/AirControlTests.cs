@@ -10,7 +10,7 @@ namespace Trackstorm.Core.Tests.Vehicles;
 internal sealed class AirControlTests
 {
     [Test]
-    public void ContinuousFlightActivatesAtNineTicksAndEveryTireContactRestartsDelay()
+    public void EveryTakeoffAcceptsInputOnItsFirstTickAndTireContactClearsContinuation()
     {
         var movement = Create();
         for (int jump = 0; jump < 4; jump++)
@@ -19,8 +19,8 @@ internal sealed class AirControlTests
             {
                 Step(movement, throttle: 65535);
                 Assert.That(movement.State.Air.Seconds, Is.EqualTo(tick / 60f).Within(0.000001));
-                Assert.That(movement.State.Air.Input.X, tick < 9 ? Is.Zero : Is.GreaterThan(0));
-                Assert.That(movement.State.Physics.AngularVelocity.X, tick < 9 ? Is.Zero : Is.GreaterThan(0));
+                Assert.That(movement.State.Air.Input.X, Is.GreaterThan(0));
+                Assert.That(movement.State.Physics.AngularVelocity.X, Is.GreaterThan(0));
             }
             var observed = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
             movement.Step(new(movement.State.Tick + 1, 0, 0, 0, 0, 0, 0, 32767), observed, Vector3.UnitY,
@@ -32,13 +32,13 @@ internal sealed class AirControlTests
     }
 
     [Test]
-    public void RepeatedShortGapsCannotAccumulateActivationAndDisabledDrivingCannotRotate()
+    public void ShortGapsAcceptInputButDisabledDrivingCannotRotate()
     {
         var movement = Create();
         for (int gap = 0; gap < 20; gap++)
         {
             for (int tick = 0; tick < 8; tick++) { Step(movement, throttle: 65535); }
-            Assert.That(movement.State.Air.Input, Is.EqualTo(Vector3.Zero));
+            Assert.That(movement.State.Air.Input.X, Is.GreaterThan(0));
             Step(movement, grounded: true);
             Assert.That(movement.State.Air, Is.EqualTo(default(AirControlState)));
         }
@@ -82,26 +82,22 @@ internal sealed class AirControlTests
     }
 
     [Test]
-    public void ReleaseDampsSpinWithoutSeekingWorldUpAndZeroDampingPreservesSpin()
+    public void ReleaseStopsSpinWithoutSeekingWorldUp()
     {
         Quaternion inverted = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 2.4f);
         var movement = Create(inverted);
         for (int i = 0; i < 90; i++) { Step(movement, steering: 32767, roll: true); }
+        Assert.That(movement.State.Physics.AngularVelocity.Length(), Is.GreaterThan(1));
         for (int i = 0; i < 90; i++) { Step(movement); }
-        Assert.That(movement.State.Physics.AngularVelocity.Length(), Is.LessThan(0.001));
+        Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
+        Assert.That(movement.State.Air.ReleaseHoldArmed, Is.True);
         Assert.That(movement.State.Physics.Orientation, Is.EqualTo(inverted));
-        var free = new VehicleMovement(new VehicleConfiguration { AirStabilization = 0 }, movement.State.Physics);
-        free.Restore(movement.State);
-        for (int i = 0; i < 90; i++) { Step(free, steering: 32767, roll: true); }
-        Vector3 spin = free.State.Physics.AngularVelocity;
-        for (int i = 0; i < 90; i++) { Step(free); }
-        Assert.That(Vector3.Distance(free.State.Physics.AngularVelocity, spin), Is.LessThan(0.001));
     }
 
     [TestCase(4)]
     [TestCase(8)]
     [TestCase(9)]
-    public void RestoreAndRetunePreserveTheExactActivationBoundary(int savedTicks)
+    public void RestoreAndRetunePreserveImmediateInputContinuation(int savedTicks)
     {
         var source = Create();
         for (int i = 0; i < savedTicks; i++) { Step(source, throttle: 65535); }
@@ -116,7 +112,7 @@ internal sealed class AirControlTests
     }
 
     [Test]
-    public void SnapshotRestoreContinuesDelayInputAndReleaseExactly()
+    public void SnapshotRestoreContinuesInputAndReleaseHoldExactly()
     {
         var source = Create();
         for (int i = 0; i < 80; i++) { Step(source, throttle: 65535, steering: -32767, roll: true); }
@@ -126,6 +122,7 @@ internal sealed class AirControlTests
         {
             Step(source); Step(restored);
             Assert.That(restored.State, Is.EqualTo(source.State));
+            if (i == 10) { restored.Restore(VehicleStateCodec.Decode(VehicleStateCodec.Encode(source.State))); }
         }
     }
 
@@ -151,7 +148,7 @@ internal sealed class AirControlTests
         var prediction = new PredictedVehicle(host.Snapshot().Vehicles.Single());
         for (int i = 0; i < 80; i++)
         {
-            var frame = new InputFrame(0, 32767, 65535, 0, InputButtons.None, 0, 0, -32767, 0, 32767);
+            var frame = i < 40 ? new InputFrame(0, 32767, 65535, 0, InputButtons.None, 0, 0, -32767, 0, 32767) : default;
             prediction.Predict(frame, Flight);
             host.Step(frame, Flight);
             Assert.That(prediction.State.Movement, Is.EqualTo(host.World.GetVehicle(1).Movement));
@@ -172,7 +169,7 @@ internal sealed class AirControlTests
     [TestCase(32767, 0, 0)]
     [TestCase(0, 32767, 0)]
     [TestCase(0, 0, 32767)]
-    public void ReleaseDampsEachAxisAfterSnapshotRestoreWithoutChangingTravel(int pitch, int yaw, int roll)
+    public void ReleaseStopsEachAxisAfterSnapshotRestoreWithoutChangingTravel(int pitch, int yaw, int roll)
     {
         var movement = Create();
         for (ulong tick = 1; tick <= 30; tick++)
@@ -183,7 +180,7 @@ internal sealed class AirControlTests
         foreach (var subject in new[] { movement, restored })
         {
             subject.Step(new(31, 0, 0, 0, 0, 0, 0), saved.Physics, Vector3.Zero);
-            Assert.That(subject.State.Physics.AngularVelocity.Length(), Is.LessThan(saved.Physics.AngularVelocity.Length()));
+            Assert.That(subject.State.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
             Assert.That(subject.State.Physics.Orientation, Is.EqualTo(saved.Physics.Orientation));
             Assert.That(subject.State.Physics.LinearVelocity, Is.EqualTo(saved.Physics.LinearVelocity - Vector3.UnitY * subject.Configuration.Gravity / 60));
         }
@@ -192,6 +189,118 @@ internal sealed class AirControlTests
         var observation = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, new Vector3(1, 2, 3));
         passive.Step(new(1, 0, 0, 0, 0, 0, 0), observation, Vector3.Zero);
         Assert.That(passive.State.Physics.AngularVelocity, Is.EqualTo(observation.AngularVelocity), "passive airborne rotation remains physical");
+    }
+
+    [Test]
+    public void NeutralTakeoffAndSustainedFlightPreserveAllInertiaExceptGravity()
+    {
+        var pose = new VehiclePhysicsState(new(0, 50, 0), Quaternion.CreateFromYawPitchRoll(0.4f, 1.2f, 2.1f), new(4, 12, -25), new(2, -3, 4));
+        var movement = new VehicleMovement(new(), pose);
+        movement.Restore(new(0, pose, true, false, 0, 0));
+        for (int tick = 0; tick < 120; tick++)
+        {
+            var before = movement.State.Physics;
+            Step(movement);
+            Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(pose.AngularVelocity));
+            Assert.That(movement.State.Physics.LinearVelocity, Is.EqualTo(before.LinearVelocity - Vector3.UnitY * movement.Configuration.Gravity / 60));
+        }
+    }
+
+    [TestCase(0)]
+    [TestCase(1)]
+    [TestCase(2)]
+    public void SameDirectionInputPreservesFasterSpinAndCounterInputBrakesThenReverses(int axis)
+    {
+        Vector3 basis = axis == 0 ? Vector3.UnitX : axis == 1 ? Vector3.UnitY : Vector3.UnitZ;
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, basis * 6);
+        var movement = new VehicleMovement(new(), pose);
+        void Command(int direction)
+        {
+            short value = (short)(32767 * direction);
+            var frame = new InputFrame(movement.State.Tick + 1, 0, 0, 0, 0, 0, 0,
+                axis == 0 ? value : (short)0, axis == 1 ? (short)-value : (short)0, axis == 2 ? (short)-value : (short)0);
+            movement.Step(frame, movement.State.Physics, Vector3.Zero);
+        }
+        for (int tick = 0; tick < 30; tick++) { Command(1); }
+        Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(pose.AngularVelocity));
+        Command(-1);
+        Assert.That(Vector3.Dot(movement.State.Physics.AngularVelocity, basis), Is.LessThan(6), "counter-input acts on its first tick");
+        for (int tick = 0; tick < 60; tick++) { Command(-1); }
+        Assert.That(Vector3.Dot(movement.State.Physics.AngularVelocity, basis), Is.LessThan(-1));
+        for (int tick = 0; tick < 60; tick++) { Step(movement); }
+        Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
+    }
+
+    [Test]
+    public void ChangingToRollDoesNotEraseYawAndChassisSupportDoesNotDelayInput()
+    {
+        var movement = Create();
+        for (int tick = 0; tick < 60; tick++) { Step(movement, steering: 32767); }
+        float yaw = movement.State.Physics.AngularVelocity.Y;
+        Step(movement, steering: 32767, roll: true);
+        Assert.That(movement.State.Physics.AngularVelocity.Y, Is.EqualTo(yaw));
+        Assert.That(movement.State.Physics.AngularVelocity.Z, Is.LessThan(0));
+        var fresh = Create();
+        fresh.Step(new(1, 0, 0, 0, 0, 0, 0, 32767), fresh.State.Physics, Vector3.UnitY, wheels: default(WheelSupport));
+        Assert.That(fresh.State.Air.Input.X, Is.GreaterThan(0));
+    }
+
+    [Test]
+    public void CrashBouncePreservesFastRotationAcrossRestoreAndRecoveryDelay()
+    {
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI), new(0, 5, -20), new(-5, 1, 2));
+        var movement = new VehicleMovement(new(), pose);
+        movement.Restore(new VehicleState(0, pose, false, false, 0, 0, crashSeconds: 1));
+        for (int tick = 0; tick < 60; tick++)
+        {
+            Step(movement);
+            Assert.That(Vector3.Distance(movement.State.Physics.AngularVelocity, pose.AngularVelocity), Is.LessThan(0.00001));
+        }
+        var restored = Create(); restored.Restore(VehicleStateCodec.Decode(VehicleStateCodec.Encode(movement.State)));
+        Step(movement); Step(restored);
+        Assert.That(restored.State, Is.EqualTo(movement.State));
+    }
+
+    [TestCase(0, 1)]
+    [TestCase(1, 12)]
+    [TestCase(2, 12)]
+    public void BodyContactDisarmsHoldAndRestoredBounceRetainsImpactSpin(int surface, int speed)
+    {
+        var movement = Create();
+        Step(movement, steering: 32767, roll: true);
+        Step(movement);
+        Assert.That(movement.State.Air.ReleaseHoldArmed, Is.True);
+        Quaternion orientation = surface == 0 ? Quaternion.Identity : Quaternion.CreateFromAxisAngle(surface == 1 ? Vector3.UnitZ : Vector3.UnitX, 1.6f);
+        var impactPose = new VehiclePhysicsState(new(0, 5, 0), orientation, new(0, 5, -10), new(2, -1, 3));
+        var contact = new VehicleContact(new(0, -speed, 0), Vector3.UnitY, 0, 0, localPosition: new(0, 0.3f, -1));
+        movement.Step(new(movement.State.Tick + 1, 0, 0, 0, 0, 0, 0), impactPose, Vector3.Zero, contacts: [contact]);
+        Assert.That(movement.State.Air.ReleaseHoldArmed, Is.False);
+        Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(impactPose.AngularVelocity));
+        var restored = Create(); restored.Restore(VehicleStateCodec.Decode(VehicleStateCodec.Encode(movement.State)));
+        for (int tick = 0; tick < 10; tick++)
+        {
+            Step(movement); Step(restored);
+            Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(impactPose.AngularVelocity));
+            Assert.That(restored.State, Is.EqualTo(movement.State));
+        }
+    }
+
+    [Test]
+    public void HoldResumesInputAndLandingResetsNextNaturalJump()
+    {
+        var movement = Create();
+        for (int jump = 0; jump < 3; jump++)
+        {
+            Step(movement, throttle: 65535); Step(movement);
+            Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
+            Step(movement, steering: 32767);
+            Assert.That(movement.State.Physics.AngularVelocity.Y, Is.LessThan(0));
+            Step(movement, grounded: true);
+            Assert.That(movement.State.Air.ReleaseHoldArmed, Is.False);
+            var natural = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(0, 10, -12), new(1, 0, 2));
+            movement.Step(new(movement.State.Tick + 1, 0, 0, 0, 0, 0, 0), natural, Vector3.Zero);
+            Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(natural.AngularVelocity));
+        }
     }
 
     private static VehicleMovement Create(Quaternion? orientation = null) => new(new VehicleConfiguration(), new VehiclePhysicsState(Vector3.Zero, orientation ?? Quaternion.Identity, Vector3.Zero, Vector3.Zero));

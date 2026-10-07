@@ -8,7 +8,7 @@ namespace Trackstorm.Core.Tests.Items;
 internal sealed class ShieldBinaryCompatibilityTests
 {
     [Test]
-    public void HistoricalItemConfigurationAndResumeBytesRemainExact()
+    public void HistoricalItemBytesRemainExactAndRetiredAirConfigurationIsRejected()
     {
         byte[] items = Fixture("ShieldItems-v21.bin");
         var publication = ItemCodec.DecodeState(items);
@@ -18,17 +18,12 @@ internal sealed class ShieldBinaryCompatibilityTests
         Assert.That(publication.Slots.Single().Item, Is.EqualTo(HeldItem.Shield));
 
         byte[] configuration = Fixture("ShieldConfiguration-v41.bin");
-        var decoded = GameplayConfigurationCodec.Decode(configuration);
-        Assert.That(GameplayConfigurationCodec.Encode(decoded.Session, decoded.State), Is.EqualTo(configuration));
-        Assert.That(decoded.State.Configuration.Items.ShieldMass, Is.EqualTo(300));
-        Assert.That(decoded.State.Configuration.Items.ShieldLifetimeSeconds, Is.EqualTo(90));
-        Assert.That(decoded.State.Configuration.Spawns.Weights[HeldItem.Shield], Is.EqualTo(3));
+        // TC42 retires the two aerial stabilization controls. Old checkpoints embed
+        // TC41 and must be rejected rather than shifting every later catalog value.
+        Assert.Throws<ArgumentException>(() => GameplayConfigurationCodec.Decode(configuration));
 
         byte[] resume = Fixture("ShieldResume-v3.bin");
-        var checkpoint = ResumeCheckpointCodec.Decode(resume);
-        Assert.That(ResumeCheckpointCodec.Encode(checkpoint), Is.EqualTo(resume));
-        Assert.That(checkpoint.Items.Shields, Is.EqualTo(publication.Shields));
-        Assert.That(checkpoint.Configuration, Is.EqualTo(decoded.State));
+        Assert.Throws<ArgumentException>(() => ResumeCheckpointCodec.Decode(resume));
     }
 
     private static byte[] Fixture(string name)

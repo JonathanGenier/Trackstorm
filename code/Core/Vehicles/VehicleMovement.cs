@@ -399,9 +399,8 @@ public sealed class VehicleMovement
         }
         if (crashing)
         {
-            // Keep early high-energy flips. Gentle airborne decay replaces the much
-            // stronger released-player-axis damping for the duration of the crash.
-            if (!bodyContact) { angular *= MathF.Exp(-c.CrashRollDamping * 0.25f * dt); }
+            // Contact dissipates crash energy above; unsupported bounces retain the
+            // same inertia as ordinary flight rather than adding state-dependent drag.
             if (crashSeconds >= c.CrashRecoveryDelay && c.CrashRecoveryRate > 0)
             {
                 Vector3 recoveryUp = grounded ? groundNormal : Vector3.UnitY;
@@ -438,24 +437,33 @@ public sealed class VehicleMovement
             Vector3 tiltVelocity = angular - (tireNormal * Vector3.Dot(angular, tireNormal));
             angular -= tiltVelocity * (1 - MathF.Exp(-c.SuspensionDamping * stability * dt));
         }
-        else if (!crashing && wheelCount == 0)
+        if (!crashing && wheelCount == 0)
         {
             float seconds = Math.Min(60, State.Air.Seconds + dt);
             air = new AirControlState(seconds, Vector3.Zero, Vector3.Zero);
-            // Support resets the continuation above. Separate gaps never accumulate,
-            // and recorded axes become authoritative only after sustained flight.
-            if (driveEnabled && seconds >= 0.15f)
+            // Tire loss grants authority on this first step, including a chassis-only
+            // support observation. Takeoff alone preserves incoming linear/angular motion.
+            if (driveEnabled)
             {
                 Vector3 target = new(input.AirPitch / 32767f, -input.AirYaw / 32767f, -input.AirRoll / 32767f);
-                Vector3 intent = Vector3.Lerp(State.Air.Input, target, 1 - MathF.Exp(-dt / c.AirInputResponse));
-                Vector3 stabilization = Vector3.Lerp(State.Air.Stabilization, Vector3.One - Vector3.Abs(target), 1 - MathF.Exp(-dt / c.AirStabilizationResponse));
+                float response = 1 - MathF.Exp(-dt / c.AirInputResponse);
+                float Filter(float previous, float command) => command == 0 ? 0 :
+                    (previous * command < 0 ? 0 : previous) * (1 - response) + command * response;
+                Vector3 intent = new(Filter(State.Air.Input.X, target.X), Filter(State.Air.Input.Y, target.Y), Filter(State.Air.Input.Z, target.Z));
                 Vector3 local = Vector3.Transform(angular, Quaternion.Conjugate(observed.Orientation));
                 local = new Vector3(
-                    AirAxis(local.X, intent.X, target.X, stabilization.X, c.AirPitchRate, c.AirPitchAcceleration, c, dt),
-                    AirAxis(local.Y, intent.Y, target.Y, stabilization.Y, c.AirYawRate, c.AirYawAcceleration, c, dt),
-                    AirAxis(local.Z, intent.Z, target.Z, stabilization.Z, c.AirRollRate, c.AirRollAcceleration, c, dt));
-                angular = Vector3.Transform(local, observed.Orientation);
-                air = new AirControlState(seconds, intent, stabilization);
+                    AirAxis(local.X, intent.X, c.AirPitchRate, c.AirPitchAcceleration, dt),
+                    AirAxis(local.Y, intent.Y, c.AirYawRate, c.AirYawAcceleration, dt),
+                    AirAxis(local.Z, intent.Z, c.AirRollRate, c.AirRollAcceleration, dt));
+                // Applying only the input delta preserves untouched world-space inertia
+                // without repeated local/world round-trip drift on neutral frames.
+                angular += Vector3.Transform(local - Vector3.Transform(angular, Quaternion.Conjugate(observed.Orientation)), observed.Orientation);
+                // Only player-controlled flight earns a release hold. Any body contact
+                // cancels it, even below the crash latch's severity threshold, so a
+                // subsequent unsupported bounce cannot erase collision-generated spin.
+                bool holdArmed = !bodyContact && (target != Vector3.Zero || State.Air.ReleaseHoldArmed);
+                if (holdArmed && target == Vector3.Zero) { angular = Vector3.Zero; }
+                air = new AirControlState(seconds, intent, holdArmed ? Vector3.UnitX : Vector3.Zero);
             }
         }
         velocity += groundNormal * normalLoad * dt;
@@ -498,14 +506,15 @@ public sealed class VehicleMovement
         State = state;
     }
 
-    private static float AirAxis(float velocity, float intent, float target, float stabilization, float rate, float acceleration, VehicleConfiguration c, float dt)
+    private static float AirAxis(float velocity, float intent, float rate, float acceleration, float dt)
     {
-        // Only a held command seeks an angular rate. Release damps velocity, never orientation.
-        if (target != 0)
-        {
-            return velocity + Math.Clamp(intent * rate - velocity, -acceleration * dt, acceleration * dt);
-        }
-        return velocity * MathF.Exp(-c.AirStabilization * stabilization * dt);
+        // Input adds bounded angular acceleration in its requested direction. The rate
+        // limits player-added spin, never faster existing inertia; counter-input can
+        // brake and reverse that inertia. An uncommanded axis adds no torque; the
+        // all-axis release hold is handled separately after player-controlled flight.
+        float direction = Math.Sign(intent);
+        float addition = Math.Min(Math.Max(0, Math.Abs(intent) * rate - velocity * direction), acceleration * Math.Abs(intent) * dt);
+        return velocity + direction * addition;
     }
     private static (float Side, float Drive, float Slip) SlideFront((float Side, float Drive, float Slip) tire, float braking, float steering, float capacity, float reserve, float lateralGrip, float longitudinalGrip)
     {

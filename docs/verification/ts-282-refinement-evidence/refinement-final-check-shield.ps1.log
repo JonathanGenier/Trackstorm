@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Two UDP peers admitted; four independent Shields acquired through normal authority.
+Damage and duplicate hit/transition exercised; rear state retains slots and persistent pools.
+World transition releases its slot; the second damaged rear shield retains its slot. HP 550/900/900/1000, vehicles 1500 HP.
+Full checkpoint/authority restoration preserved pools, lifecycle, pose and replay memory; third UDP peer connecting.
+Late join converged; lethal world/held damage and twenty repeated destruction attempts produced two removals.
+Three UDP peers agree on remaining entities, stages, health and cleared slots; exactly two destruction outcomes and no vehicle damage.
+Selection switched to the surviving pool without refill; ordinary discard requested on both peers.
+Both native slot resources cleared after discard; replacement Shield acquired with a fresh pool.
+Native HUD displays fresh replacement HP, independent non-resource second slot, and no stale discarded durability.
+Shield integration passed: authoritative pools, lifecycle, repeated events, three-peer UDP and full state restoration.
+Shield verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\shield-checks\2e04d3a3d1f74399b62f97b66ded1e01

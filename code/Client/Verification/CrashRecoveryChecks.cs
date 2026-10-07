@@ -119,6 +119,8 @@ public sealed partial class CrashRecoveryChecks : Node3D
                 await Scenario(network, "roof-rest", new(0, 1.2f, 0), N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, MathF.PI), default);
                 await Scenario(network, "awkward", new(0, 3, 0), N.Quaternion.CreateFromYawPitchRoll(0.3f, -1.2f, 1.7f), new(8, -10, -22));
                 await Scenario(network, "multi-flip", new(0, 3, 0), N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitX, -1.1f), new(0, -10, -40), new(-6, 0, 0));
+                await Scenario(network, "side-spin", new(0, 2, 0), N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, 1.6f), new(-18, -8, -10), new(0, 0, 6));
+                await Scenario(network, "roof-spin", new(0, 1.4f, 0), N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, MathF.PI), new(-18, -8, -15), new(0, 0, 6));
             }
             if (_failures.Count > 0) { throw new InvalidOperationException(string.Join("\n", _failures.Distinct())); }
             GD.Print("Crash recovery checks passed."); GetTree().Quit();
@@ -182,6 +184,7 @@ public sealed partial class CrashRecoveryChecks : Node3D
         if (!safe && name != "roof-rest" && _damageCount == 0) { _failures.Add(_case + " missing body-impact damage"); }
         if (name == "nose-fast" && !_pitched) { _failures.Add(_case + " missing forward flip"); }
         if (name == "multi-flip" && (_rotation < MathF.Tau || _damageCount < 2)) { _failures.Add(_case + " did not exercise repeated rotation and separate body hits"); }
+        if (name.EndsWith("-spin", StringComparison.Ordinal) && (_rotation < MathF.PI || _peakRotation < 3)) { _failures.Add(_case + " did not retain substantial impact rotation"); }
         if (final.ObservedPhysics.LinearVelocity.Length() > Math.Max(1, velocity.Length() * 0.25f) || final.ObservedPhysics.AngularVelocity.Length() > 0.2f) { _failures.Add(_case + " retained excessive crash energy after nine seconds"); }
         if (_previousAngle > 0.15f) { _failures.Add(_case + " abrupt orientation change"); }
         _native = null; _network = null; _fixture.QueueFree();

@@ -16,6 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Aerial inertia | [TS-282 immediate control, natural flight, player release hold and impact continuity](ts-282.md) |
 | Automatic aerial activation and revised keyboard/controller controls | [TS-281 verification evidence](ts-281.md) |
 | Story verification, sustained rock pressure and rock-only fore/aft correction | [TS-280 verification evidence](ts-280.md) |
 | Dedicated Camera settings, persistence, camera input/framing and three-peer aiming compatibility | [TS-285 verification evidence](ts-285.md) |
