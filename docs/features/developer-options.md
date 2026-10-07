@@ -376,7 +376,7 @@ Low/medium Dirt corner strength (`vehicle.dirt_cornering`, 0–2), body-supporte
 
 ### TS-197 latest handling correction tuning
 
-The complete 222-key catalog uses wire version 42 (1797 bytes). `vehicle.steering_speed` remains a retired legacy key; the current speed envelope uses the explicit full/fade/scale controls below. Old saved unknown keys do not affect handling. Retired `vehicle.air_delay`, `vehicle.air_dead_zone`, `vehicle.air_stabilization` and `vehicle.air_stabilization_response` overrides are ignored. Neutral input preserves inertia; rate limits bound player-added spin without reducing faster existing rotation. Aerial intent is accepted immediately without tire support outside the existing crash latch; player controller deadzone and sensitivity live in Controls.
+The complete 222-key catalog uses wire version 42 (1797 bytes). `vehicle.steering_speed` remains a retired legacy key; the current speed envelope uses the explicit full/fade/scale controls below. Old saved unknown keys do not affect handling. Retired `vehicle.air_delay`, `vehicle.air_dead_zone`, `vehicle.air_stabilization` and `vehicle.air_stabilization_response` overrides are ignored. Never-controlled neutral flight preserves inertia. After aerial input, releasing all axes holds the selected orientation until wheel/body contact; this fixed behavior does not use the retired stabilization sliders. Rate limits bound player-added spin without reducing faster existing rotation. Aerial intent is accepted immediately without tire support outside the existing crash latch; player controller deadzone and sensitivity live in Controls.
 
 The following previously fixed values now use the same Configs draft, validation, persistence, host replication and authority/prediction path:
 

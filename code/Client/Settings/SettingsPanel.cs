@@ -212,7 +212,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
         ControllerSlider(column, "Keyboard/Mouse Aerial Sensitivity", "KeyboardAerialSensitivity", _settings.Current.KeyboardAerialSensitivity, 0.1, 1, 0.1,
             "Keyboard/mouse pitch, yaw and roll strength. 1 gives full aerial rotation speed.", value => _settings.Current with { KeyboardAerialSensitivity = value });
         column.AddChild(new Label { Text = "Button / key bindings" });
-        var airHint = new Label { Text = "Air control is immediate when the wheels leave the ground. W / RT: nose up; S / LT: nose down. A/D or left stick: turn. Hold Shift / LB to barrel roll. Release keeps your spin; use opposite input to correct it.", AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        var airHint = new Label { Text = "Air control is immediate when the wheels leave the ground. W / RT: nose up; S / LT: nose down. A/D or left stick: turn. Hold Shift / LB to barrel roll. Release all air inputs to hold your chosen angle. Impacts restore natural tumbling.", AutowrapMode = TextServer.AutowrapMode.WordSmart };
         column.AddChild(airHint);
         _hint.Text = "Select a binding, then press a key or gamepad control. Shared bindings are allowed.";
         _hint.AutowrapMode = TextServer.AutowrapMode.WordSmart;

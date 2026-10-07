@@ -35,7 +35,7 @@ public sealed partial class LandingIntegrationChecks : Node3D
         if (!_advance) { return; }
         ulong tick = _world.State.Tick + 1;
         // Correct the high-angle fixtures using actual player counter-input, including
-        // angular braking. Neutral flight no longer stabilizes a released pulse.
+        // angular braking while a correction is active; release then holds the chosen angle.
         var previous = _world.GetVehicle(1).Movement;
         bool correcting = !previous.Grounded && (_case.EndsWith("-roll45", StringComparison.Ordinal) || _case.EndsWith("-pitch35", StringComparison.Ordinal));
         var orientation = previous.Physics.Orientation;
