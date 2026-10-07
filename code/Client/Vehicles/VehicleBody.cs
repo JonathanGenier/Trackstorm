@@ -217,36 +217,13 @@ public sealed partial class VehicleBody : RigidBody3D
         return new VehicleStepRequest(VehicleId, InputSource?.Invoke(input.Tick) ?? input, observation, _effects, _reset);
     }
 
-    /// <summary>Replaces native vehicle-pair momentum with the shared Core contact solve, retaining native nonpenetrating poses.</summary>
+    /// <summary>Stages native contacts for the shared pair solve while retaining complete world-contact response.</summary>
     internal static VehicleStepRequest[] CaptureBatch(IEnumerable<VehicleBody> vehicles, Func<VehicleBody, InputFrame> input)
     {
         var bodies = vehicles.ToDictionary(body => body.VehicleId);
         var requests = bodies.Values.Select(body => body.Capture(input(body))).ToArray();
-        var observations = requests.ToDictionary(request => request.VehicleId, request => request.Observation);
-        var participants = requests.SelectMany(request => request.Observation.Contacts
-            .Where(contact => contact.OtherVehicleId != 0 && bodies.ContainsKey(contact.OtherVehicleId))
-            .SelectMany(contact => new[] { request.VehicleId, contact.OtherVehicleId })).ToHashSet();
-        foreach (ulong id in participants)
-        {
-            var observation = observations[id];
-            var body = bodies[id];
-            var incoming = body.State.Physics;
-            Numerics.Vector3 velocity = incoming.LinearVelocity, angular = incoming.AngularVelocity;
-            foreach (var effect in body.Snapshot.Effects)
-            {
-                velocity += effect.Effect.Impulse / body.Configuration.Mass;
-                angular += Numerics.Vector3.Cross(effect.Effect.Offset, effect.Effect.Impulse) /
-                    (body.Configuration.Mass * body.Configuration.Wheelbase * body.Configuration.Wheelbase / 3);
-            }
-            // Preserve independent road/barrier constraints from this native boundary.
-            foreach (var contact in observation.Contacts.Where(contact => contact.OtherVehicleId == 0))
-            { velocity += contact.Normal * Math.Max(0, -Numerics.Vector3.Dot(velocity, contact.Normal)); }
-            observations[id] = new(new(observation.Physics.Position, observation.Physics.Orientation, velocity, angular),
-                observation.Support, observation.Contacts, observation.Surface, observation.Wheels, observation.TerrainSupport, observation.WaterDepth);
-        }
-        var resolved = VehicleCollision.ResolveContacts(observations, id => bodies[id].Configuration);
-        return requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, resolved[request.VehicleId],
-            request.Effects, request.Reset, request.Repair, request.RepairCause, request.OilContact, request.Nitro, request.ClearNitro)).ToArray();
+        bool complete = requests.All(request => request.Observation.Contacts.Count < bodies[request.VehicleId].MaxContactsReported);
+        return VehicleContactBatch.Resolve(requests, id => bodies[id].Snapshot, id => bodies[id].Configuration, complete);
     }
 
     /// <summary>Applies an accepted Core result at the native fixed boundary; no health or movement rules live here.</summary>
