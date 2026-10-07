@@ -31,7 +31,7 @@ jobs:
         shell: python
         run: |
           from pathlib import Path, PurePosixPath
-          import hashlib, json, subprocess, textwrap, zipfile
+          import hashlib, json, struct, subprocess, textwrap, zipfile
           root=Path.cwd(); folder=root/'.godot/ts-287-final'
           prior='0503a64a168432b7f113c4c710bb4a4f8874166e'
           head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
