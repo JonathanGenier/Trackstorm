@@ -94,4 +94,26 @@ try {
     Assert-AgentTool ($report.Unexecuted.Count -gt 0) 'Unexecuted deterministic checks must remain explicit after failure.'
 }
 finally { Remove-Item -LiteralPath $temp -Recurse -Force }
+
+# Only verified embedded-image outputs are ignored; authored asset paths remain visible.
+$embeddedOutputs = @(
+    'assets/environment/models/BoulderLow_StoneAlbedo.png',
+    'assets/environment/models/BoulderLow_StoneNormal.png',
+    'assets/environment/models/BoulderTall_StoneAlbedo.png',
+    'assets/environment/models/BoulderTall_StoneNormal.png',
+    'assets/environment/models/RockCluster_StoneAlbedo.png',
+    'assets/environment/models/RockCluster_StoneNormal.png',
+    'assets/environment/models/RockLedge_StoneAlbedo.png',
+    'assets/environment/models/RockLedge_StoneNormal.png',
+    'assets/environment/models/RockSlab_StoneAlbedo.png',
+    'assets/environment/models/RockSlab_StoneNormal.png'
+)
+foreach ($output in $embeddedOutputs) {
+    $ignored = Invoke-ContextGit -Root $root -Arguments @('check-ignore', '-q', '--', $output) -AllowFailure
+    Assert-AgentTool ($ignored.ExitCode -eq 0) "Embedded-image output should be ignored: $output"
+}
+foreach ($source in @('assets/environment/models/BoulderLow.glb', 'assets/environment/models/new-authored-texture.png')) {
+    $visible = Invoke-ContextGit -Root $root -Arguments @('check-ignore', '-q', '--', $source) -AllowFailure
+    Assert-AgentTool ($visible.ExitCode -eq 1) "Authored assets must remain visible: $source"
+}
 Write-Host "Agent tooling regression tests passed: $assertions assertions. Expected failure/timeout fixtures above are negative tests."

@@ -1,0 +1,137 @@
+[
+  {
+    "Name": "tools/test-workflow-tools.ps1",
+    "Status": "PASS",
+    "ExitCode": 0,
+    "DurationSeconds": 8.698,
+    "StartedUtc": "2026-10-07T22:53:32.9534019Z",
+    "Run": "https://github.com/JonathanGenier/Trackstorm/actions/runs/37698870812",
+    "Error": null
+  },
+  {
+    "Name": "check.ps1",
+    "Status": "PASS",
+    "ExitCode": 0,
+    "DurationSeconds": 137.84,
+    "StartedUtc": "2026-10-07T22:54:07.4191406Z",
+    "Run": "https://github.com/JonathanGenier/Trackstorm/actions/runs/37698870812",
+    "Error": null
+  },
+  {
+    "Name": "import-godot.ps1",
+    "Status": "PASS",
+    "ExitCode": 0,
+    "DurationSeconds": 41.746,
+    "StartedUtc": "2026-10-07T22:56:25.2921451Z",
+    "Run": "https://github.com/JonathanGenier/Trackstorm/actions/runs/37698870812",
+    "Error": null
+  },
+  {
+    "Name": "check-agent-environment.ps1 -RequireRuntime",
+    "Status": "PASS",
+    "ExitCode": 0,
+    "DurationSeconds": 1.373,
+    "StartedUtc": "2026-10-07T22:57:07.0457881Z",
+    "Run": "https://github.com/JonathanGenier/Trackstorm/actions/runs/37698870812",
+    "Error": null
+  },
+  {
+    "Name": "check-fast.ps1 -Plan -Explain -Json",
+    "Status": "PASS",
+    "ExitCode": 0,
+    "DurationSeconds": 1.006,
+    "StartedUtc": "2026-10-07T22:57:08.4242271Z",
+    "Run": "https://github.com/JonathanGenier/Trackstorm/actions/runs/37698870812",
+    "Error": null
+  },
+  {
+    "Name": "check-car-articulation.ps1 -NoBuild",
+    "Status": "FAIL",
+    "ExitCode": 1,
+    "DurationSeconds": 3.853,
+    "StartedUtc": "2026-10-07T22:57:09.4356484Z",
+    "Run": "https://github.com/JonathanGenier/Trackstorm/actions/runs/37698870812",
+    "Error": null
+  },
+  {
+    "Name": "check-input.ps1 -NoBuild",
+    "Status": "PASS",
+    "ExitCode": 0,
+    "DurationSeconds": 8.73,
+    "StartedUtc": "2026-10-07T22:57:13.3005744Z",
+    "Run": "https://github.com/JonathanGenier/Trackstorm/actions/runs/37698870812",
+    "Error": null
+  },
+  {
+    "Name": "check-settings.ps1 -NoBuild",
+    "Status": "PASS",
+    "ExitCode": 0,
+    "DurationSeconds": 1.854,
+    "StartedUtc": "2026-10-07T22:57:22.0348101Z",
+    "Run": "https://github.com/JonathanGenier/Trackstorm/actions/runs/37698870812",
+    "Error": null
+  },
+  {
+    "Name": "check-menu.ps1 -NoBuild",
+    "Status": "PASS",
+    "ExitCode": 0,
+    "DurationSeconds": 17.982,
+    "StartedUtc": "2026-10-07T22:57:23.8929252Z",
+    "Run": "https://github.com/JonathanGenier/Trackstorm/actions/runs/37698870812",
+    "Error": null
+  },
+  {
+    "Name": "check-developer-options.ps1 -NoBuild",
+    "Status": "PASS",
+    "ExitCode": 0,
+    "DurationSeconds": 87.528,
+    "StartedUtc": "2026-10-07T22:57:41.8794736Z",
+    "Run": "https://github.com/JonathanGenier/Trackstorm/actions/runs/37698870812",
+    "Error": null
+  },
+  {
+    "Name": "check-vehicle.ps1 -NoBuild",
+    "Status": "PASS",
+    "ExitCode": 0,
+    "DurationSeconds": 29.49,
+    "StartedUtc": "2026-10-07T22:59:09.4115408Z",
+    "Run": "https://github.com/JonathanGenier/Trackstorm/actions/runs/37698870812",
+    "Error": null
+  },
+  {
+    "Name": "check-gdunit.ps1 -NoBuild",
+    "Status": "PASS",
+    "ExitCode": 0,
+    "DurationSeconds": 10.424,
+    "StartedUtc": "2026-10-07T22:59:38.9053909Z",
+    "Run": "https://github.com/JonathanGenier/Trackstorm/actions/runs/37698870812",
+    "Error": null
+  },
+  {
+    "Name": "tools/check-version.ps1",
+    "Status": "PASS",
+    "ExitCode": 0,
+    "DurationSeconds": 0.681,
+    "StartedUtc": "2026-10-07T22:59:49.3346532Z",
+    "Run": "https://github.com/JonathanGenier/Trackstorm/actions/runs/37698870812",
+    "Error": null
+  },
+  {
+    "Name": "Final tooling and exact generated-output ignores",
+    "Status": "PASS",
+    "ExitCode": 0,
+    "DurationSeconds": 8.803,
+    "StartedUtc": "2026-10-07T23:03:40.1003367Z",
+    "Run": "https://github.com/JonathanGenier/Trackstorm/actions/runs/37699925566",
+    "Error": null
+  },
+  {
+    "Name": "Final check.ps1 after ignore/test-only correction",
+    "Status": "PASS",
+    "ExitCode": 0,
+    "DurationSeconds": 141.655,
+    "StartedUtc": "2026-10-07T23:04:12.3706896Z",
+    "Run": "https://github.com/JonathanGenier/Trackstorm/actions/runs/37699925566",
+    "Error": null
+  }
+]

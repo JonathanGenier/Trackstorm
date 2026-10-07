@@ -1,14 +1,17 @@
 param (
     [Parameter(Mandatory)]
     [string]$GodotPath,
-    [switch]$Visual
+    [switch]$Visual,
+    [switch]$NoBuild
 )
 
 $ErrorActionPreference = 'Stop'
 $outputDirectory = Join-Path $PSScriptRoot ('.godot/vehicle-checks/' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
-dotnet build Trackstorm.sln -c Debug -warnaserror
-if ($LASTEXITCODE -ne 0) { throw 'Vehicle verification build failed.' }
+if (-not $NoBuild) {
+    dotnet build Trackstorm.sln -c Debug -warnaserror
+    if ($LASTEXITCODE -ne 0) { throw 'Vehicle verification build failed.' }
+}
 foreach ($fps in @(30, 144)) {
     $outputPath = Join-Path $outputDirectory "fps-$fps"
     $arguments = @('--headless', '--path', $PSScriptRoot, '--fixed-fps', "$fps", 'res://scenes/verification/vehicle_checks.tscn', '--quit-after', '1200000')

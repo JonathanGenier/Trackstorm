@@ -158,6 +158,7 @@ try {
     Copy-Item "$PSScriptRoot/new-verification-report.ps1" (Join-Path $toolsDir "new-verification-report.ps1")
     Copy-Item "$PSScriptRoot/check-fast.ps1" (Join-Path $toolsDir "check-fast.ps1")
     Copy-Item "$PSScriptRoot/fast-check-routes.ps1" (Join-Path $toolsDir "fast-check-routes.ps1")
+    Copy-Item "$PSScriptRoot/agent-checks.ps1" (Join-Path $toolsDir "agent-checks.ps1")
 
     @"
 # Historical verification evidence
@@ -216,3 +217,5 @@ Assert-True ($shieldPlan.RuntimeScripts -contains 'check-shield.ps1') 'Shield ch
 Assert-True ($shieldPlan.RuntimeScripts -contains 'check-shield-presentation.ps1') 'Shield changes route independent visual-state and repeated-use checks.'
 
 Assert-True ($shieldPlan.RuntimeScripts -contains 'check-world-wall.ps1') 'Shield changes route movable wall verification.'
+
+& "$PSScriptRoot/test-agent-tools.ps1"

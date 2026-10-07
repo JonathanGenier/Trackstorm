@@ -14,10 +14,10 @@ This boundary preserves the part of Astra critique that static review cannot rep
 
 ## Applicability
 
-- Every completed Jira Story with a meaningful runtime/player/operational surface receives a Story critique after all required children are implemented and verified on the Story branch.
+- Every completed Jira Story receives a runtime/experiential or feature-specific operational Story critique after all required children are implemented and verified on the Story branch.
 - A meaningful Task/Subtask explicitly assigned on its own receives an individual Task critique when its scoped result has a meaningful runtime/experiential surface.
 - A child completed during an already-authorized full Story assignment is an internal checkpoint, not a mandatory human-gated critique. Verify it and continue to the next required child.
-- Pure repository/process/tooling Stories may omit Astra critique when there is no distinct experiential surface to evaluate and operational verification plus independent engineering review fully cover the changed behavior. Record that exemption in the Story verification report.
+- Tooling/process Stories are evaluated through their actual operational result. Unavailable Astra execution is reported as N/A and a missing gate, never a static-code score or an assumed exemption.
 
 When critique applies, it evaluates the integrated Story rather than merely aggregating child results and must exercise the complete feature and relevant integration behavior where technically possible.
 
@@ -36,7 +36,7 @@ Runtime / experiential critique
     ↓
 Score
     ↓
-Recommendation(s) if FAIL
+Recommendation(s) if BELOW TARGET
     ↓
 STOP
     ↓
@@ -74,11 +74,11 @@ Score the observed resulting feature from **0.0–10.0**:
 | 0–2 | **Broken:** fundamentally incomplete, unstable, unusable, or incorrect in operation. |
 | 3–4 | **Poor:** partially functional but significant runtime, usability, gameplay, presentation, or integration problems remain. |
 | ~5 | **Merely functional:** requirements may work, but the exercised result lacks enough robustness, usability, game feel, integration quality, or polish to be solid. |
-| 6–7 | **Solid but below the Trackstorm quality gate:** reliable and coherent, but still requires meaningful experiential/runtime refinement before acceptance. |
-| 8–9 | **Highly polished:** professional, intentional, refined, robust, and difficult to improve substantially without added scope. **8.0 is passing.** |
+| 6–7 | **Solid but below the Trackstorm target:** reliable and coherent, but may benefit from experiential/runtime refinement; the human decides acceptance. |
+| 8–9 | **Highly polished:** professional, intentional, refined, robust, and difficult to improve substantially without added scope. **8.0 meets the target.** |
 | 10 | **Exceptional:** meaningful in-scope experiential or operational improvements are extremely difficult to identify. This score is rare. |
 
-The score advises the human; it does not authorize changes or remove the human gate. Never inflate, round, or manipulate a score to reach 8.0. Score the observed result, not effort, change volume, test count, or critique-round number.
+Scores are advisory: a score below 8.0 alone never blocks or invalidates delivery and does not authorize another polish round. The score advises the human; it does not authorize changes or remove the human gate. Never inflate, round, or manipulate a score to reach 8.0. Score the observed result, not effort, change volume, test count, or critique-round number.
 
 ## Runtime / experiential review categories
 
@@ -121,12 +121,12 @@ Astra Runtime Critique — Story Round X
 Always include:
 
 - **Overall Score: X.X / 10**
-- **Quality Assessment: FAIL (<8.0) / PASS (>=8.0)**
+- **Quality Assessment: BELOW TARGET (<8.0) / AT OR ABOVE TARGET (>=8.0)**
 - **Category Scores:** only materially relevant runtime/experiential categories.
 - **What Was Exercised:** concise evidence, including VERIFIED / INFERRED / UNVERIFIED labels where useful.
 - **Runtime / Operational Limitations:** anything not directly exercised or observed.
 
-For a **FAIL** below 8.0, include at least one meaningful, evidence-based recommendation. For each material problem state:
+For a **BELOW TARGET** below 8.0, include at least one meaningful, evidence-based recommendation. For each material problem state:
 
 - **Problem:** what is wrong in the observed outcome.
 - **Evidence:** what exposed it.
@@ -138,13 +138,13 @@ For a **FAIL** below 8.0, include at least one meaningful, evidence-based recomm
 
 Also include **Recommended Next Round**, prioritizing what should change if the human authorizes another round. An out-of-scope finding must be labeled **Out-of-Scope Recommendation** and must not be implemented without approval.
 
-For a **PASS** at or above 8.0, problems, suggestions, and a recommended next round are not required and should normally be omitted. Do not invent low-value criticism merely to populate those sections.
+For a **AT OR ABOVE TARGET** at or above 8.0, problems, suggestions, and a recommended next round are not required and should normally be omitted. Do not invent low-value criticism merely to populate those sections.
 
 The threshold rule is exact:
 
 ```text
-Score < 8.0  → FAIL; meaningful recommendation(s) required
-Score >= 8.0 → PASS; recommendation not required
+Score < 8.0  → BELOW TARGET; meaningful recommendation(s) required
+Score >= 8.0 → AT OR ABOVE TARGET; recommendation not required
 ```
 
 ## Mandatory human gate
@@ -172,7 +172,7 @@ Exercise the corrected runtime/operational result
         ↓
 Critique independently
         ↓
-New score + recommendation(s) if FAIL
+New score + recommendation(s) if BELOW TARGET
         ↓
 STOP for the next human decision
 ```
