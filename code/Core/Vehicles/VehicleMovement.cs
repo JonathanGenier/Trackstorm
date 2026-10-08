@@ -463,7 +463,7 @@ public sealed class VehicleMovement
                 // subsequent unsupported bounce cannot erase collision-generated spin.
                 // Damage-forgiving underside contacts are still chassis contacts.
                 bool holdArmed = contacts is not { Count: > 0 } && (target != Vector3.Zero || State.Air.ReleaseHoldArmed);
-                if (holdArmed && target == Vector3.Zero) { angular = Vector3.Zero; }
+                if (holdArmed && target == Vector3.Zero) { angular *= MathF.Exp(-c.AirReleaseDamping * dt); }
                 air = new AirControlState(seconds, intent, holdArmed ? Vector3.UnitX : Vector3.Zero);
             }
         }

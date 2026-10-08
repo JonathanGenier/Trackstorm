@@ -21,6 +21,9 @@ public sealed partial class EnvironmentCollisionNetworkChecks : Node
     private float _contactCorrectionMaximum;
     private readonly HashSet<ulong> _contactDamaged = new();
     private ulong _contactSampleLife;
+    private float _pitPeak, _pitCorrection;
+    private int _pitRound;
+    private ulong _pitTarget = 1;
 
     public override void _Ready()
     {
@@ -52,6 +55,8 @@ public sealed partial class EnvironmentCollisionNetworkChecks : Node
                     {
                         _contactCorrectionMaximum = Math.Max(_contactCorrectionMaximum, arena.Driver.Prediction!.PredictionError);
                     }
+                    if (_stage == 5 && _contactSampleLife == state.LifeId)
+                    { _pitCorrection = Math.Max(_pitCorrection, arena.Driver.Prediction!.PredictionError); }
                     _contactSampleLife = state.LifeId;
                 };
             }
@@ -65,7 +70,7 @@ public sealed partial class EnvironmentCollisionNetworkChecks : Node
         {
             _frames++;
             foreach (var arena in _arenas) { arena.Advance(default); Require(arena.Driver.Failure.Length == 0, arena.Driver.Failure); }
-            Require(_frames < 1800, "network collision timeout");
+            Require(_frames < 3000, "network collision timeout");
             var host = _arenas[0].Driver.Host!;
             if (_stage == 3)
             {
@@ -74,6 +79,7 @@ public sealed partial class EnvironmentCollisionNetworkChecks : Node
                     if (vehicle.Damage.LastDamage?.Attribution.Context == "vehicle") { _contactDamaged.Add(vehicle.VehicleId); }
                 }
             }
+            if (_stage == 5) { _pitPeak = Math.Max(_pitPeak, Math.Abs(host.World.GetVehicle(_pitTarget).Movement.Physics.AngularVelocity.Y)); }
             if (_stage == 0 && _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 2))
             {
                 Position(false); _stage = 1; _boundary = _frames;
@@ -119,6 +125,20 @@ public sealed partial class EnvironmentCollisionNetworkChecks : Node
                     Require(N.Vector3.Distance(remote.Movement.Physics.Position, vehicle.Movement.Physics.Position) < 0.2f, "recovered peer position converges");
                 }
                 GD.Print("Two impaired UDP peers: both partially inverted moving vehicles dissipate scraping and recover wheel-down; remote poses converge within 0.2m.");
+                PositionPit(); _stage = 5; _boundary = _frames;
+            }
+            else if (_stage == 5 && _frames - _boundary > 300)
+            {
+                Require(_pitPeak > .5f && _pitPeak < 3, "rear-quarter impact creates bounded authoritative yaw");
+                foreach (var vehicle in host.World.State.Vehicles)
+                {
+                    var remote = _arenas[1].Driver.Latest!.Vehicles.Single(v => v.State.VehicleId == vehicle.VehicleId).State;
+                    Require(remote.Damage == vehicle.Damage, "PIT damage remains host-owned");
+                    Require(N.Vector3.Distance(remote.Movement.Physics.Position, vehicle.Movement.Physics.Position) < .3f, "PIT peer position converges");
+                }
+                Require(_pitCorrection < 3, "PIT prediction correction stays bounded");
+                GD.Print($"PIT UDP round {_pitRound + 1}: target={_pitTarget}, peakYaw={_pitPeak:F4}, correctionMax={_pitCorrection:F4}m; damage agrees and peer positions converge.");
+                if (++_pitRound < 3) { PositionPit(); _boundary = _frames; return; }
                 _done = true;
                 _boundary = _frames;
                 foreach (var arena in _arenas) { arena.QueueFree(); }
@@ -152,6 +172,22 @@ public sealed partial class EnvironmentCollisionNetworkChecks : Node
             float direction = vehicle.VehicleId == 1 ? 1 : -1;
             var pose = new VehiclePhysicsState(new(3 - direction * 4, 21.145f, 1000),
                 N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitY, -direction * MathF.PI / 2), new(direction * 10, 0, 0), N.Vector3.Zero);
+            _arenas[0].Bodies[vehicle.VehicleId].Apply(pose);
+            return new VehicleSnapshot(vehicle.VehicleId, vehicle.LifeId + 1, new VehicleState(world.Tick, pose, true, false, 0, 0),
+                new VehicleDamageState(vehicle.Damage.MaxHP, vehicle.Damage.MaxHP, null, null), pose);
+        }), world.Match));
+    }
+
+    private void PositionPit()
+    {
+        _pitTarget = _pitRound % 2 == 0 ? 1ul : 2ul; _pitPeak = 0; _pitCorrection = 0;
+        var host = _arenas[0].Driver.Host!;
+        var world = host.World.State;
+        host.World.Restore(new(world.Tick, world.LastInput, world.Vehicles.Select(vehicle =>
+        {
+            bool target = vehicle.VehicleId == _pitTarget;
+            var pose = new VehiclePhysicsState(new(target ? 2 : -1.1f, 21.145f, target ? 1000 : 1003.9f),
+                N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitY, target ? 0 : -.15f), new(target ? 0 : 6, 0, -15), N.Vector3.Zero);
             _arenas[0].Bodies[vehicle.VehicleId].Apply(pose);
             return new VehicleSnapshot(vehicle.VehicleId, vehicle.LifeId + 1, new VehicleState(world.Tick, pose, true, false, 0, 0),
                 new VehicleDamageState(vehicle.Damage.MaxHP, vehicle.Damage.MaxHP, null, null), pose);

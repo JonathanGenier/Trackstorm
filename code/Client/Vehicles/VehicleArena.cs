@@ -153,7 +153,7 @@ public sealed partial class VehicleArena : Node3D
     internal void Advance(InputFrame input)
     {
         var neutral = new InputFrame(input.Tick, 0, 0, 0, InputButtons.None, InputButtons.None, InputButtons.None);
-        var requests = _vehicles.Select(vehicle => vehicle.Capture(vehicle == Player ? input : neutral)).ToArray();
+        var requests = VehicleBody.CaptureBatch(_vehicles, vehicle => vehicle == Player ? input : neutral);
         _camera.ObserveCollision(requests[0].Observation, Player.Configuration.Mass);
         IReadOnlyList<VehicleStepResult> results = Simulation.Step(input, requests);
         _environmentAuthority?.Advance(input.Tick, requests.Where(r => Simulation.GetVehicle(r.VehicleId).CanInteract).ToArray(), _environmentImpacts, _environmentItems);

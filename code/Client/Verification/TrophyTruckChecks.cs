@@ -41,9 +41,8 @@ public sealed partial class TrophyTruckChecks : Node3D
         if (!_running) { return; }
         ulong tick = _world.State.Tick + 1;
         var observations = _network.Count > 0 ? NetworkVehicleBody.ObserveBatch(_network, _world.State.Vehicles) : null;
-        var requests = _world.State.Vehicles.Select(s => _native.TryGetValue(s.VehicleId, out var body)
-            ? body.Capture(_pilot(tick, s.VehicleId))
-            : new VehicleStepRequest(s.VehicleId, _pilot(tick, s.VehicleId), observations![s.VehicleId], effects: s.VehicleId == 1 ? _effects : null)).ToArray();
+        var requests = _native.Count > 0 ? VehicleBody.CaptureBatch(_native.Values, body => _pilot(tick, body.VehicleId)) :
+            _world.State.Vehicles.Select(s => new VehicleStepRequest(s.VehicleId, _pilot(tick, s.VehicleId), observations![s.VehicleId], effects: s.VehicleId == 1 ? _effects : null)).ToArray();
         _effects.Clear();
         var results = _world.Step(_pilot(tick, 1), requests);
         foreach (var result in results)

@@ -217,6 +217,15 @@ public sealed partial class VehicleBody : RigidBody3D
         return new VehicleStepRequest(VehicleId, InputSource?.Invoke(input.Tick) ?? input, observation, _effects, _reset);
     }
 
+    /// <summary>Stages native contacts for the shared pair solve while retaining complete world-contact response.</summary>
+    internal static VehicleStepRequest[] CaptureBatch(IEnumerable<VehicleBody> vehicles, Func<VehicleBody, InputFrame> input)
+    {
+        var bodies = vehicles.ToDictionary(body => body.VehicleId);
+        var requests = bodies.Values.Select(body => body.Capture(input(body))).ToArray();
+        bool complete = requests.All(request => request.Observation.Contacts.Count < bodies[request.VehicleId].MaxContactsReported);
+        return VehicleContactBatch.Resolve(requests, id => bodies[id].Snapshot, id => bodies[id].Configuration, complete);
+    }
+
     /// <summary>Applies an accepted Core result at the native fixed boundary; no health or movement rules live here.</summary>
     /// <param name="result">Commands and presentation outcomes committed by Core.</param>
     internal void Apply(VehicleStepResult result)

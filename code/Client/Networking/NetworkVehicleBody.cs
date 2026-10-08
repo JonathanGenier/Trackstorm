@@ -436,22 +436,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     internal static Dictionary<ulong, VehicleObservation> ObserveBatch(IReadOnlyDictionary<ulong, NetworkVehicleBody> bodies, IEnumerable<VehicleSnapshot> snapshots)
     {
         var observations = snapshots.ToDictionary(s => s.VehicleId, s => bodies[s.VehicleId].Observe(s, false));
-        var pairs = new HashSet<(ulong, ulong)>();
-        foreach (ulong id in observations.Keys.Order().ToArray())
-        {
-            foreach (var contact in observations[id].Contacts.Where(c => c.OtherVehicleId != 0).OrderBy(c => Numerics.Vector3.Dot(c.RelativeVelocity, c.Normal)))
-            {
-                ulong other = contact.OtherVehicleId;
-                if (!observations.ContainsKey(other) || !pairs.Add((Math.Min(id, other), Math.Max(id, other)))) { continue; }
-                var first = observations[id];
-                var second = observations[other];
-                var point = first.Physics.Position + Numerics.Vector3.Transform(contact.LocalPosition, first.Physics.Orientation);
-                var resolved = VehicleCollision.ResolvePair(first.Physics, bodies[id]._configuration, second.Physics, bodies[other]._configuration, contact.Normal, point);
-                observations[id] = WithPhysics(first, resolved.First);
-                observations[other] = WithPhysics(second, resolved.Second);
-            }
-        }
-        return observations;
+        return VehicleCollision.ResolveContacts(observations, id => bodies[id]._configuration);
     }
 
     private static VehicleObservation WithPhysics(VehicleObservation observation, VehiclePhysicsState physics) =>

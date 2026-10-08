@@ -99,7 +99,7 @@ public sealed partial class AirControlIntegrationChecks : Node3D
             if (_frame > 12 && state.Air.ReleaseHoldArmed && request.Observation.Contacts.Count == 0)
             {
                 _heldBeforeContact = true;
-                Require(state.Physics.AngularVelocity.Length() < 0.001f, "released maneuver holds chosen attitude before contact");
+                Require(state.Physics.AngularVelocity.Length() <= previous.Physics.AngularVelocity.Length() + 0.001f, "released maneuver progressively settles before contact");
             }
             if (_heldBeforeContact && _case != "hold-wheels" && request.Observation.Contacts.Count > 0)
             {
@@ -115,7 +115,15 @@ public sealed partial class AirControlIntegrationChecks : Node3D
         {
             Require(state.Air.Input != N.Vector3.Zero, "every wheel-free input step has immediate aerial authority");
         }
-        if (_frame == (_case == "sustained" ? 181 : 101) + ObservationExtension) { _releaseSpeed = state.Physics.AngularVelocity.Length(); }
+        if (_frame == (_case == "sustained" ? 181 : 101) + ObservationExtension)
+        {
+            _releaseSpeed = state.Physics.AngularVelocity.Length();
+            if (_case is "pitch" or "yaw" or "roll" or "combined" or "sustained" or "release-command" || _case.StartsWith("device-", StringComparison.Ordinal))
+            {
+                float before = previous.Physics.AngularVelocity.Length();
+                Require(_releaseSpeed > before * 0.8f && _releaseSpeed < before * 0.95f, "release retains motion and begins progressive damping");
+            }
+        }
         if (_case.StartsWith("device-", StringComparison.Ordinal) && _frame == 101 + ObservationExtension)
         {
             Require(previous.Physics.AngularVelocity.Length() > 0.5f, "release follows meaningful commanded rotation");
@@ -162,12 +170,12 @@ public sealed partial class AirControlIntegrationChecks : Node3D
                 _camera = new Camera3D { Current = true }; AddChild(_camera);
             }
             foreach (bool network in new[] { false, true })
-            foreach (string scenario in new[] { "short-gap", "pitch", "yaw", "roll", "combined", "sustained", "crooked", "landing", "repeat", "correction", "heading", "coast", "release-command", "device-key-pitch", "device-key-yaw", "device-key-roll", "device-pad-pitch", "device-pad-yaw", "device-pad-roll", "hold-wheels", "hold-roof", "hold-side", "hold-nose" })
+            foreach (string scenario in new[] { "short-gap", "pitch", "yaw", "roll", "combined", "sustained", "crooked", "landing", "repeat", "correction", "heading", "coast", "release-command", "device-key-pitch", "device-key-yaw", "device-key-roll", "device-pad-pitch", "device-pad-yaw", "device-pad-roll", "hold-wheels", "hold-roof", "hold-side", "hold-nose", "hold-underside" })
             {
                 if (OS.GetCmdlineUserArgs().Contains("--air-correction-only") && scenario != "correction") { continue; }
                 await Exercise(network, scenario);
             }
-            GD.Print(OS.GetCmdlineUserArgs().Contains("--air-correction-only") ? "Air correction diagnostic passed: 2 production-adapter scenarios." : "Air control integration passed: 46 production-adapter scenarios.");
+            GD.Print(OS.GetCmdlineUserArgs().Contains("--air-correction-only") ? "Air correction diagnostic passed: 2 production-adapter scenarios." : "Air control integration passed: 48 production-adapter scenarios.");
             GetTree().Quit();
         }
         catch (Exception exception)
@@ -206,6 +214,14 @@ public sealed partial class AirControlIntegrationChecks : Node3D
             });
             velocity = scenario == "hold-wheels" ? new Vector3(0, 0, -12) : new Vector3(-18, -8, -30);
         }
+        StaticBody3D? underside = null;
+        if (scenario == "hold-underside")
+        {
+            velocity = new Vector3(0, -8, 0);
+            underside = new StaticBody3D(); underside.AddToGroup("landing_terrain");
+            underside.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(0.4f, 3, 0.4f) }, Position = new(0, 1.5f, 0) });
+            AddChild(underside);
+        }
         var physics = new VehiclePhysicsState(VehicleBody.ToCore(position), new N.Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W), VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular));
         var damage = new DamageConfiguration { MaxHP = 1000, CollisionScale = 5 };
         _world.AddVehicle(1, new(), damage, physics);
@@ -229,7 +245,7 @@ public sealed partial class AirControlIntegrationChecks : Node3D
         {
             Require(_heldBeforeContact, "maneuver release holds before landing");
             if (scenario == "hold-wheels") { Require(state.Grounded && _world.GetVehicle(1).Damage.CurrentHP == 1000, "held upright attitude produces a clean full-health landing"); }
-            else { Require(_contactAfterHold && _postContactPeak > 1, "bad landing restores substantial collision-driven rotation"); }
+            else { Require(_contactAfterHold && _postContactPeak > (scenario == "hold-underside" ? 0.01f : 1), "bad landing restores substantial collision-driven rotation"); }
             Log($"{scenario}: held={_heldBeforeContact}, nonWheelImpact={_contactAfterHold}, postContactPeak={_postContactPeak:F3}");
         }
         else if (scenario == "short-gap")
@@ -291,6 +307,7 @@ public sealed partial class AirControlIntegrationChecks : Node3D
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
             using var image = GetViewport().GetTexture().GetImage(); image.SavePng(System.IO.Path.Combine(_output, $"{network}-{scenario}.png"));
         }
+        underside?.QueueFree();
         (_native as Node ?? _network!).QueueFree(); _native = null; _network = null; await Frames(3);
     }
 

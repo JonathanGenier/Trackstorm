@@ -53,6 +53,18 @@ function Get-FastCheckPlan {
             Add-Runtime 'check-crash-recovery.ps1'
             Add-Manual 'Observe nose, rear, roof, side, awkward and repeated tumbles, first-wheel control restoration, and extreme tire landings through both vehicle adapters.'
         }
+        if ($path -match 'VehicleContactBatch|MixedContact|mixed_contact|check-mixed-contacts|VehicleBody.cs') {
+            $transportTests = $true
+            Add-Runtime 'check-mixed-contacts.ps1'
+            Add-Runtime 'check-pit-collisions.ps1'
+            Add-Runtime 'check-environment-collisions.ps1'
+            Add-Runtime 'check-trophy-truck.ps1'
+            Add-Runtime 'check-repeated-collisions.ps1'
+            Add-Manual 'Observe simultaneous vehicle-plus-barrier and vehicle-plus-terrain contacts, including low-closing touching and preserved native slowdown/rotation.'
+        }
+        if ($path -match 'PitCollision|pit_collision|check-pit-collision|VehicleCollision|VehicleBody.cs|NetworkVehicleBody') {
+            Add-Runtime 'check-pit-collisions.ps1'
+        }
         if ($path -match 'TrophyTruck|trophy_truck|check-trophy-truck|VehicleCollision|NetworkVehicleBody') {
             Add-Runtime 'check-trophy-truck.ps1'
         }
