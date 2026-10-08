@@ -53,7 +53,7 @@ internal sealed class TrophyTruckTests
         var result = VehicleCollision.ResolvePair(a, tuning, b, tuning, -Vector3.UnitX, new(0, 0, 2));
         Assert.That(result.First.LinearVelocity.Z, Is.EqualTo(8));
         Assert.That(result.First.LinearVelocity + result.Second.LinearVelocity, Is.EqualTo(a.LinearVelocity));
-        Assert.That(result.First.AngularVelocity.Length(), Is.InRange(0.1f, tuning.CrashAngularLimit + 0.00001f));
+        Assert.That(result.First.AngularVelocity.Length(), Is.InRange(0.1f, tuning.PitAngularLimit + 0.00001f));
         Assert.That(result.Second.AngularVelocity.Y, Is.EqualTo(-result.First.AngularVelocity.Y));
     }
 

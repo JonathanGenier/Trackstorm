@@ -1,0 +1,32 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+{"label":"native-30-60","contacts":138,"firstDamage":100,"secondDamage":80,"peakYaw":0.0029414103,"yawTravel":0.00022651405,"peakVertical":0.011583909,"targetTravel":10.001416}
+{"label":"native-60-30","contacts":142,"firstDamage":80,"secondDamage":100,"peakYaw":0.0029240407,"yawTravel":0.00022535166,"peakVertical":0.011528537,"targetTravel":10.072947}
+{"label":"native-stationary","contacts":210,"firstDamage":99.479675,"secondDamage":24.869934,"peakYaw":0.00194903,"yawTravel":0.00014953918,"peakVertical":0.0075300783,"targetTravel":19.873314}
+{"label":"native-equal","contacts":320,"firstDamage":62.559204,"secondDamage":62.559204,"peakYaw":0.0019761338,"yawTravel":0.0001535737,"peakVertical":0.007649958,"targetTravel":0.07809366}
+{"label":"native-rear","contacts":256,"firstDamage":25.075317,"secondDamage":16.716919,"peakYaw":0.0009813659,"yawTravel":6.15352E-05,"peakVertical":0.0037133843,"targetTravel":29.877989}
+{"label":"native-heavy-target","contacts":250,"firstDamage":99.479675,"secondDamage":24.869934,"peakYaw":0.0009682294,"yawTravel":0.00010909205,"peakVertical":0.008245274,"targetTravel":15.8963175}
+{"label":"native-heavy-striker","contacts":222,"firstDamage":99.479675,"secondDamage":24.869934,"peakYaw":0.002055806,"yawTravel":0.00015731972,"peakVertical":0.008503437,"targetTravel":23.84679}
+{"label":"native-center","contacts":544,"firstDamage":100,"secondDamage":25.023682,"peakYaw":0.023664638,"yawTravel":0.004135111,"peakVertical":0.07753217,"targetTravel":1.5103134}
+{"label":"native-front","contacts":414,"firstDamage":100,"secondDamage":25.023682,"peakYaw":1.9369208,"yawTravel":-0.351589,"peakVertical":0.06983026,"targetTravel":5.2227683}
+{"label":"native-rear-side","contacts":418,"firstDamage":100,"secondDamage":25.023682,"peakYaw":1.9502459,"yawTravel":0.35988066,"peakVertical":0.06996305,"targetTravel":5.320278}
+{"label":"native-push-baseline","contacts":948,"firstDamage":0,"secondDamage":0,"peakYaw":0.0028705492,"yawTravel":0.00022005838,"peakVertical":0.022279844,"targetTravel":37.968662}
+{"label":"native-push","contacts":884,"firstDamage":0,"secondDamage":0,"peakYaw":0.0036091676,"yawTravel":0.00027654963,"peakVertical":0.022320569,"targetTravel":40.39733}
+{"label":"native-hill-baseline","contacts":0,"firstDamage":0,"secondDamage":0,"peakYaw":3.5037433E-09,"yawTravel":3.5105636E-09,"peakVertical":11.254749,"targetTravel":57.16881}
+{"label":"native-hill","contacts":0,"firstDamage":0,"secondDamage":0,"peakYaw":1.1127739E-08,"yawTravel":3.6715795E-09,"peakVertical":11.605751,"targetTravel":62.86592}
+{"label":"network-30-60","contacts":9,"firstDamage":100,"secondDamage":80,"peakYaw":5.200507E-08,"yawTravel":7.506637E-08,"peakVertical":0.011958525,"targetTravel":9.910218}
+{"label":"network-60-30","contacts":9,"firstDamage":80,"secondDamage":100,"peakYaw":4.6480306E-08,"yawTravel":6.733068E-08,"peakVertical":0.011958525,"targetTravel":9.931776}
+{"label":"network-stationary","contacts":10,"firstDamage":100,"secondDamage":25.178162,"peakYaw":0,"yawTravel":0,"peakVertical":0.0079339,"targetTravel":19.897615}
+{"label":"network-equal","contacts":16,"firstDamage":62.945374,"secondDamage":62.945374,"peakYaw":3.082404E-08,"yawTravel":4.438399E-08,"peakVertical":0.007903963,"targetTravel":0.09095558}
+{"label":"network-rear","contacts":7,"firstDamage":25.767212,"secondDamage":17.178162,"peakYaw":0,"yawTravel":0,"peakVertical":0.0039486885,"targetTravel":30.092356}
+{"label":"network-heavy-target","contacts":7,"firstDamage":100,"secondDamage":25.178162,"peakYaw":0,"yawTravel":0,"peakVertical":0.009531796,"targetTravel":15.914625}
+{"label":"network-heavy-striker","contacts":10,"firstDamage":100,"secondDamage":25.178162,"peakYaw":0,"yawTravel":0,"peakVertical":0.009469628,"targetTravel":23.872375}
+{"label":"network-center","contacts":833,"firstDamage":100,"secondDamage":25.333313,"peakYaw":8.183473E-09,"yawTravel":3.2628882E-09,"peakVertical":0.071806565,"targetTravel":1.187885}
+{"label":"network-front","contacts":192,"firstDamage":100,"secondDamage":25.333313,"peakYaw":1.9472493,"yawTravel":-0.367964,"peakVertical":0.07190683,"targetTravel":4.297515}
+{"label":"network-rear-side","contacts":193,"firstDamage":100,"secondDamage":25.333313,"peakYaw":1.9593534,"yawTravel":0.3817729,"peakVertical":0.072075866,"targetTravel":4.445107}
+{"label":"network-push-baseline","contacts":430,"firstDamage":0,"secondDamage":0,"peakYaw":4.5605617E-09,"yawTravel":-3.7259897E-09,"peakVertical":0.00388214,"targetTravel":37.47702}
+{"label":"network-push","contacts":438,"firstDamage":0,"secondDamage":0,"peakYaw":1.4831588E-09,"yawTravel":-1.3583935E-09,"peakVertical":0.0115104765,"targetTravel":39.90279}
+{"label":"network-hill-baseline","contacts":0,"firstDamage":0,"secondDamage":0,"peakYaw":7.4162925E-09,"yawTravel":-1.5063124E-09,"peakVertical":11.254786,"targetTravel":57.17593}
+{"label":"network-hill","contacts":0,"firstDamage":0,"secondDamage":0,"peakYaw":9.006782E-09,"yawTravel":2.8672191E-09,"peakVertical":11.605777,"targetTravel":62.872746}
+Combat collision integration passed.

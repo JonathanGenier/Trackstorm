@@ -1,0 +1,7 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+barrier-push: mixed=300 worldFrames=300 lowClosing=598 tangentLoss=0.491340 angularChange=0.177313 batchError=0.00000000 peakYaw=0.0119
+barrier-touch: mixed=299 worldFrames=299 lowClosing=598 tangentLoss=0.002749 angularChange=0.001265 batchError=0.00000000 peakYaw=0.0000
+terrain-touch: mixed=2 worldFrames=2 lowClosing=4 tangentLoss=0.101721 angularChange=0.575503 batchError=0.00000000 peakYaw=0.0071
+world-only: mixed=0 worldFrames=60 lowClosing=0 tangentLoss=0.080555 angularChange=0.066808 batchError=0.00000000 peakYaw=0.0522
+Mixed contact checks passed.

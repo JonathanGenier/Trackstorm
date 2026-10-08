@@ -86,11 +86,13 @@ public sealed partial class PitCollisionChecks : Node3D
                 _camera = new Camera3D { Current = true }; AddChild(_camera);
             }
             foreach (bool network in new[] { false, true })
-            foreach (string scenario in new[] { "low", "medium", "high", "glancing", "matched", "rubbing", "following", "heavy-target", "heavy-striker" })
+            foreach (string scenario in new[] { "low", "medium", "high", "glancing", "slow-pit", "shallow-quarter", "matched", "rubbing", "following", "heavy-target", "heavy-striker" })
             {
                 string? selected = OS.GetCmdlineUserArgs().FirstOrDefault(a => a.StartsWith("--pit-case=", StringComparison.Ordinal));
                 if (selected is not null && scenario != selected[11..]) { continue; }
                 await Exercise(network, scenario);
+                // Drain freed wrappers before the next fixture reuses native resource handles.
+                GC.Collect(); GC.WaitForPendingFinalizers();
             }
             GD.Print("PIT collision integration passed."); GetTree().Quit();
         }
@@ -106,11 +108,11 @@ public sealed partial class PitCollisionChecks : Node3D
         floor.AddChild(VehicleBody.Box(new(2000, 2, 2000), new(0, -1, 0), new("947454"))); _fixture.AddChild(floor);
         _world = new(new(60));
         float closing = scenario switch { "low" => .5f, "medium" => 6, "high" => 14, "glancing" => 3, "matched" => 0, "rubbing" => .2f, "following" => 0, _ => 7 };
-        float speed = scenario == "following" ? 10 : 15;
+        float speed = scenario == "following" ? 10 : scenario == "slow-pit" ? 4 : 15;
         var target = new VehiclePhysicsState(new(0, VehicleDimensions.RideHeight, 0), N.Quaternion.Identity, new(0, 0, -speed), N.Vector3.Zero);
         float yaw = scenario is "matched" or "rubbing" or "following" ? 0 : -0.15f;
         var position = scenario == "following" ? new N.Vector3(0, VehicleDimensions.RideHeight, 5.2f) :
-            new N.Vector3(scenario is "matched" or "rubbing" ? -2.64f : -3.1f, VehicleDimensions.RideHeight, scenario is "matched" or "rubbing" ? 0 : 3.9f);
+            new N.Vector3(scenario is "matched" or "rubbing" ? -2.64f : -3.1f, VehicleDimensions.RideHeight, scenario is "matched" or "rubbing" ? 0 : scenario == "shallow-quarter" ? 3 : 3.9f);
         var striker = new VehiclePhysicsState(position, N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitY, yaw), new(closing, 0, -speed), N.Vector3.Zero);
         AddCar(network, 1, target, new() { Mass = scenario == "heavy-target" ? 4500 : 3000, Wheelbase = scenario == "heavy-target" ? 3.2f : VehicleDimensions.Wheelbase });
         AddCar(network, 2, striker, new() { Mass = scenario == "heavy-striker" ? 4500 : 3000, Wheelbase = scenario == "heavy-striker" ? 3.2f : VehicleDimensions.Wheelbase });
@@ -132,6 +134,8 @@ public sealed partial class PitCollisionChecks : Node3D
         GD.Print(evidence); System.IO.File.AppendAllText(System.IO.Path.Combine(_output, "evidence.txt"), evidence + "\n");
         if (scenario is "medium" or "high" or "heavy-target" or "heavy-striker" && (_peak < .5f || Math.Abs(_yaw) < .08f))
         { throw new InvalidOperationException("Rear-quarter impact did not destabilize the target."); }
+        if (scenario is "slow-pit" or "shallow-quarter" && (_peak < .2f || Math.Abs(_yaw) < .04f))
+        { throw new InvalidOperationException("Less-perfect rear-quarter contact should remain usable."); }
         if (scenario == "low" && _peak > .2f) { throw new InvalidOperationException("Light rear-quarter tap causes excessive yaw."); }
         if (scenario is not "matched" && _contacts == 0) { throw new InvalidOperationException(label + " did not exercise vehicle contact."); }
         if (_world.State.Vehicles.Any(v => v.Movement.Physics.AngularVelocity.Length() > 8.01f)) { throw new InvalidOperationException("Unbounded contact rotation."); }

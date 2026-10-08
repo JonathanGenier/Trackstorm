@@ -1,0 +1,29 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+native-wheels-13: firstCrash=0, wheels=0, hits=0, hp=1000.0, rotation=0.00, peakRise=0.00, peakSpin=0.00, finalUp=1.000, maxStep=0.000, forwardFlip=False
+native-wheels-25: firstCrash=0, wheels=0, hits=0, hp=1000.0, rotation=0.00, peakRise=0.00, peakSpin=0.00, finalUp=1.000, maxStep=0.000, forwardFlip=False
+native-wheels-45: firstCrash=0, wheels=0, hits=0, hp=1000.0, rotation=0.00, peakRise=0.00, peakSpin=0.00, finalUp=1.000, maxStep=0.000, forwardFlip=False
+native-nose-fast: firstCrash=6, wheels=85, hits=3, hp=938.4, rotation=5.41, peakRise=2.83, peakSpin=6.33, finalUp=1.000, maxStep=0.118, forwardFlip=True
+native-nose-slow: firstCrash=10, wheels=77, hits=1, hp=996.8, rotation=2.06, peakRise=0.65, peakSpin=3.03, finalUp=1.000, maxStep=0.051, forwardFlip=True
+native-rear: firstCrash=6, wheels=118, hits=2, hp=935.8, rotation=5.78, peakRise=1.95, peakSpin=4.79, finalUp=1.000, maxStep=0.082, forwardFlip=True
+native-side: firstCrash=13, wheels=22, hits=1, hp=969.0, rotation=1.77, peakRise=2.24, peakSpin=3.68, finalUp=1.000, maxStep=0.101, forwardFlip=True
+native-roof: firstCrash=11, wheels=141, hits=1, hp=975.8, rotation=3.39, peakRise=1.61, peakSpin=2.93, finalUp=1.000, maxStep=0.047, forwardFlip=True
+native-roof-rest: firstCrash=15, wheels=143, hits=0, hp=1000.0, rotation=3.32, peakRise=0.79, peakSpin=2.84, finalUp=1.000, maxStep=0.047, forwardFlip=True
+native-awkward: firstCrash=3, wheels=176, hits=4, hp=870.2, rotation=9.27, peakRise=3.15, peakSpin=6.93, finalUp=1.000, maxStep=0.120, forwardFlip=True
+native-multi-flip: firstCrash=5, wheels=51, hits=7, hp=792.3, rotation=12.13, peakRise=4.21, peakSpin=8.00, finalUp=1.000, maxStep=0.133, forwardFlip=True
+native-side-spin: firstCrash=5, wheels=39, hits=3, hp=919.6, rotation=4.97, peakRise=2.54, peakSpin=7.73, finalUp=1.000, maxStep=0.120, forwardFlip=True
+native-roof-spin: firstCrash=4, wheels=54, hits=1, hp=945.2, rotation=3.34, peakRise=3.78, peakSpin=7.41, finalUp=1.000, maxStep=0.100, forwardFlip=True
+network-wheels-13: firstCrash=0, wheels=0, hits=0, hp=1000.0, rotation=0.00, peakRise=0.00, peakSpin=0.00, finalUp=1.000, maxStep=0.000, forwardFlip=False
+network-wheels-25: firstCrash=0, wheels=0, hits=0, hp=1000.0, rotation=0.00, peakRise=0.00, peakSpin=0.00, finalUp=1.000, maxStep=0.000, forwardFlip=False
+network-wheels-45: firstCrash=0, wheels=0, hits=0, hp=1000.0, rotation=0.00, peakRise=0.00, peakSpin=0.00, finalUp=1.000, maxStep=0.000, forwardFlip=False
+network-nose-fast: firstCrash=4, wheels=91, hits=2, hp=938.3, rotation=5.09, peakRise=3.88, peakSpin=5.77, finalUp=1.000, maxStep=0.095, forwardFlip=True
+network-nose-slow: firstCrash=8, wheels=77, hits=1, hp=998.6, rotation=2.11, peakRise=0.83, peakSpin=2.04, finalUp=1.000, maxStep=0.034, forwardFlip=True
+network-rear: firstCrash=4, wheels=116, hits=2, hp=935.9, rotation=5.67, peakRise=2.13, peakSpin=4.49, finalUp=1.000, maxStep=0.074, forwardFlip=True
+network-side: firstCrash=12, wheels=22, hits=1, hp=969.9, rotation=1.71, peakRise=1.46, peakSpin=3.72, finalUp=1.000, maxStep=0.061, forwardFlip=True
+network-roof: firstCrash=9, wheels=111, hits=1, hp=977.7, rotation=3.32, peakRise=2.33, peakSpin=2.67, finalUp=1.000, maxStep=0.045, forwardFlip=True
+network-roof-rest: firstCrash=14, wheels=117, hits=0, hp=1000.0, rotation=3.19, peakRise=1.10, peakSpin=2.54, finalUp=1.000, maxStep=0.042, forwardFlip=True
+network-awkward: firstCrash=1, wheels=115, hits=5, hp=864.0, rotation=7.13, peakRise=5.11, peakSpin=6.82, finalUp=1.000, maxStep=0.112, forwardFlip=True
+network-multi-flip: firstCrash=3, wheels=47, hits=7, hp=866.1, rotation=11.80, peakRise=5.14, peakSpin=8.00, finalUp=1.000, maxStep=0.132, forwardFlip=True
+network-side-spin: firstCrash=4, wheels=32, hits=2, hp=946.4, rotation=4.96, peakRise=3.50, peakSpin=7.74, finalUp=1.000, maxStep=0.128, forwardFlip=True
+network-roof-spin: firstCrash=2, wheels=41, hits=2, hp=930.1, rotation=3.22, peakRise=4.58, peakSpin=4.33, finalUp=1.000, maxStep=0.100, forwardFlip=True
+Crash recovery checks passed.

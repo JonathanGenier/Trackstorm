@@ -1,0 +1,25 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+native-low: contacts=182 targetPeakYaw=0.1032 yawTravel=0.0631 travelError=0.0000 speedChange=0.0659
+native-medium: contacts=278 targetPeakYaw=0.7368 yawTravel=0.1442 travelError=0.0000 speedChange=0.0700
+native-high: contacts=476 targetPeakYaw=1.2702 yawTravel=0.2598 travelError=0.0002 speedChange=0.0665
+native-glancing: contacts=232 targetPeakYaw=0.2974 yawTravel=0.0866 travelError=0.0000 speedChange=0.0671
+native-slow-pit: contacts=476 targetPeakYaw=0.5952 yawTravel=0.0708 travelError=0.0001 speedChange=0.0217
+native-shallow-quarter: contacts=476 targetPeakYaw=0.5933 yawTravel=0.0684 travelError=0.0001 speedChange=0.0607
+native-matched: contacts=1798 targetPeakYaw=0.0000 yawTravel=0.0000 travelError=0.0000 speedChange=0.0582
+native-rubbing: contacts=1798 targetPeakYaw=0.0004 yawTravel=0.0000 travelError=0.0000 speedChange=0.0582
+native-following: contacts=1470 targetPeakYaw=0.0005 yawTravel=0.0002 travelError=0.0003 speedChange=0.0635
+native-heavy-target: contacts=476 targetPeakYaw=0.5475 yawTravel=0.0988 travelError=0.0000 speedChange=0.0641
+native-heavy-striker: contacts=218 targetPeakYaw=1.0539 yawTravel=0.2335 travelError=0.0002 speedChange=0.0829
+network-low: contacts=79 targetPeakYaw=0.0424 yawTravel=0.0513 travelError=0.0002 speedChange=0.0670
+network-medium: contacts=109 targetPeakYaw=0.7720 yawTravel=0.1444 travelError=0.0182 speedChange=0.0715
+network-high: contacts=127 targetPeakYaw=1.2987 yawTravel=0.2947 travelError=0.0110 speedChange=0.0742
+network-glancing: contacts=93 targetPeakYaw=0.3215 yawTravel=0.0837 travelError=0.0003 speedChange=0.0693
+network-slow-pit: contacts=203 targetPeakYaw=0.5927 yawTravel=0.0804 travelError=0.0003 speedChange=0.0244
+network-shallow-quarter: contacts=197 targetPeakYaw=0.3887 yawTravel=0.0439 travelError=0.0003 speedChange=0.0636
+network-matched: contacts=2 targetPeakYaw=0.0000 yawTravel=0.0000 travelError=0.0000 speedChange=0.0000
+network-rubbing: contacts=2 targetPeakYaw=0.0026 yawTravel=0.0002 travelError=0.0000 speedChange=0.0000
+network-following: contacts=654 targetPeakYaw=0.0007 yawTravel=-0.0011 travelError=0.0032 speedChange=0.0635
+network-heavy-target: contacts=172 targetPeakYaw=0.5223 yawTravel=0.0983 travelError=0.0007 speedChange=0.0707
+network-heavy-striker: contacts=97 targetPeakYaw=1.1257 yawTravel=0.2456 travelError=0.0030 speedChange=0.0820
+PIT collision integration passed.

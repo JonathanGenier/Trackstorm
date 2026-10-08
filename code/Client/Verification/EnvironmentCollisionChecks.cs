@@ -37,6 +37,7 @@ public sealed partial class EnvironmentCollisionChecks : Node3D
                 await Scenario(network, "pillar-offcenter", new(35, 0, 0), 100);
                 await Oval(network);
             }
+            ReleaseFixtureWrappers();
             GD.Print($"Environment collision checks: failures={_failures}");
             GetTree().Quit(_failures == 0 ? 0 : 1);
         }
@@ -45,6 +46,7 @@ public sealed partial class EnvironmentCollisionChecks : Node3D
 
     private async Task Scenario(bool network, string name, Vector3 initialVelocity, int ticks)
     {
+        ReleaseFixtureWrappers();
         var fixture = new Node3D();
         AddChild(fixture);
         var floor = Box(new(1000, -1, 0), new(500, 2, 500));
@@ -130,6 +132,7 @@ public sealed partial class EnvironmentCollisionChecks : Node3D
 
     private async Task Oval(bool network)
     {
+        ReleaseFixtureWrappers();
         var map = GD.Load<PackedScene>("res://scenes/maps/oval_foundation.tscn").Instantiate<Node3D>();
         AddChild(map);
         using var data = System.Text.Json.JsonDocument.Parse(Godot.FileAccess.GetFileAsString("res://assets/maps/oval/measurements.json"));
@@ -188,6 +191,14 @@ public sealed partial class EnvironmentCollisionChecks : Node3D
         body?.QueueFree(); proxy?.QueueFree(); map.QueueFree();
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
+    }
+
+    private static void ReleaseFixtureWrappers()
+    {
+        // Drain wrappers from the previous freed fixture before native handles
+        // are reused by the next resource load, matching the rock fixture lifecycle.
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
     }
 
     private void Check(bool condition, string message)

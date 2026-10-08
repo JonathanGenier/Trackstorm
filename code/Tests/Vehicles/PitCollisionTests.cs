@@ -19,7 +19,7 @@ internal sealed class PitCollisionTests
         var ac = new VehicleConfiguration { Mass = strikerMass };
         var bc = new VehicleConfiguration { Mass = targetMass, Wheelbase = wheelbase };
         var impact = VehicleCollision.ResolvePair(a, ac, b, bc, -Vector3.UnitX, Point);
-        var baseline = VehicleCollision.ResolvePair(a, ac with { PitYawResponse = 0 }, b, bc with { PitYawResponse = 0 }, -Vector3.UnitX, Point);
+        var baseline = VehicleCollision.ResolvePair(a, ac with { PitYawResponse = 0, VehicleImpactYawResponse = 0 }, b, bc with { PitYawResponse = 0, VehicleImpactYawResponse = 0 }, -Vector3.UnitX, Point);
         Assert.That(impact.Second.AngularVelocity.Y, Is.GreaterThan(baseline.Second.AngularVelocity.Y * 2));
         Assert.That(impact.Second.AngularVelocity.Y, Is.InRange(0.3f, bc.PitAngularLimit));
         Assert.That(impact.First.LinearVelocity.X, Is.LessThan(a.LinearVelocity.X - 1));
@@ -46,8 +46,8 @@ internal sealed class PitCollisionTests
 
     [TestCase(0f, 15f, 1.8f)]
     [TestCase(0.5f, 15f, 1.8f)]
-    [TestCase(1.5f, 15f, 1.8f)]
-    [TestCase(8f, 2f, 1.8f)]
+    [TestCase(0.75f, 15f, 1.8f)]
+    [TestCase(8f, 0f, 1.8f)]
     [TestCase(8f, 15f, 0f)]
     [TestCase(8f, 15f, -1.8f)]
     public void MatchingLightSlowMidSideAndFrontContactsKeepOrdinaryResponse(float closing, float speed, float offset)

@@ -1,0 +1,618 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Debug\net10.0\Trackstorm.Transport.Tests.dll
+Test run for C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Debug\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running all tests in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Debug\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 468 of 469 NUnit test cases using Current Discovery mode, Non-Explicit run
+  Passed CombatUsesSharedScoredAttributionAndOneRowPerDeath(ulong.MinValue,"collision",True,"Victim died") [281 ms]
+  Passed CombatUsesSharedScoredAttributionAndOneRowPerDeath(2UL,"missile",True,"Victim died") [1 ms]
+  Passed CombatUsesSharedScoredAttributionAndOneRowPerDeath(1UL,"missile",True,"Killer killed Victim with Missile") [12 ms]
+  Passed CombatUsesSharedScoredAttributionAndOneRowPerDeath(1UL,"collision",True,"Killer killed Victim") [1 ms]
+  Passed CombatUsesSharedScoredAttributionAndOneRowPerDeath(1UL,"missile",False,"Victim died") [1 ms]
+  Passed ExpiryIsIndependentAndBurstsEvictOldestWithoutWaitingForRendering [12 ms]
+  Passed FilteringIsAllowlistedAndNeverLeaksDiagnosticFields [< 1 ms]
+  Passed InactiveFeedConsumesNothingAndMatchEndHasPlayerWording [18 ms]
+  Passed PresenceUsesCapturedNamesAndOnlyCommittedTransitions [2 ms]
+  Passed ReplicaDeduplicationAndRebindingNeverReplayHistory [2 ms]
+  Passed BriefHopsRemainCloseAndSustainedFlightBlendsAndRecovers(30) [4 ms]
+  Passed BriefHopsRemainCloseAndSustainedFlightBlendsAndRecovers(60) [< 1 ms]
+  Passed BriefHopsRemainCloseAndSustainedFlightBlendsAndRecovers(144) [< 1 ms]
+  Passed RepeatedSmallHopsStayCloseAndLandingNeverContinuesExpansion(30) [1 ms]
+  Passed RepeatedSmallHopsStayCloseAndLandingNeverContinuesExpansion(60) [< 1 ms]
+  Passed RepeatedSmallHopsStayCloseAndLandingNeverContinuesExpansion(144) [< 1 ms]
+  Passed StrengthChangesAreSmoothAndBounded(0.0f) [< 1 ms]
+  Passed StrengthChangesAreSmoothAndBounded(0.5f) [< 1 ms]
+  Passed StrengthChangesAreSmoothAndBounded(1.5f) [< 1 ms]
+  Passed CategoriesRouteExplicitly [1 ms]
+  Passed CooldownConsumesDuplicatesAndFloods [< 1 ms]
+  Passed EngineCrossfadeIsContinuous [3 ms]
+  Passed ItemsInitializeAndDeduplicate [18 ms]
+  Passed MachineGunSoundsEachNewRoundButNeverDuplicateOrSeededPublications [1 ms]
+  Passed MatchFeedbackUsesAuthoritativeTransitions [1 ms]
+  Passed PlaylistCyclesAndResets [5 ms]
+  Passed SalvoNextShotCapabilityDoesNotSoundLikeAnotherPickup [1 ms]
+  Passed SettingsGainBounds [< 1 ms]
+  Passed VehicleFeedbackIsOncePerBoundary [3 ms]
+  Passed LateRenewalAndServiceOutageFailClosed [7 ms]
+  Passed ObserverRequiresFreshReadAfterEveryActivation [1 ms]
+  Passed RetiredRenewalCannotReviveAndSuccessorRejectsOldToken(0) [1 ms]
+  Passed RetiredRenewalCannotReviveAndSuccessorRejectsOldToken(2.9d) [< 1 ms]
+  Passed RetiredRenewalCannotReviveAndSuccessorRejectsOldToken(3) [< 1 ms]
+  Passed RetiredRenewalCannotReviveAndSuccessorRejectsOldToken(10) [< 1 ms]
+  Passed BoostIsBoundedSmoothAndReturnsToRoadSpeedFeedback(30) [< 1 ms]
+  Passed BoostIsBoundedSmoothAndReturnsToRoadSpeedFeedback(60) [< 1 ms]
+  Passed BoostIsBoundedSmoothAndReturnsToRoadSpeedFeedback(144) [< 1 ms]
+  Passed RepeatedUseCannotStackAndResetClearsAllFeedback [3 ms]
+  Passed ArmedInputKeepsMouseDirectAndStickPreciseThenReturnsLikeOrdinaryCamera(30) [1 ms]
+  Passed ArmedInputKeepsMouseDirectAndStickPreciseThenReturnsLikeOrdinaryCamera(60) [< 1 ms]
+  Passed ArmedInputKeepsMouseDirectAndStickPreciseThenReturnsLikeOrdinaryCamera(144) [< 1 ms]
+  Passed IndependentAxisAndReturnGainsRetainDeviceTimeSemantics(30) [< 1 ms]
+  Passed IndependentAxisAndReturnGainsRetainDeviceTimeSemantics(60) [< 1 ms]
+  Passed IndependentAxisAndReturnGainsRetainDeviceTimeSemantics(144) [< 1 ms]
+  Passed OrbitAndReturnAreIndependentOfRenderRate(30) [< 1 ms]
+  Passed OrbitAndReturnAreIndependentOfRenderRate(60) [< 1 ms]
+  Passed OrbitAndReturnAreIndependentOfRenderRate(144) [< 1 ms]
+  Passed OrbitRemainsBoundedAndResetClearsBothAxes(False) [< 1 ms]
+  Passed OrbitRemainsBoundedAndResetClearsBothAxes(True) [< 1 ms]
+  Passed AccelerationAndBrakingHaveOppositeWeight [3 ms]
+  Passed RenderRatesAndRotatedHeadingAgree [1 ms]
+  Passed ResetClearsInertiaAndFeedback [1 ms]
+  Passed ShakeIsBoundedAndDecays [< 1 ms]
+  Passed ShakeTrajectoryIsBoundedAndRenderRateIndependent [< 1 ms]
+  Passed TurningAndSlipAreBounded(-1) [1 ms]
+  Passed TurningAndSlipAreBounded(1) [< 1 ms]
+  Passed CircusProjectionUpdatesCategoriesInPlaceAndDoesNotReplayInitialAwards [18 ms]
+  Passed HealthFormattingAndNormalization [< 1 ms]
+  Passed NonCircusModeClearsCircusPresentationAndNextMatchStartsWithoutFeedback [< 1 ms]
+  Passed ResourceAdaptersRetainExistingSemanticsWithoutInventingCapacity [3 ms]
+  Passed ResourcesBelongToPhysicalSlotsAndDisappearWithOccupancy [1 ms]
+  Passed SalvoShowsIndependentRemainingShotsInBothSlots [1 ms]
+  Passed ShieldDurabilityMatchesExactPhysicalCapabilityAndReconstructsWithoutRefilling [3 ms]
+  Passed SnapshotChangesAndItemMappingAreReadOnly [1 ms]
+  Passed SpeedUnitsAndVisualScale [< 1 ms]
+  Passed TimerUsesAuthoritativeTimeAcrossCountdownJoinRecoveryAndFinish [18 ms]
+  Passed CorrectionDecayIsIndependentOfRenderRate [1 ms]
+  Passed CorrectionThresholds(0.0f,0.0f,0) [< 1 ms]
+  Passed CorrectionThresholds(0.005f,0.0f,0) [< 1 ms]
+  Passed CorrectionThresholds(0.01f,0.0f,0) [< 1 ms]
+  Passed CorrectionThresholds(0.5f,0.5f,0) [< 1 ms]
+  Passed CorrectionThresholds(3.0f,0.0f,1) [< 1 ms]
+  Passed CorrectionThresholds(20.0f,0.0f,1) [< 1 ms]
+  Passed ApplyRejectsInvalidDraftWithoutMutation("vehicle.mass","not a number") [8 ms]
+  Passed ApplyRejectsInvalidDraftWithoutMutation("vehicle.mass","-1") [4 ms]
+  Passed ApplyRejectsInvalidDraftWithoutMutation("vehicle.mass","NaN") [1 ms]
+  Passed ApplyRejectsInvalidDraftWithoutMutation("match.minimum_players","1.5") [1 ms]
+  Passed CategoryResetAndUnrelatedEditsCommitTogetherThroughAuthority [11 ms]
+  Passed CategoryResetPreservesOtherDraftsAndCoversTheWholeCategory [24 ms]
+  Passed DefaultsAndDirtyStateUseActualConfigurationValues [2 ms]
+  Passed DiscardRestoresCurrentAuthorityWithoutMutationOrPersistence [23 ms]
+  Passed HostStorageUsesProductionDefaultsForAbsentAndMissingValues [13 ms]
+  Passed ImportAcquisitionEnforcesByteBoundAndStrictUtf8 [19 ms]
+  Passed ImportAcquisitionReadsFreshBytesAndReleasesTheFile [8 ms]
+  Passed ImportedKeysRemainExplicitAcrossExternalEditsWhileUnlistedFieldsConverge [5 ms]
+  Passed MalformedSavedTuningPreservesReleaseFallbacksAndValidOverrides [54 ms]
+  Passed ResetDoesNotOmitDefaultsMatchingAnOutdatedEditorBaseline [3 ms]
+  Passed ResetStagesProductionDefaultsUntilApplyThenReplacesPersistedTuning [28 ms]
+  Passed UnchangedAcceptedSettingsCanRetryFailedPersistence [23 ms]
+  Passed UnsupportedSavedTuningPreservesFileAndUsesReleaseDefaults(False) [3 ms]
+  Passed UnsupportedSavedTuningPreservesFileAndUsesReleaseDefaults(True) [18 ms]
+  Passed AveragesFrameTimeAndHoldsCompletedWindow [1 ms]
+  Passed FormatsLifecycle(Connected,0,"Ping  0 ms") [4 ms]
+  Passed FormatsLifecycle(Connected,45,"Ping  45 ms") [< 1 ms]
+  Passed FormatsLifecycle(Connected,60000,"Ping  60000 ms") [< 1 ms]
+  Passed FormatsLifecycle(Connected,int.MaxValue,"Ping  --") [< 1 ms]
+  Passed FormatsLifecycle(Connected,null,"Ping  --") [< 1 ms]
+  Passed FormatsLifecycle(Connected,-1,"Ping  --") [< 1 ms]
+  Passed FormatsLifecycle(Connecting,45,"Ping  connecting") [< 1 ms]
+  Passed FormatsLifecycle(Reconnecting,45,"Ping  reconnecting") [< 1 ms]
+  Passed FormatsLifecycle(Disconnected,45,"Ping  disconnected") [< 1 ms]
+  Passed FormatsLifecycle(Unavailable,45,"Ping  --") [< 1 ms]
+  Passed IndependentVisibilityAndFiniteOutput [1 ms]
+  Passed SteadyFrames(30) [< 1 ms]
+  Passed SteadyFrames(60) [< 1 ms]
+  Passed SteadyFrames(144) [< 1 ms]
+  Passed ClearsExpiredIdentity [5 ms]
+  Passed CreatesEmbeddedClientConfigurationWithoutAFile [2 ms]
+  Passed GuardsDuplicateOperationsAndCompletesLogout [1 ms]
+  Passed HandlesLogoutFailure [< 1 ms]
+  Passed HandlesMissingNativeLibrary [1 ms]
+  Passed InvalidExplicitOverrideIsActionable [< 1 ms]
+  Passed KeepsOnlineIdentityOutsideCoreAndRedactsDiagnostics [1 ms]
+  Passed RedactsMalformedAndUnknownConfigurationFields [5 ms]
+  Passed RejectsInvalidConfiguration("Environment","production") [2 ms]
+  Passed RejectsInvalidConfiguration("DeploymentName","unsafe\nlabel") [< 1 ms]
+  Passed RejectsInvalidConfiguration("ProductId","") [< 1 ms]
+  Passed RejectsInvalidConfiguration("SandboxId","<sandbox>") [1 ms]
+  Passed RejectsInvalidConfiguration("DeploymentId"," ") [< 1 ms]
+  Passed RejectsInvalidConfiguration("ClientId","invalid client") [< 1 ms]
+  Passed RejectsInvalidConfiguration("ClientSecret","private\nsecret") [< 1 ms]
+  Passed RejectsLateCallbacksAcrossReplacementAndDisposal [1 ms]
+  Passed RemovesOnlyReleasedOwnersCallbackRegistrations [6 ms]
+  Passed TimesOutWithoutRetainingIdentityOrPlatform [< 1 ms]
+  Passed ValidatesSdkLimitsAndNulls [< 1 ms]
+  Passed ExplicitEnvironmentOverrideWins [3 ms]
+  Passed FailuresAndSignedOutStateExplainRecovery [1 ms]
+  Passed OnlyAuthenticatedCoordinatorEnablesHosting [< 1 ms]
+  Passed PendingHandlesSurviveConsumerCancellationAndReleaseExactlyOnce [1 ms]
+  Passed RepeatedOperationsDoNotDropEarlierPendingOwnership [< 1 ms]
+  Passed BoundsPollAndDisconnectsOnUnconsumedQueueOverflow(Reliable) [23 ms]
+  Passed BoundsPollAndDisconnectsOnUnconsumedQueueOverflow(Unreliable) [2 ms]
+  Passed CarriesLobbyReadyStartAndReturn [61 ms]
+  Passed DeveloperAuthorityAndConfigurationSurviveSuccessiveMigrations [936 ms]
+FAKE NATIVE, 10 simulated seconds, players=2, projectiles=False; host sent=209, received=600, mean packet=504.8B, peak=1170B, peak gateway poll=0.071ms; RTT/loss and SDK Tick NOT measured
+
+  Passed EnforcesCapacityAndConnectionDeadline [6 ms]
+  Passed EvictsIncompleteUnreliableAssembliesWithoutBlockingProgress [3 ms]
+  Passed ExpiresIncompleteMessagesWithoutAllowingLateRestart [4 ms]
+  Passed FragmentsReordersDropsAndBoundsPayloads [93 ms]
+  Passed FreshActiveJoinUsesEosCheckpointAndActivationPath [56 ms]
+  Passed InterleavesMaximumUnreliableMessagesExactlyOnce [164 ms]
+  Passed LargeReliableBoundaryUsesProductionEosFramingWithoutExceedingNativeQueue [153 ms]
+  Passed MapsCapabilitiesDeliveryAndFailures [4 ms]
+  Passed MeasuresVehicleTrafficThroughEosFraming(2,False,False) [144 ms]
+FAKE NATIVE, 10 simulated seconds, players=8, projectiles=False; host sent=2877, received=4200, mean packet=939.1B, peak=1170B, peak gateway poll=3.874ms; RTT/loss and SDK Tick NOT measured
+
+FAKE NATIVE, 10 simulated seconds, players=2, projectiles=False; host sent=409, received=600, mean packet=358.2B, peak=1170B, peak gateway poll=0.052ms; RTT/loss and SDK Tick NOT measured
+
+FAKE NATIVE, 10 simulated seconds, players=8, projectiles=False; host sent=4277, received=4200, mean packet=698.8B, peak=1170B, peak gateway poll=5.351ms; RTT/loss and SDK Tick NOT measured
+
+  Passed MeasuresVehicleTrafficThroughEosFraming(8,False,False) [608 ms]
+  Passed MeasuresVehicleTrafficThroughEosFraming(2,True,False) [160 ms]
+  Passed MeasuresVehicleTrafficThroughEosFraming(8,True,False) [618 ms]
+FAKE NATIVE, 10 simulated seconds, players=2, projectiles=True; host sent=979, received=600, mean packet=231.6B, peak=1170B, peak gateway poll=0.994ms; RTT/loss and SDK Tick NOT measured
+
+FAKE NATIVE, 10 simulated seconds, players=8, projectiles=True; host sent=8309, received=4200, mean packet=547.8B, peak=1170B, peak gateway poll=2.469ms; RTT/loss and SDK Tick NOT measured
+
+  Passed MeasuresVehicleTrafficThroughEosFraming(2,True,True) [162 ms]
+  Passed MeasuresVehicleTrafficThroughEosFraming(8,True,True) [681 ms]
+  Passed MigratesLobbyAndActiveMatchThroughProductionFraming(False,True,False,False,False) [156 ms]
+  Passed MigratesLobbyAndActiveMatchThroughProductionFraming(True,True,False,False,False) [793 ms]
+  Passed MigratesLobbyAndActiveMatchThroughProductionFraming(True,False,False,False,False) [77 ms]
+  Passed MigratesLobbyAndActiveMatchThroughProductionFraming(True,True,True,False,False) [259 ms]
+  Passed MigratesLobbyAndActiveMatchThroughProductionFraming(True,True,True,True,False) [353 ms]
+  Passed MigratesLobbyAndActiveMatchThroughProductionFraming(False,True,False,False,True) [109 ms]
+  Passed MigratesLobbyAndActiveMatchThroughProductionFraming(True,True,False,False,True) [654 ms]
+  Passed MigratesLobbyAndActiveMatchThroughProductionFraming(True,False,False,False,True) [77 ms]
+  Passed MigrationRestoresCheckpointConfigurationAfterUncheckpointedTuning [365 ms]
+  Passed MigrationRoutingRequiresAcceptedCheckpoint("peer") [10 ms]
+  Passed MigrationRoutingRequiresAcceptedCheckpoint("unreliable") [9 ms]
+  Passed MigrationRoutingRequiresAcceptedCheckpoint("epoch") [9 ms]
+  Passed MigrationRoutingRequiresAcceptedCheckpoint("sequence") [13 ms]
+  Passed MigrationRoutingRequiresAcceptedCheckpoint("corrupt") [9 ms]
+  Passed ReconnectsArenaWithOneVehicleAndFreshCheckpoint [111 ms]
+  Passed RejectsStaleCallbacksMembershipAndCredential [1 ms]
+  Passed RejectsWrongSessionAndMalformedFragments [1 ms]
+  Passed RepeatedCyclesRejectOldPacketsAndMemberDeparture(Reliable) [4 ms]
+  Passed RepeatedCyclesRejectOldPacketsAndMemberDeparture(Unreliable) [2 ms]
+  Passed ReversedProductionVehicleAndPropMessagesBothAdvance [6 ms]
+  Passed SamplesLatencyExpiresAndRejectsRetiredReplies [3 ms]
+  Passed TrustedLeaseCrashMigrationAndFormerHostRetention(False) [23 ms]
+  Passed TrustedLeaseCrashMigrationAndFormerHostRetention(True) [469 ms]
+  Passed TrustedLeaseOutageFailsClosedAtBothPeers [148 ms]
+  Passed TrustedLeaseP2pPartitionPreservesHealthyHost [219 ms]
+  Passed TwoPlayerArenaRestoresLatestSafeCheckpoint("valid") [106 ms]
+  Passed TwoPlayerArenaRestoresLatestSafeCheckpoint("stale") [78 ms]
+  Passed TwoPlayerArenaRestoresLatestSafeCheckpoint("future") [94 ms]
+  Passed TwoPlayerArenaRestoresLatestSafeCheckpoint("corrupt") [76 ms]
+  Passed TwoPlayerArenaRestoresLatestSafeCheckpoint("wrong-epoch") [79 ms]
+  Passed TwoPlayerArenaRestoresLatestSafeCheckpoint("finished-observed") [101 ms]
+  Passed TwoPlayerArenaRestoresLatestSafeCheckpoint("discard-observed") [83 ms]
+  Passed TwoPlayerFormerHostResumesAndMigratesAgain [791 ms]
+  Passed TwoPlayerLobbyMigrationFencesOldHost("leave") [16 ms]
+  Passed TwoPlayerLobbyMigrationFencesOldHost("crash") [14 ms]
+  Passed TwoPlayerLobbyMigrationFencesOldHost("partition") [17 ms]
+  Passed TwoPlayerLobbyMigrationFencesOldHost("pause") [15 ms]
+  Passed TwoPlayerLongPartitionThenConfirmedHostLossRejectsExpiredCheckpoint [134 ms]
+  Passed TwoPlayerMissingCheckpointFailsClosed [10 ms]
+  Passed TwoPlayerP2pPartitionCannotGrantAuthority [408 ms]
+  Passed TwoPlayerRosterExpansionCannotLeaveTwoAuthorities(False) [164 ms]
+  Passed TwoPlayerRosterExpansionCannotLeaveTwoAuthorities(True) [170 ms]
+  Passed TwoPlayerTransientLossRetainsEpoch(False) [195 ms]
+  Passed TwoPlayerTransientLossRetainsEpoch(True) [213 ms]
+  Passed UnreliableWindowRejectsEvictedDuplicatesAndHandlesWrap(1) [2 ms]
+  Passed UnreliableWindowRejectsEvictedDuplicatesAndHandlesWrap(4294967288) [< 1 ms]
+  Passed LocalDiagnosticTextIsLiteral [1 ms]
+  Passed WordingAndIdentityPositionsRemainExact(Damage,"Applied","Missile took 3.125 damage from Missile (Missile) — HP 96.875/100",2) [1 ms]
+  Passed WordingAndIdentityPositionsRemainExact(Healing,"Applied","Missile healed 3.125 from Missile — HP 96.875/100",1) [< 1 ms]
+  Passed WordingAndIdentityPositionsRemainExact(Developer,"Setting changed","Missile changed speed: 1 → 3.125",1) [< 1 ms]
+  Passed WordingAndIdentityPositionsRemainExact(Lifecycle,"Kill","Missile killed Missile from Missile",2) [< 1 ms]
+  Passed WordingAndIdentityPositionsRemainExact(Lifecycle,"Dead","Missile dead from Missile (Missile)",2) [< 1 ms]
+  Passed WordingAndIdentityPositionsRemainExact(Item,"Used","Missile Used — Missile — Missile — speed (3.125)",2) [< 1 ms]
+  Passed BundledAddressAndOverride [< 1 ms]
+  Passed InvalidOverrideFailsClosed("") [< 1 ms]
+  Passed InvalidOverrideFailsClosed("http://leases.example.test") [< 1 ms]
+  Passed InvalidOverrideFailsClosed("https://user:password@leases.example.test") [< 1 ms]
+  Passed InvalidOverrideFailsClosed("https://leases.example.test/?credential=x") [< 1 ms]
+  Passed InvalidOverrideFailsClosed("https://leases.example.test/#fragment") [< 1 ms]
+  Passed InvalidOverrideFailsClosed(" https://leases.example.test") [< 1 ms]
+  Passed EmbeddedBundledAddress [1 ms]
+  Passed EightRowsShareRankAndVisibilityWithHud [10 ms]
+  Passed FinishedPresentationUsesFrozenParticipantsRatherThanRebuildingRanks [1 ms]
+  Passed InvalidDiagnosticsCannotReplaceAcceptedSamples [1 ms]
+  Passed MigrationRejectsRetiredEpochAndUsesCurrentHost [< 1 ms]
+  Passed OfflineRowsSurviveResultsAndReactivateWithoutDuplicateOrReset [2 ms]
+  Passed PingPublicationExpiresRejectsOldRosterAndResamplesRebind [1 ms]
+  Passed EveryCategoryReturnsThroughSettingsAndGame [2 ms]
+  Passed MainMenuSettingsReturnToTheirCallerAndInvalidTransitionsDoNothing [< 1 ms]
+Reliable=100/100; unreliable=72/100; ping=92ms; incoming loss=0.22222221; outgoing loss=
+
+  Passed AdversePacketsPreserveReliableOrderAndExposeDiagnostics [5 s]
+  Passed ConnectionAndEstablishedTimeoutsReleaseResources [12 s]
+  Passed HostAndSevenClientsRejectExcessAndReconnect [94 ms]
+  Passed OccupiedListenerReportsBindErrorAndCanRecoverAfterOwnerCloses [2 ms]
+  Passed RejectsInvalidOperationsAndBoundsReceiveQueue [57 ms]
+  Passed RepeatedHostJoinAndStopReleasesListenerAndPeers [234 ms]
+CORRECTION tick=92; vehicle=3; error=0.1856; scheduleLag=0.0018; age=0.0004; pending=7; clientAck=72; authorityAck=75; hostTick=93; snapshotTick=90
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+startup max=0.1856m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=11
+players=8; outbound delay=30ms; jitter=10ms; loss=0%; corrections=1608; p99=0.0000m; max=0.1856m; snapshots/client=228; stale packets rejected
+
+TenMinuteEightPlayerImpairmentSoak: Sustained native soak; run separately from the ordinary fast gate.
+  Passed EightPlayerControlledSnapshotLossConverges [12 s]
+  Skipped TenMinuteEightPlayerImpairmentSoak [< 1 ms]
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0000m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=4
+players=2; outbound delay=0ms; jitter=0ms; loss=0%; corrections=238; p99=0.0000m; max=0.0000m; snapshots/client=239; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,0,0,0.0f,0.0f) [12 s]
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0000m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=6
+players=2; outbound delay=30ms; jitter=0ms; loss=0%; corrections=237; p99=0.0000m; max=0.0000m; snapshots/client=238; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,30,0,0.0f,0.0f) [12 s]
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0116m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=6
+players=2; outbound delay=25ms; jitter=5ms; loss=0%; corrections=237; p99=0.0000m; max=0.0116m; snapshots/client=238; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,25,5,0.0f,0.0f) [12 s]
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0170m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=11
+players=2; outbound delay=50ms; jitter=10ms; loss=0%; corrections=234; p99=0.0000m; max=0.0170m; snapshots/client=235; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,50,10,0.0f,0.0f) [12 s]
+CORRECTION tick=69; vehicle=2; error=0.1463; scheduleLag=0.0003; age=0.0001; pending=2; clientAck=63; authorityAck=64; hostTick=70; snapshotTick=69
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.1463m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=5
+players=2; outbound delay=0ms; jitter=0ms; loss=2%; corrections=231; p99=0.0000m; max=0.1463m; snapshots/client=232; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,0,0,2.0f,0.0f) [12 s]
+CORRECTION tick=75; vehicle=3; error=0.1358; scheduleLag=0.0009; age=0.0001; pending=8; clientAck=54; authorityAck=58; hostTick=76; snapshotTick=72
+CORRECTION tick=119; vehicle=2; error=0.2265; scheduleLag=0.0020; age=0.0001; pending=7; clientAck=99; authorityAck=102; hostTick=120; snapshotTick=117
+CORRECTION tick=123; vehicle=5; error=0.2234; scheduleLag=0.0016; age=0.0001; pending=8; clientAck=102; authorityAck=106; hostTick=124; snapshotTick=120
+CORRECTION tick=159; vehicle=4; error=0.1220; scheduleLag=0.0002; age=0.0001; pending=8; clientAck=138; authorityAck=142; hostTick=160; snapshotTick=156
+CORRECTION tick=503; vehicle=2; error=0.1410; scheduleLag=0.0007; age=0.0001; pending=8; clientAck=482; authorityAck=485; hostTick=504; snapshotTick=501
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.2265m; steady p99=0.0000m; steady max=0.2234m; steady >1cm=4; max pending at completion=12
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=1547; p99=0.0000m; max=0.2265m; snapshots/client=207; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(8,30,10,2.0f,0.0f) [12 s]
+CORRECTION tick=119; vehicle=2; error=0.2294; scheduleLag=0.0004; age=0.0001; pending=7; clientAck=99; authorityAck=102; hostTick=120; snapshotTick=117
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.2294m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=8
+players=2; outbound delay=30ms; jitter=10ms; loss=2%; corrections=229; p99=0.0000m; max=0.2294m; snapshots/client=231; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,30,10,2.0f,10.0f) [12 s]
+CORRECTION tick=277; vehicle=6; error=0.1018; scheduleLag=0.0002; age=0.0001; pending=10; clientAck=254; authorityAck=259; hostTick=278; snapshotTick=273
+CORRECTION tick=524; vehicle=3; error=0.1278; scheduleLag=0.0018; age=0.0001; pending=8; clientAck=503; authorityAck=506; hostTick=525; snapshotTick=522
+CORRECTION tick=546; vehicle=7; error=0.1153; scheduleLag=0.0003; age=0.0001; pending=9; clientAck=523; authorityAck=527; hostTick=547; snapshotTick=543
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0768m; steady p99=0.0000m; steady max=0.1278m; steady >1cm=3; max pending at completion=9
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=1588; p99=0.0000m; max=0.1278m; snapshots/client=227; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(8,30,10,2.0f,10.0f) [12 s]
+  Passed ActiveMatchUsesNormalDiscoveryAndAutomaticAccessGate(Public) [24 ms]
+  Passed ActiveMatchUsesNormalDiscoveryAndAutomaticAccessGate(Locked) [294 ms]
+  Passed ActualMembershipDepartureDisconnectsAdmittedMember(Left,Public) [5 ms]
+  Passed ActualMembershipDepartureDisconnectsAdmittedMember(Kicked,Public) [< 1 ms]
+  Passed ActualMembershipDepartureDisconnectsAdmittedMember(Disconnected,Public) [< 1 ms]
+  Passed ActualMembershipDepartureDisconnectsAdmittedMember(Left,Locked) [291 ms]
+  Passed ActualMembershipDepartureDisconnectsAdmittedMember(Kicked,Locked) [290 ms]
+  Passed ActualMembershipDepartureDisconnectsAdmittedMember(Disconnected,Locked) [293 ms]
+  Passed AdmissionAndRenamePreserveAuthority(Public) [2 ms]
+  Passed AdmissionAndRenamePreserveAuthority(Locked) [231 ms]
+  Passed BrowserBypassCannotAllocateAuthoritativePlayer(Public) [2 ms]
+  Passed BrowserBypassCannotAllocateAuthoritativePlayer(Locked) [230 ms]
+  Passed BrowserFiltersOrdersAndReplacesRenames [59 ms]
+  Passed BrowserVersionGatePrecedesMembershipAndCredentials(Public) [1 ms]
+  Passed BrowserVersionGatePrecedesMembershipAndCredentials(Locked) [115 ms]
+  Passed CanceledCreateRetainsFailedCleanupForRetry [< 1 ms]
+  Passed CapacityIsEightIncludingHost [1 ms]
+  Passed ClassifiesNativeMemberStatus(Joined,False,Joined,False) [< 1 ms]
+  Passed ClassifiesNativeMemberStatus(Promoted,False,Ownership,False) [< 1 ms]
+  Passed ClassifiesNativeMemberStatus(Left,False,Departed,True) [< 1 ms]
+  Passed ClassifiesNativeMemberStatus(Kicked,False,Departed,True) [< 1 ms]
+  Passed ClassifiesNativeMemberStatus(Disconnected,False,Departed,True) [< 1 ms]
+  Passed ClassifiesNativeMemberStatus(Left,True,Closure,True) [< 1 ms]
+  Passed ClassifiesNativeMemberStatus(Kicked,True,Closure,True) [< 1 ms]
+  Passed ClassifiesNativeMemberStatus(Disconnected,True,Closure,True) [< 1 ms]
+  Passed ClassifiesNativeMemberStatus(Closed,False,Closure,False) [< 1 ms]
+  Passed ClientRequiresDiscoveredSessionBeforeAssigningPlayerId [< 1 ms]
+  Passed CrashedFormerHostResolvesTrustedRouteWhileEosRemainsStale(Public) [325 ms]
+  Passed CrashedFormerHostResolvesTrustedRouteWhileEosRemainsStale(Locked) [458 ms]
+  Passed CredentialsRemainOutOfPresentationAndDiagnostics [296 ms]
+  Passed DelayedSavedLookupPrecedesFreshAdmission(False) [2 ms]
+  Passed DelayedSavedLookupPrecedesFreshAdmission(True) [2 ms]
+  Passed DirectIpVersionRejectionReachesClientWithoutBootstrap(3) [2 ms]
+  Passed DirectIpVersionRejectionReachesClientWithoutBootstrap(5) [< 1 ms]
+  Passed EosRetirementFreezesArenaBeforeLeaseRelease [170 ms]
+  Passed EosRetirementStopsHealthyLeaseAndAllowsOneSuccessor(False,False) [33 ms]
+  Passed EosRetirementStopsHealthyLeaseAndAllowsOneSuccessor(False,True) [26 ms]
+  Passed EosRetirementStopsHealthyLeaseAndAllowsOneSuccessor(True,False) [45 ms]
+  Passed EosRetirementStopsHealthyLeaseAndAllowsOneSuccessor(True,True) [44 ms]
+  Passed ExpiredAuthorityCannotBeRenewedByLateServiceCallback [< 1 ms]
+  Passed FailedCloseCanBeRetriedWithoutLeakingLobby [58 ms]
+  Passed FirstObservationAfterOutageCannotRestorePrePartitionCheckpoint [39 ms]
+  Passed FormerHostResumesThroughProviderAndCoreWithoutPassword(Public,False) [8 ms]
+  Passed FormerHostResumesThroughProviderAndCoreWithoutPassword(Public,True) [10 ms]
+  Passed FormerHostResumesThroughProviderAndCoreWithoutPassword(Locked,False) [182 ms]
+  Passed FormerHostResumesThroughProviderAndCoreWithoutPassword(Locked,True) [181 ms]
+  Passed FreshAdmissionWaitsForPendingStartupLookup(True) [4 ms]
+  Passed FreshAdmissionWaitsForPendingStartupLookup(False) [2 ms]
+  Passed HealthyCompositionRenewsOnlyHostAndRecoversTemporaryCoordinationDelay [113 ms]
+  Passed HostKickRemovesBindingPublishesReasonAndRejectsRejoinUntilDisconnect [2 ms]
+  Passed IncompleteFreshBootstrapDoesNotSaveResumeLocator [1 ms]
+  Passed LateCreateAndSearchAreRejected [< 1 ms]
+  Passed LateJoinRenameAndDuplicateCompletionAreInert [< 1 ms]
+  Passed LateNotificationFromPreviousVisitIsRejected [< 1 ms]
+  Passed LockedSessionRemainsStableAcrossProofRefreshesPastThirtySeconds [178 ms]
+  Passed MatchLongResumeUsesAuthenticatedIdentityAndRetainsOneMapping(Public) [1 ms]
+  Passed MatchLongResumeUsesAuthenticatedIdentityAndRetainsOneMapping(Locked) [232 ms]
+  Passed MemberLeaveUsesExistingAuthorityRemovalAndRejoinGetsFreshId [< 1 ms]
+  Passed MembershipJoinRefreshCannotTearDownUnrelatedAdmittedMember(Public,False) [1 ms]
+  Passed MembershipJoinRefreshCannotTearDownUnrelatedAdmittedMember(Public,True) [< 1 ms]
+  Passed MembershipJoinRefreshCannotTearDownUnrelatedAdmittedMember(Locked,False) [179 ms]
+  Passed MembershipJoinRefreshCannotTearDownUnrelatedAdmittedMember(Locked,True) [180 ms]
+  Passed MenuAbandonmentRequiresConfirmationAndPreservesHistory(Public,False) [16 ms]
+  Passed MenuAbandonmentRequiresConfirmationAndPreservesHistory(Locked,False) [186 ms]
+  Passed MenuAbandonmentRequiresConfirmationAndPreservesHistory(Locked,True) [186 ms]
+  Passed MetadataRefreshCannotTearDownAdmittedMember(Public) [1 ms]
+  Passed MetadataRefreshCannotTearDownAdmittedMember(Locked) [174 ms]
+  Passed MissingStartupLobbyClearsHintWithoutMembershipOrOfflineStatus [2 ms]
+  Passed MissingVersionRemainsVisibleButCannotJoin [< 1 ms]
+  Passed NamesValidateAtCreateAndRename [< 1 ms]
+  Passed OrdinaryArenaDeparturePreservesManualResumeUntilReturn(False) [9 ms]
+  Passed OrdinaryArenaDeparturePreservesManualResumeUntilReturn(True) [7 ms]
+  Passed OrdinaryClientRestartsAfterLaterMigrationWithStaleEosRouting(Public) [904 ms]
+  Passed OrdinaryClientRestartsAfterLaterMigrationWithStaleEosRouting(Locked) [1 s]
+  Passed ProductionObservationStopsOnRecoveryAndRestartsForTrueCrash [281 ms]
+  Passed PromotionRefreshCannotTearDownAdmittedMember(Public) [1 ms]
+  Passed PromotionRefreshCannotTearDownAdmittedMember(Locked) [173 ms]
+  Passed ProviderPromotionDoesNotGrantGameplayAuthority [< 1 ms]
+  Passed ProviderUpdatesCannotRegressMigratedAuthorityRouting [1 ms]
+  Passed RepeatedLifecycleRejectsLateNotificationsAndExpiresCredential [1 s]
+  Passed RestartLocatorRejoinsKnownSessionAndEmitsResumeInsteadOfNewAdmission(False) [8 ms]
+  Passed RestartLocatorRejoinsKnownSessionAndEmitsResumeInsteadOfNewAdmission(True) [7 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("outage") [9 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("self") [6 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("older") [7 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("conflict") [6 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("wrong-locator") [8 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("expired") [6 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("malformed-holder") [7 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("invalid-duration") [7 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("delayed") [7 ms]
+  Passed RestartRoutingFailsClosedAndRetriesWithoutAuthority("cancelled") [6 ms]
+  Passed ResumeWireMismatchCannotReclaimAuthority(3,False,Resume) [1 ms]
+  Passed ResumeWireMismatchCannotReclaimAuthority(5,False,Resume) [< 1 ms]
+  Passed ResumeWireMismatchCannotReclaimAuthority(3,True,Resume) [< 1 ms]
+  Passed ResumeWireMismatchCannotReclaimAuthority(5,True,Resume) [< 1 ms]
+  Passed ResumeWireMismatchCannotReclaimAuthority(3,True,InspectReservation) [< 1 ms]
+  Passed ResumeWireMismatchCannotReclaimAuthority(5,True,InspectReservation) [< 1 ms]
+  Passed ResumeWireMismatchCannotReclaimAuthority(3,True,Abandon) [< 1 ms]
+  Passed ResumeWireMismatchCannotReclaimAuthority(5,True,Abandon) [< 1 ms]
+  Passed RetirementRequiresServiceEventFreshMembershipAndMatchingCohort(Left) [2 ms]
+  Passed RetirementRequiresServiceEventFreshMembershipAndMatchingCohort(Kicked) [< 1 ms]
+  Passed RetirementRequiresServiceEventFreshMembershipAndMatchingCohort(Disconnected) [< 1 ms]
+  Passed ReusedDisplayNameCreatesFreshLobbyAndSession [232 ms]
+  Passed SharedConfigurationConvergesRejectsForgedRequestsAndRetainsSessionOwnership [93 ms]
+  Passed StaleReservationReturnsToBrowserAfterBoundHostResponse(False) [2 ms]
+  Passed StaleReservationReturnsToBrowserAfterBoundHostResponse(True) [2 ms]
+  Passed StartupWithoutLocatorNeverRequestsRetainedResume [< 1 ms]
+  Passed TimeoutsRejectLateResultsAndPermitRecovery [< 1 ms]
+  Passed UnavailableRestartOffersRetryWithoutErasingTheReservationHint [3 ms]
+  Passed UnjoinableSelectionsFailCleanly [< 1 ms]
+  Passed VersionMismatchPreservesLocatorAndCompatibleRetryReclaimsSamePlayer [15 ms]
+  Passed WrongCredentialAndUnboundPeerNeverEnterAuthority [232 ms]
+  Passed AcceptRequiresSameJoinableRowWithinBoundAndResetsOnSelectionOrRefresh [< 1 ms]
+  Passed AllCountsRemainDynamic(0) [1 ms]
+  Passed AllCountsRemainDynamic(100) [1 ms]
+  Passed FiltersCombineWithSearchAndDoNotChangeSource [1 ms]
+  Passed MouseDoubleClickCannotJoinAReplacementRowOrSurviveRefresh [< 1 ms]
+  Passed HandoffKeepsModeOrderAndNamesWhileConnectivityChanges [1 ms]
+  Passed CompressedBoundariesPreserveExactBytesAcrossSingleAndMultiplePackets(False) [44 ms]
+  Passed CompressedBoundariesPreserveExactBytesAcrossSingleAndMultiplePackets(True) [49 ms]
+  Passed IncompleteTransfersExpireAndStopClearsContinuation [3 ms]
+  Passed InvalidOrInconsistentChunksDisconnectWithoutPublishing(0) [3 ms]
+  Passed InvalidOrInconsistentChunksDisconnectWithoutPublishing(1) [3 ms]
+  Passed InvalidOrInconsistentChunksDisconnectWithoutPublishing(2) [2 ms]
+  Passed InvalidOrInconsistentChunksDisconnectWithoutPublishing(3) [2 ms]
+  Passed LargeBoundaryIsAtomicPacedAndPreservesFollowingReliableOrder [25 ms]
+  Passed MalformedCompressionCannotPublishOrAllocateBeyondTheBoundary(0) [< 1 ms]
+  Passed MalformedCompressionCannotPublishOrAllocateBeyondTheBoundary(1) [7 ms]
+  Passed MalformedCompressionCannotPublishOrAllocateBeyondTheBoundary(2) [< 1 ms]
+  Passed StalledCheckpointBoundsReliableBacklogWhileMotionRemainsIndependent [3 ms]
+  Passed LifeChangesDoNotInterpolate [1 ms]
+  Passed PresentationClockIsMonotonicAndHoldsAtLatest [1 ms]
+  Passed ProxyPredictionIsBoundedAndDoesNotRewindBeforeItsPublishedTick [1 ms]
+  Passed SamplesAndClamps(0,0) [< 1 ms]
+  Passed SamplesAndClamps(10,0) [< 1 ms]
+  Passed SamplesAndClamps(15,5) [< 1 ms]
+  Passed SamplesAndClamps(20,10) [< 1 ms]
+  Passed SamplesAndClamps(30,10) [< 1 ms]
+  Passed StableStreamAvoidsFixedHundredMillisecondDelayAndRecoversAfterStall [1 ms]
+  Passed TouchingPresentationKeepsRelativeSeparationOnThePredictedTimeline [1 ms]
+  Passed LoadsOnlyCurrentBoundedRoutingState [29 ms]
+  Passed ApplicationFailureCannotBypassSuccessfulCompletion [1 ms]
+  Passed FailureRetryReplaysOwningPhase(FrontendDependencies,Preloader) [< 1 ms]
+  Passed FailureRetryReplaysOwningPhase(FrontendSetup,FrontendLoading) [< 1 ms]
+  Passed FailureRetryReplaysOwningPhase(ApplicationInitialization,FrontendLoading) [< 1 ms]
+  Passed InvalidTransitionsAreRejected [< 1 ms]
+  Passed StartupUsesRequiredDeterministicOrder [< 1 ms]
+  Passed MissingStateAndExpiredDeadlinesAreExplicit [2 ms]
+  Passed RefreshReflectsDeathAndRespawnDeadline [< 1 ms]
+  Passed ReportsSnapshotWithoutExposingTokensOrDamageContext [< 1 ms]
+  Passed SearchPreservesValuesAndMatchesLabelsCategoriesAndUnavailableState [3 ms]
+  Passed ConvertsTimeoutRejectionAndUnknownFailures [< 1 ms]
+  Passed RoutesReliableAndUnreliableIndependently [< 1 ms]
+  Passed HostDoesNotDisplayArbitraryClientPing [< 1 ms]
+  Passed HudAndLeaderboardSharePublishedPing(0) [2 ms]
+  Passed HudAndLeaderboardSharePublishedPing(123) [< 1 ms]
+  Passed HudAndLeaderboardSharePublishedPing(60000) [< 1 ms]
+  Passed HudAndLeaderboardSharePublishedPing(null) [< 1 ms]
+  Passed ProjectsCurrentSessionAndInvalidatesReplacement("EOS P2P") [1 ms]
+  Passed ProjectsCurrentSessionAndInvalidatesReplacement("Direct-IP") [< 1 ms]
+  Passed FullNativeContactReportCannotRewindAnUnreportedWorldImpactOrPartner [18 ms]
+  Passed MixedBoundaryPreservesTangentialSlowdownAndTorqueWithoutReplayingEffects(False) [3 ms]
+  Passed MixedBoundaryPreservesTangentialSlowdownAndTorqueWithoutReplayingEffects(True) [< 1 ms]
+  Passed MixedContactKeepsTheEntireConnectedNativePairBoundaryIncludingOneSidedReports [< 1 ms]
+  Passed SharedPairSolveUsesPostWorldVelocityAndPreservesIndependentWorldComponents(0.0f) [1 ms]
+  Passed SharedPairSolveUsesPostWorldVelocityAndPreservesIndependentWorldComponents(0.05f) [< 1 ms]
+  Passed SharedPairSolveUsesPostWorldVelocityAndPreservesIndependentWorldComponents(6.0f) [< 1 ms]
+  Passed WorldOnlyBoundaryIsUnchangedAndDoesNotDisableAnUnconnectedPitPair [1 ms]
+delay ticks=2; holds=0; peak pending=18; input transit/host lag=4; return acknowledgement lag=14; steady max=0.0000; snapshot drops=9/500; input drops=29
+
+delay ticks=3; holds=0; peak pending=19; input transit/host lag=5; return acknowledgement lag=14; steady max=0.0000; snapshot drops=9/500; input drops=29
+
+  Passed AcceptedAimsRequireCurrentHostGenerationConfigurationAndMonotonicTick [7 ms]
+  Passed ActiveJoinBootstrapsWithoutChangingExistingWorldAndActivatesOnce(False) [46 ms]
+  Passed ActiveJoinBootstrapsWithoutChangingExistingWorldAndActivatesOnce(True) [40 ms]
+  Passed AimRequestsCannotClaimAnotherPlayerOrWrongCapabilityAndSamplesExpire [6 ms]
+  Passed ApplicationResumeReceivesCurrentPhaseAndAcknowledgesSynchronization(False) [34 ms]
+  Passed ApplicationResumeReceivesCurrentPhaseAndAcknowledgesSynchronization(True) [34 ms]
+  Passed BlockedQueuedDeploymentRequiresAnotherPressInsteadOfRetryingForever [7 ms]
+  Passed ClusteredSnapshotLossWithInputJitterKeepsPredictionResponsive(2) [228 ms]
+  Passed ClusteredSnapshotLossWithInputJitterKeepsPredictionResponsive(3) [233 ms]
+  Passed ConfigurationPublicationsAreOrderedIdempotentAndHostOnly [6 ms]
+  Passed DelayedFirstSnapshotAdoptsAcknowledgesAndReplaysQueuedInputs [7 ms]
+  Passed DelayedFirstSnapshotHistoryExhaustionStopsSession [1 ms]
+  Passed DelayedReliableDeathDoesNotRewindRespawn [6 ms]
+  Passed DeveloperCapabilitiesAndDiagnosticsExcludeUnsupportedOperationsAndRawIdentity [1 ms]
+  Passed DiscardUsesReliableAuthorityAndRejectsDelayedRequestsAndPublications(False) [10 ms]
+  Passed DiscardUsesReliableAuthorityAndRejectsDelayedRequestsAndPublications(True) [4 ms]
+  Passed DisconnectedLoadingParticipantDoesNotBlockCountdown [27 ms]
+  Passed DisposalDetachesOnlyOwnedCallbacksAndPreservesReservations [1 ms]
+  Passed DroppedReorderedMotionCannotLoseImpactOrResurrectProjectile [7 ms]
+  Passed EntryFailureIsAuthenticatedBeforeAndDuringLoading [1 ms]
+  Passed EventReplicationRejectsDuplicatesForgedSendersAndOldGenerations [4 ms]
+  Passed EveryConnectedParticipantMustSynchronizeBeforeOneFiveSecondStart(2,False) [36 ms]
+  Passed EveryConnectedParticipantMustSynchronizeBeforeOneFiveSecondStart(4,False) [45 ms]
+  Passed EveryConnectedParticipantMustSynchronizeBeforeOneFiveSecondStart(4,True) [43 ms]
+  Passed FirstSnapshotWaitsForActualHostConfiguration [2 ms]
+  Passed HostOwnsMatchAndReliablyInitializesJoiningPlayers [2 ms]
+  Passed HostPublishesEveryLifecycleBoundaryReliably [2 ms]
+  Passed HostSurvivesNativeSendClosure [1 ms]
+  Passed InitialEntryWaitsForCheckpointAndHostRelease(False) [50 ms]
+  Passed InitialEntryWaitsForCheckpointAndHostRelease(True) [50 ms]
+  Passed InitialSynchronizationHasABoundedFailure [8 ms]
+  Passed InterruptedActiveBootstrapLeavesNoGhost(False) [1 ms]
+  Passed InterruptedActiveBootstrapLeavesNoGhost(True) [< 1 ms]
+  Passed ItemPublicationsRejectForgedStaleAndUnreliableState [3 ms]
+  Passed LiveConfigurationReplicatesToExistingAndNewPeersAndClientCannotMutate [5 ms]
+  Passed MatchPublicationsRejectForgedStaleUnreliableAndPostFinishState [4 ms]
+CODEC_ALLOCATION players=2, fullEncodeDecodeBytesPerPair=15340.8, motionEncodeDecodeBytesPerPair=1432; 1000 repetitions; excludes publication construction/native marshalling.
+
+CODEC_ALLOCATION players=8, fullEncodeDecodeBytesPerPair=48655.36, motionEncodeDecodeBytesPerPair=2392; 1000 repetitions; excludes publication construction/native marshalling.
+
+{"players":2,"scenario":"driving","simulatedSeconds":10,"hostAllocations":19035168,"clientAdvanceAllocations":4976040,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TM-Reliable","bytes":37436,"messages":96,"peak":391},{"protocol":"TS-Unreliable","bytes":96200,"messages":200,"peak":481}]}
+
+{"players":8,"scenario":"driving","simulatedSeconds":10,"hostAllocations":50442688,"clientAdvanceAllocations":50394848,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TM-Reliable","bytes":886844,"messages":672,"peak":1327},{"protocol":"TS-Unreliable","bytes":2571800,"messages":1400,"peak":1837}]}
+
+{"players":2,"scenario":"missile","simulatedSeconds":10,"hostAllocations":21842592,"clientAdvanceAllocations":5228880,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TI-Reliable","bytes":8390,"messages":10,"peak":884},{"protocol":"TJ-Unreliable","bytes":32400,"messages":300,"peak":108},{"protocol":"TM-Reliable","bytes":37436,"messages":96,"peak":391},{"protocol":"TS-Unreliable","bytes":96200,"messages":200,"peak":481}]}
+
+{"players":8,"scenario":"missile","simulatedSeconds":10,"hostAllocations":59625360,"clientAdvanceAllocations":55092576,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TI-Reliable","bytes":220640,"messages":70,"peak":3332},{"protocol":"TJ-Unreliable","bytes":730800,"messages":2100,"peak":348},{"protocol":"TM-Reliable","bytes":886844,"messages":672,"peak":1327},{"protocol":"TS-Unreliable","bytes":2571800,"messages":1400,"peak":1837}]}
+
+{"players":2,"scenario":"oil","simulatedSeconds":10,"hostAllocations":22509728,"clientAdvanceAllocations":5042416,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TI-Reliable","bytes":5630,"messages":5,"peak":1342},{"protocol":"TM-Reliable","bytes":37436,"messages":96,"peak":391},{"protocol":"TS-Unreliable","bytes":96200,"messages":200,"peak":481}]}
+
+  Passed MeasureProjectileCodecAllocation(2) [23 ms]
+  Passed MeasureProjectileCodecAllocation(8) [61 ms]
+  Passed MeasureReplicationTraffic(2,"driving") [119 ms]
+  Passed MeasureReplicationTraffic(8,"driving") [374 ms]
+  Passed MeasureReplicationTraffic(2,"missile") [115 ms]
+  Passed MeasureReplicationTraffic(8,"missile") [401 ms]
+  Passed MeasureReplicationTraffic(2,"oil") [130 ms]
+{"players":8,"scenario":"oil","simulatedSeconds":10,"hostAllocations":64884248,"clientAdvanceAllocations":54052480,"rejected":42,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TI-Reliable","bytes":428260,"messages":105,"peak":5140},{"protocol":"TM-Reliable","bytes":886844,"messages":672,"peak":1327},{"protocol":"TS-Unreliable","bytes":2571800,"messages":1400,"peak":1837}]}
+
+{"players":2,"scenario":"nitro","simulatedSeconds":10,"hostAllocations":27940600,"clientAdvanceAllocations":12081240,"rejected":141,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TI-Reliable","bytes":306994,"messages":433,"peak":794},{"protocol":"TM-Reliable","bytes":238223,"messages":561,"peak":425},{"protocol":"TS-Unreliable","bytes":96200,"messages":200,"peak":481}]}
+
+{"players":8,"scenario":"nitro","simulatedSeconds":10,"hostAllocations":79842320,"clientAdvanceAllocations":191734312,"rejected":987,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TI-Reliable","bytes":7977508,"messages":3031,"peak":2972},{"protocol":"TM-Reliable","bytes":5737445,"messages":3927,"peak":1463},{"protocol":"TS-Unreliable","bytes":2571800,"messages":1400,"peak":1837}]}
+
+{"players":2,"scenario":"circus","simulatedSeconds":10,"hostAllocations":18596560,"clientAdvanceAllocations":4771960,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TM-Reliable","bytes":39531,"messages":101,"peak":459},{"protocol":"TS-Unreliable","bytes":96200,"messages":200,"peak":481}]}
+
+{"players":8,"scenario":"circus","simulatedSeconds":10,"hostAllocations":48674560,"clientAdvanceAllocations":49226792,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TM-Reliable","bytes":937209,"messages":707,"peak":1599},{"protocol":"TS-Unreliable","bytes":2571800,"messages":1400,"peak":1837}]}
+
+  Passed MeasureReplicationTraffic(8,"oil") [431 ms]
+  Passed MeasureReplicationTraffic(2,"nitro") [154 ms]
+  Passed MeasureReplicationTraffic(8,"nitro") [698 ms]
+  Passed MeasureReplicationTraffic(2,"circus") [101 ms]
+  Passed MeasureReplicationTraffic(8,"circus") [366 ms]
+  Passed MotionCodecRejectsMalformedAndForeignBaselines(False) [3 ms]
+  Passed MotionCodecRejectsMalformedAndForeignBaselines(True) [3 ms]
+  Passed PropPublicationsRespectAuthorityGenerationAndOrdering [3 ms]
+  Passed QueuedShieldUseCannotSurviveCapabilityCancellation("switch") [2 ms]
+  Passed QueuedShieldUseCannotSurviveCapabilityCancellation("discard") [1 ms]
+  Passed QueuedShieldUseCannotSurviveCapabilityCancellation("destroy") [1 ms]
+  Passed QueuedShieldUseCannotSurviveCapabilityCancellation("death") [1 ms]
+  Passed QueuedShieldUseCannotSurviveCapabilityCancellation("life") [< 1 ms]
+  Passed RemoteQueuedShieldUseWaitsForConfirmedSelectionThenSendsOnceReliably [2 ms]
+  Passed ReplacementPeerReceivesReliableCurrentLifecycleAndItems [1 ms]
+  Passed ShieldHealthAndRemovalReplicateWhileForgedOutcomesAndDuplicatePublicationsAreRejected [11 ms]
+  Passed ShieldUseWaitsForPresentationAndCoalescesRepeatedTaps(False) [5 ms]
+  Passed ShieldUseWaitsForPresentationAndCoalescesRepeatedTaps(True) [3 ms]
+NUnit Adapter 5.0.0.0: Test execution complete
+  Passed SnapshotAgeIsClientOnlyAndTracksElapsedTimeInsteadOfCatchUpSteps [190 ms]
+  Passed SnapshotBurstReplaysNewestBoundaryAndPreservesReliableOrder(False) [4 ms]
+  Passed SnapshotBurstReplaysNewestBoundaryAndPreservesReliableOrder(True) [3 ms]
+  Passed SwitchCommandsAreReliableOrderedAndCannotSelectAnotherPlayer [1 ms]
+  Passed ThreeFinishedCyclesDisposeMatchStateAndKeepSessionOwnership [138 ms]
+
+Test Run Successful.
+Total tests: 468
+     Passed: 468
+ Total time: 2.5786 Minutes
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Transport peer 1: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connected; None;
+Transport Godot integration passed: 3 node creation/poll/message/cleanup cycles.

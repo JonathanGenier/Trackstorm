@@ -83,6 +83,7 @@ public sealed partial class RockCollisionChecks : Node3D
         var damage = new DamageConfiguration { MaxHP = 100000, CollisionScale = 5 };
         var configuration = Option("tuning", "defaults") == "host"
             ? new Development.DeveloperSettingsStore(ProjectSettings.GlobalizePath("user://developer-settings.jsonl")).LoadForHost().Vehicle : new VehicleConfiguration();
+        configuration = configuration with { LowSpeedDriveMultiplier = Number("drive-multiplier", configuration.LowSpeedDriveMultiplier) };
         world.AddVehicle(1, configuration, damage, pose);
         VehicleBody? practice = null; NetworkVehicleBody? proxy = null;
         if (network) { proxy = new() { VehicleId = 1 }; fixture.AddChild(proxy); proxy.ApplyConfiguration(configuration); proxy.Apply(world.GetVehicle(1)); }

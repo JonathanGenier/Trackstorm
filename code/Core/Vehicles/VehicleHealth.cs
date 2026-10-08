@@ -53,10 +53,11 @@ public sealed class VehicleHealth
     /// <param name="attribution">Other vehicle or world metadata.</param>
     /// <param name="tick">Current authority fixed tick.</param>
     /// <param name="separateBodyImpact">Authority has coalesced a fresh terrain body contact independently of the general collision cooldown.</param>
+    /// <param name="momentumDisadvantage">Shared authority impact imbalance; world contacts use zero.</param>
     /// <returns>New outcome if this contact removes HP.</returns>
-    public DamageEvent? ApplyCollision(float severity, DamageContext attribution, ulong tick, bool separateBodyImpact = false)
+    public DamageEvent? ApplyCollision(float severity, DamageContext attribution, ulong tick, bool separateBodyImpact = false, float momentumDisadvantage = 0)
     {
-        float amount = VehicleDamageMath.CollisionDamage(severity, _configuration);
+        float amount = VehicleDamageMath.CollisionDamage(severity, _configuration, momentumDisadvantage);
         if (State.LastCollisionTick is ulong previous && (tick < previous || (!separateBodyImpact && tick - previous < _configuration.CollisionCooldownTicks)))
         {
             return null;
