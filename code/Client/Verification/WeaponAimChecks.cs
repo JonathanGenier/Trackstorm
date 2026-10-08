@@ -75,6 +75,7 @@ public sealed partial class WeaponAimChecks : Node
             await Until(() => _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 3), "Three UDP peers initialized", 1200);
             var host = _arenas[0].Driver.Host!;
             Require(host.TryConfigure(0, new Dictionary<string, double> { ["match.minimum_players"] = 1, ["match.countdown_ticks"] = 1 }, out _), "Host tuning applied");
+            await CheckMachineGunFire();
             Position(new(0, Ground, 35), new(0, Ground, 0), new(6, Ground, 0));
             host.Items.Grant(host.World, Shooter, HeldItem.MachineGun);
             host.Items.Grant(host.World, Shooter, HeldItem.Missile);
@@ -513,7 +514,10 @@ public sealed partial class WeaponAimChecks : Node
             if (_heldTargets is { } targets) { MoveTargets(targets.First, targets.Second); }
             foreach (var arena in _arenas)
             {
-                arena.Advance(arena == _arenas[1] ? new(0, steering, throttle, 0, held, 0, 0) : default);
+                bool firing = _firingPeers.Contains(arena.Driver.LocalVehicleId);
+                if (firing && arena != _arenas[1]) { arena.Driver.DesiredAim = N.Vector3.Normalize(new N.Vector3(1, 1, 0)); }
+                arena.Advance(arena == _arenas[1] ? new(0, steering, throttle, 0, held | (firing ? InputButtons.UseItem : 0), 0, 0) :
+                    new(0, 0, 0, 0, firing ? InputButtons.UseItem : 0, 0, 0));
                 if (arena.Driver.Failure.Length > 0) { throw new InvalidOperationException(arena.Driver.Failure); }
             }
         }

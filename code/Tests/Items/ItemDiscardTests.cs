@@ -117,6 +117,11 @@ internal sealed class ItemDiscardTests
         host.Items.Grant(host.World, 1, HeldItem.MachineGun);
         host.Items.Grant(host.World, 1, HeldItem.Shield);
         var slot = host.Items.Slots.Single();
+        for (int i = 0; i < 180; i++)
+        {
+            host.Items.RequestAim(host.World, 1, slot.Life, slot.Token, 0, host.World.State.Tick + 1, -Vector3.UnitZ);
+            host.Step(default, Observe);
+        }
         host.UseItem(0, 99, slot.Life, slot.Token);
         var held = new InputFrame(1, 0, 0, 0, InputButtons.UseItem, InputButtons.UseItem, 0);
         host.Step(held, Observe, raycastWeapon: (_, _, _) => null);

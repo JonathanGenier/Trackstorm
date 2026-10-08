@@ -16,6 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Machine Gun camera aiming | [TS-262 accepted-direction firing, clearance, native multiplayer and critique](ts-262.md) |
 | Omitted aerial-contact correction | [TS-286 selective recovery, contact release, verification and protected TS-283 baseline](ts-286.md) |
 | Aerial inertia | [TS-282 immediate control, natural flight, player release hold and impact continuity](ts-282.md) |
 | Automatic aerial activation and revised keyboard/controller controls | [TS-281 verification evidence](ts-281.md) |

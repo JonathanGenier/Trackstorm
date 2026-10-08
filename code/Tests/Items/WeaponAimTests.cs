@@ -199,7 +199,11 @@ internal sealed class WeaponAimTests
     {
         var host = Create();
         var slot = host.Items.Slots.Single();
-        host.AimItem(0, 99, slot.Life, slot.Token, 0, 1, Vector3.UnitX);
+        for (ulong i = 1; i <= 180; i++)
+        {
+            host.AimItem(0, 99, slot.Life, slot.Token, 0, i, Vector3.UnitX);
+            host.Step(default, Observe);
+        }
         var pose = new VehiclePhysicsState(new Vector3(40, 8, 10), Quaternion.CreateFromAxisAngle(Vector3.UnitY, 1), Vector3.Zero, Vector3.Zero);
         host.Step(default, _ => new VehicleObservation(pose, Vector3.UnitY));
         var accepted = host.Items.Aims.Single();

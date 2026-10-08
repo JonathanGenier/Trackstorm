@@ -51,7 +51,10 @@ public static class WeaponAim
     public static Vector3 Direction(float yaw, float pitch) => new(-MathF.Sin(yaw) * MathF.Cos(pitch), MathF.Sin(pitch), -MathF.Cos(yaw) * MathF.Cos(pitch));
 
     /// <summary>Conservative swept ray test, also reusable for future muzzle contracts.</summary>
-    public static bool IntersectsBody(Vector3 origin, Vector3 direction)
+    public static bool IntersectsBody(Vector3 origin, Vector3 direction) => BodyDistance(origin, direction).HasValue;
+
+    /// <summary>Distance to the conservative owner envelope, including a ray that starts inside it.</summary>
+    public static float? BodyDistance(Vector3 origin, Vector3 direction)
     {
         Vector3 minimum = new(-VehicleDimensions.Width / 2 - .05f, -1.1f, -VehicleDimensions.Length / 2 - .05f);
         Vector3 maximum = new(VehicleDimensions.Width / 2 + .05f, 1.30f, VehicleDimensions.Length / 2 + .05f);
@@ -62,12 +65,12 @@ public static class WeaponAim
             float d = axis == 0 ? direction.X : axis == 1 ? direction.Y : direction.Z;
             float min = axis == 0 ? minimum.X : axis == 1 ? minimum.Y : minimum.Z;
             float max = axis == 0 ? maximum.X : axis == 1 ? maximum.Y : maximum.Z;
-            if (Math.Abs(d) < 1e-6f) { if (o < min || o > max) { return false; } continue; }
+            if (Math.Abs(d) < 1e-6f) { if (o < min || o > max) { return null; } continue; }
             float a = (min - o) / d, b = (max - o) / d;
             near = Math.Max(near, Math.Min(a, b));
             far = Math.Min(far, Math.Max(a, b));
-            if (near > far) { return false; }
+            if (near > far) { return null; }
         }
-        return far >= near;
+        return far >= near ? near : null;
     }
 }

@@ -29,6 +29,7 @@ public sealed partial class MachineGunIntegrationChecks : Node
     private float _playRange = 10;
     private int _shots;
     private int _hits;
+    private float _expectedDamage;
     private double _nearHitRate;
     private Label? _playStatus;
     private int _remaining;
@@ -83,6 +84,13 @@ public sealed partial class MachineGunIntegrationChecks : Node
             {
                 bool shooter = i == (_scenario == 4 ? 1 : 0);
                 var before = _arenas[i].Driver.Host?.World.State;
+                if (_arenas[i].Driver.LocalState is { } local)
+                {
+                    var origin = local.ObservedPhysics.Position + N.Vector3.Transform(WeaponAim.Pivot, local.ObservedPhysics.Orientation);
+                    ulong target = local.VehicleId == 1 ? 2ul : 1ul;
+                    var targetState = _arenas[0].Driver.Host?.World.State.Vehicles.FirstOrDefault(v => v.VehicleId == target);
+                    if (targetState is not null) { _arenas[i].Driver.DesiredAim = N.Vector3.Normalize(targetState.ObservedPhysics.Position + N.Vector3.UnitY * .85f - origin); }
+                }
                 _arenas[i].Advance(new InputFrame(0, 0, 0, 0, shooter && _held ? InputButtons.UseItem : 0, shooter && _press ? InputButtons.UseItem : 0, 0));
                 if (before is not null) { _scoring.Verify(_arenas[i].Driver.Host!, before.Value, "Machine Gun"); }
                 Check(_arenas[i].Driver.Failure.Length == 0, _arenas[i].Driver.Failure);
@@ -107,7 +115,17 @@ public sealed partial class MachineGunIntegrationChecks : Node
                     {
                         Check(Math.Abs(N.Vector3.Distance(start, end) - 225) < 0.001, "225 m native hard ray length");
                         var hit = ray(owner, start, end);
-                        if (_stage == 3) { _shots++; if (hit is { Vehicle: > 0 }) { _hits++; } }
+                        if (_stage == 3)
+                        {
+                            _shots++;
+                            var pose = host.World.GetVehicle(owner).ObservedPhysics;
+                            var self = WeaponAim.BodyDistance(WeaponAim.Pivot, N.Vector3.Transform(N.Vector3.Normalize(end - start), N.Quaternion.Conjugate(pose.Orientation)));
+                            if (hit is { Vehicle: > 0 } && (self is null || self >= hit.Fraction * 225))
+                            {
+                                _hits++;
+                                _expectedDamage += 2.25f * MathF.Pow(1 - Math.Clamp((hit.Fraction * 225 - 12) / 213, 0, 1), 1.5f);
+                            }
+                        }
                         return hit;
                     };
                     Next("Two native UDP peers admitted; elevated isolated fixture separates weapon rays from map obstacles.");
@@ -121,9 +139,9 @@ public sealed partial class MachineGunIntegrationChecks : Node
                     Check(host.Items.Grant(host.World, shooterId, HeldItem.Wrench), "second slot grant");
                     Next($"Scenario {_scenario}: fresh magazine and independent Wrench acquired.");
                     break;
-                case 2 when _frames - _boundary > 30:
+                case 2 when _frames - _boundary > 180:
                     _health = host.World.GetVehicle(targetId).Damage.CurrentHP;
-                    _shots = 0; _hits = 0;
+                    _shots = 0; _hits = 0; _expectedDamage = 0;
                     _held = true; _press = true;
                     Next("Held input starts through the production driver.");
                     break;
@@ -133,7 +151,8 @@ public sealed partial class MachineGunIntegrationChecks : Node
                     var slot = host.Items.Slots.Single(s => s.Vehicle == shooterId);
                     int expectedRounds = _scenario == 1 ? 320 : 640;
                     Check(Math.Abs(slot.Ammo!.Remaining - expectedRounds) < 30, $"sustained round budget {slot.Ammo.Remaining}");
-                    if (_scenario is 0 or 4) { Check(loss > 200 && loss < 400, $"close-range pressure {loss}"); _nearLoss = loss; }
+                    Check(Math.Abs(loss - _expectedDamage) < .1f, $"native hit/falloff damage {loss}, expected {_expectedDamage}");
+                    if (_scenario is 0 or 4) { Check(_hits > _shots * .2 && loss > 0, $"close-range camera pressure {loss}; {_hits}/{_shots} hits"); _nearLoss = loss; }
                     if (_scenario == 0)
                     {
                         _nearHitRate = _hits / (double)_shots;
@@ -170,7 +189,7 @@ public sealed partial class MachineGunIntegrationChecks : Node
                     break;
                 case 7 when _frames - _boundary > 60:
                     Check(_arenas[1].Driver.LocalItem is { Item: HeldItem.None, Ammo: null, SecondItem: HeldItem.Wrench }, "remote exhaustion HUD boundary");
-                    Check(_scoring.Hits > 300 && _scoring.Points > 0, "Distinct sustained bullet damage banks once per application");
+                    Check(_scoring.Hits > 100 && _scoring.Points > 0, "Distinct sustained bullet damage banks once per application");
                     _evidence.Add($"Item scoring verified: {_scoring.Hits} applied bullet hits, {_scoring.Points:0.######} points; host and remote publications agree.");
                     Capture("exhausted.png");
                     GD.Print("Machine gun integration passed: " + string.Join("\n", _evidence));

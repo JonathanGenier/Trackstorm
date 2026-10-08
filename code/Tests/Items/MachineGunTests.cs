@@ -132,6 +132,7 @@ internal sealed class MachineGunTests
         Step(host); Step(restored);
         Assert.That(restored.Items.Slots, Is.EqualTo(host.Items.Slots));
         Assert.That(restored.ResumePlayer(20, 1), Is.True);
+        for (int i = 0; i < 180; i++) { Step(host); Step(restored); }
         var slot = host.Items.Slots.Single();
         Assert.That(host.UseItem(0, 99, slot.Life, slot.Token), Is.True);
         Assert.That(restored.UseItem(20, 99, slot.Life, slot.Token, 1), Is.True);
@@ -196,6 +197,7 @@ internal sealed class MachineGunTests
     {
         var host = Create(new() { MachineGunFireRate = 60 });
         host.Items.Grant(host.World, 2, HeldItem.MachineGun);
+        for (int i = 0; i < 180; i++) { Step(host); }
         var slot = host.Items.Slots.Single();
         Assert.That(host.UseItem(0, 99, 1, slot.Token), Is.False);
         Assert.That(host.UseItem(10, 98, 1, slot.Token), Is.False);
@@ -232,6 +234,8 @@ internal sealed class MachineGunTests
         {
             // Change heading and pitch every tick: a cached launch orientation cannot pass.
             var orientation = Quaternion.CreateFromYawPitchRoll(tick * 0.01f, 0.15f * MathF.Sin(tick * 0.03f), 0);
+            var slot = host.Items.Slots.Single();
+            if (slot.Item == HeldItem.MachineGun) { Aim(host, slot, Vector3.Transform(-Vector3.UnitZ, orientation)); }
             host.Step(Held, state => new(new VehiclePhysicsState(state.ObservedPhysics.Position, orientation, Vector3.Zero, Vector3.Zero), Vector3.UnitY),
                 raycastWeapon: (_, start, end) =>
                 {
@@ -314,12 +318,18 @@ internal sealed class MachineGunTests
     private static ItemSlot Grant(HostVehicleSession host)
     {
         Assert.That(host.Items.Grant(host.World, 1, HeldItem.MachineGun), Is.True);
+        for (int i = 0; i < 180; i++) { Step(host); }
         var slot = host.Items.Slots.Single();
         Assert.That(host.UseItem(0, 99, slot.Life, slot.Token), Is.True);
         return slot;
     }
-    private static void Step(HostVehicleSession host, bool held = false, Func<ulong, Vector3, Vector3, WeaponRayHit?>? ray = null) =>
+    private static void Step(HostVehicleSession host, bool held = false, Func<ulong, Vector3, Vector3, WeaponRayHit?>? ray = null)
+    {
+        foreach (var slot in host.Items.Slots.Where(slot => slot.Active.Item == HeldItem.MachineGun)) { Aim(host, slot, -Vector3.UnitZ); }
         host.Step(held ? Held : default, Observe, raycastWeapon: ray ?? ((_, _, _) => null));
+    }
+    private static void Aim(HostVehicleSession host, ItemSlot slot, Vector3 direction) =>
+        host.Items.RequestAim(host.World, slot.Vehicle, slot.Life, slot.Active.Token, slot.SelectionRevision, host.World.State.Tick + 1, direction);
     private static VehicleObservation Observe(VehicleSnapshot state) => new(new VehiclePhysicsState(state.ObservedPhysics.Position, Quaternion.Identity, Vector3.Zero, Vector3.Zero), Vector3.UnitY);
 }
 

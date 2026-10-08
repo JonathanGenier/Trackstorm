@@ -1,0 +1,56 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Two native UDP peers admitted; elevated isolated fixture separates weapon rays from map obstacles.
+Scenario 0: fresh magazine and independent Wrench acquired.
+Held input starts through the production driver.
+Native impact feedback: 23 live spark emitters on peer 1.
+Native impact feedback: 24 live spark emitters on peer 2.
+Native pattern scenario 0: 50/161 vehicle hits.
+Scenario 0: 112.48 HP loss; 639 rounds remain.
+Released input and allowed delayed commands to settle.
+Scenario 1: fresh magazine and independent Wrench acquired.
+Held input starts through the production driver.
+Native pattern scenario 1: 3/481 vehicle hits.
+Scenario 1: 1.42 HP loss; 319 rounds remain.
+Released input and allowed delayed commands to settle.
+Scenario 2: fresh magazine and independent Wrench acquired.
+Held input starts through the production driver.
+Native pattern scenario 2: 0/161 vehicle hits.
+Scenario 2: 0.00 HP loss; 639 rounds remain.
+Released input and allowed delayed commands to settle.
+Scenario 3: fresh magazine and independent Wrench acquired.
+Held input starts through the production driver.
+Native pattern scenario 3: 0/161 vehicle hits.
+Scenario 3: 0.00 HP loss; 639 rounds remain.
+Released input and allowed delayed commands to settle.
+Scenario 4: fresh magazine and independent Wrench acquired.
+Held input starts through the production driver.
+Native pattern scenario 4: 33/154 vehicle hits.
+Scenario 4: 74.24 HP loss; 646 rounds remain.
+Released input and allowed delayed commands to settle.
+Remote reuses its partial magazine until exhaustion.
+Remote magazine exhausted on schedule through the authoritative held-item lifecycle.
+Machine gun integration passed: Two native UDP peers admitted; elevated isolated fixture separates weapon rays from map obstacles.
+Scenario 0: fresh magazine and independent Wrench acquired.
+Held input starts through the production driver.
+Scenario 0: 112.48 HP loss; 639 rounds remain.
+Released input and allowed delayed commands to settle.
+Scenario 1: fresh magazine and independent Wrench acquired.
+Held input starts through the production driver.
+Scenario 1: 1.42 HP loss; 319 rounds remain.
+Released input and allowed delayed commands to settle.
+Scenario 2: fresh magazine and independent Wrench acquired.
+Held input starts through the production driver.
+Scenario 2: 0.00 HP loss; 639 rounds remain.
+Released input and allowed delayed commands to settle.
+Scenario 3: fresh magazine and independent Wrench acquired.
+Held input starts through the production driver.
+Scenario 3: 0.00 HP loss; 639 rounds remain.
+Released input and allowed delayed commands to settle.
+Scenario 4: fresh magazine and independent Wrench acquired.
+Held input starts through the production driver.
+Scenario 4: 74.24 HP loss; 646 rounds remain.
+Released input and allowed delayed commands to settle.
+Remote reuses its partial magazine until exhaustion.
+Remote magazine exhausted on schedule through the authoritative held-item lifecycle.
+Item scoring verified: 275 applied bullet hits, 613.356445 points; host and remote publications agree.

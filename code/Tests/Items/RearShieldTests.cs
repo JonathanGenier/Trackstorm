@@ -233,6 +233,7 @@ internal sealed class RearShieldTests
     private void Arm()
     {
         _items.Grant(_world, 2, HeldItem.MachineGun);
+        for (int i = 0; i < 180; i++) { Step(); }
         _items.RequestUse(_world, 2, 1, _items.Slots.Single(s => s.Vehicle == 2).Token);
     }
     private void Fire() { Arm(); Step(fire: true); }
@@ -241,8 +242,15 @@ internal sealed class RearShieldTests
         ulong tick = _world.State.Tick + 1;
         var input = new InputFrame(tick, 0, 0, 0, 0, 0, 0);
         var shot = new InputFrame(invalidTick ? tick + 1 : tick, 0, 0, 0, fire ? InputButtons.UseItem : 0, 0, 0);
-        _items.Step(_world, input, [new(1, input, new(Pose(Vector3.Zero), Vector3.UnitY, contacts)),
-            new(2, shot, new(Pose(_shooter, _heading), Vector3.UnitY))], (_, _) => null,
+        VehicleStepRequest[] requests = [new(1, input, new(Pose(Vector3.Zero), Vector3.UnitY, contacts)),
+            new(2, shot, new(Pose(_shooter, _heading), Vector3.UnitY))];
+        if (_items.Slots.FirstOrDefault(s => s.Vehicle == 2) is { } gun)
+        {
+            Vector3 origin = _shooter + Vector3.Transform(WeaponAim.Pivot, _heading);
+            _items.RequestAim(_world, 2, gun.Life, gun.Active.Token, gun.SelectionRevision, tick, Vector3.Normalize(Vector3.UnitY * 1.1f - origin));
+        }
+        _items.AdvanceAim(_world, new(), true, requests);
+        _items.Step(_world, input, requests, (_, _) => null,
             raycastWeapon: ray ?? ((_, start, end) => new(Vector3.Distance(start, Vector3.Zero) / Vector3.Distance(start, end), 1)));
     }
     private static VehiclePhysicsState Pose(Vector3 p, Quaternion? q = null) => new(p, q ?? Quaternion.Identity, Vector3.Zero, Vector3.Zero);

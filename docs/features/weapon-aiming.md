@@ -2,7 +2,7 @@
 
 The shared direct-fire foundation serves Machine Gun and standard Missile. Salvo keeps its separate mechanics. The production Car's deployed rack stays fixed: its child mount yaws and the child payload pitches. Existing placeholder weapon artwork is retained.
 
-**Current integration boundary:** Machine Gun and Missile handlers still fire along their established forward direction. Their weapon-specific camera-aim integration is separate from this shared foundation. The current square demonstrates the shared aiming foundation; it must not be presented as a verified live firing reticle or released in this unfinished state.
+**Current integration boundary:** Machine Gun consumes the ready accepted direction and origin for authoritative fire, with its existing deterministic spread. Standard Missile still fires along its established forward direction; its weapon-specific camera-aim integration remains separate. The centered cursor represents camera intent, not a guarantee of impact or an accepted-ray reticle.
 
 ## Authority and lifecycle
 
@@ -15,6 +15,14 @@ Readiness starts on accepted ownership/selection, independently of first camera 
 Aim preparation uses the exact current native observation batch passed to the item step, matching the existing weapon handlers' pre-command pose phase. If that item/world transaction throws, the host restores transient aim and readiness state before retry. Presentation remains downstream of a successful host step.
 
 An accepted Proxy Mine placement retains ownership of the existing rack until placement and its 0.23-second arm return finish. Selecting or acquiring a direct-fire capability during that placement holds its readiness gate before the replacement path; it does not interrupt or redesign mine placement.
+
+## Machine Gun firing consumer
+
+Machine Gun requires the current pre-command tick's ready solution for its living selected capability. Missing, expired, deploying or self-blocked aim spends no rounds and does not accumulate a deferred burst. Sustained engagement, release/re-press, fractional cadence, capacity, damage, falloff, impulse and tracer selection retain their existing owners. Recovery preserves ammo and firing phase but requires new transient aim and deployment readiness; no vehicle-forward fallback exists.
+
+The accepted origin at the yaw/pitch pivot is the current placeholder's virtual muzzle. Its labelled box has no production barrel or muzzle attachment. The fixed rack, yaw mount and pitched box use the existing hierarchy and full deployed scale. Presentation smooths accepted angles and retains its existing small use pulse; it does not relocate authoritative shots. Future production geometry must align its muzzle within this shared contract and revalidate clearance.
+
+Spread uses a chassis-up tangent basis around accepted direction, retaining the same token/round deterministic samples and cone distribution. Native closest-hit queries start at the accepted pivot, including nearby cover before any future muzzle offset. A spread sample can intersect the conservative owner envelope even when the center ray is clear: that fired round stops there as cover, spends ammunition at normal cadence, and does no self damage. Existing impact/tracer publication presents its endpoint. This can reduce close forward hit coverage near the downward clearance limit; it never resamples toward a target or shoots through the owner.
 
 ## Camera, assistance and HUD
 
@@ -43,6 +51,8 @@ Six host-validated **Configs → Weapon aiming** controls expose turn rate, pitc
 ## Verification
 
 Core tests cover directional reach, rate/clearance, ownership, ordering, expiry, restore and codec bounds. Pure driver tests cover sender/configuration/generation/tick guards and outage expiry. Camera tests exercise mouse/stick response at 30/60/144 Hz.
+
+The native three-peer aiming harness first exercises actual Machine Gun bursts forward, sideways, rearward, at an elevated airborne target and beside an adjacent car. It checks native damage, cone/origin correctness, full deployed scale, fixed rack, observer yaw/pitch and ordered remote shot endpoints. It also exercises two simultaneous sustained shooters, self-blocked fire, release, aim expiry/recovery, suppression and slot switching, then restores the existing shared-camera scenarios. Synthetic target trajectories isolate firing from driving accuracy.
 
 The native three-peer aiming harness also sweeps every Camera control independently at low/default/high values (both Invert Y states), in grounded/airborne upward/downward views: 152 cases. It compares an independently queried final center ray with pivot-relative local intent, checks constrained authoritative articulation, observer mount presentation, body clearance, centered HUD and unchanged host tuning/peer FOV. These are synthetic native inputs and real same-machine UDP; they do not establish physical-controller ergonomics or multi-device Internet behavior.
 

@@ -345,30 +345,38 @@ public sealed partial class ItemAuthority
             if (slot.Item == HeldItem.MachineGun)
             {
                 // No native observation provider means no round was fired and no resource is spent.
-                if (raycastWeapon is null) { continue; }
+                var aim = AcceptedAim(slot.Vehicle, slot.Life, slot.Token);
+                if (raycastWeapon is null || aim is null || aim.Tick != world.State.Tick) { continue; }
                 var ammo = slot.Ammo!;
                 double phase = ammo.Phase + Configuration.MachineGunFireRate / 60;
                 int remainingRounds = ammo.Remaining;
                 while (remainingRounds > 0 && phase >= 1 - 1e-12)
                 {
-                    phase = Math.Max(0, phase - 1);
                     var pose = request.Observation.Physics;
-                    Vector3 direction = MachineGunShot.Direction(slot.Token, ammo.Capacity - remainingRounds, pose.Orientation, Configuration.MachineGunSpread);
-                    Vector3 end = pose.Position + direction * Configuration.MachineGunRange;
-                    var hit = raycastWeapon(slot.Vehicle, pose.Position, end);
+                    Vector3 direction = MachineGunShot.Direction(slot.Token, ammo.Capacity - remainingRounds, aim.Direction, pose.Orientation, Configuration.MachineGunSpread);
+                    phase = Math.Max(0, phase - 1);
+                    Vector3 end = aim.Origin + direction * Configuration.MachineGunRange;
+                    var hit = raycastWeapon(slot.Vehicle, aim.Origin, end);
                     if (hit is not null && (!float.IsFinite(hit.Fraction) || hit.Fraction is < 0 or > 1 || hit.Vehicle == slot.Vehicle ||
                         (hit.Vehicle != 0 && !effects.ContainsKey(hit.Vehicle)))) { throw new ArgumentException("Invalid host weapon ray observation."); }
-                    var shieldHit = shields.Intersect(pose.Position, end, slot.Vehicle);
+                    // Native queries exclude the owner. A spread sample may still strike
+                    // its envelope even when the accepted center ray clears it: stop that
+                    // actual round as cover, preserving cadence without self damage.
+                    float? bodyDistance = WeaponAim.BodyDistance(WeaponAim.Pivot, Vector3.Transform(direction, Quaternion.Conjugate(pose.Orientation)));
+                    if (bodyDistance is { } distance && distance <= Configuration.MachineGunRange &&
+                        (hit is null || distance / Configuration.MachineGunRange < hit.Fraction))
+                    { hit = new(distance / Configuration.MachineGunRange, 0); }
+                    var shieldHit = shields.Intersect(aim.Origin, end, slot.Vehicle);
                     if (shieldHit is { } blocked && (hit is null || blocked.Fraction <= hit.Fraction))
                     {
                         float fade = MachineGunShot.Falloff(blocked.Fraction * Configuration.MachineGunRange, Configuration);
                         shields.Damage(blocked.State.Id, Configuration.MachineGunDamage * fade, new("machine-gun", slot.Vehicle, "bullet"));
-                        end = Vector3.Lerp(pose.Position, end, blocked.Fraction);
+                        end = Vector3.Lerp(aim.Origin, end, blocked.Fraction);
                         hit = new WeaponRayHit(blocked.Fraction, 0);
                     }
                     else if (hit is not null)
                     {
-                        end = Vector3.Lerp(pose.Position, end, hit.Fraction);
+                        end = Vector3.Lerp(aim.Origin, end, hit.Fraction);
                         if (hit.Vehicle != 0 && world.GetVehicle(hit.Vehicle).CanInteract && !requests.Single(value => value.VehicleId == hit.Vehicle).Reset.HasValue)
                         {
                             float fade = MachineGunShot.Falloff(hit.Fraction * Configuration.MachineGunRange, Configuration);
@@ -380,7 +388,7 @@ public sealed partial class ItemAuthority
                         }
                     }
                     events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, end, hit is not null)
-                    { Origin = pose.Position, Tracer = (ammo.Capacity - remainingRounds) % Configuration.MachineGunTracerEvery == 0 });
+                    { Origin = aim.Origin, Tracer = (ammo.Capacity - remainingRounds) % Configuration.MachineGunTracerEvery == 0 });
                     remainingRounds--;
                 }
                 MachineGunAmmo? remainingAmmo = remainingRounds == 0 ? null : ammo with { Remaining = remainingRounds, Phase = phase };
