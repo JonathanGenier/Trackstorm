@@ -111,10 +111,11 @@ public sealed partial class WeaponAimChecks : Node
             await Until(() => _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 3), "Three UDP peers initialized", 1200);
             var host = _arenas[0].Driver.Host!;
             Require(host.TryConfigure(0, new Dictionary<string, double> { ["match.minimum_players"] = 1, ["match.countdown_ticks"] = 1 }, out _), "Host tuning applied");
-            if (OS.GetCmdlineUserArgs().Contains("--aim-accuracy") || OS.GetCmdlineUserArgs().Contains("--aim-sticky") || OS.GetCmdlineUserArgs().Contains("--aim-freedom") || OS.GetCmdlineUserArgs().Contains("--aim-recovery"))
+            if (OS.GetCmdlineUserArgs().Contains("--aim-road") || OS.GetCmdlineUserArgs().Contains("--aim-accuracy") || OS.GetCmdlineUserArgs().Contains("--aim-sticky") || OS.GetCmdlineUserArgs().Contains("--aim-freedom") || OS.GetCmdlineUserArgs().Contains("--aim-recovery"))
             {
                 if (OS.GetCmdlineUserArgs().Contains("--aim-accuracy")) { await CheckAccuracy(); }
-                if (OS.GetCmdlineUserArgs().Contains("--aim-recovery")) { await CheckAimRecovery(); }
+                if (OS.GetCmdlineUserArgs().Contains("--aim-road")) { await CheckAimRoad(); }
+                else if (OS.GetCmdlineUserArgs().Contains("--aim-recovery")) { await CheckAimRecovery(); }
                 else if (OS.GetCmdlineUserArgs().Contains("--aim-freedom")) { await CheckAimFreedom(); }
                 else { await CheckStickyEngagement(); }
                 GD.Print($"Weapon aiming integration passed: {_evidence.Count} accuracy/retention checks.");

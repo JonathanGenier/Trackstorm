@@ -42,15 +42,30 @@ internal sealed class CameraAimAttractionTests
         Assert.That(error.Length(), Is.LessThan(.0001f));
     }
 
-    [Test]
-    public void SmallErrorsRetainButDeliberateAwayInputReleasesBothDevices()
+    [TestCase(30)]
+    [TestCase(60)]
+    [TestCase(144)]
+    public void FineCorrectionsRetainAndAccumulatedSweepsReleaseIndependentlyOfFrameRate(int fps)
     {
-        Vector2 error = new(.02f, 0);
-        Assert.That(CameraAimAttraction.Breakaway(error, new(-1, 0), new(-.3f, 0), 1f / 60), Is.False);
-        Assert.That(CameraAimAttraction.Breakaway(error, new(-8, 0), Vector2.Zero, 1f / 60), Is.True);
-        Assert.That(CameraAimAttraction.Breakaway(error, Vector2.Zero, new(-.8f, 0), 1f / 60), Is.True);
-        Assert.That(CameraAimAttraction.Breakaway(error, new(4, 0), new(.8f, 0), 1f / 60), Is.False);
-        Assert.That(CameraAimAttraction.Breakaway(error, new(8, 0), Vector2.Zero, 1f / 60), Is.True, "A deliberate sweep beyond centre must not get trapped");
-        Assert.That(CameraAimAttraction.Pull(error, 0, .1f), Is.EqualTo(Vector2.Zero));
+        float dt = 1f / fps, cone = MathF.PI / 36;
+        Vector2 fine = CameraAimAttraction.Gesture(Vector2.Zero, new(1.5f, 0), Vector2.Zero, dt);
+        Assert.That(CameraAimAttraction.Breakaway(new(-.027f, 0), fine, new(.0045f, 0), cone), Is.False,
+            "A small correction remains fine input even outside a distant projected body");
+        Vector2 gesture = Vector2.Zero;
+        for (int i = 0; i < Math.Ceiling(.1f * fps); i++)
+        { gesture = CameraAimAttraction.Gesture(gesture, new(300 * dt, 0), Vector2.Zero, dt); }
+        Assert.That(CameraAimAttraction.Breakaway(new(-.01f, 0), gesture, new(.001f, 0), cone), Is.True,
+            "Physical sweep releases promptly even at low view sensitivity");
+        Assert.That(CameraAimAttraction.Breakaway(new(.02f, 0), gesture, new(.001f, 0), cone), Is.False,
+            "Input toward an acquired car is not outward departure");
+        Assert.That(CameraAimAttraction.Breakaway(new(-.06f, 0), fine, new(.001f, 0), cone), Is.True,
+            "Slow accumulated outward placement eventually releases");
+        foreach (float stick in new[] { .3f, 1f })
+        {
+            gesture = Vector2.Zero;
+            for (int i = 0; i < Math.Ceiling(.1f * fps); i++)
+            { gesture = CameraAimAttraction.Gesture(gesture, Vector2.Zero, new(stick, 0), dt); }
+            Assert.That(CameraAimAttraction.Breakaway(new(-.01f, 0), gesture, new(.001f, 0), cone), Is.EqualTo(stick == 1));
+        }
     }
 }

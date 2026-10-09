@@ -15,10 +15,14 @@ internal static class CameraAimAttraction
         return motion.Length() > maximum ? Vector2.Normalize(motion) * maximum : motion;
     }
 
-    internal static bool Breakaway(Vector2 error, Vector2 mouse, Vector2 stick, float delta) =>
-        (mouse.Length() / Math.Max(.001f, delta) > 180 &&
-            (Vector2.Dot(mouse, error) <= 0 || Vector2.Dot(mouse * .003f - error, mouse) > 0)) ||
-        (stick.Length() > .65f && (Vector2.Dot(stick, error) <= 0 || error.Length() < .01f));
+    // Integrate physical intent over a short window instead of dividing a single
+    // mouse event by render delta. Vehicle/lens motion never enters this quantity.
+    internal static Vector2 Gesture(Vector2 previous, Vector2 mouse, Vector2 stick, float delta) =>
+        previous * MathF.Exp(-Math.Max(0, delta) / .12f) + mouse * .003f + stick * stick.Length() * (2.2f * Math.Max(0, delta));
+
+    internal static bool Breakaway(Vector2 placement, Vector2 gesture, Vector2 movement, float cone) =>
+        Vector2.Dot(movement, placement) < 0 &&
+        (gesture.Length() > .045f || placement.Length() > cone * .65f);
 
     internal static Vector2 Pull(Vector2 error, float degreesPerSecond, float delta)
     {

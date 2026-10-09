@@ -84,6 +84,8 @@ public sealed partial class VehicleChaseCamera : Camera3D
     internal Func<Vector2, Vector2, float, (float Mouse, float Stick)>? AimFriction { get; set; }
     /// <summary>Acquired-car pull and recenter hold, sharing the existing look and preference path.</summary>
     internal Func<Vector2, Vector2, Vector2, float, (Vector2 Pull, bool Engaged)>? AimAttraction { get; set; }
+    /// <summary>Tracking correction evaluated from this frame's collision-safe final lens.</summary>
+    internal Func<float, Vector2>? AimTracking { get; set; }
     internal Action? AimReset { get; set; }
 
     private float ShakeIntensity => (float)(SettingsSource?.Current.CameraShakeIntensity ?? 1);
@@ -292,6 +294,18 @@ public sealed partial class VehicleChaseCamera : Camera3D
             float horizontal = new Vector2(offset.X, offset.Z).Length();
             float pitchCorrection = MathF.Atan2(offset.Y, horizontal) - MathF.Atan2(offset.Y - _obstruction.Lift, horizontal);
             GlobalBasis = GlobalBasis.Rotated(GlobalBasis.X, -pitchCorrection);
+        }
+        if (!reset && WeaponAiming && !_obstruction.Reframed && AimTracking is { } track)
+        {
+            // Resolve shake, boom travel and obstruction before compensating target
+            // motion. Rotation leaves the enclosing collision sphere at its safe lens.
+            Vector2 correction = track(delta);
+            float previousYaw = _look.Yaw, previousPitch = _look.Pitch;
+            _look.Attract(new(correction.X, correction.Y), basePitch);
+            Vector3 angles = GlobalBasis.GetEuler();
+            angles.X += _look.Pitch - previousPitch;
+            angles.Y += Mathf.AngleDifference(previousYaw, _look.Yaw);
+            GlobalBasis = Basis.FromEuler(angles);
         }
         // Use the final view, including rollover framing, to avoid false forward
         // flow while looking sideways. Normal chase/Boost wisps are unchanged.
