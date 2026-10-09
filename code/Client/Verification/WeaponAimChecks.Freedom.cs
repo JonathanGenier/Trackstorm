@@ -45,9 +45,26 @@ public sealed partial class WeaponAimChecks
         var aim = host.Items.Aims.Single(a => a.Vehicle == Shooter);
         var centreDirection = N.Vector3.Normalize(Vehicles.VehicleBody.ToCore(Center()) - aim.Origin);
         float shotOffset = MathF.Acos(Math.Clamp(N.Vector3.Dot(N.Vector3.Normalize(sum), centreDirection), -1, 1));
-        Require(placementShots > 20 && shotOffset > .007f && N.Vector3.Dot(N.Vector3.Normalize(sum), aim.Direction) > .9999f,
-            $"Actual authoritative shots preserve adjusted placement: {placementShots} rays, {shotOffset:F5} rad off centre");
+        Require(placementShots > 20 && shotOffset < .003f && N.Vector3.Dot(centreDirection, aim.Direction) > .99999f,
+            $"Retained target keeps actual authoritative shots centred despite camera offset: {placementShots} rays, {shotOffset:F5} rad off centre");
         await Capture("freedom-fine-placement");
+
+        Send(new InputEventMouseMotion { ScreenRelative = new(70, 0) }); await Frames(60);
+        Require(_arenas[1].AssistedCar == 0, "Outward departure releases target before returning to cursor-directed shots");
+        placementShots = 0; sum = N.Vector3.Zero;
+        _arenas[0].Driver.RaycastWeapon = (owner, start, end) =>
+        {
+            if (owner == Shooter) { placementShots++; sum += N.Vector3.Normalize(end - start); }
+            return native(owner, start, end);
+        };
+        _firingPeers.Add(Shooter); await Frames(30, pressUse: true);
+        _firingPeers.Clear(); await Frames(30); _arenas[0].Driver.RaycastWeapon = native;
+        aim = host.Items.Aims.Single(a => a.Vehicle == Shooter);
+        centreDirection = N.Vector3.Normalize(Vehicles.VehicleBody.ToCore(Center()) - aim.Origin);
+        Require(placementShots > 20 && _arenas[1].AssistedCar == 0 &&
+            N.Vector3.Dot(aim.Direction, _arenas[1].Driver.DesiredAim!.Value) > .9999f &&
+            N.Vector3.Dot(N.Vector3.Normalize(sum), aim.Direction) > .9999f && N.Vector3.Dot(centreDirection, aim.Direction) < .995f,
+            $"After target loss actual shots follow accepted free aim away from car centre: {placementShots} rays");
 
         float unassisted = 0;
         foreach (bool enabled in new[] { false, true })

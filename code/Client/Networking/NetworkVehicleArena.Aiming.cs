@@ -130,10 +130,9 @@ internal sealed partial class NetworkVehicleArena
         Vector3 desiredPoint = hit.Point;
         if (StickyAiming && framed is not null)
         {
-            // Camera intent owns placement, including deliberate off-centre adjustments.
-            // Use the car's depth rather than its front surface for pivot/lens parallax.
-            Vector3 direction = _camera.ProjectRayNormal(center);
-            desiredPoint = lens + direction * Math.Max(_camera.Near, (AimBodyCenter(framed) - lens).Dot(direction));
+            // Retained assistance owns shot placement until target loss; camera look
+            // remains free to depart without moving shots away before disengagement.
+            desiredPoint = AimBodyCenter(framed);
         }
         Vector3 origin = VehicleBody.ToGodot(local.ObservedPhysics.Position + System.Numerics.Vector3.Transform(WeaponAim.Pivot, local.ObservedPhysics.Orientation));
         if (origin.DistanceSquaredTo(desiredPoint) > .001f) { _driver.DesiredAim = VehicleBody.ToCore((desiredPoint - origin).Normalized()); }
