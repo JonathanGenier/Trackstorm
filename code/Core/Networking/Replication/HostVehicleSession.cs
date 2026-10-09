@@ -18,6 +18,7 @@ public sealed class HostVehicleSession
     public const int SnapshotInterval = 3;
     private readonly Dictionary<ulong, (ulong Vehicle, HostInputBuffer Inputs, int SpawnSlot)> _peers = new();
     private readonly Dictionary<ulong, (HostInputBuffer Inputs, int SpawnSlot)> _disconnected = new();
+    private readonly Dictionary<ulong, PracticeVehicleInput> _practice = new();
     private readonly bool _requireActiveMatch;
     private ulong _nextVehicle = 1;
     private ulong? _lastUseRejection;
@@ -386,6 +387,18 @@ public sealed class HostVehicleSession
         _nextVehicle = Math.Max(_nextVehicle, playerId);
     }
 
+    /// <summary>Creates or reattaches a trusted lobby-owned practice car; it has no input peer.</summary>
+    /// <param name="playerId">Explicit practice identity from the validated lobby roster.</param>
+    /// <param name="oval">Whether the selected map is the production oval.</param>
+    public void DrivePracticeCar(ulong playerId, bool oval)
+    {
+        if (_practice.ContainsKey(playerId)) { return; }
+        if (_practice.Count != 0) { throw new InvalidOperationException("Only one practice car is supported."); }
+        if (!World.State.Vehicles.Any(vehicle => vehicle.VehicleId == playerId)) { ReservePlayer(playerId); }
+        if (!_disconnected.ContainsKey(playerId)) { throw new ArgumentException("Practice car cannot own a transport peer."); }
+        _practice.Add(playerId, new PracticeVehicleInput(oval));
+    }
+
     /// <summary>Releases gameplay ownership; stale input can no longer target the departed vehicle.</summary>
     /// <param name="peer">Departed transport identity.</param>
     public void Leave(ulong peer)
@@ -415,7 +428,7 @@ public sealed class HostVehicleSession
     /// <param name="player">Stable lobby player.</param>
     public bool ResumePlayer(ulong peer, ulong player)
     {
-        if (peer == 0 || _peers.ContainsKey(peer) || !_disconnected.Remove(player, out var entry))
+        if (peer == 0 || _practice.ContainsKey(player) || _peers.ContainsKey(peer) || !_disconnected.Remove(player, out var entry))
         {
             return false;
         }
@@ -430,6 +443,7 @@ public sealed class HostVehicleSession
     {
         if (_disconnected.Remove(player))
         {
+            _practice.Remove(player);
             World.LeaveVehicle(player);
             Items.RemovePlayer(player);
             Spawns?.RemovePlayer(player);
@@ -488,7 +502,9 @@ public sealed class HostVehicleSession
         var inputs = _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.Consume(tick));
         foreach (ulong player in _disconnected.Keys)
         {
-            inputs.Add(player, new InputFrame(tick, 0, 0, 0, 0, 0, 0));
+            inputs.Add(player, AllowsParticipation && _practice.TryGetValue(player, out var driver)
+                ? driver.Capture(World.GetVehicle(player), Configuration.Configuration.Vehicle, tick)
+                : new InputFrame(tick, 0, 0, 0, 0, 0, 0));
         }
 
         InputFrame hostInput = new SequencedInput(0, local).AtTick(tick);

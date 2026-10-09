@@ -219,7 +219,7 @@ public sealed partial class SimulationBootstrap : Node
 
         if (OS.GetCmdlineUserArgs().Contains("--local-practice"))
         {
-            _arena = new VehicleArena { Name = "VehicleArena", CameraInput = _playerInput.Adapter, CameraSettings = _settings, MovingTarget = true };
+            _arena = new VehicleArena { Name = "VehicleArena", CameraInput = _playerInput.Adapter, CameraSettings = _settings };
             AddChild(_arena);
         }
         else
@@ -244,6 +244,7 @@ public sealed partial class SimulationBootstrap : Node
         var session = new DevelopmentSession
         {
             Name = "DevelopmentSession",
+            AutomaticPracticeCar = true,
             NavigationInput = _playerInput.Adapter,
             CameraSettings = _settings,
             OverlayOpen = () => panel.CurrentPage != MenuPage.Closed || devTools.IsOpen,

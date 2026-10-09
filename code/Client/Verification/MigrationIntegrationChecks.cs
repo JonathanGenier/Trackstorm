@@ -11,6 +11,8 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Two or three real UDP peers and isolated Godot worlds; identity is an explicit local test seam.</summary>
 public sealed partial class MigrationIntegrationChecks : Node
 {
+    private bool PracticeCar => OS.GetCmdlineUserArgs().Contains("--practice-car" );
+    private int VehicleCount => _players + (PracticeCar ? 1 : 0);
     private IReadOnlyList<ShieldState> _shields = [];
     private readonly Dictionary<ulong, Core.Items.ItemPublication> _salvoBoundaries = new();
     private OilPatch? _oil;
@@ -142,6 +144,7 @@ public sealed partial class MigrationIntegrationChecks : Node
     private void CreateDriver(int index, ulong server, bool host, ulong player = 0, ulong epoch = 1)
     {
         var driver = new LobbyNetworkDriver(_gateways[index], host ? 900UL : 0, server, "Player" + index, _ => true, 900, peer => _subjects[index].GetValueOrDefault(peer), epoch);
+        if (host && PracticeCar) { driver.Authority!.AddPracticeCar(); }
         driver.Reconnect = () => throw new InvalidOperationException("Host is unavailable in this controlled loss scenario.");
         driver.Migration = new SessionMigration(driver, _gateways[index], "native-" + index, peer => _subjects[index].GetValueOrDefault(peer), (subject, listen) =>
         {
@@ -178,7 +181,7 @@ public sealed partial class MigrationIntegrationChecks : Node
 
     private void Scenario()
     {
-        if (_stage == 0 && _drivers[1]!.State?.Players.Count == 2)
+        if (_stage == 0 && _drivers[1]!.State?.Players.Count == 2 + (PracticeCar ? 1 : 0))
         {
             if (_players == 3)
             {
@@ -372,8 +375,8 @@ public sealed partial class MigrationIntegrationChecks : Node
             var arena = _arenas[survivor]!;
             ulong successor = _drivers[survivor]!.LocalPlayerId;
             Require(_drivers.Take(_players).Where((_, index) => index != 1).All(driver => driver!.State!.CurrentHostId == successor), "Second election converges on the lowest eligible stable ID.");
-            Require(_arenas[0]!.Bodies.Count == _players && arena.Bodies.Count == _players && arena.Bodies[_drivers[survivor]!.LocalPlayerId] == _retainedBody, "No duplicate or replaced surviving vehicles.");
-            Require(arena.Driver.LocalItem?.Item == (_players == 3 ? HeldItem.None : HeldItem.Wrench) && arena.Driver.ItemState!.Spawns.Count == 27 && arena.Driver.Match!.Players.Count == _players, "Complete gameplay continuation preserves discarded first slot with twenty-seven map pickups.");
+            Require(_arenas[0]!.Bodies.Count == VehicleCount && arena.Bodies.Count == VehicleCount && arena.Bodies[_drivers[survivor]!.LocalPlayerId] == _retainedBody, "No duplicate or replaced surviving vehicles.");
+            Require(arena.Driver.LocalItem?.Item == (_players == 3 ? HeldItem.None : HeldItem.Wrench) && arena.Driver.ItemState!.Spawns.Count == 27 && arena.Driver.Match!.Players.Count == VehicleCount, "Complete gameplay continuation preserves discarded first slot with twenty-seven map pickups.");
             Require(arena.Driver.ItemState!.DiscardRevision == (_players == 3 ? 1ul : 0ul), "Native host migration retains the permanent-discard watermark.");
             Require(arena.Driver.LocalItem is { SecondItem: HeldItem.Oil, ActiveSlot: 1, SelectionRevision: 1 }, "Both held slots and selected second slot restore through host migration.");
             Require(arena.Driver.ItemState!.Slots.Single(slot => slot.Vehicle == _nitroOwner).Item == HeldItem.Nitro, "Nitro is retained on the disconnected former host across migration.");

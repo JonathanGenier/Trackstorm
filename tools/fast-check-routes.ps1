@@ -39,6 +39,10 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'PracticeVehicleInput|PracticeCar|HostedPractice|hosted_practice|check-hosted-practice') {
+            Add-Extended 'check-hosted-practice.ps1'
+            Add-Manual 'Check hosted practice driving on both maps, target acquisition/fire, respawn and host migration; use check-hosted-practice.ps1 -OldMap for the smaller route.'
+        }
         if ($path -match 'Missile|missile_terrain|check-missile-terrain') {
             Add-Runtime 'check-missile-terrain.ps1'
             Add-Manual 'Observe heavy missile pitch response, banks/ramps, cliff departure, reacquisition and repeated firing under latency with the rendered missile harness.'

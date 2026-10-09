@@ -128,6 +128,10 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
             _awaitingCheckpoint = Host is null && (applicationEntry || lobby.NeedsArenaCheckpoint);
             if (Host is not null)
             {
+                foreach (var player in lobby.State.Players.Where(player => player.PracticeCar))
+                {
+                    Host.DrivePracticeCar(player.Id, lobby.State.Map == MatchMap.NewMap);
+                }
                 foreach (var peer in lobby.Authority!.Peers)
                 {
                     if (lobby.Authority.IsPendingJoin(peer.Key))
@@ -808,6 +812,13 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         _receivedConfiguration = false;
         _publishedConfiguration = null;
         Host = host ? HostVehicleSession.Restore(checkpoint.Arena, checkpoint.Host!, _lobby!.LocalPlayerId, _lobby.Authority!.Events, _arena, requireActiveMatch: _applicationEntry) : null;
+        if (Host is not null)
+        {
+            foreach (var player in checkpoint.Lobby.State.Players.Where(player => player.PracticeCar))
+            {
+                Host.DrivePracticeCar(player.Id, checkpoint.Lobby.State.Map == MatchMap.NewMap);
+            }
+        }
         _itemPublication = checkpoint.Arena.Items.Revision;
         _publishedItemRevision = ulong.MaxValue;
         _publishedSpawnRevision = ulong.MaxValue;

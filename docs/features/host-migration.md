@@ -60,6 +60,13 @@ EOS ownership may lag a committed gameplay migration indefinitely. The replaceme
 
 ## Restore and rebind
 
+The explicit Practice Car roster entry is a host-owned vehicle, not an authenticated
+survivor. It is excluded from subjects, voters, host candidates and human survivor-count
+guards. Its complete vehicle/life/inventory state remains in the ordinary arena
+checkpoint. The successor reattaches its driving-input producer without a new vehicle,
+respawn or transport rebind. The speed controller's transient integral restarts; this
+does not reset physical velocity or other vehicle state.
+
 Permanent item discard adds a monotonic watermark to the existing complete item boundary. A retained arena checkpoint must meet both the currently confirmed discard watermark and the greatest watermark in the retained copies. Older common checkpoints cannot resurrect a deleted held item. If no eligible common boundary survives that floor, migration fails closed; its normal coherent rollback remains available for other state. See [item discard](items.md#permanent-selected-slot-discard).
 
 1. Freeze gameplay and native prop progression while authority is uncertain.
@@ -79,7 +86,7 @@ In a lobby, host migration starts on intentional or abrupt loss without a reconn
 
 Application restoration retains the Active-only participation policy from trusted composition. The selected checkpoint supplies the exact match phase, countdown deadline, final result and simulation tick; the replacement never starts a fresh countdown. Each surviving client acknowledges its installed resync checkpoint through the existing TE Synchronized control before the replacement accepts that connection's gameplay packets. Until the accepted phase is Active, host controls and client prediction commands remain neutral. Offline retained players have no input binding and do not pause the replacement.
 
-Lobby protocol version eight carries host and epoch; all post-admission commands check the authority fence. The version-two `TG` envelope checks session, authority epoch and recipient connection generation before any nested vehicle, item, match or prop codec/event consumer runs. Native connection nonces, subscription generations, monotonic peer handles and coordinator operation generations reject retired connections and delayed callbacks. The version-two `TP` standings diagnostics also fence authority epochs and use the elected host identity. Online compatibility is `trackstorm-lobby-16`: all peers must use the trusted fencing protocol and retention-aware checkpoint/roster schemas.
+Lobby protocol version nine carries host and epoch; all post-admission commands check the authority fence. The version-two `TG` envelope checks session, authority epoch and recipient connection generation before any nested vehicle, item, match or prop codec/event consumer runs. Native connection nonces, subscription generations, monotonic peer handles and coordinator operation generations reject retired connections and delayed callbacks. The version-two `TP` standings diagnostics also fence authority epochs and use the elected host identity. Online compatibility is `trackstorm-lobby-17`: all peers must use the trusted fencing protocol and retention-aware checkpoint/roster schemas.
 
 Restore publishes current item and score state with empty historical event/delta lists. Token high-water marks, missile IDs, life generations, consumed-death watermarks, spawn deadlines and revisions continue from the checkpoint. Pending uses/inputs do not cross the transition. Committed damage is not reapplied when physical continuation effects are restored. Later one-shot outcomes are evaluated by the original authorities and scoped to the new epoch. Rollback can discard outcomes after the selected boundary; it never adds those abandoned outcomes onto the restored totals.
 

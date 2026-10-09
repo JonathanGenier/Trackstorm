@@ -70,6 +70,8 @@ internal sealed partial class DevelopmentSession : CanvasLayer
 
     /// <summary>Host-local tuning supplied by composition; never consulted for a joining client.</summary>
     internal Development.DeveloperSettingsStore? DeveloperSettings { get; set; }
+    /// <summary>Application hosting reserves one moving practice car; isolated session fixtures opt in explicitly.</summary>
+    internal bool AutomaticPracticeCar { get; init; }
     /// <summary>Local camera settings retained across arena reconstruction.</summary>
     internal Settings.PlayerSettingsController? CameraSettings { get; set; }
     /// <summary>Current local authority; no host controls exist before hosting or after authority is lost.</summary>
@@ -700,6 +702,10 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     {
         _gateway = gateway;
         _lobby = lobby;
+        if (AutomaticPracticeCar && lobby.Authority is { } authority && authority.State.Phase == SessionPhase.Lobby)
+        {
+            authority.AddPracticeCar();
+        }
         _lobby.RecoverMatchEntry = () => RecoverEntry("A participant could not enter the match.");
         Events = lobby.Events;
     }
