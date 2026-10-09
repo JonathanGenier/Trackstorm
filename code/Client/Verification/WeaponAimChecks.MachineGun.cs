@@ -84,7 +84,7 @@ public sealed partial class WeaponAimChecks
         Camera.ResetFollow(); await Frames(30);
         await AimAtCurrent(() => _arenas[1].Bodies[1].VisualPosition + Vector3.Up);
         await Frames(60);
-        host.TryConfigure(0, new Dictionary<string, double> { ["items.machine_gun_spread"] = 6 }, out _);
+        host.TryConfigure(0, new Dictionary<string, double> { ["items.machine_gun_spread"] = new ItemConfiguration().MachineGunSpread }, out _);
         // Production-map target staging may have claimed a pickup along its path.
         // This phase explicitly owns both shooter loadouts, not that incidental item.
         host.Items.RemovePlayer(1);

@@ -241,7 +241,7 @@ internal sealed class MachineGunTests
                 {
                     Assert.That(Vector3.Distance(start, end), Is.EqualTo(225).Within(0.0001));
                     var local = Vector3.Transform(Vector3.Normalize(end - start), Quaternion.Inverse(orientation));
-                    Assert.That(-local.Z, Is.GreaterThanOrEqualTo(MathF.Cos(MathF.PI / 30) - 0.000001));
+                    Assert.That(-local.Z, Is.GreaterThanOrEqualTo(MathF.Cos(new ItemConfiguration().MachineGunSpread * MathF.PI / 180) - 0.000001));
                     slopes.Add(new(local.X / -local.Z, local.Y / -local.Z));
                     return null;
                 });
@@ -255,10 +255,10 @@ internal sealed class MachineGunTests
             int hits = pattern.Count(p => Math.Abs(p.X) <= 1 && Math.Abs(p.Y) <= 0.75);
             rates.Add(hits / 800.0);
             TestContext.Out.WriteLine($"Cone plane {distance} m: width {width:F4} m, 2 x 1.5 m target {hits}/800 ({hits / 8.0:F2}%).");
-            Assert.That(width, Is.InRange(distance * 0.19f, distance * 0.211f));
+            Assert.That(width, Is.InRange(distance * .014f, distance * .0148f));
         }
         Assert.That(rates[0], Is.EqualTo(1));
-        Assert.That(rates[1], Is.InRange(0.3, 0.7));
+        Assert.That(rates[1], Is.EqualTo(1));
         Assert.That(rates[2], Is.LessThan(rates[1] * 0.65));
         Assert.That(new ItemConfiguration().MachineGunDamage * 800, Is.EqualTo(1800));
     }

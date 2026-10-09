@@ -81,12 +81,16 @@ public sealed partial class VehicleChaseCamera : Camera3D
     internal bool WeaponAiming { get; set; }
     /// <summary>Local near-target friction; scales only deliberate input and never steers the camera.</summary>
     internal Func<Vector2, Vector2, float, (float Mouse, float Stick)>? AimFriction { get; set; }
+    /// <summary>Acquired-car pull and recenter hold, sharing the existing look and preference path.</summary>
+    internal Func<Vector2, Vector2, float, (Vector2 Pull, bool Engaged)>? AimAttraction { get; set; }
+    internal Action? AimReset { get; set; }
 
     private float ShakeIntensity => (float)(SettingsSource?.Current.CameraShakeIntensity ?? 1);
 
     /// <summary>Clears presentation memory at a restored/reassigned display boundary, even for the same life.</summary>
     internal void ResetFollow()
     {
+        AimReset?.Invoke();
         _initialized = false;
         _boost.Reset();
         _aerial.Reset();
@@ -240,9 +244,13 @@ public sealed partial class VehicleChaseCamera : Camera3D
             float mouseGain = WeaponAiming ? (float)(preferences?.MouseAimSensitivity ?? 1) : 1;
             float stickGain = (float)(preferences?.StickAimSensitivity ?? 1);
             var friction = WeaponAiming ? AimFriction?.Invoke(mouse * axisGain * mouseGain, (stick * axisGain * stickGain).LimitLength(), delta) ?? (1f, 1f) : (1f, 1f);
-            _look.Advance(new(mouse.X, mouse.Y), InputSource?.MouseLookHeld == true, new(stick.X, stick.Y), delta, basePitch, WeaponAiming,
+            // Breakaway measures deliberate physical input after inversion. Low sensitivity
+            // must never turn full stick or a mouse sweep into an inescapable fine correction.
+            var attraction = WeaponAiming ? AimAttraction?.Invoke(mouse, stick, delta) ?? (Vector2.Zero, false) : (Vector2.Zero, false);
+            _look.Advance(new(mouse.X, mouse.Y), InputSource?.MouseLookHeld == true || attraction.Item2, new(stick.X, stick.Y), delta, basePitch, WeaponAiming,
                 friction.Item1 * mouseGain, friction.Item2 * stickGain, (float)(preferences?.StickAimCurve ?? 2), axisGain.X, axisGain.Y,
                 (float)(preferences?.CameraRecenterSpeed ?? 1));
+            _look.Attract(new(attraction.Item1.X, attraction.Item1.Y), basePitch);
         }
 
         GlobalBasis = Basis.FromEuler(new Vector3(basePitch + _look.Pitch, _heading + _look.Yaw, 0));

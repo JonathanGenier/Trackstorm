@@ -121,6 +121,31 @@ internal sealed class MachineGunAimTests
     }
 
     private void Ready() { for (int i = 0; i < 180; i++) { Step(); } }
+
+    [Test]
+    public void ActualDefaultSpreadGroupsStatisticallyAtTwoHundredMetresWithoutTargetData()
+    {
+        _host.TryConfigure(0, new Dictionary<string, double> { ["items.machine_gun_spread"] = new ItemConfiguration().MachineGunSpread }, out _);
+        int inside = 0, nearInside = 0;
+        for (int magazine = 0; magazine < 12; magazine++)
+        {
+            if (magazine > 0) { _host.Items.Grant(_host.World, 1, HeldItem.MachineGun); }
+            Ready(); Engage();
+            for (int i = 0; i < 800; i++)
+            {
+                Step(true);
+                var ray = _rays.Last();
+                var direction = Vector3.Normalize(ray.End - ray.Start);
+                var point = direction * (200 / -direction.Z);
+                if (Math.Abs(point.X) <= 1.5f && Math.Abs(point.Y) <= 1) { inside++; }
+                point /= 10;
+                if (Math.Abs(point.X) <= 1.5f && Math.Abs(point.Y) <= 1) { nearInside++; }
+            }
+        }
+        TestContext.WriteLine($"Authoritative free-fire sample: 9600 shots; 200m inside={inside} outside={9600 - inside} ({inside / 96f:F2}%); 20m inside={nearInside}.");
+        Assert.That(inside / 9600f, Is.InRange(.77f, .83f));
+        Assert.That(nearInside, Is.EqualTo(9600), "No quota forces close-range misses");
+    }
     private void Engage()
     {
         var slot = _host.Items.Slots.Single();

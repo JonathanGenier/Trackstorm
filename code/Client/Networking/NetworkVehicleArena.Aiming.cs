@@ -11,6 +11,12 @@ internal sealed partial class NetworkVehicleArena
     private ulong _aimTarget;
     private float _aimTargetAngle;
     private Vector2 _aimTargetOffset;
+    private ulong _aimTargetLife;
+    private (ulong Life, ulong Token, ulong Selection) _aimCapability;
+    private float _aimReleaseSeconds;
+    private bool _aimController;
+    internal ulong AssistedCar => StickyAiming ? _aimTarget : 0;
+    private bool StickyAiming => _driver.LocalItem?.Active.Item == HeldItem.MachineGun;
     internal WeaponAimOverlay AimOverlay => _aimOverlay;
 
     private void InitializeAiming()
@@ -20,6 +26,8 @@ internal sealed partial class NetworkVehicleArena
         layer.AddChild(_aimOverlay);
         _aimOverlay.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         _camera.AimFriction = AimFriction;
+        _camera.AimAttraction = AimAttraction;
+        _camera.AimReset = ResetAiming;
     }
 
     private void PrepareAiming()
@@ -28,7 +36,11 @@ internal sealed partial class NetworkVehicleArena
             _driver.LocalItem is { } slot && WeaponAim.Supports(slot.Active.Item) && CameraInput?.CameraEnabled == true;
         _camera.WeaponAiming = enabled;
         if (!enabled) { ResetAiming(); return; }
-        SelectAimTarget();
+        var current = _driver.LocalItem!;
+        var capability = (current.Life, current.Active.Token, current.SelectionRevision);
+        if (_aimCapability != capability) { _aimTarget = 0; _aimReleaseSeconds = 0; _aimCapability = capability; }
+        if (StickyAiming) { ValidateStickyTarget(); }
+        else { SelectAimTarget(); }
     }
 
     private void ResetAiming()
@@ -36,6 +48,10 @@ internal sealed partial class NetworkVehicleArena
         _driver.DesiredAim = null;
         _camera.WeaponAiming = false;
         _aimTarget = 0;
+        _aimTargetLife = 0;
+        _aimCapability = default;
+        _aimReleaseSeconds = 0;
+        _aimController = false;
         _aimOverlay.Reset();
     }
 
@@ -52,15 +68,27 @@ internal sealed partial class NetworkVehicleArena
         Vector2 center = _camera.GetViewport().GetVisibleRect().GetCenter();
         Vector3 lens = _camera.ProjectRayOrigin(center);
         Vector3 rayEnd = lens + _camera.ProjectRayNormal(center) * 300;
-        // Resolve the final rendered view once: cover wins over a car and a near-axis
-        // assist candidate cannot change the HUD unless the center ray hits it.
+        // Acquisition is an actual cursor/car intersection, never a near-axis search.
         var hit = TraceViewedAim(lens, rayEnd);
+        if (StickyAiming)
+        {
+            ValidateStickyTarget();
+            if (_aimTarget == 0 && _aimReleaseSeconds <= 0 && _driver.AcceptedAims.Any(a => a.Vehicle == local.VehicleId && a.Life == local.LifeId && a.Token == slot.Active.Token) && hit.Car is { } acquired &&
+                HasAimSight(acquired.VehicleId, lens, AimBodyCenter(acquired)))
+            {
+                _aimTarget = acquired.VehicleId;
+                _aimTargetLife = _driver.Latest!.Vehicles.Single(v => v.State.VehicleId == _aimTarget).State.LifeId;
+                ValidateStickyTarget();
+            }
+        }
+        NetworkVehicleBody? framed = StickyAiming ? (_aimTarget != 0 ? _bodies[_aimTarget] : null) : hit.Car;
         Vector3 desiredPoint = hit.Point;
+        if (StickyAiming && framed is not null) { desiredPoint = AimBodyCenter(framed); }
         Vector3 origin = VehicleBody.ToGodot(local.ObservedPhysics.Position + System.Numerics.Vector3.Transform(WeaponAim.Pivot, local.ObservedPhysics.Orientation));
         if (origin.DistanceSquaredTo(desiredPoint) > .001f) { _driver.DesiredAim = VehicleBody.ToCore((desiredPoint - origin).Normalized()); }
         var accepted = _driver.AcceptedAims.FirstOrDefault(value => value.Vehicle == local.VehicleId && value.Life == local.LifeId && value.Token == slot.Active.Token);
         Rect2? bounds = null;
-        if (hit.Car is { } target)
+        if (framed is { } target)
         {
             bounds = ProjectAimBounds(target);
         }
@@ -111,8 +139,54 @@ internal sealed partial class NetworkVehicleArena
         }
         if (max.X <= min.X || max.Y <= min.Y) { return null; }
         // Nearby cars can extend outside the view. Keep their corner strokes onscreen.
-        Rect2 bounds = new Rect2(min, max - min).Grow(7).Intersection(_camera.GetViewport().GetVisibleRect().Grow(-3));
+        Rect2 bounds = new Rect2(min, max - min).Intersection(_camera.GetViewport().GetVisibleRect().Grow(-3));
         return bounds.HasArea() ? bounds : null;
+    }
+
+    private static Vector3 AimBodyCenter(NetworkVehicleBody body) => body.VisualTransform * new Vector3(0, .3f, 0);
+
+    private void ValidateStickyTarget()
+    {
+        if (_aimTarget == 0) { return; }
+        if (!_driver.AcceptedAims.Any(a => a.Vehicle == _driver.LocalVehicleId && a.Life == _aimCapability.Life && a.Token == _aimCapability.Token))
+        { _aimTarget = 0; return; }
+        var state = _driver.Latest?.Vehicles.FirstOrDefault(v => v.State.VehicleId == _aimTarget)?.State;
+        float cone = _driver.Configuration.Configuration.Items.Aim.AssistDegrees * MathF.PI / 180;
+        if (cone <= 0 || state is not { CanInteract: true } || state.LifeId != _aimTargetLife ||
+            !_bodies.TryGetValue(_aimTarget, out var body) || !body.IsPresented)
+        { _aimTarget = 0; return; }
+        Vector3 center = AimBodyCenter(body);
+        Vector3 to = center - _camera.GlobalPosition;
+        Vector2 viewportCenter = _camera.GetViewport().GetVisibleRect().GetCenter();
+        float angle = (-_camera.GlobalBasis.Z).AngleTo(to);
+        float extent = Math.Min(.10f, MathF.Atan2(1.4f, to.Length()));
+        if (_camera.IsPositionBehind(center) || !_camera.GetViewport().GetVisibleRect().HasPoint(_camera.UnprojectPosition(center)) ||
+            to.LengthSquared() > 90000 || angle > cone + extent || !HasAimSight(_aimTarget, _camera.GlobalPosition, center))
+        { _aimTarget = 0; return; }
+        _aimTargetAngle = Math.Max(0, angle - extent);
+        _aimTargetOffset = _camera.UnprojectPosition(center) - viewportCenter;
+    }
+
+    private (Vector2 Pull, bool Engaged) AimAttraction(Vector2 mouse, Vector2 stick, float delta)
+    {
+        _aimReleaseSeconds = Math.Max(0, _aimReleaseSeconds - delta);
+        if (!StickyAiming || _driver.Configuration.Configuration.Items.Aim.AssistDegrees <= 0) { return (Vector2.Zero, false); }
+        if (_aimTarget == 0)
+        {
+            // A continuing sweep must not pulse the brackets back on while crossing
+            // the car slowly at low look sensitivity. Acquire again after input settles.
+            if (mouse.Length() / Math.Max(.001f, delta) > 180 || stick.Length() > .65f) { _aimReleaseSeconds = .18f; }
+            return (Vector2.Zero, false);
+        }
+        Vector3 local = _camera.GlobalBasis.Inverse() * (AimBodyCenter(_bodies[_aimTarget]) - _camera.GlobalPosition);
+        var error = new System.Numerics.Vector2(MathF.Atan2(local.X, -local.Z), -MathF.Atan2(local.Y, new Vector2(local.X, local.Z).Length()));
+        if (CameraAimAttraction.Breakaway(error, new(mouse.X, mouse.Y), new(stick.X, stick.Y), delta))
+        { _aimTarget = 0; _aimReleaseSeconds = .18f; return (Vector2.Zero, false); }
+        if (stick.LengthSquared() > .001f) { _aimController = true; }
+        if (mouse.LengthSquared() > .001f) { _aimController = false; }
+        var tuning = _driver.Configuration.Configuration.Items.Aim;
+        var pull = CameraAimAttraction.Pull(error, _aimController ? tuning.StickPull : tuning.MousePull, delta);
+        return (new(pull.X, pull.Y), true);
     }
 
     private void SelectAimTarget()

@@ -15,6 +15,10 @@ public sealed record WeaponAimConfiguration
     public float MouseFriction { get; init; } = .08f;
     /// <summary>Maximum stick slowdown; full-stick turns bypass it.</summary>
     public float StickFriction { get; init; } = .28f;
+    /// <summary>Maximum acquired-car camera attraction in degrees per second with mouse input.</summary>
+    public float MousePull { get; init; } = 18;
+    /// <summary>Maximum acquired-car camera attraction in degrees per second with controller input.</summary>
+    public float StickPull { get; init; } = 24;
 
     /// <summary>Rejects nonfinite and unsafe shared tuning.</summary>
     public void Validate()
@@ -24,7 +28,9 @@ public sealed record WeaponAimConfiguration
             !float.IsFinite(DownDegrees) || DownDegrees is < 0 or > 60 ||
             !float.IsFinite(AssistDegrees) || AssistDegrees is < 0 or > 8 ||
             !float.IsFinite(MouseFriction) || MouseFriction is < 0 or > .2f ||
-            !float.IsFinite(StickFriction) || StickFriction is < 0 or > .5f)
+            !float.IsFinite(StickFriction) || StickFriction is < 0 or > .5f ||
+            !float.IsFinite(MousePull) || MousePull is < 0 or > 60 ||
+            !float.IsFinite(StickPull) || StickPull is < 0 or > 60)
         { throw new ArgumentException("Invalid weapon aiming tuning."); }
     }
 }

@@ -23,6 +23,8 @@ public sealed partial class WeaponAimChecks : Node
     private string _output = string.Empty;
     private bool _oval;
     private (N.Vector3 First, N.Vector3 Second)? _heldTargets;
+    private N.Vector3? _heldShooter;
+    private N.Quaternion _targetOrientation = N.Quaternion.Identity;
     private float Ground => _oval ? 1.65f : 21.65f;
     private ulong Shooter => _arenas[1].Driver.LocalVehicleId;
     private VehicleChaseCamera Camera => _arenas[1].GetNode<VehicleChaseCamera>("ChaseCamera");
@@ -39,6 +41,9 @@ public sealed partial class WeaponAimChecks : Node
             _output = OS.GetCmdlineUserArgs().FirstOrDefault(value => value.StartsWith("--aim-output="))?[13..] ?? ProjectSettings.GlobalizePath("res://.godot/aim-checks");
             System.IO.Directory.CreateDirectory(_output);
             _input = new PlayerInput(); AddChild(_input); _input.SetPhysicsProcess(false);
+            // Rendered automation must not mix desktop mouse motion with the scripted
+            // stream. Send still traverses Godot's input state and the production adapter.
+            _input.SetProcessInput(false);
             _input.GameplayAvailable = () => true;
             using var reservation = new UdpClient(new IPEndPoint(IPAddress.Loopback, 0));
             string endpoint = $"127.0.0.1:{((IPEndPoint)reservation.Client.LocalEndPoint!).Port}";
@@ -75,6 +80,15 @@ public sealed partial class WeaponAimChecks : Node
             await Until(() => _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 3), "Three UDP peers initialized", 1200);
             var host = _arenas[0].Driver.Host!;
             Require(host.TryConfigure(0, new Dictionary<string, double> { ["match.minimum_players"] = 1, ["match.countdown_ticks"] = 1 }, out _), "Host tuning applied");
+            if (OS.GetCmdlineUserArgs().Contains("--aim-accuracy") || OS.GetCmdlineUserArgs().Contains("--aim-sticky"))
+            {
+                if (OS.GetCmdlineUserArgs().Contains("--aim-accuracy")) { await CheckAccuracy(); }
+                await CheckStickyEngagement();
+                GD.Print($"Weapon aiming integration passed: {_evidence.Count} accuracy/retention checks.");
+                foreach (var arena in _arenas) { arena.QueueFree(); }
+                for (int i = 0; i < 4; i++) { await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); }
+                GetTree().Quit(); return;
+            }
             await CheckMachineGunFire();
             Position(new(0, Ground, 35), new(0, Ground, 0), new(6, Ground, 0));
             host.Items.Grant(host.World, Shooter, HeldItem.MachineGun);
@@ -198,13 +212,13 @@ public sealed partial class WeaponAimChecks : Node
                 if (_arenas[1].AimOverlay.Bounds is { } crossingBounds)
                 {
                     crossingFrames++;
-                    if (!crossingBounds.HasPoint(ViewCenter)) { misplacedBrackets++; }
+                    if (_arenas[1].AssistedCar == 0) { misplacedBrackets++; }
                 }
                 if (i % 30 == 0) { await Capture("06d-crossing-" + i); }
             }
-            Require(crossingDrift < .01f, "Repeated fast crossings never steer the camera while RMB holds the view");
+            Require(crossingDrift < .5f, "Fast crossing attraction stays bounded rather than following unlimited target travel");
             Require(crossingFrames > 0 && misplacedBrackets == 0,
-                $"Crossing-car brackets surround the visible center-ray hit under interpolation ({crossingFrames} bracket frames, {misplacedBrackets} misses)");
+                $"Crossing-car brackets identify the car receiving assistance under interpolation ({crossingFrames} bracket frames, {misplacedBrackets} invalid identities)");
             await CheckAssistanceAndOutage();
             await CheckCameraPreferences();
             Position(new(0, Ground, 35), new(-8, Ground, 5), new(-3, Ground, 5));
@@ -389,85 +403,18 @@ public sealed partial class WeaponAimChecks : Node
     private async Task CheckAssistanceAndOutage()
     {
         var host = _arenas[0].Driver.Host!;
-        var original = host.Configuration.Configuration.Items.Aim;
-        var right = new N.Vector3(1.8f, Ground, 0);
-        var far = new N.Vector3(80, Ground, 0);
-        Position(new(0, Ground, 35), right, far);
-        _heldTargets = (right, far);
-        Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true });
-        await Frames(60);
-        float[] assisted = await MeasureResponses(original.MouseFriction, original.StickFriction);
-        float[] unassisted = await MeasureResponses(0, 0);
-        for (int i = 0; i < assisted.Length; i++)
-        {
-            GD.Print($"AIM_RESPONSE case={i} default={assisted[i]:F7} zero={unassisted[i]:F7} ratio={assisted[i] / unassisted[i]:F4}");
-        }
-        Require(assisted[0] > unassisted[0] * .90f && assisted[0] < unassisted[0] * .995f,
-            "Small native mouse input toward a visible rival receives bounded default friction");
-        Require(assisted[2] > unassisted[2] * .70f && assisted[2] < unassisted[2] * .99f,
-            "Fine native stick input toward a visible rival receives bounded default friction");
-        foreach (int i in new[] { 1, 3, 4, 5 })
-        {
-            Require(Math.Abs(assisted[i] - unassisted[i]) < .00001f,
-                $"Moving away/full-stick/flick bypass matches zero friction (case {i})");
-        }
-        await SetFriction(original.MouseFriction, original.StickFriction);
-        _heldTargets = (far, new(-1.8f, Ground, 0));
-        await Frames(30);
-        float towardSecond = await MeasureResponse(-2, 0);
-        float awaySecond = await MeasureResponse(2, 0);
-        Require(towardSecond < awaySecond * .995f && towardSecond > awaySecond * .90f,
-            "Eligibility transfers from the first right-hand rival to the second left-hand rival without a retained lock");
-        _heldTargets = (far, new(86, Ground, 0)); await Frames(30);
-        float noTarget = await MeasureResponse(-2, 0);
-        Require(Math.Abs(noTarget - awaySecond) < .00001f,
-            "Removing both rivals from the cone releases small-input assistance");
-        _heldTargets = null;
+        await CheckStickyEngagement();
         await Until(() => _arenas[2].Driver.AcceptedAims.Any(aim => aim.Vehicle == Shooter), "Observer has accepted aim before packet blackout");
         ulong beforeTick = _arenas[2].Driver.AcceptedAims.Single(aim => aim.Vehicle == Shooter).Tick;
         _wires[0].ConfigureSimulation(new(0, 0, 100));
         await Frames(75);
         Require(_arenas[1].Driver.AcceptedAims.Count == 0 && _arenas[2].Driver.AcceptedAims.Count == 0,
             "A bounded real UDP blackout expires accepted aim on shooter and observer");
+        Require(_arenas[1].AssistedCar == 0, "Accepted-aim outage cannot retain a stale assisted car");
         _wires[0].ConfigureSimulation(OS.GetCmdlineUserArgs().Contains("--aim-impaired") ? new(30, 5, 2) : new());
         await Until(() => _arenas[2].Driver.AcceptedAims.Any(aim => aim.Vehicle == Shooter && aim.Tick > beforeTick),
             "Fresh accepted aim resumes after packet delivery recovers (not authenticated reconnect)");
         RequireCentered("Camera-intent cursor remains centered after transient packet recovery");
-    }
-
-    private async Task SetFriction(float mouse, float stick)
-    {
-        var host = _arenas[0].Driver.Host!;
-        Require(host.TryConfigure(0, new Dictionary<string, double> { ["items.aim_mouse_friction"] = mouse, ["items.aim_stick_friction"] = stick }, out _),
-            $"Host accepts probe friction mouse={mouse}, stick={stick}");
-        await Until(() => _arenas[1].Driver.Configuration.Configuration.Items.Aim.MouseFriction == mouse &&
-            _arenas[1].Driver.Configuration.Configuration.Items.Aim.StickFriction == stick, "Probe friction reaches the native client");
-    }
-
-    private async Task<float[]> MeasureResponses(float mouse, float stick)
-    {
-        await SetFriction(mouse, stick);
-        var samples = new List<float>();
-        foreach (var input in new[] { (2f, 0f), (-2f, 0f), (0f, .35f), (0f, -.35f), (0f, 1f), (40f, 0f) })
-        {
-            samples.Add(await MeasureResponse(input.Item1, input.Item2));
-        }
-        return samples.ToArray();
-    }
-
-    private async Task<float> MeasureResponse(float mouse, float stick)
-    {
-        Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = 0 });
-        Camera.ResetFollow(); await Frames(6);
-        float before = Camera.Rotation.Y;
-        if (mouse != 0) { Send(new InputEventMouseMotion { ScreenRelative = new(mouse, 0) }); }
-        if (stick != 0) { Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = stick }); }
-        // One native production follow at a fixed delta isolates input response from render timing.
-        var body = _arenas[1].Bodies[Shooter];
-        Camera.Follow(body.VisualTransform, _arenas[1].LocalState!, 1f / 30, body.GetRid());
-        float result = Math.Abs(Mathf.AngleDifference(before, Camera.Rotation.Y));
-        Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = 0 });
-        return result;
     }
 
     private Task AimAt(Vector3 point) => AimAtCurrent(() => point);
@@ -489,9 +436,13 @@ public sealed partial class WeaponAimChecks : Node
         }
         GD.Print($"AIM_AT requested={point} firstTargetDrift={_arenas[1].Bodies[1].VisualPosition - initialTarget} requestedScreen={Camera.UnprojectPosition(point)}");
     }
-    private static void Send(InputEvent input)
+    private void Send(InputEvent input)
     {
-        using (input) { Godot.Input.ParseInputEvent(input); Godot.Input.FlushBufferedEvents(); }
+        using (input)
+        {
+            Godot.Input.ParseInputEvent(input); Godot.Input.FlushBufferedEvents();
+            _input._Input(input);
+        }
     }
     private async Task MotionFrames(int count, string phase)
     {
@@ -552,8 +503,9 @@ public sealed partial class WeaponAimChecks : Node
         var snapshot = world.State;
         world.Restore(new(snapshot.Tick, snapshot.LastInput, snapshot.Vehicles.Select(state =>
         {
-            if (state.VehicleId == Shooter) { return state; }
-            var pose = new VehiclePhysicsState(state.VehicleId == 1 ? first : second, N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero);
+            if (state.VehicleId == Shooter && !_heldShooter.HasValue) { return state; }
+            var pose = new VehiclePhysicsState(state.VehicleId == Shooter ? _heldShooter!.Value : state.VehicleId == 1 ? first : second,
+                state.VehicleId == 1 ? _targetOrientation : N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero);
             _arenas[0].Bodies[state.VehicleId].Apply(pose);
             return new VehicleSnapshot(state.VehicleId, state.LifeId, new(snapshot.Tick, pose, true, false, 0, 0), state.Damage, pose);
         }), snapshot.Match));

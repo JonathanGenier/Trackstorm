@@ -1,4 +1,4 @@
-param([Parameter(Mandatory)][string]$GodotPath, [switch]$NoBuild, [switch]$Visual, [switch]$Impaired, [switch]$Oval)
+param([Parameter(Mandatory)][string]$GodotPath, [switch]$NoBuild, [switch]$Visual, [switch]$Impaired, [switch]$Oval, [switch]$Accuracy, [switch]$Sticky)
 $ErrorActionPreference = 'Stop'
 if (-not $NoBuild) {
     dotnet build Trackstorm.Client.csproj -c Debug -warnaserror -m:1 -nr:false
@@ -11,6 +11,8 @@ if (-not $Visual) { $arguments += '--headless' }
 $arguments += @('--', "--aim-output=$outputDirectory")
 if ($Impaired) { $arguments += '--aim-impaired' }
 if ($Oval) { $arguments += '--aim-oval' }
+if ($Accuracy) { $arguments += '--aim-accuracy' }
+if ($Sticky) { $arguments += '--aim-sticky' }
 $output = & $GodotPath @arguments 2>&1
 $exitCode = $LASTEXITCODE
 $output | Set-Content -LiteralPath (Join-Path $outputDirectory 'aim.log')

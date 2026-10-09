@@ -151,7 +151,11 @@ public sealed partial class MachineGunIntegrationChecks : Node
                     var slot = host.Items.Slots.Single(s => s.Vehicle == shooterId);
                     int expectedRounds = _scenario == 1 ? 320 : 640;
                     Check(Math.Abs(slot.Ammo!.Remaining - expectedRounds) < 30, $"sustained round budget {slot.Ammo.Remaining}");
-                    Check(Math.Abs(loss - _expectedDamage) < .1f, $"native hit/falloff damage {loss}, expected {_expectedDamage}");
+                    // Each committed subtraction rounds at the fixture's 10,000-HP magnitude.
+                    // Bound that accumulation by half an HP ULP per shot, not a fixed tolerance
+                    // that only worked when the old broad cone hit very few distant rounds.
+                    float roundingBound = _shots * (MathF.BitIncrement(_health) - _health) * .5f + .001f;
+                    Check(Math.Abs(loss - _expectedDamage) <= roundingBound, $"native hit/falloff damage {loss}, expected {_expectedDamage}, rounding bound {roundingBound}");
                     if (_scenario is 0 or 4) { Check(_hits > _shots * .2 && loss > 0, $"close-range camera pressure {loss}; {_hits}/{_shots} hits"); _nearLoss = loss; }
                     if (_scenario == 0)
                     {

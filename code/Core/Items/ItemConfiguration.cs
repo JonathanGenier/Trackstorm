@@ -58,7 +58,7 @@ public sealed record ItemConfiguration
     /// <summary>Power exponent of the fade to zero at maximum range.</summary>
     public float MachineGunFalloff { get; init; } = 1.5f;
     /// <summary>Half-angle of the uniform spread cone in degrees.</summary>
-    public float MachineGunSpread { get; init; } = 6;
+    public float MachineGunSpread { get; init; } = .42f;
     /// <summary>Near-range central impulse per round in Newton seconds.</summary>
     public float MachineGunKnockback { get; init; } = 8;
     /// <summary>Render one tracer per this many rounds, including the first.</summary>

@@ -126,7 +126,7 @@ internal sealed class ReleaseDefaultsTests
     public void ReleaseDefaultsValidateAndRoundTrip()
     {
         var defaults = GameplayConfiguration.HostedDefaults;
-        Assert.That(GameplayOptions.All.Count, Is.EqualTo(226));
+        Assert.That(GameplayOptions.All.Count, Is.EqualTo(228));
         Assert.That(defaults.Items.OilPasses, Is.EqualTo(2));
         Assert.DoesNotThrow(defaults.Validate);
         var file = DeveloperSettingsFile.Read(string.Empty, defaults);
@@ -135,6 +135,16 @@ internal sealed class ReleaseDefaultsTests
         Assert.That(restored.Configuration, Is.EqualTo(defaults));
         var state = new GameplayConfigurationState(0, defaults);
         Assert.That(GameplayConfigurationCodec.Decode(GameplayConfigurationCodec.Encode(9, state)).State, Is.EqualTo(state));
+    }
+
+    [TestCase(2, 6f, .42f)]
+    [TestCase(2, 3f, 3f)]
+    [TestCase(3, 6f, 6f)]
+    public void ApprovedSpreadDefaultMigratesOnceWithoutDiscardingCustomTuning(int schema, float saved, float expected)
+    {
+        var file = DeveloperSettingsFile.Read($"{{\"schema\":{schema}}}\n{{\"key\":\"items.machine_gun_spread\",\"value\":{saved}}}");
+        Assert.That(file.Configuration.Items.MachineGunSpread, Is.EqualTo(expected));
+        Assert.That(DeveloperSettingsFile.Read(file.Write(file.Configuration)).Configuration, Is.EqualTo(file.Configuration));
     }
 
     [Test]
@@ -147,8 +157,8 @@ internal sealed class ReleaseDefaultsTests
         Assert.That(GameplayOptions.All.Any(option => option.Key.StartsWith("vehicle.air_stabilization", StringComparison.Ordinal)), Is.False);
         Assert.That(DeveloperSettingsFile.Read(file.Write(file.Configuration)).Configuration, Is.EqualTo(file.Configuration));
         byte[] wire = GameplayConfigurationCodec.Encode(1, new(0, file.Configuration));
-        Assert.That(wire.Length, Is.EqualTo(1829));
-        Assert.That(wire[2], Is.EqualTo(43));
+        Assert.That(wire.Length, Is.EqualTo(1845));
+        Assert.That(wire[2], Is.EqualTo(44));
         Assert.That(GameplayConfigurationCodec.Decode(wire).State.Configuration, Is.EqualTo(file.Configuration));
     }
 

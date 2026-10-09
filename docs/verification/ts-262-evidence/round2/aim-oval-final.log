@@ -1,0 +1,1434 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.05
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Three UDP peers initialized
+Host tuning applied
+AIM_AT requested=(0, 2.25, 0) firstTargetDrift=(0, 1.1920929E-07, 0) requestedScreen=(640, 396.57687)
+AIM_GEOMETRY forward: lens=(0, 4.205002, 44.205) rotation=(-0.050968073, 0, 0) targetDisplayed=(0, 1.65, 0) targetNative=(0, 1.65, 0) targetScreen=(640, 391.4941) center=(640, 400) bounds=(617.3684, 384.82693), (45.263184, 32.19809)
+Machine Gun forward accepted ready
+MG_GEOMETRY forward: aim=WeaponAimSolution { Vehicle = 3, Life = 1, Token = 1, Tick = 367, Yaw = 0, Pitch = -0.027269702, Origin = <0, 2.9550014, 36.845>, Direction = <0, -0.027266325, -0.99962825>, Clear = True, Ready = True } target=<0, 1.65, 0> cameraDesired=<0, -0.027266324, -0.99962825>
+Camera shooter submits ordinary held-use request
+Machine Gun forward: native hit/damage, 29 rounds, 29 target hits
+AIM_REMOTE firing-forward: acceptedYaw=0 renderedYaw=0 acceptedPitch=-0.027269702 renderedPitch=-0.027269702
+Remote mount yaw and payload pitch settle to accepted firing-forward aim on actual presentation nodes
+forward: fixed rack, full payload scale and shared pivot origin align on observer
+AIM_AT requested=(20, 2.25, 35) firstTargetDrift=(0, 0, 0) requestedScreen=(640.484, 394.92642)
+AIM_GEOMETRY side: lens=(-7.2902694, 4.4150567, 37.51754) rotation=(-0.08970005, -1.4788051, 0) targetDisplayed=(20, 1.65, 35) targetNative=(20, 1.65, 35) targetScreen=(640.00073, 386.34012) center=(640, 400) bounds=(574.59766, 375.20898), (125.284546, 52.721436)
+Machine Gun side accepted ready
+MG_GEOMETRY side: aim=WeaponAimSolution { Vehicle = 3, Life = 1, Token = 1, Tick = 612, Yaw = -1.4788066, Pitch = -0.049995907, Origin = <0, 2.9550014, 36.845>, Direction = <0.9945277, -0.049975082, -0.09174524>, Clear = True, Ready = True } target=<20, 1.65, 35> cameraDesired=<0.9945277, -0.049975082, -0.09174524>
+Camera shooter submits ordinary held-use request
+Machine Gun side: native hit/damage, 29 rounds, 29 target hits
+AIM_REMOTE firing-side: acceptedYaw=-1.4788066 renderedYaw=-1.4788066 acceptedPitch=-0.049995907 renderedPitch=-0.049995907
+Remote mount yaw and payload pitch settle to accepted firing-side aim on actual presentation nodes
+side: fixed rack, full payload scale and shared pivot origin align on observer
+AIM_AT requested=(0, 2.2432132, 45) firstTargetDrift=(0, -0.0012364388, 0) requestedScreen=(640, 364.69495)
+AIM_GEOMETRY rear: lens=(6.1770857E-07, 5.364794, 29.779238) rotation=(-0.22153606, 3.1415925, 0) targetDisplayed=(0, 1.6432133, 45) targetNative=(0, 1.65, 45) targetScreen=(640, 375.97855) center=(640, 400) bounds=(566.6754, 345.567), (146.64911, 127.24054)
+Machine Gun rear accepted ready
+MG_GEOMETRY rear: aim=WeaponAimSolution { Vehicle = 3, Life = 1, Token = 1, Tick = 857, Yaw = -3.1415927, Pitch = -0.12343888, Origin = <0, 2.9550014, 36.845>, Direction = <-8.675759E-08, -0.12312564, 0.9923911>, Clear = True, Ready = True } target=<0, 1.65, 45> cameraDesired=<0, -0.12312564, 0.99239105>
+Camera shooter submits ordinary held-use request
+Machine Gun rear: native hit/damage, 28 rounds, 28 target hits
+AIM_REMOTE firing-rear: acceptedYaw=-3.1415927 renderedYaw=-3.1415927 acceptedPitch=-0.12343888 renderedPitch=-0.12344317
+Remote mount yaw and payload pitch settle to accepted firing-rear aim on actual presentation nodes
+rear: fixed rack, full payload scale and shared pivot origin align on observer
+AIM_AT requested=(0, 14.25, 0) firstTargetDrift=(0, 9.536743E-07, 0) requestedScreen=(640, 396.73297)
+AIM_GEOMETRY airborne: lens=(0, 4.2050014, 44.205) rotation=(0.21697976, 0, 0) targetDisplayed=(0, 13.65, 0) targetNative=(0, 13.65, 0) targetScreen=(640, 391.89597) center=(640, 400) bounds=(617.846, 377.53775), (44.307983, 42.73105)
+Machine Gun airborne accepted ready
+MG_GEOMETRY airborne: aim=WeaponAimSolution { Vehicle = 3, Life = 1, Token = 1, Tick = 1102, Yaw = 0, Pitch = 0.28999949, Origin = <0, 2.9550014, 36.845>, Direction = <0, 0.28595173, -0.958244>, Clear = True, Ready = True } target=<0, 13.65, 0> cameraDesired=<0, 0.28595173, -0.95824397>
+Camera shooter submits ordinary held-use request
+Machine Gun airborne: native hit/damage, 26 rounds, 26 target hits
+AIM_REMOTE firing-airborne: acceptedYaw=0 renderedYaw=-6.2831855 acceptedPitch=0.28999949 renderedPitch=0.28999949
+Remote mount yaw and payload pitch settle to accepted firing-airborne aim on actual presentation nodes
+airborne: fixed rack, full payload scale and shared pivot origin align on observer
+AIM_AT requested=(-4.5, 2.2163887, 35) firstTargetDrift=(0, -0.0030555725, 0) requestedScreen=(605.6575, 403.01852)
+AIM_GEOMETRY close-side: lens=(6.123391, 6.3829846, 39.39159) rotation=(-0.36993033, 1.1766766, 0) targetDisplayed=(-4.5, 1.6102777, 35) targetNative=(-4.5, 1.65, 35) targetScreen=(638.7344, 371.74048) center=(640, 400) bounds=(487.22284, 321.26645), (312.3974, 187.11874)
+Machine Gun close-side accepted ready
+MG_GEOMETRY close-side: aim=WeaponAimSolution { Vehicle = 3, Life = 1, Token = 1, Tick = 1347, Yaw = 1.1816989, Pitch = -0.21099126, Origin = <0, 2.9550014, 36.845>, Direction = <-0.9047333, -0.2094293, -0.37094083>, Clear = True, Ready = True } target=<-4.5, 1.65, 35> cameraDesired=<-0.9046167, -0.21001656, -0.3708931>
+Camera shooter submits ordinary held-use request
+Machine Gun close-side: native hit/damage, 29 rounds, 29 target hits
+AIM_REMOTE firing-close-side: acceptedYaw=1.1816988 renderedYaw=-5.1014867 acceptedPitch=-0.20978954 renderedPitch=-0.21099663
+Remote mount yaw and payload pitch settle to accepted firing-close-side aim on actual presentation nodes
+close-side: fixed rack, full payload scale and shared pivot origin align on observer
+Self-blocked camera direction is not firing-ready
+Self-blocked held fire spends no rounds
+AIM_AT requested=(0, 14.65, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 391.94464)
+Second shooter receives a fresh selected Machine Gun
+Both shooters submit sustained activation
+Two simultaneous shooters sustain default spread and cadence through real UDP (323 rounds)
+Observer receives identical ordered firing endpoints/tracers (464 rounds)
+Release stops actual firing on both peers
+Aim expiry stops held fire without stale-forward fallback
+Fresh camera intent resumes held fire after aim expiry
+Suppression clears camera aiming and firing presentation
+Switch retires Machine Gun capability
+Switch back does not replay earlier sustained activation
+Machine Gun camera firing verified: 580 native rays, 338 target hits; fixed rack uses existing yaw/pitch payload
+Centered camera cursor appears alongside remote accepted aim
+AIM_AT requested=(0, 2.1498659, 0) firstTargetDrift=(0, -0.0045286417, 0) requestedScreen=(640, 391.49448)
+Center-ray car intersection replaces square with disconnected brackets
+Camera intent stays at viewport center while car brackets are shown
+AIM_AT requested=(2.8, 1.4953135, 0) firstTargetDrift=(0, -0.0002913475, 0) requestedScreen=(640.018, 399.99985)
+A near-axis miss returns to the small square without a target lock
+Small square is centered when aiming beside a rival
+AIM_AT requested=(0, 2.1450205, 0) firstTargetDrift=(0, -1.9073486E-05, 0) requestedScreen=(640, 391.54938)
+Intervening native cover prevents car brackets
+Covered car leaves the small square at camera center
+Removing cover restores brackets on the directly intersected car
+AIM_FORWARD clear=True ready=True yaw=0 pitch=-0.040959563
+Square remains centered immediately after mouse yaw and upward tilt under network impairment
+Looking away from a car removes its brackets immediately
+Cursor follows the new viewport center after resizing
+Side mouse aim reaches authority with the original camera orbit limits
+Deployed rack remains fixed on all peers
+Observer receives accepted articulated aim
+AIM_REMOTE side: acceptedYaw=-1.5600001 renderedYaw=-1.5600001 acceptedPitch=0.18735509 renderedPitch=0.18735509
+Remote mount yaw and payload pitch settle to accepted side aim on actual presentation nodes
+Rear aim accepted
+AIM_REMOTE rear: acceptedYaw=-3.1200001 renderedYaw=-3.1200001 acceptedPitch=0.18735509 renderedPitch=0.18735509
+Remote mount yaw and payload pitch settle to accepted rear aim on actual presentation nodes
+Downward tilt and weapon self-clearance limits cannot displace the camera cursor
+Downward articulation cannot enter owner envelope
+Fine controller camera rotation retains a centered cursor
+Native stick fine/full turn separation: fine=0.021, full=2.200 rad
+Ordinary camera recentering retains a centered cursor
+Neutral stick restores the original chase view with a weapon selected
+AIM_AT requested=(0, 2.0876284, 25) firstTargetDrift=(0, -0.33633888, 0) requestedScreen=(640, 386.08392)
+AIM_GEOMETRY close: lens=(0, 5.1621575, 43.978394) rotation=(-0.1922063, 0, 0) targetDisplayed=(0, 1.15277, 25) targetNative=(0, 1.1526144, 25) targetScreen=(640, 381.277) center=(640, 400) bounds=(583.24506, 357.6803), (113.50989, 97.5748)
+Directly intersected close car receives brackets instead of a distance-based square fallback
+AIM_AT requested=(-3.7, 2.0700622, 35) firstTargetDrift=(0, -0.14632618, 0) requestedScreen=(623.3177, 396.00128)
+Directly intersected side-by-side car receives onscreen corner brackets
+Alongside camera cursor stays centered while the accepted weapon ray remains chassis-safe
+A camera ray blocked by the owner cannot mark the weapon ready
+AIM_AT requested=(0, 12.65, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 392.24054)
+AIM_AT requested=(0, 12.65, 0) firstTargetDrift=(0, -9.536743E-07, 0) requestedScreen=(640, 391.7994)
+Elevated rivals can be aimed at above the horizon
+Upward aiming does not lower the grounded chase camera relative to the car
+Upward aiming retains the centered shared aiming cue
+The upward camera ray actually intersects the elevated rival
+Upward desired aim reaches authority and observer
+AIM_AT requested=(0, 2.65, 5) firstTargetDrift=(-7.7339363, -10.438826, 4.9174395) requestedScreen=(640, 399.61932)
+Fast crossing attraction stays bounded rather than following unlimited target travel
+Crossing-car brackets identify the car receiving assistance under interpolation (32 bracket frames, 0 invalid identities)
+AIM_AT requested=(0, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.9998)
+Sticky acquisition requires a cursor-intersected living rival car
+Camera attraction follows a displaced car without input/recentering: 0.03374 -> 0.00000 rad
+Attraction improves retention alignment over disabled pull (0.04515 rad unassisted)
+Moving target retained through 90 frames of small mouse errors
+Framed car uses its world-space body centre through ordinary desired aim
+STICKY_BREAK mouse yaw=-0.1257576->0.08424242 held=True target=0 bounds=
+Deliberate mouse breakaway promptly restores free aim
+Unframed cursor-directed free fire produces actual rounds (40)
+AIM_AT requested=(5.56, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Small controller corrections retain the same framed car
+Full controller aim-away releases without trapping input
+AIM_AT requested=(5.56, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Crossing rear car does not cause target switching or bracket flicker
+Intervening car breaks retention of the covered car
+AIM_AT requested=(5.5600004, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Solid non-vehicle cover releases assistance and never acquires brackets
+AIM_AT requested=(5.56, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+AIM_AT requested=(0, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.9681)
+Retained moving-car aim survives 30 FPS, gain 0.25, FOV 50, recenter 3: error=0.00003 rad
+Full controller breakaway remains immediate at 30 FPS and sensitivity gain 0.25
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99997)
+Mouse sweep breakaway remains immediate at 30 FPS and sensitivity gain 0.25
+AIM_AT requested=(0, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.9681)
+Retained moving-car aim survives 30 FPS, gain 3, FOV 90, recenter 3: error=0.00003 rad
+Full controller breakaway remains immediate at 30 FPS and sensitivity gain 3
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99997)
+Mouse sweep breakaway remains immediate at 30 FPS and sensitivity gain 3
+AIM_AT requested=(0, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.96838)
+Retained moving-car aim survives 60 FPS, gain 0.25, FOV 50, recenter 3: error=0.00003 rad
+Full controller breakaway remains immediate at 60 FPS and sensitivity gain 0.25
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 1.95, 0) firstTargetDrift=(0, 1.1920929E-07, 0) requestedScreen=(640, 399.99997)
+Mouse sweep breakaway remains immediate at 60 FPS and sensitivity gain 0.25
+AIM_AT requested=(0, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.9679)
+Retained moving-car aim survives 60 FPS, gain 3, FOV 90, recenter 3: error=0.00003 rad
+Full controller breakaway remains immediate at 60 FPS and sensitivity gain 3
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00006, 399.99997)
+Mouse sweep breakaway remains immediate at 60 FPS and sensitivity gain 3
+AIM_AT requested=(0, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.96863)
+Retained moving-car aim survives 144 FPS, gain 0.25, FOV 50, recenter 3: error=0.00002 rad
+Full controller breakaway remains immediate at 144 FPS and sensitivity gain 0.25
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00006, 399.99997)
+Mouse sweep breakaway remains immediate at 144 FPS and sensitivity gain 0.25
+AIM_AT requested=(0, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.9686)
+Retained moving-car aim survives 144 FPS, gain 3, FOV 90, recenter 3: error=0.00003 rad
+Full controller breakaway remains immediate at 144 FPS and sensitivity gain 3
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99997)
+Mouse sweep breakaway remains immediate at 144 FPS and sensitivity gain 3
+AIM_AT requested=(2, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Production missile crossing an engaged view never replaces the retained car
+Production missile presentation under cursor never becomes an assisted target
+Production mine presentation under cursor never becomes an assisted target
+Production rock artwork never becomes an assisted target
+Production pickup presentation never becomes an assisted target
+Non-vehicle objects retain the centred ordinary cursor
+Suppression retires acquired identity and HUD
+Observer has accepted aim before packet blackout
+A bounded real UDP blackout expires accepted aim on shooter and observer
+Accepted-aim outage cannot retain a stale assisted car
+Fresh accepted aim resumes after packet delivery recovers (not authenticated reconnect)
+Camera-intent cursor remains centered after transient packet recovery
+CAMERA_AIM_SAMPLE CameraDistance=1.15 air=False up=False expected=<0.0044622202, -0.21311398, -0.97701716> actual=<0.0044622202, -0.21311398, -0.97701716> lens=(-0.031685587, 5.8142915, 43.78266) target=(0.06385949, 4.7683716E-07, 22.862764) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraDistance=1.15 air=False up=False
+Camera settings retain centered HUD: CameraDistance=1.15 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraDistance=1.15 air=False up=False
+Shared body clearance remains safe: CameraDistance=1.15 air=False up=False
+AIM_REMOTE CameraDistance=1.15 air=False up=False: acceptedYaw=-0.004567156 renderedYaw=12.561804 acceptedPitch=-0.114746705 renderedPitch=-0.11474665
+Remote mount yaw and payload pitch settle to accepted CameraDistance=1.15 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraDistance=1.15 air=False up=False
+CAMERA_AIM_SAMPLE CameraDistance=1.15 air=False up=True expected=<0.0045106364, 0.15625131, -0.987707> actual=<0.0045106364, 0.15625131, -0.987707> lens=(-0.033611115, 4.30956, 44.204926) target=(1.3212451, 48.818676, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraDistance=1.15 air=False up=True
+Camera settings retain centered HUD: CameraDistance=1.15 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraDistance=1.15 air=False up=True
+Shared body clearance remains safe: CameraDistance=1.15 air=False up=True
+AIM_REMOTE CameraDistance=1.15 air=False up=True: acceptedYaw=-0.004566744 renderedYaw=12.561804 acceptedPitch=0.15690805 renderedPitch=0.15690911
+Remote mount yaw and payload pitch settle to accepted CameraDistance=1.15 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraDistance=1.15 air=False up=True
+CAMERA_AIM_SAMPLE CameraDistance=1.15 air=True up=False expected=<0.004408467, -0.26151255, -0.96519005> actual=<0.004408467, -0.26151255, -0.96519005> lens=(-0.036061455, 37.48997, 44.7403) target=(0.58004063, 3.8146973E-06, -90.149124) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraDistance=1.15 air=True up=False
+Camera settings retain centered HUD: CameraDistance=1.15 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraDistance=1.15 air=True up=False
+Shared body clearance remains safe: CameraDistance=1.15 air=True up=False
+AIM_REMOTE CameraDistance=1.15 air=True up=False: acceptedYaw=-0.0045674285 renderedYaw=12.561804 acceptedPitch=-0.11474657 renderedPitch=-0.11474652
+Remote mount yaw and payload pitch settle to accepted CameraDistance=1.15 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraDistance=1.15 air=True up=False
+CAMERA_AIM_SAMPLE CameraDistance=1.15 air=True up=True expected=<0.004509821, 0.15839516, -0.98736554> actual=<0.004509821, 0.15839516, -0.98736554> lens=(-0.04880824, 35.778416, 47.53092) target=(1.3062716, 80.28754, -249.14584) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraDistance=1.15 air=True up=True
+Camera settings retain centered HUD: CameraDistance=1.15 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraDistance=1.15 air=True up=True
+Shared body clearance remains safe: CameraDistance=1.15 air=True up=True
+AIM_REMOTE CameraDistance=1.15 air=True up=True: acceptedYaw=-0.004567498 renderedYaw=12.561804 acceptedPitch=0.15893936 renderedPitch=0.15889472
+Remote mount yaw and payload pitch settle to accepted CameraDistance=1.15 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraDistance=1.15 air=True up=True
+CAMERA_AIM_SAMPLE CameraDistance=1.3 air=False up=False expected=<0.0044632, -0.21626744, -0.97632396> actual=<0.0044632, -0.21626744, -0.97632396> lens=(-0.036052, 6.0185843, 44.731365) target=(0.06294216, 0, 23.076418) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraDistance=1.3 air=False up=False
+Camera settings retain centered HUD: CameraDistance=1.3 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraDistance=1.3 air=False up=False
+Shared body clearance remains safe: CameraDistance=1.3 air=False up=False
+AIM_REMOTE CameraDistance=1.3 air=False up=False: acceptedYaw=-0.0045714024 renderedYaw=12.5618 acceptedPitch=-0.114746734 renderedPitch=-0.114746675
+Remote mount yaw and payload pitch settle to accepted CameraDistance=1.3 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraDistance=1.3 air=False up=False
+CAMERA_AIM_SAMPLE CameraDistance=1.3 air=False up=True expected=<0.004510742, 0.15675879, -0.9876267> actual=<0.004510742, 0.15675879, -0.9876267> lens=(-0.03799916, 4.3095684, 45.164913) target=(1.3169991, 48.818687, -251.51184) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraDistance=1.3 air=False up=True
+Camera settings retain centered HUD: CameraDistance=1.3 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraDistance=1.3 air=False up=True
+Shared body clearance remains safe: CameraDistance=1.3 air=False up=True
+AIM_REMOTE CameraDistance=1.3 air=False up=True: acceptedYaw=-0.0045672227 renderedYaw=12.561804 acceptedPitch=0.15742202 renderedPitch=0.15742545
+Remote mount yaw and payload pitch settle to accepted CameraDistance=1.3 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraDistance=1.3 air=False up=True
+CAMERA_AIM_SAMPLE CameraDistance=1.3 air=True up=False expected=<0.004407817, -0.26193088, -0.9650766> actual=<0.004407817, -0.26193088, -0.9650766> lens=(-0.040348567, 37.690407, 45.679184) target=(0.5790288, 3.8146973E-06, -89.9314) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraDistance=1.3 air=True up=False
+Camera settings retain centered HUD: CameraDistance=1.3 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraDistance=1.3 air=True up=False
+Shared body clearance remains safe: CameraDistance=1.3 air=True up=False
+AIM_REMOTE CameraDistance=1.3 air=True up=False: acceptedYaw=-0.0045672916 renderedYaw=12.561804 acceptedPitch=-0.114746585 renderedPitch=-0.11474659
+Remote mount yaw and payload pitch settle to accepted CameraDistance=1.3 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraDistance=1.3 air=True up=False
+CAMERA_AIM_SAMPLE CameraDistance=1.3 air=True up=True expected=<0.004509303, 0.15891637, -0.9872818> actual=<0.004509303, 0.15891637, -0.9872818> lens=(-0.05319137, 35.77877, 48.4909) target=(1.3018476, 80.28789, -248.18585) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraDistance=1.3 air=True up=True
+Camera settings retain centered HUD: CameraDistance=1.3 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraDistance=1.3 air=True up=True
+Shared body clearance remains safe: CameraDistance=1.3 air=True up=True
+AIM_REMOTE CameraDistance=1.3 air=True up=True: acceptedYaw=-0.0045673605 renderedYaw=12.561804 acceptedPitch=0.15942559 renderedPitch=0.15938698
+Remote mount yaw and payload pitch settle to accepted CameraDistance=1.3 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraDistance=1.3 air=True up=True
+CAMERA_AIM_SAMPLE CameraDistance=1.5 air=False up=False expected=<0.0044548516, -0.22070332, -0.9753308> actual=<0.0044548516, -0.22070332, -0.9753308> lens=(-0.041713137, 6.2842073, 45.97754) target=(0.06156173, 0, 23.366875) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraDistance=1.5 air=False up=False
+Camera settings retain centered HUD: CameraDistance=1.5 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraDistance=1.5 air=False up=False
+Shared body clearance remains safe: CameraDistance=1.5 air=False up=False
+AIM_REMOTE CameraDistance=1.5 air=False up=False: acceptedYaw=-0.0045674974 renderedYaw=12.561804 acceptedPitch=-0.114746734 renderedPitch=-0.114746705
+Remote mount yaw and payload pitch settle to accepted CameraDistance=1.5 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraDistance=1.5 air=False up=False
+CAMERA_AIM_SAMPLE CameraDistance=1.5 air=False up=True expected=<0.004510382, 0.15744044, -0.98751813> actual=<0.004510382, 0.15744044, -0.98751813> lens=(-0.043846503, 4.309575, 46.4449) target=(1.3111924, 48.81869, -250.23186) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraDistance=1.5 air=False up=True
+Camera settings retain centered HUD: CameraDistance=1.5 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraDistance=1.5 air=False up=True
+Shared body clearance remains safe: CameraDistance=1.5 air=False up=True
+AIM_REMOTE CameraDistance=1.5 air=False up=True: acceptedYaw=-0.00456736 renderedYaw=12.561804 acceptedPitch=0.15810916 renderedPitch=0.15811174
+Remote mount yaw and payload pitch settle to accepted CameraDistance=1.5 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraDistance=1.5 air=False up=True
+CAMERA_AIM_SAMPLE CameraDistance=1.5 air=True up=False expected=<0.0044073244, -0.2624873, -0.9649254> actual=<0.0044073244, -0.2624873, -0.9649254> lens=(-0.04606841, 37.958145, 46.931072) target=(0.57773685, 3.8146973E-06, -89.64284) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraDistance=1.5 air=True up=False
+Camera settings retain centered HUD: CameraDistance=1.5 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraDistance=1.5 air=True up=False
+Shared body clearance remains safe: CameraDistance=1.5 air=True up=False
+AIM_REMOTE CameraDistance=1.5 air=True up=False: acceptedYaw=-0.0045674974 renderedYaw=12.561804 acceptedPitch=-0.114746734 renderedPitch=-0.114746705
+Remote mount yaw and payload pitch settle to accepted CameraDistance=1.5 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraDistance=1.5 air=True up=False
+CAMERA_AIM_SAMPLE CameraDistance=1.5 air=True up=True expected=<0.0045088544, 0.15961632, -0.98716885> actual=<0.0045088544, 0.15961632, -0.98716885> lens=(-0.05903841, 35.77916, 49.770874) target=(1.2960209, 80.28828, -246.90588) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraDistance=1.5 air=True up=True
+Camera settings retain centered HUD: CameraDistance=1.5 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraDistance=1.5 air=True up=True
+Shared body clearance remains safe: CameraDistance=1.5 air=True up=True
+AIM_REMOTE CameraDistance=1.5 air=True up=True: acceptedYaw=-0.004567428 renderedYaw=12.561804 acceptedPitch=0.16013266 renderedPitch=0.16011043
+Remote mount yaw and payload pitch settle to accepted CameraDistance=1.5 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraDistance=1.5 air=True up=True
+CAMERA_AIM_SAMPLE CameraInertia=0 air=False up=False expected=<0.0044621457, -0.21345668, -0.97694236> actual=<0.0044621457, -0.21345668, -0.97694236> lens=(-0.03170627, 5.808898, 43.786774) target=(0.0637559, 4.7683716E-07, 22.886282) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraInertia=0 air=False up=False
+Camera settings retain centered HUD: CameraInertia=0 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraInertia=0 air=False up=False
+Shared body clearance remains safe: CameraInertia=0 air=False up=False
+AIM_REMOTE CameraInertia=0 air=False up=False: acceptedYaw=-0.00456743 renderedYaw=12.561804 acceptedPitch=-0.114746734 renderedPitch=-0.114746705
+Remote mount yaw and payload pitch settle to accepted CameraInertia=0 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraInertia=0 air=False up=False
+CAMERA_AIM_SAMPLE CameraInertia=0 air=False up=True expected=<0.00451113, 0.15622354, -0.9877114> actual=<0.00451113, 0.15622354, -0.9877114> lens=(-0.033614647, 4.301219, 44.204926) target=(1.3213837, 48.810337, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraInertia=0 air=False up=True
+Camera settings retain centered HUD: CameraInertia=0 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraInertia=0 air=False up=True
+Shared body clearance remains safe: CameraInertia=0 air=False up=True
+AIM_REMOTE CameraInertia=0 air=False up=True: acceptedYaw=-0.004567223 renderedYaw=12.561804 acceptedPitch=0.15686803 renderedPitch=0.1568684
+Remote mount yaw and payload pitch settle to accepted CameraInertia=0 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraInertia=0 air=False up=True
+CAMERA_AIM_SAMPLE CameraInertia=0 air=True up=False expected=<0.004407798, -0.26194638, -0.9650724> actual=<0.004407798, -0.26194638, -0.9650724> lens=(-0.036060333, 37.427223, 44.740288) target=(0.57899207, 3.8146973E-06, -89.92335) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraInertia=0 air=True up=False
+Camera settings retain centered HUD: CameraInertia=0 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraInertia=0 air=True up=False
+Shared body clearance remains safe: CameraInertia=0 air=True up=False
+AIM_REMOTE CameraInertia=0 air=True up=False: acceptedYaw=-0.0045672925 renderedYaw=12.561804 acceptedPitch=-0.11474664 renderedPitch=-0.11474663
+Remote mount yaw and payload pitch settle to accepted CameraInertia=0 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraInertia=0 air=True up=False
+CAMERA_AIM_SAMPLE CameraInertia=0 air=True up=True expected=<0.004509906, 0.15818629, -0.9873989> actual=<0.004509906, 0.15818629, -0.9873989> lens=(-0.048807397, 35.71637, 47.530895) target=(1.3062519, 80.22549, -249.14586) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraInertia=0 air=True up=True
+Camera settings retain centered HUD: CameraInertia=0 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraInertia=0 air=True up=True
+Shared body clearance remains safe: CameraInertia=0 air=True up=True
+AIM_REMOTE CameraInertia=0 air=True up=True: acceptedYaw=-0.004567428 renderedYaw=12.561804 acceptedPitch=0.15862384 renderedPitch=0.15861312
+Remote mount yaw and payload pitch settle to accepted CameraInertia=0 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraInertia=0 air=True up=True
+CAMERA_AIM_SAMPLE CameraInertia=0.5 air=False up=False expected=<0.0044623627, -0.21303716, -0.9770339> actual=<0.0044623627, -0.21303716, -0.9770339> lens=(-0.031730834, 5.8184843, 43.792465) target=(0.06388457, 0, 22.857481) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraInertia=0.5 air=False up=False
+Camera settings retain centered HUD: CameraInertia=0.5 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraInertia=0.5 air=False up=False
+Shared body clearance remains safe: CameraInertia=0.5 air=False up=False
+AIM_REMOTE CameraInertia=0.5 air=False up=False: acceptedYaw=-0.004567224 renderedYaw=12.561804 acceptedPitch=-0.114746645 renderedPitch=-0.11474663
+Remote mount yaw and payload pitch settle to accepted CameraInertia=0.5 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraInertia=0.5 air=False up=False
+CAMERA_AIM_SAMPLE CameraInertia=0.5 air=False up=True expected=<0.004511245, 0.15625142, -0.987707> actual=<0.004511245, 0.15625142, -0.987707> lens=(-0.033615656, 4.3095903, 44.204926) target=(1.3214234, 48.818707, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraInertia=0.5 air=False up=True
+Camera settings retain centered HUD: CameraInertia=0.5 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraInertia=0.5 air=False up=True
+Shared body clearance remains safe: CameraInertia=0.5 air=False up=True
+AIM_REMOTE CameraInertia=0.5 air=False up=True: acceptedYaw=-0.00456736 renderedYaw=12.561804 acceptedPitch=0.15690833 renderedPitch=0.15690956
+Remote mount yaw and payload pitch settle to accepted CameraInertia=0.5 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraInertia=0.5 air=False up=True
+CAMERA_AIM_SAMPLE CameraInertia=0.5 air=True up=False expected=<0.004408544, -0.26150456, -0.96519214> actual=<0.004408544, -0.26150456, -0.96519214> lens=(-0.036061957, 37.491135, 44.74029) target=(0.58006847, 3.8146973E-06, -90.15329) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraInertia=0.5 air=True up=False
+Camera settings retain centered HUD: CameraInertia=0.5 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraInertia=0.5 air=True up=False
+Shared body clearance remains safe: CameraInertia=0.5 air=True up=False
+AIM_REMOTE CameraInertia=0.5 air=True up=False: acceptedYaw=-0.004567498 renderedYaw=12.561804 acceptedPitch=-0.11474666 renderedPitch=-0.11474665
+Remote mount yaw and payload pitch settle to accepted CameraInertia=0.5 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraInertia=0.5 air=True up=False
+CAMERA_AIM_SAMPLE CameraInertia=0.5 air=True up=True expected=<0.0045094793, 0.15839966, -0.9873648> actual=<0.0045094793, 0.15839966, -0.9873648> lens=(-0.04880446, 35.779762, 47.53089) target=(1.3061737, 80.28888, -249.14587) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraInertia=0.5 air=True up=True
+Camera settings retain centered HUD: CameraInertia=0.5 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraInertia=0.5 air=True up=True
+Shared body clearance remains safe: CameraInertia=0.5 air=True up=True
+AIM_REMOTE CameraInertia=0.5 air=True up=True: acceptedYaw=-0.004567154 renderedYaw=12.561804 acceptedPitch=0.1589023 renderedPitch=0.15885693
+Remote mount yaw and payload pitch settle to accepted CameraInertia=0.5 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraInertia=0.5 air=True up=True
+CAMERA_AIM_SAMPLE CameraInertia=1 air=False up=False expected=<0.0044532116, -0.21301751, -0.9770382> actual=<0.0044532116, -0.21301751, -0.9770382> lens=(-0.031639773, 5.8172827, 43.786793) target=(0.06375943, 4.7683716E-07, 22.85613) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraInertia=1 air=False up=False
+Camera settings retain centered HUD: CameraInertia=1 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraInertia=1 air=False up=False
+Shared body clearance remains safe: CameraInertia=1 air=False up=False
+AIM_REMOTE CameraInertia=1 air=False up=False: acceptedYaw=-0.004557837 renderedYaw=12.561813 acceptedPitch=-0.11474654 renderedPitch=-0.11474654
+Remote mount yaw and payload pitch settle to accepted CameraInertia=1 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraInertia=1 air=False up=False
+CAMERA_AIM_SAMPLE CameraInertia=1 air=False up=True expected=<0.0045113126, 0.15625145, -0.987707> actual=<0.0045113126, 0.15625145, -0.987707> lens=(-0.03361616, 4.309596, 44.204926) target=(1.3214431, 48.818714, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraInertia=1 air=False up=True
+Camera settings retain centered HUD: CameraInertia=1 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraInertia=1 air=False up=True
+Shared body clearance remains safe: CameraInertia=1 air=False up=True
+AIM_REMOTE CameraInertia=1 air=False up=True: acceptedYaw=-0.004567428 renderedYaw=12.561804 acceptedPitch=0.1569052 renderedPitch=0.15690792
+Remote mount yaw and payload pitch settle to accepted CameraInertia=1 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraInertia=1 air=False up=True
+CAMERA_AIM_SAMPLE CameraInertia=1 air=True up=False expected=<0.004409034, -0.26105493, -0.9653139> actual=<0.004409034, -0.26105493, -0.9653139> lens=(-0.036061373, 37.556385, 44.74028) target=(0.5811322, 0, -90.38809) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraInertia=1 air=True up=False
+Camera settings retain centered HUD: CameraInertia=1 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraInertia=1 air=True up=False
+Shared body clearance remains safe: CameraInertia=1 air=True up=False
+AIM_REMOTE CameraInertia=1 air=True up=False: acceptedYaw=-0.004567429 renderedYaw=12.561804 acceptedPitch=-0.11474654 renderedPitch=-0.11474657
+Remote mount yaw and payload pitch settle to accepted CameraInertia=1 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraInertia=1 air=True up=False
+CAMERA_AIM_SAMPLE CameraInertia=1 air=True up=True expected=<0.0045097284, 0.15861283, -0.9873306> actual=<0.0045097284, 0.15861283, -0.9873306> lens=(-0.04880885, 35.843105, 47.53089) target=(1.3062911, 80.35222, -249.14587) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraInertia=1 air=True up=True
+Camera settings retain centered HUD: CameraInertia=1 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraInertia=1 air=True up=True
+Shared body clearance remains safe: CameraInertia=1 air=True up=True
+AIM_REMOTE CameraInertia=1 air=True up=True: acceptedYaw=-0.004567565 renderedYaw=12.561804 acceptedPitch=0.15913141 renderedPitch=0.15910946
+Remote mount yaw and payload pitch settle to accepted CameraInertia=1 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraInertia=1 air=True up=True
+CAMERA_AIM_SAMPLE CameraAerialPullback=0 air=False up=False expected=<0.0044624642, -0.21300325, -0.9770413> actual=<0.0044624642, -0.21300325, -0.9770413> lens=(-0.031686537, 5.816408, 43.78266) target=(0.063896194, 0, 22.855148) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraAerialPullback=0 air=False up=False
+Camera settings retain centered HUD: CameraAerialPullback=0 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraAerialPullback=0 air=False up=False
+Shared body clearance remains safe: CameraAerialPullback=0 air=False up=False
+AIM_REMOTE CameraAerialPullback=0 air=False up=False: acceptedYaw=-0.004567292 renderedYaw=12.561804 acceptedPitch=-0.114746734 renderedPitch=-0.11474672
+Remote mount yaw and payload pitch settle to accepted CameraAerialPullback=0 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraAerialPullback=0 air=False up=False
+CAMERA_AIM_SAMPLE CameraAerialPullback=0 air=False up=True expected=<0.004511245, 0.15625145, -0.987707> actual=<0.004511245, 0.15625145, -0.987707> lens=(-0.033615656, 4.3096027, 44.204926) target=(1.3214234, 48.818718, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraAerialPullback=0 air=False up=True
+Camera settings retain centered HUD: CameraAerialPullback=0 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraAerialPullback=0 air=False up=True
+Shared body clearance remains safe: CameraAerialPullback=0 air=False up=True
+AIM_REMOTE CameraAerialPullback=0 air=False up=True: acceptedYaw=-0.00456736 renderedYaw=12.561804 acceptedPitch=0.15691438 renderedPitch=0.15691443
+Remote mount yaw and payload pitch settle to accepted CameraAerialPullback=0 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraAerialPullback=0 air=False up=True
+CAMERA_AIM_SAMPLE CameraAerialPullback=0 air=True up=False expected=<0.004408945, -0.26107264, -0.9653091> actual=<0.004408945, -0.26107264, -0.9653091> lens=(-0.031687014, 37.287655, 43.78266) target=(0.581081, 3.8146973E-06, -90.37881) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraAerialPullback=0 air=True up=False
+Camera settings retain centered HUD: CameraAerialPullback=0 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraAerialPullback=0 air=True up=False
+Shared body clearance remains safe: CameraAerialPullback=0 air=True up=False
+AIM_REMOTE CameraAerialPullback=0 air=True up=False: acceptedYaw=-0.00456736 renderedYaw=12.561804 acceptedPitch=-0.1147466 renderedPitch=-0.11474658
+Remote mount yaw and payload pitch settle to accepted CameraAerialPullback=0 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraAerialPullback=0 air=True up=False
+CAMERA_AIM_SAMPLE CameraAerialPullback=0 air=True up=True expected=<0.004511448, 0.15662551, -0.9876478> actual=<0.004511448, 0.15662551, -0.9876478> lens=(-0.033619184, 35.780327, 44.204926) target=(1.3215622, 80.289444, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraAerialPullback=0 air=True up=True
+Camera settings retain centered HUD: CameraAerialPullback=0 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraAerialPullback=0 air=True up=True
+Shared body clearance remains safe: CameraAerialPullback=0 air=True up=True
+AIM_REMOTE CameraAerialPullback=0 air=True up=True: acceptedYaw=-0.00456784 renderedYaw=12.561803 acceptedPitch=0.15725157 renderedPitch=0.15724766
+Remote mount yaw and payload pitch settle to accepted CameraAerialPullback=0 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraAerialPullback=0 air=True up=True
+CAMERA_AIM_SAMPLE CameraAerialPullback=1 air=False up=False expected=<0.004462565, -0.21303599, -0.9770341> actual=<0.004462565, -0.21303599, -0.9770341> lens=(-0.03173227, 5.8185062, 43.792465) target=(0.06388781, 0, 22.8574) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraAerialPullback=1 air=False up=False
+Camera settings retain centered HUD: CameraAerialPullback=1 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraAerialPullback=1 air=False up=False
+Shared body clearance remains safe: CameraAerialPullback=1 air=False up=False
+AIM_REMOTE CameraAerialPullback=1 air=False up=False: acceptedYaw=-0.0045674285 renderedYaw=12.561804 acceptedPitch=-0.11474657 renderedPitch=-0.11474658
+Remote mount yaw and payload pitch settle to accepted CameraAerialPullback=1 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraAerialPullback=1 air=False up=False
+CAMERA_AIM_SAMPLE CameraAerialPullback=1 air=False up=True expected=<0.0045099594, 0.15625149, -0.987707> actual=<0.0045099594, 0.15625149, -0.987707> lens=(-0.033606075, 4.3096113, 44.204926) target=(1.3210468, 48.81873, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraAerialPullback=1 air=False up=True
+Camera settings retain centered HUD: CameraAerialPullback=1 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraAerialPullback=1 air=False up=True
+Shared body clearance remains safe: CameraAerialPullback=1 air=False up=True
+AIM_REMOTE CameraAerialPullback=1 air=False up=True: acceptedYaw=-0.0045660585 renderedYaw=12.561805 acceptedPitch=0.15690844 renderedPitch=0.15691186
+Remote mount yaw and payload pitch settle to accepted CameraAerialPullback=1 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraAerialPullback=1 air=False up=True
+CAMERA_AIM_SAMPLE CameraAerialPullback=1 air=True up=False expected=<0.0044084173, -0.26149872, -0.96519375> actual=<0.0044084173, -0.26149872, -0.96519375> lens=(-0.03606092, 37.491978, 44.7403) target=(0.5800647, 3.8146973E-06, -90.15633) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraAerialPullback=1 air=True up=False
+Camera settings retain centered HUD: CameraAerialPullback=1 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraAerialPullback=1 air=True up=False
+Shared body clearance remains safe: CameraAerialPullback=1 air=True up=False
+AIM_REMOTE CameraAerialPullback=1 air=True up=False: acceptedYaw=-0.0045673596 renderedYaw=12.561804 acceptedPitch=-0.11474672 renderedPitch=-0.114746675
+Remote mount yaw and payload pitch settle to accepted CameraAerialPullback=1 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraAerialPullback=1 air=True up=False
+CAMERA_AIM_SAMPLE CameraAerialPullback=1 air=True up=True expected=<0.00450968, 0.15840252, -0.9873643> actual=<0.00450968, 0.15840252, -0.9873643> lens=(-0.04880668, 35.78061, 47.5309) target=(1.3062323, 80.28973, -249.14586) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraAerialPullback=1 air=True up=True
+Camera settings retain centered HUD: CameraAerialPullback=1 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraAerialPullback=1 air=True up=True
+Shared body clearance remains safe: CameraAerialPullback=1 air=True up=True
+AIM_REMOTE CameraAerialPullback=1 air=True up=True: acceptedYaw=-0.0045673605 renderedYaw=12.561804 acceptedPitch=0.15890466 renderedPitch=0.15888101
+Remote mount yaw and payload pitch settle to accepted CameraAerialPullback=1 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraAerialPullback=1 air=True up=True
+CAMERA_AIM_SAMPLE CameraAerialPullback=1.5 air=False up=False expected=<0.0044627124, -0.21302332, -0.97703695> actual=<0.0044627124, -0.21302332, -0.97703695> lens=(-0.031716608, 5.8177376, 43.78883) target=(0.06389371, 4.7683716E-07, 22.856531) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraAerialPullback=1.5 air=False up=False
+Camera settings retain centered HUD: CameraAerialPullback=1.5 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraAerialPullback=1.5 air=False up=False
+Shared body clearance remains safe: CameraAerialPullback=1.5 air=False up=False
+AIM_REMOTE CameraAerialPullback=1.5 air=False up=False: acceptedYaw=-0.004567566 renderedYaw=12.561804 acceptedPitch=-0.1147466 renderedPitch=-0.114746615
+Remote mount yaw and payload pitch settle to accepted CameraAerialPullback=1.5 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraAerialPullback=1.5 air=False up=False
+CAMERA_AIM_SAMPLE CameraAerialPullback=1.5 air=False up=True expected=<0.004511516, 0.1562515, -0.987707> actual=<0.004511516, 0.1562515, -0.987707> lens=(-0.03361767, 4.309617, 44.204926) target=(1.3215027, 48.818733, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraAerialPullback=1.5 air=False up=True
+Camera settings retain centered HUD: CameraAerialPullback=1.5 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraAerialPullback=1.5 air=False up=True
+Shared body clearance remains safe: CameraAerialPullback=1.5 air=False up=True
+AIM_REMOTE CameraAerialPullback=1.5 air=False up=True: acceptedYaw=-0.004567634 renderedYaw=12.561803 acceptedPitch=0.1569053 renderedPitch=0.15690808
+Remote mount yaw and payload pitch settle to accepted CameraAerialPullback=1.5 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraAerialPullback=1.5 air=False up=True
+CAMERA_AIM_SAMPLE CameraAerialPullback=1.5 air=True up=False expected=<0.004407963, -0.2617065, -0.96513736> actual=<0.004407963, -0.2617065, -0.96513736> lens=(-0.038246114, 37.59497, 45.21911) target=(0.5795445, 3.8146973E-06, -90.04809) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraAerialPullback=1.5 air=True up=False
+Camera settings retain centered HUD: CameraAerialPullback=1.5 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraAerialPullback=1.5 air=True up=False
+Shared body clearance remains safe: CameraAerialPullback=1.5 air=True up=False
+AIM_REMOTE CameraAerialPullback=1.5 air=True up=False: acceptedYaw=-0.0045671556 renderedYaw=12.561804 acceptedPitch=-0.11474672 renderedPitch=-0.11474669
+Remote mount yaw and payload pitch settle to accepted CameraAerialPullback=1.5 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraAerialPullback=1.5 air=True up=False
+CAMERA_AIM_SAMPLE CameraAerialPullback=1.5 air=True up=True expected=<0.0045093535, 0.15930648, -0.98721886> actual=<0.0045093535, 0.15930648, -0.98721886> lens=(-0.056406386, 35.780888, 49.19388) target=(1.2987343, 80.29001, -247.48288) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraAerialPullback=1.5 air=True up=True
+Camera settings retain centered HUD: CameraAerialPullback=1.5 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraAerialPullback=1.5 air=True up=True
+Shared body clearance remains safe: CameraAerialPullback=1.5 air=True up=True
+AIM_REMOTE CameraAerialPullback=1.5 air=True up=True: acceptedYaw=-0.0045677028 renderedYaw=12.561803 acceptedPitch=0.15974665 renderedPitch=0.15966122
+Remote mount yaw and payload pitch settle to accepted CameraAerialPullback=1.5 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraAerialPullback=1.5 air=True up=True
+CAMERA_AIM_SAMPLE CameraShakeIntensity=0 air=False up=False expected=<0.004462585, -0.21301603, -0.9770385> actual=<0.004462585, -0.21301603, -0.9770385> lens=(-0.03170627, 5.817306, 43.786774) target=(0.06389408, 4.7683716E-07, 22.85603) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraShakeIntensity=0 air=False up=False
+Camera settings retain centered HUD: CameraShakeIntensity=0 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraShakeIntensity=0 air=False up=False
+Shared body clearance remains safe: CameraShakeIntensity=0 air=False up=False
+AIM_REMOTE CameraShakeIntensity=0 air=False up=False: acceptedYaw=-0.004567428 renderedYaw=12.561804 acceptedPitch=-0.114746734 renderedPitch=-0.11474671
+Remote mount yaw and payload pitch settle to accepted CameraShakeIntensity=0 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraShakeIntensity=0 air=False up=False
+CAMERA_AIM_SAMPLE CameraShakeIntensity=0 air=False up=True expected=<0.0045112446, 0.15625153, -0.987707> actual=<0.0045112446, 0.15625153, -0.987707> lens=(-0.033615652, 4.3096237, 44.204926) target=(1.3214233, 48.81874, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraShakeIntensity=0 air=False up=True
+Camera settings retain centered HUD: CameraShakeIntensity=0 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraShakeIntensity=0 air=False up=True
+Shared body clearance remains safe: CameraShakeIntensity=0 air=False up=True
+AIM_REMOTE CameraShakeIntensity=0 air=False up=True: acceptedYaw=-0.0045673596 renderedYaw=12.561804 acceptedPitch=0.15690836 renderedPitch=0.1569109
+Remote mount yaw and payload pitch settle to accepted CameraShakeIntensity=0 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraShakeIntensity=0 air=False up=True
+CAMERA_AIM_SAMPLE CameraShakeIntensity=0 air=True up=False expected=<0.004408357, -0.2614947, -0.9651948> actual=<0.004408357, -0.2614947, -0.9651948> lens=(-0.03606032, 37.492558, 44.740288) target=(0.5800658, 3.8146973E-06, -90.158424) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraShakeIntensity=0 air=True up=False
+Camera settings retain centered HUD: CameraShakeIntensity=0 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraShakeIntensity=0 air=True up=False
+Shared body clearance remains safe: CameraShakeIntensity=0 air=True up=False
+AIM_REMOTE CameraShakeIntensity=0 air=True up=False: acceptedYaw=-0.004567292 renderedYaw=12.561804 acceptedPitch=-0.11474666 renderedPitch=-0.11474662
+Remote mount yaw and payload pitch settle to accepted CameraShakeIntensity=0 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraShakeIntensity=0 air=True up=False
+CAMERA_AIM_SAMPLE CameraShakeIntensity=0 air=True up=True expected=<0.0045098816, 0.15840444, -0.987364> actual=<0.0045098816, 0.15840444, -0.987364> lens=(-0.048808854, 35.781178, 47.530895) target=(1.3062911, 80.2903, -249.14586) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraShakeIntensity=0 air=True up=True
+Camera settings retain centered HUD: CameraShakeIntensity=0 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraShakeIntensity=0 air=True up=True
+Shared body clearance remains safe: CameraShakeIntensity=0 air=True up=True
+AIM_REMOTE CameraShakeIntensity=0 air=True up=True: acceptedYaw=-0.0045675654 renderedYaw=12.561804 acceptedPitch=0.15886101 renderedPitch=0.15884729
+Remote mount yaw and payload pitch settle to accepted CameraShakeIntensity=0 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraShakeIntensity=0 air=True up=True
+CAMERA_AIM_SAMPLE CameraShakeIntensity=0.5 air=False up=False expected=<0.0045310743, -0.21292646, -0.9770577> actual=<0.0045310743, -0.21292646, -0.9770577> lens=(-0.03074863, 5.820452, 43.791935) target=(0.064901985, 0, 22.849869) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraShakeIntensity=0.5 air=False up=False
+Camera settings retain centered HUD: CameraShakeIntensity=0.5 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraShakeIntensity=0.5 air=False up=False
+Shared body clearance remains safe: CameraShakeIntensity=0.5 air=False up=False
+AIM_REMOTE CameraShakeIntensity=0.5 air=False up=False: acceptedYaw=-0.0044844043 renderedYaw=12.561935 acceptedPitch=-0.11474669 renderedPitch=-0.11474669
+Remote mount yaw and payload pitch settle to accepted CameraShakeIntensity=0.5 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraShakeIntensity=0.5 air=False up=False
+CAMERA_AIM_SAMPLE CameraShakeIntensity=0.5 air=False up=True expected=<0.0045149266, 0.15625829, -0.9877059> actual=<0.0045149266, 0.15625829, -0.9877059> lens=(-0.032638747, 4.3116064, 44.205227) target=(1.3225019, 48.820724, -252.47153) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraShakeIntensity=0.5 air=False up=True
+Camera settings retain centered HUD: CameraShakeIntensity=0.5 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraShakeIntensity=0.5 air=False up=True
+Shared body clearance remains safe: CameraShakeIntensity=0.5 air=False up=True
+AIM_REMOTE CameraShakeIntensity=0.5 air=False up=True: acceptedYaw=-0.0045810114 renderedYaw=12.561795 acceptedPitch=0.15693024 renderedPitch=0.15692765
+Remote mount yaw and payload pitch settle to accepted CameraShakeIntensity=0.5 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraShakeIntensity=0.5 air=False up=True
+CAMERA_AIM_SAMPLE CameraShakeIntensity=0.5 air=True up=False expected=<0.0044168853, -0.26147813, -0.96519923> actual=<0.0044168853, -0.26147813, -0.96519923> lens=(-0.035086196, 37.49481, 44.73975) target=(0.58122474, 3.8146973E-06, -90.16705) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraShakeIntensity=0.5 air=True up=False
+Camera settings retain centered HUD: CameraShakeIntensity=0.5 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraShakeIntensity=0.5 air=True up=False
+Shared body clearance remains safe: CameraShakeIntensity=0.5 air=True up=False
+AIM_REMOTE CameraShakeIntensity=0.5 air=True up=False: acceptedYaw=-0.00457396 renderedYaw=12.561793 acceptedPitch=-0.114746556 renderedPitch=-0.11474659
+Remote mount yaw and payload pitch settle to accepted CameraShakeIntensity=0.5 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraShakeIntensity=0.5 air=True up=False
+CAMERA_AIM_SAMPLE CameraShakeIntensity=0.5 air=True up=True expected=<0.0045129913, 0.15841211, -0.9873628> actual=<0.0045129913, 0.15841211, -0.9873628> lens=(-0.04782661, 35.78341, 47.5312) target=(1.3071921, 80.29253, -249.14555) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraShakeIntensity=0.5 air=True up=True
+Camera settings retain centered HUD: CameraShakeIntensity=0.5 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraShakeIntensity=0.5 air=True up=True
+Shared body clearance remains safe: CameraShakeIntensity=0.5 air=True up=True
+AIM_REMOTE CameraShakeIntensity=0.5 air=True up=True: acceptedYaw=-0.0045807436 renderedYaw=12.561791 acceptedPitch=0.1589289 renderedPitch=0.1589169
+Remote mount yaw and payload pitch settle to accepted CameraShakeIntensity=0.5 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraShakeIntensity=0.5 air=True up=True
+CAMERA_AIM_SAMPLE CameraShakeIntensity=1 air=False up=False expected=<0.0045999056, -0.21279843, -0.97708523> actual=<0.0045999056, -0.21279843, -0.97708523> lens=(-0.029742086, 5.821172, 43.78571) target=(0.06592754, 4.7683716E-07, 22.841055) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraShakeIntensity=1 air=False up=False
+Camera settings retain centered HUD: CameraShakeIntensity=1 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraShakeIntensity=1 air=False up=False
+Shared body clearance remains safe: CameraShakeIntensity=1 air=False up=False
+AIM_REMOTE CameraShakeIntensity=1 air=False up=False: acceptedYaw=-0.0051100007 renderedYaw=12.56187 acceptedPitch=-0.11474636 renderedPitch=-0.114746645
+Remote mount yaw and payload pitch settle to accepted CameraShakeIntensity=1 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraShakeIntensity=1 air=False up=False
+CAMERA_AIM_SAMPLE CameraShakeIntensity=1 air=False up=True expected=<0.0045179315, 0.15626507, -0.9877048> actual=<0.0045179315, 0.15626507, -0.9877048> lens=(-0.03165688, 4.3135905, 44.205524) target=(1.323382, 48.82271, -252.47124) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraShakeIntensity=1 air=False up=True
+Camera settings retain centered HUD: CameraShakeIntensity=1 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraShakeIntensity=1 air=False up=True
+Shared body clearance remains safe: CameraShakeIntensity=1 air=False up=True
+AIM_REMOTE CameraShakeIntensity=1 air=False up=True: acceptedYaw=-0.004559227 renderedYaw=12.561811 acceptedPitch=0.15683429 renderedPitch=0.15683739
+Remote mount yaw and payload pitch settle to accepted CameraShakeIntensity=1 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraShakeIntensity=1 air=False up=True
+CAMERA_AIM_SAMPLE CameraShakeIntensity=1 air=True up=False expected=<0.0044232407, -0.26145747, -0.9652048> actual=<0.0044232407, -0.26145747, -0.9652048> lens=(-0.03409352, 37.497654, 44.739227) target=(0.58210707, 3.8146973E-06, -90.177826) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraShakeIntensity=1 air=True up=False
+Camera settings retain centered HUD: CameraShakeIntensity=1 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraShakeIntensity=1 air=True up=False
+Shared body clearance remains safe: CameraShakeIntensity=1 air=True up=False
+AIM_REMOTE CameraShakeIntensity=1 air=True up=False: acceptedYaw=-0.0046254396 renderedYaw=12.561777 acceptedPitch=-0.114746645 renderedPitch=-0.114746615
+Remote mount yaw and payload pitch settle to accepted CameraShakeIntensity=1 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraShakeIntensity=1 air=True up=False
+CAMERA_AIM_SAMPLE CameraShakeIntensity=1 air=True up=True expected=<0.0045161676, 0.15842004, -0.98736155> actual=<0.0045161676, 0.15842004, -0.98736155> lens=(-0.046845045, 35.78572, 47.53149) target=(1.3081125, 80.29484, -249.14526) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraShakeIntensity=1 air=True up=True
+Camera settings retain centered HUD: CameraShakeIntensity=1 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraShakeIntensity=1 air=True up=True
+Shared body clearance remains safe: CameraShakeIntensity=1 air=True up=True
+AIM_REMOTE CameraShakeIntensity=1 air=True up=True: acceptedYaw=-0.0045939884 renderedYaw=12.561788 acceptedPitch=0.1589517 renderedPitch=0.15892187
+Remote mount yaw and payload pitch settle to accepted CameraShakeIntensity=1 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraShakeIntensity=1 air=True up=True
+CAMERA_AIM_SAMPLE HorizontalLookSensitivity=0.25 air=False up=False expected=<0.0011156453, -0.21303415, -0.9770441> actual=<0.0011156453, -0.21303415, -0.9770441> lens=(-0.007933093, 5.8185415, 43.792534) target=(0.015972147, 4.7683716E-07, 22.85714) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: HorizontalLookSensitivity=0.25 air=False up=False
+Camera settings retain centered HUD: HorizontalLookSensitivity=0.25 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: HorizontalLookSensitivity=0.25 air=False up=False
+Shared body clearance remains safe: HorizontalLookSensitivity=0.25 air=False up=False
+AIM_REMOTE HorizontalLookSensitivity=0.25 air=False up=False: acceptedYaw=-0.0011418572 renderedYaw=12.565229 acceptedPitch=-0.11474781 renderedPitch=-0.11474775
+Remote mount yaw and payload pitch settle to accepted HorizontalLookSensitivity=0.25 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: HorizontalLookSensitivity=0.25 air=False up=False
+CAMERA_AIM_SAMPLE HorizontalLookSensitivity=0.25 air=False up=True expected=<0.0011277808, 0.1562516, -0.9877166> actual=<0.0011277808, 0.1562516, -0.9877166> lens=(-0.008403688, 4.3096437, 44.204998) target=(0.33034697, 48.818768, -252.47469) pitch=0.1489135
+Final centered rendered ray and pivot-relative intent agree: HorizontalLookSensitivity=0.25 air=False up=True
+Camera settings retain centered HUD: HorizontalLookSensitivity=0.25 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: HorizontalLookSensitivity=0.25 air=False up=True
+Shared body clearance remains safe: HorizontalLookSensitivity=0.25 air=False up=True
+AIM_REMOTE HorizontalLookSensitivity=0.25 air=False up=True: acceptedYaw=-0.0011418056 renderedYaw=12.565229 acceptedPitch=0.15690847 renderedPitch=0.15691094
+Remote mount yaw and payload pitch settle to accepted HorizontalLookSensitivity=0.25 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: HorizontalLookSensitivity=0.25 air=False up=True
+CAMERA_AIM_SAMPLE HorizontalLookSensitivity=0.25 air=True up=False expected=<0.0011020781, -0.26148874, -0.96520585> actual=<0.0011020781, -0.26148874, -0.96520585> lens=(-0.00901497, 37.493416, 44.74036) target=(0.14501828, 0, -90.16278) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: HorizontalLookSensitivity=0.25 air=True up=False
+Camera settings retain centered HUD: HorizontalLookSensitivity=0.25 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: HorizontalLookSensitivity=0.25 air=True up=False
+Shared body clearance remains safe: HorizontalLookSensitivity=0.25 air=True up=False
+AIM_REMOTE HorizontalLookSensitivity=0.25 air=True up=False: acceptedYaw=-0.0011418059 renderedYaw=12.565229 acceptedPitch=-0.11474769 renderedPitch=-0.11474764
+Remote mount yaw and payload pitch settle to accepted HorizontalLookSensitivity=0.25 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: HorizontalLookSensitivity=0.25 air=True up=False
+CAMERA_AIM_SAMPLE HorizontalLookSensitivity=0.25 air=True up=True expected=<0.0011274059, 0.15840733, -0.98737323> actual=<0.0011274059, 0.15840733, -0.98737323> lens=(-0.0122015225, 35.782036, 47.531) target=(0.3265543, 80.29116, -249.14868) pitch=0.1489135
+Final centered rendered ray and pivot-relative intent agree: HorizontalLookSensitivity=0.25 air=True up=True
+Camera settings retain centered HUD: HorizontalLookSensitivity=0.25 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: HorizontalLookSensitivity=0.25 air=True up=True
+Shared body clearance remains safe: HorizontalLookSensitivity=0.25 air=True up=True
+AIM_REMOTE HorizontalLookSensitivity=0.25 air=True up=True: acceptedYaw=-0.001141823 renderedYaw=12.565229 acceptedPitch=0.15894932 renderedPitch=0.15890788
+Remote mount yaw and payload pitch settle to accepted HorizontalLookSensitivity=0.25 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: HorizontalLookSensitivity=0.25 air=True up=True
+CAMERA_AIM_SAMPLE HorizontalLookSensitivity=1 air=False up=False expected=<0.0044627683, -0.2130338, -0.9770346> actual=<0.0044627683, -0.2130338, -0.9770346> lens=(-0.031733695, 5.818548, 43.792465) target=(0.06389138, 0, 22.85725) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: HorizontalLookSensitivity=1 air=False up=False
+Camera settings retain centered HUD: HorizontalLookSensitivity=1 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: HorizontalLookSensitivity=1 air=False up=False
+Shared body clearance remains safe: HorizontalLookSensitivity=1 air=False up=False
+AIM_REMOTE HorizontalLookSensitivity=1 air=False up=False: acceptedYaw=-0.0045676352 renderedYaw=12.561803 acceptedPitch=-0.1147466 renderedPitch=-0.11474659
+Remote mount yaw and payload pitch settle to accepted HorizontalLookSensitivity=1 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: HorizontalLookSensitivity=1 air=False up=False
+CAMERA_AIM_SAMPLE HorizontalLookSensitivity=1 air=False up=True expected=<0.004511516, 0.15625164, -0.987707> actual=<0.004511516, 0.15625164, -0.987707> lens=(-0.03361767, 4.3096538, 44.204926) target=(1.3215027, 48.81877, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: HorizontalLookSensitivity=1 air=False up=True
+Camera settings retain centered HUD: HorizontalLookSensitivity=1 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: HorizontalLookSensitivity=1 air=False up=True
+Shared body clearance remains safe: HorizontalLookSensitivity=1 air=False up=True
+AIM_REMOTE HorizontalLookSensitivity=1 air=False up=True: acceptedYaw=-0.0045676343 renderedYaw=12.561803 acceptedPitch=0.15690862 renderedPitch=0.15690988
+Remote mount yaw and payload pitch settle to accepted HorizontalLookSensitivity=1 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: HorizontalLookSensitivity=1 air=False up=True
+CAMERA_AIM_SAMPLE HorizontalLookSensitivity=1 air=True up=False expected=<0.0044086305, -0.26148683, -0.96519697> actual=<0.0044086305, -0.26148683, -0.96519697> lens=(-0.036062527, 37.4937, 44.740295) target=(0.58011925, 0, -90.16254) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: HorizontalLookSensitivity=1 air=True up=False
+Camera settings retain centered HUD: HorizontalLookSensitivity=1 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: HorizontalLookSensitivity=1 air=True up=False
+Shared body clearance remains safe: HorizontalLookSensitivity=1 air=True up=False
+AIM_REMOTE HorizontalLookSensitivity=1 air=True up=False: acceptedYaw=-0.004567566 renderedYaw=12.561804 acceptedPitch=-0.11474663 renderedPitch=-0.114746615
+Remote mount yaw and payload pitch settle to accepted HorizontalLookSensitivity=1 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: HorizontalLookSensitivity=1 air=True up=False
+CAMERA_AIM_SAMPLE HorizontalLookSensitivity=1 air=True up=True expected=<0.00450954, 0.15840827, -0.98736334> actual=<0.00450954, 0.15840827, -0.98736334> lens=(-0.048805177, 35.782322, 47.53089) target=(1.3061931, 80.29144, -249.14587) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: HorizontalLookSensitivity=1 air=True up=True
+Camera settings retain centered HUD: HorizontalLookSensitivity=1 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: HorizontalLookSensitivity=1 air=True up=True
+Shared body clearance remains safe: HorizontalLookSensitivity=1 air=True up=True
+AIM_REMOTE HorizontalLookSensitivity=1 air=True up=True: acceptedYaw=-0.004567222 renderedYaw=12.561804 acceptedPitch=0.15890923 renderedPitch=0.15886858
+Remote mount yaw and payload pitch settle to accepted HorizontalLookSensitivity=1 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: HorizontalLookSensitivity=1 air=True up=True
+CAMERA_AIM_SAMPLE HorizontalLookSensitivity=3 air=False up=False expected=<0.01338759, -0.21301408, -0.9769574> actual=<0.01338759, -0.21301408, -0.9769574> lens=(-0.095117584, 5.8173423, 43.786194) target=(0.19168164, 0, 22.857061) pitch=-0.2710865
+Final centered rendered ray and pivot-relative intent agree: HorizontalLookSensitivity=3 air=False up=False
+Camera settings retain centered HUD: HorizontalLookSensitivity=3 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: HorizontalLookSensitivity=3 air=False up=False
+Shared body clearance remains safe: HorizontalLookSensitivity=3 air=False up=False
+AIM_REMOTE HorizontalLookSensitivity=3 air=False up=False: acceptedYaw=-0.013702493 renderedYaw=12.552669 acceptedPitch=-0.11473725 renderedPitch=-0.11473721
+Remote mount yaw and payload pitch settle to accepted HorizontalLookSensitivity=3 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: HorizontalLookSensitivity=3 air=False up=False
+CAMERA_AIM_SAMPLE HorizontalLookSensitivity=3 air=False up=True expected=<0.013534778, 0.15625165, -0.9876245> actual=<0.013534778, 0.15625165, -0.9876245> lens=(-0.10085475, 4.309662, 44.20431) target=(3.964576, 48.818783, -252.4477) pitch=0.14891349
+Final centered rendered ray and pivot-relative intent agree: HorizontalLookSensitivity=3 air=False up=True
+Camera settings retain centered HUD: HorizontalLookSensitivity=3 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: HorizontalLookSensitivity=3 air=False up=True
+Shared body clearance remains safe: HorizontalLookSensitivity=3 air=False up=True
+AIM_REMOTE HorizontalLookSensitivity=3 air=False up=True: acceptedYaw=-0.013703519 renderedYaw=12.552668 acceptedPitch=0.15690559 renderedPitch=0.15690938
+Remote mount yaw and payload pitch settle to accepted HorizontalLookSensitivity=3 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: HorizontalLookSensitivity=3 air=False up=True
+CAMERA_AIM_SAMPLE HorizontalLookSensitivity=3 air=True up=False expected=<0.013225947, -0.2614801, -0.96511817> actual=<0.013225947, -0.2614801, -0.96511817> lens=(-0.10818769, 37.494663, 44.739628) target=(1.7404097, 0, -90.15544) pitch=-0.2710865
+Final centered rendered ray and pivot-relative intent agree: HorizontalLookSensitivity=3 air=True up=False
+Camera settings retain centered HUD: HorizontalLookSensitivity=3 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: HorizontalLookSensitivity=3 air=True up=False
+Shared body clearance remains safe: HorizontalLookSensitivity=3 air=True up=False
+AIM_REMOTE HorizontalLookSensitivity=3 air=True up=False: acceptedYaw=-0.01370311 renderedYaw=12.552668 acceptedPitch=-0.11473724 renderedPitch=-0.11473715
+Remote mount yaw and payload pitch settle to accepted HorizontalLookSensitivity=3 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: HorizontalLookSensitivity=3 air=True up=False
+CAMERA_AIM_SAMPLE HorizontalLookSensitivity=3 air=True up=True expected=<0.013528648, 0.15840925, -0.98728085> actual=<0.013528648, 0.15840925, -0.98728085> lens=(-0.1464159, 35.782608, 47.530003) target=(3.918588, 80.29173, -249.12201) pitch=0.1489135
+Final centered rendered ray and pivot-relative intent agree: HorizontalLookSensitivity=3 air=True up=True
+Camera settings retain centered HUD: HorizontalLookSensitivity=3 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: HorizontalLookSensitivity=3 air=True up=True
+Shared body clearance remains safe: HorizontalLookSensitivity=3 air=True up=True
+AIM_REMOTE HorizontalLookSensitivity=3 air=True up=True: acceptedYaw=-0.013702081 renderedYaw=12.552669 acceptedPitch=0.15891019 renderedPitch=0.15888806
+Remote mount yaw and payload pitch settle to accepted HorizontalLookSensitivity=3 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: HorizontalLookSensitivity=3 air=True up=True
+CAMERA_AIM_SAMPLE VerticalLookSensitivity=0.25 air=False up=False expected=<0.0044620517, -0.21301384, -0.97703904> actual=<0.0044620517, -0.21301384, -0.97703904> lens=(-0.031702466, 5.8173485, 43.786774) target=(0.0638871, 4.7683716E-07, 22.855879) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: VerticalLookSensitivity=0.25 air=False up=False
+Camera settings retain centered HUD: VerticalLookSensitivity=0.25 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: VerticalLookSensitivity=0.25 air=False up=False
+Shared body clearance remains safe: VerticalLookSensitivity=0.25 air=False up=False
+AIM_REMOTE VerticalLookSensitivity=0.25 air=False up=False: acceptedYaw=-0.0045668813 renderedYaw=12.561804 acceptedPitch=-0.11474656 renderedPitch=-0.11474658
+Remote mount yaw and payload pitch settle to accepted VerticalLookSensitivity=0.25 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: VerticalLookSensitivity=0.25 air=False up=False
+CAMERA_AIM_SAMPLE VerticalLookSensitivity=0.25 air=False up=True expected=<0.004511245, 0.15625167, -0.987707> actual=<0.004511245, 0.15625167, -0.987707> lens=(-0.033615656, 4.3096657, 44.204926) target=(1.3214234, 48.818783, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: VerticalLookSensitivity=0.25 air=False up=True
+Camera settings retain centered HUD: VerticalLookSensitivity=0.25 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: VerticalLookSensitivity=0.25 air=False up=True
+Shared body clearance remains safe: VerticalLookSensitivity=0.25 air=False up=True
+AIM_REMOTE VerticalLookSensitivity=0.25 air=False up=True: acceptedYaw=-0.00456736 renderedYaw=12.561804 acceptedPitch=0.15690857 renderedPitch=0.15690944
+Remote mount yaw and payload pitch settle to accepted VerticalLookSensitivity=0.25 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: VerticalLookSensitivity=0.25 air=False up=True
+CAMERA_AIM_SAMPLE VerticalLookSensitivity=0.25 air=True up=False expected=<0.004408438, -0.2614825, -0.9651982> actual=<0.004408438, -0.2614825, -0.9651982> lens=(-0.036060832, 37.494324, 44.74028) target=(0.5801034, 7.6293945E-06, -90.16478) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: VerticalLookSensitivity=0.25 air=True up=False
+Camera settings retain centered HUD: VerticalLookSensitivity=0.25 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: VerticalLookSensitivity=0.25 air=True up=False
+Shared body clearance remains safe: VerticalLookSensitivity=0.25 air=True up=False
+AIM_REMOTE VerticalLookSensitivity=0.25 air=True up=False: acceptedYaw=-0.00456736 renderedYaw=12.561804 acceptedPitch=-0.114746585 renderedPitch=-0.11474654
+Remote mount yaw and payload pitch settle to accepted VerticalLookSensitivity=0.25 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: VerticalLookSensitivity=0.25 air=True up=False
+CAMERA_AIM_SAMPLE VerticalLookSensitivity=0.25 air=True up=True expected=<0.0045096744, 0.15841022, -0.98736304> actual=<0.0045096744, 0.15841022, -0.98736304> lens=(-0.04880667, 35.782898, 47.530895) target=(1.3062323, 80.292015, -249.14586) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: VerticalLookSensitivity=0.25 air=True up=True
+Camera settings retain centered HUD: VerticalLookSensitivity=0.25 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: VerticalLookSensitivity=0.25 air=True up=True
+Shared body clearance remains safe: VerticalLookSensitivity=0.25 air=True up=True
+AIM_REMOTE VerticalLookSensitivity=0.25 air=True up=True: acceptedYaw=-0.00456736 renderedYaw=12.561804 acceptedPitch=0.15886547 renderedPitch=0.15886009
+Remote mount yaw and payload pitch settle to accepted VerticalLookSensitivity=0.25 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: VerticalLookSensitivity=0.25 air=True up=True
+CAMERA_AIM_SAMPLE VerticalLookSensitivity=1 air=False up=False expected=<0.0044623013, -0.21303278, -0.97703487> actual=<0.0044623013, -0.21303278, -0.97703487> lens=(-0.031730365, 5.818568, 43.792465) target=(0.063885, 0, 22.85718) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: VerticalLookSensitivity=1 air=False up=False
+Camera settings retain centered HUD: VerticalLookSensitivity=1 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: VerticalLookSensitivity=1 air=False up=False
+Shared body clearance remains safe: VerticalLookSensitivity=1 air=False up=False
+AIM_REMOTE VerticalLookSensitivity=1 air=False up=False: acceptedYaw=-0.004567156 renderedYaw=12.561804 acceptedPitch=-0.114746675 renderedPitch=-0.114746645
+Remote mount yaw and payload pitch settle to accepted VerticalLookSensitivity=1 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: VerticalLookSensitivity=1 air=False up=False
+CAMERA_AIM_SAMPLE VerticalLookSensitivity=1 air=False up=True expected=<0.004511583, 0.1562517, -0.987707> actual=<0.004511583, 0.1562517, -0.987707> lens=(-0.033618174, 4.3096747, 44.204926) target=(1.3215224, 48.81879, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: VerticalLookSensitivity=1 air=False up=True
+Camera settings retain centered HUD: VerticalLookSensitivity=1 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: VerticalLookSensitivity=1 air=False up=True
+Shared body clearance remains safe: VerticalLookSensitivity=1 air=False up=True
+AIM_REMOTE VerticalLookSensitivity=1 air=False up=True: acceptedYaw=-0.0045677028 renderedYaw=12.561803 acceptedPitch=0.15690872 renderedPitch=0.15690994
+Remote mount yaw and payload pitch settle to accepted VerticalLookSensitivity=1 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: VerticalLookSensitivity=1 air=False up=True
+CAMERA_AIM_SAMPLE VerticalLookSensitivity=1 air=True up=False expected=<0.004408435, -0.26148447, -0.9651976> actual=<0.004408435, -0.26148447, -0.9651976> lens=(-0.036060855, 37.494034, 44.740284) target=(0.5800986, 7.6293945E-06, -90.16374) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: VerticalLookSensitivity=1 air=True up=False
+Camera settings retain centered HUD: VerticalLookSensitivity=1 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: VerticalLookSensitivity=1 air=True up=False
+Shared body clearance remains safe: VerticalLookSensitivity=1 air=True up=False
+AIM_REMOTE VerticalLookSensitivity=1 air=True up=False: acceptedYaw=-0.00456736 renderedYaw=12.561804 acceptedPitch=-0.11474654 renderedPitch=-0.11474656
+Remote mount yaw and payload pitch settle to accepted VerticalLookSensitivity=1 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: VerticalLookSensitivity=1 air=True up=False
+CAMERA_AIM_SAMPLE VerticalLookSensitivity=1 air=True up=True expected=<0.0045097414, 0.15841118, -0.9873629> actual=<0.0045097414, 0.15841118, -0.9873629> lens=(-0.048807397, 35.783184, 47.530895) target=(1.3062519, 80.2923, -249.14586) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: VerticalLookSensitivity=1 air=True up=True
+Camera settings retain centered HUD: VerticalLookSensitivity=1 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: VerticalLookSensitivity=1 air=True up=True
+Shared body clearance remains safe: VerticalLookSensitivity=1 air=True up=True
+AIM_REMOTE VerticalLookSensitivity=1 air=True up=True: acceptedYaw=-0.004567428 renderedYaw=12.561804 acceptedPitch=0.15891172 renderedPitch=0.15885052
+Remote mount yaw and payload pitch settle to accepted VerticalLookSensitivity=1 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: VerticalLookSensitivity=1 air=True up=True
+CAMERA_AIM_SAMPLE VerticalLookSensitivity=3 air=False up=False expected=<0.0044625197, -0.2130131, -0.97703916> actual=<0.0044625197, -0.2130131, -0.97703916> lens=(-0.031705793, 5.817363, 43.786774) target=(0.06389403, 0, 22.855825) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: VerticalLookSensitivity=3 air=False up=False
+Camera settings retain centered HUD: VerticalLookSensitivity=3 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: VerticalLookSensitivity=3 air=False up=False
+Shared body clearance remains safe: VerticalLookSensitivity=3 air=False up=False
+AIM_REMOTE VerticalLookSensitivity=3 air=False up=False: acceptedYaw=-0.004567358 renderedYaw=12.561804 acceptedPitch=-0.114746675 renderedPitch=-0.11474666
+Remote mount yaw and payload pitch settle to accepted VerticalLookSensitivity=3 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: VerticalLookSensitivity=3 air=False up=False
+CAMERA_AIM_SAMPLE VerticalLookSensitivity=3 air=False up=True expected=<0.004511448, 0.15625173, -0.987707> actual=<0.004511448, 0.15625173, -0.987707> lens=(-0.033617165, 4.3096795, 44.204926) target=(1.3214828, 48.818798, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: VerticalLookSensitivity=3 air=False up=True
+Camera settings retain centered HUD: VerticalLookSensitivity=3 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: VerticalLookSensitivity=3 air=False up=True
+Shared body clearance remains safe: VerticalLookSensitivity=3 air=False up=True
+AIM_REMOTE VerticalLookSensitivity=3 air=False up=True: acceptedYaw=-0.0045675654 renderedYaw=12.561804 acceptedPitch=0.15690558 renderedPitch=0.1569085
+Remote mount yaw and payload pitch settle to accepted VerticalLookSensitivity=3 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: VerticalLookSensitivity=3 air=False up=True
+CAMERA_AIM_SAMPLE VerticalLookSensitivity=3 air=True up=False expected=<0.0044083823, -0.2614742, -0.9652004> actual=<0.0044083823, -0.2614742, -0.9652004> lens=(-0.03606026, 37.495525, 44.740273) target=(0.58011454, 3.8146973E-06, -90.16912) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: VerticalLookSensitivity=3 air=True up=False
+Camera settings retain centered HUD: VerticalLookSensitivity=3 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: VerticalLookSensitivity=3 air=True up=False
+Shared body clearance remains safe: VerticalLookSensitivity=3 air=True up=False
+AIM_REMOTE VerticalLookSensitivity=3 air=True up=False: acceptedYaw=-0.004567292 renderedYaw=12.561804 acceptedPitch=-0.11474657 renderedPitch=-0.11474658
+Remote mount yaw and payload pitch settle to accepted VerticalLookSensitivity=3 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: VerticalLookSensitivity=3 air=True up=False
+CAMERA_AIM_SAMPLE VerticalLookSensitivity=3 air=True up=True expected=<0.00450947, 0.15841214, -0.98736286> actual=<0.00450947, 0.15841214, -0.98736286> lens=(-0.048804462, 35.78347, 47.53089) target=(1.3061736, 80.29259, -249.14587) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: VerticalLookSensitivity=3 air=True up=True
+Camera settings retain centered HUD: VerticalLookSensitivity=3 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: VerticalLookSensitivity=3 air=True up=True
+Shared body clearance remains safe: VerticalLookSensitivity=3 air=True up=True
+AIM_REMOTE VerticalLookSensitivity=3 air=True up=True: acceptedYaw=-0.0045671547 renderedYaw=12.561804 acceptedPitch=0.15891244 renderedPitch=0.15888767
+Remote mount yaw and payload pitch settle to accepted VerticalLookSensitivity=3 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: VerticalLookSensitivity=3 air=True up=True
+CAMERA_AIM_SAMPLE StickAimSensitivity=0.25 air=False up=False expected=<0.0011156341, -0.21301278, -0.9770488> actual=<0.0011156341, -0.21301278, -0.9770488> lens=(-0.007926475, 5.8173685, 43.786842) target=(0.015973592, 0, 22.855667) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: StickAimSensitivity=0.25 air=False up=False
+Camera settings retain centered HUD: StickAimSensitivity=0.25 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimSensitivity=0.25 air=False up=False
+Shared body clearance remains safe: StickAimSensitivity=0.25 air=False up=False
+AIM_REMOTE StickAimSensitivity=0.25 air=False up=False: acceptedYaw=-0.0011418401 renderedYaw=12.565229 acceptedPitch=-0.11474784 renderedPitch=-0.11474781
+Remote mount yaw and payload pitch settle to accepted StickAimSensitivity=0.25 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimSensitivity=0.25 air=False up=False
+CAMERA_AIM_SAMPLE StickAimSensitivity=0.25 air=False up=True expected=<0.0011278149, 0.15625174, -0.9877166> actual=<0.0011278149, 0.15625174, -0.9877166> lens=(-0.008403941, 4.3096886, 44.204998) target=(0.33035696, 48.818813, -252.47469) pitch=0.1489135
+Final centered rendered ray and pivot-relative intent agree: StickAimSensitivity=0.25 air=False up=True
+Camera settings retain centered HUD: StickAimSensitivity=0.25 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimSensitivity=0.25 air=False up=True
+Shared body clearance remains safe: StickAimSensitivity=0.25 air=False up=True
+AIM_REMOTE StickAimSensitivity=0.25 air=False up=True: acceptedYaw=-0.0011418399 renderedYaw=12.565229 acceptedPitch=0.15690868 renderedPitch=0.15690887
+Remote mount yaw and payload pitch settle to accepted StickAimSensitivity=0.25 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimSensitivity=0.25 air=False up=True
+CAMERA_AIM_SAMPLE StickAimSensitivity=0.25 air=True up=False expected=<0.0011022143, -0.26147652, -0.96520925> actual=<0.0011022143, -0.26147652, -0.96520925> lens=(-0.009016042, 37.495186, 44.74035) target=(0.14504297, 3.8146973E-06, -90.16915) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: StickAimSensitivity=0.25 air=True up=False
+Camera settings retain centered HUD: StickAimSensitivity=0.25 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimSensitivity=0.25 air=True up=False
+Shared body clearance remains safe: StickAimSensitivity=0.25 air=True up=False
+AIM_REMOTE StickAimSensitivity=0.25 air=True up=False: acceptedYaw=-0.0011419429 renderedYaw=12.565229 acceptedPitch=-0.1147476 renderedPitch=-0.11474765
+Remote mount yaw and payload pitch settle to accepted StickAimSensitivity=0.25 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimSensitivity=0.25 air=True up=False
+CAMERA_AIM_SAMPLE StickAimSensitivity=0.25 air=True up=True expected=<0.0011274383, 0.15841302, -0.9873722> actual=<0.0011274383, 0.15841302, -0.9873722> lens=(-0.012201884, 35.783737, 47.530994) target=(0.32656404, 80.29286, -249.1487) pitch=0.1489135
+Final centered rendered ray and pivot-relative intent agree: StickAimSensitivity=0.25 air=True up=True
+Camera settings retain centered HUD: StickAimSensitivity=0.25 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimSensitivity=0.25 air=True up=True
+Shared body clearance remains safe: StickAimSensitivity=0.25 air=True up=True
+AIM_REMOTE StickAimSensitivity=0.25 air=True up=True: acceptedYaw=-0.001141857 renderedYaw=12.565229 acceptedPitch=0.15886773 renderedPitch=0.15885773
+Remote mount yaw and payload pitch settle to accepted StickAimSensitivity=0.25 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimSensitivity=0.25 air=True up=True
+CAMERA_AIM_SAMPLE StickAimSensitivity=1 air=False up=False expected=<0.004462991, -0.21301234, -0.97703934> actual=<0.004462991, -0.21301234, -0.97703934> lens=(-0.031709123, 5.817377, 43.786774) target=(0.06390101, 0, 22.855774) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: StickAimSensitivity=1 air=False up=False
+Camera settings retain centered HUD: StickAimSensitivity=1 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimSensitivity=1 air=False up=False
+Shared body clearance remains safe: StickAimSensitivity=1 air=False up=False
+AIM_REMOTE StickAimSensitivity=1 air=False up=False: acceptedYaw=-0.0045678406 renderedYaw=12.561803 acceptedPitch=-0.11474658 renderedPitch=-0.11474657
+Remote mount yaw and payload pitch settle to accepted StickAimSensitivity=1 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimSensitivity=1 air=False up=False
+CAMERA_AIM_SAMPLE StickAimSensitivity=1 air=False up=True expected=<0.004511651, 0.15625177, -0.987707> actual=<0.004511651, 0.15625177, -0.987707> lens=(-0.03361868, 4.309696, 44.204926) target=(1.3215423, 48.818813, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: StickAimSensitivity=1 air=False up=True
+Camera settings retain centered HUD: StickAimSensitivity=1 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimSensitivity=1 air=False up=True
+Shared body clearance remains safe: StickAimSensitivity=1 air=False up=True
+AIM_REMOTE StickAimSensitivity=1 air=False up=True: acceptedYaw=-0.0045677708 renderedYaw=12.561803 acceptedPitch=0.15690884 renderedPitch=0.15691228
+Remote mount yaw and payload pitch settle to accepted StickAimSensitivity=1 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimSensitivity=1 air=False up=True
+CAMERA_AIM_SAMPLE StickAimSensitivity=1 air=True up=False expected=<0.004408713, -0.26147482, -0.96520025> actual=<0.004408713, -0.26147482, -0.96520025> lens=(-0.036063034, 37.495438, 44.740288) target=(0.58015656, 7.6293945E-06, -90.16877) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: StickAimSensitivity=1 air=True up=False
+Camera settings retain centered HUD: StickAimSensitivity=1 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimSensitivity=1 air=True up=False
+Shared body clearance remains safe: StickAimSensitivity=1 air=True up=False
+AIM_REMOTE StickAimSensitivity=1 air=True up=False: acceptedYaw=-0.004567635 renderedYaw=12.561803 acceptedPitch=-0.114746556 renderedPitch=-0.11474654
+Remote mount yaw and payload pitch settle to accepted StickAimSensitivity=1 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimSensitivity=1 air=True up=False
+CAMERA_AIM_SAMPLE StickAimSensitivity=1 air=True up=True expected=<0.0045097386, 0.15841407, -0.98736244> actual=<0.0045097386, 0.15841407, -0.98736244> lens=(-0.048807394, 35.784042, 47.530895) target=(1.3062519, 80.29316, -249.14586) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: StickAimSensitivity=1 air=True up=True
+Camera settings retain centered HUD: StickAimSensitivity=1 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimSensitivity=1 air=True up=True
+Shared body clearance remains safe: StickAimSensitivity=1 air=True up=True
+AIM_REMOTE StickAimSensitivity=1 air=True up=True: acceptedYaw=-0.0045674285 renderedYaw=12.561804 acceptedPitch=0.15891393 renderedPitch=0.15889007
+Remote mount yaw and payload pitch settle to accepted StickAimSensitivity=1 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimSensitivity=1 air=True up=True
+CAMERA_AIM_SAMPLE StickAimSensitivity=3 air=False up=False expected=<0.013387193, -0.21301188, -0.9769579> actual=<0.013387193, -0.21301188, -0.9769579> lens=(-0.09511474, 5.8173847, 43.786194) target=(0.19167793, 4.7683716E-07, 22.85691) pitch=-0.2710865
+Final centered rendered ray and pivot-relative intent agree: StickAimSensitivity=3 air=False up=False
+Camera settings retain centered HUD: StickAimSensitivity=3 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimSensitivity=3 air=False up=False
+Shared body clearance remains safe: StickAimSensitivity=3 air=False up=False
+AIM_REMOTE StickAimSensitivity=3 air=False up=False: acceptedYaw=-0.013702081 renderedYaw=12.552669 acceptedPitch=-0.11473714 renderedPitch=-0.11473711
+Remote mount yaw and payload pitch settle to accepted StickAimSensitivity=3 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimSensitivity=3 air=False up=False
+CAMERA_AIM_SAMPLE StickAimSensitivity=3 air=False up=True expected=<0.013533155, 0.1562518, -0.9876245> actual=<0.013533155, 0.1562518, -0.9876245> lens=(-0.10084265, 4.309702, 44.20431) target=(3.9641006, 48.818825, -252.4477) pitch=0.14891349
+Final centered rendered ray and pivot-relative intent agree: StickAimSensitivity=3 air=False up=True
+Camera settings retain centered HUD: StickAimSensitivity=3 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimSensitivity=3 air=False up=True
+Shared body clearance remains safe: StickAimSensitivity=3 air=False up=True
+AIM_REMOTE StickAimSensitivity=3 air=False up=True: acceptedYaw=-0.013701876 renderedYaw=12.55267 acceptedPitch=0.1569057 renderedPitch=0.15690842
+Remote mount yaw and payload pitch settle to accepted StickAimSensitivity=3 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimSensitivity=3 air=False up=True
+CAMERA_AIM_SAMPLE StickAimSensitivity=3 air=True up=False expected=<0.0132252, -0.2614683, -0.9651215> actual=<0.0132252, -0.2614683, -0.9651215> lens=(-0.108181104, 37.496384, 44.73962) target=(1.7403902, 0, -90.16162) pitch=-0.2710865
+Final centered rendered ray and pivot-relative intent agree: StickAimSensitivity=3 air=True up=False
+Camera settings retain centered HUD: StickAimSensitivity=3 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimSensitivity=3 air=True up=False
+Shared body clearance remains safe: StickAimSensitivity=3 air=True up=False
+AIM_REMOTE StickAimSensitivity=3 air=True up=False: acceptedYaw=-0.013702288 renderedYaw=12.552669 acceptedPitch=-0.11473711 renderedPitch=-0.11473711
+Remote mount yaw and payload pitch settle to accepted StickAimSensitivity=3 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimSensitivity=3 air=True up=False
+CAMERA_AIM_SAMPLE StickAimSensitivity=3 air=True up=True expected=<0.01352965, 0.15841503, -0.98727995> actual=<0.01352965, 0.15841503, -0.98727995> lens=(-0.14642684, 35.78433, 47.53) target=(3.9188821, 80.29345, -249.12201) pitch=0.14891349
+Final centered rendered ray and pivot-relative intent agree: StickAimSensitivity=3 air=True up=True
+Camera settings retain centered HUD: StickAimSensitivity=3 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimSensitivity=3 air=True up=True
+Shared body clearance remains safe: StickAimSensitivity=3 air=True up=True
+AIM_REMOTE StickAimSensitivity=3 air=True up=True: acceptedYaw=-0.013703108 renderedYaw=12.552668 acceptedPitch=0.15891474 renderedPitch=0.15888995
+Remote mount yaw and payload pitch settle to accepted StickAimSensitivity=3 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimSensitivity=3 air=True up=True
+CAMERA_AIM_SAMPLE CameraRecenterSpeed=0.25 air=False up=False expected=<0.0044613853, -0.21301164, -0.97703946> actual=<0.0044613853, -0.21301164, -0.97703946> lens=(-0.03169772, 5.8173904, 43.786777) target=(0.063878216, 4.7683716E-07, 22.855728) pitch=-0.2710865
+Final centered rendered ray and pivot-relative intent agree: CameraRecenterSpeed=0.25 air=False up=False
+Camera settings retain centered HUD: CameraRecenterSpeed=0.25 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraRecenterSpeed=0.25 air=False up=False
+Shared body clearance remains safe: CameraRecenterSpeed=0.25 air=False up=False
+AIM_REMOTE CameraRecenterSpeed=0.25 air=False up=False: acceptedYaw=-0.0045661954 renderedYaw=12.561805 acceptedPitch=-0.11474656 renderedPitch=-0.11474661
+Remote mount yaw and payload pitch settle to accepted CameraRecenterSpeed=0.25 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraRecenterSpeed=0.25 air=False up=False
+CAMERA_AIM_SAMPLE CameraRecenterSpeed=0.25 air=False up=True expected=<0.0045111785, 0.15625036, -0.98770726> actual=<0.0045111785, 0.15625036, -0.98770726> lens=(-0.03361515, 4.3058653, 44.204926) target=(1.3214036, 48.814983, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraRecenterSpeed=0.25 air=False up=True
+Camera settings retain centered HUD: CameraRecenterSpeed=0.25 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraRecenterSpeed=0.25 air=False up=True
+Shared body clearance remains safe: CameraRecenterSpeed=0.25 air=False up=True
+AIM_REMOTE CameraRecenterSpeed=0.25 air=False up=True: acceptedYaw=-0.0045672916 renderedYaw=12.561804 acceptedPitch=0.15690538 renderedPitch=0.15692334
+Remote mount yaw and payload pitch settle to accepted CameraRecenterSpeed=0.25 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraRecenterSpeed=0.25 air=False up=True
+CAMERA_AIM_SAMPLE CameraRecenterSpeed=0.25 air=True up=False expected=<0.004408568, -0.26148474, -0.96519756> actual=<0.004408568, -0.26148474, -0.96519756> lens=(-0.03636272, 37.3493, 44.806137) target=(0.5774368, 3.8146973E-06, -89.57713) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraRecenterSpeed=0.25 air=True up=False
+Camera settings retain centered HUD: CameraRecenterSpeed=0.25 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraRecenterSpeed=0.25 air=True up=False
+Shared body clearance remains safe: CameraRecenterSpeed=0.25 air=True up=False
+AIM_REMOTE CameraRecenterSpeed=0.25 air=True up=False: acceptedYaw=-0.004567497 renderedYaw=12.561804 acceptedPitch=-0.11474651 renderedPitch=-0.11474654
+Remote mount yaw and payload pitch settle to accepted CameraRecenterSpeed=0.25 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraRecenterSpeed=0.25 air=True up=False
+CAMERA_AIM_SAMPLE CameraRecenterSpeed=0.25 air=True up=True expected=<0.0045096027, 0.15841524, -0.98736227> actual=<0.0045096027, 0.15841524, -0.98736227> lens=(-0.048852153, 35.623875, 47.541016) target=(1.3061665, 80.132996, -249.13574) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraRecenterSpeed=0.25 air=True up=True
+Camera settings retain centered HUD: CameraRecenterSpeed=0.25 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraRecenterSpeed=0.25 air=True up=True
+Shared body clearance remains safe: CameraRecenterSpeed=0.25 air=True up=True
+AIM_REMOTE CameraRecenterSpeed=0.25 air=True up=True: acceptedYaw=-0.0045672916 renderedYaw=12.561804 acceptedPitch=0.15896149 renderedPitch=0.15892135
+Remote mount yaw and payload pitch settle to accepted CameraRecenterSpeed=0.25 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraRecenterSpeed=0.25 air=True up=True
+CAMERA_AIM_SAMPLE CameraRecenterSpeed=1 air=False up=False expected=<0.0044624624, -0.21300481, -0.977041> actual=<0.0044624624, -0.21300481, -0.977041> lens=(-0.031732954, 5.8148594, 43.792824) target=(0.06382433, 0, 22.87088) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraRecenterSpeed=1 air=False up=False
+Camera settings retain centered HUD: CameraRecenterSpeed=1 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraRecenterSpeed=1 air=False up=False
+Shared body clearance remains safe: CameraRecenterSpeed=1 air=False up=False
+AIM_REMOTE CameraRecenterSpeed=1 air=False up=False: acceptedYaw=-0.004567292 renderedYaw=12.561804 acceptedPitch=-0.11474673 renderedPitch=-0.114746675
+Remote mount yaw and payload pitch settle to accepted CameraRecenterSpeed=1 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraRecenterSpeed=1 air=False up=False
+CAMERA_AIM_SAMPLE CameraRecenterSpeed=1 air=False up=True expected=<0.004511584, 0.15625043, -0.98770726> actual=<0.004511584, 0.15625043, -0.98770726> lens=(-0.033618174, 4.305887, 44.204926) target=(1.3215224, 48.815002, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraRecenterSpeed=1 air=False up=True
+Camera settings retain centered HUD: CameraRecenterSpeed=1 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraRecenterSpeed=1 air=False up=True
+Shared body clearance remains safe: CameraRecenterSpeed=1 air=False up=True
+AIM_REMOTE CameraRecenterSpeed=1 air=False up=True: acceptedYaw=-0.0045677028 renderedYaw=12.561803 acceptedPitch=0.15690692 renderedPitch=0.1569081
+Remote mount yaw and payload pitch settle to accepted CameraRecenterSpeed=1 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraRecenterSpeed=1 air=False up=True
+CAMERA_AIM_SAMPLE CameraRecenterSpeed=1 air=True up=False expected=<0.0044083716, -0.2614828, -0.96519804> actual=<0.0044083716, -0.2614828, -0.96519804> lens=(-0.03636109, 37.349575, 44.80614) target=(0.5774153, 3.8146973E-06, -89.578125) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraRecenterSpeed=1 air=True up=False
+Camera settings retain centered HUD: CameraRecenterSpeed=1 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraRecenterSpeed=1 air=True up=False
+Shared body clearance remains safe: CameraRecenterSpeed=1 air=True up=False
+AIM_REMOTE CameraRecenterSpeed=1 air=True up=False: acceptedYaw=-0.0045672925 renderedYaw=12.561804 acceptedPitch=-0.114746585 renderedPitch=-0.11474654
+Remote mount yaw and payload pitch settle to accepted CameraRecenterSpeed=1 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraRecenterSpeed=1 air=True up=False
+CAMERA_AIM_SAMPLE CameraRecenterSpeed=1 air=True up=True expected=<0.004509805, 0.15841624, -0.9873621> actual=<0.004509805, 0.15841624, -0.9873621> lens=(-0.048854344, 35.624176, 47.54101) target=(1.3062253, 80.13329, -249.13574) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraRecenterSpeed=1 air=True up=True
+Camera settings retain centered HUD: CameraRecenterSpeed=1 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraRecenterSpeed=1 air=True up=True
+Shared body clearance remains safe: CameraRecenterSpeed=1 air=True up=True
+AIM_REMOTE CameraRecenterSpeed=1 air=True up=True: acceptedYaw=-0.004567497 renderedYaw=12.561804 acceptedPitch=0.15892285 renderedPitch=0.15891492
+Remote mount yaw and payload pitch settle to accepted CameraRecenterSpeed=1 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraRecenterSpeed=1 air=True up=True
+CAMERA_AIM_SAMPLE CameraRecenterSpeed=3 air=False up=False expected=<0.00446275, -0.21298458, -0.97704536> actual=<0.00446275, -0.21298458, -0.97704536> lens=(-0.031707946, 5.813609, 43.786934) target=(0.0638345, 4.7683716E-07, 22.869492) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraRecenterSpeed=3 air=False up=False
+Camera settings retain centered HUD: CameraRecenterSpeed=3 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraRecenterSpeed=3 air=False up=False
+Shared body clearance remains safe: CameraRecenterSpeed=3 air=False up=False
+AIM_REMOTE CameraRecenterSpeed=3 air=False up=False: acceptedYaw=-0.0045675663 renderedYaw=12.561804 acceptedPitch=-0.11474673 renderedPitch=-0.11474667
+Remote mount yaw and payload pitch settle to accepted CameraRecenterSpeed=3 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraRecenterSpeed=3 air=False up=False
+CAMERA_AIM_SAMPLE CameraRecenterSpeed=3 air=False up=True expected=<0.0045111785, 0.15625046, -0.98770726> actual=<0.0045111785, 0.15625046, -0.98770726> lens=(-0.03361515, 4.3058944, 44.204926) target=(1.3214036, 48.81501, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: CameraRecenterSpeed=3 air=False up=True
+Camera settings retain centered HUD: CameraRecenterSpeed=3 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraRecenterSpeed=3 air=False up=True
+Shared body clearance remains safe: CameraRecenterSpeed=3 air=False up=True
+AIM_REMOTE CameraRecenterSpeed=3 air=False up=True: acceptedYaw=-0.0045672916 renderedYaw=12.561804 acceptedPitch=0.15691021 renderedPitch=0.15691054
+Remote mount yaw and payload pitch settle to accepted CameraRecenterSpeed=3 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraRecenterSpeed=3 air=False up=True
+CAMERA_AIM_SAMPLE CameraRecenterSpeed=3 air=True up=False expected=<0.00440811, -0.26148045, -0.96519876> actual=<0.00440811, -0.26148045, -0.96519876> lens=(-0.036358844, 37.34991, 44.806126) target=(0.57738626, 0, -89.57936) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraRecenterSpeed=3 air=True up=False
+Camera settings retain centered HUD: CameraRecenterSpeed=3 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraRecenterSpeed=3 air=True up=False
+Shared body clearance remains safe: CameraRecenterSpeed=3 air=True up=False
+AIM_REMOTE CameraRecenterSpeed=3 air=True up=False: acceptedYaw=-0.0045670173 renderedYaw=12.561804 acceptedPitch=-0.114746645 renderedPitch=-0.11474662
+Remote mount yaw and payload pitch settle to accepted CameraRecenterSpeed=3 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraRecenterSpeed=3 air=True up=False
+CAMERA_AIM_SAMPLE CameraRecenterSpeed=3 air=True up=True expected=<0.004502971, 0.15841722, -0.98736197> actual=<0.004502971, 0.15841722, -0.98736197> lens=(-0.048780307, 35.62447, 47.541008) target=(1.3042463, 80.13359, -249.13577) pitch=0.1489135
+Final centered rendered ray and pivot-relative intent agree: CameraRecenterSpeed=3 air=True up=True
+Camera settings retain centered HUD: CameraRecenterSpeed=3 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraRecenterSpeed=3 air=True up=True
+Shared body clearance remains safe: CameraRecenterSpeed=3 air=True up=True
+AIM_REMOTE CameraRecenterSpeed=3 air=True up=True: acceptedYaw=-0.0045605763 renderedYaw=12.5618105 acceptedPitch=0.15892366 renderedPitch=0.15889996
+Remote mount yaw and payload pitch settle to accepted CameraRecenterSpeed=3 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraRecenterSpeed=3 air=True up=True
+CAMERA_AIM_SAMPLE CameraFov=50 air=False up=False expected=<0.0044625504, -0.21298423, -0.9770454> actual=<0.0044625504, -0.21298423, -0.9770454> lens=(-0.031706527, 5.813616, 43.786934) target=(0.06383176, 0, 22.869467) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: CameraFov=50 air=False up=False
+Camera settings retain centered HUD: CameraFov=50 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraFov=50 air=False up=False
+Shared body clearance remains safe: CameraFov=50 air=False up=False
+AIM_REMOTE CameraFov=50 air=False up=False: acceptedYaw=-0.004567361 renderedYaw=12.561804 acceptedPitch=-0.114746675 renderedPitch=-0.11474662
+Remote mount yaw and payload pitch settle to accepted CameraFov=50 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraFov=50 air=False up=False
+CAMERA_AIM_SAMPLE CameraFov=50 air=False up=True expected=<0.001215699, -0.048260424, -0.9988341> actual=<0.001215699, -0.048260424, -0.9988341> lens=(-0.008957984, 4.306625, 44.204994) target=(0.076742515, 4.7683716E-07, -26.207642) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraFov=50 air=False up=True
+Camera settings retain centered HUD: CameraFov=50 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraFov=50 air=False up=True
+Shared body clearance remains safe: CameraFov=50 air=False up=True
+AIM_REMOTE CameraFov=50 air=False up=True: acceptedYaw=-0.0012171174 renderedYaw=12.565154 acceptedPitch=-0.04836189 renderedPitch=-0.048388626
+Remote mount yaw and payload pitch settle to accepted CameraFov=50 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraFov=50 air=False up=True
+CAMERA_AIM_SAMPLE CameraFov=50 air=True up=False expected=<0.0012038613, -0.05786067, -0.998324> actual=<0.0012038613, -0.05786067, -0.998324> lens=(-0.010056073, 35.8513, 45.184185) target=(0.3510336, 17.536737, -254.25603) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraFov=50 air=True up=False
+Camera settings retain centered HUD: CameraFov=50 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraFov=50 air=True up=False
+Shared body clearance remains safe: CameraFov=50 air=True up=False
+AIM_REMOTE CameraFov=50 air=True up=False: acceptedYaw=-0.0012058818 renderedYaw=12.5651655 acceptedPitch=-0.057838723 renderedPitch=-0.05783504
+Remote mount yaw and payload pitch settle to accepted CameraFov=50 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraFov=50 air=True up=False
+CAMERA_AIM_SAMPLE CameraFov=50 air=True up=True expected=<0.0011862415, -0.058460858, -0.998289> actual=<0.0011862415, -0.058460858, -0.998289> lens=(-0.012636362, 35.6512, 47.47921) target=(0.3431809, 17.336637, -251.96103) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraFov=50 air=True up=True
+Camera settings retain centered HUD: CameraFov=50 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraFov=50 air=True up=True
+Shared body clearance remains safe: CameraFov=50 air=True up=True
+AIM_REMOTE CameraFov=50 air=True up=True: acceptedYaw=-0.0011882741 renderedYaw=12.565183 acceptedPitch=-0.058453463 renderedPitch=-0.058449306
+Remote mount yaw and payload pitch settle to accepted CameraFov=50 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraFov=50 air=True up=True
+CAMERA_AIM_SAMPLE CameraFov=65 air=False up=False expected=<0.0011894804, -0.04842048, -0.9988263> actual=<0.0011894804, -0.04842048, -0.9988263> lens=(-0.0086645335, 4.2886944, 44.120754) target=(0.074839234, 0, -25.998737) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraFov=65 air=False up=False
+Camera settings retain centered HUD: CameraFov=65 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraFov=65 air=False up=False
+Shared body clearance remains safe: CameraFov=65 air=False up=False
+AIM_REMOTE CameraFov=65 air=False up=False: acceptedYaw=-0.0011908776 renderedYaw=12.56518 acceptedPitch=-0.0487055 renderedPitch=-0.04872668
+Remote mount yaw and payload pitch settle to accepted CameraFov=65 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraFov=65 air=False up=False
+CAMERA_AIM_SAMPLE CameraFov=65 air=False up=True expected=<0, -0.048291467, -0.9988333> actual=<0, -0.048291467, -0.9988333> lens=(0, 4.3084497, 44.205) target=(0, 0, -26.237526) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraFov=65 air=False up=True
+Camera settings retain centered HUD: CameraFov=65 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraFov=65 air=False up=True
+Shared body clearance remains safe: CameraFov=65 air=False up=True
+AIM_REMOTE CameraFov=65 air=False up=True: acceptedYaw=0 renderedYaw=12.566371 acceptedPitch=-0.04840775 renderedPitch=-0.048440665
+Remote mount yaw and payload pitch settle to accepted CameraFov=65 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraFov=65 air=False up=True
+CAMERA_AIM_SAMPLE CameraFov=65 air=True up=False expected=<0.0012428324, -0.05806895, -0.99831176> actual=<0.0012428324, -0.05806895, -0.99831176> lens=(-0.010467172, 35.63546, 45.25281) target=(0.3623162, 17.320898, -254.18741) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraFov=65 air=True up=False
+Camera settings retain centered HUD: CameraFov=65 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraFov=65 air=True up=False
+Shared body clearance remains safe: CameraFov=65 air=True up=False
+AIM_REMOTE CameraFov=65 air=True up=False: acceptedYaw=-0.0012449335 renderedYaw=12.565126 acceptedPitch=-0.057986833 renderedPitch=-0.057983957
+Remote mount yaw and payload pitch settle to accepted CameraFov=65 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraFov=65 air=True up=False
+CAMERA_AIM_SAMPLE CameraFov=65 air=True up=True expected=<0.0011451206, -0.058694676, -0.99827534> actual=<0.0011451206, -0.058694676, -0.99827534> lens=(-0.012197569, 35.58328, 47.47841) target=(0.33129, 17.268715, -251.96184) pitch=-0.061086528
+Final centered rendered ray and pivot-relative intent agree: CameraFov=65 air=True up=True
+Camera settings retain centered HUD: CameraFov=65 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraFov=65 air=True up=True
+Shared body clearance remains safe: CameraFov=65 air=True up=True
+AIM_REMOTE CameraFov=65 air=True up=True: acceptedYaw=-0.0011470985 renderedYaw=12.565224 acceptedPitch=-0.058655523 renderedPitch=-0.05863112
+Remote mount yaw and payload pitch settle to accepted CameraFov=65 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraFov=65 air=True up=True
+CAMERA_AIM_SAMPLE CameraFov=90 air=False up=False expected=<0.0012387527, -0.0483954, -0.99882746> actual=<0.0012387527, -0.0483954, -0.99882746> lens=(-0.009023435, 4.290691, 44.12075) target=(0.07797971, 4.7683716E-07, -26.031372) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraFov=90 air=False up=False
+Camera settings retain centered HUD: CameraFov=90 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraFov=90 air=False up=False
+Shared body clearance remains safe: CameraFov=90 air=False up=False
+AIM_REMOTE CameraFov=90 air=False up=False: acceptedYaw=-0.0012402063 renderedYaw=12.565131 acceptedPitch=-0.04866949 renderedPitch=-0.04870807
+Remote mount yaw and payload pitch settle to accepted CameraFov=90 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraFov=90 air=False up=False
+CAMERA_AIM_SAMPLE CameraFov=90 air=False up=True expected=<0.0012978183, -0.048255894, -0.9988342> actual=<0.0012978183, -0.048255894, -0.9988342> lens=(-0.009563083, 4.3069882, 44.204994) target=(0.081934094, 0, -26.213577) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraFov=90 air=False up=True
+Camera settings retain centered HUD: CameraFov=90 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraFov=90 air=False up=True
+Shared body clearance remains safe: CameraFov=90 air=False up=True
+AIM_REMOTE CameraFov=90 air=False up=True: acceptedYaw=-0.0012993322 renderedYaw=12.565072 acceptedPitch=-0.048386287 renderedPitch=-0.04839984
+Remote mount yaw and payload pitch settle to accepted CameraFov=90 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraFov=90 air=False up=True
+CAMERA_AIM_SAMPLE CameraFov=90 air=True up=False expected=<0.0012819017, -0.05787225, -0.9983232> actual=<0.0012819017, -0.05787225, -0.9983232> lens=(-0.010794657, 35.692932, 45.251698) target=(0.37370297, 17.37837, -254.18852) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraFov=90 air=True up=False
+Camera settings retain centered HUD: CameraFov=90 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraFov=90 air=True up=False
+Shared body clearance remains safe: CameraFov=90 air=True up=False
+AIM_REMOTE CameraFov=90 air=True up=False: acceptedYaw=-0.001284054 renderedYaw=12.565087 acceptedPitch=-0.05784472 renderedPitch=-0.057843056
+Remote mount yaw and payload pitch settle to accepted CameraFov=90 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraFov=90 air=True up=False
+CAMERA_AIM_SAMPLE CameraFov=90 air=True up=True expected=<0.0011846641, -0.05852334, -0.99828535> actual=<0.0011846641, -0.05852334, -0.99828535> lens=(-0.012616578, 35.63291, 47.47666) target=(0.34272882, 17.31835, -251.9636) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraFov=90 air=True up=True
+Camera settings retain centered HUD: CameraFov=90 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraFov=90 air=True up=True
+Shared body clearance remains safe: CameraFov=90 air=True up=True
+AIM_REMOTE CameraFov=90 air=True up=True: acceptedYaw=-0.0011866983 renderedYaw=12.565185 acceptedPitch=-0.058516655 renderedPitch=-0.058511313
+Remote mount yaw and payload pitch settle to accepted CameraFov=90 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraFov=90 air=True up=True
+CAMERA_AIM_SAMPLE CameraHeight=0.5 air=False up=False expected=<0.0011922936, -0.059922393, -0.9982023> actual=<0.0011922936, -0.059922393, -0.9982023> lens=(-0.008692959, 3.5490983, 44.12285) target=(0.060617104, 0, -13.904358) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraHeight=0.5 air=False up=False
+Camera settings retain centered HUD: CameraHeight=0.5 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraHeight=0.5 air=False up=False
+Shared body clearance remains safe: CameraHeight=0.5 air=False up=False
+AIM_REMOTE CameraHeight=0.5 air=False up=False: acceptedYaw=-0.0011944404 renderedYaw=12.565177 acceptedPitch=-0.059935383 renderedPitch=-0.05993645
+Remote mount yaw and payload pitch settle to accepted CameraHeight=0.5 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraHeight=0.5 air=False up=False
+CAMERA_AIM_SAMPLE CameraHeight=0.5 air=False up=True expected=<0.0012378428, -0.059895277, -0.99820393> actual=<0.0012378428, -0.059895277, -0.99820393> lens=(-0.009126908, 3.5590053, 44.204994) target=(0.063031755, -2.3841858E-07, -13.984188) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraHeight=0.5 air=False up=True
+Camera settings retain centered HUD: CameraHeight=0.5 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraHeight=0.5 air=False up=True
+Shared body clearance remains safe: CameraHeight=0.5 air=False up=True
+AIM_REMOTE CameraHeight=0.5 air=False up=True: acceptedYaw=-0.0012400694 renderedYaw=12.565131 acceptedPitch=-0.05988113 renderedPitch=-0.059883673
+Remote mount yaw and payload pitch settle to accepted CameraHeight=0.5 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraHeight=0.5 air=False up=True
+CAMERA_AIM_SAMPLE CameraHeight=0.5 air=True up=False expected=<0.0012458453, -0.06078658, -0.99815005> actual=<0.0012458453, -0.06078658, -0.99815005> lens=(-0.01049263, 34.840256, 45.25152) target=(0.36325496, 16.525694, -254.18869) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraHeight=0.5 air=True up=False
+Camera settings retain centered HUD: CameraHeight=0.5 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraHeight=0.5 air=True up=False
+Shared body clearance remains safe: CameraHeight=0.5 air=True up=False
+AIM_REMOTE CameraHeight=0.5 air=True up=False: acceptedYaw=-0.0012481536 renderedYaw=12.565123 acceptedPitch=-0.06069108 renderedPitch=-0.060680207
+Remote mount yaw and payload pitch settle to accepted CameraHeight=0.5 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraHeight=0.5 air=True up=False
+CAMERA_AIM_SAMPLE CameraHeight=0.5 air=True up=True expected=<0.0011171352, -0.060920782, -0.998142> actual=<0.0011171352, -0.060920782, -0.998142> lens=(-0.011902474, 34.936974, 47.479668) target=(0.32323542, 16.622412, -251.96057) pitch=-0.06108652
+Final centered rendered ray and pivot-relative intent agree: CameraHeight=0.5 air=True up=True
+Camera settings retain centered HUD: CameraHeight=0.5 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraHeight=0.5 air=True up=True
+Shared body clearance remains safe: CameraHeight=0.5 air=True up=True
+AIM_REMOTE CameraHeight=0.5 air=True up=True: acceptedYaw=-0.0011192142 renderedYaw=12.565251 acceptedPitch=-0.060958773 renderedPitch=-0.060949612
+Remote mount yaw and payload pitch settle to accepted CameraHeight=0.5 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraHeight=0.5 air=True up=True
+CAMERA_AIM_SAMPLE CameraHeight=1.25 air=False up=False expected=<0.0011846909, -0.048409175, -0.9988269> actual=<0.0011846909, -0.048409175, -0.9988269> lens=(-0.008629643, 4.2895947, 44.120758) target=(0.074555285, 4.7683716E-07, -26.013443) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraHeight=1.25 air=False up=False
+Camera settings retain centered HUD: CameraHeight=1.25 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraHeight=1.25 air=False up=False
+Shared body clearance remains safe: CameraHeight=1.25 air=False up=False
+AIM_REMOTE CameraHeight=1.25 air=False up=False: acceptedYaw=-0.0011860817 renderedYaw=12.565185 acceptedPitch=-0.048689235 renderedPitch=-0.04870776
+Remote mount yaw and payload pitch settle to accepted CameraHeight=1.25 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraHeight=1.25 air=False up=False
+CAMERA_AIM_SAMPLE CameraHeight=1.25 air=False up=True expected=<0.0013088342, -0.04827969, -0.998833> actual=<0.0013088342, -0.04827969, -0.998833> lens=(-0.009644267, 4.3050823, 44.204994) target=(0.08258882, 0, -26.182419) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraHeight=1.25 air=False up=True
+Camera settings retain centered HUD: CameraHeight=1.25 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraHeight=1.25 air=False up=True
+Shared body clearance remains safe: CameraHeight=1.25 air=False up=True
+AIM_REMOTE CameraHeight=1.25 air=False up=True: acceptedYaw=-0.0013103625 renderedYaw=12.565061 acceptedPitch=-0.04838966 renderedPitch=-0.048409086
+Remote mount yaw and payload pitch settle to accepted CameraHeight=1.25 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraHeight=1.25 air=False up=True
+CAMERA_AIM_SAMPLE CameraHeight=1.25 air=True up=False expected=<0, -0.05827051, -0.9983008> actual=<0, -0.05827051, -0.9983008> lens=(0, 35.731476, 45.185726) target=(0, 17.416912, -254.25473) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraHeight=1.25 air=True up=False
+Camera settings retain centered HUD: CameraHeight=1.25 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraHeight=1.25 air=True up=False
+Shared body clearance remains safe: CameraHeight=1.25 air=True up=False
+AIM_REMOTE CameraHeight=1.25 air=True up=False: acceptedYaw=0 renderedYaw=12.566371 acceptedPitch=-0.05819375 renderedPitch=-0.05817201
+Remote mount yaw and payload pitch settle to accepted CameraHeight=1.25 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraHeight=1.25 air=True up=False
+CAMERA_AIM_SAMPLE CameraHeight=1.25 air=True up=True expected=<0.001135834, -0.058469735, -0.9982885> actual=<0.001135834, -0.058469735, -0.9982885> lens=(-0.01209239, 35.648262, 47.473045) target=(0.32860512, 17.3337, -251.9672) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraHeight=1.25 air=True up=True
+Camera settings retain centered HUD: CameraHeight=1.25 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraHeight=1.25 air=True up=True
+Shared body clearance remains safe: CameraHeight=1.25 air=True up=True
+AIM_REMOTE CameraHeight=1.25 air=True up=True: acceptedYaw=-0.0011377808 renderedYaw=12.565233 acceptedPitch=-0.058472604 renderedPitch=-0.05845785
+Remote mount yaw and payload pitch settle to accepted CameraHeight=1.25 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraHeight=1.25 air=True up=True
+CAMERA_AIM_SAMPLE CameraHeight=3 air=False up=False expected=<0.0011885755, -0.03324619, -0.9994465> actual=<0.0011885755, -0.03324619, -0.9994465> lens=(-0.008764048, 6.058511, 44.214493) target=(0.10903634, 4.7683716E-07, -54.841217) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraHeight=3 air=False up=False
+Camera settings retain centered HUD: CameraHeight=3 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraHeight=3 air=False up=False
+Shared body clearance remains safe: CameraHeight=3 air=False up=False
+AIM_REMOTE CameraHeight=3 air=False up=False: acceptedYaw=-0.0011892332 renderedYaw=12.565182 acceptedPitch=-0.033442244 renderedPitch=-0.033501536
+Remote mount yaw and payload pitch settle to accepted CameraHeight=3 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraHeight=3 air=False up=False
+CAMERA_AIM_SAMPLE CameraHeight=3 air=False up=True expected=<0.001199464, -0.033221375, -0.99944735> actual=<0.001199464, -0.033221375, -0.99944735> lens=(-0.0088329315, 6.0558567, 44.204994) target=(0.109994456, -4.7683716E-07, -54.807327) pitch=-0.061086528
+Final centered rendered ray and pivot-relative intent agree: CameraHeight=3 air=False up=True
+Camera settings retain centered HUD: CameraHeight=3 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraHeight=3 air=False up=True
+Shared body clearance remains safe: CameraHeight=3 air=False up=True
+AIM_REMOTE CameraHeight=3 air=False up=True: acceptedYaw=-0.0012001267 renderedYaw=12.565171 acceptedPitch=-0.03336366 renderedPitch=-0.033417884
+Remote mount yaw and payload pitch settle to accepted CameraHeight=3 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraHeight=3 air=False up=True
+CAMERA_AIM_SAMPLE CameraHeight=3 air=True up=False expected=<0.0011948128, -0.051923834, -0.9986503> actual=<0.0011948128, -0.051923834, -0.9986503> lens=(-0.010057927, 37.43198, 45.251633) target=(0.34820068, 19.117418, -254.18861) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraHeight=3 air=True up=False
+Camera settings retain centered HUD: CameraHeight=3 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: CameraHeight=3 air=True up=False
+Shared body clearance remains safe: CameraHeight=3 air=True up=False
+AIM_REMOTE CameraHeight=3 air=True up=False: acceptedYaw=-0.001196427 renderedYaw=12.565174 acceptedPitch=-0.051892415 renderedPitch=-0.051888343
+Remote mount yaw and payload pitch settle to accepted CameraHeight=3 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraHeight=3 air=True up=False
+CAMERA_AIM_SAMPLE CameraHeight=3 air=True up=True expected=<0.0011747371, -0.052397512, -0.9986256> actual=<0.0011747371, -0.052397512, -0.9986256> lens=(-0.012500533, 37.568928, 47.47151) target=(0.33974713, 19.254366, -251.96873) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: CameraHeight=3 air=True up=True
+Camera settings retain centered HUD: CameraHeight=3 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: CameraHeight=3 air=True up=True
+Shared body clearance remains safe: CameraHeight=3 air=True up=True
+AIM_REMOTE CameraHeight=3 air=True up=True: acceptedYaw=-0.0011763532 renderedYaw=12.565195 acceptedPitch=-0.05240631 renderedPitch=-0.05238934
+Remote mount yaw and payload pitch settle to accepted CameraHeight=3 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: CameraHeight=3 air=True up=True
+CAMERA_AIM_SAMPLE InvertY=0 air=False up=False expected=<0.001135009, -0.048417803, -0.9988265> actual=<0.001135009, -0.048417803, -0.9988265> lens=(-0.008267761, 4.288909, 44.120766) target=(0.071415976, 0, -26.002228) pitch=-0.061086524
+Final centered rendered ray and pivot-relative intent agree: InvertY=0 air=False up=False
+Camera settings retain centered HUD: InvertY=0 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: InvertY=0 air=False up=False
+Shared body clearance remains safe: InvertY=0 air=False up=False
+AIM_REMOTE InvertY=0 air=False up=False: acceptedYaw=-0.0011363421 renderedYaw=12.565234 acceptedPitch=-0.048633475 renderedPitch=-0.04871255
+Remote mount yaw and payload pitch settle to accepted InvertY=0 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: InvertY=0 air=False up=False
+CAMERA_AIM_SAMPLE InvertY=0 air=False up=True expected=<0.0045114513, 0.15624702, -0.98770773> actual=<0.0045114513, 0.15624702, -0.98770773> lens=(-0.033617165, 4.3048625, 44.204926) target=(1.3214828, 48.81398, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: InvertY=0 air=False up=True
+Camera settings retain centered HUD: InvertY=0 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: InvertY=0 air=False up=True
+Shared body clearance remains safe: InvertY=0 air=False up=True
+AIM_REMOTE InvertY=0 air=False up=True: acceptedYaw=-0.0045675654 renderedYaw=12.561804 acceptedPitch=0.15690185 renderedPitch=0.15690392
+Remote mount yaw and payload pitch settle to accepted InvertY=0 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: InvertY=0 air=False up=True
+CAMERA_AIM_SAMPLE InvertY=0 air=True up=False expected=<0.0044080606, -0.26178735, -0.96511555> actual=<0.0044080606, -0.26178735, -0.96511555> lens=(-0.036361583, 37.305695, 44.806126) target=(0.57670283, 7.6293945E-06, -89.42024) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: InvertY=0 air=True up=False
+Camera settings retain centered HUD: InvertY=0 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: InvertY=0 air=True up=False
+Shared body clearance remains safe: InvertY=0 air=True up=False
+AIM_REMOTE InvertY=0 air=True up=False: acceptedYaw=-0.0045673596 renderedYaw=12.561804 acceptedPitch=-0.114746645 renderedPitch=-0.11474664
+Remote mount yaw and payload pitch settle to accepted InvertY=0 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: InvertY=0 air=True up=False
+CAMERA_AIM_SAMPLE InvertY=0 air=True up=True expected=<0.0045101834, 0.15826829, -0.9873858> actual=<0.0045101834, 0.15826829, -0.9873858> lens=(-0.04885728, 35.580223, 47.54101) target=(1.3063036, 80.08934, -249.13574) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: InvertY=0 air=True up=True
+Camera settings retain centered HUD: InvertY=0 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: InvertY=0 air=True up=True
+Shared body clearance remains safe: InvertY=0 air=True up=True
+AIM_REMOTE InvertY=0 air=True up=True: acceptedYaw=-0.0045677708 renderedYaw=12.561803 acceptedPitch=0.15883565 renderedPitch=0.15879102
+Remote mount yaw and payload pitch settle to accepted InvertY=0 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: InvertY=0 air=True up=True
+CAMERA_AIM_SAMPLE InvertY=1 air=False up=False expected=<0.0044627646, -0.21303809, -0.9770337> actual=<0.0044627646, -0.21303809, -0.9770337> lens=(-0.03170839, 5.812585, 43.786926) target=(0.06381868, 4.7683716E-07, 22.873169) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: InvertY=1 air=False up=False
+Camera settings retain centered HUD: InvertY=1 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: InvertY=1 air=False up=False
+Shared body clearance remains safe: InvertY=1 air=False up=False
+AIM_REMOTE InvertY=1 air=False up=False: acceptedYaw=-0.0045676352 renderedYaw=12.561803 acceptedPitch=-0.11474655 renderedPitch=-0.11474653
+Remote mount yaw and payload pitch settle to accepted InvertY=1 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: InvertY=1 air=False up=False
+CAMERA_AIM_SAMPLE InvertY=1 air=False up=True expected=<0.004510977, 0.15624705, -0.98770773> actual=<0.004510977, 0.15624705, -0.98770773> lens=(-0.033613637, 4.3048716, 44.204926) target=(1.3213439, 48.813988, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: InvertY=1 air=False up=True
+Camera settings retain centered HUD: InvertY=1 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: InvertY=1 air=False up=True
+Shared body clearance remains safe: InvertY=1 air=False up=True
+AIM_REMOTE InvertY=1 air=False up=True: acceptedYaw=-0.0045670853 renderedYaw=12.561804 acceptedPitch=0.15690205 renderedPitch=0.1569031
+Remote mount yaw and payload pitch settle to accepted InvertY=1 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: InvertY=1 air=False up=True
+CAMERA_AIM_SAMPLE InvertY=1 air=True up=False expected=<0.0044081295, -0.26178542, -0.96511596> actual=<0.0044081295, -0.26178542, -0.96511596> lens=(-0.036362067, 37.30597, 44.806114) target=(0.5767161, 3.8146973E-06, -89.42124) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: InvertY=1 air=True up=False
+Camera settings retain centered HUD: InvertY=1 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: InvertY=1 air=True up=False
+Shared body clearance remains safe: InvertY=1 air=True up=False
+AIM_REMOTE InvertY=1 air=True up=False: acceptedYaw=-0.004567429 renderedYaw=12.561804 acceptedPitch=-0.114746526 renderedPitch=-0.114746526
+Remote mount yaw and payload pitch settle to accepted InvertY=1 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: InvertY=1 air=True up=False
+CAMERA_AIM_SAMPLE InvertY=1 air=True up=True expected=<0.004509777, 0.15826944, -0.9873857> actual=<0.004509777, 0.15826944, -0.9873857> lens=(-0.04885286, 35.580563, 47.541008) target=(1.306186, 80.089676, -249.13574) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: InvertY=1 air=True up=True
+Camera settings retain centered HUD: InvertY=1 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: InvertY=1 air=True up=True
+Shared body clearance remains safe: InvertY=1 air=True up=True
+AIM_REMOTE InvertY=1 air=True up=True: acceptedYaw=-0.0045673596 renderedYaw=12.561804 acceptedPitch=0.15880284 renderedPitch=0.15876374
+Remote mount yaw and payload pitch settle to accepted InvertY=1 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: InvertY=1 air=True up=True
+CAMERA_AIM_SAMPLE MouseAimSensitivity=0.25 air=False up=False expected=<0.0044590826, -0.21303777, -0.97703373> actual=<0.0044590826, -0.21303777, -0.97703373> lens=(-0.031682298, 5.8125944, 43.78694) target=(0.06376611, 9.536743E-07, 22.87315) pitch=-0.2710865
+Final centered rendered ray and pivot-relative intent agree: MouseAimSensitivity=0.25 air=False up=False
+Camera settings retain centered HUD: MouseAimSensitivity=0.25 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: MouseAimSensitivity=0.25 air=False up=False
+Shared body clearance remains safe: MouseAimSensitivity=0.25 air=False up=False
+AIM_REMOTE MouseAimSensitivity=0.25 air=False up=False: acceptedYaw=-0.004563866 renderedYaw=12.561807 acceptedPitch=-0.114746675 renderedPitch=-0.11474665
+Remote mount yaw and payload pitch settle to accepted MouseAimSensitivity=0.25 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: MouseAimSensitivity=0.25 air=False up=False
+CAMERA_AIM_SAMPLE MouseAimSensitivity=0.25 air=False up=True expected=<0.004511384, 0.15624708, -0.98770773> actual=<0.004511384, 0.15624708, -0.98770773> lens=(-0.033616662, 4.304878, 44.204926) target=(1.321463, 48.813995, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: MouseAimSensitivity=0.25 air=False up=True
+Camera settings retain centered HUD: MouseAimSensitivity=0.25 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: MouseAimSensitivity=0.25 air=False up=True
+Shared body clearance remains safe: MouseAimSensitivity=0.25 air=False up=True
+AIM_REMOTE MouseAimSensitivity=0.25 air=False up=True: acceptedYaw=-0.004567497 renderedYaw=12.561804 acceptedPitch=0.15689936 renderedPitch=0.15690194
+Remote mount yaw and payload pitch settle to accepted MouseAimSensitivity=0.25 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: MouseAimSensitivity=0.25 air=False up=True
+CAMERA_AIM_SAMPLE MouseAimSensitivity=0.25 air=True up=False expected=<0.0044080717, -0.261779, -0.9651178> actual=<0.0044080717, -0.261779, -0.9651178> lens=(-0.036361646, 37.3069, 44.80614) target=(0.5767227, 3.8146973E-06, -89.424576) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: MouseAimSensitivity=0.25 air=True up=False
+Camera settings retain centered HUD: MouseAimSensitivity=0.25 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: MouseAimSensitivity=0.25 air=True up=False
+Shared body clearance remains safe: MouseAimSensitivity=0.25 air=True up=False
+AIM_REMOTE MouseAimSensitivity=0.25 air=True up=False: acceptedYaw=-0.0045673605 renderedYaw=12.561804 acceptedPitch=-0.114746615 renderedPitch=-0.11474661
+Remote mount yaw and payload pitch settle to accepted MouseAimSensitivity=0.25 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: MouseAimSensitivity=0.25 air=True up=False
+CAMERA_AIM_SAMPLE MouseAimSensitivity=0.25 air=True up=True expected=<0.0045098467, 0.15826638, -0.9873861> actual=<0.0045098467, 0.15826638, -0.9873861> lens=(-0.048830062, 35.739376, 47.53586) target=(1.3062292, 80.24849, -249.1409) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: MouseAimSensitivity=0.25 air=True up=True
+Camera settings retain centered HUD: MouseAimSensitivity=0.25 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: MouseAimSensitivity=0.25 air=True up=True
+Shared body clearance remains safe: MouseAimSensitivity=0.25 air=True up=True
+AIM_REMOTE MouseAimSensitivity=0.25 air=True up=True: acceptedYaw=-0.0045674285 renderedYaw=12.561804 acceptedPitch=0.15879695 renderedPitch=0.15874675
+Remote mount yaw and payload pitch settle to accepted MouseAimSensitivity=0.25 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: MouseAimSensitivity=0.25 air=True up=True
+CAMERA_AIM_SAMPLE MouseAimSensitivity=1 air=False up=False expected=<0.0044625313, -0.21306951, -0.9770268> actual=<0.0044625313, -0.21306951, -0.9770268> lens=(-0.03170627, 5.816283, 43.786774) target=(0.06387727, 4.7683716E-07, 22.859709) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: MouseAimSensitivity=1 air=False up=False
+Camera settings retain centered HUD: MouseAimSensitivity=1 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: MouseAimSensitivity=1 air=False up=False
+Shared body clearance remains safe: MouseAimSensitivity=1 air=False up=False
+AIM_REMOTE MouseAimSensitivity=1 air=False up=False: acceptedYaw=-0.004567428 renderedYaw=12.561804 acceptedPitch=-0.11474654 renderedPitch=-0.114746556
+Remote mount yaw and payload pitch settle to accepted MouseAimSensitivity=1 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: MouseAimSensitivity=1 air=False up=False
+CAMERA_AIM_SAMPLE MouseAimSensitivity=1 air=False up=True expected=<0.0045111114, 0.15624812, -0.98770756> actual=<0.0045111114, 0.15624812, -0.98770756> lens=(-0.033614643, 4.3086004, 44.204926) target=(1.3213836, 48.81772, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: MouseAimSensitivity=1 air=False up=True
+Camera settings retain centered HUD: MouseAimSensitivity=1 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: MouseAimSensitivity=1 air=False up=True
+Shared body clearance remains safe: MouseAimSensitivity=1 air=False up=True
+AIM_REMOTE MouseAimSensitivity=1 air=False up=True: acceptedYaw=-0.0045672227 renderedYaw=12.561804 acceptedPitch=0.1569034 renderedPitch=0.1569052
+Remote mount yaw and payload pitch settle to accepted MouseAimSensitivity=1 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: MouseAimSensitivity=1 air=False up=True
+CAMERA_AIM_SAMPLE MouseAimSensitivity=1 air=True up=False expected=<0.004404034, -0.2617817, -0.96511704> actual=<0.004404034, -0.2617817, -0.96511704> lens=(-0.036027946, 37.45102, 44.740303) target=(0.57886183, -7.6293945E-06, -90.00901) pitch=-0.2710865
+Final centered rendered ray and pivot-relative intent agree: MouseAimSensitivity=1 air=True up=False
+Camera settings retain centered HUD: MouseAimSensitivity=1 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: MouseAimSensitivity=1 air=True up=False
+Shared body clearance remains safe: MouseAimSensitivity=1 air=True up=False
+AIM_REMOTE MouseAimSensitivity=1 air=True up=False: acceptedYaw=-0.004563181 renderedYaw=12.561808 acceptedPitch=-0.11474663 renderedPitch=-0.11474658
+Remote mount yaw and payload pitch settle to accepted MouseAimSensitivity=1 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: MouseAimSensitivity=1 air=True up=False
+CAMERA_AIM_SAMPLE MouseAimSensitivity=1 air=True up=True expected=<0.004509917, 0.15826459, -0.98738647> actual=<0.004509917, 0.15826459, -0.98738647> lens=(-0.048808143, 35.739635, 47.5309) target=(1.3062717, 80.24875, -249.14586) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: MouseAimSensitivity=1 air=True up=True
+Camera settings retain centered HUD: MouseAimSensitivity=1 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: MouseAimSensitivity=1 air=True up=True
+Shared body clearance remains safe: MouseAimSensitivity=1 air=True up=True
+AIM_REMOTE MouseAimSensitivity=1 air=True up=True: acceptedYaw=-0.004567497 renderedYaw=12.561804 acceptedPitch=0.15875292 renderedPitch=0.15874453
+Remote mount yaw and payload pitch settle to accepted MouseAimSensitivity=1 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: MouseAimSensitivity=1 air=True up=True
+CAMERA_AIM_SAMPLE MouseAimSensitivity=3 air=False up=False expected=<0.004462512, -0.21308844, -0.9770227> actual=<0.004462512, -0.21308844, -0.9770227> lens=(-0.03173227, 5.817503, 43.792465) target=(0.063871324, 4.7683716E-07, 22.86101) pitch=-0.2710865
+Final centered rendered ray and pivot-relative intent agree: MouseAimSensitivity=3 air=False up=False
+Camera settings retain centered HUD: MouseAimSensitivity=3 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: MouseAimSensitivity=3 air=False up=False
+Shared body clearance remains safe: MouseAimSensitivity=3 air=False up=False
+AIM_REMOTE MouseAimSensitivity=3 air=False up=False: acceptedYaw=-0.0045674294 renderedYaw=12.561804 acceptedPitch=-0.1147467 renderedPitch=-0.11474664
+Remote mount yaw and payload pitch settle to accepted MouseAimSensitivity=3 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: MouseAimSensitivity=3 air=False up=False
+CAMERA_AIM_SAMPLE MouseAimSensitivity=3 air=False up=True expected=<0.0045112474, 0.15624814, -0.98770756> actual=<0.0045112474, 0.15624814, -0.98770756> lens=(-0.033615656, 4.308609, 44.204926) target=(1.3214234, 48.817722, -252.47183) pitch=0.14891346
+Final centered rendered ray and pivot-relative intent agree: MouseAimSensitivity=3 air=False up=True
+Camera settings retain centered HUD: MouseAimSensitivity=3 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: MouseAimSensitivity=3 air=False up=True
+Shared body clearance remains safe: MouseAimSensitivity=3 air=False up=True
+AIM_REMOTE MouseAimSensitivity=3 air=False up=True: acceptedYaw=-0.00456736 renderedYaw=12.561804 acceptedPitch=0.15690355 renderedPitch=0.15690723
+Remote mount yaw and payload pitch settle to accepted MouseAimSensitivity=3 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: MouseAimSensitivity=3 air=False up=True
+CAMERA_AIM_SAMPLE MouseAimSensitivity=3 air=True up=False expected=<0.0044080713, -0.26177946, -0.96511763> actual=<0.0044080713, -0.26177946, -0.96511763> lens=(-0.036060877, 37.45134, 44.740288) target=(0.57939726, 0, -90.01014) pitch=-0.2710865
+Final centered rendered ray and pivot-relative intent agree: MouseAimSensitivity=3 air=True up=False
+Camera settings retain centered HUD: MouseAimSensitivity=3 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: MouseAimSensitivity=3 air=True up=False
+Shared body clearance remains safe: MouseAimSensitivity=3 air=True up=False
+AIM_REMOTE MouseAimSensitivity=3 air=True up=False: acceptedYaw=-0.0045673605 renderedYaw=12.561804 acceptedPitch=-0.114746615 renderedPitch=-0.114746615
+Remote mount yaw and payload pitch settle to accepted MouseAimSensitivity=3 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: MouseAimSensitivity=3 air=True up=False
+CAMERA_AIM_SAMPLE MouseAimSensitivity=3 air=True up=True expected=<0.004509916, 0.1582656, -0.9873862> actual=<0.004509916, 0.1582656, -0.9873862> lens=(-0.048808128, 35.73994, 47.530895) target=(1.3062717, 80.249054, -249.14586) pitch=0.14891346
+Final centered rendered ray and pivot-relative intent agree: MouseAimSensitivity=3 air=True up=True
+Camera settings retain centered HUD: MouseAimSensitivity=3 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: MouseAimSensitivity=3 air=True up=True
+Shared body clearance remains safe: MouseAimSensitivity=3 air=True up=True
+AIM_REMOTE MouseAimSensitivity=3 air=True up=True: acceptedYaw=-0.004567497 renderedYaw=12.561804 acceptedPitch=0.15879327 renderedPitch=0.15877126
+Remote mount yaw and payload pitch settle to accepted MouseAimSensitivity=3 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: MouseAimSensitivity=3 air=True up=True
+CAMERA_AIM_SAMPLE StickAimCurve=1 air=False up=False expected=<0.025284188, -0.21306883, -0.97671> actual=<0.025284188, -0.21306883, -0.97671> lens=(-0.17964402, 5.8162975, 43.78452) target=(0.36192235, 9.536743E-07, 22.8642) pitch=-0.27108657
+Final centered rendered ray and pivot-relative intent agree: StickAimCurve=1 air=False up=False
+Camera settings retain centered HUD: StickAimCurve=1 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimCurve=1 air=False up=False
+Shared body clearance remains safe: StickAimCurve=1 air=False up=False
+AIM_REMOTE StickAimCurve=1 air=False up=False: acceptedYaw=-0.02588132 renderedYaw=12.540489 acceptedPitch=-0.114709824 renderedPitch=-0.11470981
+Remote mount yaw and payload pitch settle to accepted StickAimCurve=1 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimCurve=1 air=False up=False
+CAMERA_AIM_SAMPLE StickAimCurve=1 air=False up=True expected=<0.02556212, 0.1562482, -0.98738694> actual=<0.02556212, 0.1562482, -0.98738694> lens=(-0.19047667, 4.308617, 44.202538) target=(7.4875927, 48.81774, -252.37793) pitch=0.1489135
+Final centered rendered ray and pivot-relative intent agree: StickAimCurve=1 air=False up=True
+Camera settings retain centered HUD: StickAimCurve=1 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimCurve=1 air=False up=True
+Shared body clearance remains safe: StickAimCurve=1 air=False up=True
+AIM_REMOTE StickAimCurve=1 air=False up=True: acceptedYaw=-0.025882874 renderedYaw=12.540488 acceptedPitch=0.15690088 renderedPitch=0.1569037
+Remote mount yaw and payload pitch settle to accepted StickAimCurve=1 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimCurve=1 air=False up=True
+CAMERA_AIM_SAMPLE StickAimCurve=1 air=True up=False expected=<0.024974912, -0.26177287, -0.9648063> actual=<0.024974912, -0.26177287, -0.9648063> lens=(-0.20431042, 37.45229, 44.73772) target=(3.282787, 0, -89.97241) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: StickAimCurve=1 air=True up=False
+Camera settings retain centered HUD: StickAimCurve=1 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimCurve=1 air=True up=False
+Shared body clearance remains safe: StickAimCurve=1 air=True up=False
+AIM_REMOTE StickAimCurve=1 air=True up=False: acceptedYaw=-0.025880156 renderedYaw=12.540491 acceptedPitch=-0.114709735 renderedPitch=-0.114709765
+Remote mount yaw and payload pitch settle to accepted StickAimCurve=1 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimCurve=1 air=True up=False
+CAMERA_AIM_SAMPLE StickAimCurve=1 air=True up=True expected=<0.025553422, 0.15826662, -0.98706573> actual=<0.025553422, 0.15826662, -0.98706573> lens=(-0.27654952, 35.740227, 47.527428) target=(7.401405, 80.24935, -249.05304) pitch=0.1489135
+Final centered rendered ray and pivot-relative intent agree: StickAimCurve=1 air=True up=True
+Camera settings retain centered HUD: StickAimCurve=1 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimCurve=1 air=True up=True
+Shared body clearance remains safe: StickAimCurve=1 air=True up=True
+AIM_REMOTE StickAimCurve=1 air=True up=True: acceptedYaw=-0.025882483 renderedYaw=12.540488 acceptedPitch=0.15879399 renderedPitch=0.15874055
+Remote mount yaw and payload pitch settle to accepted StickAimCurve=1 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimCurve=1 air=True up=True
+CAMERA_AIM_SAMPLE StickAimCurve=2 air=False up=False expected=<0.0044624214, -0.21331441, -0.9769734> actual=<0.0044624214, -0.21331441, -0.9769734> lens=(-0.03150057, 5.799035, 43.74153) target=(0.063802384, -4.7683716E-07, 22.876524) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: StickAimCurve=2 air=False up=False
+Camera settings retain centered HUD: StickAimCurve=2 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimCurve=2 air=False up=False
+Shared body clearance remains safe: StickAimCurve=2 air=False up=False
+AIM_REMOTE StickAimCurve=2 air=False up=False: acceptedYaw=-0.0045675654 renderedYaw=12.561804 acceptedPitch=-0.1147466 renderedPitch=-0.1147466
+Remote mount yaw and payload pitch settle to accepted StickAimCurve=2 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimCurve=2 air=False up=False
+CAMERA_AIM_SAMPLE StickAimCurve=2 air=False up=True expected=<0.0045111114, 0.15624818, -0.98770756> actual=<0.0045111114, 0.15624818, -0.98770756> lens=(-0.033614643, 4.3086205, 44.204926) target=(1.3213836, 48.817738, -252.47183) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: StickAimCurve=2 air=False up=True
+Camera settings retain centered HUD: StickAimCurve=2 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimCurve=2 air=False up=True
+Shared body clearance remains safe: StickAimCurve=2 air=False up=True
+AIM_REMOTE StickAimCurve=2 air=False up=True: acceptedYaw=-0.0045672227 renderedYaw=12.561804 acceptedPitch=0.1569035 renderedPitch=0.15690549
+Remote mount yaw and payload pitch settle to accepted StickAimCurve=2 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimCurve=2 air=False up=True
+CAMERA_AIM_SAMPLE StickAimCurve=2 air=True up=False expected=<0.004407823, -0.26176572, -0.9651214> actual=<0.004407823, -0.26176572, -0.9651214> lens=(-0.036058713, 37.453327, 44.74029) target=(0.57939494, 3.8146973E-06, -90.01727) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: StickAimCurve=2 air=True up=False
+Camera settings retain centered HUD: StickAimCurve=2 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimCurve=2 air=True up=False
+Shared body clearance remains safe: StickAimCurve=2 air=True up=False
+AIM_REMOTE StickAimCurve=2 air=True up=False: acceptedYaw=-0.0045670858 renderedYaw=12.561804 acceptedPitch=-0.114746675 renderedPitch=-0.11474664
+Remote mount yaw and payload pitch settle to accepted StickAimCurve=2 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimCurve=2 air=True up=False
+CAMERA_AIM_SAMPLE StickAimCurve=2 air=True up=True expected=<0.0045098457, 0.1582676, -0.9873859> actual=<0.0045098457, 0.1582676, -0.9873859> lens=(-0.04880737, 35.740532, 47.53089) target=(1.3062519, 80.24965, -249.14587) pitch=0.14891347
+Final centered rendered ray and pivot-relative intent agree: StickAimCurve=2 air=True up=True
+Camera settings retain centered HUD: StickAimCurve=2 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimCurve=2 air=True up=True
+Shared body clearance remains safe: StickAimCurve=2 air=True up=True
+AIM_REMOTE StickAimCurve=2 air=True up=True: acceptedYaw=-0.004567428 renderedYaw=12.561804 acceptedPitch=0.15883006 renderedPitch=0.15879352
+Remote mount yaw and payload pitch settle to accepted StickAimCurve=2 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimCurve=2 air=True up=True
+CAMERA_AIM_SAMPLE StickAimCurve=3 air=False up=False expected=<0.0007886153, -0.21308737, -0.97703284> actual=<0.0007886153, -0.21308737, -0.97703284> lens=(-0.005607725, 5.8175244, 43.792534) target=(0.011287401, 0, 22.860792) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: StickAimCurve=3 air=False up=False
+Camera settings retain centered HUD: StickAimCurve=3 air=False up=False
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimCurve=3 air=False up=False
+Shared body clearance remains safe: StickAimCurve=3 air=False up=False
+AIM_REMOTE StickAimCurve=3 air=False up=False: acceptedYaw=-0.00080715324 renderedYaw=12.565564 acceptedPitch=-0.11474772 renderedPitch=-0.114747755
+Remote mount yaw and payload pitch settle to accepted StickAimCurve=3 air=False up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimCurve=3 air=False up=False
+CAMERA_AIM_SAMPLE StickAimCurve=3 air=False up=True expected=<0.00079614104, 0.15624824, -0.98771757> actual=<0.00079614104, 0.15624824, -0.98771757> lens=(-0.0059324615, 4.3086305, 44.204998) target=(0.23320365, 48.817753, -252.47478) pitch=0.14891349
+Final centered rendered ray and pivot-relative intent agree: StickAimCurve=3 air=False up=True
+Camera settings retain centered HUD: StickAimCurve=3 air=False up=True
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimCurve=3 air=False up=True
+Shared body clearance remains safe: StickAimCurve=3 air=False up=True
+AIM_REMOTE StickAimCurve=3 air=False up=True: acceptedYaw=-0.000806041 renderedYaw=12.565565 acceptedPitch=0.1569037 renderedPitch=0.15690741
+Remote mount yaw and payload pitch settle to accepted StickAimCurve=3 air=False up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimCurve=3 air=False up=True
+CAMERA_AIM_SAMPLE StickAimCurve=3 air=True up=False expected=<0.0007778988, -0.26177344, -0.9651291> actual=<0.0007778988, -0.26177344, -0.9651291> lens=(-0.0063636987, 37.45221, 44.74036) target=(0.10224942, 3.8146973E-06, -90.01454) pitch=-0.27108654
+Final centered rendered ray and pivot-relative intent agree: StickAimCurve=3 air=True up=False
+Camera settings retain centered HUD: StickAimCurve=3 air=True up=False
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimCurve=3 air=True up=False
+Shared body clearance remains safe: StickAimCurve=3 air=True up=False
+AIM_REMOTE StickAimCurve=3 air=True up=False: acceptedYaw=-0.0008060047 renderedYaw=12.565565 acceptedPitch=-0.11474769 renderedPitch=-0.114747666
+Remote mount yaw and payload pitch settle to accepted StickAimCurve=3 air=True up=False aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimCurve=3 air=True up=False
+CAMERA_AIM_SAMPLE StickAimCurve=3 air=True up=True expected=<0.00079590554, 0.15826856, -0.9873958> actual=<0.00079590554, 0.15826856, -0.9873958> lens=(-0.008613615, 35.74081, 47.531002) target=(0.23052967, 80.24993, -249.14877) pitch=0.14891349
+Final centered rendered ray and pivot-relative intent agree: StickAimCurve=3 air=True up=True
+Camera settings retain centered HUD: StickAimCurve=3 air=True up=True
+Authoritative articulation follows camera intent within network/pose tolerance: StickAimCurve=3 air=True up=True
+Shared body clearance remains safe: StickAimCurve=3 air=True up=True
+AIM_REMOTE StickAimCurve=3 air=True up=True: acceptedYaw=-0.00080606504 renderedYaw=12.565565 acceptedPitch=0.15879558 renderedPitch=0.15875934
+Remote mount yaw and payload pitch settle to accepted StickAimCurve=3 air=True up=True aim on actual presentation nodes
+Local preference leaves host tuning and peer camera unchanged: StickAimCurve=3 air=True up=True
+Camera preference aiming matrix passed: 152 low/default/high ground/air upward/downward cases through three real UDP peers.
+Vehicle drives while aiming (peak 21.36 m/s, travel 23.28 m)
+Airborne shooter opens wider camera framing
+Airborne shooter can aim above the horizon
+Airborne camera input retains the centered shared aiming cursor
+Aerial pullback cannot drift held camera aim
+Airborne desired aim reaches authority and the observer
+Aiming survives landing and smooth chase recovery
+Landing retains camera-relative aiming presentation
+Menu suppression clears marker immediately
+Item switch selects shared Missile foundation
+Native NOS granted
+Native high-speed weapon granted
+NOS request accepted
+Real sustained NOS accelerates the native vehicle
+Direct-fire aim resumes at high speed after selecting away from NOS
+Removal retires authoritative aim and local marker
+New life retires previous aiming capability
+Fresh weapon restores aiming before lethal damage
+Lethal damage and timed respawn fixture tuning accepted
+Other vehicle receives a real missile
+Real host missile use accepted
+Actual missile explosion kills the aiming vehicle
+Death carries authoritative missile attribution
+Actual death immediately clears authoritative aim
+Confirmed client death clears the camera cursor before respawn
+Ordinary timed respawn creates a fresh living vehicle
+Respawn cannot retain a dead weapon's marker
+Weapon aiming integration passed: 1061 checks; three native UDP peers.
+Weapon aiming artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\aim-checks\2ee2f5fb05a4492a9a572cdf26cf0fb3
