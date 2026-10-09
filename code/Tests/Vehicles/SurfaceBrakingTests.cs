@@ -79,7 +79,12 @@ internal sealed class SurfaceBrakingTests
     public void NewSurfaceOptionsPersistAndReplicateWithoutLosingSiblingTuning()
     {
         var defaults = GameplayConfiguration.HostedDefaults;
-        foreach (var option in GameplayOptions.All.TakeLast(12))
+        var keys = Surfaces.SelectMany(surface => new[] { "braking", "brake_lateral_grip", "handbrake_lateral_grip" }
+            .Select(name => $"vehicle.{surface.ToString().ToLowerInvariant()}.{name}"))
+            .Concat(["vehicle.handbrake_hold_speed", "vehicle.grass_steering_reserve", "vehicle.grass_recovery"]).ToHashSet();
+        var options = GameplayOptions.All.Where(option => keys.Contains(option.Key)).ToArray();
+        Assert.That(options.Select(option => option.Key), Is.EquivalentTo(keys));
+        foreach (var option in options)
         {
             Assert.That(GameplayOptions.TryApply(defaults, new Dictionary<string, double> { [option.Key] = option.Read(defaults) * 0.75 }, out var changed, out var error), Is.True, error);
             Assert.That(GameplayConfigurationCodec.Decode(GameplayConfigurationCodec.Encode(1, new(1, changed))).State.Configuration, Is.EqualTo(changed));
