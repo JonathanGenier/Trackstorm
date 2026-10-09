@@ -6,7 +6,7 @@ public sealed record WeaponAimConfiguration
     /// <summary>Maximum yaw/pitch travel in degrees per second.</summary>
     public float TurnRate { get; init; } = 540;
     /// <summary>Maximum upward elevation relative to the chassis.</summary>
-    public float UpDegrees { get; init; } = 70;
+    public float UpDegrees { get; init; } = 90;
     /// <summary>Maximum downward elevation, further restricted by chassis clearance.</summary>
     public float DownDegrees { get; init; } = 40;
     /// <summary>Near-target assistance cone in degrees; zero disables assistance.</summary>
@@ -24,7 +24,7 @@ public sealed record WeaponAimConfiguration
     public void Validate()
     {
         if (!float.IsFinite(TurnRate) || TurnRate is < 60 or > 1440 ||
-            !float.IsFinite(UpDegrees) || UpDegrees is < 0 or > 80 ||
+            !float.IsFinite(UpDegrees) || UpDegrees is < 0 or > 90 ||
             !float.IsFinite(DownDegrees) || DownDegrees is < 0 or > 60 ||
             !float.IsFinite(AssistDegrees) || AssistDegrees is < 0 or > 8 ||
             !float.IsFinite(MouseFriction) || MouseFriction is < 0 or > .2f ||

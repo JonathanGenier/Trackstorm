@@ -20,7 +20,7 @@ internal sealed class CameraFreeLook
     internal void Attract(Vector2 correction, float basePitch)
     {
         Yaw = MathF.IEEERemainder(Yaw - correction.X, MathF.Tau);
-        Pitch = Math.Clamp(Pitch - correction.Y, -MathF.PI * 17 / 36 - basePitch, MathF.PI * 17 / 36 - basePitch);
+        Pitch = Math.Clamp(Pitch - correction.Y, -MathF.PI * 17 / 36 - basePitch, MathF.PI / 2 - basePitch);
     }
 
     internal void Advance(Vector2 mouse, bool held, Vector2 stick, float delta, float basePitch, bool weaponAiming = false, float mouseScale = 1, float stickScale = 1, float stickCurve = 2, float horizontalScale = 1, float verticalScale = 1, float recenterScale = 1)
@@ -35,7 +35,7 @@ internal sealed class CameraFreeLook
         {
             Vector2 movement = InputMovement(mouse, stick, delta, weaponAiming, mouseScale, stickScale, stickCurve, horizontalScale, verticalScale);
             Yaw = MathF.IEEERemainder(Yaw - movement.X, MathF.Tau);
-            Pitch = Math.Clamp(Pitch - movement.Y, -MathF.PI * 17 / 36 - basePitch, MathF.PI * 17 / 36 - basePitch);
+            Pitch = Math.Clamp(Pitch - movement.Y, -MathF.PI * 17 / 36 - basePitch, MathF.PI / 2 - basePitch);
         }
         else
         {

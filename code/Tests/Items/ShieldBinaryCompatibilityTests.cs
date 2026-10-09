@@ -8,9 +8,12 @@ namespace Trackstorm.Core.Tests.Items;
 internal sealed class ShieldBinaryCompatibilityTests
 {
     [Test]
-    public void HistoricalItemBytesRemainExactAndRetiredAirConfigurationIsRejected()
+    public void HistoricalItemBodyRemainsExactAndRetiredProtocolsAreRejected()
     {
         byte[] items = Fixture("ShieldItems-v21.bin");
+        Assert.Throws<ArgumentException>(() => ItemCodec.DecodeState(items));
+        // TI22 extends accepted elevation; Shield's existing body layout is unchanged.
+        items[2] = 22;
         var publication = ItemCodec.DecodeState(items);
         Assert.That(ItemCodec.EncodeState(publication), Is.EqualTo(items));
         Assert.That(publication.Shields.Select(state => (state.Id, state.Stage, state.HP)), Is.EqualTo(new[]

@@ -167,7 +167,7 @@ internal sealed class ReleaseDefaultsTests
         Assert.That(DeveloperSettingsFile.Read(file.Write(file.Configuration)).Configuration, Is.EqualTo(file.Configuration));
         byte[] wire = GameplayConfigurationCodec.Encode(1, new(0, file.Configuration));
         Assert.That(wire.Length, Is.EqualTo(1965));
-        Assert.That(wire[2], Is.EqualTo(46));
+        Assert.That(wire[2], Is.EqualTo(47));
         Assert.That(GameplayConfigurationCodec.Decode(wire).State.Configuration, Is.EqualTo(file.Configuration));
     }
 

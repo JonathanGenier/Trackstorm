@@ -19,7 +19,9 @@ public static class WeaponAim
         if (!IsDirection(desired)) { throw new ArgumentException("Aim requires a unit direction."); }
         var pose = observedPose ?? vehicle.ObservedPhysics;
         Vector3 local = Vector3.Transform(desired, Quaternion.Conjugate(pose.Orientation));
-        float yaw = MathF.Atan2(-local.X, -local.Z);
+        // At the vertical pole yaw is undefined. Preserve the mount heading rather
+        // than turning it in response to floating-point horizontal noise.
+        float yaw = local.X * local.X + local.Z * local.Z < 1e-8f ? previous?.Yaw ?? 0 : MathF.Atan2(-local.X, -local.Z);
         float pitch = Math.Clamp(MathF.Asin(Math.Clamp(local.Y, -1, 1)), -tuning.DownDegrees * MathF.PI / 180, tuning.UpDegrees * MathF.PI / 180);
         float step = tuning.TurnRate * MathF.PI / 10800;
         float oldYaw = previous?.Yaw ?? 0;

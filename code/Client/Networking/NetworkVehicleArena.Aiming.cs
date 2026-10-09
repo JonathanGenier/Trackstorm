@@ -22,6 +22,7 @@ internal sealed partial class NetworkVehicleArena
     private ulong _aimIntentRevision;
     private float _aimRecoverySeconds;
     private Vector2 _aimPlacement;
+    private Vector2 _aimDeparture;
     private System.Numerics.Vector2 _aimGesture;
     internal ulong AssistedCar => StickyAiming ? _aimTarget : 0;
     private bool StickyAiming => _driver.LocalItem?.Active.Item == HeldItem.MachineGun;
@@ -93,6 +94,7 @@ internal sealed partial class NetworkVehicleArena
         _aimAdjusted = false;
         _aimBearing = default;
         _aimPlacement = default;
+        _aimDeparture = default;
         _aimGesture = default;
     }
 
@@ -120,6 +122,7 @@ internal sealed partial class NetworkVehicleArena
                 _aimTargetLife = _driver.Latest!.Vehicles.Single(v => v.State.VehicleId == _aimTarget).State.LifeId;
                 _aimAdjusted = false;
                 _aimPlacement = default;
+                _aimDeparture = default;
                 _aimGesture = default;
                 _aimRecoverySeconds = 0;
                 _aimBearing = AimBearing(AimBodyCenter(acquired) - lens);
@@ -135,6 +138,9 @@ internal sealed partial class NetworkVehicleArena
             desiredPoint = AimBodyCenter(framed);
         }
         Vector3 origin = VehicleBody.ToGodot(local.ObservedPhysics.Position + System.Numerics.Vector3.Transform(WeaponAim.Pivot, local.ObservedPhysics.Orientation));
+        // An unobstructed sky ray has no finite convergence surface. Preserve its
+        // direction from the weapon pivot, including exactly vertical free aim.
+        if (framed is null && hit.Point == rayEnd) { desiredPoint = origin + _camera.ProjectRayNormal(center) * 300; }
         if (origin.DistanceSquaredTo(desiredPoint) > .001f) { _driver.DesiredAim = VehicleBody.ToCore((desiredPoint - origin).Normalized()); }
         var accepted = _driver.AcceptedAims.FirstOrDefault(value => value.Vehicle == local.VehicleId && value.Life == local.LifeId && value.Token == slot.Active.Token);
         Rect2? bounds = null;
@@ -305,15 +311,23 @@ internal sealed partial class NetworkVehicleArena
         bool fineInput = mouse.LengthSquared() > .25f || stick.LengthSquared() > .0225f;
         // Deliberate departure is measured in accumulated look space, independent
         // of the tiny distant frame and of involuntary camera/vehicle displacement.
-        Vector2 intended = (_aimAdjusted ? _aimPlacement : new(error.X - motion.X, error.Y - motion.Y)) - lookInput;
+        // Initial acquisition error and involuntary motion are not player departure.
+        // Count only actual look displacement, even before fine placement engages.
+        _aimDeparture -= lookInput;
         float cone = _driver.Configuration.Configuration.Items.Aim.AssistDegrees * MathF.PI / 180;
-        if (CameraAimAttraction.Breakaway(new(intended.X, intended.Y), _aimGesture, new(lookInput.X, lookInput.Y), cone))
+        Vector2 outward = new(error.X - motion.X - lookInput.X, error.Y - motion.Y - lookInput.Y);
+        // A purposeful sweep is directional relative to the current target, not
+        // cancelled by earlier approach input on the other side of the accumulator.
+        bool sweep = _aimGesture.Length() > .045f && lookInput.Dot(outward) < 0;
+        if (sweep || CameraAimAttraction.Breakaway(new(_aimDeparture.X, _aimDeparture.Y), System.Numerics.Vector2.Zero, new(lookInput.X, lookInput.Y), cone))
         { _aimDismissed = _aimTarget; _aimDismissedLife = _aimTargetLife; ReleaseAim("deliberate accumulated look"); _aimReleaseSeconds = .18f; return (Vector2.Zero, false); }
         // After an intentional fine adjustment, transport the selected offset with the
         // target instead of repeatedly pulling it back to centre. Actual input stays direct.
         // Approaching the car with small input must not cancel acquisition pull.
-        // Preserve intentional placement once the cursor is on the body frame.
-        if (!_aimAdjusted && fineInput && ProjectAimBounds(_bodies[_aimTarget]) is { } adjustedFrame && adjustedFrame.HasPoint(_camera.GetViewport().GetVisibleRect().GetCenter()))
+        // A distant body's tiny outline must not disable fine tracking. Use a
+        // bounded angular neighborhood as well as the visible body at close range.
+        if (!_aimAdjusted && fineInput && (error.Length() <= cone * .3f ||
+            ProjectAimBounds(_bodies[_aimTarget]) is { } adjustedFrame && adjustedFrame.HasPoint(_camera.GetViewport().GetVisibleRect().GetCenter())))
         { _aimAdjusted = true; _aimPlacement = new(error.X - motion.X, error.Y - motion.Y); }
         if (_aimAdjusted) { _aimPlacement -= lookInput; }
         return (Vector2.Zero, true);

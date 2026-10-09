@@ -75,6 +75,17 @@ public sealed partial class WeaponAimChecks
                 mount.GlobalPosition.DistanceTo(body.VisualTransform * Trackstorm.Client.Vehicles.VehicleBody.ToGodot(WeaponAim.Pivot)) < .04f &&
                 mount.Scale.IsEqualApprox(Vector3.One), $"{scenario.Name}: fixed rack, full payload scale and shared pivot origin align on observer");
         }
+        Camera.ResetFollow(); await Frames(5);
+        Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true });
+        Send(new InputEventMouseMotion { ScreenRelative = new(0, -1000) }); await Frames(90);
+        Require(_arenas[1].AssistedCar == 0 && Camera.ProjectRayNormal(ViewCenter).Dot(Vector3.Up) > .99999f &&
+            host.Items.Aims.Single(a => a.Vehicle == Shooter) is { Ready: true, Direction.Y: > .9999f },
+            "Actual held mouse input reaches vertical sky aim through authoritative acceptance");
+        int beforeVertical = rays;
+        _arenas[1].Driver.RequestItemUse(); _firingPeers.Add(Shooter); await Frames(20);
+        _firingPeers.Clear(); await Frames(30);
+        Require(rays > beforeVertical, $"Vertical free fire produces actual authoritative rays: {rays - beforeVertical}");
+        RequireObserverMount("vertical");
         // Down through the shooter's chassis: intent and HUD remain live, authority refuses fire.
         Camera.ResetFollow(); await Frames(5);
         Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true });

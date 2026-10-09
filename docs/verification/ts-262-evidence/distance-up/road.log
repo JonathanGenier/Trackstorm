@@ -1,0 +1,86 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Three UDP peers initialized
+Host tuning applied
+AIM_AT requested=(-112.011986, 2.9220428, 47.99985) firstTargetDrift=(0.0028686523, -0.016825557, 1.1444092E-05) requestedScreen=(639.8357, 399.42395)
+ROAD_ACQUIRE distance=8 mode=0 measured=9.304m initialError=0.06341rad ticks=7 elapsed=0.131s
+Near-body cursor miss acquires without corrective input on production terrain
+ROAD distance=8 mode=0 fps=30 fov=50.000137 acquiredTick=0 retained=360/360 releases=0 reasons= travel=52.914m rise=0.832m heave=2.401m/s maxError=0.00014 finalMeanError=0.00004rad acceptedMeanError=0.12160rad readySamples=21 restricted=339 readyMeanError=0.01675rad
+Shooter drove actual production elevation changes
+Visible moving rival survives repeated authored rollers and small corrections without replacement
+Camera and unrestricted accepted aim recover alignment; self-blocked close aim remains restricted
+ROAD_RELEASE distance=8 mode=0 target=1 reason=input boundary revision=1->2 active=False angle=0.00730 sight=True hit=(-62.956562, 2.1391754, 48.017082) lens=(-75.89244, 6.8686304, 48.134735) target=(-61.167336, 1.4850184, 48.00081) accepted=1 active=False dismissed=0
+Release clears immediately after rough-road retention
+AIM_AT requested=(-112.0106, 2.919739, 47.999855) firstTargetDrift=(0.0015258789, -0.00875926, 7.6293945E-06) requestedScreen=(639.933, 399.6844)
+ROAD_ACQUIRE distance=8 mode=1 measured=9.569m initialError=0.06202rad ticks=5 elapsed=0.066s
+Near-body cursor miss acquires without corrective input on production terrain
+ROAD distance=8 mode=1 fps=60 fov=90.0025 acquiredTick=0 retained=360/360 releases=0 reasons= travel=52.115m rise=0.852m heave=2.419m/s maxError=0.02664 finalMeanError=0.00180rad acceptedMeanError=0.11651rad readySamples=27 restricted=333 readyMeanError=0.01792rad
+Shooter drove actual production elevation changes
+Visible moving rival survives repeated authored rollers and small corrections without replacement
+Camera and unrestricted accepted aim recover alignment; self-blocked close aim remains restricted
+ROAD_RELEASE distance=8 mode=1 target=1 reason=input boundary revision=3->4 active=False angle=0.00426 sight=True hit=(-63.83471, 2.1200683, 48.019318) lens=(-76.54605, 6.9869094, 48.159706) target=(-62.124725, 1.4653604, 48.000435) accepted=1 active=False dismissed=0
+Release clears immediately after rough-road retention
+AIM_AT requested=(-112.0117, 2.9253979, 47.99982) firstTargetDrift=(0.0038146973, -0.011343241, -7.6293945E-06) requestedScreen=(639.9329, 399.62064)
+ROAD_ACQUIRE distance=8 mode=2 measured=9.584m initialError=0.06221rad ticks=5 elapsed=0.083s
+Near-body cursor miss acquires without corrective input on production terrain
+ROAD distance=8 mode=2 fps=144 fov=90.00006 acquiredTick=0 retained=360/360 releases=0 reasons= travel=51.175m rise=0.865m heave=2.420m/s maxError=0.00140 finalMeanError=0.00035rad acceptedMeanError=0.11327rad readySamples=19 restricted=341 readyMeanError=0.01548rad
+Shooter drove actual production elevation changes
+Visible moving rival survives repeated authored rollers and small corrections without replacement
+Camera and unrestricted accepted aim recover alignment; self-blocked close aim remains restricted
+ROAD_RELEASE distance=8 mode=2 target=1 reason=input boundary revision=6->7 active=False angle=0.00112 sight=True hit=(-64.99125, 2.121718, 48.017975) lens=(-78.49875, 6.6720476, 48.140377) target=(-63.045906, 1.4663789, 48.000347) accepted=1 active=False dismissed=0
+Release clears immediately after rough-road retention
+AIM_AT requested=(-85, 2.9750733, 48) firstTargetDrift=(0, 0, 0) requestedScreen=(639.94904, 399.8866)
+ROAD_ACQUIRE distance=35 mode=0 measured=36.431m initialError=0.03035rad ticks=5 elapsed=0.098s
+Near-body cursor miss acquires without corrective input on production terrain
+ROAD distance=35 mode=0 fps=30 fov=50.0448 acquiredTick=0 retained=360/360 releases=0 reasons= travel=52.382m rise=0.846m heave=2.417m/s maxError=0.00000 finalMeanError=0.00000rad acceptedMeanError=0.01082rad readySamples=279 restricted=81 readyMeanError=0.00181rad
+Shooter drove actual production elevation changes
+Visible moving rival survives repeated authored rollers and small corrections without replacement
+Camera and unrestricted accepted aim recover alignment; self-blocked close aim remains restricted
+ROAD_RELEASE distance=35 mode=0 target=1 reason=input boundary revision=8->9 active=False angle=0.00093 sight=True hit=(-37.107273, 1.7025969, 48.005634) lens=(-75.54555, 4.848044, 48.093002) target=(-34.628735, 1.4997754, 48) accepted=1 active=False dismissed=0
+Release clears immediately after rough-road retention
+AIM_AT requested=(-85, 2.9750733, 48) firstTargetDrift=(0, 0, 0) requestedScreen=(639.9795, 399.94595)
+ROAD_ACQUIRE distance=35 mode=1 measured=36.558m initialError=0.03023rad ticks=5 elapsed=0.083s
+Near-body cursor miss acquires without corrective input on production terrain
+ROAD distance=35 mode=1 fps=60 fov=90.04484 acquiredTick=0 retained=360/360 releases=0 reasons= travel=52.115m rise=0.852m heave=2.419m/s maxError=0.02664 finalMeanError=0.00180rad acceptedMeanError=0.01073rad readySamples=280 restricted=80 readyMeanError=0.00187rad
+Shooter drove actual production elevation changes
+Visible moving rival survives repeated authored rollers and small corrections without replacement
+Camera and unrestricted accepted aim recover alignment; self-blocked close aim remains restricted
+ROAD_RELEASE distance=35 mode=1 target=1 reason=input boundary revision=10->11 active=False angle=0.00228 sight=True hit=(-37.709953, 1.7172469, 48.005543) lens=(-75.81894, 4.8942027, 48.09079) target=(-35.231415, 1.5106235, 48) accepted=1 active=False dismissed=0
+Release clears immediately after rough-road retention
+AIM_AT requested=(-85, 2.9750733, 48) firstTargetDrift=(0, 1.1920929E-07, 0) requestedScreen=(639.97943, 399.9463)
+ROAD_ACQUIRE distance=35 mode=2 measured=36.553m initialError=0.03022rad ticks=4 elapsed=0.070s
+Near-body cursor miss acquires without corrective input on production terrain
+ROAD distance=35 mode=2 fps=144 fov=90.04465 acquiredTick=0 retained=360/360 releases=0 reasons= travel=51.568m rise=0.861m heave=2.435m/s maxError=0.00000 finalMeanError=0.00000rad acceptedMeanError=0.01047rad readySamples=281 restricted=79 readyMeanError=0.00174rad
+Shooter drove actual production elevation changes
+Visible moving rival survives repeated authored rollers and small corrections without replacement
+Camera and unrestricted accepted aim recover alignment; self-blocked close aim remains restricted
+ROAD_RELEASE distance=35 mode=2 target=1 reason=input boundary revision=13->14 active=False angle=0.00020 sight=True hit=(-38.344574, 1.7303767, 48.006676) lens=(-76.12697, 4.894367, 48.10846) target=(-35.86604, 1.5228181, 48) accepted=1 active=False dismissed=0
+Release clears immediately after rough-road retention
+AIM_AT requested=(80, 9.445002, 48) firstTargetDrift=(0, 0, 0) requestedScreen=(639.99194, 400.00653)
+ROAD_ACQUIRE distance=200 mode=0 measured=201.582m initialError=0.03797rad ticks=7 elapsed=0.133s
+Near-body cursor miss acquires without corrective input on production terrain
+ROAD distance=200 mode=0 fps=30 fov=50.044098 acquiredTick=0 retained=360/360 releases=0 reasons= travel=51.927m rise=0.851m heave=2.433m/s maxError=0.00000 finalMeanError=0.00000rad acceptedMeanError=0.00016rad readySamples=352 restricted=8 readyMeanError=0.00016rad
+Shooter drove actual production elevation changes
+Visible moving rival survives repeated authored rollers and small corrections without replacement
+Camera and unrestricted accepted aim recover alignment; self-blocked close aim remains restricted
+ROAD_RELEASE distance=200 mode=0 target=1 reason=input boundary revision=15->16 active=False angle=0.00004 sight=True hit=(127.173035, 1.1734812, 48.0009) lens=(-75.49898, 4.679454, 48.074444) target=(129.65158, 1.1306057, 48) accepted=1 active=False dismissed=0
+Release clears immediately after rough-road retention
+AIM_AT requested=(80, 9.445002, 48) firstTargetDrift=(0, 0, 0) requestedScreen=(639.99615, 400.00308)
+ROAD_ACQUIRE distance=200 mode=1 measured=201.554m initialError=0.03797rad ticks=4 elapsed=0.067s
+Near-body cursor miss acquires without corrective input on production terrain
+ROAD distance=200 mode=1 fps=60 fov=90.04434 acquiredTick=0 retained=360/360 releases=0 reasons= travel=52.104m rise=0.851m heave=2.416m/s maxError=0.02664 finalMeanError=0.00153rad acceptedMeanError=0.00011rad readySamples=351 restricted=9 readyMeanError=0.00011rad
+Shooter drove actual production elevation changes
+Visible moving rival survives repeated authored rollers and small corrections without replacement
+Camera and unrestricted accepted aim recover alignment; self-blocked close aim remains restricted
+ROAD_RELEASE distance=200 mode=1 target=1 reason=input boundary revision=17->18 active=False angle=0.00151 sight=True hit=(127.37076, 1.1678667, 48.000977) lens=(-75.62807, 4.7001553, 48.080853) target=(129.8493, 1.1247387, 48) accepted=1 active=False dismissed=0
+Release clears immediately after rough-road retention
+AIM_AT requested=(80, 9.445002, 48) firstTargetDrift=(0, 0, 0) requestedScreen=(639.9962, 400.00308)
+ROAD_ACQUIRE distance=200 mode=2 measured=201.576m initialError=0.03797rad ticks=5 elapsed=0.084s
+Near-body cursor miss acquires without corrective input on production terrain
+ROAD distance=200 mode=2 fps=144 fov=90.04473 acquiredTick=0 retained=360/360 releases=0 reasons= travel=51.175m rise=0.865m heave=2.420m/s maxError=0.00000 finalMeanError=0.00000rad acceptedMeanError=0.00019rad readySamples=352 restricted=8 readyMeanError=0.00019rad
+Shooter drove actual production elevation changes
+Visible moving rival survives repeated authored rollers and small corrections without replacement
+Camera and unrestricted accepted aim recover alignment; self-blocked close aim remains restricted
+ROAD_RELEASE distance=200 mode=2 target=1 reason=input boundary revision=20->21 active=False angle=0.00001 sight=True hit=(126.34932, 1.1981332, 48.001045) lens=(-76.22731, 4.737985, 48.08652) target=(128.82785, 1.1548231, 48) accepted=1 active=False dismissed=0
+Release clears immediately after rough-road retention
+Weapon aiming integration passed: 47 accuracy/retention checks.

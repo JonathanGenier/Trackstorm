@@ -58,7 +58,7 @@ public static partial class ItemCodec
     private static void ValidateAimSolution(WeaponAimSolution aim, ulong tick)
     {
         if (aim.Vehicle == 0 || aim.Life == 0 || aim.Token == 0 || aim.Tick > tick || tick - aim.Tick > 15 ||
-            !float.IsFinite(aim.Yaw) || Math.Abs(aim.Yaw) > MathF.PI + .0001f || !float.IsFinite(aim.Pitch) || aim.Pitch is < -1.05f or > 1.40f ||
+            !float.IsFinite(aim.Yaw) || Math.Abs(aim.Yaw) > MathF.PI + .0001f || !float.IsFinite(aim.Pitch) || aim.Pitch < -1.05f || aim.Pitch > MathF.PI / 2 ||
             !Vehicles.VehiclePhysicsState.IsFinite(aim.Origin) || aim.Origin.LengthSquared() > 1e12f || !WeaponAim.IsDirection(aim.Direction) ||
             (aim.Ready && !aim.Clear))
         { throw new ArgumentException("Invalid accepted aim solution."); }

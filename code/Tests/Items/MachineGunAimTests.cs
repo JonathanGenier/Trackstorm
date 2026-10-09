@@ -30,6 +30,7 @@ internal sealed class MachineGunAimTests
     [TestCase(0f, 0f)]
     [TestCase(90f, 0f)]
     [TestCase(180f, 0f)]
+    [TestCase(0f, 90f)]
     [TestCase(-90f, 45f)]
     [TestCase(30f, 70f)]
     public void AcceptedDirectionAndPivotDriveActualRoundsOnRotatedChassis(float yaw, float pitch)

@@ -391,6 +391,7 @@ public sealed partial class WeaponAimChecks : Node
             Vector3 target = hit.Count == 0 ? end : hit["position"].AsVector3();
             var local = _arenas[1].Driver.LocalState!;
             N.Vector3 pivot = local.ObservedPhysics.Position + N.Vector3.Transform(WeaponAim.Pivot, local.ObservedPhysics.Orientation);
+            if (hit.Count == 0) { target = VehicleBody.ToGodot(pivot) + Camera.ProjectRayNormal(ViewCenter) * 300; }
             N.Vector3 expected = N.Vector3.Normalize(VehicleBody.ToCore(target) - pivot);
             string phase = $"{option.Name}={value} air={airborne} up={upward}";
             GD.Print($"CAMERA_AIM_SAMPLE {phase} expected={expected} actual={_arenas[1].Driver.DesiredAim} lens={lens} target={target} pitch={Camera.Rotation.X}");

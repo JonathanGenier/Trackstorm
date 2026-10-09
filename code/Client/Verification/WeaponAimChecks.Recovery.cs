@@ -101,6 +101,23 @@ public sealed partial class WeaponAimChecks
             Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
         }
         settings.UpdateSettings(new()); Engine.MaxFps = 60;
+        // A distant car can acquire several degrees from the cursor. Freeze pull
+        // to isolate whether one small input mistakes that initial gap for departure.
+        Position(new(0, floor, 200), new(0, floor, 0), new(100, floor, 0));
+        _heldTargets = (new(0, floor, 0), new(100, floor, 0));
+        Assist(false); Camera.ResetFollow(); await Frames(90);
+        await AimAtCurrent(() => Center() + Vector3.Right * 13); await Frames(20);
+        float initialPull = host.Items.Configuration.Aim.MousePull;
+        host.TryConfigure(0, new Dictionary<string, double> { ["items.aim_mouse_pull"] = 0 }, out _);
+        Assist(true); await Frames(5); losses.Clear();
+        Require(arena.AssistedCar == 1, "Distant car acquired before small outward correction during convergence");
+        Send(new InputEventMouseMotion { ScreenRelative = new(.6f, 0) }); await Frames(2);
+        Require(arena.AssistedCar == 1 && losses.Count == 0,
+            $"Initial distant acquisition gap is not deliberate departure: {string.Join(';', losses)}");
+        host.TryConfigure(0, new Dictionary<string, double> { ["items.aim_mouse_pull"] = initialPull }, out _);
+        await Frames(120);
+        Require(arena.AssistedCar == 1 && Camera.ProjectRayNormal(ViewCenter).AngleTo(Center() - Camera.GlobalPosition) < .006f,
+            "Distant convergence recovers useful alignment after the small correction");
         Position(new(0, floor, 35), new(0, floor, 0), new(100, floor, 0));
         _heldTargets = (new(0, floor, 0), new(100, floor, 0));
         Camera.ResetFollow(); await Frames(90); await AimAtCurrent(Center);
