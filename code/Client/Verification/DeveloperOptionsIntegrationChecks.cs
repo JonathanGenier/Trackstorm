@@ -144,7 +144,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                     double current = option.Read(_host.DeveloperConfiguration);
                     double value = option.Boolean ? 1 - current : option.Integral ? current + 1 : current == 0 ? 0.05 : current * 1.05;
                     // Shorten suspension and reduce the airborne fraction from its canonical maximum.
-                    if (option.Key is "vehicle.suspension_length" or "items.nitro_airborne_thrust_scale" or "environment.piece_speed" or "vehicle.crash_recovery_rate" or "vehicle.pit_yaw_response")
+                    if (option.Key is "vehicle.suspension_length" or "items.nitro_airborne_thrust_scale" or "environment.piece_speed" or "vehicle.crash_recovery_rate" or "vehicle.pit_yaw_response" or "items.missile_lifetime_seconds")
                     {
                         value = current * 0.95;
                     }
@@ -231,8 +231,19 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 Set("vehicle.acceleration", 7);
                 Set("items.wrench_heal", 17);
                 Set("items.missile_speed", 75);
+                Set("items.missile_clearance", 1.2);
+                Set("items.missile_turn_rate", 30);
+                Set("items.missile_response", 6);
+                Set("items.missile_lifetime_seconds", 8);
+                Set("items.maximum_damage", 240);
                 Press("Apply Settings");
                 await Until(() => _client.Arena!.Driver.Configuration == _host.Arena.Driver.Configuration, "final tuned boundary");
+                Check(_host.Arena.Driver.Configuration.Configuration.Items.MissileTerrain.Clearance == 1.2f &&
+                    _host.Arena.Driver.Configuration.Configuration.Items.MissileTerrain.TurnRate == 30 &&
+                    _host.Arena.Driver.Configuration.Configuration.Items.MissileTerrain.Response == 6 &&
+                    _host.Arena.Driver.Configuration.Configuration.Items.MissileLifetimeSeconds == 8 &&
+                    _host.Arena.Driver.Configuration.Configuration.Items.MaximumDamage == 240,
+                    "Missile category Apply reaches authoritative gameplay and client replica");
                 Set("vehicle.suspension_length", 1.8);
                 Press("Apply Settings");
                 await Frames(4);
@@ -398,6 +409,11 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         Check(_host.Arena.Driver.Configuration == before, "search and field changes do not mutate runtime or revision");
         Search("MiSsIlE");
         Check(Descendants(panel).OfType<LineEdit>().Any(editor => editor.IsVisibleInTree() && editor.Name == "items_missile_speed"), "search is case insensitive");
+        foreach (var option in GameplayOptions.All.Where(option => option.Group == "Missile"))
+        {
+            Check(Descendants(panel).OfType<LineEdit>().Any(editor => editor.IsVisibleInTree() && editor.Name == option.Key.Replace('.', '_')),
+                "Dedicated searchable Missile field: " + option.Key);
+        }
         foreach (var surface in new[] { ("Concrete", "concrete"), ("Dirt", "dirt"), ("Grass", "grass"), ("Mud", "mud"), ("Deep Mud", "deep_mud"), ("Water", "water") })
         {
             Search(surface.Item1);

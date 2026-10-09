@@ -96,6 +96,12 @@ public sealed record ItemConfiguration
     public float MissileSpeed { get; init; } = 120;
     /// <summary>Fixed 60 Hz steps before removal without an explosion.</summary>
     public int MissileLifetimeTicks { get; init; } = 300;
+    /// <summary>Independent maximum lifetime in seconds; the smaller of this and the tick budget wins at launch.</summary>
+    public float MissileLifetimeSeconds { get; init; } = 60;
+    /// <summary>Absolute world-coordinate safety bound; leaving it retires a missile without an impact.</summary>
+    public float MissileWorldLimit { get; init; } = 4096;
+    /// <summary>Terrain-only guidance; authoritative gameplay tuning.</summary>
+    public MissileTerrainConfiguration MissileTerrain { get; init; } = new();
     /// <summary>Explosion radius in metres.</summary>
     public float ExplosionRadius { get; init; } = 8;
     /// <summary>Damage at the exact center.</summary>
@@ -116,6 +122,11 @@ public sealed record ItemConfiguration
         { throw new ArgumentException("Invalid Shield wall tuning."); }
         ArgumentNullException.ThrowIfNull(Aim);
         Aim.Validate();
+        ArgumentNullException.ThrowIfNull(MissileTerrain);
+        MissileTerrain.Validate();
+        if (!float.IsFinite(MissileLifetimeSeconds) || MissileLifetimeSeconds is < 0.05f or > 60 ||
+            !float.IsFinite(MissileWorldLimit) || MissileWorldLimit is < 256 or > 16384)
+        { throw new ArgumentException("Invalid Missile cleanup bounds."); }
         if (!double.IsFinite(SalvoCount) || SalvoCount < 1 || SalvoCount > 16) { throw new ArgumentException("Invalid salvo count."); }
         if (!double.IsFinite(SalvoIntervalTicks) || SalvoIntervalTicks < 1 || SalvoIntervalTicks > 60) { throw new ArgumentException("Invalid salvo interval_ticks."); }
         if (!double.IsFinite(SalvoRange) || SalvoRange < 25 || SalvoRange > 250) { throw new ArgumentException("Invalid salvo range."); }

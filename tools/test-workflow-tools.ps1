@@ -229,3 +229,6 @@ Assert-True ($shieldPlan.RuntimeScripts -contains 'check-shield.ps1') 'Shield ch
 Assert-True ($shieldPlan.RuntimeScripts -contains 'check-shield-presentation.ps1') 'Shield changes route independent visual-state and repeated-use checks.'
 
 Assert-True ($shieldPlan.RuntimeScripts -contains 'check-world-wall.ps1') 'Shield changes route movable wall verification.'
+
+$missilePlan = Get-FastCheckPlan -Paths @('code/Core/Items/MissileFlight.cs')
+Assert-True ($missilePlan.RuntimeScripts -contains 'check-missile-terrain.ps1') 'Missile changes require native terrain and impaired-peer verification.'

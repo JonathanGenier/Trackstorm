@@ -226,7 +226,8 @@ public sealed partial class ItemAuthority
     /// <param name="ground">Host terrain projection at the fixed salvo range; missing terrain rejects use.</param>
     /// <param name="placeShield">Host-only native rear placement and clearance query.</param>
     /// <param name="observeShield">Host-only native wall motion observation.</param>
-    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeShield = null, Func<ShieldState, ShieldObservation?>? observeShield = null)
+    /// <param name="missileTerrain">Bounded host-only suitable terrain ray; never vehicle queries.</param>
+    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeShield = null, Func<ShieldState, ShieldObservation?>? observeShield = null, Func<Vector3, Vector3, MissileTerrainSample?>? missileTerrain = null)
     {
         ulong token = _token;
         ulong NextToken() => checked(++token);
@@ -498,6 +499,12 @@ public sealed partial class ItemAuthority
                 }
             }
 
+            if (missile.Arc is null)
+            {
+                Vector3 position = missile.Position;
+                if (Math.Max(Math.Abs(position.X), Math.Max(Math.Abs(position.Y), Math.Abs(position.Z))) > Configuration.MissileWorldLimit) { continue; }
+                missile = missile with { Velocity = MissileFlight.Correct(missile, Configuration.MissileTerrain, missileTerrain) };
+            }
             Vector3 end = missile.Arc is { } flight ? flight.At(flight.ElapsedTicks + 1) : missile.Position + (missile.Velocity / 60);
             float? hit = collide(missile, end);
             if (hit is float nativeFraction && (!float.IsFinite(nativeFraction) || nativeFraction is < 0 or > 1)) { throw new ArgumentException("Invalid projectile collision fraction."); }
