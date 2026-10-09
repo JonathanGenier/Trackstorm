@@ -118,6 +118,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         AddChild(_pickups);
         _pickups.Initialize(markers);
         _driver.CollideMissile = CollideMissile;
+        _driver.QueryMissileTerrain = (from, to) => Items.MissileTerrainQuery.Cast(GetWorld3D().DirectSpaceState, from, to);
         _driver.RaycastWeapon = RaycastWeapon;
         _driver.PlaceOil = PlaceOil;
         _driver.ProjectSalvoGround = point => SalvoGround(VehicleBody.ToGodot(point)) is { } hit ? VehicleBody.ToCore(hit.Position) : null;

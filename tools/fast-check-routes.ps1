@@ -39,6 +39,10 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'Missile|missile_terrain|check-missile-terrain') {
+            Add-Runtime 'check-missile-terrain.ps1'
+            Add-Manual 'Observe heavy missile pitch response, banks/ramps, cliff departure, reacquisition and repeated firing under latency with the rendered missile harness.'
+        }
         if ($path -match 'CombatCollision|combat_collision|check-combat-collision|VehicleCollision|VehicleMovement.cs|VehicleAuthority.cs|VehicleDamageMath') {
             Add-Runtime 'check-combat-collisions.ps1'
             Add-Extended 'check-environment-collision-network.ps1'

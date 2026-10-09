@@ -2,7 +2,7 @@
 
 The shared direct-fire foundation serves Machine Gun and standard Missile. Salvo keeps its separate mechanics. The production Car's deployed rack stays fixed: its child mount yaws and the child payload pitches. Existing placeholder weapon artwork is retained.
 
-**Current integration boundary:** Machine Gun consumes the ready accepted direction and origin for authoritative fire, with deterministic spread calibrated for approximately 80% grouping inside a production car's frame at 200 m. Standard Missile still fires along its established forward direction; its weapon-specific camera-aim integration remains separate. The centered cursor represents camera intent, not a guarantee of impact or an accepted-ray reticle.
+**Current integration boundary:** Machine Gun consumes the ready accepted direction and origin for authoritative fire, with deterministic spread calibrated for approximately 80% grouping inside a production car's frame at 200 m. Standard Missile still fires along its established forward direction; its weapon-specific camera-aim integration remains separate. Standard Missile terrain correction operates downstream of its launch velocity and never consumes an aim target or vehicle position. The centered cursor represents camera intent, not a guarantee of impact or an accepted-ray reticle.
 
 ## Authority and lifecycle
 
@@ -52,7 +52,7 @@ Item protocol version 21 carries replaceable aim kinds on the existing item path
 
 Requests/publications run at 20 Hz; authority advances at 60 Hz. Aim does not advance reliable item outcome revisions or resend complete world state. Empty sessions produce no continuing aim traffic. Retirement samples clear presentation, with a 300 ms local expiry covering lost samples/outages. Recovery starts without stale aim.
 
-Eight host-validated **Configs → Weapon aiming** controls expose turn rate, pitch limits, retention cone, per-device friction and per-device attraction through the existing catalog. Configuration version 45 carries them through live replication and recovery. Local sensitivities stay outside synchronization. Host settings schema 3 migrates the previous persisted six-degree default spread once; other custom values and deliberate schema-3 overrides are preserved.
+Eight host-validated **Configs → Weapon aiming** controls expose turn rate, pitch limits, retention cone, per-device friction and per-device attraction through the existing catalog. Configuration version 46 carries them through live replication and recovery. Local sensitivities stay outside synchronization. Host settings schema 3 migrates the previous persisted six-degree default spread once; other custom values and deliberate schema-3 overrides are preserved.
 
 ## Verification
 

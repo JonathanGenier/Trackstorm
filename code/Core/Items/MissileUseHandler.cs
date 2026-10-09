@@ -16,7 +16,7 @@ internal sealed class MissileUseHandler : IItemUseHandler
 
         Vector3 forward = Vector3.Transform(-Vector3.UnitZ, pose.Orientation);
         missiles.Add(new MissileState(slot.Token, slot.Vehicle, pose.Position,
-            forward * configuration.MissileSpeed, configuration.MissileLifetimeTicks));
+            forward * configuration.MissileSpeed, Math.Min(configuration.MissileLifetimeTicks, (int)MathF.Ceiling(configuration.MissileLifetimeSeconds * 60))));
         return true;
     }
 }

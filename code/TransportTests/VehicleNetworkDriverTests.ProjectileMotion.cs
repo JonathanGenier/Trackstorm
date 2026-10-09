@@ -8,6 +8,41 @@ namespace Trackstorm.Transport.Tests;
 internal sealed partial class VehicleNetworkDriverTests
 {
     [Test]
+    public void TerrainCorrectionIsHostOnlyAndCurvedSamplesReachPeers()
+    {
+        using var hostWire = ConnectedGateway();
+        using var clientWire = ConnectedGateway();
+        using var host = new VehicleNetworkDriver(hostWire, Session);
+        using var client = new VehicleNetworkDriver(clientWire, 0, ServerPeer);
+        int probes = 0, samples = 0;
+        IReadOnlyList<MissileState>? motion = null;
+        host.QueryMissileTerrain = (a, b) =>
+        {
+            probes++;
+            return a.Y >= -1 && b.Y <= -1 ? new(new(a.X, -1, a.Z), Vector3.UnitY) : null;
+        };
+        client.QueryMissileTerrain = (_, _) => throw new InvalidOperationException("A client must not steer authoritative missiles.");
+        client.ProjectileMotionReceived += missiles => { samples++; motion = missiles; };
+        void Transfer()
+        {
+            foreach (var packet in hostWire.Sent) { clientWire.Receive(packet); }
+            hostWire.Sent.Clear(); client.Advance(default, Observe);
+            foreach (var packet in clientWire.Sent) { hostWire.Receive(packet); }
+            clientWire.Sent.Clear();
+        }
+        host.Advance(default, Observe); Transfer();
+        Assert.That(host.GiveDeveloperItem(HeldItem.Missile), Is.True);
+        Assert.That(host.RequestItemUse(), Is.True);
+        for (int i = 0; i < 24; i++) { host.Advance(default, Observe); Transfer(); }
+        Assert.That(probes, Is.GreaterThan(20));
+        Assert.That(samples, Is.GreaterThan(0));
+        Assert.That(motion!.Single().Velocity.Y, Is.LessThan(0));
+        Assert.That(motion!.Single().Position.Y, Is.LessThan(1));
+        Assert.That(motion!.Single().Velocity.X, Is.Zero);
+        Assert.That(client.ItemState!.Missiles.Select(m => m.Id), Is.EqualTo(host.ItemState!.Missiles.Select(m => m.Id)));
+    }
+
+    [Test]
     public void DroppedReorderedMotionCannotLoseImpactOrResurrectProjectile()
     {
         using var hostWire = ConnectedGateway();
