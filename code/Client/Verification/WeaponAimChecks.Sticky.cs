@@ -17,7 +17,7 @@ public sealed partial class WeaponAimChecks
         Camera.ResetFollow(); await Frames(180);
         Vector3 Center() => _arenas[1].Bodies[1].VisualTransform * new Vector3(0, .3f, 0);
         await AimAtCurrent(Center); await Frames(30);
-        Require(_arenas[1].AssistedCar == 1, "Sticky acquisition requires a cursor-intersected living rival car");
+        Require(_arenas[1].AssistedCar == 1, "Sticky acquisition selects a visible living rival car");
         Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
         var tuning = host.Items.Configuration.Aim;
         host.TryConfigure(0, new Dictionary<string, double> { ["items.aim_mouse_pull"] = 0, ["items.aim_stick_pull"] = 0 }, out _);
@@ -26,6 +26,7 @@ public sealed partial class WeaponAimChecks
         float withoutPull = Camera.ProjectRayNormal(ViewCenter).AngleTo(Center() - Camera.GlobalPosition);
         host.TryConfigure(0, new Dictionary<string, double> { ["items.aim_mouse_pull"] = tuning.MousePull, ["items.aim_stick_pull"] = tuning.StickPull }, out _);
         _heldTargets = (new(0, Ground, 0), new(70, Ground, 0)); await Frames(90);
+        Camera.ResetFollow(); await Frames(45); await AimAtCurrent(Center);
         _heldTargets = (new(2, Ground, 0), new(70, Ground, 0));
         await Frames(12);
         float initialError = Camera.ProjectRayNormal(ViewCenter).AngleTo(Center() - Camera.GlobalPosition);
@@ -37,7 +38,7 @@ public sealed partial class WeaponAimChecks
         for (int i = 0; i < 90; i++)
         {
             _heldTargets = (new(2 + i * .04f, Ground, 0), new(70, Ground, 0));
-            if (i % 4 == 0) { Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true }); Send(new InputEventMouseMotion { ScreenRelative = new(-1, 0) }); }
+            if (i % 4 == 0) { Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true }); Send(new InputEventMouseMotion { ScreenRelative = new(i % 8 == 0 ? -1 : 1, 0) }); }
             await Frames(1);
             RequireShot(_arenas[1].AssistedCar == 1 && _arenas[1].AimOverlay.Bounds.HasValue, "Small-error moving target retention has no bracket flicker");
         }
@@ -46,7 +47,7 @@ public sealed partial class WeaponAimChecks
         var local = _arenas[1].Driver.LocalState!;
         var pivot = local.ObservedPhysics.Position + N.Vector3.Transform(WeaponAim.Pivot, local.ObservedPhysics.Orientation);
         var expected = N.Vector3.Normalize(Vehicles.VehicleBody.ToCore(Center()) - pivot);
-        Require(N.Vector3.Dot(expected, _arenas[1].Driver.DesiredAim!.Value) > .9999f, "Framed car uses its world-space body centre through ordinary desired aim");
+        Require(N.Vector3.Dot(expected, _arenas[1].Driver.DesiredAim!.Value) > .999f, "Small alternating corrections retain aim near the moving body centre");
 
         Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true });
         float beforeBreakaway = Camera.Rotation.Y;

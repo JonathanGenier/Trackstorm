@@ -6,6 +6,15 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class CameraAimAttractionTests
 {
+    [Test]
+    public void TrackingCrossesTheWorldHeadingSeamWithoutTurningTheLongWay()
+    {
+        var result = CameraAimAttraction.Motion(new(MathF.PI - .01f, 0), new(-MathF.PI + .01f, .01f), 1f / 30);
+        Assert.That(result.X, Is.EqualTo(.02f).Within(.00001f));
+        Assert.That(result.Y, Is.EqualTo(.01f).Within(.00001f));
+        Assert.That(CameraAimAttraction.Motion(Vector2.Zero, new(2, 1), 1f / 60).Length(), Is.EqualTo(MathF.PI / 60).Within(.00001f));
+    }
+
     [TestCase(30)]
     [TestCase(60)]
     [TestCase(144)]

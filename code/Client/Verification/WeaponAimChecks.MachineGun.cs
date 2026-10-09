@@ -60,6 +60,7 @@ public sealed partial class WeaponAimChecks
             await Frames(20);
             await Capture("mg-" + scenario.Name);
             _firingPeers.Clear(); await Frames(40);
+            GD.Print($"MG_DAMAGE {scenario.Name}: hp={hp}->{host.World.GetVehicle(1).Damage.CurrentHP} damage={host.Items.Configuration.MachineGunDamage} range={host.Items.Configuration.MachineGunRange} shields={host.Items.Shields.Count} phase={host.World.State.Match?.Phase}");
             Require(rays > before && hits > beforeHits && host.World.GetVehicle(1).Damage.CurrentHP < hp,
                 $"Machine Gun {scenario.Name}: native hit/damage, {rays - before} rounds, {hits - beforeHits} target hits");
             RequireObserverMount("firing-" + scenario.Name);

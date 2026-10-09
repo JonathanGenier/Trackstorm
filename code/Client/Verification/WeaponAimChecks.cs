@@ -25,11 +25,31 @@ public sealed partial class WeaponAimChecks : Node
     private (N.Vector3 First, N.Vector3 Second)? _heldTargets;
     private N.Vector3? _heldShooter;
     private N.Quaternion _targetOrientation = N.Quaternion.Identity;
+    private bool _scriptMouseHeld;
+    private Vector2 _scriptStick;
     private float Ground => _oval ? 1.65f : 21.65f;
     private ulong Shooter => _arenas[1].Driver.LocalVehicleId;
     private VehicleChaseCamera Camera => _arenas[1].GetNode<VehicleChaseCamera>("ChaseCamera");
 
     public override void _Ready() => CallDeferred(MethodName.Run);
+
+    public override void _Process(double delta) => MaintainScriptFocus();
+
+    private void MaintainScriptFocus()
+    {
+        if (_input is null || _input.Adapter.Enabled) { return; }
+        // This automated fixture owns synthetic focus. Actual OS focus behavior belongs
+        // to interactive play; switching desktop apps must not invalidate a timed script.
+        _input.Adapter.Enabled = true;
+        using var mouse = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = _scriptMouseHeld };
+        _input._Input(mouse);
+        foreach (var (axis, value) in new[] { (JoyAxis.RightX, _scriptStick.X), (JoyAxis.RightY, _scriptStick.Y) })
+        {
+            using var stick = new InputEventJoypadMotion { Device = 0, Axis = axis, AxisValue = value };
+            Godot.Input.ParseInputEvent(stick); Godot.Input.FlushBufferedEvents(); _input._Input(stick);
+        }
+        GD.Print("Verification restored synthetic focus after a desktop focus change");
+    }
 
     /// <summary>Runs synthetic native input and real transport; physical-controller ergonomics remain a human check.</summary>
     public async void Run()
@@ -37,6 +57,7 @@ public sealed partial class WeaponAimChecks : Node
         try
         {
             Engine.MaxFps = 30;
+            ProcessPriority = -100;
             _oval = OS.GetCmdlineUserArgs().Contains("--aim-oval");
             _output = OS.GetCmdlineUserArgs().FirstOrDefault(value => value.StartsWith("--aim-output="))?[13..] ?? ProjectSettings.GlobalizePath("res://.godot/aim-checks");
             System.IO.Directory.CreateDirectory(_output);
@@ -80,16 +101,18 @@ public sealed partial class WeaponAimChecks : Node
             await Until(() => _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 3), "Three UDP peers initialized", 1200);
             var host = _arenas[0].Driver.Host!;
             Require(host.TryConfigure(0, new Dictionary<string, double> { ["match.minimum_players"] = 1, ["match.countdown_ticks"] = 1 }, out _), "Host tuning applied");
-            if (OS.GetCmdlineUserArgs().Contains("--aim-accuracy") || OS.GetCmdlineUserArgs().Contains("--aim-sticky"))
+            if (OS.GetCmdlineUserArgs().Contains("--aim-accuracy") || OS.GetCmdlineUserArgs().Contains("--aim-sticky") || OS.GetCmdlineUserArgs().Contains("--aim-freedom"))
             {
                 if (OS.GetCmdlineUserArgs().Contains("--aim-accuracy")) { await CheckAccuracy(); }
-                await CheckStickyEngagement();
+                if (OS.GetCmdlineUserArgs().Contains("--aim-freedom")) { await CheckAimFreedom(); }
+                else { await CheckStickyEngagement(); }
                 GD.Print($"Weapon aiming integration passed: {_evidence.Count} accuracy/retention checks.");
                 foreach (var arena in _arenas) { arena.QueueFree(); }
                 for (int i = 0; i < 4; i++) { await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); }
                 GetTree().Quit(); return;
             }
             await CheckMachineGunFire();
+            await CheckAimFreedom();
             Position(new(0, Ground, 35), new(0, Ground, 0), new(6, Ground, 0));
             host.Items.Grant(host.World, Shooter, HeldItem.MachineGun);
             host.Items.Grant(host.World, Shooter, HeldItem.Missile);
@@ -101,8 +124,8 @@ public sealed partial class WeaponAimChecks : Node
             Require(_arenas[1].AimOverlay.Bounds is { } forwardBounds && forwardBounds.HasPoint(ViewCenter),
                 "Center-ray car intersection replaces square with disconnected brackets");
             RequireCentered("Camera intent stays at viewport center while car brackets are shown");
-            await AimAt(_arenas[1].Bodies[1].VisualPosition + new Vector3(2.8f, .35f, 0));
-            Require(_arenas[1].AimOverlay.Bounds is null, "A near-axis miss returns to the small square without a target lock");
+            await AimAt(_arenas[1].Bodies[1].VisualPosition + new Vector3(-12, .35f, 0));
+            Require(_arenas[1].AimOverlay.Bounds is null, "A deliberate miss outside both acquisition regions returns to the free-aim square");
             RequireCentered("Small square is centered when aiming beside a rival");
             await Capture("02a-near-miss-square");
             await AimAt(_arenas[1].Bodies[1].VisualPosition + Vector3.Up);
@@ -433,11 +456,20 @@ public sealed partial class WeaponAimChecks : Node
             float yaw = MathF.Atan2(-direction.X, -direction.Z), pitch = MathF.Asin(direction.Y);
             Send(new InputEventMouseMotion { ScreenRelative = new(-Mathf.AngleDifference(Camera.Rotation.Y, yaw) / .003f, -(pitch - Camera.Rotation.X) / .003f) });
             await Frames(15);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         }
         GD.Print($"AIM_AT requested={point} firstTargetDrift={_arenas[1].Bodies[1].VisualPosition - initialTarget} requestedScreen={Camera.UnprojectPosition(point)}");
     }
     private void Send(InputEvent input)
     {
+        MaintainScriptFocus();
+        if (input is InputEventMouseButton { ButtonIndex: MouseButton.Right } button) { _scriptMouseHeld = button.Pressed; }
+        if (input is InputEventJoypadMotion motion)
+        {
+            if (motion.Axis == JoyAxis.RightX) { _scriptStick.X = motion.AxisValue; }
+            if (motion.Axis == JoyAxis.RightY) { _scriptStick.Y = motion.AxisValue; }
+        }
         using (input)
         {
             Godot.Input.ParseInputEvent(input); Godot.Input.FlushBufferedEvents();
@@ -457,7 +489,7 @@ public sealed partial class WeaponAimChecks : Node
             if (i % 6 == 0) { await Capture($"motion-{phase}-{i:D3}"); }
         }
     }
-    private async Task Frames(int count, ushort throttle = 0, short steering = 0, InputButtons held = 0)
+    private async Task Frames(int count, ushort throttle = 0, short steering = 0, InputButtons held = 0, bool pressUse = false)
     {
         for (int i = 0; i < count; i++)
         {
@@ -467,7 +499,7 @@ public sealed partial class WeaponAimChecks : Node
             {
                 bool firing = _firingPeers.Contains(arena.Driver.LocalVehicleId);
                 if (firing && arena != _arenas[1]) { arena.Driver.DesiredAim = N.Vector3.Normalize(new N.Vector3(1, 1, 0)); }
-                arena.Advance(arena == _arenas[1] ? new(0, steering, throttle, 0, held | (firing ? InputButtons.UseItem : 0), 0, 0) :
+                arena.Advance(arena == _arenas[1] ? new(0, steering, throttle, 0, held | (firing ? InputButtons.UseItem : 0), pressUse && i == 0 ? InputButtons.UseItem : 0, 0) :
                     new(0, 0, 0, 0, firing ? InputButtons.UseItem : 0, 0, 0));
                 if (arena.Driver.Failure.Length > 0) { throw new InvalidOperationException(arena.Driver.Failure); }
             }

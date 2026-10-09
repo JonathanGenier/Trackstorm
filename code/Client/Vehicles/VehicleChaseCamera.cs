@@ -24,6 +24,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
     private float _distanceScale = 1.15f;
     private float _airSeconds;
     private bool _recoveringHeading;
+    private float _aimHeadingWeight;
 
     /// <summary>Horizontal chase distance behind the deployed weapon attachment in metres.</summary>
     [Export(PropertyHint.Range, "2,25,0.1")]
@@ -92,6 +93,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
     {
         AimReset?.Invoke();
         _initialized = false;
+        _aimHeadingWeight = 0;
         _boost.Reset();
         _aerial.Reset();
         if (IsNodeReady()) { Fov = (float)(SettingsSource?.Current.CameraFov ?? _baseFov); _streaks.Reset(); _streaks.Hide(); }
@@ -137,6 +139,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
     internal void Follow(Transform3D pose, VehicleSnapshot state, float delta, Rid followedBody = default)
     {
         bool reset = !_initialized || state.VehicleId != _vehicle || state.LifeId != _life;
+        float previousHeading = _heading;
         var preferences = SettingsSource?.Current;
         float inertia = (float)(preferences?.CameraInertia ?? .5) * 2;
         float distanceScale = (float)(preferences?.CameraDistance ?? 1.15);
@@ -151,6 +154,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
         if (reset)
         {
             _look.Reset();
+            _aimHeadingWeight = 0;
             _boost.Reset();
             _aerial.Reset();
             _distanceScale = distanceScale;
@@ -247,6 +251,10 @@ public sealed partial class VehicleChaseCamera : Camera3D
             // Breakaway measures deliberate physical input after inversion. Low sensitivity
             // must never turn full stick or a mouse sweep into an inescapable fine correction.
             var attraction = WeaponAiming ? AimAttraction?.Invoke(mouse, stick, delta) ?? (Vector2.Zero, false) : (Vector2.Zero, false);
+            // Engaged aim is world-relative: steering is not a request to look away.
+            // Fade this compensation on release so the chase heading takes over smoothly.
+            _aimHeadingWeight = attraction.Item2 ? 1 : _aimHeadingWeight * MathF.Exp(-8 * delta);
+            _look.Attract(new(Mathf.AngleDifference(previousHeading, _heading) * _aimHeadingWeight, 0), basePitch);
             _look.Advance(new(mouse.X, mouse.Y), InputSource?.MouseLookHeld == true || attraction.Item2, new(stick.X, stick.Y), delta, basePitch, WeaponAiming,
                 friction.Item1 * mouseGain, friction.Item2 * stickGain, (float)(preferences?.StickAimCurve ?? 2), axisGain.X, axisGain.Y,
                 (float)(preferences?.CameraRecenterSpeed ?? 1));

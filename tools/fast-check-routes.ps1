@@ -71,7 +71,7 @@ function Get-FastCheckPlan {
         if ($path -match 'WeaponAim|Aiming|CameraAimAttraction|weapon_aim|check-weapon-aim') {
             Add-Runtime 'check-weapon-aim.ps1'
             Add-Manual 'Inspect aiming while driving, close/airborne/crossing targets, mouse and physical controller feel, and impaired remote articulation with check-weapon-aim.ps1 -Visual -Impaired.'
-            Add-Manual 'Measure actual 200 m grouping with check-weapon-aim.ps1 -Accuracy -Impaired; inspect retention/breakaway with -Sticky -Visual -Impaired.'
+            Add-Manual 'Measure actual 200 m grouping with check-weapon-aim.ps1 -Accuracy -Impaired; inspect retention/breakaway with -Sticky -Visual -Impaired and driving/placement freedom with -Freedom -Visual -Impaired -Oval.'
         }
         if ($path -match 'CarRack|RackItemVisual|car_rack|check-car-rack') {
             Add-Runtime 'check-car-rack.ps1'

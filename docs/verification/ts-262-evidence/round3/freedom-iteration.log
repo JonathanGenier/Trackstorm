@@ -1,0 +1,29 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:05.33
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Three UDP peers initialized
+Host tuning applied
+AIM_AT requested=(3.2, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0057, 400.0001)
+Near-car acquisition starts from a genuine cursor miss with assistance disabled
+Forgiving acquisition gently converges on the visible car: error=0.00000 rad
+Fine placement remains off-centre without centre tug: 0.01198->0.01198 rad
+Actual authoritative shots preserve adjusted placement: 40 rays, 0.01432 rad off centre
+AIM_AT requested=(0, 21.949999, -25) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Driving/fire exercised assist=False: speed=29.43m/s distance=46.55m turn=1.529rad rays=240 hits=58 retained=0/180 meanError=0.54970rad
+AIM_AT requested=(0, 21.949999, -25) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Driving/fire exercised assist=True: speed=29.43m/s distance=46.55m turn=1.529rad rays=240 hits=240 retained=180/180 meanError=0.00664rad
+Driving compensation retains engagement and native hits while materially reducing tracking error
+Deliberate aim-away releases even after sustained driving engagement
+Chase return after engagement preserves the centred logical cursor
+Weapon aiming integration passed: 11 accuracy/retention checks.
+Weapon aiming artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\aim-checks\c12efa7bf1dc4a0f9c2cfd9706df0588
