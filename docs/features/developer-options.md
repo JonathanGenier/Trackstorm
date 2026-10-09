@@ -487,7 +487,7 @@ The Asphalt, Dirt and Grass groups expose `vehicle.<surface>.braking` (0–2), `
 
 Grass also exposes `vehicle.grass_steering_reserve` (default 0.65, range 0–1) and `vehicle.grass_recovery` (3/s, range 0–10). The Vehicle group exposes `vehicle.handbrake_hold_speed` (0.5 m/s, range 0–1). Dirt's extra low-speed corner budget defaults to 0.2 and applies per supported Dirt wheel. See [surface braking](vehicles.md#deliberate-surface-braking-and-stationary-handbrake) for behavior and defaults.
 
-These twelve appended keys use the existing Apply/Cancel/Reset, host validation, saved-key fallback, reliable revision ordering and resume/migration configuration paths. The complete TC44 layout carries 232 values in 1877 bytes; older layouts are rejected. Old saved files missing the new keys inherit defaults, while explicit existing grip overrides remain effective until reset. Player controller settings remain outside this gameplay catalog.
+These twelve appended keys use the existing Apply/Cancel/Reset, host validation, saved-key fallback, reliable revision ordering and resume/migration configuration paths. The complete TC45 layout carries 232 values in 1877 bytes; older layouts are rejected. Old saved files missing the new keys inherit defaults, while explicit existing grip overrides remain effective until reset. Player controller settings remain outside this gameplay catalog.
 
 ### Shield wall deployment
 
@@ -508,7 +508,7 @@ The Shield category also exposes `items.shield_lifetime` (120 seconds, range 1�
 | `vehicle.pit_yaw_response` | 1 | 0-1 | Maximum rear-quarter yaw compliance; values at or below ordinary crash rotation add none. |
 | `vehicle.pit_angular_limit` | 2.5 rad/s | 0-3 rad/s | Maximum qualified per-contact angular change; ordinary crash bounds remain the floor. |
 
-The complete TC44 catalog carries 232 values (1877 bytes), including these controls through Apply/Cancel/Reset, validation, persistence, host publication, prediction and resume/migration. Old TC43 and earlier wire layouts are rejected; saved settings missing new keys use defaults. See [vehicle impact and aerial behavior](vehicles.md).
+The complete TC45 catalog carries 232 values (1877 bytes), including these controls through Apply/Cancel/Reset, validation, persistence, host publication, prediction and resume/migration. Old TC44 and earlier wire layouts are rejected; saved settings missing new keys use defaults. See [vehicle impact and aerial behavior](vehicles.md).
 
 ### Combat momentum and low-speed drive
 
@@ -519,4 +519,4 @@ The complete TC44 catalog carries 232 values (1877 bytes), including these contr
 | `vehicle.impact_yaw_response` | 0.55 | 0–1 | Contact-derived front/rear side-impact yaw compliance; center-side contact remains ordinary. |
 | `damage.momentum_bias` | 0.6 | 0–0.9 | Bias of bounded collision damage toward the lower impact-axis momentum participant. |
 
-These four keys use the existing complete TC44 configuration (232 values, 1877 bytes), persistence, validation, host retuning, prediction revision barrier and recovery paths. The existing PIT onset remains 1.5 m/s and its angular limit bounds qualified vehicle yaw. Low-speed drive changes no tire capacity, high-speed drive command, top speed, world-collision coefficient, rock-face constraint or aerial control rule. See [vehicles and damage](vehicles.md).
+These four keys use the existing complete TC45 configuration (232 values, 1877 bytes), persistence, validation, host retuning, prediction revision barrier and recovery paths. The existing PIT onset remains 1.5 m/s and its angular limit bounds qualified vehicle yaw. Low-speed drive changes no tire capacity, high-speed drive command, top speed, world-collision coefficient, rock-face constraint or aerial control rule. See [vehicles and damage](vehicles.md).

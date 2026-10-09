@@ -252,10 +252,11 @@ public sealed partial class VehicleChaseCamera : Camera3D
             // must never turn full stick or a mouse sweep into an inescapable fine correction.
             var attraction = WeaponAiming ? AimAttraction?.Invoke(mouse, stick, delta) ?? (Vector2.Zero, false) : (Vector2.Zero, false);
             // Engaged aim is world-relative: steering is not a request to look away.
-            // Fade this compensation on release so the chase heading takes over smoothly.
-            _aimHeadingWeight = attraction.Item2 ? 1 : _aimHeadingWeight * MathF.Exp(-8 * delta);
+            // Breakaway fades compensation; releasing aim intent stops it immediately.
+            bool aimHeld = InputSource?.CameraAimActive == true;
+            _aimHeadingWeight = !aimHeld ? 0 : attraction.Item2 ? 1 : _aimHeadingWeight * MathF.Exp(-8 * delta);
             _look.Attract(new(Mathf.AngleDifference(previousHeading, _heading) * _aimHeadingWeight, 0), basePitch);
-            _look.Advance(new(mouse.X, mouse.Y), InputSource?.MouseLookHeld == true || attraction.Item2, new(stick.X, stick.Y), delta, basePitch, WeaponAiming,
+            _look.Advance(new(mouse.X, mouse.Y), InputSource?.MouseLookHeld == true || (aimHeld && attraction.Item2), new(stick.X, stick.Y), delta, basePitch, WeaponAiming,
                 friction.Item1 * mouseGain, friction.Item2 * stickGain, (float)(preferences?.StickAimCurve ?? 2), axisGain.X, axisGain.Y,
                 (float)(preferences?.CameraRecenterSpeed ?? 1));
             _look.Attract(new(attraction.Item1.X, attraction.Item1.Y), basePitch);

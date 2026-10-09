@@ -19,6 +19,7 @@ internal sealed partial class NetworkVehicleArena
     private Vector2 _aimBearing;
     private ulong _aimDismissed;
     private ulong _aimDismissedLife;
+    private ulong _aimIntentRevision;
     internal ulong AssistedCar => StickyAiming ? _aimTarget : 0;
     private bool StickyAiming => _driver.LocalItem?.Active.Item == HeldItem.MachineGun;
     internal WeaponAimOverlay AimOverlay => _aimOverlay;
@@ -43,6 +44,11 @@ internal sealed partial class NetworkVehicleArena
         var current = _driver.LocalItem!;
         var capability = (current.Life, current.Active.Token, current.SelectionRevision);
         if (_aimCapability != capability) { _aimTarget = 0; _aimDismissed = 0; _aimReleaseSeconds = 0; _aimCapability = capability; }
+        if (CameraInput is { } input && (_aimIntentRevision != input.CameraAimRevision || !input.CameraAimActive))
+        {
+            ResetAssistance();
+            _aimIntentRevision = input.CameraAimRevision;
+        }
         if (StickyAiming) { ValidateStickyTarget(); }
         else { SelectAimTarget(); }
     }
@@ -51,13 +57,20 @@ internal sealed partial class NetworkVehicleArena
     {
         _driver.DesiredAim = null;
         _camera.WeaponAiming = false;
+        _aimCapability = default;
+        ResetAssistance();
+        _aimOverlay.Reset();
+    }
+
+    private void ResetAssistance()
+    {
         _aimTarget = 0;
         _aimTargetLife = 0;
-        _aimCapability = default;
         _aimReleaseSeconds = 0;
         _aimController = false;
         _aimDismissed = 0;
-        _aimOverlay.Reset();
+        _aimAdjusted = false;
+        _aimBearing = default;
     }
 
     private void PresentAiming()
@@ -78,7 +91,7 @@ internal sealed partial class NetworkVehicleArena
         if (StickyAiming)
         {
             ValidateStickyTarget();
-            if (_aimTarget == 0 && _aimReleaseSeconds <= 0 && _driver.AcceptedAims.Any(a => a.Vehicle == local.VehicleId && a.Life == local.LifeId && a.Token == slot.Active.Token) && FindAcquisition(lens) is { } acquired)
+            if (CameraInput?.CameraAimActive == true && _aimTarget == 0 && _aimReleaseSeconds <= 0 && _driver.AcceptedAims.Any(a => a.Vehicle == local.VehicleId && a.Life == local.LifeId && a.Token == slot.Active.Token) && FindAcquisition(lens) is { } acquired)
             {
                 _aimTarget = acquired.VehicleId;
                 _aimTargetLife = _driver.Latest!.Vehicles.Single(v => v.State.VehicleId == _aimTarget).State.LifeId;
@@ -188,6 +201,7 @@ internal sealed partial class NetworkVehicleArena
 
     private void ValidateStickyTarget()
     {
+        if (CameraInput?.CameraAimActive != true) { ResetAssistance(); return; }
         if (_aimTarget == 0) { return; }
         if (!_driver.AcceptedAims.Any(a => a.Vehicle == _driver.LocalVehicleId && a.Life == _aimCapability.Life && a.Token == _aimCapability.Token))
         { _aimTarget = 0; return; }
@@ -211,7 +225,7 @@ internal sealed partial class NetworkVehicleArena
     private (Vector2 Pull, bool Engaged) AimAttraction(Vector2 mouse, Vector2 stick, float delta)
     {
         _aimReleaseSeconds = Math.Max(0, _aimReleaseSeconds - delta);
-        if (!StickyAiming || _driver.Configuration.Configuration.Items.Aim.AssistDegrees <= 0) { return (Vector2.Zero, false); }
+        if (!StickyAiming || CameraInput?.CameraAimActive != true || _driver.Configuration.Configuration.Items.Aim.AssistDegrees <= 0) { return (Vector2.Zero, false); }
         if (stick.LengthSquared() > .001f) { _aimController = true; }
         if (mouse.LengthSquared() > .001f) { _aimController = false; }
         if (_aimTarget == 0)
@@ -238,7 +252,9 @@ internal sealed partial class NetworkVehicleArena
         { _aimDismissed = _aimTarget; _aimDismissedLife = _aimTargetLife; _aimTarget = 0; _aimReleaseSeconds = .18f; return (Vector2.Zero, false); }
         // After an intentional fine adjustment, transport the selected offset with the
         // target instead of repeatedly pulling it back to centre. Actual input stays direct.
-        if (fineInput) { _aimAdjusted = true; }
+        // Approaching the car with small input must not cancel acquisition pull.
+        // Preserve intentional placement once the cursor is on the body frame.
+        if (fineInput && ProjectAimBounds(_bodies[_aimTarget]) is { } adjustedFrame && adjustedFrame.HasPoint(_camera.GetViewport().GetVisibleRect().GetCenter())) { _aimAdjusted = true; }
         Vector2 bearing = AimBearing(AimBodyCenter(_bodies[_aimTarget]) - _camera.GlobalPosition);
         var motion = CameraAimAttraction.Motion(new(_aimBearing.X, _aimBearing.Y), new(bearing.X, bearing.Y), delta);
         _aimBearing = bearing;

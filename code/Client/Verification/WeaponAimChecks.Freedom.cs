@@ -8,6 +8,7 @@ public sealed partial class WeaponAimChecks
 {
     private async Task CheckAimFreedom()
     {
+        await CheckHeldAimLifecycle();
         var host = _arenas[0].Driver.Host!;
         float cone = host.Items.Configuration.Aim.AssistDegrees;
         void Assist(bool enabled) => host.TryConfigure(0, new Dictionary<string, double> { ["items.aim_assist_degrees"] = enabled ? cone : 0 }, out _);
@@ -20,16 +21,17 @@ public sealed partial class WeaponAimChecks
         Assist(false); Camera.ResetFollow(); await Frames(150);
         await AimAtCurrent(() => Center() + Vector3.Right * 3.2f); await Frames(30);
         Require(_arenas[1].AssistedCar == 0 && Error() > .05f, "Near-car acquisition starts from a genuine cursor miss with assistance disabled");
-        Assist(true); await Frames(120);
-        Require(_arenas[1].AssistedCar == 1 && Error() < .008f, $"Forgiving acquisition gently converges on the visible car: error={Error():F5} rad");
+        Assist(true); await Frames(2);
+        Send(new InputEventMouseMotion { ScreenRelative = new(-1, 0) }); await Frames(120);
+        Require(_arenas[1].AssistedCar == 1 && Error() < .008f, $"Forgiving acquisition survives small approach input and converges: error={Error():F5} rad");
         for (int i = 0; i < 4; i++)
         {
             Send(new InputEventMouseMotion { ScreenRelative = new(1, 0) }); await Frames(4);
         }
-        Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false }); await Frames(20);
+        await Frames(20);
         float adjusted = Error(); await Frames(60);
         Require(_arenas[1].AssistedCar == 1 && adjusted > .007f && Math.Abs(Error() - adjusted) < .003f,
-            $"Fine placement remains off-centre without centre tug: {adjusted:F5}->{Error():F5} rad");
+            $"Fine placement remains off-centre while RMB stays held: {adjusted:F5}->{Error():F5} rad");
         int placementShots = 0;
         N.Vector3 sum = N.Vector3.Zero;
         var native = _arenas[0].Driver.RaycastWeapon!;
@@ -90,6 +92,10 @@ public sealed partial class WeaponAimChecks
             {
                 Require(retained >= 170 && mean < .025f && mean < unassisted * .3f && hits > 100,
                     "Driving compensation retains engagement and native hits while materially reducing tracking error");
+                float beforeBraking = host.World.GetVehicle(Shooter).Speed;
+                await Frames(30, brake: ushort.MaxValue);
+                Require(_arenas[1].AssistedCar == 1,
+                    $"Braking is not aim-away input: speed={beforeBraking:F2}->{host.World.GetVehicle(Shooter).Speed:F2}m/s, same retained car");
             }
         }
         Send(new InputEventMouseMotion { ScreenRelative = new(70, 0) });
@@ -120,5 +126,6 @@ public sealed partial class WeaponAimChecks
         Require(Math.Abs(Mathf.AngleDifference(Camera.Rotation.Y, chaseYaw)) < .02f,
             "Released neutral camera returns behind the vehicle instead of retaining a target camera");
         _heldTargets = null; Camera.ResetFollow(); Assist(true); await Frames(30);
+        await CheckHeldAimFlight();
     }
 }

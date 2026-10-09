@@ -27,6 +27,8 @@ public sealed partial class WeaponAimChecks : Node
     private N.Quaternion _targetOrientation = N.Quaternion.Identity;
     private bool _scriptMouseHeld;
     private Vector2 _scriptStick;
+    private bool _captureInput;
+    private bool _restoreScriptFocus = true;
     private float Ground => _oval ? 1.65f : 21.65f;
     private ulong Shooter => _arenas[1].Driver.LocalVehicleId;
     private VehicleChaseCamera Camera => _arenas[1].GetNode<VehicleChaseCamera>("ChaseCamera");
@@ -37,7 +39,7 @@ public sealed partial class WeaponAimChecks : Node
 
     private void MaintainScriptFocus()
     {
-        if (_input is null || _input.Adapter.Enabled) { return; }
+        if (!_restoreScriptFocus || _input is null || _input.Adapter.Enabled) { return; }
         // This automated fixture owns synthetic focus. Actual OS focus behavior belongs
         // to interactive play; switching desktop apps must not invalidate a timed script.
         _input.Adapter.Enabled = true;
@@ -425,8 +427,13 @@ public sealed partial class WeaponAimChecks : Node
 
     private async Task CheckAssistanceAndOutage()
     {
-        var host = _arenas[0].Driver.Host!;
         await CheckStickyEngagement();
+    }
+
+    private async Task CheckAcceptedAimOutage()
+    {
+        await AimAtCurrent(() => _arenas[1].Bodies[1].VisualTransform * new Vector3(0, .3f, 0)); await Frames(30);
+        Require(_arenas[1].AssistedCar == 1, "Held assistance is active before the accepted-aim blackout");
         await Until(() => _arenas[2].Driver.AcceptedAims.Any(aim => aim.Vehicle == Shooter), "Observer has accepted aim before packet blackout");
         ulong beforeTick = _arenas[2].Driver.AcceptedAims.Single(aim => aim.Vehicle == Shooter).Tick;
         _wires[0].ConfigureSimulation(new(0, 0, 100));
@@ -437,6 +444,8 @@ public sealed partial class WeaponAimChecks : Node
         _wires[0].ConfigureSimulation(OS.GetCmdlineUserArgs().Contains("--aim-impaired") ? new(30, 5, 2) : new());
         await Until(() => _arenas[2].Driver.AcceptedAims.Any(aim => aim.Vehicle == Shooter && aim.Tick > beforeTick),
             "Fresh accepted aim resumes after packet delivery recovers (not authenticated reconnect)");
+        await Until(() => _arenas[1].AssistedCar == 1 && _arenas[1].Driver.AcceptedAims.Any(aim => aim.Vehicle == Shooter && aim.Tick > beforeTick),
+            "Held intent reacquires on the shooter only after fresh accepted aim arrives");
         RequireCentered("Camera-intent cursor remains centered after transient packet recovery");
     }
 
@@ -489,7 +498,7 @@ public sealed partial class WeaponAimChecks : Node
             if (i % 6 == 0) { await Capture($"motion-{phase}-{i:D3}"); }
         }
     }
-    private async Task Frames(int count, ushort throttle = 0, short steering = 0, InputButtons held = 0, bool pressUse = false)
+    private async Task Frames(int count, ushort throttle = 0, short steering = 0, InputButtons held = 0, bool pressUse = false, ushort brake = 0)
     {
         for (int i = 0; i < count; i++)
         {
@@ -499,7 +508,7 @@ public sealed partial class WeaponAimChecks : Node
             {
                 bool firing = _firingPeers.Contains(arena.Driver.LocalVehicleId);
                 if (firing && arena != _arenas[1]) { arena.Driver.DesiredAim = N.Vector3.Normalize(new N.Vector3(1, 1, 0)); }
-                arena.Advance(arena == _arenas[1] ? new(0, steering, throttle, 0, held | (firing ? InputButtons.UseItem : 0), pressUse && i == 0 ? InputButtons.UseItem : 0, 0) :
+                arena.Advance(arena == _arenas[1] ? _captureInput ? _input.Adapter.Capture(0) : new(0, steering, throttle, brake, held | (firing ? InputButtons.UseItem : 0), pressUse && i == 0 ? InputButtons.UseItem : 0, 0) :
                     new(0, 0, 0, 0, firing ? InputButtons.UseItem : 0, 0, 0));
                 if (arena.Driver.Failure.Length > 0) { throw new InvalidOperationException(arena.Driver.Failure); }
             }

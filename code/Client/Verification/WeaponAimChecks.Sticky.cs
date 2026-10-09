@@ -18,7 +18,6 @@ public sealed partial class WeaponAimChecks
         Vector3 Center() => _arenas[1].Bodies[1].VisualTransform * new Vector3(0, .3f, 0);
         await AimAtCurrent(Center); await Frames(30);
         Require(_arenas[1].AssistedCar == 1, "Sticky acquisition selects a visible living rival car");
-        Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
         var tuning = host.Items.Configuration.Aim;
         host.TryConfigure(0, new Dictionary<string, double> { ["items.aim_mouse_pull"] = 0, ["items.aim_stick_pull"] = 0 }, out _);
         await Frames(30);
@@ -101,6 +100,7 @@ public sealed partial class WeaponAimChecks
         Require(_arenas[1].AssistedCar == 0 && !_arenas[1].AimOverlay.Bounds.HasValue, "Solid non-vehicle cover releases assistance and never acquires brackets");
         cover.Free(); await Frames(20); await AimAtCurrent(Center);
         await CheckStickyPreferences();
+        await CheckAcceptedAimOutage();
         await CheckNonVehicleTargets();
         _input.Adapter.GameplaySuppressed = true; await Frames(8);
         Require(_arenas[1].AssistedCar == 0 && !_arenas[1].AimOverlay.Marker.HasValue, "Suppression retires acquired identity and HUD");
@@ -125,12 +125,19 @@ public sealed partial class WeaponAimChecks
             Camera.ResetFollow(); await Frames(45);
             await AimAtCurrent(() => _arenas[1].Bodies[1].VisualTransform * new Vector3(0, .3f, 0));
             settings.UpdateSettings(settings.Current with { HorizontalLookSensitivity = gain, MouseAimSensitivity = gain,
-                StickAimSensitivity = gain, CameraRecenterSpeed = 3, CameraFov = gain < 1 ? 50 : 90 });
-            Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
+                StickAimSensitivity = gain, CameraRecenterSpeed = 3, CameraFov = gain < 1 ? 50 : 90, InvertY = gain > 1 });
             _heldTargets = (new(2, Ground, 0), new(70, Ground, 0)); await Frames(75);
             float error = Camera.ProjectRayNormal(ViewCenter).AngleTo(_arenas[1].Bodies[1].VisualTransform * new Vector3(0, .3f, 0) - Camera.GlobalPosition);
             Require(_arenas[1].AssistedCar == 1 && error < .015f,
                 $"Retained moving-car aim survives {fps} FPS, gain {gain}, FOV {Camera.Fov}, recenter 3: error={error:F5} rad");
+            Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false }); await Frames(4);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            Require(_arenas[1].AssistedCar == 0 && !_arenas[1].AimOverlay.Bounds.HasValue,
+                $"RMB release clears assisted feedback at {fps} FPS, gain {gain}, FOV {Camera.Fov}");
+            // Existing right-stick intent acquires independently of the released mouse.
+            Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = .16f }); await Frames(2);
+            Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = 0 }); await Frames(45);
+            Require(!_input.Adapter.MouseLookHeld && _arenas[1].AssistedCar == 1, "Controller camera intent retains assistance without physical RMB");
             Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = -1 });
             await Frames(8);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
