@@ -37,6 +37,15 @@ public sealed partial class MissileTerrainChecks : Node3D
             AddChild(new DirectionalLight3D { RotationDegrees = new(-55, -25, 0), LightEnergy = 1.8f });
             _camera = new Camera3D { Current = true, Far = 3000 };
             AddChild(_camera);
+            if (OS.GetCmdlineUserArgs().Contains("--missile-production"))
+            {
+                await RunProduction();
+                GD.Print(OS.GetCmdlineUserArgs().Contains("--missile-diagnose")
+                    ? "Missile terrain diagnosis complete: recorded outcomes are not a verification pass."
+                    : "Missile terrain integration passed: production tabletop and bank measurements.");
+                GetTree().Quit();
+                return;
+            }
             foreach (var name in new[] { "flat", "ramp", "bank", "uneven", "cliff", "reacquire", "sky", "down", "wall", "steep", "tuning", "sustained" })
             {
                 await Prepare(name);
@@ -56,6 +65,7 @@ public sealed partial class MissileTerrainChecks : Node3D
             }
             await RunNetwork();
             await RunOval();
+            await RunProduction();
             System.IO.File.WriteAllText(System.IO.Path.Combine(_output, "summary.json"), System.Text.Json.JsonSerializer.Serialize(_results, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
             System.IO.File.WriteAllText(System.IO.Path.Combine(_output, "trace.json"), System.Text.Json.JsonSerializer.Serialize(_trace));
             GD.Print("Missile terrain integration passed: native traversal, transitions, impacts, tuning, serialized continuation and sustained cleanup.");

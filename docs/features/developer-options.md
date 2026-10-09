@@ -537,12 +537,12 @@ and impulse are retained; moving them into the category does not discard saved v
 | `explosion_radius` | 12 m | Existing radial damage/impulse radius. |
 | `maximum_impulse` | 15000 N s | Existing peak radial impulse. |
 | `missile_clearance` | 1 m | Desired vertical height above suitable terrain. |
-| `missile_look_ahead` | 30 m | Distance along current velocity to the forward surface probe. |
+| `missile_look_ahead` | 30 m | Maximum distance along current velocity; profile samples also occur at half and quarter distance. |
 | `missile_detection_range` | 10 m | Vertical extent above/below that forward sample. |
 | `missile_reacquisition_height` | 3 m | Maximum current support distance; correction fades continuously toward this boundary. |
-| `missile_pitch_limit` | 35 degrees | Bound on terrain-requested world pitch, independent of launch direction. |
-| `missile_turn_rate` | 45 degrees/s | Hard per-step pitch-rate limit; zero disables correction. |
-| `missile_response` | 8/s | First-order pitch response beneath the rate limit. |
+| `missile_pitch_limit` | 42 degrees | Bound on terrain-requested world pitch, independent of launch direction. |
+| `missile_turn_rate` | 210 degrees/s | Hard per-step pitch-rate limit (3.5 degrees at 60 Hz); range 0–240, zero disables correction. |
+| `missile_response` | 24/s | First-order pitch response beneath the rate limit; range 0.1–24. |
 | `missile_slope_limit` | 40 degrees | Suitable surface-normal inclination. |
 | `missile_drop_tolerance` | 1 m | Allowed downward discontinuity beyond the sampled tangents. |
 | `missile_world_limit` | 4096 m | Absolute X/Y/Z safety bound; retirement produces no impact. |

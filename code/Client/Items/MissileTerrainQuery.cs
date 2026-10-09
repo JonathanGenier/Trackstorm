@@ -12,7 +12,7 @@ internal static class MissileTerrainQuery
     internal static MissileTerrainSample? Cast(PhysicsDirectSpaceState3D space, N.Vector3 from, N.Vector3 to)
     {
         using var ray = PhysicsRayQueryParameters3D.Create(VehicleBody.ToGodot(from), VehicleBody.ToGodot(to), 1);
-        var hit = space.IntersectRay(ray);
+        using var hit = space.IntersectRay(ray);
         if (hit.Count == 0 || hit["collider"].AsGodotObject() is not StaticBody3D body) { return null; }
         Vector3 position = hit["position"].AsVector3();
         var identity = SurfaceIdentityResolver.Resolve(body, position);

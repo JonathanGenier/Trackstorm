@@ -12,11 +12,11 @@ public sealed record MissileTerrainConfiguration
     /// <summary>Maximum height above current supporting ground at which correction can engage.</summary>
     public float ReacquisitionHeight { get; init; } = 3;
     /// <summary>Maximum pitch magnitude requested by terrain correction, in degrees.</summary>
-    public float PitchLimit { get; init; } = 35;
+    public float PitchLimit { get; init; } = 42;
     /// <summary>Maximum pitch change per second, in degrees. Zero disables correction.</summary>
-    public float TurnRate { get; init; } = 45;
+    public float TurnRate { get; init; } = 210;
     /// <summary>First-order pitch response per second; the rate cap still applies.</summary>
-    public float Response { get; init; } = 8;
+    public float Response { get; init; } = 24;
     /// <summary>Maximum suitable surface inclination from horizontal, in degrees.</summary>
     public float SlopeLimit { get; init; } = 40;
     /// <summary>Maximum downward discontinuity beyond either sampled tangent, in metres.</summary>
@@ -30,8 +30,8 @@ public sealed record MissileTerrainConfiguration
             !float.IsFinite(DetectionRange) || DetectionRange is < 1 or > 20 ||
             !float.IsFinite(ReacquisitionHeight) || ReacquisitionHeight <= Clearance || ReacquisitionHeight > DetectionRange ||
             !float.IsFinite(PitchLimit) || PitchLimit is < 1 or > 60 ||
-            !float.IsFinite(TurnRate) || TurnRate is < 0 or > 90 ||
-            !float.IsFinite(Response) || Response is < 0.1f or > 12 ||
+            !float.IsFinite(TurnRate) || TurnRate is < 0 or > 240 ||
+            !float.IsFinite(Response) || Response is < 0.1f or > 24 ||
             !float.IsFinite(SlopeLimit) || SlopeLimit is < 1 or > 60 ||
             !float.IsFinite(DropTolerance) || DropTolerance is < 0 or > 3)
         { throw new ArgumentException("Invalid Missile terrain envelope."); }

@@ -131,6 +131,48 @@ internal sealed class MissileTerrainTests
     }
 
     [Test]
+    public void DownhillBeyondAFlatTabletopCannotPullFlightThroughTheDeck()
+    {
+        var shot = Shot(1.17f, 0.3f);
+        for (int i = 0; i < 35; i++)
+        {
+            shot = Fly(shot, (a, b) =>
+            {
+                float d = -a.Z;
+                float height = d < 35 ? 0 : d < 50 ? -(d - 35) * 0.423f : -6.345f;
+                var normal = Vector3.Normalize(new Vector3(0, 1, d is > 35 and < 50 ? -0.423f : 0));
+                return a.Y >= height && b.Y <= height ? new(new(a.X, height, a.Z), normal) : null;
+            });
+            if (-shot.Position.Z <= 35) { Assert.That(shot.Position.Y, Is.GreaterThan(0.8f), "Descend only when current support actually descends"); }
+        }
+    }
+
+    [Test]
+    public void AShortBankIsDetectedEvenWhenTheLongProbeIsBeyondItsEdge()
+    {
+        var shot = Shot(1.3f, 20);
+        Vector3 original = shot.Velocity;
+        shot = Fly(shot, (a, b) =>
+        {
+            float d = -a.Z;
+            if (d > 18) { return null; }
+            return Plane(a, b, MathF.Tan(35 * MathF.PI / 180));
+        });
+        Assert.That(Pitch(shot.Velocity), Is.GreaterThan(Pitch(original)));
+        Assert.That(shot.Velocity.X, Is.Zero);
+    }
+
+    [Test]
+    public void RisingSupportContinuesToGuideWhenAllForwardSamplesMiss()
+    {
+        var shot = Shot(1, 20);
+        var velocity = MissileFlight.Correct(shot, Tuning, (a, b) => a.Z == 0 ? Plane(a, b, 0.7f) : null);
+        Assert.That(Pitch(velocity), Is.GreaterThan(20));
+        Assert.That(Pitch(velocity), Is.LessThanOrEqualTo(20 + Tuning.TurnRate / 60 + 0.001f));
+        Assert.That(MissileFlight.Correct(shot, Tuning, (_, _) => null), Is.EqualTo(shot.Velocity));
+    }
+
+    [Test]
     public void WallsInvalidNormalsAndMissingSamplesLeaveVelocityCommitted()
     {
         var shot = Shot();
@@ -150,7 +192,7 @@ internal sealed class MissileTerrainTests
             Assert.That(Vector3.Distance(a, b), Is.LessThanOrEqualTo(2 * Tuning.DetectionRange));
             return Plane(a, b);
         });
-        Assert.That(queries, Is.EqualTo(2));
+        Assert.That(queries, Is.LessThanOrEqualTo(4));
         Assert.That(velocity.Y, Is.GreaterThan(0));
         Assert.That(MissileFlight.Correct(shot, Tuning with { TurnRate = 0 }, (_, _) => throw new Exception()), Is.EqualTo(shot.Velocity));
     }
