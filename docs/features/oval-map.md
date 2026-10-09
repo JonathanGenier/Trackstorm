@@ -59,6 +59,15 @@ practice reset and death/respawn use the same eight grid transforms.
 `VehicleNetworkDriver` retains the contract when restoring migrated authority;
 resume checkpoints retain existing vehicle poses without resetting the map slots.
 
+Ordinary `--local-practice` enables one autonomous car: the existing second practice
+vehicle follows the oval in the grid's racing direction, targeting 50 km/h after acceleration.
+A local input driver supplies steering and speed-controlled throttle/brake through the
+normal simulation; it never teleports the car or overrides velocity. Banking and
+collisions can temporarily change its speed. Death and arena reset retain normal
+lifecycle behavior, and driving resumes from the new spawn. The other practice cars
+remain stationary unless disturbed. Hosted games and explicit legacy fixtures do not
+enable this driver. This does not add weapons or network aiming to local practice.
+
 The map contains 27 scene-authored item markers. Twenty remain on the oval: five transverse rows with pickups at 3, 9 and 15 m across the 18 m surface, plus five singles. Locations follow the Jira placement reference relative to the grid, projected onto actual master sections; its legacy dimensions are not used. The existing network arena registers, observes, distributes and replicates these markers through the existing pickup system. Optional old-map prop snapshots remain absent. Local rigid-body practice retains its existing driving-only role; pickup acquisition and inventory remain owned by hosted gameplay. Old Map retains its own eight pickups.
 
 `ActiveMap.ScenePath` identifies New Map and the practice default. Multiplayer selection belongs to `LobbySnapshot.Map`. Application/menu entry,

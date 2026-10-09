@@ -114,6 +114,14 @@ public sealed partial class OvalIntegrationChecks : Node3D
             _outer = sections.Select(section => ReadVector(section[1])).ToArray();
             _centers = _inner.Zip(_outer, (inner, outer) => (inner + outer) / 2).ToArray();
             await Frames(3);
+            if (OS.GetCmdlineUserArgs().Contains("--practice-driver"))
+            {
+                await VerifyPracticeDriver();
+                System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
+                GD.Print("Oval integration passed: local-practice driver.");
+                GetTree().Quit();
+                return;
+            }
             if (OS.GetCmdlineUserArgs().Contains("--oval-bank-contact"))
             {
                 await VerifyBankSeam();
@@ -132,6 +140,7 @@ public sealed partial class OvalIntegrationChecks : Node3D
             _advance = false;
             _vehicle.QueueFree();
             await VerifyPractice();
+            await VerifyPracticeDriver();
             System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);

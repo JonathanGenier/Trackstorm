@@ -26,6 +26,8 @@ public sealed partial class VehicleArena : Node3D
     internal bool LegacyTestLayout { get; init; }
     /// <summary>Retains the old combat map only for its explicit content regression fixture.</summary>
     internal bool PrototypeMapForVerification { get; init; }
+    /// <summary>One ordinary input-driven target on the production oval, enabled by local-practice composition only.</summary>
+    internal bool MovingTarget { get; init; }
     /// <summary>The map loaded by ordinary local practice.</summary>
     internal Node3D Map { get; private set; } = null!;
     /// <summary>All eight production practice vehicles, or two in the focused fixture.</summary>
@@ -99,6 +101,11 @@ public sealed partial class VehicleArena : Node3D
 
             Player = _vehicles[0];
             Target = _vehicles[1];
+        }
+
+        if (MovingTarget && !LegacyTestLayout && !PrototypeMapForVerification)
+        {
+            Target.InputSource = new PracticeDriver(Target).Capture;
         }
 
         foreach (VehicleBody vehicle in _vehicles)

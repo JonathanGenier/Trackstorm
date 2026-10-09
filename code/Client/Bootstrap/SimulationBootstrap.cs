@@ -219,7 +219,7 @@ public sealed partial class SimulationBootstrap : Node
 
         if (OS.GetCmdlineUserArgs().Contains("--local-practice"))
         {
-            _arena = new VehicleArena { Name = "VehicleArena", CameraInput = _playerInput.Adapter, CameraSettings = _settings };
+            _arena = new VehicleArena { Name = "VehicleArena", CameraInput = _playerInput.Adapter, CameraSettings = _settings, MovingTarget = true };
             AddChild(_arena);
         }
         else
