@@ -222,6 +222,10 @@ public sealed class VehicleMovement
                 drive = -Math.Min(c.ReverseAcceleration * brake * driveModifier, Math.Max(0, c.ReverseSpeed + longitudinal) / dt);
             }
 
+            // Additional low gearing fades smoothly with road speed; it cannot enlarge
+            // tire capacity, change throttle continuation, or bypass blocking rock faces.
+            float lowSpeed = Math.Clamp(1 - steeringSpeed / c.LowSpeedDriveFadeSpeed, 0, 1);
+            drive *= 1 + (c.LowSpeedDriveMultiplier - 1) * lowSpeed * lowSpeed;
             stopping = Math.Min(stopping * forceScale, Math.Abs(longitudinal) / dt);
             // One progressive application controls rear braking, engine interruption and grip on hold/release.
             float brakeApplication = holding ? 1 : handbrake;
@@ -360,6 +364,14 @@ public sealed class VehicleMovement
             }
         }
 
+        // Chassis tilt follows usable tire force, before independent central Nitro
+        // thrust is added. A blocked engine cannot reopen a powered rock gap, and
+        // canceled rocket thrust cannot manufacture an opposite pitch demand.
+        Vector3 constrainedDrive = EnvironmentCollision.ConstrainRockDrive(velocity, collisionVelocity, groundNormal, contacts);
+        Vector3 blockedAcceleration = (velocity - constrainedDrive) / dt;
+        float chassisLongAcceleration = longAcceleration - Vector3.Dot(blockedAcceleration, forward);
+        float chassisSideAcceleration = sideAcceleration - Vector3.Dot(blockedAcceleration, right);
+
         // Rocket thrust is a central force along the chassis, independent of pedals and tire contact.
         // Only its added forward velocity is bounded; existing momentum is never clamped to the drive cap.
         if (boost.Active)
@@ -373,7 +385,7 @@ public sealed class VehicleMovement
         // native bevel recovery would repeatedly lift the otherwise stalled body.
         // Preserve the adapter's solved momentum and the suspension/gravity below,
         // including landing/recovery motion. Throttle and tire slip stay natural.
-        velocity = EnvironmentCollision.ConstrainRockDrive(velocity, collisionVelocity, groundNormal, contacts);
+        velocity = boost.Active ? EnvironmentCollision.ConstrainRockDrive(velocity, collisionVelocity, groundNormal, contacts) : constrainedDrive;
 
         // Remove only excess road speed at a bounded rate, preserving direction and vertical motion.
         float roadSpeed = new Vector2(velocity.X, velocity.Z).Length();
@@ -431,8 +443,8 @@ public sealed class VehicleMovement
                 : 1;
             float stability = VehicleLanding.Landable(observed.Orientation, groundNormal) ? supportedFraction : 0;
             Vector3 desiredUp = groundNormal;
-            desiredUp -= forward * Math.Clamp(longAcceleration * c.ChassisCompliance, -c.MaximumChassisTilt, c.MaximumChassisTilt);
-            desiredUp -= right * Math.Clamp(sideAcceleration * c.ChassisCompliance, -c.MaximumChassisTilt, c.MaximumChassisTilt);
+            desiredUp -= forward * Math.Clamp(chassisLongAcceleration * c.ChassisCompliance, -c.MaximumChassisTilt, c.MaximumChassisTilt);
+            desiredUp -= right * Math.Clamp(chassisSideAcceleration * c.ChassisCompliance, -c.MaximumChassisTilt, c.MaximumChassisTilt);
             angular += Vector3.Cross(up, Vector3.Normalize(desiredUp)) * c.SuspensionSpring * stability * dt;
             Vector3 tiltVelocity = angular - (tireNormal * Vector3.Dot(angular, tireNormal));
             angular -= tiltVelocity * (1 - MathF.Exp(-c.SuspensionDamping * stability * dt));

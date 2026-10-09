@@ -14,6 +14,11 @@ function Assert-True {
 . "$PSScriptRoot/fast-check-routes.ps1"
 
 # Route-selection regression coverage.
+foreach ($path in @('code/Core/Vehicles/VehicleCollisionDamage.cs', 'code/Client/Verification/CombatCollisionChecks.cs', 'scenes/verification/combat_collision_checks.tscn')) {
+    $combatPlan = Get-FastCheckPlan -Paths @($path)
+    Assert-True ($combatPlan.RuntimeScripts -contains 'check-combat-collisions.ps1') 'Combat changes require paired damage, geometry and loaded-drive coverage.'
+    Assert-True ($combatPlan.ExtendedScripts -contains 'check-environment-collision-network.ps1') 'Combat changes require impaired authoritative damage coverage.'
+}
 foreach ($path in @('code/Client/Vehicles/VehicleContactBatch.cs', 'code/TransportTests/VehicleContactBatchTests.cs', 'code/Client/Verification/MixedContactChecks.cs', 'scenes/verification/mixed_contact_checks.tscn')) {
     $mixedPlan = Get-FastCheckPlan -Paths @($path)
     Assert-True ($mixedPlan.RuntimeScripts -contains 'check-mixed-contacts.ps1') 'Mixed native contact changes retain same-boundary regression coverage.'

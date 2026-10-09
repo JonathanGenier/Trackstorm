@@ -39,6 +39,11 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'CombatCollision|combat_collision|check-combat-collision|VehicleCollision|VehicleMovement.cs|VehicleAuthority.cs|VehicleDamageMath') {
+            Add-Runtime 'check-combat-collisions.ps1'
+            Add-Extended 'check-environment-collision-network.ps1'
+            Add-Manual 'Observe momentum-biased damage, parked/off-center side hits, low-speed loaded pushing and hills; repeat under multiplayer latency.'
+        }
         if ($path -match 'RepeatedVehicleContact|FollowingContactNetwork|repeated_vehicle_contact|following_contact_network|check-repeated-collisions|check-following-contact|NetworkVehicleBody|NetworkVehicleArena.cs|RemoteInterpolation|TerrainCollision|WheelSuspension|EnvironmentContact') {
             Add-Runtime 'check-repeated-collisions.ps1'
             Add-Extended 'check-following-contact-network.ps1'

@@ -34,7 +34,8 @@ internal sealed class VehicleAuthority
     /// <param name="respawn">Host respawn policy, or null in isolated fixtures.</param>
     /// <param name="arena">Validated spawn contract.</param>
     /// <param name="vehicles">Authoritative roster with earlier candidate respawns reserved.</param>
-    internal VehicleStepResult Prepare(VehicleStepRequest request, RespawnConfiguration? respawn, Arenas.ArenaConfiguration arena, IReadOnlyList<VehicleSnapshot> vehicles)
+    /// <param name="impacts">Symmetric vehicle impacts from the complete incoming boundary.</param>
+    internal VehicleStepResult Prepare(VehicleStepRequest request, RespawnConfiguration? respawn, Arenas.ArenaConfiguration arena, IReadOnlyList<VehicleSnapshot> vehicles, IReadOnlyList<VehicleImpactDamage> impacts)
     {
         VehicleSnapshot previous = Snapshot;
         if (!request.Reset.HasValue && !previous.CanInteract)
@@ -72,9 +73,10 @@ internal sealed class VehicleAuthority
         }
 
         LandingState landing = request.Reset.HasValue ? default : VehicleLanding.Step(previous.Landing, observed);
-        float severity = 0;
+        float severity = 0, damage = 0, disadvantage = 0;
+        ulong instigator = 0;
+        bool separateTerrainImpact = false;
         byte bodyContacts = 0;
-        VehicleContact strongest = default;
         foreach (VehicleContact contact in observed.Contacts)
         {
             if (VehicleLanding.Forgives(landing, observed, contact)) { continue; }
@@ -86,16 +88,30 @@ internal sealed class VehicleAuthority
                 bodyContacts |= face;
                 if ((previous.Landing.BodyContacts & face) != 0) { continue; }
             }
+            if (impacts.Any(impact => impact.OtherVehicleId == contact.OtherVehicleId)) { continue; }
             float candidate = VehicleCrash.Severity(contact, observed.Support, _movementConfiguration.Mass);
-            if (candidate > severity)
+            float amount = VehicleDamageMath.CollisionDamage(candidate, _damageConfiguration);
+            if (amount > damage)
             {
                 severity = candidate;
-                strongest = contact;
+                damage = amount;
+                instigator = contact.OtherVehicleId;
+                separateTerrainImpact = contact.Terrain;
             }
         }
         landing = landing with { BodyContacts = bodyContacts };
 
-        if (severity > 0 && health.ApplyCollision(severity, new DamageContext("collision", strongest.OtherVehicleId, strongest.OtherVehicleId == 0 ? "world-or-prop" : "vehicle"), request.Input.Tick, strongest.Terrain) is DamageEvent collision)
+        foreach (var impact in impacts)
+        {
+            float amount = VehicleDamageMath.CollisionDamage(impact.Severity, _damageConfiguration, impact.MomentumDisadvantage);
+            if (amount <= damage) { continue; }
+            severity = impact.Severity;
+            damage = amount;
+            disadvantage = impact.MomentumDisadvantage;
+            instigator = impact.OtherVehicleId;
+            separateTerrainImpact = false;
+        }
+        if (damage > 0 && health.ApplyCollision(severity, new DamageContext("collision", instigator, instigator == 0 ? "world-or-prop" : "vehicle"), request.Input.Tick, separateTerrainImpact, disadvantage) is DamageEvent collision)
         {
             events.Add(collision);
         }

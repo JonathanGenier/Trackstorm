@@ -424,8 +424,8 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
             {
                 var otherBody = GetParent().GetChildren().OfType<NetworkVehicleBody>().FirstOrDefault(b => b.VehicleId == contact.OtherVehicleId);
                 if (otherBody is null) { continue; }
-                var point = observation.Physics.Position + Numerics.Vector3.Transform(contact.LocalPosition, observation.Physics.Orientation);
-                var resolved = VehicleCollision.ResolvePair(observation.Physics, _configuration, otherBody._current, otherBody._configuration, contact.Normal, point);
+                var geometry = VehicleCollision.ContactGeometry(observation, contact.OtherVehicleId);
+                var resolved = VehicleCollision.ResolvePair(observation.Physics, _configuration, otherBody._current, otherBody._configuration, geometry.Normal, geometry.Point);
                 observation = WithPhysics(observation, resolved.First);
             }
         }

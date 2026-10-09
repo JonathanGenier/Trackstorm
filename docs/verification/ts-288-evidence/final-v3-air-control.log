@@ -1,0 +1,77 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+native-short-gap: rotation=0.053 peak=0.508 releaseSpeed=0.0136 lateOrientationDrift=0.0135 landings=1 grounded=True airSeconds=0.000
+native-short-gap: maxAir=0.0667s, commandedFrames=4
+native-pitch: rotation=4.795 peak=2.520 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+native-yaw: rotation=4.114 peak=2.160 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+native-roll: rotation=6.157 peak=3.240 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+native-combined: rotation=7.804 peak=4.105 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+native-sustained: rotation=10.477 peak=3.240 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=5.350
+native-crooked: rotation=7.546 peak=3.742 releaseSpeed=3.7417 lateOrientationDrift=2.5415 landings=0 grounded=False airSeconds=4.017
+native-landing: rotation=0.000 peak=0.000 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=1 grounded=True airSeconds=0.000
+native-repeat: rotation=0.835 peak=2.157 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=1 grounded=True airSeconds=0.000
+native-repeat: 4 landing transitions
+native-correction: rotation=0.988 peak=1.578 releaseSpeed=0.0002 lateOrientationDrift=0.0027 landings=1 grounded=True airSeconds=0.000
+native-heading: rotation=1.183 peak=1.565 releaseSpeed=0.0001 lateOrientationDrift=0.0010 landings=1 grounded=True airSeconds=0.000
+native-coast: rotation=6.318 peak=3.319 releaseSpeed=3.3190 lateOrientationDrift=2.9641 landings=0 grounded=False airSeconds=4.017
+native-release-command: rotation=4.114 peak=2.160 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+native-device-key-pitch: rotation=4.795 peak=2.520 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-key-pitch: released angular speed=2.133; attitude change=0.00000; continued travel=48.59m
+native-device-key-yaw: rotation=4.114 peak=2.160 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-key-yaw: released angular speed=1.828; attitude change=0.00000; continued travel=48.64m
+native-device-key-roll: rotation=6.157 peak=3.240 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-key-roll: released angular speed=2.743; attitude change=0.00000; continued travel=48.64m
+native-device-pad-pitch: rotation=2.539 peak=1.334 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-pad-pitch: released angular speed=1.129; attitude change=0.00000; continued travel=48.66m
+native-device-pad-yaw: rotation=2.178 peak=1.144 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-pad-yaw: released angular speed=0.968; attitude change=0.00000; continued travel=48.64m
+native-device-pad-roll: rotation=3.260 peak=1.715 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-pad-roll: released angular speed=1.452; attitude change=0.00000; continued travel=48.63m
+native-hold-wheels: rotation=0.363 peak=1.863 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=1 grounded=True airSeconds=0.000
+hold-wheels: held=True, nonWheelImpact=False, postContactPeak=0.000
+native-hold-roof: rotation=2.137 peak=5.459 releaseSpeed=0.0115 lateOrientationDrift=0.9017 landings=4 grounded=True airSeconds=0.000
+hold-roof: held=True, nonWheelImpact=True, postContactPeak=5.459
+native-hold-side: rotation=1.661 peak=5.185 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=1 grounded=True airSeconds=0.000
+hold-side: held=True, nonWheelImpact=True, postContactPeak=5.185
+native-hold-nose: rotation=1.644 peak=6.573 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=1 grounded=True airSeconds=0.000
+hold-nose: held=True, nonWheelImpact=True, postContactPeak=6.573
+native-hold-underside: rotation=1.107 peak=1.052 releaseSpeed=0.0060 lateOrientationDrift=0.0388 landings=7 grounded=True airSeconds=0.000
+hold-underside: held=True, nonWheelImpact=True, postContactPeak=1.919
+network-short-gap: rotation=0.053 peak=0.508 releaseSpeed=0.0136 lateOrientationDrift=0.0134 landings=1 grounded=True airSeconds=0.000
+network-short-gap: maxAir=0.0667s, commandedFrames=4
+network-pitch: rotation=4.795 peak=2.520 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+network-yaw: rotation=4.114 peak=2.160 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+network-roll: rotation=6.157 peak=3.240 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+network-combined: rotation=7.804 peak=4.105 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+network-sustained: rotation=10.477 peak=3.240 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=5.350
+network-crooked: rotation=7.546 peak=3.742 releaseSpeed=3.7417 lateOrientationDrift=2.5415 landings=0 grounded=False airSeconds=4.017
+network-landing: rotation=0.000 peak=0.000 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=1 grounded=True airSeconds=0.000
+network-repeat: rotation=0.839 peak=2.157 releaseSpeed=0.0008 lateOrientationDrift=0.0000 landings=1 grounded=True airSeconds=0.000
+network-repeat: 4 landing transitions
+network-correction: rotation=0.988 peak=1.578 releaseSpeed=0.0007 lateOrientationDrift=0.0022 landings=1 grounded=True airSeconds=0.000
+network-heading: rotation=1.183 peak=1.565 releaseSpeed=0.0001 lateOrientationDrift=0.0007 landings=1 grounded=True airSeconds=0.000
+network-coast: rotation=6.318 peak=3.319 releaseSpeed=3.3190 lateOrientationDrift=2.9641 landings=0 grounded=False airSeconds=4.017
+network-release-command: rotation=4.114 peak=2.160 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+network-device-key-pitch: rotation=4.795 peak=2.520 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-key-pitch: released angular speed=2.133; attitude change=0.00000; continued travel=48.64m
+network-device-key-yaw: rotation=4.114 peak=2.160 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-key-yaw: released angular speed=1.828; attitude change=0.00000; continued travel=48.64m
+network-device-key-roll: rotation=6.157 peak=3.240 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-key-roll: released angular speed=2.743; attitude change=0.00000; continued travel=48.64m
+network-device-pad-pitch: rotation=2.539 peak=1.334 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-pad-pitch: released angular speed=1.129; attitude change=0.00000; continued travel=48.64m
+network-device-pad-yaw: rotation=2.178 peak=1.144 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-pad-yaw: released angular speed=0.968; attitude change=0.00000; continued travel=48.64m
+network-device-pad-roll: rotation=3.260 peak=1.715 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-pad-roll: released angular speed=1.452; attitude change=0.00000; continued travel=48.64m
+network-hold-wheels: rotation=0.362 peak=1.859 releaseSpeed=0.0009 lateOrientationDrift=0.0000 landings=1 grounded=True airSeconds=0.000
+hold-wheels: held=True, nonWheelImpact=False, postContactPeak=0.000
+network-hold-roof: rotation=1.464 peak=2.000 releaseSpeed=0.0016 lateOrientationDrift=0.0182 landings=3 grounded=True airSeconds=0.000
+hold-roof: held=True, nonWheelImpact=True, postContactPeak=2.175
+network-hold-side: rotation=1.482 peak=2.319 releaseSpeed=0.0001 lateOrientationDrift=0.0000 landings=2 grounded=True airSeconds=0.000
+hold-side: held=True, nonWheelImpact=True, postContactPeak=2.319
+network-hold-nose: rotation=1.348 peak=3.672 releaseSpeed=0.0009 lateOrientationDrift=0.0000 landings=3 grounded=True airSeconds=0.000
+hold-nose: held=True, nonWheelImpact=True, postContactPeak=3.672
+network-hold-underside: rotation=0.192 peak=0.878 releaseSpeed=0.0224 lateOrientationDrift=0.0224 landings=1 grounded=True airSeconds=4.017
+hold-underside: held=True, nonWheelImpact=True, postContactPeak=0.022
+Air control integration passed: 48 production-adapter scenarios.

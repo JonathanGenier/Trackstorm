@@ -50,7 +50,7 @@ Item protocol version 21 carries replaceable aim kinds on the existing item path
 
 Requests/publications run at 20 Hz; authority advances at 60 Hz. Aim does not advance reliable item outcome revisions or resend complete world state. Empty sessions produce no continuing aim traffic. Retirement samples clear presentation, with a 300 ms local expiry covering lost samples/outages. Recovery starts without stale aim.
 
-Eight host-validated **Configs → Weapon aiming** controls expose turn rate, pitch limits, retention cone, per-device friction and per-device attraction through the existing catalog. Configuration version 44 carries them through live replication and recovery. Local sensitivities stay outside synchronization. Host settings schema 3 migrates the previous persisted six-degree default spread once; other custom values and deliberate schema-3 overrides are preserved.
+Eight host-validated **Configs → Weapon aiming** controls expose turn rate, pitch limits, retention cone, per-device friction and per-device attraction through the existing catalog. Configuration version 45 carries them through live replication and recovery. Local sensitivities stay outside synchronization. Host settings schema 3 migrates the previous persisted six-degree default spread once; other custom values and deliberate schema-3 overrides are preserved.
 
 ## Verification
 

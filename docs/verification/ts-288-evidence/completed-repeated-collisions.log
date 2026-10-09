@@ -1,0 +1,62 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Repeated vehicle contact: frames=537, travelError=0.003990, speedChange=0.076717
+Repeated vehicle contact checks passed.
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ROCK network-RockCluster-3-0.0: contacts=606 repeat=360 final=0 depth=0.0002 overlapFrames=0 angular=0.038 contactMeanMs=3.125 p95Ms=5.353
+ROCK network-RockLedge-3-0.0: contacts=615 repeat=360 final=0 depth=0.0000 overlapFrames=0 angular=0.038 contactMeanMs=2.990 p95Ms=4.789
+ROCK network-BoulderTall-3-0.0: contacts=608 repeat=360 final=0 depth=0.0002 overlapFrames=0 angular=0.038 contactMeanMs=2.735 p95Ms=4.186
+ROCK network-RockSlab-3-0.0: contacts=609 repeat=360 final=0 depth=0.0002 overlapFrames=0 angular=0.038 contactMeanMs=3.918 p95Ms=4.742
+ROCK network-BoulderLow-3-0.0: contacts=613 repeat=360 final=0 depth=0.0000 overlapFrames=0 angular=0.038 contactMeanMs=5.901 p95Ms=9.544
+ROCK practice-RockCluster-3-0.0: contacts=608 repeat=360 final=0 depth=0.0014 overlapFrames=0 angular=0.037 contactMeanMs=1.105 p95Ms=1.850
+ROCK practice-RockLedge-3-0.0: contacts=616 repeat=360 final=0 depth=0.0002 overlapFrames=0 angular=0.037 contactMeanMs=0.955 p95Ms=1.083
+ROCK practice-BoulderTall-3-0.0: contacts=609 repeat=360 final=0 depth=0.0010 overlapFrames=0 angular=0.037 contactMeanMs=0.967 p95Ms=1.155
+ROCK practice-RockSlab-3-0.0: contacts=611 repeat=360 final=0 depth=0.0005 overlapFrames=0 angular=0.038 contactMeanMs=0.922 p95Ms=1.129
+ROCK practice-BoulderLow-3-0.0: contacts=615 repeat=360 final=0 depth=0.0003 overlapFrames=0 angular=0.039 contactMeanMs=1.014 p95Ms=1.326
+Rock collision checks: failures=0
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ROCK network-RockCluster-3-0.0: contacts=426 repeat=180 final=0 depth=0.0002 overlapFrames=0 angular=0.038 contactMeanMs=2.682 p95Ms=3.555
+ROCK network-RockLedge-3-0.0: contacts=435 repeat=180 final=0 depth=0.0000 overlapFrames=0 angular=0.038 contactMeanMs=3.529 p95Ms=5.453
+ROCK network-BoulderTall-3-0.0: contacts=428 repeat=180 final=0 depth=0.0002 overlapFrames=0 angular=0.038 contactMeanMs=2.732 p95Ms=3.567
+ROCK network-RockSlab-3-0.0: contacts=429 repeat=180 final=0 depth=0.0002 overlapFrames=0 angular=0.038 contactMeanMs=4.682 p95Ms=6.390
+ROCK network-BoulderLow-3-0.0: contacts=433 repeat=180 final=0 depth=0.0000 overlapFrames=0 angular=0.038 contactMeanMs=4.437 p95Ms=5.168
+ROCK practice-RockCluster-3-0.0: contacts=428 repeat=180 final=0 depth=0.0014 overlapFrames=0 angular=0.037 contactMeanMs=0.991 p95Ms=1.244
+ROCK practice-RockLedge-3-0.0: contacts=436 repeat=180 final=0 depth=0.0002 overlapFrames=0 angular=0.038 contactMeanMs=0.988 p95Ms=1.220
+ROCK practice-BoulderTall-3-0.0: contacts=429 repeat=180 final=0 depth=0.0010 overlapFrames=0 angular=0.037 contactMeanMs=1.011 p95Ms=1.270
+ROCK practice-RockSlab-3-0.0: contacts=431 repeat=180 final=0 depth=0.0005 overlapFrames=0 angular=0.039 contactMeanMs=0.921 p95Ms=1.221
+ROCK practice-BoulderLow-3-0.0: contacts=435 repeat=180 final=0 depth=0.0003 overlapFrames=0 angular=0.039 contactMeanMs=1.183 p95Ms=1.722
+Rock collision checks: failures=0
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ROCK network-RockCluster-3-0.0: contacts=131 repeat=0 final=0 depth=0.0002 overlapFrames=0 angular=0.061 contactMeanMs=1.219 p95Ms=1.464
+ROCK network-RockLedge-3-0.0: contacts=145 repeat=0 final=0 depth=0.0002 overlapFrames=0 angular=0.061 contactMeanMs=1.041 p95Ms=1.341
+ROCK network-BoulderTall-3-0.0: contacts=124 repeat=0 final=0 depth=0.0002 overlapFrames=0 angular=0.061 contactMeanMs=4.117 p95Ms=6.923
+ROCK network-RockSlab-3-0.0: contacts=114 repeat=0 final=0 depth=0.0001 overlapFrames=0 angular=0.063 contactMeanMs=2.127 p95Ms=4.331
+ROCK network-BoulderLow-3-0.0: contacts=92 repeat=0 final=0 depth=0.0002 overlapFrames=0 angular=0.061 contactMeanMs=7.314 p95Ms=13.088
+ROCK practice-RockCluster-3-0.0: contacts=133 repeat=0 final=0 depth=0.0035 overlapFrames=0 angular=0.061 contactMeanMs=1.031 p95Ms=1.163
+ROCK practice-RockLedge-3-0.0: contacts=146 repeat=0 final=0 depth=0.0004 overlapFrames=0 angular=0.061 contactMeanMs=0.971 p95Ms=1.178
+ROCK practice-BoulderTall-3-0.0: contacts=127 repeat=0 final=0 depth=0.0032 overlapFrames=0 angular=0.061 contactMeanMs=1.092 p95Ms=1.354
+ROCK practice-RockSlab-3-0.0: contacts=116 repeat=0 final=0 depth=0.0017 overlapFrames=0 angular=0.064 contactMeanMs=1.063 p95Ms=1.337
+ROCK practice-BoulderLow-3-0.0: contacts=96 repeat=0 final=0 depth=0.0007 overlapFrames=0 angular=0.061 contactMeanMs=0.981 p95Ms=1.239
+Rock collision checks: failures=0
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+FAIL: network-RockCluster-3-0.0 contact step budget: 8.415ms
+ROCK network-RockCluster-3-0.0: contacts=85 repeat=0 final=0 depth=0.0002 overlapFrames=0 angular=3.729 contactMeanMs=8.415 p95Ms=10.609
+ROCK network-RockLedge-3-0.0: contacts=101 repeat=55 final=0 depth=0.0002 overlapFrames=0 angular=3.329 contactMeanMs=5.048 p95Ms=8.047
+ROCK network-BoulderTall-3-0.0: contacts=194 repeat=14 final=30 depth=0.0001 overlapFrames=0 angular=3.077 contactMeanMs=1.270 p95Ms=2.724
+ROCK network-RockSlab-3-0.0: contacts=195 repeat=33 final=30 depth=0.0001 overlapFrames=0 angular=1.926 contactMeanMs=4.380 p95Ms=5.614
+ROCK network-BoulderLow-3-0.0: contacts=70 repeat=0 final=0 depth=0.0001 overlapFrames=0 angular=1.968 contactMeanMs=2.401 p95Ms=7.369
+ROCK practice-RockCluster-3-0.0: contacts=121 repeat=0 final=0 depth=0.0238 overlapFrames=1 angular=3.837 contactMeanMs=1.927 p95Ms=4.186
+ROCK practice-RockLedge-3-0.0: contacts=144 repeat=82 final=0 depth=0.0017 overlapFrames=0 angular=3.358 contactMeanMs=0.961 p95Ms=1.211
+ROCK practice-BoulderTall-3-0.0: contacts=203 repeat=25 final=30 depth=0.0140 overlapFrames=0 angular=2.627 contactMeanMs=1.323 p95Ms=2.223
+ROCK practice-RockSlab-3-0.0: contacts=205 repeat=48 final=30 depth=0.0051 overlapFrames=0 angular=1.952 contactMeanMs=1.037 p95Ms=1.448
+ROCK practice-BoulderLow-3-0.0: contacts=400 repeat=141 final=0 depth=0.0301 overlapFrames=1 angular=2.082 contactMeanMs=0.946 p95Ms=1.207
+Rock collision checks: failures=1
+Exception: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\check-repeated-collisions.ps1:22
+Line |
+  22 |  … 'ERROR:|WARNING:|FAIL:') { throw 'Repeated collision check failed.' }
+     |                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Repeated collision check failed.

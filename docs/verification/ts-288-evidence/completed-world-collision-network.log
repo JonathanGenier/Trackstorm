@@ -1,0 +1,6 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+WORLD_UDP speed=3 steering=False contactRegionFrames=303 escape=5.069 meanMs=6.239 p95Ms=14.285 correction=0.930
+WORLD_UDP speed=12 steering=True contactRegionFrames=334 escape=4.920 meanMs=5.581 p95Ms=13.855 correction=0.606
+WORLD_UDP speed=35 steering=True contactRegionFrames=364 escape=4.607 meanMs=5.068 p95Ms=11.985 correction=0.683
+World collision multiplayer passed: actual tunnel banks, two UDP worlds, 30ms delay/5ms jitter/2% loss, 3/12/35m/s, sustained steering, reverse and re-contact.
