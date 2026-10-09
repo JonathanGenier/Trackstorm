@@ -35,6 +35,7 @@ internal sealed partial class VehicleNetworkDriverTests
             Assert.That(driver.EntryReady, Is.False);
             ReleaseEntry(wire, lobby, driver);
             Assert.That(driver.TryConfigure(new Dictionary<string, double> { ["match.duration_ticks"] = 2 }, out _), Is.True);
+            Assert.That(driver.GiveDeveloperItem(HeldItem.Missile), Is.True);
             while (driver.Match!.Phase != MatchPhase.Active)
             {
                 driver.Advance(default, Observe);
@@ -42,7 +43,6 @@ internal sealed partial class VehicleNetworkDriverTests
 
             int finishes = 0;
             driver.MatchReceived += match => finishes += match.Phase == MatchPhase.Finished ? 1 : 0;
-            Assert.That(driver.GiveDeveloperItem(HeldItem.Missile), Is.True);
             Assert.That(driver.RequestItemUse(), Is.True);
             driver.Advance(default, Observe);
             var frame = new InputFrame(world.State.Tick + 1, 0, 0, 0, 0, 0, 0);

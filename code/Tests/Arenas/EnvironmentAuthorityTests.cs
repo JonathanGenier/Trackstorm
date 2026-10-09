@@ -22,6 +22,7 @@ internal sealed class EnvironmentAuthorityTests
         var host = new Core.Networking.Replication.HostVehicleSession(7, arena: arena, itemConfiguration: new() { MaximumDamage = 300 });
         host.JoinPlayer(10, 2);
         Assert.That(host.Items.Grant(host.World, 1, HeldItem.Missile), Is.True);
+        MissileTestPreparation.Wait(host);
         var held = host.Items.Slots.Single();
         Assert.That(host.UseItem(0, 7, held.Life, held.Token), Is.True);
         host.Step(default, s => new(s.Movement.Physics, Vector3.UnitY), (_, _) => 0);

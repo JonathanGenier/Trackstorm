@@ -42,16 +42,29 @@ public sealed partial class DeveloperOptionsIntegrationChecks
         var before = _host.Arena!.Driver.Configuration;
         bool persisted = System.IO.File.Exists(path);
         var names = GameplayOptions.All.Select(option => option.Group).Distinct()
-            .Concat(TireEffectSettings.Options.Select(option => option.Group).Distinct()).Append("Local network simulation");
+            .Concat(TireEffectSettings.Options.Select(option => option.Group).Distinct()).Append("Local network simulation").Append("Missile · Local flight VFX");
         Check(sections.Select(section => Header(section).Text[2..]).SequenceEqual(names), "every category remains in catalog order");
         foreach (var section in sections)
         {
             Check(section.Body.IsVisibleInTree() && Reset(section).Icon is not null, "opened category contains its own styled reset");
             Header(section).EmitSignal(BaseButton.SignalName.Pressed);
-            Check(!section.Body.IsVisibleInTree() && Header(section).Text.StartsWith("▸", StringComparison.Ordinal), "header collapses category body and reset");
+            Check(!section.Body.IsVisibleInTree() && Header(section).Text.StartsWith("▸", StringComparison.Ordinal), $"header collapses category body and reset: {Header(section).Text}; visible={section.Body.IsVisibleInTree()}; first={(int)Header(section).Text[0]}");
             Header(section).EmitSignal(BaseButton.SignalName.Pressed);
             Check(section.Body.IsVisibleInTree(), "header reopens category");
         }
+
+        var missile = Category("Missile · Local flight VFX");
+        var missileEditors = Descendants(missile).OfType<SpinBox>().ToArray();
+        double[] localValues = [1.5, .3, .8, .9, .5, 1.5, .5, .1, .6];
+        Check(missileEditors.Length == localValues.Length, "All nine local Missile VFX controls exist");
+        for (int i = 0; i < missileEditors.Length; i++) { missileEditors[i].Value = localValues[i]; }
+        var local = Trackstorm.Client.Items.MissileVfxSettings.Current;
+        float[] actual = [local.FlameLength, local.FlameWidth, local.SmokeLifetime, local.SmokeSize, local.SmokeOpacity,
+            local.Density, local.ConfettiLifetime, local.ConfettiSize, local.EmberLifetime];
+        Check(actual.Select((value, i) => Math.Abs(value - localValues[i]) < .00001).All(equal => equal), "Each local Missile editor changes its live production setting");
+        Check(_host.Arena.Driver.Configuration == before && !panel.HasUnappliedChanges, "Local Missile preview neither submits authority nor leaves a gameplay draft");
+        Reset(missile).EmitSignal(BaseButton.SignalName.Pressed);
+        Check(Trackstorm.Client.Items.MissileVfxSettings.Current == new Trackstorm.Client.Items.MissileVfxSettings(), "Local Missile reset restores its production defaults");
 
         Set("items.salvo_count", 9);
         Set("items.machine_gun_damage", 12);

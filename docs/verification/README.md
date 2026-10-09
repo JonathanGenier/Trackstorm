@@ -16,6 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Missile model and flight VFX | [Implementation and runtime verification](ts-240.md) |
 | Momentum advantage, loaded drive and off-center collision response | [TS-288 verification evidence](ts-288.md) |
 | Audit and resolution of two stale local stashes | [TS-289 verification evidence](ts-289.md) |
 | Aerial soft settle and rear-quarter vehicle impacts | [TS-283 implementation, mixed-contact correction, native/network verification and runtime critique](ts-283.md) |

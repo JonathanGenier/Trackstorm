@@ -122,6 +122,15 @@ public sealed partial class MissileTerrainChecks
                 host.World.Restore(new SimulationState(old.Tick, old.LastInput,
                     [new VehicleSnapshot(car.VehicleId, car.LifeId, new VehicleState(old.Tick, pose, false, false, 0, 0), car.Damage, pose)], old.Match));
                 for (int i = 0; i < 90; i++) { await Step(); }
+                // Real route pickups must not select another item instead of the test missile.
+                for (int slot = 0; slot < 2; slot++)
+                {
+                    arena.Driver.RequestItemDiscard(); await Step();
+                    arena.Driver.RequestItemSwitch(); await Step();
+                }
+                Require(arena.Driver.GiveDeveloperItem(HeldItem.Missile), "Production missile grant");
+                if (arena.Driver.LocalItem?.Active.Item != HeldItem.Missile) { arena.Driver.RequestItemSwitch(); await Step(); }
+                Require(arena.Driver.LocalItem?.Active.Item == HeldItem.Missile, "Selected standard missile");
                 int driven = 0;
                 while (driven++ < 1500 && c.Direction * (host.World.State.Vehicles.Single().Movement.Physics.Position.X - c.Fire) < 0)
                 {
@@ -136,15 +145,12 @@ public sealed partial class MissileTerrainChecks
                         state.Movement.Grounded && speed > 13 ? (ushort)18000 : (ushort)0, 0, 0, 0));
                 }
                 Require(driven < 1500, $"{scenario}: native drive reached firing point");
-                // Real route pickups must not select another item instead of the test missile.
-                for (int slot = 0; slot < 2; slot++)
-                {
-                    arena.Driver.RequestItemDiscard(); await Step();
-                    arena.Driver.RequestItemSwitch(); await Step();
-                }
-                Require(arena.Driver.GiveDeveloperItem(HeldItem.Missile), "Production missile grant");
-                if (arena.Driver.LocalItem?.Active.Item != HeldItem.Missile) { arena.Driver.RequestItemSwitch(); await Step(); }
-                Require(arena.Driver.LocalItem?.Active.Item == HeldItem.Missile, "Selected standard missile");
+                for (int ready = 0; ready < 240 && !(arena.Driver.LocalItem is { } held && arena.Bodies[1].Rack.IsMissileReady(held)); ready++)
+                { await Step(new InputFrame((ulong)frame, 0, 0, ushort.MaxValue, 0, 0, 0)); }
+                // Preserve the TS-239 fixture's four neutral staging steps at the firing
+                // point (previously spent discarding/switching before its immediate grant).
+                // Readiness is now prepared on approach, without moving that launch pose.
+                for (int staging = 0; staging < 4; staging++) { await Step(); }
                 var launch = host.World.State.Vehicles.Single().Movement.Physics;
                 float launchPitch = Pitch(N.Vector3.Transform(-N.Vector3.UnitZ, launch.Orientation));
                 await CaptureProduction(scenario + "-launch");

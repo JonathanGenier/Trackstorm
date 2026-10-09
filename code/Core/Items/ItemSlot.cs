@@ -7,6 +7,14 @@ public sealed record ItemSlot(ulong Vehicle, ulong Life, ulong Token, HeldItem I
     public const int NitroDeploymentDurationTicks = 36;
     /// <summary>Remaining authoritative deployment time for the selected Nitro; zero means ready.</summary>
     public int NitroDeploymentTicks { get; init; }
+    /// <summary>Captured selected-Missile deployment boundaries, in authoritative ticks.</summary>
+    public ulong MissileDeployStartTick { get; init; }
+    /// <summary>No Missile use is accepted before this boundary.</summary>
+    public ulong MissileReadyTick { get; init; }
+    /// <summary>Captured full return interval, retained through a subsequent pickup.</summary>
+    public ulong MissileStowStartTick { get; init; }
+    /// <summary>The next weapon may deploy only after this boundary.</summary>
+    public ulong MissileStowEndTick { get; init; }
     /// <summary>Unfired Salvo rounds in the first physical slot.</summary>
     public int SalvoShots { get; init; } = Item == HeldItem.Salvo ? 5 : 0;
     /// <summary>Unfired Salvo rounds in the second physical slot.</summary>

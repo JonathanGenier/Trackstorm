@@ -58,6 +58,7 @@ internal sealed class ItemDiscardTests
         var host = new HostVehicleSession(99);
         host.Join(42);
         host.Items.Grant(host.World, 2, HeldItem.Missile);
+        MissileTestPreparation.Wait(host);
         var before = host.Items.Slots.Single();
         Assert.That(host.DiscardItem(0, 99, 1, before.Token, 0), Is.False);
         Assert.That(host.DiscardItem(100, 99, 1, before.Token, 0), Is.False);
@@ -135,6 +136,7 @@ internal sealed class ItemDiscardTests
     {
         var host = new HostVehicleSession(99);
         host.Items.Grant(host.World, 1, HeldItem.Missile);
+        MissileTestPreparation.Wait(host);
         host.UseItem(0, 99, 1, host.Items.Slots.Single().Token);
         host.Step(default, Observe);
         var missile = host.Items.Missiles.Single();

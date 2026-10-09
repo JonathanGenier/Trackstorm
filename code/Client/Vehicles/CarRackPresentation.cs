@@ -101,6 +101,7 @@ internal sealed partial class CarRackPresentation : Node
         // never borrow the old model while its replacement is retracting.
         if (_usePending) { _desired = _useItem; }
         if (_useItem == HeldItem.Shield) { _usePending = false; _desired = active?.Item ?? HeldItem.None; }
+        ObserveMissile(inventory, tick);
         _previous = inventory;
         if (_placement is not null || _mineReturning)
         {
@@ -113,12 +114,16 @@ internal sealed partial class CarRackPresentation : Node
             float confirmedRemaining = inventory!.NitroDeploymentTicks / 60f;
             _nitroReadyTick = checked(tick + (ulong)inventory.NitroDeploymentTicks);
             _nitroRemaining = selection || acquired ? confirmedRemaining : Math.Min(_nitroRemaining, confirmedRemaining);
-            if (ShieldReturning?.Invoke() != true) { AnimateNitroDeployment(0); }
+            if (!_missileStowing && _payload is not Items.MissileLauncher && ShieldReturning?.Invoke() != true) { AnimateNitroDeployment(0); }
         }
     }
 
     internal void Reset()
     {
+        _missileProgress = _missileReturn = 0;
+        _missileStowing = false;
+        _missileReturnBoundary = 0;
+        _missileClock = 0;
         _mechanism.ResetPose();
         ClearPayload();
         Boost.Reset();
@@ -134,6 +139,7 @@ internal sealed partial class CarRackPresentation : Node
 
     public override void _Process(double delta)
     {
+        if (AnimateMissile(Math.Max(0, (float)delta))) { return; }
         if (_desired == HeldItem.Nitro)
         {
             // The wide shield must finish nesting before the Boost timeline can

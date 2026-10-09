@@ -218,6 +218,7 @@ internal sealed class MissileTerrainTests
     {
         var host = new HostVehicleSession(99, new ItemConfiguration { MissileLifetimeTicks = 300, MissileLifetimeSeconds = 0.05f, MissileWorldLimit = 256 });
         host.Items.Grant(host.World, 1, HeldItem.Missile);
+        MissileTestPreparation.Wait(host);
         host.UseItem(0, 99, 1, host.Items.Slots.Single().Token);
         int queries = 0;
         VehicleObservation Observe(VehicleSnapshot state) => new(new VehiclePhysicsState(new Vector3(worldBound ? 300 : 0, 50, 0), Quaternion.Identity, Vector3.Zero, Vector3.Zero), Vector3.UnitY);
