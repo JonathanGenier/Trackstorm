@@ -7,6 +7,17 @@ namespace Trackstorm.Transport.Tests;
 internal sealed class CameraAimAttractionTests
 {
     [Test]
+    public void AcquisitionPaddingHelpsSmallDistantBodiesWithoutWideningIntermediateOrCloseMargins()
+    {
+        float cone = MathF.PI / 36;
+        Assert.That(CameraAimAttraction.AcquisitionMargin(.1f, cone), Is.EqualTo(cone * .5f));
+        Assert.That(CameraAimAttraction.AcquisitionMargin(.05f, cone), Is.EqualTo(cone * .5f));
+        Assert.That(CameraAimAttraction.AcquisitionMargin(.01f, cone), Is.InRange(cone * .8f, cone));
+        Assert.That(CameraAimAttraction.AcquisitionMargin(0, cone), Is.EqualTo(cone));
+        Assert.That(CameraAimAttraction.AcquisitionMargin(.01f, 0), Is.Zero);
+    }
+
+    [Test]
     public void TrackingCrossesTheWorldHeadingSeamWithoutTurningTheLongWay()
     {
         var result = CameraAimAttraction.Motion(new(MathF.PI - .01f, 0), new(-MathF.PI + .01f, .01f), 1f / 30);

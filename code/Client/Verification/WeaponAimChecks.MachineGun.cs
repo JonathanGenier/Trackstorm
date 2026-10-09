@@ -53,6 +53,10 @@ public sealed partial class WeaponAimChecks
             LogTargetGeometry(scenario.Name, 1);
             Require(host.Items.Aims.Single(a => a.Vehicle == Shooter).Ready, $"Machine Gun {scenario.Name} accepted ready");
             GD.Print($"MG_GEOMETRY {scenario.Name}: aim={host.Items.Aims.Single(a => a.Vehicle == Shooter)} target={host.World.GetVehicle(1).ObservedPhysics.Position} cameraDesired={_arenas[1].Driver.DesiredAim}");
+            // Staging on the production map can collect a held Shield. This phase
+            // measures unshielded chassis damage; shield interception has its own harness.
+            GD.Print($"MG_TARGET_LOADOUT {scenario.Name}: active={host.Items.Slots.FirstOrDefault(slot => slot.Vehicle == 1)?.Active.Item}; attached shields={host.Items.Shields.Count(shield => shield.Owner == 1 && shield.Attached)}");
+            host.Items.RemovePlayer(1);
             int before = rays, beforeHits = hits;
             float hp = host.World.GetVehicle(1).Damage.CurrentHP;
             Require(_arenas[1].Driver.RequestItemUse(), "Camera shooter submits ordinary held-use request");

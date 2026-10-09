@@ -5,6 +5,9 @@ namespace Trackstorm.Client.Vehicles;
 /// <summary>Bounded local camera pull after acquisition; input can immediately break engagement.</summary>
 internal static class CameraAimAttraction
 {
+    internal static float AcquisitionMargin(float apparentRadius, float cone) =>
+        cone * (.5f + .5f * Math.Clamp(1 - apparentRadius / Math.Max(.0001f, cone * .5f), 0, 1));
+
     internal static Vector2 Motion(Vector2 previous, Vector2 current, float delta)
     {
         Vector2 motion = new(MathF.IEEERemainder(current.X - previous.X, MathF.Tau), current.Y - previous.Y);

@@ -27,6 +27,7 @@ public sealed partial class WeaponAimChecks : Node
     private N.Quaternion _targetOrientation = N.Quaternion.Identity;
     private bool _scriptMouseHeld;
     private Vector2 _scriptStick;
+    private bool _scriptControllerAim;
     private bool _captureInput;
     private bool _restoreScriptFocus = true;
     private float Ground => _oval ? 1.65f : 21.65f;
@@ -45,6 +46,13 @@ public sealed partial class WeaponAimChecks : Node
         _input.Adapter.Enabled = true;
         using var mouse = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = _scriptMouseHeld };
         _input._Input(mouse);
+        if (_scriptControllerAim && _scriptStick == Vector2.Zero)
+        {
+            // Recreate the fixture-owned controller intent before restoring neutral.
+            // Production focus recovery deliberately does not restore this engagement.
+            using var initiate = new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = .16f };
+            Godot.Input.ParseInputEvent(initiate); Godot.Input.FlushBufferedEvents(); _input._Input(initiate);
+        }
         foreach (var (axis, value) in new[] { (JoyAxis.RightX, _scriptStick.X), (JoyAxis.RightY, _scriptStick.Y) })
         {
             using var stick = new InputEventJoypadMotion { Device = 0, Axis = axis, AxisValue = value };
@@ -103,10 +111,11 @@ public sealed partial class WeaponAimChecks : Node
             await Until(() => _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 3), "Three UDP peers initialized", 1200);
             var host = _arenas[0].Driver.Host!;
             Require(host.TryConfigure(0, new Dictionary<string, double> { ["match.minimum_players"] = 1, ["match.countdown_ticks"] = 1 }, out _), "Host tuning applied");
-            if (OS.GetCmdlineUserArgs().Contains("--aim-accuracy") || OS.GetCmdlineUserArgs().Contains("--aim-sticky") || OS.GetCmdlineUserArgs().Contains("--aim-freedom"))
+            if (OS.GetCmdlineUserArgs().Contains("--aim-accuracy") || OS.GetCmdlineUserArgs().Contains("--aim-sticky") || OS.GetCmdlineUserArgs().Contains("--aim-freedom") || OS.GetCmdlineUserArgs().Contains("--aim-recovery"))
             {
                 if (OS.GetCmdlineUserArgs().Contains("--aim-accuracy")) { await CheckAccuracy(); }
-                if (OS.GetCmdlineUserArgs().Contains("--aim-freedom")) { await CheckAimFreedom(); }
+                if (OS.GetCmdlineUserArgs().Contains("--aim-recovery")) { await CheckAimRecovery(); }
+                else if (OS.GetCmdlineUserArgs().Contains("--aim-freedom")) { await CheckAimFreedom(); }
                 else { await CheckStickyEngagement(); }
                 GD.Print($"Weapon aiming integration passed: {_evidence.Count} accuracy/retention checks.");
                 foreach (var arena in _arenas) { arena.QueueFree(); }
@@ -483,6 +492,7 @@ public sealed partial class WeaponAimChecks : Node
         {
             Godot.Input.ParseInputEvent(input); Godot.Input.FlushBufferedEvents();
             _input._Input(input);
+            _scriptControllerAim = _input.Adapter.CameraAimActive && !_scriptMouseHeld;
         }
     }
     private async Task MotionFrames(int count, string phase)

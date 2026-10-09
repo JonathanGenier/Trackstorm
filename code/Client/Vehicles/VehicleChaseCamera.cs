@@ -83,7 +83,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
     /// <summary>Local near-target friction; scales only deliberate input and never steers the camera.</summary>
     internal Func<Vector2, Vector2, float, (float Mouse, float Stick)>? AimFriction { get; set; }
     /// <summary>Acquired-car pull and recenter hold, sharing the existing look and preference path.</summary>
-    internal Func<Vector2, Vector2, float, (Vector2 Pull, bool Engaged)>? AimAttraction { get; set; }
+    internal Func<Vector2, Vector2, Vector2, float, (Vector2 Pull, bool Engaged)>? AimAttraction { get; set; }
     internal Action? AimReset { get; set; }
 
     private float ShakeIntensity => (float)(SettingsSource?.Current.CameraShakeIntensity ?? 1);
@@ -250,7 +250,9 @@ public sealed partial class VehicleChaseCamera : Camera3D
             var friction = WeaponAiming ? AimFriction?.Invoke(mouse * axisGain * mouseGain, (stick * axisGain * stickGain).LimitLength(), delta) ?? (1f, 1f) : (1f, 1f);
             // Breakaway measures deliberate physical input after inversion. Low sensitivity
             // must never turn full stick or a mouse sweep into an inescapable fine correction.
-            var attraction = WeaponAiming ? AimAttraction?.Invoke(mouse, stick, delta) ?? (Vector2.Zero, false) : (Vector2.Zero, false);
+            var lookInput = CameraFreeLook.InputMovement(new(mouse.X, mouse.Y), new(stick.X, stick.Y), delta, WeaponAiming,
+                friction.Item1 * mouseGain, friction.Item2 * stickGain, (float)(preferences?.StickAimCurve ?? 2), axisGain.X, axisGain.Y);
+            var attraction = WeaponAiming ? AimAttraction?.Invoke(mouse, stick, new(lookInput.X, lookInput.Y), delta) ?? (Vector2.Zero, false) : (Vector2.Zero, false);
             // Engaged aim is world-relative: steering is not a request to look away.
             // Breakaway fades compensation; releasing aim intent stops it immediately.
             bool aimHeld = InputSource?.CameraAimActive == true;

@@ -10,6 +10,13 @@ internal sealed class CameraFreeLook
 
     internal void Reset() => (Yaw, Pitch) = (0, 0);
 
+    internal static Vector2 InputMovement(Vector2 mouse, Vector2 stick, float delta, bool weaponAiming,
+        float mouseScale, float stickScale, float stickCurve, float horizontalScale, float verticalScale)
+    {
+        Vector2 shapedStick = weaponAiming ? stick * MathF.Pow(stick.Length(), stickCurve - 1) : stick;
+        return (mouse * (0.003f * mouseScale) + shapedStick * (2.2f * delta * stickScale)) * new Vector2(horizontalScale, verticalScale);
+    }
+
     internal void Attract(Vector2 correction, float basePitch)
     {
         Yaw = MathF.IEEERemainder(Yaw - correction.X, MathF.Tau);
@@ -26,9 +33,7 @@ internal sealed class CameraFreeLook
         // Mouse displacement was already RMB-gated at event time; retain a drag released between renders.
         if (held || stick != Vector2.Zero || mouse != Vector2.Zero)
         {
-            Vector2 shapedStick = weaponAiming ? stick * MathF.Pow(stick.Length(), stickCurve - 1) : stick;
-            Vector2 movement = mouse * (0.003f * mouseScale) + (shapedStick * (2.2f * delta * stickScale));
-            movement *= new Vector2(horizontalScale, verticalScale);
+            Vector2 movement = InputMovement(mouse, stick, delta, weaponAiming, mouseScale, stickScale, stickCurve, horizontalScale, verticalScale);
             Yaw = MathF.IEEERemainder(Yaw - movement.X, MathF.Tau);
             Pitch = Math.Clamp(Pitch - movement.Y, -MathF.PI * 17 / 36 - basePitch, MathF.PI * 17 / 36 - basePitch);
         }

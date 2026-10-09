@@ -20,9 +20,26 @@ internal sealed partial class NetworkVehicleArena
     private ulong _aimDismissed;
     private ulong _aimDismissedLife;
     private ulong _aimIntentRevision;
+    private float _aimRecoverySeconds;
+    private Vector2 _aimPlacement;
     internal ulong AssistedCar => StickyAiming ? _aimTarget : 0;
     private bool StickyAiming => _driver.LocalItem?.Active.Item == HeldItem.MachineGun;
     internal WeaponAimOverlay AimOverlay => _aimOverlay;
+    internal float AimRecoverySeconds => _aimRecoverySeconds;
+    internal Action<string>? AimReleaseObserved { get; set; }
+    internal string AimTargetDiagnostics(ulong vehicle)
+    {
+        Vector3 center = AimBodyCenter(_bodies[vehicle]);
+        var trace = TraceViewedAim(_camera.GlobalPosition, center);
+        return $"angle={(-_camera.GlobalBasis.Z).AngleTo(center - _camera.GlobalPosition):F5} sight={trace.Car?.VehicleId == vehicle} hit={trace.Point} lens={_camera.GlobalPosition} target={center} accepted={_driver.AcceptedAims.Count} active={CameraInput?.CameraAimActive} dismissed={_aimDismissed}";
+    }
+
+    private void ReleaseAim(string reason)
+    {
+        if (_aimTarget != 0) { AimReleaseObserved?.Invoke($"target={_aimTarget} reason={reason}"); }
+        _aimTarget = 0;
+        _aimRecoverySeconds = 0;
+    }
 
     private void InitializeAiming()
     {
@@ -43,7 +60,7 @@ internal sealed partial class NetworkVehicleArena
         if (!enabled) { ResetAiming(); return; }
         var current = _driver.LocalItem!;
         var capability = (current.Life, current.Active.Token, current.SelectionRevision);
-        if (_aimCapability != capability) { _aimTarget = 0; _aimDismissed = 0; _aimReleaseSeconds = 0; _aimCapability = capability; }
+        if (_aimCapability != capability) { ReleaseAim("capability changed"); _aimDismissed = 0; _aimReleaseSeconds = 0; _aimCapability = capability; }
         if (CameraInput is { } input && (_aimIntentRevision != input.CameraAimRevision || !input.CameraAimActive))
         {
             ResetAssistance();
@@ -64,16 +81,17 @@ internal sealed partial class NetworkVehicleArena
 
     private void ResetAssistance()
     {
-        _aimTarget = 0;
+        ReleaseAim("intent/lifecycle reset");
         _aimTargetLife = 0;
         _aimReleaseSeconds = 0;
         _aimController = false;
         _aimDismissed = 0;
         _aimAdjusted = false;
         _aimBearing = default;
+        _aimPlacement = default;
     }
 
-    private void PresentAiming()
+    private void PresentAiming(float delta)
     {
         foreach (var pair in _bodies)
         {
@@ -90,12 +108,14 @@ internal sealed partial class NetworkVehicleArena
         var hit = TraceViewedAim(lens, rayEnd);
         if (StickyAiming)
         {
-            ValidateStickyTarget();
+            ValidateStickyTarget(delta);
             if (CameraInput?.CameraAimActive == true && _aimTarget == 0 && _aimReleaseSeconds <= 0 && _driver.AcceptedAims.Any(a => a.Vehicle == local.VehicleId && a.Life == local.LifeId && a.Token == slot.Active.Token) && FindAcquisition(lens) is { } acquired)
             {
                 _aimTarget = acquired.VehicleId;
                 _aimTargetLife = _driver.Latest!.Vehicles.Single(v => v.State.VehicleId == _aimTarget).State.LifeId;
                 _aimAdjusted = false;
+                _aimPlacement = default;
+                _aimRecoverySeconds = 0;
                 _aimBearing = AimBearing(AimBodyCenter(acquired) - lens);
                 ValidateStickyTarget();
             }
@@ -173,6 +193,21 @@ internal sealed partial class NetworkVehicleArena
     private static Vector2 AimBearing(Vector3 direction) => new(MathF.Atan2(direction.X, -direction.Z),
         -MathF.Atan2(direction.Y, new Vector2(direction.X, direction.Z).Length()));
 
+    // The existing projected body envelope is shared, but only this selection metric
+    // receives a margin. Rendered corners, native collision and spread stay unchanged.
+    private float AimFrameGap(Rect2 frame)
+    {
+        Vector2 cursor = _camera.GetViewport().GetVisibleRect().GetCenter();
+        Vector2 nearest = cursor.Clamp(frame.Position, frame.End);
+        return _camera.ProjectRayNormal(cursor).AngleTo(_camera.ProjectRayNormal(nearest));
+    }
+
+    private float AcquisitionMargin(Rect2 frame, float cone)
+    {
+        float apparentSize = _camera.ProjectRayNormal(frame.Position).AngleTo(_camera.ProjectRayNormal(frame.End)) * .5f;
+        return CameraAimAttraction.AcquisitionMargin(apparentSize, cone);
+    }
+
     private NetworkVehicleBody? FindAcquisition(Vector3 lens)
     {
         float cone = _driver.Configuration.Configuration.Items.Aim.AssistDegrees * MathF.PI / 180;
@@ -187,42 +222,54 @@ internal sealed partial class NetworkVehicleArena
                 to.LengthSquared() > 90000 || _camera.IsPositionBehind(point) ||
                 !_camera.GetViewport().GetVisibleRect().HasPoint(_camera.UnprojectPosition(point))) { continue; }
             float angle = (-_camera.GlobalBasis.Z).AngleTo(to);
-            float extent = Math.Min(.10f, MathF.Atan2(1.4f, to.Length()));
+            if (ProjectAimBounds(pair.Value) is not { } frame) { continue; }
+            float gap = AimFrameGap(frame);
+            float allowance = AcquisitionMargin(frame, cone);
             if (pair.Key == _aimDismissed)
             {
-                if (state.LifeId != _aimDismissedLife || angle > cone * .5f + extent) { _aimDismissed = 0; }
+                if (state.LifeId != _aimDismissedLife || gap > allowance) { _aimDismissed = 0; }
                 else { continue; }
             }
-            if (angle > cone * .5f + extent || angle >= best || !HasAimSight(pair.Key, lens, point)) { continue; }
-            best = angle; selected = pair.Value;
+            float score = gap + angle * .01f;
+            if (gap > allowance || score >= best || !HasAimSight(pair.Key, lens, point)) { continue; }
+            best = score; selected = pair.Value;
         }
         return selected;
     }
 
-    private void ValidateStickyTarget()
+    private void ValidateStickyTarget(float delta = 0)
     {
         if (CameraInput?.CameraAimActive != true) { ResetAssistance(); return; }
         if (_aimTarget == 0) { return; }
         if (!_driver.AcceptedAims.Any(a => a.Vehicle == _driver.LocalVehicleId && a.Life == _aimCapability.Life && a.Token == _aimCapability.Token))
-        { _aimTarget = 0; return; }
+        { ReleaseAim("accepted aim expired"); return; }
         var state = _driver.Latest?.Vehicles.FirstOrDefault(v => v.State.VehicleId == _aimTarget)?.State;
         float cone = _driver.Configuration.Configuration.Items.Aim.AssistDegrees * MathF.PI / 180;
         if (cone <= 0 || state is not { CanInteract: true } || state.LifeId != _aimTargetLife ||
             !_bodies.TryGetValue(_aimTarget, out var body) || !body.IsPresented)
-        { _aimTarget = 0; return; }
+        { ReleaseAim("eligibility/life/configuration"); return; }
         Vector3 center = AimBodyCenter(body);
         Vector3 to = center - _camera.GlobalPosition;
         Vector2 viewportCenter = _camera.GetViewport().GetVisibleRect().GetCenter();
-        float angle = (-_camera.GlobalBasis.Z).AngleTo(to);
-        float extent = Math.Min(.10f, MathF.Atan2(1.4f, to.Length()));
-        if (_camera.IsPositionBehind(center) || !_camera.GetViewport().GetVisibleRect().HasPoint(_camera.UnprojectPosition(center)) ||
-            to.LengthSquared() > 90000 || angle > cone + extent || !HasAimSight(_aimTarget, _camera.GlobalPosition, center))
-        { _aimTarget = 0; return; }
-        _aimTargetAngle = Math.Max(0, angle - extent);
+        if (_camera.IsPositionBehind(center) || !_camera.GetViewport().GetVisibleRect().HasPoint(_camera.UnprojectPosition(center)))
+        { ReleaseAim("offscreen"); return; }
+        if (to.LengthSquared() > 90000) { ReleaseAim("range"); return; }
+        if (!HasAimSight(_aimTarget, _camera.GlobalPosition, center)) { ReleaseAim("occluded"); return; }
+        if (ProjectAimBounds(body) is not { } frame) { ReleaseAim("offscreen body"); return; }
+        float gap = AimFrameGap(frame);
+        // Angular framing is evaluated once, after this frame's follow/compensation.
+        // Visibility and authority checks above remain immediate at both phases.
+        if (delta > 0)
+        {
+            _aimRecoverySeconds = gap <= cone ? 0 : _aimRecoverySeconds + delta;
+            if (gap > Math.Min(cone * 3, Mathf.DegToRad(20)) || _aimRecoverySeconds > .45f)
+            { ReleaseAim($"angular recovery exhausted gap={gap:F5} seconds={_aimRecoverySeconds:F3}"); return; }
+        }
+        _aimTargetAngle = gap;
         _aimTargetOffset = _camera.UnprojectPosition(center) - viewportCenter;
     }
 
-    private (Vector2 Pull, bool Engaged) AimAttraction(Vector2 mouse, Vector2 stick, float delta)
+    private (Vector2 Pull, bool Engaged) AimAttraction(Vector2 mouse, Vector2 stick, Vector2 lookInput, float delta)
     {
         _aimReleaseSeconds = Math.Max(0, _aimReleaseSeconds - delta);
         if (!StickyAiming || CameraInput?.CameraAimActive != true || _driver.Configuration.Configuration.Items.Aim.AssistDegrees <= 0) { return (Vector2.Zero, false); }
@@ -244,24 +291,31 @@ internal sealed partial class NetworkVehicleArena
         }
         Vector3 local = _camera.GlobalBasis.Inverse() * (AimBodyCenter(_bodies[_aimTarget]) - _camera.GlobalPosition);
         var error = new System.Numerics.Vector2(MathF.Atan2(local.X, -local.Z), -MathF.Atan2(local.Y, new Vector2(local.X, local.Z).Length()));
+        Vector2 bearing = AimBearing(AimBodyCenter(_bodies[_aimTarget]) - _camera.GlobalPosition);
+        var motion = CameraAimAttraction.Motion(new(_aimBearing.X, _aimBearing.Y), new(bearing.X, bearing.Y), delta);
         bool fineInput = mouse.LengthSquared() > .25f || stick.LengthSquared() > .0225f;
+        // Test intentional placement, not the transient cursor displacement from a jolt.
+        Vector2 intended = new(error.X - _aimPlacement.X + lookInput.X, error.Y - _aimPlacement.Y + lookInput.Y);
+        Vector3 intendedRay = new(MathF.Sin(intended.X) * MathF.Cos(intended.Y), -MathF.Sin(intended.Y), -MathF.Cos(intended.X) * MathF.Cos(intended.Y));
+        Vector2 placed = _camera.UnprojectPosition(_camera.GlobalPosition + _camera.GlobalBasis * intendedRay * local.Length());
         bool leavingFrame = _aimAdjusted && fineInput && ProjectAimBounds(_bodies[_aimTarget]) is { } frame &&
-            !frame.Grow(4).HasPoint(_camera.GetViewport().GetVisibleRect().GetCenter()) &&
-            (mouse.Dot(new(error.X, error.Y)) < 0 || stick.Dot(new(error.X, error.Y)) < 0);
+            !frame.Grow(4).HasPoint(placed) && (lookInput.Dot(_aimPlacement) < 0);
         if (leavingFrame || CameraAimAttraction.Breakaway(error, new(mouse.X, mouse.Y), new(stick.X, stick.Y), delta))
-        { _aimDismissed = _aimTarget; _aimDismissedLife = _aimTargetLife; _aimTarget = 0; _aimReleaseSeconds = .18f; return (Vector2.Zero, false); }
+        { _aimDismissed = _aimTarget; _aimDismissedLife = _aimTargetLife; ReleaseAim(leavingFrame ? "deliberate frame exit" : "deliberate sweep"); _aimReleaseSeconds = .18f; return (Vector2.Zero, false); }
         // After an intentional fine adjustment, transport the selected offset with the
         // target instead of repeatedly pulling it back to centre. Actual input stays direct.
         // Approaching the car with small input must not cancel acquisition pull.
         // Preserve intentional placement once the cursor is on the body frame.
-        if (fineInput && ProjectAimBounds(_bodies[_aimTarget]) is { } adjustedFrame && adjustedFrame.HasPoint(_camera.GetViewport().GetVisibleRect().GetCenter())) { _aimAdjusted = true; }
-        Vector2 bearing = AimBearing(AimBodyCenter(_bodies[_aimTarget]) - _camera.GlobalPosition);
-        var motion = CameraAimAttraction.Motion(new(_aimBearing.X, _aimBearing.Y), new(bearing.X, bearing.Y), delta);
-        _aimBearing = bearing;
+        if (!_aimAdjusted && fineInput && ProjectAimBounds(_bodies[_aimTarget]) is { } adjustedFrame && adjustedFrame.HasPoint(_camera.GetViewport().GetVisibleRect().GetCenter()))
+        { _aimAdjusted = true; _aimPlacement = new(error.X - motion.X, error.Y - motion.Y); }
+        // Keep unapplied bearing motion for the next frame instead of discarding a jolt
+        // exceeding the existing 180-degree/s compensation cap.
+        _aimBearing += new Vector2(motion.X, motion.Y);
         var tuning = _driver.Configuration.Configuration.Items.Aim;
         float strength = _aimController ? tuning.StickPull : tuning.MousePull;
         var pull = strength <= 0 ? System.Numerics.Vector2.Zero : motion +
-            (_aimAdjusted ? System.Numerics.Vector2.Zero : CameraAimAttraction.Pull(error - motion, strength, delta));
+            CameraAimAttraction.Pull(error - motion - new System.Numerics.Vector2(_aimPlacement.X, _aimPlacement.Y), strength, delta);
+        if (_aimAdjusted) { _aimPlacement -= lookInput; }
         return (new(pull.X, pull.Y), true);
     }
 
