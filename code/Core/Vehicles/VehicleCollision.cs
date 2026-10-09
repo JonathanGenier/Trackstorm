@@ -49,13 +49,28 @@ public static class VehicleCollision
                 ulong other = contact.OtherVehicleId;
                 if (!observations.ContainsKey(other) || !pairs.Add((Math.Min(id, other), Math.Max(id, other)))) { continue; }
                 var first = observations[id]; var second = observations[other];
-                var point = first.Physics.Position + Vector3.Transform(contact.LocalPosition, first.Physics.Orientation);
-                var resolved = ResolvePair(first.Physics, configuration(id), second.Physics, configuration(other), contact.Normal, point);
+                var geometry = ContactGeometry(source[id], other);
+                var resolved = ResolvePair(first.Physics, configuration(id), second.Physics, configuration(other), geometry.Normal, geometry.Point);
                 observations[id] = WithPhysics(first, resolved.First);
                 observations[other] = WithPhysics(second, resolved.Second);
             }
         }
         return observations;
+    }
+
+    /// <summary>Uses the center of the strongest contact face, so a flat bumper cannot select an arbitrary corner lever.</summary>
+    public static (Vector3 Normal, Vector3 Point) ContactGeometry(VehicleObservation observation, ulong otherVehicleId)
+    {
+        var contacts = observation.Contacts.Where(contact => contact.OtherVehicleId == otherVehicleId)
+            .OrderBy(contact => Vector3.Dot(contact.RelativeVelocity, contact.Normal)).ToArray();
+        if (contacts.Length == 0) { throw new ArgumentException("A vehicle contact is required."); }
+        var strongest = contacts[0];
+        float closing = Math.Max(0, -Vector3.Dot(strongest.RelativeVelocity, strongest.Normal));
+        var face = contacts.Where(contact => Vector3.Dot(contact.Normal, strongest.Normal) > .95f &&
+            Math.Max(0, -Vector3.Dot(contact.RelativeVelocity, contact.Normal)) >= closing * .8f)
+            .Select(contact => contact.LocalPosition).Distinct().ToArray();
+        Vector3 center = face.Aggregate(Vector3.Zero, (sum, point) => sum + point) / face.Length;
+        return (strongest.Normal, observation.Physics.Position + Vector3.Transform(center, observation.Physics.Orientation));
     }
 
     private static VehicleObservation WithPhysics(VehicleObservation observation, VehiclePhysicsState physics) =>
@@ -67,18 +82,21 @@ public static class VehicleCollision
         Vector3 local = Vector3.Transform(lever, Quaternion.Conjugate(body.Orientation));
         Vector3 direction = Vector3.Transform(normal, Quaternion.Conjugate(body.Orientation));
         Vector3 up = Vector3.Transform(Vector3.UnitY, body.Orientation);
-        float rear = Math.Clamp((local.Z / tuning.Wheelbase - 0.15f) / 0.45f, 0, 1);
+        float rear = Math.Clamp((local.Z / tuning.Wheelbase - 0.05f) / 0.25f, 0, 1);
         float side = Math.Clamp((Math.Abs(direction.X) - 0.35f) / 0.45f, 0, 1);
         float offset = Math.Clamp(Math.Abs(local.X) / (tuning.Wheelbase * 0.25f), 0, 1);
         float speed = (body.LinearVelocity - up * Vector3.Dot(body.LinearVelocity, up)).Length();
-        float moving = Math.Clamp((speed - 3) / 5, 0, 1);
+        float moving = Math.Clamp((speed - 1) / 5, 0, 1);
         float impact = Math.Clamp((approach - tuning.PitClosingSpeed) / tuning.PitClosingSpeed, 0, 1);
         float qualification = tuning.PitYawResponse <= tuning.CrashRotation || tuning.PitAngularLimit == 0 ? 0 : rear * side * offset * moving * impact;
         Vector3 torque = Vector3.Cross(lever, normal);
         float inertia = 3 / (tuning.Mass * tuning.Wheelbase * tuning.Wheelbase);
-        Vector3 response = torque * (tuning.CrashRotation * inertia) + up * (Vector3.Dot(torque, up) * inertia *
+        float eccentric = Math.Clamp((Math.Abs(local.Z) / tuning.Wheelbase - 0.08f) / 0.45f, 0, 1) * side * offset * impact;
+        if (tuning.VehicleImpactYawResponse <= tuning.CrashRotation || tuning.PitAngularLimit == 0) { eccentric = 0; }
+        float extraYaw = Math.Max(Math.Max(0, tuning.VehicleImpactYawResponse - tuning.CrashRotation) * eccentric,
             Math.Max(0, tuning.PitYawResponse - tuning.CrashRotation) * qualification);
-        float limit = tuning.CrashAngularLimit + Math.Max(0, tuning.PitAngularLimit - tuning.CrashAngularLimit) * qualification;
+        Vector3 response = torque * (tuning.CrashRotation * inertia) + up * (Vector3.Dot(torque, up) * inertia * extraYaw);
+        float limit = tuning.CrashAngularLimit + Math.Max(0, tuning.PitAngularLimit - tuning.CrashAngularLimit) * Math.Max(qualification, eccentric);
         // Bound the compliance before computing effective mass. Clipping angular velocity
         // after the solve would leave closing velocity and trigger repeated impulses.
         return limit == 0 ? Vector3.Zero : VehicleMovement.Limit(response, limit / maximumImpulse);

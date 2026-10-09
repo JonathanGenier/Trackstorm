@@ -1,0 +1,158 @@
+[
+  {
+    "name": "repeated-collisions",
+    "command": "./check-repeated-collisions.ps1 -GodotPath $GodotPath -NoBuild",
+    "passed": true,
+    "log": "final-v3-repeated-collisions.log"
+  },
+  {
+    "name": "rock-collisions",
+    "command": "./check-rock-collisions.ps1 -GodotPath $GodotPath -NoBuild",
+    "passed": true,
+    "log": "final-v3-rock-collisions.log"
+  },
+  {
+    "name": "combat-collisions",
+    "command": "./check-combat-collisions.ps1 -GodotPath $GodotPath -NoBuild",
+    "passed": true,
+    "log": "delivery-combat.log"
+  },
+  {
+    "name": "pit-collisions",
+    "command": "./check-pit-collisions.ps1 -GodotPath $GodotPath -NoBuild",
+    "passed": true,
+    "log": "delivery-pit.log"
+  },
+  {
+    "name": "mixed-contacts",
+    "command": "./check-mixed-contacts.ps1 -GodotPath $GodotPath -NoBuild",
+    "passed": true,
+    "log": "completed-mixed-contacts.log"
+  },
+  {
+    "name": "terrain-handling",
+    "command": "./check-terrain-handling.ps1 -GodotPath $GodotPath -NoBuild",
+    "passed": true,
+    "log": "completed-terrain-handling.log"
+  },
+  {
+    "name": "crash-recovery",
+    "command": "./check-crash-recovery.ps1 -GodotPath $GodotPath -NoBuild",
+    "passed": true,
+    "log": "completed-crash-recovery.log"
+  },
+  {
+    "name": "landing",
+    "command": "./check-landing.ps1 -GodotPath $GodotPath -NoBuild",
+    "passed": true,
+    "log": "completed-landing.log"
+  },
+  {
+    "name": "air-control",
+    "command": "./check-air-control.ps1 -GodotPath $GodotPath -NoBuild",
+    "passed": true,
+    "log": "final-v3-air-control.log"
+  },
+  {
+    "name": "trophy-truck",
+    "command": "./check-trophy-truck.ps1 -GodotPath $GodotPath -NoBuild",
+    "passed": true,
+    "log": "completed-trophy-truck.log"
+  },
+  {
+    "name": "world-collisions",
+    "command": "./check-world-collisions.ps1 -GodotPath $GodotPath -NoBuild",
+    "passed": true,
+    "log": "completed-world-collisions.log"
+  },
+  {
+    "name": "environment-collisions",
+    "command": "./check-environment-collisions.ps1 -GodotPath $GodotPath -NoBuild",
+    "passed": true,
+    "log": "final-v3-environment-collisions.log"
+  },
+  {
+    "name": "world-wall",
+    "command": "./check-world-wall.ps1 -GodotPath $GodotPath -NoBuild -Impaired",
+    "passed": true,
+    "log": "completed-world-wall.log"
+  },
+  {
+    "name": "environment-collision-network",
+    "command": "./check-environment-collision-network.ps1 -GodotPath $GodotPath -NoBuild",
+    "passed": true,
+    "log": "completed-environment-collision-network.log"
+  },
+  {
+    "name": "following-contact-network",
+    "command": "./check-following-contact-network.ps1 -GodotPath $GodotPath -NoBuild",
+    "passed": true,
+    "log": "completed-following-contact-network.log"
+  },
+  {
+    "name": "rock-collision-network",
+    "command": "./check-rock-collision-network.ps1 -GodotPath $GodotPath -NoBuild",
+    "passed": true,
+    "log": "completed-rock-collision-network.log"
+  },
+  {
+    "name": "world-collision-network",
+    "command": "./check-world-collision-network.ps1 -GodotPath $GodotPath -NoBuild",
+    "passed": true,
+    "log": "completed-world-collision-network.log"
+  },
+  {
+    "name": "rear-shield",
+    "command": "./check-rear-shield.ps1 -GodotPath $GodotPath -NoBuild -Impaired",
+    "passed": true,
+    "log": "completed-rear-shield.log"
+  },
+  {
+    "name": "reconnect",
+    "command": "./check-reconnect.ps1 -GodotPath $GodotPath -NoBuild -Shield",
+    "passed": true,
+    "log": "completed-reconnect.log"
+  },
+  {
+    "name": "network-vehicles",
+    "command": "./check-network-vehicles.ps1 -GodotPath $GodotPath -NoBuild -Players 2 -Latency 30 -Jitter 5 -Loss 2",
+    "passed": true,
+    "log": "completed-network-vehicles.log"
+  },
+  {
+    "name": "vehicle",
+    "command": "./check-vehicle.ps1 -GodotPath $GodotPath",
+    "passed": true,
+    "log": "completed-vehicle.log"
+  },
+  {
+    "name": "integrated-driving",
+    "command": "./check-integrated-driving.ps1 -GodotPath $GodotPath -NoBuild",
+    "passed": true,
+    "log": "completed-integrated-driving.log"
+  },
+  {
+    "name": "developer-options",
+    "command": "./check-developer-options.ps1 -GodotPath $GodotPath",
+    "passed": true,
+    "log": "completed-developer-options.log"
+  },
+  {
+    "name": "transport",
+    "command": "./check-transport.ps1 -GodotPath $GodotPath",
+    "passed": true,
+    "log": "completed-transport.log"
+  },
+  {
+    "name": "startup",
+    "command": "./check-startup.ps1 -GodotPath $GodotPath -SkipBuild -SkipMediaCheck",
+    "passed": true,
+    "log": "completed-startup.log"
+  },
+  {
+    "name": "nitro",
+    "command": "./check-nitro.ps1 -GodotPath $GodotPath -NoBuild -Impaired",
+    "passed": false,
+    "log": "final-v3-nitro.log"
+  }
+]

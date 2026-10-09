@@ -121,6 +121,8 @@ public sealed partial class ItemAuthority
                 Target = state.Owner, Cause = "Shield", Context = id.ToString(System.Globalization.CultureInfo.InvariantCulture), Tick = _tick });
         }
 
+        internal HashSet<(ulong Owner, ulong Other)> ProtectedVehicleImpacts { get; } = new();
+
         internal Dictionary<ulong, VehicleObservation> Collisions()
         {
             var pushed = PushWalls();
@@ -138,7 +140,8 @@ public sealed partial class ItemAuthority
             if (shields.Length == 0) { return pushed; }
             var observations = new Dictionary<ulong, VehicleObservation>();
             var strongest = new Dictionary<ulong, (float Amount, ulong Other)>();
-            var blockedVehicleImpacts = new HashSet<(ulong Owner, ulong Other)>();
+            var blockedVehicleImpacts = ProtectedVehicleImpacts;
+            var vehicleImpacts = VehicleCollisionDamage.Collect(_requests, _world.GetVehicle, _world.MovementTuning);
             foreach (var request in _requests)
             {
                 var observation = pushed[request.VehicleId];
@@ -160,7 +163,9 @@ public sealed partial class ItemAuthority
                         float severity = contact.StaticObstacle
                             ? EnvironmentCollision.Severity(contact.RelativeVelocity, EnvironmentCollision.ResponseNormal(contact.Normal, observation.Support))
                             : VehicleDamageMath.CollisionSeverity(contact.RelativeVelocity, contact.Normal, contact.Impulse, _world.MovementTuning(shield.Owner).Mass);
-                        float amount = VehicleDamageMath.CollisionDamage(severity, _world.DamageTuning(shield.Owner));
+                        var impact = vehicleImpacts[shield.Owner].FirstOrDefault(impact => impact.OtherVehicleId == other);
+                        float amount = VehicleDamageMath.CollisionDamage(impact.OtherVehicleId != 0 ? impact.Severity : severity,
+                            _world.DamageTuning(shield.Owner), impact.MomentumDisadvantage);
                         if (amount > strongest.GetValueOrDefault(shield.Id).Amount)
                         { strongest[shield.Id] = (amount, other); }
                     }

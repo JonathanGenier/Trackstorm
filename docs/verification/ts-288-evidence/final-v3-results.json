@@ -1,0 +1,42 @@
+[
+  {
+    "name": "environment-collisions",
+    "passed": true
+  },
+  {
+    "name": "nitro",
+    "passed": false
+  },
+  {
+    "name": "repeated-collisions",
+    "passed": true
+  },
+  {
+    "name": "rock-collisions",
+    "passed": true
+  },
+  {
+    "name": "combat-collisions",
+    "passed": true
+  },
+  {
+    "name": "pit-collisions",
+    "passed": false
+  },
+  {
+    "name": "air-control",
+    "passed": true
+  },
+  {
+    "name": "rock-landing-unboosted",
+    "passed": true
+  },
+  {
+    "name": "rock-close",
+    "passed": true
+  },
+  {
+    "name": "rock-embedded",
+    "passed": true
+  }
+]

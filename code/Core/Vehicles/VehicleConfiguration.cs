@@ -53,6 +53,10 @@ public sealed record VehicleConfiguration
     public float Acceleration { get; init; } = 24 * (3000f / 1400);
     /// <summary>Seconds for engine demand to close 63 percent of an increasing pedal change.</summary>
     public float ThrottleRiseTime { get; init; } = 0.65f;
+    /// <summary>Extra low-speed engine demand inside the existing supported tire budget.</summary>
+    public float LowSpeedDriveMultiplier { get; init; } = 1.6f;
+    /// <summary>Road speed at which additional low-speed drive demand has fully faded (m/s).</summary>
+    public float LowSpeedDriveFadeSpeed { get; init; } = 6;
     /// <summary>Seconds for engine demand to close 63 percent of a decreasing pedal change.</summary>
     public float ThrottleFallTime { get; init; } = 0.12f;
     /// <summary>Braking deceleration.</summary>
@@ -224,6 +228,8 @@ public sealed record VehicleConfiguration
     public float CrashAngularLimit { get; init; } = 1.2f;
     /// <summary>Minimum translational closing speed for additional rear-quarter yaw response, m/s.</summary>
     public float PitClosingSpeed { get; init; } = 1.5f;
+    /// <summary>Yaw inverse-inertia response for meaningful off-center vehicle side impacts.</summary>
+    public float VehicleImpactYawResponse { get; init; } = 0.55f;
     /// <summary>Rear-quarter yaw inverse-inertia multiplier at a fully qualifying impact.</summary>
     public float PitYawResponse { get; init; } = 1;
     /// <summary>Maximum angular change from one rear-quarter contact, rad/s.</summary>
@@ -300,6 +306,10 @@ public sealed record VehicleConfiguration
         {
             throw new ArgumentException("Collision tuning requires wall drag 0–5/s, dissipation/rotation 0–1 and angular change 0–3 rad/s.");
         }
+        if (!float.IsFinite(LowSpeedDriveMultiplier) || LowSpeedDriveMultiplier is < 1 or > 3 ||
+            !float.IsFinite(LowSpeedDriveFadeSpeed) || LowSpeedDriveFadeSpeed is < 1 or > 10 ||
+            !float.IsFinite(VehicleImpactYawResponse) || VehicleImpactYawResponse is < 0 or > 1)
+        { throw new ArgumentException("Invalid vehicle combat drive tuning."); }
         if (!float.IsFinite(PitClosingSpeed) || PitClosingSpeed is < 0.1f or > 10 ||
             !float.IsFinite(PitYawResponse) || PitYawResponse is < 0 or > 1 ||
             !float.IsFinite(PitAngularLimit) || PitAngularLimit is < 0 or > 3)

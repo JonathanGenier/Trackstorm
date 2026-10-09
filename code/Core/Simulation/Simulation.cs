@@ -214,8 +214,9 @@ public sealed class Simulation
     /// <param name="requests">Complete vehicle request batch.</param>
     /// <param name="precedingEvents">Authority-staged item outcomes.</param>
     /// <param name="oilTriggers">New Oil entries staged with this batch.</param>
+    /// <param name="protectedVehicleImpacts">Spatially intercepted rear-shield impacts, including one-sided reports.</param>
     /// <returns>Committed vehicle results.</returns>
-    internal IReadOnlyList<VehicleStepResult> Step(InputFrame input, IReadOnlyList<VehicleStepRequest> requests, IReadOnlyList<RuntimeEvent>? precedingEvents, IReadOnlyList<Items.OilTrigger>? oilTriggers = null)
+    internal IReadOnlyList<VehicleStepResult> Step(InputFrame input, IReadOnlyList<VehicleStepRequest> requests, IReadOnlyList<RuntimeEvent>? precedingEvents, IReadOnlyList<Items.OilTrigger>? oilTriggers = null, IReadOnlySet<(ulong Owner, ulong Other)>? protectedVehicleImpacts = null)
     {
         ArgumentNullException.ThrowIfNull(requests);
         ulong nextTick = checked(State.Tick + 1);
@@ -226,13 +227,15 @@ public sealed class Simulation
             throw new ArgumentException("The input frame must target the next simulation tick.", nameof(input));
         }
 
+        var resetting = requests.Where(request => request.Reset.HasValue).Select(request => request.VehicleId).ToHashSet();
         bool Participates(ulong id) => !_vehicles.TryGetValue(id, out var vehicle) || vehicle.Snapshot.CanInteract;
+        var impacts = VehicleCollisionDamage.Collect(requests, GetVehicle, id => _vehicles[id].MovementConfiguration, protectedVehicleImpacts);
         var reserved = State.Vehicles.ToDictionary(vehicle => vehicle.VehicleId);
         VehicleStepResult[] candidates = requests.OrderBy(request => request.VehicleId).Select(request =>
         {
-            var observation = new VehicleObservation(request.Observation.Physics, request.Observation.Support, request.Observation.Contacts.Where(contact => Participates(contact.OtherVehicleId)), request.Observation.Surface, request.Observation.Wheels, request.Observation.TerrainSupport, request.Observation.WaterDepth);
+            var observation = new VehicleObservation(request.Observation.Physics, request.Observation.Support, request.Observation.Contacts.Where(contact => !resetting.Contains(contact.OtherVehicleId) && Participates(contact.OtherVehicleId)), request.Observation.Surface, request.Observation.Wheels, request.Observation.TerrainSupport, request.Observation.WaterDepth);
             var filtered = new VehicleStepRequest(request.VehicleId, request.Input, observation, request.Effects.Where(effect => Participates(effect.Attribution.InstigatorId)), request.Reset, request.Repair, request.RepairCause, request.OilContact, request.Nitro, request.ClearNitro || State.Match is { Phase: not Matches.MatchPhase.Active });
-            VehicleStepResult candidate = _vehicles[request.VehicleId].Prepare(filtered, Respawn, Arena, reserved.Values.ToArray());
+            VehicleStepResult candidate = _vehicles[request.VehicleId].Prepare(filtered, Respawn, Arena, reserved.Values.ToArray(), impacts[request.VehicleId]);
             reserved[request.VehicleId] = candidate.Snapshot;
             return candidate;
         }).ToArray();

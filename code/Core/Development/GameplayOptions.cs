@@ -6,6 +6,10 @@ public static class GameplayOptions
     /// <summary>Stable allowlist of editable gameplay settings.</summary>
     public static IReadOnlyList<GameplayOption> All { get; } = Array.AsReadOnly<GameplayOption>(
     [
+        new("vehicle.low_speed_drive_multiplier", "Vehicle", "Low-speed drive demand (1–3)", false, c => c.Vehicle.LowSpeedDriveMultiplier, (c, v) => c with { Vehicle = c.Vehicle with { LowSpeedDriveMultiplier = checked((float)v) } }),
+        new("vehicle.low_speed_drive_fade_speed", "Vehicle", "Low-speed drive fade-out (m/s)", false, c => c.Vehicle.LowSpeedDriveFadeSpeed, (c, v) => c with { Vehicle = c.Vehicle with { LowSpeedDriveFadeSpeed = checked((float)v) } }),
+        new("vehicle.impact_yaw_response", "Collision", "Off-center vehicle yaw response (0–1)", false, c => c.Vehicle.VehicleImpactYawResponse, (c, v) => c with { Vehicle = c.Vehicle with { VehicleImpactYawResponse = checked((float)v) } }),
+        new("damage.momentum_bias", "Damage", "Impact momentum damage bias (0–0.9)", false, c => c.Damage.MomentumDamageBias, (c, v) => c with { Damage = c.Damage with { MomentumDamageBias = checked((float)v) } }),
         new("input.throttle_rise", "Input", "Digital throttle buildup (/s)", false, c => c.Input.ThrottleRise, (c, v) => c with { Input = c.Input with { ThrottleRise = checked((float)v) } }),
         new("input.throttle_release", "Input", "Digital throttle release (/s)", false, c => c.Input.ThrottleRelease, (c, v) => c with { Input = c.Input with { ThrottleRelease = checked((float)v) } }),
         new("input.brake_rise", "Input", "Digital brake buildup (/s)", false, c => c.Input.BrakeRise, (c, v) => c with { Input = c.Input with { BrakeRise = checked((float)v) } }),

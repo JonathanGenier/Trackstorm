@@ -1,0 +1,14 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Two impaired UDP peers: native shallow scraping remains non-damaging and continues along the wall.
+Contact participant 1: HP 924.113, latest source vehicle, position <0.41576755, 21.144867, 1000>
+Contact participant 2: HP 924.113, latest source vehicle, position <5.5842338, 21.144867, 1000>
+Environment collision multiplayer passed: two native UDP peers, 30 ms delay / 5 ms jitter / 2% loss; scrape, crash and head-on vehicle damage agree; contact correction max=0.0509m (excludes deliberate new-life placement).
+Two impaired UDP peers: both partially inverted moving vehicles dissipate scraping and recover wheel-down; remote poses converge within 0.2m.
+PIT UDP round 1: target=1, peakYaw=0.8011, correctionMax=0.0747m; damage agrees and peer positions converge.
+PIT UDP round 2: target=2, peakYaw=0.8011, correctionMax=0.1607m; damage agrees and peer positions converge.
+PIT UDP round 3: target=1, peakYaw=0.8011, correctionMax=0.0601m; damage agrees and peer positions converge.
+Combat UDP round 1: hostDamage=100.0000, clientDamage=80.0000, correctionMax=1.4174m; roles, stationary target, HP and sequence agree.
+Combat UDP round 2: hostDamage=80.0000, clientDamage=100.0000, correctionMax=1.6120m; roles, stationary target, HP and sequence agree.
+Combat UDP round 3: hostDamage=95.2541, clientDamage=23.8135, correctionMax=1.1644m; roles, stationary target, HP and sequence agree.
+Combat UDP round 4: hostDamage=23.8135, clientDamage=95.2541, correctionMax=0.1115m; roles, stationary target, HP and sequence agree.

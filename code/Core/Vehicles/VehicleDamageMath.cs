@@ -25,17 +25,19 @@ public static class VehicleDamageMath
     /// <summary>Linear damage above the harmless threshold, capped per contact.</summary>
     /// <param name="severity">Nonnegative relative impact severity.</param>
     /// <param name="configuration">Host tuning.</param>
+    /// <param name="momentumDisadvantage">Received impact-axis momentum imbalance, from -1 to 1; zero preserves ordinary damage.</param>
     /// <returns>Nonnegative requested HP loss.</returns>
-    public static float CollisionDamage(float severity, DamageConfiguration configuration)
+    public static float CollisionDamage(float severity, DamageConfiguration configuration, float momentumDisadvantage = 0)
     {
         ArgumentNullException.ThrowIfNull(configuration);
         configuration.Validate();
-        if (!float.IsFinite(severity) || severity < 0)
+        if (!float.IsFinite(severity) || severity < 0 || !float.IsFinite(momentumDisadvantage) || momentumDisadvantage is < -1 or > 1)
         {
             throw new ArgumentException("Invalid collision severity.", nameof(severity));
         }
 
-        return (float)Math.Min(configuration.MaximumCollisionDamage, Math.Max(0, (double)severity - configuration.CollisionThreshold) * configuration.CollisionScale);
+        double baseline = Math.Min(configuration.MaximumCollisionDamage, Math.Max(0, (double)severity - configuration.CollisionThreshold) * configuration.CollisionScale);
+        return (float)Math.Min(configuration.MaximumCollisionDamage, baseline * (1 + configuration.MomentumDamageBias * momentumDisadvantage));
     }
 
     /// <summary>Produces linearly fading damage and outward/upward impulse; exact center uses up as a stable direction.</summary>
