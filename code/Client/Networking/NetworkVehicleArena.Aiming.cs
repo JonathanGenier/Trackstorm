@@ -51,7 +51,7 @@ internal sealed partial class NetworkVehicleArena
         _camera.AimFriction = AimFriction;
         _camera.AimAttraction = AimAttraction;
         _camera.AimTracking = TrackAim;
-        _camera.AimReset = ResetAiming;
+        _camera.AimReset = () => ResetAiming("camera presentation reset");
     }
 
     private void PrepareAiming()
@@ -65,25 +65,27 @@ internal sealed partial class NetworkVehicleArena
         if (_aimCapability != capability) { ReleaseAim("capability changed"); _aimDismissed = 0; _aimReleaseSeconds = 0; _aimCapability = capability; }
         if (CameraInput is { } input && (_aimIntentRevision != input.CameraAimRevision || !input.CameraAimActive))
         {
-            ResetAssistance();
+            ResetAssistance($"input boundary revision={_aimIntentRevision}->{input.CameraAimRevision} active={input.CameraAimActive}");
             _aimIntentRevision = input.CameraAimRevision;
         }
         if (StickyAiming) { ValidateStickyTarget(); }
         else { SelectAimTarget(); }
     }
 
-    private void ResetAiming()
+    private void ResetAiming() => ResetAiming("aim disabled/lifecycle");
+
+    private void ResetAiming(string reason)
     {
         _driver.DesiredAim = null;
         _camera.WeaponAiming = false;
         _aimCapability = default;
-        ResetAssistance();
+        ResetAssistance(reason);
         _aimOverlay.Reset();
     }
 
-    private void ResetAssistance()
+    private void ResetAssistance(string reason = "aim intent inactive")
     {
-        ReleaseAim("intent/lifecycle reset");
+        ReleaseAim(reason);
         _aimTargetLife = 0;
         _aimReleaseSeconds = 0;
         _aimController = false;

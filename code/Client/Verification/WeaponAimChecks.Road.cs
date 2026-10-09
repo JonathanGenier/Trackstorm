@@ -62,7 +62,12 @@ public sealed partial class WeaponAimChecks
                 Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = 0 }); await Frames(30);
             }
             var releases = new List<string>();
-            arena.AimReleaseObserved = reason => { releases.Add(reason); GD.Print($"ROAD_RELEASE distance={distance} mode={mode} {reason} {arena.AimTargetDiagnostics(arena.AssistedCar)}"); };
+            arena.AimReleaseObserved = reason =>
+            {
+                releases.Add(reason);
+                string geometry = arena.AssistedCar != 0 ? arena.AimTargetDiagnostics(arena.AssistedCar) : "capability ended";
+                GD.Print($"ROAD_RELEASE distance={distance} mode={mode} {reason} {geometry}");
+            };
             int retained = 0, acquiredAt = -1;
             float minY = float.MaxValue, maxY = float.MinValue, maxHeave = 0, maxError = 0;
             var errors = new List<float>();

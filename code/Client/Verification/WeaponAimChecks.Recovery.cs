@@ -26,12 +26,17 @@ public sealed partial class WeaponAimChecks
             platform.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new(500, 1, 500) } });
             peer.AddChild(platform); platforms.Add(platform);
         }
-        arena.AimReleaseObserved = reason => { losses.Add(reason); GD.Print($"AIM_RELEASE {reason}"); };
+        arena.AimReleaseObserved = reason =>
+        {
+            losses.Add(reason);
+            var shooter = host.World.GetVehicle(Shooter);
+            GD.Print($"AIM_RELEASE {reason} shooterHP={shooter.Damage.CurrentHP:F2} outside={shooter.OutOfBounds} lastDamage={shooter.Damage.LastDamage?.Attribution.Source}");
+        };
         float cone = host.Items.Configuration.Aim.AssistDegrees;
         void Assist(bool enabled) => host.TryConfigure(0, new Dictionary<string, double> { ["items.aim_assist_degrees"] = enabled ? cone : 0 }, out _);
         Vector3 Center() => arena.Bodies[1].VisualTransform * new Vector3(0, .3f, 0);
         int acquired = 0, cases = 0, unexpected = 0;
-        foreach (float distance in new[] { 6f, 35f, 200f })
+        foreach (float distance in OS.GetCmdlineUserArgs().Contains("--recovery-far") ? new[] { 200f } : new[] { 6f, 35f, 200f })
         foreach (float fov in new[] { 50f, 90f })
         {
             Engine.MaxFps = fov == 50 ? 30 : 144;

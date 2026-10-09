@@ -1,5 +1,6 @@
 param([Parameter(Mandatory)][string]$GodotPath, [switch]$NoBuild, [switch]$Visual, [switch]$Impaired, [switch]$Oval, [switch]$Accuracy, [switch]$Sticky, [switch]$Freedom, [switch]$Recovery, [switch]$Road)
 $ErrorActionPreference = 'Stop'
+if ($Recovery -and $Oval) { throw 'The isolated recovery fixture extends beyond the oval boundary. Use -Recovery without -Oval, or -Road for production-terrain retention.' }
 if (-not $NoBuild) {
     dotnet build Trackstorm.Client.csproj -c Debug -warnaserror -m:1 -nr:false
     if ($LASTEXITCODE -ne 0) { throw 'Weapon aiming build failed.' }

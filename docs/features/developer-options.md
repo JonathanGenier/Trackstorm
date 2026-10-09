@@ -283,14 +283,14 @@ The Air control category uses the same staged Apply/Cancel and immediate Reset, 
 | `air_release_damping` | 10 | Post-input angular decay per second; range 1-30 |
 | `support_normal_minimum` | 0.55 | Ground/wheel support minimum world-normal Y; range 0.55–1 |
 
-`VehicleMovement` consumes the rate, acceleration, input-response and release-damping values through the existing authority and prediction paths; the support threshold also reaches both native adapters and wheel ray observations. No orientation target, leveling strength or redundant torque multiplier exists. `AirControlTests`, native `check-air-control.ps1`, and release-default coverage verify this mapping and continuation. Configuration version 45 carries the complete 243-key catalog; old layouts are rejected.
+`VehicleMovement` consumes the rate, acceleration, input-response and release-damping values through the existing authority and prediction paths; the support threshold also reaches both native adapters and wheel ray observations. No orientation target, leveling strength or redundant torque multiplier exists. `AirControlTests`, native `check-air-control.ps1`, and release-default coverage verify this mapping and continuation. Configuration version 46 carries the complete 243-key catalog; old layouts are rejected.
 ## Collision and destruction tuning
 
 Vehicle defaults target a 3000 kg arcade trophy truck: acceleration 24 and braking
 95 m/s² at the retained 900 kg reference mass, with progressive steering and rear-lock
 handbrake tuning. `vehicle.front_drive_share` defaults to 0, range 0–1, and uses
 the existing complete validation, Apply/Reset, persistence and recovery boundary.
-Configuration wire version 45 carries that key and the dirt-corner/crash-recovery controls (243 values). Existing saved overrides
+Configuration wire version 46 carries that key and the dirt-corner/crash-recovery controls (243 values). Existing saved overrides
 remain effective until reset. Suspension length, spring, compression/rebound damping
 and progressive bump controls continue through the same catalog; no separate tuning
 file or new airborne settings exist. `crash_rotation` and `crash_angular_limit` now
@@ -299,7 +299,7 @@ also bound network vehicle contact torque; zero angular limit suppresses added t
 Collision and Destruction use the existing shared Apply/Cancel and authoritative Reset, validation,
 session configuration, reliable revision and resume/migration boundary. New keys
 missing from saved files use production defaults; explicit overrides remain until
-Reset. Configuration wire version 45 carries all 243 keys.
+Reset. Configuration wire version 46 carries all 243 keys.
 
 | Key | Default | Range / unit |
 | --- | ---: | --- |
@@ -352,7 +352,7 @@ The Oil accordion contains four host-authoritative keys, using the ordinary stag
 | `items.oil_enemy_contacts` | 2 | 1–7 vehicle passes, including the owner |
 | `items.oil_lifetime_seconds` | 60 | 1–600 seconds |
 
-Grip edits affect subsequent movement; recovery-duration edits preserve the current recovery fraction with fixed-step rounding. New deployments capture pass budget and lifetime; changing settings never refreshes deadlines or refunds consumed passes. Every new supported entry counts, including the owner and the same vehicle after exit. Continuous overlap counts once; owner entry scores zero. The existing `items.oil_enemy_contacts` persistence key is retained to preserve saved tuning, but the UI now labels it "Vehicle passes before removal" and its meaning includes all vehicles. The obsolete `items.maximum_oil_patches` key has no gameplay effect; unknown persisted keys follow the existing preservation policy. The catalog has 243 keys in configuration protocol version 45.
+Grip edits affect subsequent movement; recovery-duration edits preserve the current recovery fraction with fixed-step rounding. New deployments capture pass budget and lifetime; changing settings never refreshes deadlines or refunds consumed passes. Every new supported entry counts, including the owner and the same vehicle after exit. Continuous overlap counts once; owner entry scores zero. The existing `items.oil_enemy_contacts` persistence key is retained to preserve saved tuning, but the UI now labels it "Vehicle passes before removal" and its meaning includes all vehicles. The obsolete `items.maximum_oil_patches` key has no gameplay effect; unknown persisted keys follow the existing preservation policy. The catalog has 243 keys in configuration protocol version 46.
 **Arena boundary** exposes `vehicle.oob.damage` (default 100, 0–10000 HP/s) through the same host-only transaction and persistence path. See [out-of-bounds damage](out-of-bounds.md).
 
 ## Car deployment
@@ -377,7 +377,7 @@ Low/medium Dirt corner strength (`vehicle.dirt_cornering`, 0–2), body-supporte
 
 ### TS-197 latest handling correction tuning
 
-The complete 243-key catalog uses wire version 45 (1965 bytes). `vehicle.steering_speed` remains a retired legacy key; the current speed envelope uses the explicit full/fade/scale controls below. Old saved unknown keys do not affect handling. Retired `vehicle.air_delay`, `vehicle.air_dead_zone`, `vehicle.air_stabilization` and `vehicle.air_stabilization_response` overrides are ignored. Never-controlled neutral flight preserves inertia. After aerial input, releasing all axes progressively settles angular motion until wheel/body contact; the finite decay uses `vehicle.air_release_damping` and does not use the retired stabilization sliders. Rate limits bound player-added spin without reducing faster existing rotation. Aerial intent is accepted immediately without tire support outside the existing crash latch; player controller deadzone and sensitivity live in Controls.
+The complete 243-key catalog uses wire version 46 (1965 bytes). `vehicle.steering_speed` remains a retired legacy key; the current speed envelope uses the explicit full/fade/scale controls below. Old saved unknown keys do not affect handling. Retired `vehicle.air_delay`, `vehicle.air_dead_zone`, `vehicle.air_stabilization` and `vehicle.air_stabilization_response` overrides are ignored. Never-controlled neutral flight preserves inertia. After aerial input, releasing all axes progressively settles angular motion until wheel/body contact; the finite decay uses `vehicle.air_release_damping` and does not use the retired stabilization sliders. Rate limits bound player-added spin without reducing faster existing rotation. Aerial intent is accepted immediately without tire support outside the existing crash latch; player controller deadzone and sensitivity live in Controls.
 
 The following previously fixed values now use the same Configs draft, validation, persistence, host replication and authority/prediction path:
 
@@ -477,7 +477,7 @@ Explicit saved overrides remain unchanged until Reset and Apply.
 
 ## Ground steering and retired power drift
 
-Configs exposes `vehicle.steering_full_speed` (8 m/s), `vehicle.steering_fade_speed` (35 m/s), `vehicle.high_speed_steering_scale` (0.25; range 0.05–1), and `vehicle.steering_counter_response` (2.8 rad/s; range 0.1–10). Full/fade speeds must be ordered, nonnegative and within the physics speed bound; invalid pairs reject the entire transaction. Existing wheel angle, steer-in response/filter, digital rise/return/reversal rates and controller precision exponent retain the shared catalog, persistence, reset and reliable replication owners. The TC schema is version 45 with 243 keys (1965 bytes).
+Configs exposes `vehicle.steering_full_speed` (8 m/s), `vehicle.steering_fade_speed` (35 m/s), `vehicle.high_speed_steering_scale` (0.25; range 0.05–1), and `vehicle.steering_counter_response` (2.8 rad/s; range 0.1–10). Full/fade speeds must be ordered, nonnegative and within the physics speed bound; invalid pairs reject the entire transaction. Existing wheel angle, steer-in response/filter, digital rise/return/reversal rates and controller precision exponent retain the shared catalog, persistence, reset and reliable replication owners. The TC schema is version 46 with 243 keys (1965 bytes).
 
 The automatic power-drift options `power_oversteer`, `power_slip_full_speed`, `power_slip_fade_speed`, `dirt_corner_power_slip`, `dirt_power_slip`, `power_slip_response`, `spin_drive_loss` and `power_slip_recovery` are retired from the live catalog (all formerly under `vehicle.`). Old host-local records remain preserved as unknown keys and cannot re-enable automatic power drift. Legacy configuration properties retain neutral round-trip defaults for source compatibility; only existing snapshot slip decay still reads recovery/drive-loss defaults. Surface-specific grip and handbrake tuning retain their separate controls. Player Controller Deadzone/Steering Sensitivity UI and persistence belong to TS-269, separate from these shared internal controls.
 
@@ -551,6 +551,6 @@ Terrain and world bounds apply on subsequent host steps. Both lifetime limits ar
 captured together at launch, so retuning cannot replenish a live projectile. The
 seconds cap is useful when raising Ticks for calibration; either bound can shorten
 future misses. Invalid envelopes (including clearance at/above reacquisition height)
-reject the whole transaction. The TC46 wire layout appends eleven keys, carrying
+reject the whole transaction. The eleven Missile keys share the complete TC46 layout with aiming controls, carrying
 243 values in 1965 bytes; old layouts are rejected. Game/build version ownership
 is separate from this internal schema.
