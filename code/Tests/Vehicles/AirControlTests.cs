@@ -82,14 +82,14 @@ internal sealed class AirControlTests
     }
 
     [Test]
-    public void ReleaseStopsSpinWithoutSeekingWorldUp()
+    public void ReleaseSettlesSpinWithoutSeekingWorldUp()
     {
         Quaternion inverted = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 2.4f);
         var movement = Create(inverted);
         for (int i = 0; i < 90; i++) { Step(movement, steering: 32767, roll: true); }
         Assert.That(movement.State.Physics.AngularVelocity.Length(), Is.GreaterThan(1));
         for (int i = 0; i < 90; i++) { Step(movement); }
-        Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
+        Assert.That(movement.State.Physics.AngularVelocity.Length(), Is.LessThan(0.0002f));
         Assert.That(movement.State.Air.ReleaseHoldArmed, Is.True);
         Assert.That(movement.State.Physics.Orientation, Is.EqualTo(inverted));
     }
@@ -169,7 +169,7 @@ internal sealed class AirControlTests
     [TestCase(32767, 0, 0)]
     [TestCase(0, 32767, 0)]
     [TestCase(0, 0, 32767)]
-    public void ReleaseStopsEachAxisAfterSnapshotRestoreWithoutChangingTravel(int pitch, int yaw, int roll)
+    public void ReleaseSettlesEachAxisAfterSnapshotRestoreWithoutChangingTravel(int pitch, int yaw, int roll)
     {
         var movement = Create();
         for (ulong tick = 1; tick <= 30; tick++)
@@ -180,7 +180,7 @@ internal sealed class AirControlTests
         foreach (var subject in new[] { movement, restored })
         {
             subject.Step(new(31, 0, 0, 0, 0, 0, 0), saved.Physics, Vector3.Zero);
-            Assert.That(subject.State.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
+            Assert.That(subject.State.Physics.AngularVelocity.Length(), Is.InRange(saved.Physics.AngularVelocity.Length() * 0.8f, saved.Physics.AngularVelocity.Length() * 0.95f));
             Assert.That(subject.State.Physics.Orientation, Is.EqualTo(saved.Physics.Orientation));
             Assert.That(subject.State.Physics.LinearVelocity, Is.EqualTo(saved.Physics.LinearVelocity - Vector3.UnitY * subject.Configuration.Gravity / 60));
         }
@@ -228,7 +228,7 @@ internal sealed class AirControlTests
         for (int tick = 0; tick < 60; tick++) { Command(-1); }
         Assert.That(Vector3.Dot(movement.State.Physics.AngularVelocity, basis), Is.LessThan(-1));
         for (int tick = 0; tick < 60; tick++) { Step(movement); }
-        Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
+        Assert.That(movement.State.Physics.AngularVelocity.Length(), Is.LessThan(0.0002f));
     }
 
     [Test]
@@ -292,8 +292,10 @@ internal sealed class AirControlTests
         var movement = Create();
         for (int jump = 0; jump < 3; jump++)
         {
-            Step(movement, throttle: 65535); Step(movement);
-            Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
+            Step(movement, throttle: 65535);
+            float before = movement.State.Physics.AngularVelocity.Length();
+            Step(movement);
+            Assert.That(movement.State.Physics.AngularVelocity.Length(), Is.InRange(0.01f, before));
             Step(movement, steering: 32767);
             Assert.That(movement.State.Physics.AngularVelocity.Y, Is.LessThan(0));
             Step(movement, grounded: true);
@@ -302,6 +304,30 @@ internal sealed class AirControlTests
             movement.Step(new(movement.State.Tick + 1, 0, 0, 0, 0, 0, 0), natural, Vector3.Zero);
             Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(natural.AngularVelocity));
         }
+    }
+
+    [TestCase(0)]
+    [TestCase(1)]
+    [TestCase(2)]
+    public void ReleaseIsProgressiveHasBoundedDescentDriftAndLeavesTrajectoryAlone(int axis)
+    {
+        var movement = new VehicleMovement(new() { Gravity = 1 }, new(Vector3.Zero, Quaternion.CreateFromYawPitchRoll(0.4f, 0.8f, 1.2f), Vector3.Zero, Vector3.Zero));
+        for (int i = 0; i < 90; i++) { Step(movement, throttle: axis == 0 ? ushort.MaxValue : (ushort)0, steering: axis > 0 ? short.MaxValue : (short)0, roll: axis == 2); }
+        float initial = movement.State.Physics.AngularVelocity.Length();
+        float drift = 0;
+        for (int i = 0; i < 600; i++)
+        {
+            var before = movement.State.Physics;
+            Step(movement);
+            var after = movement.State.Physics;
+            float speed = after.AngularVelocity.Length();
+            if (i == 0) { Assert.That(speed, Is.InRange(initial * 0.8f, initial * 0.95f), "release has visible residual rotation"); }
+            Assert.That(speed, Is.LessThanOrEqualTo(before.AngularVelocity.Length()));
+            Assert.That(after.LinearVelocity, Is.EqualTo(before.LinearVelocity - Vector3.UnitY * movement.Configuration.Gravity / 60));
+            drift += speed / 60;
+        }
+        Assert.That(drift, Is.InRange(0.15f, 0.32f), "finite settle travel instead of accumulating drift over a long descent");
+        Assert.That(movement.State.Physics.AngularVelocity.Length(), Is.LessThan(0.0001f));
     }
 
     private static VehicleMovement Create(Quaternion? orientation = null) => new(new VehicleConfiguration(), new VehiclePhysicsState(Vector3.Zero, orientation ?? Quaternion.Identity, Vector3.Zero, Vector3.Zero));

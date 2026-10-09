@@ -39,8 +39,17 @@ public sealed partial class RockCollisionChecks : Node3D
                 if (Option("adapter", network ? "network" : "practice") != (network ? "network" : "practice") ||
                     Option("rock", model) != model || !Selected("speed", speed) || !Selected("angle", angle)) continue;
                 await Scenario(directory, network, model, speed, angle);
+                // Release freed fixture wrappers before the next resource load can reuse
+                // their native handles; draining only at shutdown is too late.
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
             }
             System.IO.File.WriteAllText(System.IO.Path.Combine(directory, "summary.json"), JsonSerializer.Serialize(_summaries, new JsonSerializerOptions { WriteIndented = true }));
+            // Drain wrappers from the repeated freed fixtures while Godot is still alive.
+            // Otherwise their finalizers can reach disposed native objects during shutdown.
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
             GD.Print($"Rock collision checks: failures={_failures}");
             GetTree().Quit(_failures == 0 ? 0 : 1);
         }
