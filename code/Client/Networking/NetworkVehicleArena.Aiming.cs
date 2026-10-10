@@ -323,7 +323,7 @@ internal sealed partial class NetworkVehicleArena
         Vector2 outward = new(error.X - motion.X - lookInput.X, error.Y - motion.Y - lookInput.Y);
         // A purposeful sweep is directional relative to the current target, not
         // cancelled by earlier approach input on the other side of the accumulator.
-        bool sweep = _aimGesture.Length() > .045f && lookInput.Dot(outward) < 0;
+        bool sweep = _aimGesture.Length() > CameraAimAttraction.ReleaseGesture && lookInput.Dot(outward) < 0;
         // At close range, centre-relative input may still aim squarely onto the
         // visible body. Test the cursor after this look displacement, not its old
         // pixel position. Far targets still retain the independent angular allowance.
@@ -334,8 +334,8 @@ internal sealed partial class NetworkVehicleArena
         // A stronger physical sweep can still exit immediately at low sensitivity,
         // even before the scaled cursor clears the body. Ordinary close corrections
         // use the body edge instead of treating every outward centre error as escape.
-        float bodyGesture = bodyFrame is { } bounds ? Math.Max(.045f,
-            _camera.ProjectRayNormal(bounds.Position).AngleTo(_camera.ProjectRayNormal(bounds.End)) * .5f) : .045f;
+        float bodyGesture = bodyFrame is { } bounds ? Math.Max(CameraAimAttraction.ReleaseGesture,
+            _camera.ProjectRayNormal(bounds.Position).AngleTo(_camera.ProjectRayNormal(bounds.End)) * .5f) : CameraAimAttraction.ReleaseGesture;
         bool decisiveSweep = sweep && (leavesBody || stick.LengthSquared() > .81f || _aimGesture.Length() > bodyGesture);
         if (decisiveSweep || (leavesBody && CameraAimAttraction.Breakaway(new(_aimDeparture.X, _aimDeparture.Y), System.Numerics.Vector2.Zero, new(lookInput.X, lookInput.Y), cone)))
         { _aimDismissed = _aimTarget; _aimDismissedLife = _aimTargetLife; _aimDismissedDirection = lookInput.Normalized(); ReleaseAim($"deliberate accumulated look sweep={sweep} gesture={_aimGesture.Length():F5} departure={_aimDeparture.Length():F5}"); _aimReleaseSeconds = .18f; return (Vector2.Zero, false); }
@@ -409,8 +409,8 @@ internal sealed partial class NetworkVehicleArena
         if (_aimTarget == 0) { return (1, 1); }
         var tuning = _driver.Configuration.Configuration.Items.Aim;
         float weight = 1 - Mathf.Clamp(_aimTargetAngle / Math.Max(.0001f, tuning.AssistDegrees * MathF.PI / 180), 0, 1);
-        // Only deliberate movement toward the target is slowed. Moving away or flicking
-        // immediately removes assistance; zero input produces exactly zero view motion.
+        // Only deliberate movement toward the target is slowed. Outward input stays
+        // direct; the separate departure classifier decides when engagement ends.
         float mouseWeight = mouse.Dot(_aimTargetOffset) > 0 ? weight * (1 - Mathf.SmoothStep(180, 900, mouse.Length() / Math.Max(.001f, delta))) : 0;
         float stickWeight = stick.Dot(_aimTargetOffset) > 0 ? weight * (1 - Mathf.SmoothStep(.55f, .9f, stick.Length())) : 0;
         return (1 - tuning.MouseFriction * mouseWeight, 1 - tuning.StickFriction * stickWeight);

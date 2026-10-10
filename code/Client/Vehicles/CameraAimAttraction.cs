@@ -5,6 +5,10 @@ namespace Trackstorm.Client.Vehicles;
 /// <summary>Bounded local camera pull after acquisition; input can immediately break engagement.</summary>
 internal static class CameraAimAttraction
 {
+    // Retention tolerates ordinary camera nudges; acquisition keeps its separate
+    // smaller direction guard. A roughly 30-pixel sweep still releases promptly.
+    internal const float ReleaseGesture = .085f;
+
     internal static float AcquisitionMargin(float apparentRadius, float cone) =>
         cone * (.5f + .5f * Math.Clamp(1 - apparentRadius / Math.Max(.0001f, cone * .5f), 0, 1));
 
@@ -22,7 +26,7 @@ internal static class CameraAimAttraction
 
     internal static bool Breakaway(Vector2 placement, Vector2 gesture, Vector2 movement, float cone) =>
         Vector2.Dot(movement, placement) < 0 &&
-        (gesture.Length() > .045f || placement.Length() > cone * .65f);
+        (gesture.Length() > ReleaseGesture || placement.Length() > cone * .9f);
 
     internal static Vector2 Pull(Vector2 error, float degreesPerSecond, float delta)
     {

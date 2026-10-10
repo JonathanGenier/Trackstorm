@@ -51,14 +51,19 @@ internal sealed class CameraAimAttractionTests
         Vector2 fine = CameraAimAttraction.Gesture(Vector2.Zero, new(1.5f, 0), Vector2.Zero, dt);
         Assert.That(CameraAimAttraction.Breakaway(new(-.027f, 0), fine, new(.0045f, 0), cone), Is.False,
             "A small correction remains fine input even outside a distant projected body");
+        Vector2 nudge = CameraAimAttraction.Gesture(Vector2.Zero, new(16, 0), Vector2.Zero, dt);
+        Assert.That(CameraAimAttraction.Breakaway(new(-.048f, 0), nudge, new(.048f, 0), cone), Is.False,
+            "A short outward camera nudge is not automatically a purposeful sweep");
+        Assert.That(CameraAimAttraction.Breakaway(new(-.072f, 0), fine, new(.001f, 0), cone), Is.False,
+            "A slow four-degree adjustment remains inside the retained look allowance");
         Vector2 gesture = Vector2.Zero;
         for (int i = 0; i < Math.Ceiling(.1f * fps); i++)
-        { gesture = CameraAimAttraction.Gesture(gesture, new(300 * dt, 0), Vector2.Zero, dt); }
+        { gesture = CameraAimAttraction.Gesture(gesture, new(600 * dt, 0), Vector2.Zero, dt); }
         Assert.That(CameraAimAttraction.Breakaway(new(-.01f, 0), gesture, new(.001f, 0), cone), Is.True,
             "Physical sweep releases promptly even at low view sensitivity");
         Assert.That(CameraAimAttraction.Breakaway(new(.02f, 0), gesture, new(.001f, 0), cone), Is.False,
             "Input toward an acquired car is not outward departure");
-        Assert.That(CameraAimAttraction.Breakaway(new(-.06f, 0), fine, new(.001f, 0), cone), Is.True,
+        Assert.That(CameraAimAttraction.Breakaway(new(-.09f, 0), fine, new(.001f, 0), cone), Is.True,
             "Slow accumulated outward placement eventually releases");
         foreach (float stick in new[] { .3f, 1f })
         {

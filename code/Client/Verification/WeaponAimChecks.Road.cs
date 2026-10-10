@@ -79,6 +79,8 @@ public sealed partial class WeaponAimChecks
                 var state = host.World.GetVehicle(Shooter);
                 _heldTargets = (GroundAt(state.ObservedPhysics.Position.X + distance, 48), GroundAt(150, 65));
                 if (mode == 1 && tick % 24 == 0 && tick < 288) { Send(new InputEventMouseMotion { ScreenRelative = new(0, tick < 144 ? 1.5f : -1.5f) }); }
+                if (mode == 1 && tick % 60 == 0 && tick < 240) { Send(new InputEventMouseMotion { ScreenRelative = new(16, 0) }); }
+                if (mode == 1 && tick % 60 == 30 && tick < 270) { Send(new InputEventMouseMotion { ScreenRelative = new(-16, 0) }); }
                 await Frames(1, throttle: 20000);
                 float y = state.ObservedPhysics.Position.Y;
                 minY = Math.Min(minY, y); maxY = Math.Max(maxY, y);
