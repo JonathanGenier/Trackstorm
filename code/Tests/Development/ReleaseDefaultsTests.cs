@@ -95,7 +95,7 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("items.salvo_marker_scale", 0.5d)]
     [TestCase("items.salvo_marker_width", 0.5d)]
     [TestCase("items.salvo_marker_lift", (double)0.05f)]
-    [TestCase("items.explosion_radius", 12d)]
+    [TestCase("items.explosion_radius", (double)Trackstorm.Core.Vehicles.VehicleDimensions.Length)]
     [TestCase("items.maximum_damage", 300d)]
     [TestCase("items.maximum_impulse", 15000d)]
     [TestCase("items.missile_lifetime_ticks", 300d)]

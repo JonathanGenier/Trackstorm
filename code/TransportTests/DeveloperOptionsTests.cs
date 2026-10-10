@@ -335,7 +335,7 @@ internal sealed class DeveloperOptionsTests
         Assert.That(configuration.Vehicle.FrontDriveShare, Is.Zero);
         Assert.That(configuration.Damage.CollisionScale, Is.EqualTo(5));
         Assert.That(configuration.Items.MissileSpeed, Is.EqualTo(120));
-        Assert.That(configuration.Items.ExplosionRadius, Is.EqualTo(12));
+        Assert.That(configuration.Items.ExplosionRadius, Is.EqualTo(Trackstorm.Core.Vehicles.VehicleDimensions.Length));
         Assert.That(configuration.Items.MaximumDamage, Is.EqualTo(300));
     }
 

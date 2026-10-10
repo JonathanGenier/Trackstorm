@@ -134,7 +134,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         };
         _driver.ItemsReceived += publication =>
         {
-            _items.Apply(publication);
+            _items.Apply(publication, _driver.Configuration.Configuration.Items.ExplosionRadius);
             Walls.Apply(publication, _driver.Host is not null);
             foreach (var vehicle in publication.World.Vehicles)
             {

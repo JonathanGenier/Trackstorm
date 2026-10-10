@@ -525,7 +525,7 @@ These four keys use the existing complete TC46 configuration (243 values, 1965 b
 
 The dedicated **Missile** category uses the existing session-wide validated catalog,
 Apply/Cancel/Reset, export/import, replication and recovery paths. There are no new
-local visual controls. Existing stable keys for speed, ticks, radial damage, radius
+local visual controls in the authoritative catalog. Existing stable keys for speed, ticks, radial damage, radius
 and impulse are retained; moving them into the category does not discard saved values.
 
 | Setting key (`items.` prefix) | Default | Meaning |
@@ -534,7 +534,7 @@ and impulse are retained; moving them into the category does not discard saved v
 | `missile_lifetime_ticks` | 300 | Launch tick budget at 60 Hz. |
 | `missile_lifetime_seconds` | 60 s | Additional hard lifetime cap; new shots use the smaller of Ticks and `ceil(seconds * 60)`. |
 | `maximum_damage` | 300 HP | Actual peak radial Missile damage, applied at impact. |
-| `explosion_radius` | 12 m | Existing radial damage/impulse radius. |
+| `explosion_radius` | 5.06 m | Actual radial damage/impulse reach: one production Car collision-hull length. |
 | `maximum_impulse` | 15000 N s | Existing peak radial impulse. |
 | `missile_clearance` | 1 m | Desired vertical height above suitable terrain. |
 | `missile_look_ahead` | 30 m | Maximum distance along current velocity; profile samples also occur at half and quarter distance. |
@@ -560,3 +560,5 @@ is separate from this internal schema.
 The existing shared **Missile** category also exposes `items.missile_deploy_seconds` (default 1.6 s, range 1–4) and `items.missile_stow_seconds` (default 0.9 s, range 0.5–3). These control the complete Missile mechanical timeline, including its trunk/rack phases, independently of the generic mechanism speed controls. Authority captures deadlines at selection/return; live edits affect future cycles without jumping an in-progress cycle. Configuration TC46 contains 243 values / 1965 bytes; inventory TI22 carries captured deadlines through reliable state and recovery.
 
 The separate **Missile · Local flight VFX** accordion is explicitly device-local, immediate and session-only. It controls orange flame length/width, smoke lifetime/size/opacity, trail density, confetti lifetime/size and red-ember lifetime. Density zero disables smoke/confetti/embers while retaining the flame; bounded controls cap particle allocation. Changes rebuild the production flight emitters on the next render update. Its reset restores local defaults. These values never enter gameplay Apply/Cancel, persistence, authority, configuration messages or migration. The shared TS-239 traversal/damage settings retain their existing semantics.
+
+**Missile · Local explosion VFX** provides intensity (0.2–2, default 1), central fire scale (0.5–1.5, default 1), cosmetic radial reach in Car lengths (1–3, default 2.25), firework density (0–2, default 1; zero disables fragments), and firework duration (0.8–2.4 s, default 1.6). Native editor changes apply to the next confirmed impact on this device; active effects retain captured values. Central fire is bounded by the shared blast envelope even when enlarged. Density allocates 0–320 fragments in one batch per effect. Category reset restores these local defaults without a gameplay transaction. The distant red/gold/white fragments never change actual damage, knockback, collision, or the server-wide `items.explosion_radius`. Existing saved gameplay radius overrides are preserved; Reset or an authoritative edit selects the new production default.

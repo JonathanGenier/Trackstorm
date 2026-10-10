@@ -166,7 +166,7 @@ internal sealed class RearShieldTests
         Assert.That(_items.Shields.Single().HP, Is.LessThan(1000));
         Assert.That(_items.Shields.Single().DamageSequence, Is.EqualTo(1));
         Assert.That(_world.GetVehicle(1).Damage.CurrentHP, Is.EqualTo(1000));
-        Assert.That(_world.GetVehicle(2).Damage.CurrentHP, Is.LessThan(1000), "Other blast targets keep existing radial damage");
+        Assert.That(_world.GetVehicle(2).Damage.CurrentHP, Is.EqualTo(1000), "Shooter ten metres away is outside the one-car blast reach");
     }
 
     [Test]
