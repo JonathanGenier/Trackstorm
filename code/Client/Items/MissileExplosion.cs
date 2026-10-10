@@ -8,7 +8,9 @@ internal sealed partial class MissileExplosion : Node3D
 {
     internal const string ShaderPath = "res://assets/items/missile/MissileExplosion.gdshader";
     private readonly List<MeshInstance3D> _fire = [];
-    private readonly List<(Vector3 Direction, float Reach, float Size, Color Color)> _fragments = [];
+    private readonly List<Fragment> _fragments = [];
+    private readonly record struct Fragment(Vector3 Direction, float Reach, float Size, Color Color,
+        float Lifetime, float Delay, float Drag, float TrailTime, float Phase);
     private ShaderMaterial _fireMaterial = null!;
     private MultiMeshInstance3D _sparks = null!;
     private MissileExplosionSettings _settings = null!;
@@ -37,10 +39,12 @@ internal sealed partial class MissileExplosion : Node3D
         for (int i = 0; i < count; i++)
         {
             float angle = Next() * Mathf.Tau;
-            float elevation = .08f + Next() * .65f;
+            float elevation = .2f + Next() * 1.1f;
             var direction = new Vector3(MathF.Cos(angle), elevation, MathF.Sin(angle)).Normalized();
             Color color = i % 3 == 0 ? new(1, .045f, .015f) : i % 3 == 1 ? new(1, .62f, .07f) : new(1, .96f, .83f);
-            _fragments.Add((direction, CosmeticReach * (.5f + Next() * .5f), .065f + Next() * .075f, color));
+            _fragments.Add(new(direction, CosmeticReach * (.65f + Next() * .35f), .035f + Next() * .035f, color,
+                _settings.Duration * (.55f + Next() * .41f), Next() * .035f,
+                1.5f + Next() * 1.5f, .012f + Next() * .016f, Next() * Mathf.Tau));
         }
         _sparks = new MultiMeshInstance3D
         {
@@ -108,21 +112,35 @@ internal sealed partial class MissileExplosion : Node3D
             lobe.Scale = Vector3.One * Math.Max(.001f, radius * (i == 0 ? .6f : .5f) * expansion);
             lobe.Visible = fireAge < 1;
         }
-        float progress = Math.Clamp(_age / (_settings.Duration * .78f), 0, 1);
-        float travel = 1 - (1 - progress) * (1 - progress);
-        float fade = 1 - Mathf.SmoothStep(.55f, 1, _age / _settings.Duration);
         for (int i = 0; i < _fragments.Count; i++)
         {
             var fragment = _fragments[i];
-            Vector3 point = fragment.Direction * fragment.Reach * travel;
-            // A downward curl stays within the cosmetic envelope. Fragments never test terrain or hit cars.
-            point.Y *= 1 - .8f * progress * progress;
-            var basis = new Basis(new Quaternion(Vector3.Up, fragment.Direction));
-            basis = basis.Scaled(new Vector3(fragment.Size, fragment.Size * (1 + 5 * (1 - progress)), fragment.Size));
-            _sparks.Multimesh.SetInstanceTransform(i, new Transform3D(basis, point));
-            var color = fragment.Color * _settings.Intensity;
-            color.A = fade;
+            float age = _age - fragment.Delay;
+            float progress = Math.Clamp(age / fragment.Lifetime, 0, 1);
+            Vector3 head = PositionAt(progress);
+            Vector3 tail = PositionAt(Math.Max(0, progress - fragment.TrailTime / fragment.Lifetime));
+            Vector3 tangent = head - tail;
+            float length = Math.Clamp(tangent.Length(), fragment.Size, .8f);
+            float width = fragment.Size * (1 - .65f * progress);
+            var basis = new Basis(new Quaternion(Vector3.Up, tangent.LengthSquared() > .000001f ? tangent.Normalized() : fragment.Direction));
+            // Scale the rotated LOCAL axes: Basis.Scaled stretches world Y into floating vertical sticks.
+            basis = new Basis(basis.X * width, basis.Y * length, basis.Z * width);
+            _sparks.Multimesh.SetInstanceTransform(i, new Transform3D(basis, (head + tail) * .5f));
+            float heat = MathF.Exp(-progress * 18);
+            var color = fragment.Color.Lerp(new Color(1, .98f, .85f), heat * .65f);
+            color *= _settings.Intensity * (1 + heat * .8f);
+            float burn = .88f + .12f * MathF.Sin(fragment.Phase + progress * 35);
+            color.A = age < 0 ? 0 : MathF.Pow(1 - progress, .6f) * (1 - Mathf.SmoothStep(.65f, 1, progress)) * burn;
             _sparks.Multimesh.SetInstanceColor(i, color);
+
+            Vector3 PositionAt(float time)
+            {
+                // Closed-form drag gives a fast burst, continued outward travel and a gravity-like arc.
+                // Minimum upward direction is > .19; sag/travel <= .25, keeping the path inside Reach.
+                // No collision queries, ground bounces or secondary impact events are involved.
+                float travel = (1 - MathF.Exp(-fragment.Drag * time)) / (1 - MathF.Exp(-fragment.Drag));
+                return fragment.Direction * fragment.Reach * travel + Vector3.Down * (fragment.Reach * .25f * time * time);
+            }
         }
     }
 

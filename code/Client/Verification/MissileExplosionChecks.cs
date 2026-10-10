@@ -92,6 +92,15 @@ public sealed partial class MissileExplosionChecks : Node
                     await Frames(22); await Capture("02c-outer-fireworks");
                     await Frames(22); await Capture("02d-embers");
                 }
+                if (wave == 1)
+                {
+                    // Closely spaced actual gameplay frames expose trajectory/shape changes, not just an attractive still.
+                    for (int frame = 0; frame < 24; frame++)
+                    {
+                        await Capture($"05-burst-motion-{frame:D2}");
+                        await Frames(2);
+                    }
+                }
                 await Frames(120);
                 Require(_arenas.All(a => !Descendants(a).OfType<MissileExplosion>().Any()), "Repeated impact owners fully expire");
             }
@@ -142,6 +151,7 @@ public sealed partial class MissileExplosionChecks : Node
         section.Body.GetChildren().OfType<Button>().Single().EmitSignal(Button.SignalName.Pressed);
         Require(MissileExplosionSettings.Current == new MissileExplosionSettings(), "Explosion category reset restores all visual defaults");
         panel.Footer.QueueFree(); panel.QueueFree();
+        CheckSparkMotion();
         // These are explicit presentation fixtures, not claimed native gameplay collisions.
         var presentation = new ItemPresentation(); _arenas[0].AddChild(presentation);
         var host = _arenas[0].Driver.Host!;
@@ -185,6 +195,46 @@ public sealed partial class MissileExplosionChecks : Node
         MissileExplosionSettings.Current = new();
         presentation.QueueFree(); await Frames(2);
         Require(!GodotObject.IsInstanceValid(presentation), "Presentation teardown frees remaining effects");
+    }
+
+    private void CheckSparkMotion()
+    {
+        var first = new MissileExplosion { Seed = 241, Visible = false };
+        var second = new MissileExplosion { Seed = 241, Visible = false };
+        _arenas[0].AddChild(first); _arenas[1].AddChild(second);
+        first.SetProcess(false); second.SetProcess(false);
+        var batch = first.GetChildren().OfType<MultiMeshInstance3D>().Single().Multimesh;
+        var other = second.GetChildren().OfType<MultiMeshInstance3D>().Single().Multimesh;
+        var previous = new Vector3[first.FragmentCount];
+        float farthest = 0;
+        bool mixedLifetimes = false;
+        for (int step = 0; step < 150; step++)
+        {
+            first._Process(.01); second._Process(.01);
+            int visible = 0;
+            for (int i = 0; i < first.FragmentCount; i++)
+            {
+                var transform = batch.GetInstanceTransform(i);
+                var color = batch.GetInstanceColor(i);
+                Require(transform == other.GetInstanceTransform(i) && color == other.GetInstanceColor(i), "Token-seeded spark motion matches peers", false);
+                Require(transform.Origin.Length() + transform.Basis.Y.Length() * .5f < first.CosmeticReach + .05f,
+                    "Entire spark stays within cosmetic reach", false);
+                var movement = transform.Origin - previous[i];
+                if (step > 5 && color.A > .01f && movement.LengthSquared() > .000001f)
+                {
+                    Require(transform.Basis.Y.Normalized().Dot(movement.Normalized()) > .98f,
+                        "Spark long axis follows its trajectory instead of world vertical", false);
+                }
+                previous[i] = transform.Origin;
+                if (color.A > .01f) { visible++; farthest = Math.Max(farthest, transform.Origin.Length()); }
+            }
+            if (step > 90 && visible > 0 && visible < first.FragmentCount) { mixedLifetimes = true; }
+        }
+        Require(mixedLifetimes, "Fragments burn out independently rather than freezing/fading together");
+        Require(farthest > VehicleDimensions.Length * 2 && farthest < VehicleDimensions.Length * 2.5f,
+            $"Visible outer spark reach {farthest:F2} m lies between two and two-and-a-half production car lengths");
+        Require(true, "150 native motion samples: deterministic peers, bounded reach and velocity-aligned spark axes");
+        first.QueueFree(); second.QueueFree();
     }
 
     private void AimCameras()
