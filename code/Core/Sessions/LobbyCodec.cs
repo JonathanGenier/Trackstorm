@@ -8,7 +8,7 @@ public static class LobbyCodec
 {
     /// <summary>Maximum complete packet size.</summary>
     public const int MaximumBytes = 30000;
-    private const byte Version = 8;
+    private const byte Version = 10;
 
     /// <summary>Identifies lobby packets before the vehicle decoder is consulted.</summary>
     /// <param name="data">Complete transport payload.</param>
@@ -144,6 +144,7 @@ public static class LobbyCodec
             writer.Write(participant.Connected);
             writer.Write(participant.Generation);
             writer.Write(participant.RetainedHost);
+            writer.Write(participant.PracticeCar);
         }
 
         writer.Write((ushort)state.Departed.Count);
@@ -206,7 +207,7 @@ public static class LobbyCodec
                 throw new ArgumentException("Invalid roster count.");
             }
 
-            var players = Enumerable.Range(0, count).Select(_ => new SessionPlayer(reader.ReadUInt64(), reader.ReadString(), ReadBoolean(reader), ReadBoolean(reader), reader.ReadUInt64(), ReadBoolean(reader))).ToArray();
+            var players = Enumerable.Range(0, count).Select(_ => new SessionPlayer(reader.ReadUInt64(), reader.ReadString(), ReadBoolean(reader), ReadBoolean(reader), reader.ReadUInt64(), ReadBoolean(reader), ReadBoolean(reader))).ToArray();
             int departed = reader.ReadUInt16();
             if (departed + count > Matches.MatchState.MaximumPlayers)
             {

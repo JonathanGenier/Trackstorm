@@ -1,0 +1,62 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.05
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Three UDP peers initialized
+Host tuning applied
+AIM_AT requested=(0, 2.25, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+AIM_GEOMETRY forward: lens=(0, 4.205002, 44.205) rotation=(-0.04419698, 0, 0) targetDisplayed=(0, 1.65, 0) targetNative=(0, 1.65, 0) targetScreen=(640, 395.74594) center=(640, 400) bounds=(617.3711, 389.08017), (45.257812, 32.200226)
+Machine Gun forward accepted ready
+MG_GEOMETRY forward: aim=WeaponAimSolution { Vehicle = 2, Life = 1, Token = 1, Tick = 367, Yaw = 0, Pitch = -0.019140894, Origin = <0, 2.9550014, 36.845>, Direction = <0, -0.019139726, -0.99981683>, Clear = True, Ready = True } target=<0, 1.65, 0> cameraDesired=<0, -0.019139726, -0.99981683>
+Camera shooter submits ordinary held-use request
+Machine Gun forward: native hit/damage, 28 rounds, 28 target hits
+AIM_REMOTE firing-forward: acceptedYaw=0 renderedYaw=0 acceptedPitch=-0.01914088 renderedPitch=-0.01914088
+Remote mount yaw and payload pitch settle to accepted firing-forward aim on actual presentation nodes
+forward: fixed rack, full payload scale and shared pivot origin align on observer
+AIM_AT requested=(20, 2.25, 35) firstTargetDrift=(0, 0, 0) requestedScreen=(643.0935, 399.83084)
+AIM_GEOMETRY side: lens=(-7.2902646, 4.415086, 37.517532) rotation=(-0.08970401, -1.4788059, 0) targetDisplayed=(20, 1.65, 35) targetNative=(20, 1.65, 35) targetScreen=(640.00037, 386.33832) center=(640, 400) bounds=(574.5972, 375.20715), (125.28467, 52.721497)
+Machine Gun side accepted ready
+MG_GEOMETRY side: aim=WeaponAimSolution { Vehicle = 2, Life = 1, Token = 1, Tick = 612, Yaw = -1.4788053, Pitch = -0.049993444, Origin = <0, 2.9550014, 36.845>, Direction = <0.9945277, -0.04997262, -0.09174656>, Clear = True, Ready = True } target=<20, 1.65, 35> cameraDesired=<0.9945277, -0.049973607, -0.09174599>
+Camera shooter submits ordinary held-use request
+Machine Gun side: native hit/damage, 28 rounds, 28 target hits
+AIM_REMOTE firing-side: acceptedYaw=-1.4788065 renderedYaw=-1.4788065 acceptedPitch=-0.049995903 renderedPitch=-0.049995903
+Remote mount yaw and payload pitch settle to accepted firing-side aim on actual presentation nodes
+side: fixed rack, full payload scale and shared pivot origin align on observer
+AIM_AT requested=(0, 2.2432132, 45) firstTargetDrift=(0, -0.0012364388, 0) requestedScreen=(640, 366.35626)
+AIM_GEOMETRY rear: lens=(-0.05731037, 4.209123, 44.20408) rotation=(-0.06164658, -0.0077875555, 0) targetDisplayed=(0, 1.6432133, 45) targetNative=(0, 1.65, 45) targetScreen=(582.32043, -1154.6838) center=(640, 400) bounds=
+ERROR: System.InvalidOperationException: Sequence contains no matching element
+   at System.Linq.ThrowHelper.ThrowNoMatchException()
+   at System.Linq.Enumerable.Single[TSource](IEnumerable`1 source, Func`2 predicate)
+   at Trackstorm.Client.Verification.WeaponAimChecks.CheckMachineGunFire() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.MachineGun.cs:line 54
+   at Trackstorm.Client.Verification.WeaponAimChecks.Run() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 93
+   at: void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__18.MoveNext() (res://code/Client/Verification/WeaponAimChecks.cs:93)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__18.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:93)
+       [2] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [3] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [4] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [5] void System.Threading.Tasks.Task.RunContinuations(object)
+       [6] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [7] bool System.Threading.Tasks.Task.TrySetException(object)
+       [8] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [9] void Trackstorm.Client.Verification.WeaponAimChecks+<CheckMachineGunFire>d__39.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.MachineGun.cs:54)
+       [10] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [11] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [12] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [13] void System.Threading.Tasks.Task.RunContinuations(object)
+       [14] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetExistingTaskResult(System.Threading.Tasks.Task`1[TResult], TResult)
+       [15] void Trackstorm.Client.Verification.WeaponAimChecks+<Frames>d__30.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:477)
+       [16] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [17] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [18] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)

@@ -12,6 +12,7 @@ internal sealed class WeaponAimTests
     [TestCase(90, 0)]
     [TestCase(180, 0)]
     [TestCase(-90, 60)]
+    [TestCase(0, 90)]
     public void AuthoritativeSolutionReachesForwardSideRearAndAirborneDirections(float yawDegrees, float pitchDegrees)
     {
         var host = Create();
@@ -39,6 +40,21 @@ internal sealed class WeaponAimTests
         Assert.That(WeaponAim.IntersectsBody(WeaponAim.Pivot, WeaponAim.Direction(previous.Yaw, previous.Pitch)), Is.False);
         Assert.That(previous.Direction.Y, Is.LessThan(0), "Useful bounded downward aim remains possible.");
         Assert.That(previous.Direction.Y, Is.GreaterThan(-.15));
+    }
+
+    [Test]
+    public void VerticalAimKeepsYawAndRoundTripsWhileBeyondPoleIsRejected()
+    {
+        var vehicle = Create().World.GetVehicle(1);
+        WeaponAimSolution? aim = null;
+        for (ulong tick = 1; tick <= 30; tick++) { aim = WeaponAim.Solve(vehicle, 1, -Vector3.UnitX, aim, new(), tick); }
+        float yaw = aim!.Yaw;
+        for (ulong tick = 31; tick <= 60; tick++) { aim = WeaponAim.Solve(vehicle, 1, Vector3.UnitY, aim, new(), tick); }
+        Assert.That(aim!.Yaw, Is.EqualTo(yaw));
+        Assert.That(aim.Direction.Y, Is.EqualTo(1).Within(.000001));
+        Assert.That(ItemCodec.DecodeAims(ItemCodec.EncodeAims(99, 60, 0, [aim])).Aims.Single(), Is.EqualTo(aim));
+        Assert.Throws<ArgumentException>(() => ItemCodec.EncodeAims(99, 60, 0, [aim with { Pitch = MathF.PI / 2 + .001f }]));
+        Assert.Throws<ArgumentException>(() => (new WeaponAimConfiguration { UpDegrees = 90.01f }).Validate());
     }
 
     [Test]
@@ -200,7 +216,11 @@ internal sealed class WeaponAimTests
     {
         var host = Create();
         var slot = host.Items.Slots.Single();
-        host.AimItem(0, 99, slot.Life, slot.Token, 0, 1, Vector3.UnitX);
+        for (ulong i = 1; i <= 180; i++)
+        {
+            host.AimItem(0, 99, slot.Life, slot.Token, 0, i, Vector3.UnitX);
+            host.Step(default, Observe);
+        }
         var pose = new VehiclePhysicsState(new Vector3(40, 8, 10), Quaternion.CreateFromAxisAngle(Vector3.UnitY, 1), Vector3.Zero, Vector3.Zero);
         host.Step(default, _ => new VehicleObservation(pose, Vector3.UnitY));
         var accepted = host.Items.Aims.Single();

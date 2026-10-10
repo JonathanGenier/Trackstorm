@@ -103,8 +103,13 @@ internal sealed class WorldWallTests
         host.Items.Grant(host.World, 1, HeldItem.MachineGun);
         host.TryConfigure(0, new Dictionary<string, double> { ["items.machine_gun_spread"] = 0, ["items.machine_gun_fire_rate"] = 60 }, out _);
         var hp = host.World.GetVehicle(1).Damage;
+        VehicleObservation Shooter(VehicleSnapshot s) => new(new(new(0, .2f, 20), Quaternion.Identity, Vector3.Zero, Vector3.Zero), Vector3.UnitY);
+        for (int i = 0; i < 180; i++)
+        {
+            host.Items.RequestAim(host.World, 1, 1, host.Items.Slots.Single().Token, 0, host.World.State.Tick + 1, -Vector3.UnitZ);
+            host.Step(default, Shooter);
+        }
         host.Items.RequestUse(host.World, 1, 1, host.Items.Slots.Single().Token);
-        VehicleObservation Shooter(VehicleSnapshot s) => new(new(new(0, 2, 12), Quaternion.Identity, Vector3.Zero, Vector3.Zero), Vector3.UnitY);
         host.Step(new(1, 0, 0, 0, InputButtons.UseItem, 0, 0), Shooter, raycastWeapon: (_, _, _) => null);
         Assert.That(host.Items.Shields, Is.Empty);
         Assert.That(host.Items.Events.Single().Impact, Is.True);

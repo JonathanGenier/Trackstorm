@@ -44,6 +44,19 @@ public sealed class LobbyAuthority
     /// <summary>Fresh admission counts every roster slot, including pending and retained participants.</summary>
     public bool CanJoin => AdmissionOpen && State.Players.Count < 8 && State.Players.Count + State.Departed.Count < Matches.MatchState.MaximumPlayers;
 
+    /// <summary>Reserves a pair of host-driven practice cars; never grants network identities.</summary>
+    public void AddPracticeCar()
+    {
+        int count = State.Players.Count(player => player.PracticeCar);
+        if (count == 2) { return; }
+        if (State.Phase != SessionPhase.Lobby || State.Players.Count + 2 - count > 8 || !CanJoin)
+        { throw new InvalidOperationException("Practice pair requires two free lobby slots."); }
+        var players = State.Players.ToList();
+        for (int index = count; index < 2; index++)
+        { players.Add(new SessionPlayer(checked(++_nextId), index == 0 ? "Practice Car" : "Practice Car 2", true, PracticeCar: true)); }
+        Publish(players);
+    }
+
     /// <summary>Session tuning; the successor restores this instead of loading its host-local preferences.</summary>
     public Development.GameplayConfigurationState Configuration { get; private set; } = new(0, new());
 
@@ -56,14 +69,14 @@ public sealed class LobbyAuthority
     public static LobbyAuthority Restore(LobbyRestoreState checkpoint, ulong host, ulong epoch, IReadOnlyDictionary<ulong, ulong>? survivorPeers = null)
     {
         var previous = checkpoint.State;
-        if (epoch != checked(previous.AuthorityEpoch + 1) || host == previous.CurrentHostId || !previous.Players.Any(player => player.Id == host && player.Connected))
+        if (epoch != checked(previous.AuthorityEpoch + 1) || host == previous.CurrentHostId || !previous.Players.Any(player => player.Id == host && player.Connected && !player.PracticeCar))
         {
             throw new ArgumentException("Invalid authority transition.");
         }
 
         SessionPlayer[] restoredPlayers = previous.ReconnectPolicy == SessionReconnectPolicy.FreshJoin
             ? previous.Players.Where(player => player.Id != previous.CurrentHostId).Select(player => player with { Connected = true, RetainedHost = false }).ToArray()
-            : previous.Players.Select(player => player with { Ready = false, Connected = player.Id == host, RetainedHost = player.RetainedHost || player.Id == previous.CurrentHostId }).ToArray();
+            : previous.Players.Select(player => player with { Ready = player.PracticeCar, Connected = player.PracticeCar || player.Id == host, RetainedHost = player.RetainedHost || player.Id == previous.CurrentHostId }).ToArray();
         var result = new LobbyAuthority(previous.Session, previous.Players.Single(player => player.Id == host).Name)
         {
             _tick = checkpoint.Tick,
@@ -72,14 +85,14 @@ public sealed class LobbyAuthority
             State = new LobbySnapshot(previous.Session, checked(previous.Revision + 1), previous.Match, previous.Phase, restoredPlayers, host, epoch, previous.Departed, previous.Map),
         };
 
-        foreach (var player in result.State.Players)
+        foreach (var player in result.State.Players.Where(player => !player.PracticeCar))
         {
             result._identities.Add(player.Id, checkpoint.Subjects[player.Id]);
         }
 
         if (previous.ReconnectPolicy == SessionReconnectPolicy.FreshJoin)
         {
-            ulong[] expected = result.State.Players.Where(player => player.Id != host).Select(player => player.Id).ToArray();
+            ulong[] expected = result.State.Players.Where(player => player.Id != host && !player.PracticeCar).Select(player => player.Id).ToArray();
             if (survivorPeers is not null && (!expected.ToHashSet().SetEquals(survivorPeers.Keys) || survivorPeers.Values.Any(peer => peer == 0) || survivorPeers.Values.Distinct().Count() != survivorPeers.Count))
             {
                 throw new ArgumentException($"Lobby migration requires active transport bindings for {expected.Length} continuing survivors; received {survivorPeers.Count}.");
@@ -303,7 +316,7 @@ public sealed class LobbyAuthority
             RemovePlayer(id);
         }
 
-        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, SessionPhase.Lobby, State.Players.Select(player => player with { Ready = false, RetainedHost = false }), State.CurrentHostId, State.AuthorityEpoch, map: State.Map);
+        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, SessionPhase.Lobby, State.Players.Select(player => player with { Ready = player.PracticeCar, RetainedHost = false }), State.CurrentHostId, State.AuthorityEpoch, map: State.Map);
         Events.Record(EventCategory.Session, "Returned to lobby", actor: State.CurrentHostId);
         return true;
     }

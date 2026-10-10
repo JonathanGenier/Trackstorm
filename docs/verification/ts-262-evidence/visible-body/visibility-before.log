@@ -1,0 +1,44 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Three UDP peers initialized
+Host tuning applied
+AIM_AT requested=(1.15, 56.949726, 0) firstTargetDrift=(0, -3.0517578E-05, 0) requestedScreen=(641.0975, 401.86642)
+CONTINUOUS_APPROACH distance=6 acquiredFrame=4 angle=0.02439 sight=True hit=(-0.055226594, 57.605766, 2.2353945) lens=(-0.36432233, 61.277706, 14.746592) target=(0, 56.949696, 0) accepted=1 active=True dismissed=0
+Ongoing toward-car mouse movement acquires without first stopping the mouse
+AIM_AT requested=(0, 56.949665, 0) firstTargetDrift=(0, -3.0517578E-05, 0) requestedScreen=(640.0002, 400.0001)
+PARTIAL_VISIBILITY distance=6 target=0 releases=target=1 reason=occluded
+ERROR: System.InvalidOperationException: Visible body survives centre-ray occlusion and camera jolts
+   at Trackstorm.Client.Verification.WeaponAimChecks.Require(Boolean condition, String message) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 575
+   at Trackstorm.Client.Verification.WeaponAimChecks.CheckAimApproachAndVisibility(Single floor, PlayerSettingsController settings) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Visibility.cs:line 52
+   at Trackstorm.Client.Verification.WeaponAimChecks.CheckAimRecovery() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Recovery.cs:line 36
+   at Trackstorm.Client.Verification.WeaponAimChecks.Run() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 118
+   at: void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__25.MoveNext() (res://code/Client/Verification/WeaponAimChecks.cs:118)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__25.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:118)
+       [2] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [3] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [4] void System.Threading.Tasks.Task.RunContinuations(object)
+       [5] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [6] bool System.Threading.Tasks.Task.TrySetException(object)
+       [7] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [8] void Trackstorm.Client.Verification.WeaponAimChecks+<CheckAimRecovery>d__51.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Recovery.cs:36)
+       [9] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [10] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [11] void System.Threading.Tasks.Task.RunContinuations(object)
+       [12] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [13] bool System.Threading.Tasks.Task.TrySetException(object)
+       [14] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [15] void Trackstorm.Client.Verification.WeaponAimChecks+<CheckAimApproachAndVisibility>d__56.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Visibility.cs:52)
+       [16] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [17] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [18] void System.Threading.Tasks.Task.RunContinuations(object)
+       [19] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder.SetResult()
+       [20] void Trackstorm.Client.Verification.WeaponAimChecks+<Frames>d__38.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:528)
+       [21] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [22] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [23] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)
+WARNING: 83 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)

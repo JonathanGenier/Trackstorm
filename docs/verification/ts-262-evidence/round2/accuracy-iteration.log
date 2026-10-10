@@ -1,0 +1,55 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Three UDP peers initialized
+Host tuning applied
+Accuracy sample magazine configured
+AIM_AT requested=(0, 56.95, -88.14929) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.9605)
+200m car acquired: yaw=0, FOV=50
+Accuracy fire uses ordinary remote sustained-use request
+Complete authoritative magazine sampled (including non-tracers)
+ACCURACY yaw=0 fov=50 shots=2400 inside=1963 outside=437 percent=81.792 nativeVehicleHits=1526 distance=200.000..200.000m spread=0.42deg
+200m grouping within statistical tolerance: 1963/2400 (81.79%) yaw=0 FOV=50; collision count 1526 is separate
+AIM_AT requested=(0, 56.95, -88.14929) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400.03177)
+200m car acquired: yaw=0, FOV=90
+Accuracy fire uses ordinary remote sustained-use request
+Complete authoritative magazine sampled (including non-tracers)
+ACCURACY yaw=0 fov=90 shots=2400 inside=1909 outside=491 percent=79.542 nativeVehicleHits=1516 distance=200.000..200.000m spread=0.42deg
+200m grouping within statistical tolerance: 1909/2400 (79.54%) yaw=0 FOV=90; collision count 1516 is separate
+AIM_AT requested=(0, 56.95, -88.14929) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400.05548)
+200m car acquired: yaw=45, FOV=50
+Accuracy fire uses ordinary remote sustained-use request
+Complete authoritative magazine sampled (including non-tracers)
+ACCURACY yaw=45 fov=50 shots=2400 inside=1937 outside=463 percent=80.708 nativeVehicleHits=1525 distance=200.000..200.000m spread=0.42deg
+200m grouping within statistical tolerance: 1937/2400 (80.71%) yaw=45 FOV=50; collision count 1525 is separate
+AIM_AT requested=(0, 56.950005, -88.1493) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.97717)
+200m car acquired: yaw=45, FOV=90
+Accuracy fire uses ordinary remote sustained-use request
+Complete authoritative magazine sampled (including non-tracers)
+ACCURACY yaw=45 fov=90 shots=2400 inside=1940 outside=460 percent=80.833 nativeVehicleHits=1561 distance=200.000..200.000m spread=0.42deg
+200m grouping within statistical tolerance: 1940/2400 (80.83%) yaw=45 FOV=90; collision count 1561 is separate
+AIM_AT requested=(0, 56.95, -88.14929) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.97803)
+200m car acquired: yaw=90, FOV=50
+Accuracy fire uses ordinary remote sustained-use request
+Complete authoritative magazine sampled (including non-tracers)
+ACCURACY yaw=90 fov=50 shots=2400 inside=1956 outside=444 percent=81.500 nativeVehicleHits=1612 distance=200.000..200.000m spread=0.42deg
+200m grouping within statistical tolerance: 1956/2400 (81.50%) yaw=90 FOV=50; collision count 1612 is separate
+AIM_AT requested=(0, 56.95, -88.14929) firstTargetDrift=(0, -3.8146973E-06, 0) requestedScreen=(640, 400.04166)
+200m car acquired: yaw=90, FOV=90
+Accuracy fire uses ordinary remote sustained-use request
+Complete authoritative magazine sampled (including non-tracers)
+ACCURACY yaw=90 fov=90 shots=2400 inside=1900 outside=500 percent=79.167 nativeVehicleHits=1544 distance=200.000..200.000m spread=0.42deg
+200m grouping within statistical tolerance: 1900/2400 (79.17%) yaw=90 FOV=90; collision count 1544 is separate
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Sticky acquisition requires a cursor-intersected living rival car
+Camera attraction follows a displaced car without input/recentering: 0.03028 -> 0.00000 rad
+Moving target retained through 90 frames of small mouse errors
+Framed car uses its world-space body centre through ordinary desired aim
+Deliberate mouse breakaway promptly restores free aim
+AIM_AT requested=(5.56, 21.949999, 0) firstTargetDrift=(0.20998478, 0, 0) requestedScreen=(640, 400)
+Small controller corrections retain the same framed car
+Full controller aim-away releases without trapping input
+AIM_AT requested=(5.56, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Solid non-vehicle cover releases assistance and never acquires brackets
+AIM_AT requested=(5.56, 21.949999, 0) firstTargetDrift=(4.7683716E-07, 0, 0) requestedScreen=(640, 400)
+Suppression retires acquired identity and HUD
+Weapon aiming integration passed: 36 accuracy/retention checks.

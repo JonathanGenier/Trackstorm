@@ -1,0 +1,165 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.53
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Three UDP peers initialized
+Host tuning applied
+Accuracy sample magazine configured
+AIM_AT requested=(0, 56.95, -88.14929) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400.03732)
+200m car acquired: yaw=0, FOV=50
+Accuracy fire uses ordinary remote sustained-use request
+Half-magazine actual-ray sample collected
+Complete authoritative magazine sampled (including non-tracers)
+ACCURACY yaw=0 fov=50 shots=2400 inside=1952 outside=448 percent=81.333 nativeVehicleHits=1528 distance=200.000..200.000m spread=0.42deg
+200m grouping within statistical tolerance: 1952/2400 (81.33%) yaw=0 FOV=50; collision count 1528 is separate
+AIM_AT requested=(0, 56.949997, -88.14929) firstTargetDrift=(0, 3.8146973E-06, 0) requestedScreen=(640, 400.0187)
+200m car acquired: yaw=0, FOV=90
+Accuracy fire uses ordinary remote sustained-use request
+Half-magazine actual-ray sample collected
+Complete authoritative magazine sampled (including non-tracers)
+ACCURACY yaw=0 fov=90 shots=2400 inside=1898 outside=502 percent=79.083 nativeVehicleHits=1511 distance=200.000..200.000m spread=0.42deg
+200m grouping within statistical tolerance: 1898/2400 (79.08%) yaw=0 FOV=90; collision count 1511 is separate
+AIM_AT requested=(0, 56.95, -88.14929) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400.0565)
+200m car acquired: yaw=45, FOV=50
+Accuracy fire uses ordinary remote sustained-use request
+Half-magazine actual-ray sample collected
+Complete authoritative magazine sampled (including non-tracers)
+ACCURACY yaw=45 fov=50 shots=2400 inside=1924 outside=476 percent=80.167 nativeVehicleHits=1517 distance=200.000..200.000m spread=0.42deg
+200m grouping within statistical tolerance: 1924/2400 (80.17%) yaw=45 FOV=50; collision count 1517 is separate
+AIM_AT requested=(0, 56.95, -88.14929) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400.01462)
+200m car acquired: yaw=45, FOV=90
+Accuracy fire uses ordinary remote sustained-use request
+Half-magazine actual-ray sample collected
+Complete authoritative magazine sampled (including non-tracers)
+ACCURACY yaw=45 fov=90 shots=2400 inside=1935 outside=465 percent=80.625 nativeVehicleHits=1552 distance=200.000..200.000m spread=0.42deg
+200m grouping within statistical tolerance: 1935/2400 (80.62%) yaw=45 FOV=90; collision count 1552 is separate
+AIM_AT requested=(0, 56.95, -88.14929) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400.05814)
+200m car acquired: yaw=90, FOV=50
+Accuracy fire uses ordinary remote sustained-use request
+Half-magazine actual-ray sample collected
+Complete authoritative magazine sampled (including non-tracers)
+ACCURACY yaw=90 fov=50 shots=2400 inside=1945 outside=455 percent=81.042 nativeVehicleHits=1595 distance=200.000..200.000m spread=0.42deg
+200m grouping within statistical tolerance: 1945/2400 (81.04%) yaw=90 FOV=50; collision count 1595 is separate
+AIM_AT requested=(0, 56.95, -88.14929) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400.01578)
+200m car acquired: yaw=90, FOV=90
+Accuracy fire uses ordinary remote sustained-use request
+Half-magazine actual-ray sample collected
+Complete authoritative magazine sampled (including non-tracers)
+ACCURACY yaw=90 fov=90 shots=2400 inside=1894 outside=506 percent=78.917 nativeVehicleHits=1548 distance=200.000..200.000m spread=0.42deg
+200m grouping within statistical tolerance: 1894/2400 (78.92%) yaw=90 FOV=90; collision count 1548 is separate
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Sticky acquisition selects a visible living rival car
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, -1.9073486E-06, 0) requestedScreen=(640, 399.99997)
+Camera attraction follows a displaced car without input/recentering: 0.00064 -> 0.00000 rad
+Attraction improves retention alignment over disabled pull (0.04513 rad unassisted)
+Moving target retained through 90 frames of small mouse errors
+Small alternating corrections retain aim near the moving body centre
+STICKY_BREAK mouse yaw=-0.13470489->0.07529513 held=True target=0 bounds=
+Deliberate mouse breakaway promptly restores free aim
+Unframed cursor-directed free fire produces actual rounds (40)
+AIM_AT requested=(5.56, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00006, 400)
+Small controller corrections retain the same framed car
+Full controller aim-away releases without trapping input
+AIM_AT requested=(5.56, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00006, 400)
+Crossing rear car does not cause target switching or bracket flicker
+Intervening car breaks retention of the covered car
+AIM_AT requested=(5.56, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Solid non-vehicle cover releases assistance and never acquires brackets
+AIM_AT requested=(5.56, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99997)
+Retained moving-car aim survives 30 FPS, gain 0.25, FOV 50, recenter 3: error=0.00000 rad
+RMB release clears assisted feedback at 30 FPS, gain 0.25, FOV 50
+Controller camera intent retains assistance without physical RMB
+Full controller breakaway remains immediate at 30 FPS and sensitivity gain 0.25
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00006, 400)
+Mouse sweep breakaway remains immediate at 30 FPS and sensitivity gain 0.25
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99997)
+Retained moving-car aim survives 30 FPS, gain 3, FOV 90, recenter 3: error=0.00000 rad
+RMB release clears assisted feedback at 30 FPS, gain 3, FOV 90
+Controller camera intent retains assistance without physical RMB
+Full controller breakaway remains immediate at 30 FPS and sensitivity gain 3
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0008, 400)
+Mouse sweep breakaway remains immediate at 30 FPS and sensitivity gain 3
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, -1.9073486E-06, 0) requestedScreen=(640, 399.99997)
+Retained moving-car aim survives 60 FPS, gain 0.25, FOV 50, recenter 3: error=0.00000 rad
+RMB release clears assisted feedback at 60 FPS, gain 0.25, FOV 50
+Controller camera intent retains assistance without physical RMB
+Full controller breakaway remains immediate at 60 FPS and sensitivity gain 0.25
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 21.949999, 0) firstTargetDrift=(0, -1.9073486E-06, 0) requestedScreen=(640.0001, 399.99997)
+Mouse sweep breakaway remains immediate at 60 FPS and sensitivity gain 0.25
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99997)
+Retained moving-car aim survives 60 FPS, gain 3, FOV 90, recenter 3: error=0.00000 rad
+RMB release clears assisted feedback at 60 FPS, gain 3, FOV 90
+Controller camera intent retains assistance without physical RMB
+Full controller breakaway remains immediate at 60 FPS and sensitivity gain 3
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Mouse sweep breakaway remains immediate at 60 FPS and sensitivity gain 3
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Retained moving-car aim survives 144 FPS, gain 0.25, FOV 50, recenter 3: error=0.00000 rad
+RMB release clears assisted feedback at 144 FPS, gain 0.25, FOV 50
+Controller camera intent retains assistance without physical RMB
+Full controller breakaway remains immediate at 144 FPS and sensitivity gain 0.25
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Mouse sweep breakaway remains immediate at 144 FPS and sensitivity gain 0.25
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Retained moving-car aim survives 144 FPS, gain 3, FOV 90, recenter 3: error=0.00000 rad
+RMB release clears assisted feedback at 144 FPS, gain 3, FOV 90
+Controller camera intent retains assistance without physical RMB
+Full controller breakaway remains immediate at 144 FPS and sensitivity gain 3
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Mouse sweep breakaway remains immediate at 144 FPS and sensitivity gain 3
+AIM_AT requested=(2, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.001, 399.99997)
+AIM_AT requested=(2, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Held assistance is active before the accepted-aim blackout
+Observer has accepted aim before packet blackout
+A bounded real UDP blackout expires accepted aim on shooter and observer
+Accepted-aim outage cannot retain a stale assisted car
+Fresh accepted aim resumes after packet delivery recovers (not authenticated reconnect)
+Camera-intent cursor remains centered after transient packet recovery
+ERROR: System.InvalidOperationException: Passing missile cannot steal acquired car assistance
+   at Trackstorm.Client.Verification.WeaponAimChecks.RequireShot(Boolean condition, String message) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.MachineGun.cs:line 134
+   at Trackstorm.Client.Verification.WeaponAimChecks.CheckNonVehicleTargets() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Sticky.cs:line 174
+   at Trackstorm.Client.Verification.WeaponAimChecks.CheckStickyEngagement() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Sticky.cs:line 104
+   at Trackstorm.Client.Verification.WeaponAimChecks.Run() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 110
+   at: void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__24.MoveNext() (res://code/Client/Verification/WeaponAimChecks.cs:110)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__24.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:110)
+       [2] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [3] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [4] void System.Threading.Tasks.Task.RunContinuations(object)
+       [5] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [6] bool System.Threading.Tasks.Task.TrySetException(object)
+       [7] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [8] void Trackstorm.Client.Verification.WeaponAimChecks+<CheckStickyEngagement>d__50.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Sticky.cs:104)
+       [9] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [10] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [11] void System.Threading.Tasks.Task.RunContinuations(object)
+       [12] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [13] bool System.Threading.Tasks.Task.TrySetException(object)
+       [14] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [15] void Trackstorm.Client.Verification.WeaponAimChecks+<CheckNonVehicleTargets>d__52.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Sticky.cs:174)
+       [16] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [17] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [18] void System.Threading.Tasks.Task.RunContinuations(object)
+       [19] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder.SetResult()
+       [20] void Trackstorm.Client.Verification.WeaponAimChecks+<Frames>d__37.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:514)
+       [21] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [22] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [23] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)

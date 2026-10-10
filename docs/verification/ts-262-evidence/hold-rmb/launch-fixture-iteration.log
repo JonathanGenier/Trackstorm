@@ -1,0 +1,85 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.68
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Three UDP peers initialized
+Host tuning applied
+RMB initially up: visible rival cannot acquire; ordinary desired aim remains available
+LMB free fire without RMB produces authoritative rays (30) without acquiring
+Press and hold RMB acquires and retains with no mouse movement or firing
+Release while still centred immediately clears assistance, preserving weapon aim
+LMB remains held across RMB release: 80 subsequent rays, no released-button reacquisition
+Repress starts fresh eligible acquisition
+Short RMB tap cannot latch engagement
+Repress starts fresh eligible acquisition
+Short RMB tap cannot latch engagement
+Repress starts fresh eligible acquisition
+Short RMB tap cannot latch engagement
+Release/repress between renders crosses a fresh input-intent boundary
+Production focus-loss notification clears assistance and suppresses ordinary input
+Focus return does not restore the old held engagement
+Existing remappable controller camera input enables neutral retention without RMB
+Controller deliberate outward input releases its engagement
+AIM_AT requested=(3.2, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0057, 399.99844)
+Near-car acquisition starts from a genuine cursor miss with assistance disabled
+Forgiving acquisition gently converges on the visible car: error=0.00000 rad
+Fine placement remains off-centre while RMB stays held: 0.01198->0.01198 rad
+Actual authoritative shots preserve adjusted placement: 40 rays, 0.01491 rad off centre
+AIM_AT requested=(0, 1.95, -25) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99707)
+Driving/fire exercised assist=False: speed=18.89m/s distance=17.17m turn=0.884rad rays=240 hits=54 retained=0/180 meanError=0.39875rad
+AIM_AT requested=(0, 1.95, -25) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99982)
+Driving/fire exercised assist=True: speed=18.89m/s distance=17.17m turn=0.884rad rays=240 hits=240 retained=180/180 meanError=0.00149rad
+Driving compensation retains engagement and native hits while materially reducing tracking error
+Deliberate aim-away releases even after sustained driving engagement
+AIM_AT requested=(-4, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.9991)
+First rival can be deliberately acquired before switching
+AIM_AT requested=(4, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00006, 399.99994)
+Deliberate sweep switches to the chosen second car
+Slow deliberate adjustment beyond the frame also releases
+Stopping beside the dismissed car does not pull free aim back onto it
+Deliberately returning toward the dismissed car rearms acquisition
+Chase return after engagement preserves the centred logical cursor
+Released neutral camera returns behind the vehicle instead of retaining a target camera
+AIM_AT requested=(0, 1.95, -25) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99942)
+Held engagement established before native ballistic launch
+ERROR: System.InvalidOperationException: Native jump/landing exercised: rise=0.00m airborne=0 landed=0 frames
+   at Trackstorm.Client.Verification.WeaponAimChecks.Require(Boolean condition, String message) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 556
+   at Trackstorm.Client.Verification.WeaponAimChecks.CheckHeldAimFlight() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.HeldAim.cs:line 36
+   at Trackstorm.Client.Verification.WeaponAimChecks.CheckAimFreedom() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Freedom.cs:line 124
+   at Trackstorm.Client.Verification.WeaponAimChecks.Run() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 109
+   at: void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__24.MoveNext() (res://code/Client/Verification/WeaponAimChecks.cs:109)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__24.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:109)
+       [2] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [3] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [4] void System.Threading.Tasks.Task.RunContinuations(object)
+       [5] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [6] bool System.Threading.Tasks.Task.TrySetException(object)
+       [7] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [8] void Trackstorm.Client.Verification.WeaponAimChecks+<CheckAimFreedom>d__43.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Freedom.cs:124)
+       [9] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [10] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [11] void System.Threading.Tasks.Task.RunContinuations(object)
+       [12] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [13] bool System.Threading.Tasks.Task.TrySetException(object)
+       [14] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [15] void Trackstorm.Client.Verification.WeaponAimChecks+<CheckHeldAimFlight>d__44.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.HeldAim.cs:36)
+       [16] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [17] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [18] void System.Threading.Tasks.Task.RunContinuations(object)
+       [19] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder.SetResult()
+       [20] void Trackstorm.Client.Verification.WeaponAimChecks+<Frames>d__36.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:509)
+       [21] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [22] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [23] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)

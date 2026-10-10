@@ -1,0 +1,27 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Obstruction: Wall approach / hold, min=4.517m, final=4.583m, max-step=0.106m
+Obstruction: Wall clears / recovery, min=4.583m, final=7.465m, max-step=0.141m
+Obstruction: Thin barrier / low orbit, min=4.132m, final=4.132m, max-step=0.000m
+Obstruction: Building corner orbit, min=3.309m, final=7.465m, max-step=0.371m
+Obstruction: Moving solid prop, min=4.153m, final=7.461m, max-step=0.131m
+Obstruction: Sloped terrain, min=4.397m, final=4.397m, max-step=0.000m
+Obstruction: Repeated boundary crossings, min=5.427m, final=5.448m, max-step=0.009m
+Obstruction: Shake beside wall, min=5.393m, final=5.430m, max-step=0.067m
+Obstruction: Life reset, min=5.431m, final=7.465m, max-step=2.034m
+Obstruction: Replacement reset, min=5.431m, final=7.465m, max-step=2.034m
+Obstruction: Resume reset, min=5.431m, final=7.465m, max-step=2.034m
+Obstruction: Scene reconstruction, min=5.431m, final=7.465m, max-step=2.034m
+Obstruction: Production yard wall, min=4.175m, final=4.175m, max-step=0.000m
+Obstruction: Production container, min=2.129m, final=2.129m, max-step=0.000m
+Obstruction: Production barrier, min=7.465m, final=7.465m, max-step=0.000m
+Obstruction: Production oval bank, min=5.173m, final=7.465m, max-step=0.077m
+Obstruction: Overlapping target recovery, min=7.465m, final=7.465m, max-step=0.000m
+Obstruction: Wide near plane, min=5.022m, final=5.022m, max-step=0.000m
+Obstruction: Cramped ceiling, min=0.239m, final=0.239m, max-step=0.000m
+Obstruction: Rolled chassis beside fence, min=5.500m, final=7.465m, max-step=0.145m
+Obstruction: Rollover framing recovery, min=7.458m, final=7.465m, max-step=0.007m
+Obstruction: Rolled chassis blocked left side, min=5.500m, final=7.466m, max-step=0.145m
+Obstruction: Rollover framing reset, min=7.465m, final=7.465m, max-step=0.000m
+Camera obstruction checks passed.
+Camera obstruction verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\camera-obstruction-checks\e4af3c030ea646c0a9732e542619d2f6

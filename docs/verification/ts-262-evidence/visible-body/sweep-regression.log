@@ -1,0 +1,275 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Three UDP peers initialized
+Host tuning applied
+AIM_AT requested=(0, 2.25, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+AIM_GEOMETRY forward: lens=(0, 4.205002, 44.205) rotation=(-0.044197004, 0, 0) targetDisplayed=(0, 1.65, 0) targetNative=(0, 1.65, 0) targetScreen=(640, 395.74594) center=(640, 400) bounds=(617.3711, 389.08017), (45.257812, 32.200226)
+Machine Gun forward accepted ready
+MG_GEOMETRY forward: aim=WeaponAimSolution { Vehicle = 2, Life = 1, Token = 1, Tick = 367, Yaw = 0, Pitch = -0.027269702, Origin = <0, 2.9550014, 36.845>, Direction = <0, -0.027266325, -0.99962825>, Clear = True, Ready = True } target=<0, 1.65, 0> cameraDesired=<0, -0.027266324, -0.99962825>
+MG_TARGET_LOADOUT forward: active=Missile; attached shields=0
+Camera shooter submits ordinary held-use request
+MG_DAMAGE forward: hp=1000->950.4724 damage=2.25 range=225 shields=0 phase=Active
+Machine Gun forward: native hit/damage, 26 rounds, 26 target hits
+AIM_REMOTE firing-forward: acceptedYaw=0 renderedYaw=0 acceptedPitch=-0.027269702 renderedPitch=-0.027269702
+Remote mount yaw and payload pitch settle to accepted firing-forward aim on actual presentation nodes
+forward: fixed rack, full payload scale and shared pivot origin align on observer
+AIM_AT requested=(20, 2.25, 35) firstTargetDrift=(0, 0, 0) requestedScreen=(639.99646, 400.00024)
+AIM_GEOMETRY side: lens=(-7.3111014, 4.3059645, 37.51939) rotation=(-0.07482079, -1.4788148, 0) targetDisplayed=(20, 1.65, 35) targetNative=(20, 1.65, 35) targetScreen=(639.9962, 393.1653) center=(640, 400) bounds=(574.65045, 382.19333), (125.17529, 52.40851)
+Machine Gun side accepted ready
+MG_GEOMETRY side: aim=WeaponAimSolution { Vehicle = 2, Life = 1, Token = 1, Tick = 612, Yaw = -1.4788066, Pitch = -0.049995907, Origin = <0, 2.9550014, 36.845>, Direction = <0.9945277, -0.049975082, -0.09174524>, Clear = True, Ready = True } target=<20, 1.65, 35> cameraDesired=<0.9945277, -0.049975082, -0.09174524>
+MG_TARGET_LOADOUT side: active=; attached shields=0
+Camera shooter submits ordinary held-use request
+MG_DAMAGE side: hp=950.4724->892.59644 damage=2.25 range=225 shields=0 phase=Active
+Machine Gun side: native hit/damage, 27 rounds, 27 target hits
+AIM_REMOTE firing-side: acceptedYaw=-1.4788066 renderedYaw=-1.4788066 acceptedPitch=-0.049995907 renderedPitch=-0.049995907
+Remote mount yaw and payload pitch settle to accepted firing-side aim on actual presentation nodes
+side: fixed rack, full payload scale and shared pivot origin align on observer
+AIM_AT requested=(0, 2.2432132, 45) firstTargetDrift=(0, -0.0012356043, 0) requestedScreen=(639.99994, 398.38382)
+AIM_GEOMETRY rear: lens=(6.2411783E-07, 5.138048, 29.705925) rotation=(-0.18960068, 3.1415925, 0) targetDisplayed=(0, 1.6438311, 45) targetNative=(0, 1.65, 45) targetScreen=(639.99994, 386.4499) center=(640, 400) bounds=(566.87866, 357.499), (146.24255, 124.277405)
+Machine Gun rear accepted ready
+MG_GEOMETRY rear: aim=WeaponAimSolution { Vehicle = 2, Life = 1, Token = 1, Tick = 857, Yaw = -3.1415927, Pitch = -0.123364255, Origin = <0, 2.9550014, 36.845>, Direction = <-8.675839E-08, -0.123051584, 0.9924003>, Clear = True, Ready = True } target=<0, 1.65, 45> cameraDesired=<0, -0.123051584, 0.9924003>
+MG_TARGET_LOADOUT rear: active=; attached shields=0
+Camera shooter submits ordinary held-use request
+MG_DAMAGE rear: hp=892.59644->831.84644 damage=2.25 range=225 shields=0 phase=Active
+Machine Gun rear: native hit/damage, 27 rounds, 27 target hits
+AIM_REMOTE firing-rear: acceptedYaw=-3.1415927 renderedYaw=-3.1415927 acceptedPitch=-0.1235882 renderedPitch=-0.12357704
+Remote mount yaw and payload pitch settle to accepted firing-rear aim on actual presentation nodes
+rear: fixed rack, full payload scale and shared pivot origin align on observer
+AIM_AT requested=(0, 14.25, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+AIM_GEOMETRY airborne: lens=(0, 4.2050014, 44.205) rotation=(0.22344233, 0, 0) targetDisplayed=(0, 13.65, 0) targetNative=(0, 13.65, 0) targetScreen=(640, 395.95407) center=(640, 400) bounds=(617.8442, 381.59973), (44.311646, 42.731903)
+Machine Gun airborne accepted ready
+MG_GEOMETRY airborne: aim=WeaponAimSolution { Vehicle = 2, Life = 1, Token = 1, Tick = 1102, Yaw = 0, Pitch = 0.28999949, Origin = <0, 2.9550014, 36.845>, Direction = <0, 0.28595173, -0.958244>, Clear = True, Ready = True } target=<0, 13.65, 0> cameraDesired=<0, 0.28595173, -0.95824397>
+MG_TARGET_LOADOUT airborne: active=; attached shields=0
+Camera shooter submits ordinary held-use request
+MG_DAMAGE airborne: hp=831.84644->783.0504 damage=2.25 range=225 shields=0 phase=Active
+Machine Gun airborne: native hit/damage, 26 rounds, 26 target hits
+AIM_REMOTE firing-airborne: acceptedYaw=0 renderedYaw=-6.2831855 acceptedPitch=0.28999949 renderedPitch=0.28999949
+Remote mount yaw and payload pitch settle to accepted firing-airborne aim on actual presentation nodes
+airborne: fixed rack, full payload scale and shared pivot origin align on observer
+AIM_AT requested=(-4.5, 2.2224998, 35) firstTargetDrift=(0, -0.006111145, 0) requestedScreen=(636.3304, 386.99188)
+AIM_GEOMETRY close-side: lens=(6.130351, 6.394944, 39.3585) rotation=(-0.3709954, 1.1816928, 0) targetDisplayed=(-4.5, 1.6255555, 35) targetNative=(-4.5, 1.65, 35) targetScreen=(639.999, 371.00885) center=(640, 400) bounds=(488.63788, 320.6094), (312.4958, 186.81891)
+Machine Gun close-side accepted ready
+MG_GEOMETRY close-side: aim=WeaponAimSolution { Vehicle = 2, Life = 1, Token = 1, Tick = 1347, Yaw = 1.1816988, Pitch = -0.20978954, Origin = <0, 2.9550014, 36.845>, Direction = <-0.90496546, -0.20825407, -0.37103614>, Clear = True, Ready = True } target=<-4.5, 1.65, 35> cameraDesired=<-0.9051965, -0.20707795, -0.3711308>
+MG_TARGET_LOADOUT close-side: active=; attached shields=0
+Camera shooter submits ordinary held-use request
+MG_DAMAGE close-side: hp=783.0504->722.3004 damage=2.25 range=225 shields=0 phase=Active
+Machine Gun close-side: native hit/damage, 27 rounds, 27 target hits
+AIM_REMOTE firing-close-side: acceptedYaw=1.1816988 renderedYaw=-5.1014867 acceptedPitch=-0.20978954 renderedPitch=-0.20978996
+Remote mount yaw and payload pitch settle to accepted firing-close-side aim on actual presentation nodes
+close-side: fixed rack, full payload scale and shared pivot origin align on observer
+Actual held mouse input reaches vertical sky aim through authoritative acceptance
+Vertical free fire produces actual authoritative rays: 27
+AIM_REMOTE vertical: acceptedYaw=0.23922116 renderedYaw=-6.0439644 acceptedPitch=1.5707964 renderedPitch=1.5707964
+Remote mount yaw and payload pitch settle to accepted vertical aim on actual presentation nodes
+Self-blocked camera direction is not firing-ready
+Self-blocked held fire spends no rounds
+AIM_AT requested=(0, 14.65, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Second shooter receives a fresh selected Machine Gun
+Both shooters submit sustained activation
+Two simultaneous shooters sustain default spread and cadence through real UDP (320 rounds)
+Observer receives identical ordered firing endpoints/tracers (480 rounds)
+Release stops actual firing on both peers
+Aim expiry stops held fire without stale-forward fallback
+Fresh camera intent resumes held fire after aim expiry
+Suppression clears camera aiming and firing presentation
+Switch retires Machine Gun capability
+Switch back does not replay earlier sustained activation
+Machine Gun camera firing verified: 596 native rays, 330 target hits; fixed rack uses existing yaw/pitch payload
+RMB initially up: visible rival cannot acquire; ordinary desired aim remains available
+LMB free fire without RMB produces authoritative rays (32) without acquiring
+Press and hold RMB acquires and retains with no mouse movement or firing
+Release while still centred immediately clears assistance, preserving weapon aim
+LMB remains held across RMB release: 80 subsequent rays, no released-button reacquisition
+Released camera does not follow the previously selected moving rival
+Repress starts fresh eligible acquisition
+Short RMB tap cannot latch engagement
+Repress starts fresh eligible acquisition
+Short RMB tap cannot latch engagement
+Repress starts fresh eligible acquisition
+Short RMB tap cannot latch engagement
+Release/repress between renders crosses a fresh input-intent boundary
+Production focus-loss notification clears assistance and suppresses ordinary input
+Focus return does not restore the old held engagement
+Existing remappable controller camera input enables neutral retention without RMB
+Controller deliberate outward input releases its engagement
+AIM_AT requested=(3.2, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0057, 399.99847)
+Near-car acquisition starts from a genuine cursor miss with assistance disabled
+Forgiving acquisition survives small approach input and converges: error=0.00000 rad
+Fine placement remains off-centre while RMB stays held: 0.01200->0.01200 rad
+Retained target keeps actual authoritative shots centred despite camera offset: 40 rays, 0.00091 rad off centre
+Outward departure releases target before returning to cursor-directed shots
+After target loss actual shots follow accepted free aim away from car centre: 40 rays
+AIM_AT requested=(0, 1.95, -25) firstTargetDrift=(0, -1.1920929E-07, 0) requestedScreen=(640, 399.99707)
+Driving/fire exercised assist=False: speed=18.89m/s distance=17.17m turn=0.884rad rays=240 hits=55 retained=0/180 meanError=0.39895rad
+AIM_AT requested=(0, 1.95, -25) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Driving/fire exercised assist=True: speed=18.89m/s distance=17.17m turn=0.884rad rays=240 hits=240 retained=180/180 meanError=0.00000rad
+Driving compensation retains engagement and native hits while materially reducing tracking error
+Braking is not aim-away input: speed=0.07->2.49m/s, same retained car
+Deliberate aim-away releases even after sustained driving engagement
+AIM_AT requested=(-4, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+First rival can be deliberately acquired before switching
+AIM_AT requested=(4, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00037, 400)
+Deliberate sweep switches to the chosen second car
+Slow deliberate adjustment beyond the frame also releases
+Stopping beside the dismissed car does not pull free aim back onto it
+Deliberately returning toward the dismissed car rearms acquisition
+Chase return after engagement preserves the centred logical cursor
+Released neutral camera returns behind the vehicle instead of retaining a target camera
+AIM_AT requested=(0, 31.949999, -25) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Held engagement established before native ballistic launch
+Native jump/landing exercised: rise=7.99m airborne=140 landed=99 frames
+Stationary held mouse retains through launch/flight/landing: air=140/140, ground=99/99
+Post-landing RMB release clears engagement without reacquisition
+Centered camera cursor appears alongside remote accepted aim
+AIM_AT requested=(0, 2.1526222, 0) firstTargetDrift=(0, -0.007187128, 0) requestedScreen=(640, 399.99466)
+Center-ray car intersection replaces square with disconnected brackets
+Camera intent stays at viewport center while car brackets are shown
+AIM_AT requested=(-12, 1.4954352, 0) firstTargetDrift=(0, -0.0004041195, 0) requestedScreen=(639.98303, 399.9998)
+A deliberate miss outside both acquisition regions returns to the free-aim square
+Small square is centered when aiming beside a rival
+AIM_AT requested=(0, 2.145031, 0) firstTargetDrift=(0, -2.9087067E-05, 0) requestedScreen=(640, 399.99997)
+Intervening native cover prevents car brackets
+Covered car leaves the small square at camera center
+Removing cover restores brackets on the directly intersected car
+AIM_FORWARD clear=True ready=True yaw=0 pitch=-0.040959563
+Square remains centered immediately after mouse yaw and upward tilt under network impairment
+Looking away from a car removes its brackets immediately
+Cursor follows the new viewport center after resizing
+Side mouse aim reaches authority with the original camera orbit limits
+Deployed rack remains fixed on all peers
+Observer receives accepted articulated aim
+AIM_REMOTE side: acceptedYaw=-1.5600001 renderedYaw=-1.5600001 acceptedPitch=0.18473892 renderedPitch=0.18473892
+Remote mount yaw and payload pitch settle to accepted side aim on actual presentation nodes
+Rear aim accepted
+AIM_REMOTE rear: acceptedYaw=-3.1200001 renderedYaw=-3.1200001 acceptedPitch=0.18473895 renderedPitch=0.18473895
+Remote mount yaw and payload pitch settle to accepted rear aim on actual presentation nodes
+Downward tilt and weapon self-clearance limits cannot displace the camera cursor
+Downward articulation cannot enter owner envelope
+Fine controller camera rotation retains a centered cursor
+Native stick fine/full turn separation: fine=0.143, full=2.200 rad
+Ordinary camera recentering retains a centered cursor
+Neutral stick restores the original chase view with a weapon selected
+AIM_AT requested=(0, 2.0834117, 25) firstTargetDrift=(0, -0.35010302, 0) requestedScreen=(640, 399.4865)
+AIM_GEOMETRY close: lens=(0, 4.8145595, 44.076706) rotation=(-0.14373715, 0, 0) targetDisplayed=(0, 1.1534075, 25) targetNative=(0, 1.153192, 25) targetScreen=(640, 400.00256) center=(640, 400) bounds=(583.4178, 377.8651), (113.16443, 94.670044)
+Directly intersected close car receives brackets instead of a distance-based square fallback
+AIM_AT requested=(-3.7, 2.0703263, 35) firstTargetDrift=(0, -0.22377527, 0) requestedScreen=(640.0149, 399.45895)
+Directly intersected side-by-side car receives onscreen corner brackets
+Alongside camera cursor stays centered while the accepted weapon ray remains chassis-safe
+A camera ray blocked by the owner cannot mark the weapon ready
+AIM_AT requested=(0, 12.65, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400.0002)
+AIM_AT requested=(0, 12.65, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Elevated rivals can be aimed at above the horizon
+Upward aiming does not lower the grounded chase camera relative to the car
+Upward aiming retains the centered shared aiming cue
+The upward camera ray actually intersects the elevated rival
+Upward desired aim reaches authority and observer
+AIM_AT requested=(0, 2.65, 5) firstTargetDrift=(-7.7272673, -10.4490385, 4.913484) requestedScreen=(640.05725, 399.6524)
+Fast crossing attraction stays bounded rather than following unlimited target travel
+Crossing-car brackets identify the car receiving assistance under interpolation (101 bracket frames, 0 invalid identities)
+AIM_AT requested=(0, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Sticky acquisition selects a visible living rival car
+AIM_AT requested=(0, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Camera attraction follows a displaced car without input/recentering: 0.00001 -> 0.00000 rad
+Attraction improves retention alignment over disabled pull (0.04515 rad unassisted)
+Moving target retained through 90 frames of small mouse errors
+Small alternating corrections retain aim near the moving body centre
+STICKY_BREAK mouse yaw=-0.13330173->0.07669829 held=True target=0 bounds=
+Deliberate mouse breakaway promptly restores free aim
+Unframed cursor-directed free fire produces actual rounds (40)
+AIM_AT requested=(5.56, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00006, 400)
+Small controller corrections retain the same framed car
+Full controller aim-away releases without trapping input
+AIM_AT requested=(5.56, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0001, 400)
+Crossing rear car does not cause target switching or bracket flicker
+Intervening car breaks retention of the covered car
+AIM_AT requested=(5.56, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Solid non-vehicle cover releases assistance and never acquires brackets
+AIM_AT requested=(5.56, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+AIM_AT requested=(0, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Retained moving-car aim survives 30 FPS, gain 0.25, FOV 50, recenter 3: error=0.00000 rad
+RMB release clears assisted feedback at 30 FPS, gain 0.25, FOV 50
+Controller camera intent retains assistance without physical RMB
+Full controller breakaway remains immediate at 30 FPS and sensitivity gain 0.25
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00006, 400)
+Mouse sweep breakaway remains immediate at 30 FPS and sensitivity gain 0.25
+AIM_AT requested=(0, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Retained moving-car aim survives 30 FPS, gain 3, FOV 90, recenter 3: error=0.00000 rad
+RMB release clears assisted feedback at 30 FPS, gain 3, FOV 90
+Controller camera intent retains assistance without physical RMB
+Full controller breakaway remains immediate at 30 FPS and sensitivity gain 3
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0005, 400)
+Mouse sweep breakaway remains immediate at 30 FPS and sensitivity gain 3
+AIM_AT requested=(0, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Retained moving-car aim survives 60 FPS, gain 0.25, FOV 50, recenter 3: error=0.00000 rad
+RMB release clears assisted feedback at 60 FPS, gain 0.25, FOV 50
+Controller camera intent retains assistance without physical RMB
+Full controller breakaway remains immediate at 60 FPS and sensitivity gain 0.25
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00006, 400)
+Mouse sweep breakaway remains immediate at 60 FPS and sensitivity gain 0.25
+AIM_AT requested=(0, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Retained moving-car aim survives 60 FPS, gain 3, FOV 90, recenter 3: error=0.00000 rad
+RMB release clears assisted feedback at 60 FPS, gain 3, FOV 90
+Controller camera intent retains assistance without physical RMB
+Full controller breakaway remains immediate at 60 FPS and sensitivity gain 3
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0001, 400)
+Mouse sweep breakaway remains immediate at 60 FPS and sensitivity gain 3
+AIM_AT requested=(0, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Retained moving-car aim survives 144 FPS, gain 0.25, FOV 50, recenter 3: error=0.00000 rad
+RMB release clears assisted feedback at 144 FPS, gain 0.25, FOV 50
+Controller camera intent retains assistance without physical RMB
+Full controller breakaway remains immediate at 144 FPS and sensitivity gain 0.25
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00006, 400)
+Mouse sweep breakaway remains immediate at 144 FPS and sensitivity gain 0.25
+AIM_AT requested=(0, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Retained moving-car aim survives 144 FPS, gain 3, FOV 90, recenter 3: error=0.00000 rad
+RMB release clears assisted feedback at 144 FPS, gain 3, FOV 90
+Controller camera intent retains assistance without physical RMB
+Full controller breakaway remains immediate at 144 FPS and sensitivity gain 3
+ERROR: System.InvalidOperationException: Continuing deliberate input cannot repeatedly reacquire the car
+   at Trackstorm.Client.Verification.WeaponAimChecks.Require(Boolean condition, String message) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 575
+   at Trackstorm.Client.Verification.WeaponAimChecks.CheckStickyPreferences() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Sticky.cs:line 147
+   at Trackstorm.Client.Verification.WeaponAimChecks.CheckStickyEngagement() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Sticky.cs:line 102
+   at Trackstorm.Client.Verification.WeaponAimChecks.CheckAssistanceAndOutage() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 441
+   at Trackstorm.Client.Verification.WeaponAimChecks.Run() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 257
+   at: void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__25.MoveNext() (res://code/Client/Verification/WeaponAimChecks.cs:257)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__25.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:257)
+       [2] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [3] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [4] void System.Threading.Tasks.Task.RunContinuations(object)
+       [5] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [6] bool System.Threading.Tasks.Task.TrySetException(object)
+       [7] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [8] void Trackstorm.Client.Verification.WeaponAimChecks+<CheckAssistanceAndOutage>d__32.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:441)
+       [9] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [10] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [11] void System.Threading.Tasks.Task.RunContinuations(object)
+       [12] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [13] bool System.Threading.Tasks.Task.TrySetException(object)
+       [14] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [15] void Trackstorm.Client.Verification.WeaponAimChecks+<CheckStickyEngagement>d__53.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Sticky.cs:102)
+       [16] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [17] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [18] void System.Threading.Tasks.Task.RunContinuations(object)
+       [19] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [20] bool System.Threading.Tasks.Task.TrySetException(object)
+       [21] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [22] void Trackstorm.Client.Verification.WeaponAimChecks+<CheckStickyPreferences>d__54.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Sticky.cs:147)
+       [23] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [24] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [25] void System.Threading.Tasks.Task.RunContinuations(object)
+       [26] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder.SetResult()
+       [27] void Trackstorm.Client.Verification.WeaponAimChecks+<Frames>d__38.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:528)
+       [28] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [29] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [30] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)
+WARNING: 58 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)

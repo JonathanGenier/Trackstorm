@@ -252,7 +252,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
             {
                 PrepareAiming();
                 _camera.Follow(local.VisualTransform, cameraState, (float)delta, local.GetRid());
-                PresentAiming();
+                PresentAiming((float)delta);
             }
             else { ResetAiming(); }
         }

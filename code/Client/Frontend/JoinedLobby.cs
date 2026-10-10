@@ -135,8 +135,8 @@ internal sealed partial class JoinedLobby : Control
             if (!point.IsFinite()) continue;
             car.Target.Position = new Vector2(Math.Clamp(point.X - 74, 12, 1120), point.Y - 40 + (car.Slot >= 5 ? 26 : 0));
             car.Target.Text = player.Name + "\n" + (player.Id == state.CurrentHostId ? "★ HOST" : player.Ready ? "✓ READY" : "− NOT READY");
-            car.Target.TooltipText = player.Name + (player.Id == Session.Lobby.LocalPlayerId ? " (you)" : "") + (host && player.Id != state.CurrentHostId ? " — select player" : "");
-            car.Target.Disabled = !CanHostAct || player.Id == state.CurrentHostId || _dialog.Visible;
+            car.Target.TooltipText = player.PracticeCar ? "Host-controlled practice car" : player.Name + (player.Id == Session.Lobby.LocalPlayerId ? " (you)" : "") + (host && player.Id != state.CurrentHostId ? " — select player" : "");
+            car.Target.Disabled = !CanHostAct || player.PracticeCar || player.Id == state.CurrentHostId || _dialog.Visible;
             var color = new Color(player.Id == state.CurrentHostId ? "ffcc70" : player.Ready ? "a3df80" : "ff8a79");
             car.Target.AddThemeColorOverride("font_color", color);
             car.Target.AddThemeColorOverride("font_disabled_color", color);

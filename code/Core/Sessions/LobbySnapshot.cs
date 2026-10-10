@@ -20,6 +20,7 @@ public sealed class LobbySnapshot
         if (session == 0 || revision == 0 || match < session || !Enum.IsDefined(phase) || !Enum.IsDefined(map) ||
             (phase == SessionPhase.Arena && match == session) || copy.Length is < 1 or > 8 ||
             copy.Any(player => player is null || (phase == SessionPhase.Lobby && (!player.Connected || player.RetainedHost)) || player.Id == 0 || player.Generation == 0 || (!player.Connected && (player.Id == CurrentHostId || player.Ready)) || player.Name != PlayerName.Sanitize(player.Name)) ||
+            copy.Count(player => player.PracticeCar) > 2 || copy.Any(player => player.PracticeCar && (!player.Connected || !player.Ready || player.RetainedHost || player.Id == currentHostId)) ||
             copy.Select(player => player.Id).Distinct().Count() != copy.Length || authorityEpoch == 0 || !copy.Any(player => player.Id == currentHostId && player.Connected))
         {
             throw new ArgumentException("Invalid lobby state.");

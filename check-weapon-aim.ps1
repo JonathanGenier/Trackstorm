@@ -1,5 +1,6 @@
-param([Parameter(Mandatory)][string]$GodotPath, [switch]$NoBuild, [switch]$Visual, [switch]$Impaired, [switch]$Oval)
+param([Parameter(Mandatory)][string]$GodotPath, [switch]$NoBuild, [switch]$Visual, [switch]$Impaired, [switch]$Oval, [switch]$Accuracy, [switch]$Sticky, [switch]$Freedom, [switch]$Recovery, [switch]$Road)
 $ErrorActionPreference = 'Stop'
+if ($Recovery -and $Oval) { throw 'The isolated recovery fixture extends beyond the oval boundary. Use -Recovery without -Oval, or -Road for production-terrain retention.' }
 if (-not $NoBuild) {
     dotnet build Trackstorm.Client.csproj -c Debug -warnaserror -m:1 -nr:false
     if ($LASTEXITCODE -ne 0) { throw 'Weapon aiming build failed.' }
@@ -11,6 +12,11 @@ if (-not $Visual) { $arguments += '--headless' }
 $arguments += @('--', "--aim-output=$outputDirectory")
 if ($Impaired) { $arguments += '--aim-impaired' }
 if ($Oval) { $arguments += '--aim-oval' }
+if ($Accuracy) { $arguments += '--aim-accuracy' }
+if ($Sticky) { $arguments += '--aim-sticky' }
+if ($Freedom) { $arguments += '--aim-freedom' }
+if ($Recovery) { $arguments += '--aim-recovery' }
+if ($Road) { $arguments += '--aim-road'; if (-not $Oval) { $arguments += '--aim-oval' } }
 $output = & $GodotPath @arguments 2>&1
 $exitCode = $LASTEXITCODE
 $output | Set-Content -LiteralPath (Join-Path $outputDirectory 'aim.log')

@@ -7,13 +7,13 @@ public sealed class LobbyRestoreState
     /// <param name="state">Published lobby boundary.</param>
     /// <param name="tick">Host session clock.</param>
     /// <param name="nextId">Highest issued identity, including departed players.</param>
-    /// <param name="subjects">Authenticated subject for every retained player.</param>
+    /// <param name="subjects">Authenticated subject for each retained human; practice cars have no subject.</param>
     /// <param name="configuration">Current authoritative session tuning, including lobby edits and arena continuation.</param>
     public LobbyRestoreState(LobbySnapshot state, ulong tick, ulong nextId, IReadOnlyDictionary<ulong, string> subjects, Development.GameplayConfigurationState? configuration = null)
     {
         if (nextId < state.Players.Select(player => player.Id).Concat(state.Departed.Select(player => player.Id)).Max() || nextId == ulong.MaxValue ||
-            subjects.Count != state.Players.Count || subjects.Values.Distinct(StringComparer.Ordinal).Count() != subjects.Count ||
-            state.Players.Any(player => !subjects.TryGetValue(player.Id, out string? subject) || string.IsNullOrWhiteSpace(subject) || subject.Length > 256))
+            subjects.Count != state.Players.Count(player => !player.PracticeCar) || subjects.Values.Distinct(StringComparer.Ordinal).Count() != subjects.Count ||
+            state.Players.Where(player => !player.PracticeCar).Any(player => !subjects.TryGetValue(player.Id, out string? subject) || string.IsNullOrWhiteSpace(subject) || subject.Length > 256))
         {
             throw new ArgumentException("Invalid lobby continuation state.");
         }

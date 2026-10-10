@@ -156,6 +156,8 @@ public sealed partial class CarRackChecks : Node
                     Check(_arenas[1].Driver.LocalItem?.SecondItem == HeldItem.Wrench, "Shield use preserves the other physical slot");
                     continue;
                 }
+                if (item.Identity == HeldItem.MachineGun)
+                { await Until(() => host.Items.Aims.Any(aim => aim.Vehicle == Shooter && aim.Ready), "Machine Gun shared aim is ready after deployment"); }
                 Check(_arenas[1].Driver.RequestItemUse(), "Use request accepted for " + item.DisplayName);
                 await Frames(item.Sustained ? 45 : 12, item.Sustained ? InputButtons.UseItem : 0);
                 await Frames(1, 0, InputButtons.UseItem);
@@ -289,6 +291,8 @@ public sealed partial class CarRackChecks : Node
             await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
             for (int peer = 0; peer < _arenas.Count; peer++)
             {
+                if (peer == 1 && _arenas[peer].Driver.LocalState is { } local)
+                { _arenas[peer].Driver.DesiredAim = N.Vector3.Transform(-N.Vector3.UnitZ, local.ObservedPhysics.Orientation); }
                 _arenas[peer].Advance(peer == 1 ? new InputFrame(0, steer, throttle, brake, held, 0, released) : default);
                 if (_arenas[peer].Driver.Failure.Length > 0) { throw new InvalidOperationException(_arenas[peer].Driver.Failure); }
             }

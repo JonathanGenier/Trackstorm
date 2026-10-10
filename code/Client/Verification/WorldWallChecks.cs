@@ -101,7 +101,7 @@ public sealed partial class WorldWallChecks : Node
                 Check(N.Vector3.Transform(N.Vector3.UnitY, wall.Orientation).Y > 0.55f, "Wall remains standing throughout native motion and impacts");
                 Check(Math.Abs(wall.AngularVelocity.X) < 0.001f && Math.Abs(wall.AngularVelocity.Z) < 0.001f, "No pitch/roll velocity");
             }
-            if (_stage == 6) { AimAtWall(); }
+            if (_stage is 11 or 6) { AimAtWall(); }
             if (_stage is 12 or 13 && elapsed == 15)
             {
                 var target = host.Items.Shields.Single();
@@ -251,7 +251,7 @@ public sealed partial class WorldWallChecks : Node
                     VerifyBoundaries();
                     Check(host.Items.Grant(host.World, 1, HeldItem.MachineGun), "Grant shooter weapon");
                     Next(11); break;
-                case 11 when elapsed > 30:
+                case 11 when elapsed > 180:
                     Next(6); break;
                 case 6 when elapsed >= 75:
                     Check(host.Items.Shields.All(s => s.Id != _seeds[0].Id), "Sustained ordinary fire destroys only targeted wall");
@@ -417,7 +417,12 @@ public sealed partial class WorldWallChecks : Node
     private void AimAtWall()
     {
         var wall = _arenas[0].Driver.Host!.Items.Shields.FirstOrDefault(s => s.Id == _seeds[0].Id);
-        if (wall is not null) { Position(1, wall.Position + new N.Vector3(0, 0, 9), N.Vector3.Zero); }
+        if (wall is not null)
+        {
+            var position = wall.Position + new N.Vector3(0, 0, 9);
+            Position(1, position, N.Vector3.Zero);
+            _arenas[0].Driver.DesiredAim = N.Vector3.Normalize(wall.Position + N.Vector3.UnitY - (position + WeaponAim.Pivot));
+        }
     }
     private void VerifyBoundaries()
     {

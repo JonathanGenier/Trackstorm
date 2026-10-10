@@ -1,0 +1,8 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Trackstorm.Core.Tests -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\bin\Debug\net10.0\Trackstorm.Core.Tests.dll
+Test run for C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\bin\Debug\net10.0\Trackstorm.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:     5, Skipped:     0, Total:     5, Duration: 232 ms - Trackstorm.Core.Tests.dll (net10.0)

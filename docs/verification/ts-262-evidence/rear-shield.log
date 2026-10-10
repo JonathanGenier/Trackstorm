@@ -1,0 +1,11 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Scenario 0: shield 900 -> 810, protected vehicle 1000 -> 1000; other shield 900 HP.
+Scenario 1: shield 900 -> 810, protected vehicle 1000 -> 1000; other shield 900 HP.
+Scenario 2: shield 900 -> 810, protected vehicle 1000 -> 1000; other shield 900 HP.
+Scenario 3: shield 900 -> 900, protected vehicle 1000 -> 912.3755; other shield 900 HP.
+Scenario 4: shield 900 -> 900, protected vehicle 912.3755 -> 822.3755; other shield 900 HP.
+Scenario 5: shield 900 -> 900, protected vehicle 822.3755 -> 732.3755; other shield 900 HP.
+Scenario 6: shield 10 -> 0, protected vehicle 732.3755 -> 653.6255; other shield 900 HP.
+Scenario 7: shield 900 -> 822.76117, protected vehicle 653.6255 -> 653.6255; other shield 900 HP.
+Rear shield integration passed: selection/stow cycles without use, persistent damaged identity, native rays, moving fire, edge/front/side, destruction, collision and UDP replication.

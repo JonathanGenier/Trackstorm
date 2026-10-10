@@ -244,6 +244,7 @@ public sealed partial class SimulationBootstrap : Node
         var session = new DevelopmentSession
         {
             Name = "DevelopmentSession",
+            AutomaticPracticeCar = true,
             NavigationInput = _playerInput.Adapter,
             CameraSettings = _settings,
             OverlayOpen = () => panel.CurrentPage != MenuPage.Closed || devTools.IsOpen,
