@@ -2,7 +2,7 @@ using Godot;
 
 namespace Trackstorm.Client.Items;
 
-/// <summary>Reconstructable powered flight, bounded world-space particles, removed with its projectile.</summary>
+/// <summary>Reconstructable powered flight; stopped smoke can finish under the arena presentation owner.</summary>
 internal sealed partial class MissileFlightVisual : Node3D
 {
     internal const string ConfettiShaderPath = "res://assets/items/missile/BurningConfetti.gdshader";
@@ -52,6 +52,21 @@ internal sealed partial class MissileFlightVisual : Node3D
         { Quaternion = Quaternion.Slerp(new Quaternion(Vector3.Forward, _velocity.Normalized()), 1 - MathF.Exp(-30 * seconds)); }
     }
 
+    internal MissileSmokeResidue? RetireSmoke()
+    {
+        var smoke = _emitters.Where(e => e.Name == "CrimsonSmoke" || e.Name == "SmokeResidue").ToArray();
+        if (smoke.Length == 0) { return null; }
+        var residue = new MissileSmokeResidue { Lifetime = (float)smoke.Max(e => e.Lifetime) + .1f };
+        GetParent().AddChild(residue);
+        foreach (var emitter in smoke)
+        {
+            emitter.Emitting = false;
+            emitter.Reparent(residue, true);
+            _emitters.Remove(emitter);
+        }
+        return residue;
+    }
+
     private void Configure()
     {
         foreach (var emitter in _emitters) { emitter.Emitting = false; emitter.QueueFree(); }
@@ -65,8 +80,12 @@ internal sealed partial class MissileFlightVisual : Node3D
         }
         AddEmitter("OrangeExhaust", null, 20, .12f, tuning.FlameWidth * .45f, .005f,
             new(1, .4f, .035f, 1), new(1, .13f, .005f, 0), tuning.FlameLength / .12f, 7, true, false);
-        AddEmitter("CrimsonSmoke", "smoke_01", (int)(48 * tuning.Density), tuning.SmokeLifetime, .12f, tuning.SmokeSize,
-            new(.22f, .009f, .022f, tuning.SmokeOpacity), new(.09f, .004f, .012f, 0), 1.5f, 20, false, false);
+        // A continuous local exhaust plume avoids gaps when a 120 m/s missile travels metres per render frame.
+        // Separate world-space wisps carry the lingering history; neither layer follows gameplay collisions.
+        AddEmitter("CrimsonSmoke", "smoke_01", (int)(48 * tuning.Density), .45f, .4f, tuning.SmokeSize,
+            new(.85f, .8f, .82f, tuning.SmokeOpacity), new(.65f, .61f, .64f, 0), tuning.SmokeTrailLength / .45f, 7, false, false);
+        AddEmitter("SmokeResidue", "smoke_01", (int)(96 * tuning.Density), tuning.SmokeLifetime, tuning.SmokeSize * .8f, tuning.SmokeSize * 3,
+            new(.8f, .74f, .78f, tuning.SmokeOpacity * .6f), new(.65f, .61f, .64f, 0), .4f, 40, false, false);
         AddEmitter("BurningRedConfetti", null, (int)(56 * tuning.Density), tuning.ConfettiLifetime, tuning.ConfettiSize, tuning.ConfettiSize * .7f,
             new(.8f, .018f, .025f, 1), new(.15f, .006f, .003f, 0), 8, 32, false, true);
         AddEmitter("RedEmbers", null, (int)(24 * tuning.Density), tuning.EmberLifetime, .045f, .008f,
@@ -112,10 +131,12 @@ internal sealed partial class MissileFlightVisual : Node3D
         };
         var emitter = new GpuParticles3D
         {
-            Name = name, Amount = Math.Clamp(amount, 1, 144), Lifetime = lifetime,
-            Position = new(0, 0, .73f), LocalCoords = name == "OrangeExhaust",
+            Name = name, Amount = Math.Clamp(amount, 1, 192), Lifetime = lifetime,
+            Position = new(0, 0, .73f), LocalCoords = name is "OrangeExhaust" or "CrimsonSmoke",
             CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
-            VisibilityAabb = new Aabb(new(-180, -60, -180), new(360, 120, 360)),
+            VisibilityAabb = name == "SmokeResidue"
+                ? new Aabb(new(-2000, -2000, -2000), new(4000, 4000, 4000))
+                : new Aabb(new(-180, -60, -180), new(360, 120, 360)),
             ProcessMaterial = process,
             DrawPass1 = new QuadMesh { Size = paper ? new(.7f, 1) : Vector2.One, Material = paper ? new ShaderMaterial { Shader = Networking.MatchResourceLoader.LoadResource<Shader>(ConfettiShaderPath) } : material },
             Emitting = true, FixedFps = 60,
