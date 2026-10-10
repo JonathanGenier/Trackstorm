@@ -100,6 +100,10 @@ public sealed record ItemConfiguration
     public float MissileLifetimeSeconds { get; init; } = 60;
     /// <summary>Absolute world-coordinate safety bound; leaving it retires a missile without an impact.</summary>
     public float MissileWorldLimit { get; init; } = 4096;
+    /// <summary>Seconds for trunk, rack, mount, extension and fins; captured when selected.</summary>
+    public float MissileDeploySeconds { get; init; } = 1.6f;
+    /// <summary>Seconds for empty mount, rack and trunk return; captured when fired or deselected.</summary>
+    public float MissileStowSeconds { get; init; } = .9f;
     /// <summary>Terrain-only guidance; authoritative gameplay tuning.</summary>
     public MissileTerrainConfiguration MissileTerrain { get; init; } = new();
     /// <summary>Explosion radius in metres.</summary>
@@ -122,6 +126,9 @@ public sealed record ItemConfiguration
         { throw new ArgumentException("Invalid Shield wall tuning."); }
         ArgumentNullException.ThrowIfNull(Aim);
         Aim.Validate();
+        if (!float.IsFinite(MissileDeploySeconds) || MissileDeploySeconds is < 1 or > 4 ||
+            !float.IsFinite(MissileStowSeconds) || MissileStowSeconds is < .5f or > 3)
+        { throw new ArgumentException("Invalid Missile deployment timing."); }
         ArgumentNullException.ThrowIfNull(MissileTerrain);
         MissileTerrain.Validate();
         if (!float.IsFinite(MissileLifetimeSeconds) || MissileLifetimeSeconds is < 0.05f or > 60 ||

@@ -3,7 +3,7 @@ using Trackstorm.Core.Items;
 
 namespace Trackstorm.Client.Items;
 
-/// <summary>Existing item art or explicitly approved labelled boxes; no new weapon art.</summary>
+/// <summary>Production item art or explicitly approved labelled boxes.</summary>
 internal static class RackItemVisual
 {
     internal static Node3D Create(HeldItem item)
@@ -14,18 +14,9 @@ internal static class RackItemVisual
         {
             return new ShieldRack();
         }
+        if (item == HeldItem.Missile) { return new MissileVisual(); }
         var root = new Node3D { Name = "RackItem_" + item };
         var definition = ItemRegistry.Find(item) ?? throw new ArgumentOutOfRangeException(nameof(item));
-        if (item == HeldItem.Missile)
-        {
-            Mesh mesh = Networking.MatchResourceLoader.LoadResource<Mesh>("res://assets/items/kenney/weapons/ammo_rocket.obj");
-            Aabb bounds = mesh.GetAabb();
-            float scale = 0.65f / Math.Max(bounds.Size.X, Math.Max(bounds.Size.Y, bounds.Size.Z));
-            root.AddChild(new MeshInstance3D { Mesh = mesh, Scale = Vector3.One * scale,
-                Position = new Vector3(-bounds.GetCenter().X, -bounds.Position.Y, -bounds.GetCenter().Z) * scale,
-                MaterialOverride = Networking.MatchResourceLoader.LoadResource<StandardMaterial3D>("res://assets/items/materials/Projectile.tres") });
-        }
-        else
         {
             Color color = item switch
             {

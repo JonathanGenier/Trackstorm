@@ -544,6 +544,9 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         return inventory;
     }
 
+    /// <summary>Local Missile readiness rejects early input without queuing it.</summary>
+    internal Func<ItemSlot, bool>? MissileReady { get; set; }
+
     /// <summary>Submits the local slot capability reliably; never creates a predicted item effect.</summary>
     /// <returns>Whether queued locally or sent to the host.</returns>
     /// <param name="inputSequence">Originating captured frame when called from the remote input loop.</param>
@@ -558,6 +561,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
             return false;
         }
 
+        if (slot.Item == HeldItem.Missile && MissileReady?.Invoke(inventory!) == false) { return false; }
         if (slot.Item == HeldItem.Shield && ShieldReady?.Invoke(inventory!) == false)
         {
             _pendingShieldUse = (slot.Life, slot.Token, inventory!.SelectionRevision);
@@ -735,6 +739,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         ItemState = null;
         _pendingShieldUse = null;
         ShieldReady = null;
+        MissileReady = null;
         ResetAiming();
         PropSnapshot = null;
         _inputs = null;

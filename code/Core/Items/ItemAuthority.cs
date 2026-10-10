@@ -142,6 +142,8 @@ public sealed partial class ItemAuthority
         {
             _slots[vehicle] = _slots[vehicle] with { NitroDeploymentTicks = ItemSlot.NitroDeploymentDurationTicks };
         }
+        if (_slots[vehicle].Active is { Item: HeldItem.Missile, Token: var missileToken } && missileToken == token)
+        { _slots[vehicle] = SelectMissile(_slots[vehicle], world.State.Tick); }
         SynchronizeShieldSelection(_slots[vehicle]);
         Revision++;
         ReliableRevision++;
@@ -165,6 +167,7 @@ public sealed partial class ItemAuthority
         VehicleSnapshot? state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == vehicle);
         return state is not null && state.CanInteract && state.LifeId == life &&
             _slots.TryGetValue(vehicle, out var slot) && slot.Life == life && slot.Active.Token == token && ItemRegistry.Find(slot.Active.Item)?.CanUse == true &&
+            (slot.Active.Item != HeldItem.Missile || (slot.MissileReadyTick > 0 && world.State.Tick >= slot.MissileReadyTick)) &&
             _pending.TryAdd(vehicle, (token, checked(world.State.Tick + 15), inputSequence));
     }
 
@@ -182,6 +185,8 @@ public sealed partial class ItemAuthority
         _slots[vehicle] = inventory.ActiveSlot == 0
             ? inventory with { Item = HeldItem.None, NitroCharge = 0, Ammo = null, SalvoShots = 0, SalvoReadyTick = 0, EngagedToken = inventory.EngagedToken == token ? 0 : inventory.EngagedToken, NitroDeploymentTicks = 0 }
             : inventory with { SecondItem = HeldItem.None, SecondNitroCharge = 0, SecondAmmo = null, SecondSalvoShots = 0, SecondSalvoReadyTick = 0, EngagedToken = inventory.EngagedToken == token ? 0 : inventory.EngagedToken, NitroDeploymentTicks = 0 };
+        if (selected.Item == HeldItem.Missile)
+        { _slots[vehicle] = StowMissile(_slots[vehicle], world.State.Tick); }
         // Retain the retired grant token and match high-water mark, as on consumption.
         // A pending use of the other physical slot keeps its original capability.
         if (_pending.TryGetValue(vehicle, out var pending) && pending.Token == token) { _pending.Remove(vehicle); }
@@ -205,6 +210,10 @@ public sealed partial class ItemAuthority
         ResetAim(vehicle);
         if (_slots[vehicle].ActiveSlot != inventory.ActiveSlot)
         {
+            if (inventory.Active.Item == HeldItem.Missile)
+            { _slots[vehicle] = StowMissile(_slots[vehicle], world.State.Tick); }
+            if (_slots[vehicle].Active.Item == HeldItem.Missile)
+            { _slots[vehicle] = SelectMissile(_slots[vehicle], world.State.Tick); }
             _slots[vehicle] = _slots[vehicle] with { NitroDeploymentTicks = _slots[vehicle].Active.Item == HeldItem.Nitro ? ItemSlot.NitroDeploymentDurationTicks : 0 };
         }
         SynchronizeShieldSelection(_slots[vehicle]);
@@ -316,6 +325,7 @@ public sealed partial class ItemAuthority
                 continue;
             }
 
+            if (slot.Item == HeldItem.Missile) { inventory = StowMissile(inventory, input.Tick); }
             if (slot.Item != HeldItem.Salvo) { events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, request.Observation.Physics.Position, false)); }
             if (slot.Item == HeldItem.Salvo)
             {
@@ -563,7 +573,9 @@ public sealed partial class ItemAuthority
             else if (state.LifeId != pair.Value.Life)
             {
                 slots[pair.Key] = pair.Value with { Life = state.LifeId, Token = pair.Value.Token == 0 ? 0 : NextToken(), SecondToken = pair.Value.SecondToken == 0 ? 0 : NextToken(), SelectionRevision = 0, EngagedToken = 0,
-                    NitroDeploymentTicks = pair.Value.Active.Item == HeldItem.Nitro ? ItemSlot.NitroDeploymentDurationTicks : 0 };
+                    NitroDeploymentTicks = pair.Value.Active.Item == HeldItem.Nitro ? ItemSlot.NitroDeploymentDurationTicks : 0,
+                    MissileDeployStartTick = 0, MissileReadyTick = 0, MissileStowStartTick = 0, MissileStowEndTick = 0 };
+                if (slots[pair.Key].Active.Item == HeldItem.Missile) { slots[pair.Key] = SelectMissile(slots[pair.Key], input.Tick); }
             }
         }
 

@@ -216,8 +216,8 @@ The two kicker-to-tabletop fills continue from the unchanged 4.8 m lips to the u
 
 ## Integrated production validation
 
-`check-hosted-practice.ps1` checks the automatic car through ordinary hosted lobby,
-loading and gameplay with impaired local UDP, two oval laps, remote snapshots,
+`check-hosted-practice.ps1` checks the automatic practice pair through ordinary hosted lobby,
+loading and gameplay with impaired local UDP, two oval laps with measured following separation/speed, remote snapshots,
 out-of-bounds death/respawn, late join and repeat matches. `-OldMap` checks the smaller
 route and the same session transitions, omitting the oval-specific boundary probe.
 

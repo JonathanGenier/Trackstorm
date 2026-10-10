@@ -1,0 +1,15 @@
+# Production Missile and launcher
+
+Original Blender-authored Trackstorm hardware following the three inspected TS-240 Jira concepts, retained unmodified in `reference/`. The reference pixels are design input only; the runtime meshes use original geometry and materials. No new third-party asset was acquired. The existing CC0 Kenney smoke sprite supplies the smoke layer; exhaust combines three continuous crossed shader surfaces with radial particles, embers use a radial gradient, and burning paper uses the original shader.
+
+`source/Missile.blend` is the editable master. It links the unchanged production `TrackstormCar.blend` for fit. Frames 1/36/54/80/100 show compact, rack-raised, mount-raised, extended-body and open-fin poses. `BuildMissile.py` reproducibly rebuilds the initial master and both GLBs; running it overwrites later manual edits, so preserve those before rebuilding. Blender 5.2.2 was used. Exports intentionally omit animation: the accepted runtime timeline owns rigid articulation.
+
+Blender +Y is forward and +Z up; Godot forward is -Z and up is +Y. The launcher root is local to `WeaponRack`. TurretYaw, MountLift and CradlePitch own yaw, 0.27 m lift and pitch. ForwardBody travels -0.36 m and TailExtension +0.24 m along Godot Z. Four equally spaced FinHinge nodes fold through 90 degrees. The rack itself never yaws.
+
+At the production stowed rack origin `(0, -0.08, 1.845)`, the complete compact assembly occupies Godot X -0.306..0.285 m, Y -0.180..0.355 m and Z 1.271..2.326 m. Its top remains 15 mm below the 0.370 m deck underside. Runtime deployment raises the closed assembly before extending it. Source/export/reference SHA-256 hashes and the unchanged Car source hash are recorded in [sources.json](sources.json).
+
+The circus identity uses an ivory toothy clown face, red nose, jester horns and bells, red/gold pressure-vessel bands, four star-marked fins, exposed guides, chipped paint, geared yaw bearing and piston-supported cradle. The separate projectile model uses the same authored Missile hierarchy as the rack payload.
+
+The approved TS-240 polish retains the same dimensions and transform distances. `ForwardSleeve` moves with the front body, `RearSleeve` with the engine, and `MiddleSleeve` stays at the projectile root. Their nested closed cylinders maintain at least 50 mm axial overlap through the complete 0..1 extension. The center uses a crimson shell and gold seal collars, retaining the guide-rod motif without an empty body gap. Runtime verification measures the imported geometry at 101 poses and captures side/angled compact, intermediate and extended views.
+
+Orange flight exhaust now has a tapered gold/yellow core and animated orange/red edges (`MissileFlame.gdshader`). Default red paper is 56 particles at 85 mm nominal size, retaining its 0.38-second lifetime; delayed edge burn keeps a recognizable fragment briefly before it chars away. Default total GPU particle capacity is 148 per missile plus three flame quads. Density zero retains the complete exhaust while disabling smoke/paper/embers. All surfaces and emitters belong to the projectile and are freed with it.

@@ -70,7 +70,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
 
     /// <summary>Host-local tuning supplied by composition; never consulted for a joining client.</summary>
     internal Development.DeveloperSettingsStore? DeveloperSettings { get; set; }
-    /// <summary>Application hosting reserves one moving practice car; isolated session fixtures opt in explicitly.</summary>
+    /// <summary>Application hosting reserves two moving practice cars; isolated session fixtures opt in explicitly.</summary>
     internal bool AutomaticPracticeCar { get; init; }
     /// <summary>Local camera settings retained across arena reconstruction.</summary>
     internal Settings.PlayerSettingsController? CameraSettings { get; set; }

@@ -8,7 +8,7 @@ public static class LobbyCodec
 {
     /// <summary>Maximum complete packet size.</summary>
     public const int MaximumBytes = 30000;
-    private const byte Version = 9;
+    private const byte Version = 10;
 
     /// <summary>Identifies lobby packets before the vehicle decoder is consulted.</summary>
     /// <param name="data">Complete transport payload.</param>

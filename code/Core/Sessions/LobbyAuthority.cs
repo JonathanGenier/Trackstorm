@@ -44,12 +44,17 @@ public sealed class LobbyAuthority
     /// <summary>Fresh admission counts every roster slot, including pending and retained participants.</summary>
     public bool CanJoin => AdmissionOpen && State.Players.Count < 8 && State.Players.Count + State.Departed.Count < Matches.MatchState.MaximumPlayers;
 
-    /// <summary>Reserves one host-driven practice car during initial lobby composition; never grants a network identity.</summary>
+    /// <summary>Reserves a pair of host-driven practice cars; never grants network identities.</summary>
     public void AddPracticeCar()
     {
-        if (State.Players.Any(player => player.PracticeCar)) { return; }
-        if (State.Phase != SessionPhase.Lobby || !CanJoin) { throw new InvalidOperationException("Practice car requires a free lobby slot."); }
-        Publish(State.Players.Append(new SessionPlayer(checked(++_nextId), "Practice Car", true, PracticeCar: true)));
+        int count = State.Players.Count(player => player.PracticeCar);
+        if (count == 2) { return; }
+        if (State.Phase != SessionPhase.Lobby || State.Players.Count + 2 - count > 8 || !CanJoin)
+        { throw new InvalidOperationException("Practice pair requires two free lobby slots."); }
+        var players = State.Players.ToList();
+        for (int index = count; index < 2; index++)
+        { players.Add(new SessionPlayer(checked(++_nextId), index == 0 ? "Practice Car" : "Practice Car 2", true, PracticeCar: true)); }
+        Publish(players);
     }
 
     /// <summary>Session tuning; the successor restores this instead of loading its host-local preferences.</summary>

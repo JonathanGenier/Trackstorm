@@ -213,11 +213,13 @@ internal sealed class DeveloperConfigurationTests
         Assert.That(host.GiveItem(42, HeldItem.Wrench), Is.False);
         Assert.That(host.GiveItem(0, HeldItem.Wrench), Is.True);
         Assert.That(host.GiveItem(0, HeldItem.Missile), Is.True);
+        MissileTestPreparation.Wait(host);
         Use(host);
         host.Step(default, Observe);
         Assert.That(host.World.GetVehicle(1).Damage.CurrentHP, Is.EqualTo(57));
         Edit(host, ("items.missile_speed", 90), ("items.missile_lifetime_ticks", 8), ("items.explosion_radius", 4), ("items.maximum_damage", 80), ("items.maximum_impulse", 2000));
         Assert.That(host.GiveItem(0, HeldItem.Missile), Is.True);
+        MissileTestPreparation.Wait(host);
         Use(host);
         host.Step(default, Observe);
         Assert.That(host.Items.Missiles.Single().Velocity.Length(), Is.EqualTo(90).Within(0.001));
@@ -272,6 +274,7 @@ internal sealed class DeveloperConfigurationTests
         Assert.That(host.World.State.Match!.Phase, Is.EqualTo(MatchPhase.Active));
         Assert.That(host.Configuration.Configuration.Match.MinimumPlayers, Is.EqualTo(3));
         host.GiveItem(0, HeldItem.Missile);
+        MissileTestPreparation.Wait(host);
         Hit(host, 1, 100);
         ulong death = host.World.State.Tick;
         Assert.That(host.World.GetVehicle(1).RespawnAtTick, Is.EqualTo(death + 3));

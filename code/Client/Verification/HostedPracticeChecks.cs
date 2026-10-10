@@ -40,17 +40,19 @@ public sealed partial class HostedPracticeChecks : Node
             reservation.Close();
             var host = AddPeer(true);
             var remote = AddPeer(false);
-            await Until(() => _sessions.All(session => session.Lobby?.State?.Players.Count == 3), "host, practice car and observer roster");
+            await Until(() => _sessions.All(session => session.Lobby?.State?.Players.Count == 4), "host, practice pair and observer roster");
             if (OS.GetCmdlineUserArgs().Contains("--old-map")) { host.Lobby!.Authority!.SelectMap(0, MatchMap.OldMap); }
             remote.Lobby!.Request(LobbyCommand.Ready, true);
             await Until(() => host.Lobby!.State!.CanStart, "ready");
             Require(host.StartFromLobby(), "ordinary host Start accepted");
             await Until(() => _sessions.All(session => session.Arena?.Driver.Match?.Phase == MatchPhase.Active), "active gameplay");
-            ulong car = host.Lobby!.State!.Players.Single(player => player.PracticeCar).Id;
+            ulong[] cars = host.Lobby!.State!.Players.Where(player => player.PracticeCar).Select(player => player.Id).Order().ToArray();
+            ulong car = cars[0], follower = cars[1];
             await Frames(600);
             var authority = host.Arena!.Driver.Host!;
             var previous = authority.World.GetVehicle(car).Movement.Physics.Position;
             float travel = 0, min = float.MaxValue, max = 0;
+            float minGap = float.MaxValue, maxGap = 0, followerMin = float.MaxValue, followerMax = 0;
             int frames = OS.GetCmdlineUserArgs().Contains("--old-map") ? 2400 : 9000;
             for (int frame = 0; frame < frames; frame++)
             {
@@ -59,9 +61,17 @@ public sealed partial class HostedPracticeChecks : Node
                 travel += System.Numerics.Vector3.Distance(previous, state.Movement.Physics.Position);
                 previous = state.Movement.Physics.Position;
                 min = Math.Min(min, state.Speed); max = Math.Max(max, state.Speed);
+                var following = authority.World.GetVehicle(follower);
+                float gap = System.Numerics.Vector3.Distance(state.Movement.Physics.Position, following.Movement.Physics.Position);
+                minGap = Math.Min(minGap, gap); maxGap = Math.Max(maxGap, gap);
+                followerMin = Math.Min(followerMin, following.Speed); followerMax = Math.Max(followerMax, following.Speed);
             }
             GD.Print($"HOSTED_PRACTICE frames={frames} travel={travel:F2}m speed={min:F2}..{max:F2}m/s HP={authority.World.GetVehicle(car).Damage.CurrentHP:F2}");
             Require(travel > frames / 60f * 12 && min > 11 && max < 17, "steady native driving");
+            GD.Print($"PRACTICE_PAIR gap={minGap:F2}..{maxGap:F2}m followerSpeed={followerMin:F2}..{followerMax:F2}m/s HP={authority.World.GetVehicle(follower).Damage.CurrentHP:F2}");
+            Require(minGap > 6 && maxGap < 15 && followerMin > 10 && followerMax < 18,
+                "second car follows closely at matching speed without overtaking or touching");
+            Require(remote.Arena!.Bodies.ContainsKey(follower), "remote receives second target");
             Require(remote.Arena!.Bodies.ContainsKey(car) && remote.Arena.Driver.Latest!.Vehicles.Single(vehicle => vehicle.State.VehicleId == car).State.Speed > 11, "remote receives moving car");
             if (!OS.GetCmdlineUserArgs().Contains("--old-map"))
             {
@@ -77,7 +87,7 @@ public sealed partial class HostedPracticeChecks : Node
             }
             var late = AddPeer(false);
             await Until(() => late.Arena?.Driver.EntryReady == true && late.Arena.Bodies.ContainsKey(car), "late join receives existing practice car");
-            Require(host.Lobby.State.Players.Count(player => player.PracticeCar) == 1 && authority.World.State.Vehicles.Count == 4, "late join never duplicates car");
+            Require(host.Lobby.State.Players.Count(player => player.PracticeCar) == 2 && authority.World.State.Vehicles.Count == 5, "late join never duplicates pair");
             host.Lobby.Request(LobbyCommand.Return);
             await Until(() => _sessions.All(session => session.Lobby?.State?.Phase == SessionPhase.Lobby && session.Arena is null), "return");
             foreach (var session in _sessions.Skip(1)) { session.Lobby!.Request(LobbyCommand.Ready, true); }

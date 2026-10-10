@@ -12,7 +12,7 @@ namespace Trackstorm.Client.Verification;
 public sealed partial class MigrationIntegrationChecks : Node
 {
     private bool PracticeCar => OS.GetCmdlineUserArgs().Contains("--practice-car" );
-    private int VehicleCount => _players + (PracticeCar ? 1 : 0);
+    private int VehicleCount => _players + (PracticeCar ? 2 : 0);
     private IReadOnlyList<ShieldState> _shields = [];
     private readonly Dictionary<ulong, Core.Items.ItemPublication> _salvoBoundaries = new();
     private OilPatch? _oil;
@@ -181,7 +181,7 @@ public sealed partial class MigrationIntegrationChecks : Node
 
     private void Scenario()
     {
-        if (_stage == 0 && _drivers[1]!.State?.Players.Count == 2 + (PracticeCar ? 1 : 0))
+        if (_stage == 0 && _drivers[1]!.State?.Players.Count == 2 + (PracticeCar ? 2 : 0))
         {
             if (_players == 3)
             {

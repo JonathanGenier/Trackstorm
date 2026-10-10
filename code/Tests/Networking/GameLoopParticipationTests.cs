@@ -18,6 +18,7 @@ internal sealed class GameLoopParticipationTests
     {
         var host = Create();
         host.GiveItem(0, HeldItem.Missile);
+
         var slot = host.Items.Slots.Single();
         Assert.That(host.UseItem(0, 99, slot.Life, slot.Token), Is.False);
         Assert.That(host.SwitchItem(0, 99, slot.Life, 1), Is.False);
@@ -51,6 +52,7 @@ internal sealed class GameLoopParticipationTests
         }
 
         host.GiveItem(0, HeldItem.Missile);
+        MissileTestPreparation.Wait(host);
         var slot = host.Items.Slots.Single();
         Assert.That(host.UseItem(0, 99, slot.Life, slot.Token), Is.True);
         Assert.That(host.Receive(10, 99, [new(1, Drive()), new(2, Drive())]), Is.True);

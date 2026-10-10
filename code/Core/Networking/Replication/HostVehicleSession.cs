@@ -393,7 +393,7 @@ public sealed class HostVehicleSession
     public void DrivePracticeCar(ulong playerId, bool oval)
     {
         if (_practice.ContainsKey(playerId)) { return; }
-        if (_practice.Count != 0) { throw new InvalidOperationException("Only one practice car is supported."); }
+        if (_practice.Count == 2) { throw new InvalidOperationException("Only two practice cars are supported."); }
         if (!World.State.Vehicles.Any(vehicle => vehicle.VehicleId == playerId)) { ReservePlayer(playerId); }
         if (!_disconnected.ContainsKey(playerId)) { throw new ArgumentException("Practice car cannot own a transport peer."); }
         _practice.Add(playerId, new PracticeVehicleInput(oval));
@@ -503,7 +503,8 @@ public sealed class HostVehicleSession
         foreach (ulong player in _disconnected.Keys)
         {
             inputs.Add(player, AllowsParticipation && _practice.TryGetValue(player, out var driver)
-                ? driver.Capture(World.GetVehicle(player), Configuration.Configuration.Vehicle, tick)
+                ? driver.Capture(World.GetVehicle(player), Configuration.Configuration.Vehicle, tick,
+                    player == _practice.Keys.Min() ? null : World.GetVehicle(_practice.Keys.Min()))
                 : new InputFrame(tick, 0, 0, 0, 0, 0, 0));
         }
 

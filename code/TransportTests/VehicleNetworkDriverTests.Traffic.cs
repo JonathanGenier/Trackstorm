@@ -37,17 +37,23 @@ internal sealed partial class VehicleNetworkDriverTests
         host.CollideMissile = (missile, _) => missile.RemainingTicks < 240 ? 0.5f : null;
         try
         {
-            for (int tick = -240; tick < 600; tick++)
+            int interval = scenario == "missile" ? 180 : 120;
+            for (int tick = -240; tick < interval * 5; tick++)
             {
-                if (tick >= 0 && tick % 120 == 0 && scenario is "missile" or "oil" or "nitro")
+                if (tick >= 0 && tick % interval == 0 && scenario is "missile" or "oil" or "nitro")
                 {
                     HeldItem item = scenario switch { "missile" => HeldItem.Missile, "oil" => HeldItem.Oil, _ => HeldItem.Nitro };
                     foreach (var vehicle in host.Host!.World.State.Vehicles)
                     {
                         host.Host.Items.Grant(host.Host.World, vehicle.VehicleId, item);
                         var slot = host.Host.Items.Slots.Single(s => s.Vehicle == vehicle.VehicleId);
-                        host.Host.Items.RequestUse(host.Host.World, vehicle.VehicleId, slot.Life, slot.Active.Token);
+                        if (item != HeldItem.Missile) { host.Host.Items.RequestUse(host.Host.World, vehicle.VehicleId, slot.Life, slot.Active.Token); }
                     }
+                }
+                if (scenario == "missile")
+                {
+                    foreach (var slot in host.Host!.Items.Slots.Where(s => s.Active.Item == HeldItem.Missile && host.Host.World.State.Tick >= s.MissileReadyTick))
+                    { host.Host.Items.RequestUse(host.Host.World, slot.Vehicle, slot.Life, slot.Active.Token); }
                 }
                 InputFrame input = Drive(held: scenario == "nitro" && tick % 120 < 90 ? InputButtons.UseItem : 0);
                 VehicleObservation Observation(VehicleSnapshot state)
@@ -90,12 +96,12 @@ internal sealed partial class VehicleNetworkDriverTests
             }
             if (scenario == "missile")
             {
-                Assert.That(counts["TI-Reliable"].Messages, Is.EqualTo(10 * (players - 1)), "Launch and impact remain reliable; motion is replaceable.");
+                Assert.That(counts["TI-Reliable"].Messages, Is.EqualTo(15 * (players - 1)), "Acquisition, launch and impact remain reliable; motion is replaceable.");
                 Assert.That(counts["TJ-Unreliable"].Peak, Is.LessThanOrEqualTo(ProjectileMotionCodec.MaximumBytes));
             }
             TestContext.WriteLine(JsonSerializer.Serialize(new
             {
-                players, scenario, simulatedSeconds = 10, hostAllocations, clientAdvanceAllocations = decodeAllocations, rejected = clients.Sum(client => client.RejectedPackets),
+                players, scenario, simulatedSeconds = interval * 5 / 60, hostAllocations, clientAdvanceAllocations = decodeAllocations, rejected = clients.Sum(client => client.RejectedPackets),
                 note = "Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.",
                 publications = counts.OrderBy(pair => pair.Key).Select(pair => new { protocol = pair.Key, bytes = pair.Value.Bytes, messages = pair.Value.Messages, peak = pair.Value.Peak })
             }));

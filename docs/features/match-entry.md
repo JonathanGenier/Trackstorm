@@ -26,7 +26,7 @@ Settings uses the existing owner and blocks underlying stage actions, then retur
 
 ## Authoritative map selection
 
-LobbyAuthority.SelectMap accepts only local host authority during Lobby. Exactly two MatchMap values exist: **Old Map** (industrial combat arena) and **New Map** (banked oval). New Map is the default. Snapshots, admission, reconnect, Return and migration retain the selection. A replica rejects a map change within an active generation. The reliable TL schema is version nine and the EOS compatibility bucket is trackstorm-lobby-18.
+LobbyAuthority.SelectMap accepts only local host authority during Lobby. Exactly two MatchMap values exist: **Old Map** (industrial combat arena) and **New Map** (banked oval). New Map is the default. Snapshots, admission, reconnect, Return and migration retain the selection. A replica rejects a map change within an active generation. The reliable TL schema is version ten and the EOS compatibility bucket is trackstorm-lobby-19.
 
 Clients render the authoritative selection and cannot edit it. Each native arena uses the selected map's eight spawn transforms before constructing vehicle authority. Old Map retains its props and pickups; New Map retains its empty item/prop layout.
 

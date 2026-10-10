@@ -227,6 +227,7 @@ internal sealed class CategoryBalanceTests
         host.Items.RemovePlayer(1);
         Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["items.maximum_damage"] = 10000 }, out _), Is.True);
         host.Items.Grant(host.World, 1, HeldItem.Missile);
+        MissileTestPreparation.Wait(host);
         var slot = host.Items.Slots.Single();
         host.UseItem(0, host.SessionId, slot.Life, slot.Token);
         host.Step(default, Observe, (_, _) => 0);

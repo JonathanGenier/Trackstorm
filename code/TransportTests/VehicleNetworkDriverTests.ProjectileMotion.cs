@@ -32,6 +32,7 @@ internal sealed partial class VehicleNetworkDriverTests
         }
         host.Advance(default, Observe); Transfer();
         Assert.That(host.GiveDeveloperItem(HeldItem.Missile), Is.True);
+        WaitForMissile(host, () => Transfer());
         Assert.That(host.RequestItemUse(), Is.True);
         for (int i = 0; i < 24; i++) { host.Advance(default, Observe); Transfer(); }
         Assert.That(probes, Is.GreaterThan(20));
@@ -65,6 +66,7 @@ internal sealed partial class VehicleNetworkDriverTests
         }
         host.Advance(default, Observe); Transfer();
         Assert.That(host.GiveDeveloperItem(HeldItem.Missile), Is.True);
+        WaitForMissile(host, () => Transfer());
         Assert.That(host.RequestItemUse(), Is.True);
         host.Advance(default, Observe); Transfer();
         var baseline = client.ItemState!;
@@ -95,7 +97,9 @@ internal sealed partial class VehicleNetworkDriverTests
         using var host = new VehicleNetworkDriver(wire, Session);
         host.Advance(default, Observe);
         host.ProjectSalvoGround = point => new Vector3(point.X, 0, point.Z);
-        host.GiveDeveloperItem(arcing ? HeldItem.Salvo : HeldItem.Missile); host.RequestItemUse();
+        host.GiveDeveloperItem(arcing ? HeldItem.Salvo : HeldItem.Missile);
+        if (!arcing) { WaitForMissile(host); }
+        Assert.That(host.RequestItemUse(), Is.True);
         host.Advance(default, Observe);
         var baseline = host.ItemState!;
         host.Advance(default, Observe);
@@ -128,6 +132,10 @@ internal sealed partial class VehicleNetworkDriverTests
         foreach (var vehicle in host.Host!.World.State.Vehicles)
         {
             host.Host.Items.Grant(host.Host.World, vehicle.VehicleId, HeldItem.Missile);
+        }
+        WaitForMissile(host);
+        foreach (var vehicle in host.Host.World.State.Vehicles)
+        {
             var slot = host.Host.Items.Slots.Single(slot => slot.Vehicle == vehicle.VehicleId);
             host.Host.Items.RequestUse(host.Host.World, vehicle.VehicleId, slot.Life, slot.Active.Token);
         }
@@ -135,6 +143,7 @@ internal sealed partial class VehicleNetworkDriverTests
         var baseline = host.ItemState!;
         host.Advance(default, Observe);
         var missiles = host.Host.Items.Missiles;
+        Assert.That(missiles, Has.Count.EqualTo(players));
         var complete = new ItemPublication(baseline.Revision + 1, host.Latest!, host.Host.Items.Slots, missiles, []);
         // Warm both exact codecs before measuring; the old full-state representation remains used for outcomes.
         ItemCodec.DecodeState(ItemCodec.EncodeState(complete, baseline), baseline);
@@ -147,5 +156,10 @@ internal sealed partial class VehicleNetworkDriverTests
         long motion = GC.GetAllocatedBytesForCurrentThread() - before;
         TestContext.WriteLine($"CODEC_ALLOCATION players={players}, fullEncodeDecodeBytesPerPair={full / 1000.0}, motionEncodeDecodeBytesPerPair={motion / 1000.0}; 1000 repetitions; excludes publication construction/native marshalling.");
         Assert.That(motion, Is.LessThan(full));
+    }
+    private static void WaitForMissile(VehicleNetworkDriver driver, Action? transfer = null)
+    {
+        ulong ready = driver.Host!.Items.Slots.Max(s => s.MissileReadyTick);
+        while (driver.Host.World.State.Tick < ready) { driver.Advance(default, Observe); transfer?.Invoke(); }
     }
 }

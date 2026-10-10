@@ -11,10 +11,11 @@ internal sealed class MissileConfigurationTests
     public void DedicatedMissileCategoryRoundTripsEveryFunctionalValue()
     {
         var keys = GameplayOptions.All.Where(o => o.Group == "Missile").Select(o => o.Key).ToArray();
-        Assert.That(keys.Length, Is.EqualTo(16));
+        Assert.That(keys.Length, Is.EqualTo(18));
         Assert.That(keys, Does.Contain("items.missile_speed").And.Contain("items.missile_lifetime_ticks").And.Contain("items.maximum_damage"));
         var changes = new Dictionary<string, double>
         {
+            ["items.missile_deploy_seconds"] = 1.9, ["items.missile_stow_seconds"] = 1.1,
             ["items.missile_speed"] = 80, ["items.missile_lifetime_ticks"] = 600,
             ["items.maximum_damage"] = 123, ["items.explosion_radius"] = 7, ["items.maximum_impulse"] = 8000,
             ["items.missile_lifetime_seconds"] = 8, ["items.missile_world_limit"] = 2048,
@@ -25,7 +26,7 @@ internal sealed class MissileConfigurationTests
             ["items.missile_drop_tolerance"] = 0.5,
         };
         Assert.That(GameplayOptions.TryApply(GameplayConfiguration.HostedDefaults, changes, out var config, out var error), Is.True, error);
-        foreach (var option in GameplayOptions.All.Where(o => o.Group == "Missile")) { Assert.That(option.Read(config), Is.EqualTo(changes[option.Key])); }
+        foreach (var option in GameplayOptions.All.Where(o => o.Group == "Missile")) { Assert.That(option.Read(config), Is.EqualTo(changes[option.Key]).Within(0.000001)); }
         var state = new GameplayConfigurationState(1, config);
         Assert.That(GameplayConfigurationCodec.Decode(GameplayConfigurationCodec.Encode(99, state)).State, Is.EqualTo(state));
         var obsolete = GameplayConfigurationCodec.Encode(99, state);

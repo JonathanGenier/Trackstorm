@@ -281,7 +281,8 @@ public sealed partial class CarRackChecks : Node
     private bool AllPresent(HeldItem item) => _arenas.All(a => a.Bodies.TryGetValue(Shooter, out var body) &&
         (item == HeldItem.Shield ? body.HasRearShield && body.Rack.PresentedItem == item && body.Rack.Progress >= .999f :
         body.Rack.PresentedItem == item && body.Rack.Progress >= 0.999f && !body.HasRearShield &&
-        (item != HeldItem.Nitro || body.Rack.Boost.Deployment >= .999f)));
+        (item != HeldItem.Nitro || body.Rack.Boost.Deployment >= .999f) &&
+        (item != HeldItem.Missile || a.Driver.ItemState?.Slots.SingleOrDefault(s => s.Vehicle == Shooter) is { } inventory && body.Rack.IsMissileReady(inventory))));
     private IEnumerable<CarLighting> Lamps() => _arenas.Select(a => a.Bodies[Shooter].Rack.GetParent<Node3D>().GetChildren().OfType<CarLighting>().Single());
     private async Task Frames(int count, InputButtons held = 0, InputButtons released = 0, ushort throttle = 0, short steer = 0, ushort brake = 0)
     {

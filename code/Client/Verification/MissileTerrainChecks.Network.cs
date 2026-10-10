@@ -65,7 +65,8 @@ public sealed partial class MissileTerrainChecks
             for (int wave = 0; wave < 12; wave++)
             {
                 Require(host.Items.Grant(host.World, 2, HeldItem.Missile), "Repeated remote missile grant");
-                for (int i = 0; i < 120 && arenas[1].Driver.LocalItem?.Active.Item != HeldItem.Missile; i++) { await Frames(1); }
+                for (int i = 0; i < 360 && !(arenas[1].Driver.LocalItem is { } held &&
+                    held.Active.Item == HeldItem.Missile && arenas[1].Bodies[2].Rack.IsMissileReady(held)); i++) { await Frames(1); }
                 Require(arenas[1].Driver.RequestItemUse(), "Remote missile request under latency");
                 await Frames(35);
             }
@@ -102,14 +103,15 @@ public sealed partial class MissileTerrainChecks
             var query = arena.Driver.QueryMissileTerrain!;
             arena.Driver.QueryMissileTerrain = (a, b) => { queries++; var value = query(a, b); if (value is not null) { suitable++; } return value; };
             arena.Driver.ItemsReceived += p => impacts += p.Events.Count(e => e.Impact && e.Item == HeldItem.Missile);
-            for (int tick = 0; tick < 400; tick++)
+            for (int tick = 0; tick < 540; tick++)
             {
                 await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
                 arena.Advance(default);
                 Require(arena.Driver.Failure.Length == 0, arena.Driver.Failure);
-                if (tick == 60) { Require(arena.Driver.GiveDeveloperItem(HeldItem.Missile), "Oval grant"); Require(arena.Driver.RequestItemUse(), "Oval launch"); }
+                if (tick == 60) { Require(arena.Driver.GiveDeveloperItem(HeldItem.Missile), "Oval grant"); }
+                if (tick == 190) { Require(arena.Driver.RequestItemUse(), "Oval ready launch"); }
                 moved |= arena.Driver.Host!.Items.Missiles.Count > 0;
-                if (tick == 90 && DisplayServer.GetName() != "headless")
+                if (tick == 220 && DisplayServer.GetName() != "headless")
                 {
                     await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                     view.GetTexture().GetImage().SavePng(System.IO.Path.Combine(_output, "production-oval.png"));

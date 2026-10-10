@@ -190,6 +190,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             networkEntries.Add((label, value, "Local network simulation " + names[i]));
         }
 
+        AddMissileVfxControls(settings);
         _resetButton = Button(Footer, "Reset to Defaults", Reset);
         DevToolsButtonPresentation.Configure(_resetButton, "reset", DevToolsButtonPresentation.Treatment.Reset);
         Footer.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
@@ -433,6 +434,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
 
     private void Reset()
     {
+        ResetMissileVfx();
         if (LocalSettings is not null) { RenderTireValues(TireEffectSettings.Defaults); UpdateFeedback(); }
         if (Session()?.CanConfigureDeveloperOptions != true)
         {

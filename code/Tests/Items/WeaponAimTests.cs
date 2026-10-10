@@ -174,6 +174,7 @@ internal sealed class WeaponAimTests
     public void ConsumedCapabilityReplacementWithoutSwitchRetractsBeforeDeploying()
     {
         var host = Create(HeldItem.Missile);
+        MissileTestPreparation.Wait(host);
         host.Step(default, Observe);
         var old = host.Items.Slots.Single();
         Assert.That(host.Items.RequestUse(host.World, 1, old.Life, old.Token), Is.True);

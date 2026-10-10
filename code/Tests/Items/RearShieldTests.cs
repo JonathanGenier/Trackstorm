@@ -157,6 +157,7 @@ internal sealed class RearShieldTests
     {
         Deploy();
         _items.Grant(_world, 2, HeldItem.Missile);
+        MissileTestPreparation.Wait(_items, _world, () => Step());
         _items.RequestUse(_world, 2, 1, _items.Slots.Single(s => s.Vehicle == 2).Token);
         int impacts = 0;
         for (int i = 0; i < 12; i++) { Step(); impacts += _items.Events.Count(e => e.Impact); }

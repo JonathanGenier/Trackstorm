@@ -82,7 +82,8 @@ internal sealed partial class VehicleNetworkDriverTests
         gateway.Receive(new(ServerPeer, ItemCodec.EncodeUse(Session, inventory.Life, inventory.SecondToken), TransportDelivery.Reliable));
         driver.Advance(default, Observe);
         Assert.That(host.Items.Slots.Single(s => s.Vehicle == 1).ActiveSlot, Is.Zero);
-        Assert.That(host.Items.Slots.Single(s => s.Vehicle == 2), Is.EqualTo(inventory with { ActiveSlot = 1, SelectionRevision = 1, SecondItem = HeldItem.None }));
+        Assert.That(host.Items.Slots.Single(s => s.Vehicle == 2), Is.EqualTo(inventory with { ActiveSlot = 1, SelectionRevision = 1, SecondItem = HeldItem.None,
+            MissileDeployStartTick = 0, MissileReadyTick = 0, MissileStowStartTick = 2, MissileStowEndTick = 56 }));
         Assert.That(host.Items.Missiles, Is.Empty);
         Assert.That(driver.RejectedPackets, Is.EqualTo(2));
     }
