@@ -111,10 +111,12 @@ public sealed partial class WeaponAimChecks : Node
             await Until(() => _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 3), "Three UDP peers initialized", 1200);
             var host = _arenas[0].Driver.Host!;
             Require(host.TryConfigure(0, new Dictionary<string, double> { ["match.minimum_players"] = 1, ["match.countdown_ticks"] = 1 }, out _), "Host tuning applied");
-            if (OS.GetCmdlineUserArgs().Contains("--aim-road") || OS.GetCmdlineUserArgs().Contains("--aim-accuracy") || OS.GetCmdlineUserArgs().Contains("--aim-sticky") || OS.GetCmdlineUserArgs().Contains("--aim-freedom") || OS.GetCmdlineUserArgs().Contains("--aim-recovery"))
+            if (OS.GetCmdlineUserArgs().Contains("--aim-death") || OS.GetCmdlineUserArgs().Contains("--aim-close") || OS.GetCmdlineUserArgs().Contains("--aim-road") || OS.GetCmdlineUserArgs().Contains("--aim-accuracy") || OS.GetCmdlineUserArgs().Contains("--aim-sticky") || OS.GetCmdlineUserArgs().Contains("--aim-freedom") || OS.GetCmdlineUserArgs().Contains("--aim-recovery"))
             {
                 if (OS.GetCmdlineUserArgs().Contains("--aim-accuracy")) { await CheckAccuracy(); }
-                if (OS.GetCmdlineUserArgs().Contains("--aim-road")) { await CheckAimRoad(); }
+                if (OS.GetCmdlineUserArgs().Contains("--aim-death")) { await CheckAimDeath(); }
+                else if (OS.GetCmdlineUserArgs().Contains("--aim-close")) { await CheckAlongsideAcquisition(); }
+                else if (OS.GetCmdlineUserArgs().Contains("--aim-road")) { await CheckAimRoad(); }
                 else if (OS.GetCmdlineUserArgs().Contains("--aim-recovery")) { await CheckAimRecovery(); }
                 else if (OS.GetCmdlineUserArgs().Contains("--aim-freedom")) { await CheckAimFreedom(); }
                 else { await CheckStickyEngagement(); }
@@ -204,6 +206,8 @@ public sealed partial class WeaponAimChecks : Node
             Camera.ResetFollow(); await Frames(20);
             await AimAtCurrent(() => _arenas[1].Bodies[1].VisualPosition + Vector3.Up * .9f);
             await Frames(35); await Capture("06b-alongside-brackets");
+            LogTargetGeometry("alongside", 1);
+            GD.Print($"ALONGSIDE target={_arenas[1].AssistedCar} {_arenas[1].AimTargetDiagnostics(1)}");
             Require(_arenas[1].AimOverlay.Bounds is { } alongsideBounds && alongsideBounds.HasPoint(ViewCenter),
                 "Directly intersected side-by-side car receives onscreen corner brackets");
             solution = host.Items.Aims.Single(aim => aim.Vehicle == Shooter);
@@ -316,24 +320,7 @@ public sealed partial class WeaponAimChecks : Node
             Position(new(0, Ground, 35), new(0, Ground + 5, 0), new(5, Ground, 0), true);
             await Frames(25);
             Require(!host.Items.Aims.Any(aim => aim.Vehicle == Shooter), "New life retires previous aiming capability");
-            Position(new(0, Ground, 35), new(0, Ground, 45), new(80, Ground, 0));
-            host.Items.Grant(host.World, Shooter, HeldItem.MachineGun);
-            await Until(() => _arenas[1].AimOverlay.Marker.HasValue, "Fresh weapon restores aiming before lethal damage");
-            Require(host.TryConfigure(0, new Dictionary<string, double> { ["items.maximum_damage"] = 10000, ["respawn.delay_ticks"] = 120 }, out _), "Lethal damage and timed respawn fixture tuning accepted");
-            host.Items.RemovePlayer(1);
-            Require(host.Items.Grant(host.World, 1, HeldItem.Missile), "Other vehicle receives a real missile");
-            await Frames(20);
-            ulong lifeBeforeDeath = host.World.GetVehicle(Shooter).LifeId;
-            Require(_arenas[0].Driver.RequestItemUse(), "Real host missile use accepted");
-            await Until(() => !host.World.GetVehicle(Shooter).CanInteract, "Actual missile explosion kills the aiming vehicle");
-            Require(host.World.GetVehicle(Shooter).Damage.LastDamage?.Attribution.Source == "missile", "Death carries authoritative missile attribution");
-            Require(!host.Items.Aims.Any(aim => aim.Vehicle == Shooter), "Actual death immediately clears authoritative aim");
-            // Impaired delivery and render presentation need not complete in a fixed
-            // twelve physics frames. Observe confirmed client death before respawn.
-            await Until(() => _arenas[1].LocalState is { CanInteract: false } && !_arenas[1].AimOverlay.Marker.HasValue,
-                "Confirmed client death clears the camera cursor before respawn", 90);
-            await Until(() => host.World.GetVehicle(Shooter).LifeId > lifeBeforeDeath && host.World.GetVehicle(Shooter).CanInteract, "Ordinary timed respawn creates a fresh living vehicle", 240);
-            Require(!_arenas[1].AimOverlay.Marker.HasValue, "Respawn cannot retain a dead weapon's marker");
+            await CheckAimDeath();
             System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
             GD.Print($"Weapon aiming integration passed: {_evidence.Count} checks; three native UDP peers.");
             foreach (var arena in _arenas) { arena.QueueFree(); }

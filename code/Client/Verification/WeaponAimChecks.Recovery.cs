@@ -26,6 +26,7 @@ public sealed partial class WeaponAimChecks
             platform.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new(500, 1, 500) } });
             peer.AddChild(platform); platforms.Add(platform);
         }
+        await CheckAimApproachAndVisibility(floor, settings);
         arena.AimReleaseObserved = reason =>
         {
             losses.Add(reason);
@@ -94,7 +95,9 @@ public sealed partial class WeaponAimChecks
             Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = 0 }); await Frames(45);
             Require(arena.AssistedCar == 1, "Controller acquires after the mouse releases without a new binding");
             var cover = new StaticBody3D { Position = Camera.GlobalPosition.Lerp(Center(), .7f), CollisionLayer = 1 };
-            cover.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(4, 4, 1) } }); arena.AddChild(cover);
+            // Cover the complete broadside body after the close camera's obstruction
+            // response, not just its centre ray (partial visibility is tested above).
+            cover.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(12, 12, 1) } }); arena.AddChild(cover);
             await Frames(3);
             Require(arena.AssistedCar == 0 && losses.Any(reason => reason.Contains("occluded")), "Real native cover releases immediately, independently of framing recovery");
             cover.Free();

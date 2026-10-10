@@ -19,6 +19,7 @@ internal sealed partial class NetworkVehicleArena
     private Vector2 _aimBearing;
     private ulong _aimDismissed;
     private ulong _aimDismissedLife;
+    private Vector2 _aimDismissedDirection;
     private ulong _aimIntentRevision;
     private float _aimRecoverySeconds;
     private Vector2 _aimPlacement;
@@ -91,6 +92,7 @@ internal sealed partial class NetworkVehicleArena
         _aimReleaseSeconds = 0;
         _aimController = false;
         _aimDismissed = 0;
+        _aimDismissedDirection = default;
         _aimAdjusted = false;
         _aimBearing = default;
         _aimPlacement = default;
@@ -236,9 +238,13 @@ internal sealed partial class NetworkVehicleArena
             if (ProjectAimBounds(pair.Value) is not { } frame) { continue; }
             float gap = AimFrameGap(frame);
             float allowance = AcquisitionMargin(frame, cone);
+            Vector2 toward = AimBearing(_camera.GlobalBasis.Inverse() * to);
+            // An approach may acquire while the mouse/stick is still moving. Only
+            // a sweep away from this candidate suppresses acquisition.
+            if (_aimGesture.Length() > .045f && System.Numerics.Vector2.Dot(_aimGesture, new(toward.X, toward.Y)) <= 0) { continue; }
             if (pair.Key == _aimDismissed)
             {
-                if (state.LifeId != _aimDismissedLife || gap > allowance) { _aimDismissed = 0; }
+                if (state.LifeId != _aimDismissedLife || (gap > allowance && _aimGesture.Length() <= .045f)) { _aimDismissed = 0; }
                 else { continue; }
             }
             float score = gap + angle * .01f;
@@ -297,11 +303,10 @@ internal sealed partial class NetworkVehicleArena
             if (_aimDismissed != 0 && _bodies.TryGetValue(_aimDismissed, out var dismissed))
             {
                 Vector2 toward = AimBearing(_camera.GlobalBasis.Inverse() * (AimBodyCenter(dismissed) - _camera.GlobalPosition));
-                if (mouse.Dot(toward) > .00001f || stick.Dot(toward) > .00001f) { _aimDismissed = 0; }
+                // Rotating past the rear of the car during the same sweep is not a
+                // reversal. Require actual input reversal before rearming nearby.
+                if (lookInput.Dot(_aimDismissedDirection) < 0 && lookInput.Dot(toward) > 0) { _aimDismissed = 0; }
             }
-            // A continuing sweep must not pulse the brackets back on while crossing
-            // the car slowly at low look sensitivity. Acquire again after input settles.
-            if (_aimGesture.Length() > .045f) { _aimReleaseSeconds = .18f; }
             return (Vector2.Zero, false);
         }
         Vector3 local = _camera.GlobalBasis.Inverse() * (AimBodyCenter(_bodies[_aimTarget]) - _camera.GlobalPosition);
@@ -319,8 +324,21 @@ internal sealed partial class NetworkVehicleArena
         // A purposeful sweep is directional relative to the current target, not
         // cancelled by earlier approach input on the other side of the accumulator.
         bool sweep = _aimGesture.Length() > .045f && lookInput.Dot(outward) < 0;
-        if (sweep || CameraAimAttraction.Breakaway(new(_aimDeparture.X, _aimDeparture.Y), System.Numerics.Vector2.Zero, new(lookInput.X, lookInput.Y), cone))
-        { _aimDismissed = _aimTarget; _aimDismissedLife = _aimTargetLife; ReleaseAim("deliberate accumulated look"); _aimReleaseSeconds = .18f; return (Vector2.Zero, false); }
+        // At close range, centre-relative input may still aim squarely onto the
+        // visible body. Test the cursor after this look displacement, not its old
+        // pixel position. Far targets still retain the independent angular allowance.
+        Vector3 nextRay = new(MathF.Sin(lookInput.X) * MathF.Cos(lookInput.Y), -MathF.Sin(lookInput.Y), -MathF.Cos(lookInput.X) * MathF.Cos(lookInput.Y));
+        Vector2 nextCursor = _camera.UnprojectPosition(_camera.GlobalPosition + _camera.GlobalBasis * nextRay * 10);
+        Rect2? bodyFrame = ProjectAimBounds(_bodies[_aimTarget]);
+        bool leavesBody = nextRay.Z >= 0 || bodyFrame is not { } visibleBody || !visibleBody.HasPoint(nextCursor);
+        // A stronger physical sweep can still exit immediately at low sensitivity,
+        // even before the scaled cursor clears the body. Ordinary close corrections
+        // use the body edge instead of treating every outward centre error as escape.
+        float bodyGesture = bodyFrame is { } bounds ? Math.Max(.045f,
+            _camera.ProjectRayNormal(bounds.Position).AngleTo(_camera.ProjectRayNormal(bounds.End)) * .5f) : .045f;
+        bool decisiveSweep = sweep && (leavesBody || stick.LengthSquared() > .81f || _aimGesture.Length() > bodyGesture);
+        if (decisiveSweep || (leavesBody && CameraAimAttraction.Breakaway(new(_aimDeparture.X, _aimDeparture.Y), System.Numerics.Vector2.Zero, new(lookInput.X, lookInput.Y), cone)))
+        { _aimDismissed = _aimTarget; _aimDismissedLife = _aimTargetLife; _aimDismissedDirection = lookInput.Normalized(); ReleaseAim($"deliberate accumulated look sweep={sweep} gesture={_aimGesture.Length():F5} departure={_aimDeparture.Length():F5}"); _aimReleaseSeconds = .18f; return (Vector2.Zero, false); }
         // After an intentional fine adjustment, transport the selected offset with the
         // target instead of repeatedly pulling it back to centre. Actual input stays direct.
         // Approaching the car with small input must not cancel acquisition pull.
@@ -400,6 +418,20 @@ internal sealed partial class NetworkVehicleArena
 
     private bool HasAimSight(ulong target, Vector3 from, Vector3 to)
     {
-        return TraceViewedAim(from, to).Car?.VehicleId == target;
+        var center = TraceViewedAim(from, to);
+        if (center.Car?.VehicleId == target) { return true; }
+        // Another car between the lens and target still owns that sightline.
+        if (center.Car is not null || !_bodies.TryGetValue(target, out var body)) { return false; }
+        // A crest or narrow prop can obscure the centre while substantial body
+        // remains visible. Sample real hull locations, never an expanded hitbox;
+        // every sample must independently pass the same closest native sight test.
+        foreach (Vector3 sample in new[] { new Vector3(-.9f, .3f, 0), new Vector3(.9f, .3f, 0),
+            new Vector3(0, .9f, 0), new Vector3(0, .3f, -1.6f), new Vector3(0, .3f, 1.6f) })
+        {
+            Vector3 point = body.VisualTransform * sample;
+            if (!_camera.IsPositionBehind(point) && _camera.GetViewport().GetVisibleRect().HasPoint(_camera.UnprojectPosition(point)) &&
+                TraceViewedAim(from, point).Car?.VehicleId == target) { return true; }
+        }
+        return false;
     }
 }

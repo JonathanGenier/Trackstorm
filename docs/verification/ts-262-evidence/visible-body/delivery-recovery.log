@@ -1,0 +1,134 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Three UDP peers initialized
+Host tuning applied
+AIM_AT requested=(5, 56.949635, 0) firstTargetDrift=(0, -3.0517578E-05, 0) requestedScreen=(643.0241, 400.9161)
+CONTINUOUS_APPROACH distance=6 acquiredFrame=46 angle=0.19754 sight=True hit=(-0.42258096, 57.605766, 2.316989) lens=(-2.6174917, 61.01344, 14.351571) target=(0, 56.949696, 0) accepted=1 active=True dismissed=0
+Ongoing toward-car mouse movement acquires without first stopping the mouse
+AIM_AT requested=(0, 56.949734, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0014, 399.99625)
+Fresh visible target established before partial-occlusion measurement
+PARTIAL_VISIBILITY distance=6 target=1 releases=
+Visible body survives centre-ray occlusion and camera jolts
+RMB release clears even when other body samples remain visible
+Visible body permits fresh acquisition with an obscured centre ray
+Full cover still clears assistance immediately
+AIM_AT requested=(5, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00867, 400.00006)
+CONTINUOUS_APPROACH distance=35 acquiredFrame=10 angle=0.07789 sight=True hit=(-0.038598478, 57.10493, 2.4785347) lens=(-0.68789047, 59.71111, 44.17175) target=(0, 56.95, 0) accepted=1 active=True dismissed=0
+Ongoing toward-car mouse movement acquires without first stopping the mouse
+AIM_AT requested=(0, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Fresh visible target established before partial-occlusion measurement
+PARTIAL_VISIBILITY distance=35 target=1 releases=
+Visible body survives centre-ray occlusion and camera jolts
+RMB release clears even when other body samples remain visible
+Visible body permits fresh acquisition with an obscured centre ray
+Full cover still clears assistance immediately
+AIM_AT requested=(28, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+CONTINUOUS_APPROACH distance=200 acquiredFrame=13 angle=0.08233 sight=True hit=(-0.0074332952, 56.982643, 2.4785156) lens=(-0.62734514, 59.705048, 209.17822) target=(0, 56.95, 0) accepted=1 active=True dismissed=0
+Ongoing toward-car mouse movement acquires without first stopping the mouse
+AIM_AT requested=(0, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Fresh visible target established before partial-occlusion measurement
+PARTIAL_VISIBILITY distance=200 target=1 releases=
+Visible body survives centre-ray occlusion and camera jolts
+RMB release clears even when other body samples remain visible
+Visible body permits fresh acquisition with an obscured centre ray
+Full cover still clears assistance immediately
+AIM_AT requested=(2.4, 56.949665, 0) firstTargetDrift=(0, -3.0517578E-05, 0) requestedScreen=(642.85046, 402.20862)
+ACQUISITION distance=6.000m FOV=50 fps=30 gain=0.25 offset=2.40m initialError=0.14879 acquired=1 angle=0.00000 sight=True hit=(-9.755429E-06, 57.346485, 1.3311558) lens=(-0.00010795104, 61.34047, 14.730233) target=(0, 56.949696, 0) accepted=1 active=True dismissed=0
+AIM_AT requested=(0, 56.949726, 0) firstTargetDrift=(0, 3.0517578E-05, 0) requestedScreen=(640, 400.00003)
+Visible centre target established before retention measurement
+JOLT_START angle=0.00000 sight=True hit=(-1.2500296E-18, 57.34646, 1.3311558) lens=(-1.3832511E-17, 61.34047, 14.730234) target=(0, 56.949665, 0) accepted=1 active=True dismissed=0 acquired=1
+JOLTS distance=6 retained=180/180 angularLosses=0 releases=
+Repeated visible native/camera jolts do not drop or replace the acquired car
+AIM_RELEASE target=1 reason=input boundary revision=19->20 active=False shooterHP=1000.00 outside=False lastDamage=
+RMB release bypasses all recovery tolerance
+AIM_AT requested=(9.169306E-05, 56.953434, -5.47063E-05) firstTargetDrift=(-0.006492533, -0.006828308, -6.324032E-05) requestedScreen=(639.6994, 399.7412)
+AIM_RELEASE target=1 reason=input boundary revision=21->22 active=True shooterHP=1000.00 outside=False lastDamage=
+Controller acquires after the mouse releases without a new binding
+AIM_RELEASE target=1 reason=occluded shooterHP=1000.00 outside=False lastDamage=
+Real native cover releases immediately, independently of framing recovery
+AIM_AT requested=(2.4, 56.949696, 0) firstTargetDrift=(0, -3.0517578E-05, 0) requestedScreen=(641.32916, 401.02982)
+ACQUISITION distance=6.000m FOV=90 fps=144 gain=3 offset=2.40m initialError=0.14879 acquired=1 angle=0.00000 sight=True hit=(-4.3836626E-06, 57.34648, 1.3311567) lens=(-4.85085E-05, 61.34044, 14.730248) target=(0, 56.949696, 0) accepted=1 active=True dismissed=0
+AIM_AT requested=(0, 56.949665, 0) firstTargetDrift=(0, -3.0517578E-05, 0) requestedScreen=(640, 400)
+Visible centre target established before retention measurement
+JOLT_START angle=0.00000 sight=True hit=(-2.9061699E-24, 57.34648, 1.3311548) lens=(-3.2158997E-23, 61.340443, 14.730247) target=(0, 56.949696, 0) accepted=1 active=True dismissed=0 acquired=1
+JOLTS distance=6 retained=180/180 angularLosses=0 releases=
+Repeated visible native/camera jolts do not drop or replace the acquired car
+AIM_RELEASE target=1 reason=input boundary revision=24->25 active=False shooterHP=1000.00 outside=False lastDamage=
+RMB release bypasses all recovery tolerance
+AIM_AT requested=(-5.6382116E-05, 56.93003, -8.267764E-05) firstTargetDrift=(0.011268741, -0.0033950806, -6.4339234E-05) requestedScreen=(640.08026, 400.4084)
+AIM_RELEASE target=1 reason=input boundary revision=26->27 active=True shooterHP=1000.00 outside=False lastDamage=
+Controller acquires after the mouse releases without a new binding
+AIM_RELEASE target=1 reason=occluded shooterHP=1000.00 outside=False lastDamage=
+Real native cover releases immediately, independently of framing recovery
+AIM_AT requested=(3.2, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0078, 400.0001)
+ACQUISITION distance=35.000m FOV=50 fps=30 gain=0.25 offset=3.20m initialError=0.07207 acquired=1 angle=0.00000 sight=True hit=(-1.2431155E-07, 57.033276, 1.3311577) lens=(-4.127974E-06, 59.71528, 44.203255) target=(0, 56.95, 0) accepted=1 active=True dismissed=0
+AIM_AT requested=(0, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Visible centre target established before retention measurement
+JOLT_START angle=0.00000 sight=True hit=(-1.3556139E-31, 57.033276, 1.3311577) lens=(-4.5015396E-30, 59.71528, 44.203255) target=(0, 56.95, 0) accepted=1 active=True dismissed=0 acquired=1
+JOLTS distance=35 retained=180/180 angularLosses=0 releases=
+Repeated visible native/camera jolts do not drop or replace the acquired car
+AIM_RELEASE target=1 reason=input boundary revision=29->30 active=False shooterHP=1000.00 outside=False lastDamage=
+RMB release bypasses all recovery tolerance
+AIM_AT requested=(-0.0072737755, 56.95, 0) firstTargetDrift=(0.012563466, 0, 0) requestedScreen=(639.9893, 400.00046)
+AIM_RELEASE target=1 reason=input boundary revision=31->32 active=True shooterHP=1000.00 outside=False lastDamage=
+Controller acquires after the mouse releases without a new binding
+AIM_RELEASE target=1 reason=occluded shooterHP=1000.00 outside=False lastDamage=
+Real native cover releases immediately, independently of framing recovery
+AIM_AT requested=(3.2, 56.950005, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00366, 400.00003)
+ACQUISITION distance=35.000m FOV=90 fps=144 gain=3 offset=3.20m initialError=0.07207 acquired=1 angle=0.00000 sight=True hit=(-7.779954E-08, 57.033276, 1.3311577) lens=(-2.5834627E-06, 59.715282, 44.203255) target=(0, 56.95, 0) accepted=1 active=True dismissed=0
+AIM_AT requested=(0, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Visible centre target established before retention measurement
+JOLT_START angle=0.00000 sight=True hit=(-2.498381E-34, 57.033276, 1.3311577) lens=(-8.2962865E-33, 59.715282, 44.203255) target=(0, 56.95, 0) accepted=1 active=True dismissed=0 acquired=1
+JOLTS distance=35 retained=180/180 angularLosses=0 releases=
+Repeated visible native/camera jolts do not drop or replace the acquired car
+AIM_RELEASE target=1 reason=input boundary revision=34->35 active=False shooterHP=1000.00 outside=False lastDamage=
+RMB release bypasses all recovery tolerance
+AIM_AT requested=(-0.007273776, 56.950005, 0) firstTargetDrift=(0, -3.8146973E-06, 0) requestedScreen=(639.9986, 400.00003)
+AIM_RELEASE target=1 reason=input boundary revision=36->37 active=True shooterHP=1000.00 outside=False lastDamage=
+Controller acquires after the mouse releases without a new binding
+AIM_RELEASE target=1 reason=occluded shooterHP=1000.00 outside=False lastDamage=
+Real native cover releases immediately, independently of framing recovery
+AIM_AT requested=(13, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+ACQUISITION distance=200.000m FOV=50 fps=30 gain=0.25 offset=13.00m initialError=0.06205 acquired=1 angle=0.00000 sight=True hit=(-2.1161668E-08, 56.96753, 1.3311157) lens=(-3.3258755E-06, 59.705048, 209.205) target=(0, 56.95, 0) accepted=1 active=True dismissed=0
+AIM_AT requested=(0, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Visible centre target established before retention measurement
+JOLT_START angle=0.00000 sight=True hit=(-5.5454E-41, 56.96753, 1.3311157) lens=(-8.715358E-39, 59.705048, 209.205) target=(0, 56.95, 0) accepted=1 active=True dismissed=0 acquired=1
+JOLTS distance=200 retained=180/180 angularLosses=0 releases=
+Repeated visible native/camera jolts do not drop or replace the acquired car
+AIM_RELEASE target=1 reason=input boundary revision=39->40 active=False shooterHP=1000.00 outside=False lastDamage=
+RMB release bypasses all recovery tolerance
+AIM_AT requested=(-0.0072737755, 56.95, 0) firstTargetDrift=(0.013928123, 0, 0) requestedScreen=(640, 400)
+AIM_RELEASE target=1 reason=input boundary revision=41->42 active=True shooterHP=1000.00 outside=False lastDamage=
+Controller acquires after the mouse releases without a new binding
+AIM_RELEASE target=1 reason=occluded shooterHP=1000.00 outside=False lastDamage=
+Real native cover releases immediately, independently of framing recovery
+AIM_AT requested=(13, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+ACQUISITION distance=200.000m FOV=90 fps=144 gain=3 offset=13.00m initialError=0.06205 acquired=1 angle=0.00000 sight=True hit=(-3.1265245E-08, 56.96753, 1.3311157) lens=(-4.913778E-06, 59.70505, 209.205) target=(0, 56.95, 0) accepted=1 active=True dismissed=0
+AIM_AT requested=(0, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Visible centre target established before retention measurement
+JOLT_START angle=0.00000 sight=True hit=(-3.2E-44, 56.96753, 1.3311157) lens=(-5.042E-42, 59.70505, 209.205) target=(0, 56.95, 0) accepted=1 active=True dismissed=0 acquired=1
+JOLTS distance=200 retained=180/180 angularLosses=0 releases=
+Repeated visible native/camera jolts do not drop or replace the acquired car
+AIM_RELEASE target=1 reason=input boundary revision=44->45 active=False shooterHP=1000.00 outside=False lastDamage=
+RMB release bypasses all recovery tolerance
+AIM_AT requested=(-0.0072737755, 56.95, 0) firstTargetDrift=(0.0049415715, 0, 0) requestedScreen=(640, 400)
+AIM_RELEASE target=1 reason=input boundary revision=46->47 active=True shooterHP=1000.00 outside=False lastDamage=
+Controller acquires after the mouse releases without a new binding
+AIM_RELEASE target=1 reason=occluded shooterHP=1000.00 outside=False lastDamage=
+Real native cover releases immediately, independently of framing recovery
+AIM_AT requested=(13, 56.95, 0) firstTargetDrift=(0, 3.8146973E-06, 0) requestedScreen=(640, 400)
+Distant car acquired before small outward correction during convergence
+Initial distant acquisition gap is not deliberate departure: 
+Distant convergence recovers useful alignment after the small correction
+AIM_RELEASE target=1 reason=camera presentation reset shooterHP=1000.00 outside=False lastDamage=
+AIM_AT requested=(0, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Visible angular displacement enters recovery rather than discarding the chosen fine placement
+Bounded recovery preserves a small intentional correction: offset=0.01200->0.01380rad
+AIM_RELEASE target=1 reason=input boundary revision=49->50 active=False shooterHP=1000.00 outside=False lastDamage=
+RMB release is immediate during angular recovery
+AIM_AT requested=(0, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+AIM_RELEASE target=1 reason=angular recovery exhausted gap=0.14906 seconds=0.467 shooterHP=1000.00 outside=False lastDamage=
+Unrecoverable visible angular error expires instead of creating permanent lock-on
+Body-aware acquisition 6/6; unintended angular releases=0
+Weapon aiming integration passed: 58 accuracy/retention checks.
+Weapon aiming artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\aim-checks\4e0f1c1d7fe44351a60623c98e9adaa0
