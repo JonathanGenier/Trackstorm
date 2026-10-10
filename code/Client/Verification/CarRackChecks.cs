@@ -61,6 +61,18 @@ public sealed partial class CarRackChecks : Node
             Position(1000, false);
             _arenas[1].Driver.ItemsReceived += p => _events.AddRange(p.Events.Where(e => e.Owner == Shooter));
             await Frames(90);
+            if (OS.GetCmdlineUserArgs().Contains("--weapon-handoffs"))
+            {
+                await CheckWeaponHandoffs();
+                System.IO.File.WriteAllLines(ProjectSettings.GlobalizePath(_output + "/handoff-evidence.txt"), _evidence);
+                GD.Print($"Weapon handoff integration passed: {_checks} checks on two UDP peers.");
+                foreach (var arena in _arenas) { arena.QueueFree(); }
+                foreach (var view in _views) { view.QueueFree(); }
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                GetTree().Quit();
+                return;
+            }
             if (OS.GetCmdlineUserArgs().Contains("--consecutive-mines"))
             {
                 host.Items.RemovePlayer(Shooter);
@@ -86,6 +98,11 @@ public sealed partial class CarRackChecks : Node
                 ulong secondMine = host.Items.Mines.Single(m => m.Owner == Shooter && m.Id != firstMine && m.IsPlacing).Id;
                 await Until(() => _arenas.All(a => a.Driver.ItemState?.Mines.Any(m => m.Id == secondMine && m.IsPlacing) == true),
                     "Both peers receive second placement");
+                // Reliable state may arrive in a physics step before the native
+                // arm's next render update. Observe that update before judging
+                // visibility; all subsequent active-placement checks remain.
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 foreach (var arena in _arenas)
                 {
                     var rack = arena.Bodies[Shooter].Rack;
@@ -266,7 +283,7 @@ public sealed partial class CarRackChecks : Node
             await Until(() => _arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Rapid switched use closes coherently");
             Check(_arenas[1].Driver.LocalItem?.Item == HeldItem.Salvo, "Rapid use preserves unselected Salvo");
             System.IO.File.WriteAllLines(ProjectSettings.GlobalizePath(_output + "/rack-evidence.txt"), _evidence);
-            GD.Print($"Car rack integration passed: {_checks} checks; seven items, switching/use, duplicates, lifecycle and two UDP peers.");
+            GD.Print($"Car rack integration passed: {_checks} checks; eight items, switching/use, duplicates, lifecycle and two UDP peers.");
             foreach (var arena in _arenas) { arena.QueueFree(); }
             foreach (var view in _views) { view.QueueFree(); }
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
@@ -316,8 +333,9 @@ public sealed partial class CarRackChecks : Node
         var camera = new Camera3D { PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off, Fov = 48 };
         _arenas[1].AddChild(camera);
         var body = _arenas[1].Bodies[Shooter];
-        camera.GlobalPosition = body.VisualPosition + body.VisualTransform.Basis * new Vector3(-4, 3.4f, 5);
-        camera.LookAt(body.VisualPosition + Vector3.Up * .25f);
+        bool handoff = OS.GetCmdlineUserArgs().Contains("--weapon-handoffs");
+        camera.GlobalPosition = body.VisualPosition + body.VisualTransform.Basis * (handoff ? new Vector3(-6, 4.8f, 8) : new Vector3(-4, 3.4f, 5));
+        camera.LookAt(body.VisualPosition + (handoff ? body.VisualTransform.Basis * new Vector3(0, .5f, 1.8f) : Vector3.Up * .25f));
         camera.MakeCurrent();
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
         using var image = _views[1].GetTexture().GetImage();
