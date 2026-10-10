@@ -57,6 +57,7 @@ public sealed partial class MissilePresentationChecks : Node
             await Frames(90);
             host.Items.RemovePlayer(1);
             await Frames(300);
+            await InspectBody();
             Require(_arenas[0].Driver.GiveDeveloperItem(HeldItem.Missile), "Production grant");
             await Frames(4);
             Require(!_arenas[0].Driver.RequestItemUse(), "Early tap rejected locally");
@@ -65,8 +66,14 @@ public sealed partial class MissilePresentationChecks : Node
             await Capture("01-compact");
             await Frames(25); await Capture("02-rack");
             await Frames(25); await Capture("03-extension");
+            for (int step = 0; step < 5; step++)
+            {
+                await Frames(6);
+                await CaptureMountedBody("polish-live-extension-" + step);
+            }
             await Until(MissileReady, "Owner and remote finish deployment");
             await Capture("04-ready");
+            await CaptureMountedBody("polish-mounted-ready");
             _arenas[0].GetNode<Camera3D>("ChaseCamera").Current = true;
             await Capture("04a-player-camera");
             _cameras[0].Current = true;
@@ -236,6 +243,10 @@ public sealed partial class MissilePresentationChecks : Node
         _renderDurations = null;
         frameTimes.Sort();
         _evidence.Add($"OBSERVED: 16-effect / two-arena render-frame delta median {frameTimes[frameTimes.Count / 2]:F2} ms, p95 {frameTimes[(int)(frameTimes.Count * .95)]:F2} ms (60 FPS cap; Godot process delta, not GPU timing).");
+        Require(visuals.All(v => Descendants(v).OfType<GpuParticles3D>().Single(p => p.Name == "BurningRedConfetti").Amount == 56),
+            "Increased red confetti remains bounded at 56 live particles per default Missile");
+        Require(visuals.All(v => Descendants(v).OfType<MeshInstance3D>().Count(m => m.Name.ToString().StartsWith("FlameCore", StringComparison.Ordinal)) == 3),
+            "Each flight owner carries three continuous flame surfaces");
         MissileVfxSettings.Current = MissileVfxSettings.Current with { Density = 0, FlameWidth = .35f };
         await Frames(4);
         Require(visuals.All(v => Descendants(v).OfType<GpuParticles3D>().Count() == 1), "Local density zero removes trails from all live projectiles");

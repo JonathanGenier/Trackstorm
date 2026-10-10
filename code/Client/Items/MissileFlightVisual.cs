@@ -6,6 +6,8 @@ namespace Trackstorm.Client.Items;
 internal sealed partial class MissileFlightVisual : Node3D
 {
     internal const string ConfettiShaderPath = "res://assets/items/missile/BurningConfetti.gdshader";
+    internal const string FlameShaderPath = "res://assets/items/missile/MissileFlame.gdshader";
+    private readonly List<MeshInstance3D> _flames = [];
     private readonly MissileVisual _model = new();
     private readonly List<GpuParticles3D> _emitters = new();
     private MissileVfxSettings? _settings;
@@ -18,6 +20,15 @@ internal sealed partial class MissileFlightVisual : Node3D
     {
         AddChild(_model);
         _model.SetDeployment(1, 1);
+        var flameMaterial = new ShaderMaterial { Shader = Networking.MatchResourceLoader.LoadResource<Shader>(FlameShaderPath) };
+        for (int i = 0; i < 3; i++)
+        {
+            var flame = new MeshInstance3D { Name = "FlameCore" + i,
+                Mesh = new QuadMesh { Material = flameMaterial },
+                Basis = new Basis(Vector3.Back, i * MathF.PI / 3) * new Basis(Vector3.Right, MathF.PI / 2),
+                CastShadow = GeometryInstance3D.ShadowCastingSetting.Off };
+            AddChild(flame); _flames.Add(flame);
+        }
         Configure();
     }
 
@@ -47,11 +58,16 @@ internal sealed partial class MissileFlightVisual : Node3D
         _emitters.Clear();
         var tuning = MissileVfxSettings.Current;
         _settings = tuning;
-        AddEmitter("OrangeExhaust", null, 48, .12f, tuning.FlameWidth, .005f,
+        foreach (var flame in _flames)
+        {
+            ((QuadMesh)flame.Mesh).Size = new(tuning.FlameWidth * 2, tuning.FlameLength);
+            flame.Position = new(0, 0, .73f + tuning.FlameLength * .5f);
+        }
+        AddEmitter("OrangeExhaust", null, 20, .12f, tuning.FlameWidth * .45f, .005f,
             new(1, .4f, .035f, 1), new(1, .13f, .005f, 0), tuning.FlameLength / .12f, 7, true, false);
         AddEmitter("CrimsonSmoke", "smoke_01", (int)(48 * tuning.Density), tuning.SmokeLifetime, .12f, tuning.SmokeSize,
             new(.22f, .009f, .022f, tuning.SmokeOpacity), new(.09f, .004f, .012f, 0), 1.5f, 20, false, false);
-        AddEmitter("BurningRedConfetti", null, (int)(32 * tuning.Density), tuning.ConfettiLifetime, tuning.ConfettiSize, tuning.ConfettiSize * .7f,
+        AddEmitter("BurningRedConfetti", null, (int)(56 * tuning.Density), tuning.ConfettiLifetime, tuning.ConfettiSize, tuning.ConfettiSize * .7f,
             new(.8f, .018f, .025f, 1), new(.15f, .006f, .003f, 0), 8, 32, false, true);
         AddEmitter("RedEmbers", null, (int)(24 * tuning.Density), tuning.EmberLifetime, .045f, .008f,
             new(1, .08f, .012f, 1), new(.5f, .008f, .005f, 0), 5, 24, true, false);

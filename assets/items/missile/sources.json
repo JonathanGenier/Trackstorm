@@ -19,12 +19,13 @@
     ]
   },
   "sha256": {
-    "source/Missile.blend": "be65d53852840a4cbad01e0c858901432b74f9768af1d66293691f97944247c1",
-    "Missile.glb": "ef7f25e0287d9c014ea8244914b689e969dd97385e800365bfeaf0e08507c04c",
-    "MissileLauncher.glb": "731d75dd6279d4290728ec68c821e40ac5e042f469c1e9864dc248d9b934fa4c",
+    "source/Missile.blend": "67b4d1c7f46de10f54eca1e4a9fc13e9b701783ceb56ac03bed12cfb18838321",
+    "Missile.glb": "333c7d0415e22388395d87a899eef5f7baebee5f98e9f60946a91a2493d6b2d7",
+    "MissileLauncher.glb": "21b2cc8d5aa61deb002a594acf6a72c9e6e1327a89fb59b4a72153c70aa0452a",
+    "BurningConfetti.gdshader": "edc9c8a6c8a7df1851f20b29e854bdad2df74d8c1da83c4538c527fbc0217669",
+    "MissileFlame.gdshader": "e48a92bda3ac46ad16f22144241598d79bbf42e1a090cc1a1aafd8d27adfec07",
     "reference/Missile compact 3.png": "72e31e8b3925974b5444354832812bf019f43a83441a0d8b60412ab4ce56160c",
     "reference/Missile Extended.png": "8dd42544a8ff8818bc523bcee2aad162a5b5d37c9bd2c88441b5e98be5413887",
-    "reference/Turret and mount.png": "1c55f27520155f0681c551821b4598825c775608b0ccc0737a6cf097184f1db6",
-    "BurningConfetti.gdshader": "0238a38c87fa34e4190b5943456c1167d33651fd229cf463a3cbad19f98ec149"
+    "reference/Turret and mount.png": "1c55f27520155f0681c551821b4598825c775608b0ccc0737a6cf097184f1db6"
   }
 }

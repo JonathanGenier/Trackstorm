@@ -60,7 +60,18 @@ for z in [-.31,-.045,.11]:
     pin('Body hoop',(0,0,z-.013),(0,0,z+.013),.156,gold if z==-.31 else steel,body,40)
     for j in range(12):
         a=j*math.tau/12; ball('Rivet',(.157*math.cos(a),.157*math.sin(a),z),(.011,.011,.009),steel,body)
-pin('Telescopic chamber',(0,0,-.08),(0,0,.43),.113,black,missile,32)
+# Overlapping nested sleeves keep a closed pressure-body silhouette at every pose.
+# At full extension: front ends -.24; inner sleeve reaches .01; middle starts -.08.
+# Rear inner starts .24; middle ends .29; engine begins .37 inside rear inner.
+front_sleeve=node('ForwardSleeve',body)
+rear_sleeve=node('RearSleeve',tail)
+middle_sleeve=node('MiddleSleeve',missile)
+pin('Forward inner barrel',(0,0,.02),(0,0,.37),.116,steel,front_sleeve,40)
+pin('Rear inner barrel',(0,0,0),(0,0,.20),.117,steel,rear_sleeve,40)
+pin('Central outer sleeve',(0,0,-.08),(0,0,.29),.125,black,middle_sleeve,40)
+for z in [-.069,.279]:
+    pin('Sleeve seal collar',(0,0,z-.009),(0,0,z+.009),.128,gold,middle_sleeve,40)
+pin('Central painted shell',(0,0,-.035),(0,0,.245),.126,red,middle_sleeve,40)
 for j in range(8):
     a=j*math.tau/8; x,y=.129*math.cos(a),.129*math.sin(a)
     pin('Chrome guide',(x,y,-.10),(x,y,.39),.013,steel,missile,12)
@@ -193,6 +204,6 @@ for root,path in [(missile,'Missile.glb'),(launcher,'MissileLauncher.glb')]:
     for o in [root]+list(root.children_recursive): o.select_set(True)
     bpy.ops.export_scene.gltf(filepath=str(ROOT/path),export_format='GLB',use_selection=True,export_yup=True,export_animations=False,export_apply=True)
 paths=[ROOT/'source/Missile.blend',ROOT/'Missile.glb',ROOT/'MissileLauncher.glb']
-manifest={'authoring':'Original Blender 5.2 geometry; user-supplied concepts; no third-party acquisition','references':{'10146':'Missile compact 3.png','10148':'Missile Extended.png','10147':'Turret and mount.png'},'car_source_sha256':hashlib.sha256(car.read_bytes()).hexdigest(),'compact_blender_bounds':bounds,'sha256':{p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in paths+[ROOT/'BurningConfetti.gdshader']+list((ROOT/'reference').glob('*.png'))}}
-(ROOT/'sources.json').write_text(json.dumps(manifest,indent=2)+'\n')
+manifest={'authoring':'Original Blender 5.2 geometry; user-supplied concepts; no third-party acquisition','references':{'10146':'Missile compact 3.png','10148':'Missile Extended.png','10147':'Turret and mount.png'},'car_source_sha256':hashlib.sha256(car.read_bytes()).hexdigest(),'compact_blender_bounds':bounds,'sha256':{p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in paths+[ROOT/'BurningConfetti.gdshader',ROOT/'MissileFlame.gdshader']+list((ROOT/'reference').glob('*.png'))}}
+(ROOT/'sources.json').write_bytes((json.dumps(manifest,indent=2)+'\n').encode('utf-8'))
 print('MISSILE_AUTHORING_COMPLETE',flush=True)

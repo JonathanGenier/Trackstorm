@@ -17,6 +17,7 @@ internal sealed class MatchResourceLoader
         Items.MissileVisual.AssetPath,
         Items.MissileLauncher.AssetPath,
         Items.MissileFlightVisual.ConfettiShaderPath,
+        Items.MissileFlightVisual.FlameShaderPath,
         Items.ProxyMineVisual.AssetPath,
         Items.ProxyMineRack.AssetPath,
         Items.ShieldVisual.AssetPath,
