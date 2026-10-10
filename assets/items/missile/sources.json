@@ -1,0 +1,31 @@
+{
+  "authoring": "Original Blender 5.2 geometry; user-supplied concepts; no third-party acquisition",
+  "references": {
+    "10146": "Missile compact 3.png",
+    "10148": "Missile Extended.png",
+    "10147": "Turret and mount.png"
+  },
+  "car_source_sha256": "be3c808a8d32fd995e2eab1cce24f5bf7139e3b686108b3b2a1d786985c0fbee",
+  "compact_blender_bounds": {
+    "minimum": [
+      -0.3054552674293518,
+      -2.326000213623047,
+      -0.18000000715255737
+    ],
+    "maximum": [
+      0.2849999964237213,
+      -1.2708714008331299,
+      0.35500001907348633
+    ]
+  },
+  "sha256": {
+    "source/Missile.blend": "67b4d1c7f46de10f54eca1e4a9fc13e9b701783ceb56ac03bed12cfb18838321",
+    "Missile.glb": "333c7d0415e22388395d87a899eef5f7baebee5f98e9f60946a91a2493d6b2d7",
+    "MissileLauncher.glb": "21b2cc8d5aa61deb002a594acf6a72c9e6e1327a89fb59b4a72153c70aa0452a",
+    "BurningConfetti.gdshader": "edc9c8a6c8a7df1851f20b29e854bdad2df74d8c1da83c4538c527fbc0217669",
+    "MissileFlame.gdshader": "e48a92bda3ac46ad16f22144241598d79bbf42e1a090cc1a1aafd8d27adfec07",
+    "reference/Missile compact 3.png": "72e31e8b3925974b5444354832812bf019f43a83441a0d8b60412ab4ce56160c",
+    "reference/Missile Extended.png": "8dd42544a8ff8818bc523bcee2aad162a5b5d37c9bd2c88441b5e98be5413887",
+    "reference/Turret and mount.png": "1c55f27520155f0681c551821b4598825c775608b0ccc0737a6cf097184f1db6"
+  }
+}

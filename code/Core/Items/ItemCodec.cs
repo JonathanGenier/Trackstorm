@@ -4,7 +4,7 @@ using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-twenty-one item protocol. Reliable outcomes and replaceable aim share existing item ownership.</summary>
+/// <summary>Bounded version-twenty-two item protocol. Reliable outcomes and replaceable aim share existing item ownership.</summary>
 public static partial class ItemCodec
 {
     /// <summary>Accommodates the maximum lifetime-derived Oil set and its pass counts and overlap latches.</summary>
@@ -141,6 +141,8 @@ public static partial class ItemCodec
             writer.Write(slot.SecondNitroCharge);
             writer.Write(slot.EngagedToken);
             writer.Write((byte)slot.NitroDeploymentTicks);
+            writer.Write(slot.MissileDeployStartTick); writer.Write(slot.MissileReadyTick);
+            writer.Write(slot.MissileStowStartTick); writer.Write(slot.MissileStowEndTick);
             writer.Write(slot.SalvoShots);
             writer.Write(slot.SecondSalvoShots);
             writer.Write(slot.SalvoReadyTick);
@@ -286,6 +288,8 @@ public static partial class ItemCodec
         {
             slots[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(), (HeldItem)reader.ReadByte())
             { SecondToken = reader.ReadUInt64(), SecondItem = (HeldItem)reader.ReadByte(), ActiveSlot = reader.ReadByte(), SelectionRevision = reader.ReadUInt64(), NitroCharge = reader.ReadDouble(), SecondNitroCharge = reader.ReadDouble(), EngagedToken = reader.ReadUInt64(), NitroDeploymentTicks = reader.ReadByte(),
+                MissileDeployStartTick = reader.ReadUInt64(), MissileReadyTick = reader.ReadUInt64(),
+                MissileStowStartTick = reader.ReadUInt64(), MissileStowEndTick = reader.ReadUInt64(),
                 SalvoShots = reader.ReadInt32(), SecondSalvoShots = reader.ReadInt32(), SalvoReadyTick = reader.ReadUInt64(), SecondSalvoReadyTick = reader.ReadUInt64(), Ammo = Ammo(reader), SecondAmmo = Ammo(reader) };
         }
 
@@ -368,7 +372,7 @@ public static partial class ItemCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 21, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 22, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {
@@ -380,7 +384,7 @@ public static partial class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 21 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 22 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }

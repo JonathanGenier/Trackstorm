@@ -121,7 +121,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 Check(Descendants(_devTools).OfType<Button>().Single(button => button.Name == "ForceStart").IsVisibleInTree(), "Force Start is available from the DevTools shell");
                 Check(!Descendants(_devTools.Configs).OfType<Button>().Any(button => button.Text.StartsWith("Give ", StringComparison.Ordinal)), "developer item-grant controls are absent");
                 Check(!Descendants(_devTools.Configs).OfType<Button>().Any(button => button.Text is "Apply tuning" or "Reload current values" or "Save tuning / retry"), "obsolete tuning actions removed");
-                var simulation = Descendants(_devTools.Configs).OfType<SpinBox>().ToArray();
+                var simulation = Descendants(_devTools.Configs).OfType<ConfigsAccordion>().Single(section => section.GetChildren().OfType<Button>().Single().Text.EndsWith("Local network simulation", StringComparison.Ordinal)).Body.GetChildren().SelectMany(Descendants).OfType<SpinBox>().ToArray();
                 double[] impairment = [30, 5, 2, 10, 25];
                 for (int i = 0; i < simulation.Length; i++)
                 {
@@ -264,6 +264,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 await Until(() => _host.Arena.Driver.LocalItem?.Item == HeldItem.None, "normal Wrench consumption");
                 Check(_host.GiveDeveloperItem(HeldItem.Missile), "fixture grants missile through existing authority");
                 Check(_host.Arena.Driver.LocalItem?.Item == HeldItem.Missile, "Give Missile uses current host slot");
+                await Until(() => _host.Arena.Driver.LocalItem is { } inventory && _host.Arena.Bodies[inventory.Vehicle].Rack.IsMissileReady(inventory), "normal Missile deployment completes");
                 Check(_host.Arena.Driver.RequestItemUse(), "normal Missile use");
                 await Until(() => _host.Arena.Driver.Host!.Items.Missiles.Count > 0, "real projectile launched");
                 Check(Math.Abs(_host.Arena.Driver.Host!.Items.Missiles[0].Velocity.Length() - 75) < 0.01, "UI missile speed affects actual projectile");

@@ -105,6 +105,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
             ? body.ShieldRelease : null;
         _driver.PlaceShield = (slot, pose, tuning) => Walls.Place(pose, tuning, _bodies[slot.Vehicle]);
         _driver.ShieldReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.CanDeployShield(inventory);
+        _driver.MissileReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.Rack.IsMissileReady(inventory);
         _driver.ObserveShield = Walls.Observe;
         AddChild(_salvoMarker);
         InitializeAiming();

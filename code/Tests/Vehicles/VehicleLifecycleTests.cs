@@ -20,6 +20,7 @@ internal sealed class VehicleLifecycleTests
         World world = Create();
         var items = new ItemAuthority();
         Assert.That(items.Grant(world, 1, HeldItem.Missile), Is.True);
+        MissileTestPreparation.Wait(items, world);
         var start = world.GetVehicle(1);
         var charged = new VehicleState(0, start.ObservedPhysics, true, true, 0.4f, 1, SurfaceType.Mud, 0.5f, 0.8f, 2, 3, 0.2f, new WheelSupport(new Vector4(0.1f)));
         world.Restore(new SimulationState(0, default, [new VehicleSnapshot(1, 1, charged, start.Damage, start.ObservedPhysics)]));
@@ -72,6 +73,7 @@ internal sealed class VehicleLifecycleTests
             if (items.Slots.Count == 0)
             {
                 Assert.That(items.Grant(world, 1, HeldItem.Missile), Is.True);
+                MissileTestPreparation.Wait(items, world);
                 Assert.That(items.Grant(world, 1, HeldItem.Wrench), Is.True);
                 Assert.That(items.Switch(world, 1, world.GetVehicle(1).LifeId, 1), Is.True);
             }
@@ -115,6 +117,7 @@ internal sealed class VehicleLifecycleTests
         world.AddVehicle(2, new(), new(), PrototypeArena.Configuration.Spawn(1));
         var items = new ItemAuthority();
         items.Grant(world, 1, HeldItem.Missile);
+        MissileTestPreparation.Wait(items, world);
         ItemSlot slot = items.Slots.Single();
         items.RequestUse(world, 1, slot.Life, slot.Token);
         Step(world, items);

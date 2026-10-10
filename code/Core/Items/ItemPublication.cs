@@ -34,6 +34,10 @@ public sealed class ItemPublication
         }
         if (revision == 0 || inventory.Length > 8 || inventory.Select(slot => slot.Vehicle).Distinct().Count() != inventory.Length ||
             inventory.Any(slot => slot.ActiveSlot > 1 ||
+                slot.MissileReadyTick < slot.MissileDeployStartTick ||
+                slot.MissileReadyTick - slot.MissileDeployStartTick > 240 ||
+                slot.MissileStowEndTick < slot.MissileStowStartTick ||
+                slot.MissileStowEndTick - slot.MissileStowStartTick > 180 ||
                 slot.NitroDeploymentTicks is < 0 or > ItemSlot.NitroDeploymentDurationTicks ||
                 (slot.NitroDeploymentTicks != 0 && slot.Active.Item != HeldItem.Nitro) ||
                 !ValidAmmo(slot.Item, slot.Ammo) || !ValidAmmo(slot.SecondItem, slot.SecondAmmo) || !ValidCharge(slot.Item, slot.NitroCharge) || !ValidCharge(slot.SecondItem, slot.SecondNitroCharge) ||

@@ -264,7 +264,8 @@ public sealed partial class ItemIntegrationChecks : Node
                 PrepareMissile();
                 Next("Damaged Wrench outcomes match on all eight peers.");
                 break;
-            case 5 when _arenas[1].Driver.LocalItem?.Token == _token && _elapsed - _started > 0.5:
+            case 5 when _arenas[1].Driver.LocalItem is { } selected && selected.Token == _token &&
+                _arenas[1].Bodies[selected.Vehicle].Rack.IsMissileReady(selected):
                 if (_scenario == 1)
                 {
                     // The settled suspension puts the vehicle-centre launch above a ground barrel.

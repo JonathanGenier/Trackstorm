@@ -17,6 +17,7 @@ internal sealed class ItemAuthorityTests
         var host = Host(40);
         host.Join(42);
         Assert.That(host.Items.Grant(host.World, 1, HeldItem.Missile), Is.True);
+        MissileTestPreparation.Wait(host);
         Assert.That(host.Items.Grant(host.World, 1, HeldItem.Wrench), Is.True);
         Assert.That(host.Items.Grant(host.World, 1, HeldItem.Oil), Is.False);
         host.Items.Grant(host.World, 2, HeldItem.Oil);
@@ -108,6 +109,7 @@ internal sealed class ItemAuthorityTests
         var host = Host();
         host.Join(42);
         Assert.That(host.Items.Grant(host.World, 2, HeldItem.Missile), Is.True);
+        MissileTestPreparation.Wait(host);
         Assert.That(host.Items.Grant(host.World, 2, HeldItem.Wrench), Is.True);
         var slot = host.Items.Slots.Single();
         Assert.That(host.Items.Grant(host.World, 2, HeldItem.Oil), Is.False);
@@ -141,6 +143,7 @@ internal sealed class ItemAuthorityTests
         var host = Host();
         host.Join(42);
         host.Items.Grant(host.World, 2, HeldItem.Missile);
+        MissileTestPreparation.Wait(host);
         var slot = host.Items.Slots.Single();
         host.UseItem(42, 99, 1, slot.Token);
         host.Leave(42);
@@ -159,6 +162,7 @@ internal sealed class ItemAuthorityTests
         var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitY, 0.7f), new Vector3(20, 0, 0), Vector3.Zero);
         world.Restore(new SimulationState(0, default, new[] { new VehicleSnapshot(1, 1, new VehicleState(0, pose, false, false, 0, 0), state.Damage, pose) }, world.State.Match));
         items.Grant(world, 1, HeldItem.Missile);
+        MissileTestPreparation.Wait(items, world);
         items.RequestUse(world, 1, 1, items.Slots.Single().Token);
         Step(items, world);
         Vector3 velocity = Vector3.Transform(-Vector3.UnitZ, pose.Orientation) * 60;
@@ -208,6 +212,7 @@ internal sealed class ItemAuthorityTests
         });
         host.World.Restore(new SimulationState(0, default, states, host.World.State.Match));
         host.Items.Grant(host.World, 1, HeldItem.Missile);
+        MissileTestPreparation.Wait(host);
         host.UseItem(0, 99, 1, host.Items.Slots.Single().Token);
         host.Step(default, Observe, (_, _) => 0);
         Assert.That(host.Items.Events.Count(outcome => outcome.Impact), Is.EqualTo(1));
@@ -228,10 +233,11 @@ internal sealed class ItemAuthorityTests
     {
         var host = Host();
         host.Items.Grant(host.World, 1, HeldItem.Missile);
+        MissileTestPreparation.Wait(host);
         var slot = host.Items.Slots.Single();
         host.UseItem(0, 99, 1, slot.Token);
         Assert.Throws<ArgumentException>(() => host.Step(default, Observe, (_, _) => float.NaN));
-        Assert.That(host.World.State.Tick, Is.Zero);
+        Assert.That(host.World.State.Tick, Is.EqualTo(slot.MissileReadyTick));
         Assert.That(host.Items.Slots.Single(), Is.EqualTo(slot));
         Assert.That(host.Items.Missiles, Is.Empty);
         host.Step(default, Observe);
@@ -264,7 +270,7 @@ internal sealed class ItemAuthorityTests
     [Test]
     public void ProjectileCapacityRetainsHeldItemsAndBoundsReliableOutcomes()
     {
-        var host = Host();
+        var host = new HostVehicleSession(99, new ItemConfiguration { MissileLifetimeTicks = 3600 });
         for (ulong peer = 1; peer <= 7; peer++)
         {
             host.Join(peer);
@@ -273,12 +279,13 @@ internal sealed class ItemAuthorityTests
         for (int volley = 0; volley < 3; volley++)
         {
             foreach (var state in host.World.State.Vehicles)
+            { host.Items.Grant(host.World, state.VehicleId, HeldItem.Missile); }
+            MissileTestPreparation.Wait(host);
+            foreach (var state in host.World.State.Vehicles)
             {
-                host.Items.Grant(host.World, state.VehicleId, HeldItem.Missile);
                 var slot = host.Items.Slots.Single(slot => slot.Vehicle == state.VehicleId);
                 host.Items.RequestUse(host.World, state.VehicleId, state.LifeId, slot.Token);
             }
-
             host.Step(default, _ => new VehicleObservation(new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero), Vector3.UnitY));
         }
 
@@ -297,9 +304,10 @@ internal sealed class ItemAuthorityTests
     {
         var host = Host();
         host.Items.Grant(host.World, 1, HeldItem.Missile);
+        MissileTestPreparation.Wait(host);
         var slot = host.Items.Slots.Single();
         host.UseItem(0, 99, 1, slot.Token);
-        var input = new InputFrame(1, 0, 0, 0, 0, 0, 0);
+        var input = new InputFrame(host.World.State.Tick + 1, 0, 0, 0, 0, 0, 0);
         var pose = host.World.GetVehicle(1).Movement.Physics;
         host.Items.Step(host.World, input, new[] { new VehicleStepRequest(1, input, new VehicleObservation(pose, Vector3.UnitY), reset: pose) }, (_, _) => null);
         Assert.That(host.Items.Slots, Is.Empty);

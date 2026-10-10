@@ -117,14 +117,13 @@ internal sealed partial class ItemPresentation : Node3D
         {
             if (!_missiles.TryGetValue(missile.Id, out var node))
             {
-                node = Rocket();
+                node = missile.Item == HeldItem.Missile ? new MissileFlightVisual() : Rocket();
                 AddChild(node);
-                node.AddChild(Particles("smoke_01", false, 0.5f));
+                if (node is not MissileFlightVisual) { node.AddChild(Particles("smoke_01", false, 0.5f)); }
                 _missiles.Add(missile.Id, node);
             }
 
-            node.Position = VehicleBody.ToGodot(missile.Position);
-            node.Quaternion = new Quaternion(Vector3.Forward, VehicleBody.ToGodot(missile.Velocity).Normalized());
+            PresentMotion(node, missile);
         }
 
         foreach (var outcome in state.Events)
@@ -200,9 +199,19 @@ internal sealed partial class ItemPresentation : Node3D
         {
             if (_missiles.TryGetValue(missile.Id, out var node))
             {
-                node.Position = VehicleBody.ToGodot(missile.Position);
-                node.Quaternion = new Quaternion(Vector3.Forward, VehicleBody.ToGodot(missile.Velocity).Normalized());
+                PresentMotion(node, missile);
             }
+        }
+    }
+
+    private static void PresentMotion(Node3D node, MissileState missile)
+    {
+        if (node is MissileFlightVisual flight)
+        { flight.Observe(VehicleBody.ToGodot(missile.Position), VehicleBody.ToGodot(missile.Velocity)); }
+        else
+        {
+            node.Position = VehicleBody.ToGodot(missile.Position);
+            node.Quaternion = new Quaternion(Vector3.Forward, VehicleBody.ToGodot(missile.Velocity).Normalized());
         }
     }
 

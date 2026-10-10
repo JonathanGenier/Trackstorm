@@ -171,19 +171,15 @@ internal sealed class MigrationTests
         for (int batch = 0; batch < ItemAuthority.MaximumProjectiles / 8; batch++)
         {
             for (ulong id = 1; id <= 8; id++)
-            {
-                Assert.That(host.Items.Grant(host.World, id, HeldItem.Missile), Is.True);
-                Assert.That(host.UseItem(id == 1 ? 0 : id * 10, 101, 1, host.Items.Slots.Single(slot => slot.Vehicle == id).Token), Is.True);
-            }
-
+            { Assert.That(host.Items.Grant(host.World, id, HeldItem.Missile), Is.True); }
+            MissileTestPreparation.Wait(host);
+            for (ulong id = 1; id <= 8; id++)
+            { Assert.That(host.UseItem(id == 1 ? 0 : id * 10, 101, 1, host.Items.Slots.Single(slot => slot.Vehicle == id).Token), Is.True); }
             host.Step(default, Observe);
         }
-
         Assert.That(host.Items.Missiles.Count, Is.EqualTo(ItemAuthority.MaximumProjectiles));
         for (ulong id = 1; id <= 8; id++)
-        {
-            Assert.That(host.Items.Grant(host.World, id, HeldItem.Missile), Is.True);
-        }
+        { Assert.That(host.Items.Grant(host.World, id, HeldItem.Missile), Is.True); }
 
         var checkpoint = new MigrationCheckpoint(1, lobby.Capture("host"), new ResumeCheckpoint(new ItemPublication(1, host.Snapshot(), host.Items.Slots, host.Items.Missiles, [], host.Spawns!.States), host.World.State.Match!, null, host.Configuration), host.CaptureAuthority());
         byte[] bytes = MigrationCheckpointCodec.Encode(checkpoint);
@@ -255,6 +251,7 @@ internal sealed class MigrationTests
         host.Items.Grant(host.World, 3, HeldItem.Wrench);
         Assert.That(host.SwitchItem(20, host.SessionId, 1, 1), Is.True);
         host.Items.Grant(host.World, 2, HeldItem.Missile);
+        MissileTestPreparation.Wait(host);
         host.UseItem(10, host.SessionId, 1, host.Items.Slots.Single(slot => slot.Vehicle == 2).Token);
         host.Step(default, Observe);
         Assert.That(host.Items.Missiles.Count, Is.EqualTo(1));

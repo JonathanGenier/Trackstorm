@@ -8,14 +8,12 @@ namespace Trackstorm.Core.Tests.Items;
 internal sealed class ShieldBinaryCompatibilityTests
 {
     [Test]
-    public void HistoricalItemBytesRemainExactAndRetiredAirConfigurationIsRejected()
+    public void HistoricalItemAndConfigurationSchemasAreRejected()
     {
         byte[] items = Fixture("ShieldItems-v21.bin");
-        var publication = ItemCodec.DecodeState(items);
-        Assert.That(ItemCodec.EncodeState(publication), Is.EqualTo(items));
-        Assert.That(publication.Shields.Select(state => (state.Id, state.Stage, state.HP)), Is.EqualTo(new[]
-        { (1ul, ShieldStage.WorldWall, 875f), (2ul, ShieldStage.RearShield, 925f) }));
-        Assert.That(publication.Slots.Single().Item, Is.EqualTo(HeldItem.Shield));
+        // TI22 adds captured Missile deployment/stow boundaries. Old state cannot
+        // silently decode with shifted slot fields; same-build peers are required.
+        Assert.Throws<ArgumentException>(() => ItemCodec.DecodeState(items));
 
         byte[] configuration = Fixture("ShieldConfiguration-v41.bin");
         // TC42 retires the two aerial stabilization controls. Old checkpoints embed

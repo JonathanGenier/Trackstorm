@@ -50,7 +50,7 @@ public sealed partial class MissileTerrainChecks : Node3D
             {
                 await Prepare(name);
                 _running = true;
-                int duration = name == "sustained" ? 1200 : name is "down" or "wall" or "steep" ? 100 : 220;
+                int duration = name == "sustained" ? 1200 : name is "down" or "wall" or "steep" ? 220 : 340;
                 for (int i = 0; i < duration && !_failed; i++) { await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame); }
                 _running = false;
                 if (_failed) { return; }
@@ -132,10 +132,14 @@ public sealed partial class MissileTerrainChecks : Node3D
         if (!_running || _failed) { return; }
         try
         {
-            if (_ticks == 0 || _case == "sustained" && _ticks < 1000 && _ticks % 15 == 0)
+            if (_ticks == 0 || _case == "sustained" && _ticks < 900 && _host.Items.Slots.Single().Active.Item == HeldItem.None && _host.World.State.Tick >= _host.Items.Slots.Single().MissileStowEndTick)
             {
                 Require(_host.Items.Grant(_host.World, 1, HeldItem.Missile), "Repeated fixture acquisition");
-                Require(_host.UseItem(0, 99, 1, _host.Items.Slots.Single().Active.Token), "Real capability-bound launch");
+            }
+            if (_host.Items.Slots.SingleOrDefault()?.Active.Item == HeldItem.Missile &&
+                _host.World.State.Tick >= _host.Items.Slots.Single().MissileReadyTick)
+            {
+                Require(_host.UseItem(0, 99, 1, _host.Items.Slots.Single().Active.Token), "Real capability-bound ready launch");
                 _shots++;
             }
             var prior = _host.Items.Missiles.ToDictionary(m => m.Id);

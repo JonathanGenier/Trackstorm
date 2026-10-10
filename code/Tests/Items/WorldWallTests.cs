@@ -134,6 +134,7 @@ internal sealed class WorldWallTests
     {
         var host = Start(); var wall = Deploy(host);
         host.Items.Grant(host.World, 1, weapon);
+        MissileTestPreparation.Wait(host);
         host.TryConfigure(0, new Dictionary<string, double> { ["items.salvo_arc_height"] = 1, ["items.salvo_launch_height"] = 1 }, out _);
         host.Items.RequestUse(host.World, 1, 1, host.Items.Slots.Single().Active.Token);
         VehicleObservation Shooter(VehicleSnapshot s) => new(new(new(0, 2, 12), Quaternion.Identity, Vector3.Zero, Vector3.Zero), Vector3.UnitY);

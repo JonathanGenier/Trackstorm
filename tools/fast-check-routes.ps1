@@ -39,6 +39,7 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match '(?i)missile|CarRackPresentation') { Add-Runtime 'check-missile-presentation.ps1' }
         if ($path -match 'Missile|missile_terrain|check-missile-terrain') {
             Add-Runtime 'check-missile-terrain.ps1'
             Add-Manual 'Observe heavy missile pitch response, banks/ramps, cliff departure, reacquisition and repeated firing under latency with the rendered missile harness.'
