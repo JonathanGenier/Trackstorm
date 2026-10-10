@@ -9,6 +9,18 @@ namespace Trackstorm.Core.Tests.Sessions;
 [TestFixture]
 internal sealed class PracticeCarTests
 {
+    [TestCase(false)]
+    [TestCase(true)]
+    public void InitialFormationFacesLeaderWithClearRoadGap(bool oval)
+    {
+        var leader = PracticeVehicleInput.InitialPose(oval, 0, 2);
+        var follower = PracticeVehicleInput.InitialPose(oval, 1, 2);
+        var towardLeader = leader.Position - follower.Position;
+        Assert.That(towardLeader.Length(), Is.InRange(9.9f, 10.1f));
+        Assert.That(Vector3.Dot(Vector3.Normalize(towardLeader), Vector3.Transform(-Vector3.UnitZ, follower.Orientation)), Is.GreaterThan(.98f));
+        Assert.That(follower.Position.Y, Is.EqualTo(2));
+    }
+
     [Test]
     public void PracticePairReservesTwoSlotsWithoutTransportOrIdentity()
     {
@@ -73,6 +85,7 @@ internal sealed class PracticeCarTests
         var restored = HostVehicleSession.Restore(checkpoint.Arena!, checkpoint.Host!, human);
         restored.DrivePracticeCar(2, true); restored.DrivePracticeCar(3, true);
         Assert.That(restored.World.GetVehicle(2), Is.EqualTo(host.World.GetVehicle(2)));
+        Assert.That(restored.World.GetVehicle(3), Is.EqualTo(host.World.GetVehicle(3)));
         restored.Step(default, state => new VehicleObservation(state.Movement.Physics, Vector3.UnitY));
         Assert.That(restored.World.GetVehicle(2).Movement.Throttle, Is.GreaterThan(0));
         Assert.That(restored.World.GetVehicle(1).Movement.Throttle, Is.Zero);

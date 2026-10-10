@@ -15,6 +15,17 @@ public sealed class PracticeVehicleInput(bool oval = true)
     private const float Straight = 214;
     private readonly Vector3[] _route = Enumerable.Range(0, 1000).Select(index => oval ? Point(index * (2 * Straight + MathF.Tau * Radius) / 1000) : new Vector3(28 * MathF.Sin(index * MathF.Tau / 1000), 0, 28 * MathF.Cos(index * MathF.Tau / 1000))).ToArray();
 
+    /// <summary>Initial practice formation on the same driving route; never used to reposition a live car.</summary>
+    public static VehiclePhysicsState InitialPose(bool oval, int index, float height)
+    {
+        if (index is < 0 or > 1) { throw new ArgumentOutOfRangeException(nameof(index)); }
+        float phase = -index * 10f / 28;
+        Vector3 position = oval ? Point(100 - index * 10) : new(28 * MathF.Sin(phase), 0, 28 * MathF.Cos(phase));
+        position.Y = height;
+        float yaw = oval ? -MathF.PI / 2 : MathF.Atan2(-MathF.Cos(phase), MathF.Sin(phase));
+        return new(position, Quaternion.CreateFromAxisAngle(Vector3.UnitY, yaw), Vector3.Zero, Vector3.Zero);
+    }
+
     /// <summary>Produces ordinary driving input; inactive lives receive neutral input.</summary>
     /// <param name="state">Current vehicle boundary.</param>
     /// <param name="configuration">Current host handling configuration.</param>
@@ -39,7 +50,7 @@ public sealed class PracticeVehicleInput(bool oval = true)
             float gap = MathF.IEEERemainder((Nearest(leader.Movement.Physics.Position) - nearest) * length / _route.Length, length);
             // Ten metres centre-to-centre leaves about one car length of clear road.
             // Bounded speed corrections settle back to the leader's ordinary speed.
-            desiredSpeed = Math.Clamp(leader.Speed + (gap - 10) * .65f, 0, Speed + 4);
+            desiredSpeed = Math.Clamp(Speed + (gap - 10) * .5f, 0, Speed + 4);
         }
         float error = desiredSpeed - state.Speed;
         _integral = Math.Clamp(_integral + error / configuration.TicksPerSecond * .08f, 0, .7f);

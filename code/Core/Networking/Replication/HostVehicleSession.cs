@@ -374,7 +374,9 @@ public sealed class HostVehicleSession
 
     /// <summary>Creates a disconnected lobby reservation in a newly started match without granting input ownership.</summary>
     /// <param name="playerId">Retained stable lobby identity.</param>
-    public void ReservePlayer(ulong playerId)
+    public void ReservePlayer(ulong playerId) => ReservePlayer(playerId, null);
+
+    private void ReservePlayer(ulong playerId, VehiclePhysicsState? initial)
     {
         if (playerId == 0 || playerId == HostPlayerId || World.State.Vehicles.Any(vehicle => vehicle.VehicleId == playerId) || _peers.Count + _disconnected.Count == 7)
         {
@@ -382,7 +384,10 @@ public sealed class HostVehicleSession
         }
 
         int slot = Enumerable.Range(1, 7).First(candidate => _peers.Values.All(entry => entry.SpawnSlot != candidate) && _disconnected.Values.All(entry => entry.SpawnSlot != candidate));
-        World.JoinVehicle(playerId, Configuration.Configuration.Vehicle, Configuration.Configuration.Damage, Spawn(slot));
+        var spawn = initial is { } proposed && World.Arena.Contains(proposed.Position) &&
+            World.State.Vehicles.All(vehicle => Vector3.Distance(vehicle.ObservedPhysics.Position, proposed.Position) > 6)
+            ? proposed : Spawn(slot);
+        World.JoinVehicle(playerId, Configuration.Configuration.Vehicle, Configuration.Configuration.Damage, spawn);
         _disconnected.Add(playerId, (new HostInputBuffer(), slot));
         _nextVehicle = Math.Max(_nextVehicle, playerId);
     }
@@ -394,7 +399,8 @@ public sealed class HostVehicleSession
     {
         if (_practice.ContainsKey(playerId)) { return; }
         if (_practice.Count == 2) { throw new InvalidOperationException("Only two practice cars are supported."); }
-        if (!World.State.Vehicles.Any(vehicle => vehicle.VehicleId == playerId)) { ReservePlayer(playerId); }
+        if (!World.State.Vehicles.Any(vehicle => vehicle.VehicleId == playerId))
+        { ReservePlayer(playerId, PracticeVehicleInput.InitialPose(oval, _practice.Count, Spawn(1).Position.Y)); }
         if (!_disconnected.ContainsKey(playerId)) { throw new ArgumentException("Practice car cannot own a transport peer."); }
         _practice.Add(playerId, new PracticeVehicleInput(oval));
     }

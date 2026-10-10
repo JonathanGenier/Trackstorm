@@ -59,14 +59,15 @@ practice reset and death/respawn use the same eight grid transforms.
 `VehicleNetworkDriver` retains the contract when restoring migrated authority;
 resume checkpoints retain existing vehicle poses without resetting the map slots.
 
-Normal hosted matches automatically include one Practice Car, following the oval in
-the grid's racing direction and targeting 50 km/h after acceleration. Core supplies
+Normal hosted matches automatically include two practice cars, following the oval in
+the grid's racing direction and targeting 50 km/h after acceleration, with the second
+car following about 10 m behind. Core supplies
 ordinary steering and speed-controlled throttle/brake inputs; it never teleports the
 car or overrides velocity. Banking, collisions and handling changes can temporarily
 change speed. Death and respawn retain normal lifecycle rules, and driving resumes
 from the new spawn. Old Map uses a smaller 28 m radius route around its central
-obstacles. This is route following without dynamic obstacle avoidance. The car occupies
-one of the eight roster slots and replicates through the ordinary vehicle path; see
+obstacles. This is route following without dynamic obstacle avoidance. The pair occupies
+two of the eight roster slots and replicates through the ordinary vehicle path; see
 [session ownership](sessions.md). Local-only practice retains stationary targets.
 
 The map contains 27 scene-authored item markers. Twenty remain on the oval: five transverse rows with pickups at 3, 9 and 15 m across the 18 m surface, plus five singles. Locations follow the Jira placement reference relative to the grid, projected onto actual master sections; its legacy dimensions are not used. The existing network arena registers, observes, distributes and replicates these markers through the existing pickup system. Optional old-map prop snapshots remain absent. Local rigid-body practice retains its existing driving-only role; pickup acquisition and inventory remain owned by hosted gameplay. Old Map retains its own eight pickups.

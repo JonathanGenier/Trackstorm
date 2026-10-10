@@ -30,7 +30,7 @@ Every accordion contains **Reset to Defaults** inside its body. Search matches l
 
 ## Authority and runtime application
 
-Core `GameplayConfiguration` composes the existing vehicle, digital-input shaping, damage, item, spawn, respawn and match records plus destruction tuning and the shared environment identity. `GameplayOptions` is the explicit 243-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
+Core `GameplayConfiguration` composes the existing vehicle, digital-input shaping, damage, item, spawn, respawn and match records plus destruction tuning and the shared environment identity. `GameplayOptions` is the explicit 245-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
 
 Live scalar tuning additionally rejects positive values below 0.0001: subnormal mass/axle lengths can overflow fixed-step divisions despite passing older positive-only checks. Zero remains allowed where the owning rule explicitly supports it. Collision/respawn timers are bounded to one hour and the simulation clock remains fixed at 60 Hz.
 
@@ -283,14 +283,14 @@ The Air control category uses the same staged Apply/Cancel and immediate Reset, 
 | `air_release_damping` | 10 | Post-input angular decay per second; range 1-30 |
 | `support_normal_minimum` | 0.55 | Ground/wheel support minimum world-normal Y; range 0.55–1 |
 
-`VehicleMovement` consumes the rate, acceleration, input-response and release-damping values through the existing authority and prediction paths; the support threshold also reaches both native adapters and wheel ray observations. No orientation target, leveling strength or redundant torque multiplier exists. `AirControlTests`, native `check-air-control.ps1`, and release-default coverage verify this mapping and continuation. Configuration version 46 carries the complete 243-key catalog; old layouts are rejected.
+`VehicleMovement` consumes the rate, acceleration, input-response and release-damping values through the existing authority and prediction paths; the support threshold also reaches both native adapters and wheel ray observations. No orientation target, leveling strength or redundant torque multiplier exists. `AirControlTests`, native `check-air-control.ps1`, and release-default coverage verify this mapping and continuation. Configuration version 48 carries the complete 245-key catalog; old layouts are rejected.
 ## Collision and destruction tuning
 
 Vehicle defaults target a 3000 kg arcade trophy truck: acceleration 24 and braking
 95 m/s² at the retained 900 kg reference mass, with progressive steering and rear-lock
 handbrake tuning. `vehicle.front_drive_share` defaults to 0, range 0–1, and uses
 the existing complete validation, Apply/Reset, persistence and recovery boundary.
-Configuration wire version 46 carries that key and the dirt-corner/crash-recovery controls (245 values). Existing saved overrides
+Configuration wire version 48 carries that key and the dirt-corner/crash-recovery controls (245 values). Existing saved overrides
 remain effective until reset. Suspension length, spring, compression/rebound damping
 and progressive bump controls continue through the same catalog; no separate tuning
 file or new airborne settings exist. `crash_rotation` and `crash_angular_limit` now
@@ -299,7 +299,7 @@ also bound network vehicle contact torque; zero angular limit suppresses added t
 Collision and Destruction use the existing shared Apply/Cancel and authoritative Reset, validation,
 session configuration, reliable revision and resume/migration boundary. New keys
 missing from saved files use production defaults; explicit overrides remain until
-Reset. Configuration wire version 46 carries all 245 keys.
+Reset. Configuration wire version 48 carries all 245 keys.
 
 | Key | Default | Range / unit |
 | --- | ---: | --- |
@@ -377,7 +377,7 @@ Low/medium Dirt corner strength (`vehicle.dirt_cornering`, 0–2), body-supporte
 
 ### TS-197 latest handling correction tuning
 
-The complete 243-key catalog uses wire version 46 (1981 bytes). `vehicle.steering_speed` remains a retired legacy key; the current speed envelope uses the explicit full/fade/scale controls below. Old saved unknown keys do not affect handling. Retired `vehicle.air_delay`, `vehicle.air_dead_zone`, `vehicle.air_stabilization` and `vehicle.air_stabilization_response` overrides are ignored. Never-controlled neutral flight preserves inertia. After aerial input, releasing all axes progressively settles angular motion until wheel/body contact; the finite decay uses `vehicle.air_release_damping` and does not use the retired stabilization sliders. Rate limits bound player-added spin without reducing faster existing rotation. Aerial intent is accepted immediately without tire support outside the existing crash latch; player controller deadzone and sensitivity live in Controls.
+The complete 245-key catalog uses wire version 48 (1981 bytes). `vehicle.steering_speed` remains a retired legacy key; the current speed envelope uses the explicit full/fade/scale controls below. Old saved unknown keys do not affect handling. Retired `vehicle.air_delay`, `vehicle.air_dead_zone`, `vehicle.air_stabilization` and `vehicle.air_stabilization_response` overrides are ignored. Never-controlled neutral flight preserves inertia. After aerial input, releasing all axes progressively settles angular motion until wheel/body contact; the finite decay uses `vehicle.air_release_damping` and does not use the retired stabilization sliders. Rate limits bound player-added spin without reducing faster existing rotation. Aerial intent is accepted immediately without tire support outside the existing crash latch; player controller deadzone and sensitivity live in Controls.
 
 The following previously fixed values now use the same Configs draft, validation, persistence, host replication and authority/prediction path:
 
@@ -401,7 +401,7 @@ The Vehicle category exposes `vehicle.rear_drive_grip` (1.6, range 0.1–4),
 `vehicle.brake_grip` (2, 0.1–4), `vehicle.power_oversteer` (0.8, 0–0.9), and
 `vehicle.spin_drive_loss` (0.7, 0–0.9). The first two scale longitudinal tire
 capacity; the latter two govern steering/torque-induced rear grip loss through
-existing PowerSlip continuation. These use the same 243-value host-owned
+existing PowerSlip continuation. These use the same 245-value host-owned
 configuration, Apply/Reset, persistence, prediction and reliable version-34 codec.
 Steering rate is 0.95 rad/s, smoothing is 0.3 s, lateral response is 55.71429/s;
 the full maximum wheel angle remains available at all speeds.
