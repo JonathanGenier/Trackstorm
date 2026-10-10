@@ -13,6 +13,8 @@ internal sealed partial class ItemPresentation : Node3D
     private readonly List<(Node3D Node, float Age, float Lifetime)> _bursts = new();
     private readonly List<ProxyMineExplosion> _mineExplosions = new();
     private readonly List<MissileExplosion> _missileExplosions = new();
+    private readonly List<MissileSmokeResidue> _missileSmoke = new();
+    internal const int MaximumMissileSmokeResidues = 32;
     internal const int MaximumMissileExplosions = 32;
     private readonly List<ProxyMineScar> _mineScars = new();
     private const int MaximumMineScars = 64;
@@ -20,6 +22,7 @@ internal sealed partial class ItemPresentation : Node3D
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        _missileSmoke.RemoveAll(smoke => !GodotObject.IsInstanceValid(smoke) || smoke.IsQueuedForDeletion());
         _missileExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());
         _mineExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());
         _mineScars.RemoveAll(scar => !GodotObject.IsInstanceValid(scar) || scar.IsQueuedForDeletion());
@@ -113,6 +116,13 @@ internal sealed partial class ItemPresentation : Node3D
 
         foreach (ulong id in _missiles.Keys.Except(state.Missiles.Where(missile => missile.Launched).Select(missile => missile.Id)).ToArray())
         {
+            if (_missiles[id] is MissileFlightVisual flight && flight.RetireSmoke() is { } smoke)
+            {
+                _missileSmoke.RemoveAll(s => !GodotObject.IsInstanceValid(s) || s.IsQueuedForDeletion());
+                if (_missileSmoke.Count >= MaximumMissileSmokeResidues)
+                { _missileSmoke[0].QueueFree(); _missileSmoke.RemoveAt(0); }
+                _missileSmoke.Add(smoke);
+            }
             _missiles[id].QueueFree();
             _missiles.Remove(id);
         }

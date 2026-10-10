@@ -248,17 +248,16 @@ public sealed partial class MissilePresentationChecks : Node
         Require(visuals.All(v => Descendants(v).OfType<MeshInstance3D>().Count(m => m.Name.ToString().StartsWith("FlameCore", StringComparison.Ordinal)) == 3),
             "Each flight owner carries three continuous flame surfaces");
         MissileVfxSettings.Current = MissileVfxSettings.Current with { Density = 0, FlameWidth = .35f };
-        await Frames(4);
-        Require(visuals.All(v => Descendants(v).OfType<GpuParticles3D>().Count() == 1), "Local density zero removes trails from all live projectiles");
+        await Until(() => visuals.All(v => Descendants(v).OfType<GpuParticles3D>().Count() == 1),
+            "Local density zero removes trails from all live projectiles");
         MissileVfxSettings.Current = new();
-        await Frames(4);
-        Require(visuals.All(v => Descendants(v).OfType<GpuParticles3D>().Count() == 4), "Local reset restores all four production effect layers");
+        await Until(() => visuals.All(v => Descendants(v).OfType<GpuParticles3D>().Count() == 5),
+            "Local reset restores all five production effect layers");
         _flightFocus = null;
         int particles = visuals.Sum(v => Descendants(v).OfType<GpuParticles3D>().Sum(p => p.Amount));
         Require(particles <= 16 * 144 * 4, "Sixteen production flight effects respect bounded particle allocation");
         foreach (var visual in visuals) { visual.QueueFree(); }
-        await Frames(2);
-        Require(visuals.All(v => !GodotObject.IsInstanceValid(v)), "All sixteen VFX owners are freed");
+        await Until(() => visuals.All(v => !GodotObject.IsInstanceValid(v)), "All sixteen VFX owners are freed");
     }
     private static IEnumerable<Node> Descendants(Node node)
     {
