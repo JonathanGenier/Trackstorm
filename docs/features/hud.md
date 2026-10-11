@@ -1,6 +1,6 @@
 # In-Match Combat HUD
 
-[Shared weapon aiming](weapon-aiming.md) adds a compact square fixed at the camera viewport center. Direct center-ray intersection with another living, visible car replaces it with four disconnected red/white corner brackets, including at close range. Looking away or hitting cover returns to the centered square. Accepted item aim supplies readiness color, while native camera queries supply the viewed target; neither brackets nor the square claim perfect firing alignment. The overlay clears on selection/lifecycle/suppression/resync boundaries and adds no HUD gameplay authority.
+[Shared weapon aiming](weapon-aiming.md) adds a compact free-aim square fixed at the camera viewport center. A locally assisted living rival instead receives a thin segmented support-surface ellipse and one upright downward chevron above its roof, with a crisp core and restrained glow. White/light grey is acquired/not-ready; warm red/orange follows accepted readiness. There is no target box or side chevron. Native scene depth occludes the marker; unsupported/airborne targets keep only the top glyph. Target loss returns to the ordinary cursor. Marker dimensions never define targeting or the unchanged body-reference accuracy region. The presentation clears on the existing release/selection/lifecycle/suppression/resync boundaries and adds no gameplay authority or guarantee of a hit.
 
 ## Behavior and Layout
 

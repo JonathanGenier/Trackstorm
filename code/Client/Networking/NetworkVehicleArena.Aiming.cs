@@ -8,6 +8,8 @@ namespace Trackstorm.Client.Networking;
 internal sealed partial class NetworkVehicleArena
 {
     private readonly WeaponAimOverlay _aimOverlay = new() { MouseFilter = Control.MouseFilterEnum.Ignore };
+    private readonly AssistedTargetIndicator _targetIndicator = new();
+    internal AssistedTargetIndicator TargetIndicator => _targetIndicator;
     private ulong _aimTarget;
     private float _aimTargetAngle;
     private Vector2 _aimTargetOffset;
@@ -39,6 +41,7 @@ internal sealed partial class NetworkVehicleArena
 
     private void ReleaseAim(string reason)
     {
+        _targetIndicator.Clear();
         if (_aimTarget != 0) { AimReleaseObserved?.Invoke($"target={_aimTarget} reason={reason}"); }
         _aimTarget = 0;
         _aimRecoverySeconds = 0;
@@ -46,6 +49,7 @@ internal sealed partial class NetworkVehicleArena
 
     private void InitializeAiming()
     {
+        AddChild(_targetIndicator);
         var layer = new CanvasLayer { Layer = 1 };
         AddChild(layer);
         layer.AddChild(_aimOverlay);
@@ -150,7 +154,13 @@ internal sealed partial class NetworkVehicleArena
         {
             bounds = ProjectAimBounds(target);
         }
-        _aimOverlay.Present(center, accepted?.Ready == true, bounds);
+        _aimOverlay.Present(center, accepted?.Ready == true, bounds, StickyAiming && framed is not null);
+        if (StickyAiming && framed is not null)
+        {
+            bool grounded = _driver.Latest?.Vehicles.FirstOrDefault(v => v.State.VehicleId == framed.VehicleId)?.State.Movement.Grounded == true;
+            _targetIndicator.Present(framed.VehicleId, framed.VisualTransform, _camera, accepted?.Ready == true, grounded);
+        }
+        else { _targetIndicator.Clear(); }
     }
 
     private (Vector3 Point, NetworkVehicleBody? Car) TraceViewedAim(Vector3 from, Vector3 to)

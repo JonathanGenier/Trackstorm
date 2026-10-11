@@ -68,7 +68,7 @@ public sealed partial class WeaponAimChecks
                 string geometry = arena.AssistedCar != 0 ? arena.AimTargetDiagnostics(arena.AssistedCar) : "capability ended";
                 GD.Print($"ROAD_RELEASE distance={distance} mode={mode} {reason} {geometry}");
             };
-            int retained = 0, acquiredAt = -1;
+            int retained = 0, acquiredAt = -1, markerFrames = 0, ringFrames = 0;
             float minY = float.MaxValue, maxY = float.MinValue, maxHeave = 0, maxError = 0;
             var errors = new List<float>();
             var acceptedErrors = new List<float>();
@@ -96,11 +96,14 @@ public sealed partial class WeaponAimChecks
                     RequireShot(!WeaponAim.IntersectsBody(WeaponAim.Pivot, WeaponAim.Direction(accepted.Yaw, accepted.Pitch)), "Road tracking preserves authoritative self-clearance");
                 }
                 if (arena.AssistedCar == 1) { retained++; if (acquiredAt < 0) { acquiredAt = tick; } }
+                if (arena.TargetIndicator.Target == 1) { markerFrames++; if (arena.TargetIndicator.RingVisible) { ringFrames++; } }
             }
             var end = host.World.GetVehicle(Shooter);
             float readyError = readyErrors.Count == 0 ? 0 : readyErrors.TakeLast(60).Average();
             GD.Print($"ROAD distance={distance} mode={mode} fps={Engine.MaxFps} fov={Camera.Fov} acquiredTick={acquiredAt} retained={retained}/360 releases={releases.Count} reasons={string.Join(';', releases)} travel={end.ObservedPhysics.Position.X - start.X:F3}m rise={maxY-minY:F3}m heave={maxHeave:F3}m/s maxError={maxError:F5} finalMeanError={errors.TakeLast(60).Average():F5}rad acceptedMeanError={acceptedErrors.TakeLast(60).Average():F5}rad readySamples={readyErrors.Count} restricted={restricted} readyMeanError={readyError:F5}rad");
             Require(end.ObservedPhysics.Position.X - start.X > 15 && maxY-minY > .1f && maxHeave > .1f, "Shooter drove actual production elevation changes");
+            GD.Print($"ROAD_MARKER distance={distance} mode={mode} marked={markerFrames}/360 supportedRing={ringFrames}/360");
+            Require(markerFrames == 360 && ringFrames > 0, "Hybrid marker stays on the assisted production-road rival and samples real terrain support");
             Require(retained == 360 && releases.Count == 0, "Visible moving rival survives repeated authored rollers and small corrections without replacement");
             Require(errors.TakeLast(60).Average() < .006f && readyError < .03f,
                 "Camera and unrestricted accepted aim recover alignment; self-blocked close aim remains restricted");
