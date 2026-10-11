@@ -18,6 +18,8 @@ The bottom-right speedometer and two physical slots share one scaled assembly an
 
 ## Remote vehicle tags
 
+For the locally assisted car, the arena lays out the tag after the current frame's chevron: name above HP, then a viewport-scaled gap above the full chevron glow. The stack moves upward only as needed and returns to its ordinary height when assistance clears. This spacing preserves depth testing and fixed world dimensions; it does not enlarge distant text or render through walls.
+
 Network arenas show each connected remote player's canonical `SessionPlayer.Name` above their vehicle, with a compact red HP bar directly below. The bar reads that vehicle's latest accepted `VehicleSnapshot.Damage.CurrentHP / MaxHP`, independently of delayed pose interpolation. There is no numeric HP text or additional tag data. Local vehicles and practice targets have no world tag.
 
 `NetworkVehicleArena` creates one `RemoteVehicleTag` child when it creates a remote `NetworkVehicleBody`. The tag follows the body's rendered position with a world-up offset; its complete transform uses the local chase camera's axes, so vehicle heading, pitch and roll cannot tilt the name or bar. Label and bar retain depth testing and fixed world dimensions, with no through-wall rendering or distance rules. Godot's existing font and native quad geometry require no new assets.

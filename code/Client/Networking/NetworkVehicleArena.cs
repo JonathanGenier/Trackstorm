@@ -267,7 +267,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
                     _driver.IsActive && player?.Connected == true ? player.Name : null,
                     _driver.Latest?.Vehicles.SingleOrDefault(vehicle => vehicle.State.VehicleId == pair.Key)?.State,
                     pair.Value.VisualPosition,
-                    _camera);
+                    _camera,
+                    _targetIndicator.Target == pair.Key && _targetIndicator.ChevronVisible ? _targetIndicator.ChevronTop : null);
             }
         }
 

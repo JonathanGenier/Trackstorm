@@ -52,6 +52,7 @@ internal sealed partial class AssistedTargetIndicator : Node3D
     internal bool ChevronVisible => _chevron.Visible;
     internal Vector3 ChevronTip { get; private set; }
     internal float ChevronWidth { get; private set; }
+    internal Vector2 ChevronTop { get; private set; }
     internal IReadOnlyList<Vector3> SurfacePoints { get; private set; } = [];
 
     public override void _Ready()
@@ -107,6 +108,7 @@ internal sealed partial class AssistedTargetIndicator : Node3D
         _chevronMesh.SurfaceBegin(Mesh.PrimitiveType.Triangles);
         // One tapered downward pointer, with a joined tip and no enclosing crown.
         float unit = ChevronWidth / .92f;
+        ChevronTop = tip - new Vector2(0, .54f * unit);
         Corner(new(0, 0)); Corner(new(1, 0)); Corner(new(0, 1));
         Corner(new(1, 0)); Corner(new(1, 1)); Corner(new(0, 1));
         _chevronMesh.SurfaceEnd(); _chevron.Show();

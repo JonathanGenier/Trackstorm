@@ -33,7 +33,8 @@ internal sealed partial class RemoteVehicleTag : Node3D
     /// <param name="state">Latest accepted authoritative vehicle boundary.</param>
     /// <param name="position">Interpolated vehicle presentation position.</param>
     /// <param name="camera">Local viewport camera.</param>
-    internal void Present(string? displayName, VehicleSnapshot? state, Vector3 position, Camera3D camera)
+    /// <param name="markerTop">Optional screen-space top of the assisted target glyph, including its glow.</param>
+    internal void Present(string? displayName, VehicleSnapshot? state, Vector3 position, Camera3D camera, Vector2? markerTop = null)
     {
         Visible = displayName is not null && state?.CanInteract == true;
         _name.Text = displayName ?? string.Empty;
@@ -42,7 +43,19 @@ internal sealed partial class RemoteVehicleTag : Node3D
         _fill.Scale = new Vector3(Math.Max(fraction, 0.0001f), 1, 1);
         _fill.Position = new Vector3((fraction - 1) * Width / 2, 0, 0.005f);
         // Camera axes keep the complete tag upright in screen space, even when the car rolls.
-        GlobalTransform = new Transform3D(camera.GlobalBasis.Orthonormalized(), position + (Vector3.Up * 2.4f));
+        Vector3 anchor = position + Vector3.Up * 2.4f;
+        float depth = -camera.ToLocal(anchor).Z;
+        if (markerTop is { } top && depth > camera.Near)
+        {
+            // Move the complete stack together, retaining native depth and world-sized text.
+            // The bar's bottom edge clears the glyph's full glow extent at every FOV/distance.
+            Vector2 screen = camera.UnprojectPosition(anchor);
+            float halfBar = screen.DistanceTo(camera.UnprojectPosition(anchor - camera.GlobalBasis.Y * .08f));
+            float gap = 6 * camera.GetViewport().GetVisibleRect().Size.Y / 1080;
+            screen.Y = Math.Min(screen.Y, top.Y - gap - halfBar);
+            anchor = camera.ProjectPosition(screen, depth);
+        }
+        GlobalTransform = new Transform3D(camera.GlobalBasis.Orthonormalized(), anchor);
     }
 
     private static MeshInstance3D Bar(string name, Color color, float height) => new()

@@ -1,5 +1,6 @@
 using Godot;
 using Trackstorm.Core.Items;
+using Trackstorm.Client.Networking;
 using N = System.Numerics;
 
 namespace Trackstorm.Client.Verification;
@@ -10,6 +11,7 @@ public sealed partial class WeaponAimChecks
     {
         var arena = _arenas[1]; var host = _arenas[0].Driver.Host!;
         var marker = arena.TargetIndicator;
+        var tag = new RemoteVehicleTag(); arena.AddChild(tag);
         var settings = new Settings.PlayerSettingsController();
         settings.Initialize(_input.Adapter, System.IO.Path.Combine(_output, "marker-settings.json")); AddChild(settings);
         arena.CameraSettings = settings;
@@ -39,7 +41,7 @@ public sealed partial class WeaponAimChecks
             host.Items.Grant(host.World, Shooter, HeldItem.MachineGun);
             await Until(() => marker.Target == 1, "Only the locally assisted rival receives the hybrid marker");
             Require(!marker.Engaged, "Acquired/deploying uses the white state from actual not-ready aim");
-            await Capture($"marker-{distance}-{variant}-acquired");
+            CheckTagLayout(); await Capture($"marker-{distance}-{variant}-acquired");
             if (distance > 6) { await Until(() => marker.Engaged, "Accepted readiness selects the warm engaged marker"); }
             else { await Frames(120); Require(marker.Engaged == arena.Driver.AcceptedAims.First(a => a.Vehicle == Shooter).Ready,
                 "Close marker colour preserves actual self-clearance readiness instead of forcing an engaged state"); }
@@ -51,7 +53,7 @@ public sealed partial class WeaponAimChecks
             widths[(distance, variant)] = marker.ChevronWidth / _views[1].Size.Y;
             GD.Print($"MARKER_SCALE distance={distance} variant={variant} widthPixels={marker.ChevronWidth:F3}");
             GD.Print($"MARKER distance={distance} measured={arena.Bodies[Shooter].VisualPosition.DistanceTo(arena.Bodies[1].VisualPosition):F3} fov={Camera.Fov} size={_views[1].Size} ringPoints={marker.SurfacePoints.Count} tip={Camera.UnprojectPosition(marker.ChevronTip)}");
-            await Capture($"marker-{distance}-{variant}-" + (marker.Engaged ? "engaged" : "restricted"));
+            CheckTagLayout(); await Capture($"marker-{distance}-{variant}-" + (marker.Engaged ? "engaged" : "restricted"));
             if (distance == 35 && variant == 0 && DisplayServer.GetName() != "headless")
             {
                 Vector2 foot = Camera.UnprojectPosition(arena.Bodies[1].VisualPosition - Vector3.Up * 1.145f);
@@ -65,6 +67,7 @@ public sealed partial class WeaponAimChecks
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             Require(marker.Target == 0 && !marker.RingVisible && !marker.ChevronVisible, "RMB release clears both hybrid elements immediately");
+            CheckTagLayout();
         }
         foreach (int variant in new[] { 0, 1 })
         {
@@ -81,7 +84,7 @@ public sealed partial class WeaponAimChecks
             _views[1].Size = size; await Frames(20);
             Require(marker.Target == 1 && marker.ChevronVisible && marker.RingVisible, "Hybrid marker survives small and ultrawide viewport changes");
             Require(new Rect2(Vector2.Zero, size).HasPoint(Camera.UnprojectPosition(marker.ChevronTip)), "Chevron remains anchored onscreen after resizing");
-            await Capture($"marker-size-{size.X}-{size.Y}");
+            CheckTagLayout(); await Capture($"marker-size-{size.X}-{size.Y}");
         }
         _views[1].Size = new(1280, 800); await Frames(20);
         if (DisplayServer.GetName() != "headless")
@@ -98,7 +101,7 @@ public sealed partial class WeaponAimChecks
             GD.Print($"MARKER_DEPTH warmPixels={before}->{after} retained={marker.Target}");
             Require(marker.Target == 1 && before > 15 && after < before * .2f,
                 "Opaque rendered scenery hides the top glyph without requiring target loss or drawing through it");
-            await Capture("marker-glyph-occluded"); blocker.Free();
+            CheckTagLayout(); await Capture("marker-glyph-occluded"); blocker.Free();
         }
         var slopes = new List<StaticBody3D>();
         foreach (var peer in _arenas)
@@ -111,7 +114,7 @@ public sealed partial class WeaponAimChecks
         _targetOrientation = N.Quaternion.CreateFromYawPitchRoll(0, .12f, .08f);
         _heldTargets = (new(0, floor + .75f, 0), new(6, floor, 0)); await Frames(45); await AimAtCurrent(Center); await Frames(30);
         Require(marker.RingVisible, "Sloped support keeps the ring attached to the footprint");
-        CheckMarkerSupport(); await Capture("marker-slope");
+        CheckMarkerSupport(); CheckTagLayout(); await Capture("marker-slope");
         foreach (var slope in slopes) { slope.Free(); } _targetOrientation = N.Quaternion.Identity;
         _heldTargets = (new(0, floor, 0), new(6, floor, 0)); await Frames(45); await AimAtCurrent(Center);
         for (int i = 0; i < 90; i++)
@@ -124,25 +127,25 @@ public sealed partial class WeaponAimChecks
                 "Chevron stays upright at its world-up anchor through chassis pitch and roll");
         }
         Require(true, "Turning and moving target retained for 90 native frames");
-        await Capture("marker-moving-pair");
+        CheckTagLayout(); await Capture("marker-moving-pair");
         _targetOrientation = N.Quaternion.Identity;
         _heldTargets = (new(2.25f, floor + 6, 0), new(8.25f, floor, 0)); await Frames(30); await AimAtCurrent(Center); await Frames(30);
         Require(marker.Target == 1 && marker.ChevronVisible && !marker.RingVisible, "Airborne target keeps its chevron without a ground or floating ring");
-        await Capture("marker-airborne");
+        CheckTagLayout(); await Capture("marker-airborne");
         _heldTargets = (new(2.25f, floor, 0), new(8.25f, floor, 0)); await Frames(60); await AimAtCurrent(Center); await Frames(30);
         Require(marker.RingVisible, "Landing restores the supported footprint");
-        await Capture("marker-landed");
+        CheckTagLayout(); await Capture("marker-landed");
         ulong other = arena.Bodies.Keys.Single(id => id != Shooter && id != 1);
         await AimAtCurrent(() => arena.Bodies[other].VisualTransform * new Vector3(0, .3f, 0)); await Frames(30);
         Require(marker.Target == other && arena.AssistedCar == other, "Intentional switching transfers both elements to the other nearby car");
-        await Capture("marker-switched");
+        CheckTagLayout(); await Capture("marker-switched");
         var cover = new StaticBody3D { Position = Camera.GlobalPosition.Lerp(arena.Bodies[other].VisualPosition, .65f), CollisionLayer = 1 };
         cover.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(12, 12, 1) } });
         cover.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new(12, 12, 1) } }); arena.AddChild(cover);
         await Frames(5);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        await Capture("marker-covered");
+        CheckTagLayout(); await Capture("marker-covered");
         Require(marker.Target == 0 && !marker.RingVisible && !marker.ChevronVisible, "Real full cover clears both elements");
         cover.Free();
         _heldTargets = null; _targetOrientation = N.Quaternion.Identity;
@@ -150,6 +153,29 @@ public sealed partial class WeaponAimChecks
         Require(marker.Target == 0 && !marker.ChevronVisible && !marker.RingVisible, "Actual death/respawn cannot restore an old hybrid marker");
         arena.CameraSettings = null; settings.QueueFree();
         foreach (var platform in platforms) { platform.QueueFree(); }
+
+        void CheckTagLayout()
+        {
+            ulong id = marker.Target == 0 ? 1 : marker.Target;
+            Vector3 position = arena.Bodies[id].VisualPosition;
+            var state = arena.Driver.Latest!.Vehicles.First(v => v.State.VehicleId == id).State;
+            // This UDP fixture has no lobby roster. Supply only the name explicitly;
+            // production tag rendering and accepted health remain the tested path.
+            tag.Present("Élodie 車 Player", state, position, Camera, marker.ChevronVisible ? marker.ChevronTop : null);
+            if (marker.ChevronVisible)
+            {
+                float bottom = Camera.UnprojectPosition(tag.GlobalPosition - Camera.GlobalBasis.Y * .08f).Y;
+                float gap = marker.ChevronTop.Y - bottom;
+                Require(gap >= 6 * _views[1].Size.Y / 1080 - .02f, "Name/HP stack clears the chevron glow at this distance/FOV/resolution");
+                Require(Camera.UnprojectPosition(tag.GetNode<Label3D>("PlayerName").GlobalPosition).Y < bottom,
+                    "Name remains above HP, with both above the chevron");
+                GD.Print($"MARKER_TAG target={id} gapPixels={gap:F3}");
+            }
+            else
+            {
+                Require(tag.GlobalPosition.IsEqualApprox(position + Vector3.Up * 2.4f), "Without assistance the tag returns to its ordinary height");
+            }
+        }
 
         async Task<int> WarmPixels(Rect2I area)
         {

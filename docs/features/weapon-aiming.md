@@ -1,5 +1,7 @@
 # Camera-relative weapon aiming
 
+The assisted indicator exposes its current projected top edge, including glow, to the [remote name/HP layout](hud.md#remote-vehicle-tags). The arena updates that stack after camera and marker presentation so it clears the chevron at the current distance, FOV and resolution. Marker dimensions retain no targeting or accuracy meaning.
+
 The shared direct-fire foundation serves Machine Gun and standard Missile. Salvo keeps its separate mechanics. The production Car's deployed rack stays fixed: its child mount yaws and the child payload pitches. Missile uses its production Blender turret and telescoping payload; Machine Gun retains its existing placeholder artwork.
 
 **Current integration boundary:** Machine Gun consumes the ready accepted direction and origin for authoritative fire, with deterministic spread calibrated for approximately 80% grouping inside a production car's frame at 200 m. Standard Missile still fires along its established forward direction; its weapon-specific camera-aim integration remains separate. Standard Missile terrain correction operates downstream of its launch velocity and never consumes an aim target or vehicle position. The centered cursor represents camera intent, not a guarantee of impact or an accepted-ray reticle.
