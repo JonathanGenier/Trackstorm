@@ -12,6 +12,27 @@ internal sealed partial class AssistedTargetIndicator : Node3D
     private readonly MeshInstance3D _ring = new();
     private readonly MeshInstance3D _chevron = new();
     private readonly MeshInstance3D _ringCore = new();
+    private readonly StandardMaterial3D _coreMaterial = new() { ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded };
+    private readonly Shader _chevronShader = new() { Code = """
+        shader_type spatial;
+        render_mode unshaded, cull_disabled, depth_draw_never, fog_disabled;
+        uniform vec4 tint : source_color;
+        float wing(vec2 p, vec2 shoulder) {
+            vec2 axis = -shoulder;
+            float along = clamp(dot(p - shoulder, axis) / dot(axis, axis), 0.0, 1.0);
+            return length(p - shoulder - along * axis) - mix(0.032, 0.075, along);
+        }
+        void fragment() {
+            vec2 p = UV * vec2(1.3, 0.72) + vec2(-0.65, -0.54);
+            float edge = min(wing(p, vec2(-0.46, -0.36)), wing(p, vec2(0.46, -0.36)));
+            float aa = max(fwidth(edge), 0.003);
+            float core = 1.0 - smoothstep(-aa, aa, edge);
+            float glow = exp(-max(edge, 0.0) * 30.0) * 0.65;
+            ALBEDO = mix(tint.rgb, vec3(1.0), core * 0.45);
+            ALPHA = max(core, glow);
+        }
+        """ };
+    private ShaderMaterial _chevronMaterial = null!;
     private readonly Shader _shader = new() { Code = """
         shader_type spatial;
         render_mode unshaded, cull_disabled, depth_draw_never, fog_disabled;
@@ -38,6 +59,7 @@ internal sealed partial class AssistedTargetIndicator : Node3D
         TopLevel = true;
         GlobalTransform = Transform3D.Identity;
         _material = new ShaderMaterial { Shader = _shader };
+        _chevronMaterial = new ShaderMaterial { Shader = _chevronShader };
         _ring.Mesh = _ringMesh; _chevron.Mesh = _chevronMesh;
         foreach (var visual in new[] { _ring, _chevron })
         {
@@ -45,7 +67,8 @@ internal sealed partial class AssistedTargetIndicator : Node3D
             visual.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
             AddChild(visual);
         }
-        _ringCore.Mesh = _ringCoreMesh; _ringCore.MaterialOverride = _material;
+        _chevron.MaterialOverride = _chevronMaterial;
+        _ringCore.Mesh = _ringCoreMesh; _ringCore.MaterialOverride = _coreMaterial;
         _ringCore.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off; AddChild(_ringCore);
         Clear();
     }
@@ -60,6 +83,8 @@ internal sealed partial class AssistedTargetIndicator : Node3D
     {
         Target = target; Engaged = ready;
         _material.SetShaderParameter("tint", ready ? new Color(1, .22f, .075f) : new Color(.93f, .96f, 1));
+        _chevronMaterial.SetShaderParameter("tint", ready ? new Color(1, .22f, .075f) : new Color(.93f, .96f, 1));
+        _coreMaterial.AlbedoColor = ready ? new Color(1, .65f, .45f) : Colors.White;
         DrawChevron(pose.Origin, camera);
         if (grounded) { DrawRing(pose, camera); }
         else { _ring.Hide(); _ringCore.Hide(); SurfacePoints = []; }
@@ -80,82 +105,88 @@ internal sealed partial class AssistedTargetIndicator : Node3D
         Vector2 tip = camera.UnprojectPosition(roof) - new Vector2(0, Math.Max(4 * screenScale, 8 * scale));
         ChevronTip = camera.ProjectPosition(tip, depth);
         _chevronMesh.SurfaceBegin(Mesh.PrimitiveType.Triangles);
-        Vector2 left = tip + new Vector2(-19, -24) * scale;
-        Vector2 right = tip + new Vector2(19, -24) * scale;
-        // Match the gameplay reference: downward V plus a short detached crown bar.
-        Line(left, tip); Line(tip, right);
-        Line(left + new Vector2(7, 1) * scale, right + new Vector2(-7, 1) * scale);
+        // One tapered downward pointer, with a joined tip and no enclosing crown.
+        float unit = ChevronWidth / .92f;
+        Corner(new(0, 0)); Corner(new(1, 0)); Corner(new(0, 1));
+        Corner(new(1, 0)); Corner(new(1, 1)); Corner(new(0, 1));
         _chevronMesh.SurfaceEnd(); _chevron.Show();
 
-        void Line(Vector2 a, Vector2 b)
+        void Corner(Vector2 uv)
         {
-            Vector2 side = (b - a).Normalized().Orthogonal() * Mathf.Clamp(9 * scale, 4 * screenScale, 12 * screenScale);
-            Quad(_chevronMesh, camera.ProjectPosition(a - side, depth), camera.ProjectPosition(a + side, depth),
-                camera.ProjectPosition(b - side, depth), camera.ProjectPosition(b + side, depth));
+            _chevronMesh.SurfaceSetUV(uv);
+            _chevronMesh.SurfaceAddVertex(camera.ProjectPosition(tip + (uv * new Vector2(1.3f, .72f) + new Vector2(-.65f, -.54f)) * unit, depth));
         }
     }
 
     private void DrawRing(Transform3D pose, Camera3D camera)
     {
         _ringMesh.ClearSurfaces(); _ringCoreMesh.ClearSurfaces(); _ring.Hide(); _ringCore.Hide(); SurfacePoints = [];
-        // Nearby support only: the ring vanishes on takeoff, not on the road far below.
-        var support = Sample(pose.Origin, VehicleDimensions.RideHeight + .3f);
-        if (support is not { } ground || pose.Origin.Y - ground.Position.Y > VehicleDimensions.RideHeight + .25f) { return; }
-        Vector3 forward = -pose.Basis.Z; forward.Y = 0;
-        if (forward.LengthSquared() < .01f) { forward = Vector3.Forward; }
-        forward = forward.Normalized(); Vector3 right = forward.Cross(Vector3.Up);
+        // Clearance is perpendicular to support, not world vertical: on a 35-degree
+        // bank normal ride height already exceeds the old vertical cutoff.
+        var support = Sample(pose.Origin + Vector3.Up * .3f, 4);
+        if (support is not { } ground) { return; }
+        float clearance = (pose.Origin - ground.Position).Dot(ground.Normal);
+        if (clearance < 0 || clearance > VehicleDimensions.RideHeight + .25f) { return; }
+        Vector3 center = pose.Origin - ground.Normal * clearance;
+        Vector3 forward = (-pose.Basis.Z).Slide(ground.Normal).Normalized();
+        if (forward.LengthSquared() < .01f) { forward = Vector3.Forward.Slide(ground.Normal).Normalized(); }
+        Vector3 right = forward.Cross(ground.Normal).Normalized();
         float depth = Math.Max(1, -camera.ToLocal(pose.Origin).Z);
         float metrePerPixel = camera.ProjectPosition(Vector2.Right, depth).DistanceTo(camera.ProjectPosition(Vector2.Zero, depth));
         float halfWidth = Mathf.Clamp(metrePerPixel * 8, .18f, 1f);
-        const int count = 64;
-        var inner = new Vector3?[count]; var outer = new Vector3?[count];
-        var points = new List<Vector3>();
+        const int count = 64, bands = 4;
+        var samples = new (Vector3 Position, Vector3 Normal)?[count, bands + 1];
         for (int i = 0; i < count; i++)
         {
             float angle = Mathf.Tau * i / count;
             Vector3 radial = right * MathF.Cos(angle) + forward * MathF.Sin(angle);
             Vector3 offset = right * (MathF.Cos(angle) * 2.25f) + forward * (MathF.Sin(angle) * 3.35f);
-            inner[i] = Footprint(offset - radial * halfWidth);
-            outer[i] = Footprint(offset + radial * halfWidth);
+            for (int band = 0; band <= bands; band++)
+            {
+                Vector3 expected = center + offset + radial * (halfWidth * (band * 2f / bands - 1));
+                if (Sample(expected + Vector3.Up * 1.6f, 3.2f) is { } hit && Math.Abs(hit.Position.Y - expected.Y) < 1.5f)
+                {
+                    // The production infield's render/collision bake has a 4 cm bound.
+                    // This small normal offset clears that error without a floating plane.
+                    samples[i, band] = (hit.Position + hit.Normal * .045f, hit.Normal);
+                }
+            }
         }
-        bool started = false;
+        var points = new List<Vector3>(); bool started = false;
         for (int i = 0; i < count; i++)
         {
-            // Four short gaps, leaving long side arcs and shorter nose/tail arcs.
             if (i % 16 is >= 6 and <= 9) { continue; }
             int next = (i + 1) % count;
-            if (inner[i] is not { } a || outer[i] is not { } b || inner[next] is not { } c || outer[next] is not { } d ||
-                Math.Abs(a.Y - c.Y) > .5f || Math.Abs(b.Y - d.Y) > .5f) { continue; }
-            if (!started) { _ringMesh.SurfaceBegin(Mesh.PrimitiveType.Triangles); _ringCoreMesh.SurfaceBegin(Mesh.PrimitiveType.Triangles); started = true; }
-            Quad(_ringMesh, a, b, c, d); points.AddRange([a, b, c, d]);
-            // The luminous line is centred on support. Its small camera-facing halo
-            // stays visible at grazing angles without lifting the footprint off-road.
-            GlowLine((a + b) * .5f, (c + d) * .5f);
+            for (int band = 0; band < bands; band++)
+            {
+                if (samples[i, band] is not { } a || samples[i, band + 1] is not { } b ||
+                    samples[next, band] is not { } c || samples[next, band + 1] is not { } d ||
+                    !Connected(a, b) || !Connected(a, c) || !Connected(b, d) || !Connected(c, d)) { continue; }
+                if (!started) { _ringMesh.SurfaceBegin(Mesh.PrimitiveType.Triangles); started = true; }
+                Quad(_ringMesh, a.Position, b.Position, c.Position, d.Position, band * 2f / bands - 1, (band + 1) * 2f / bands - 1);
+                points.AddRange([a.Position, b.Position, c.Position, d.Position]);
+            }
         }
-        if (started) { _ringMesh.SurfaceEnd(); _ringCoreMesh.SurfaceEnd(); _ring.Show(); _ringCore.Show(); }
+        if (started) { _ringMesh.SurfaceEnd(); _ring.Show(); }
+        // The crisp core is sampled independently, never averaged across a crest or
+        // billboarded toward the camera. Every visible part follows native support.
+        bool core = false;
+        for (int i = 0; i < count; i++)
+        {
+            if (i % 16 is >= 6 and <= 9 || samples[i, bands / 2] is not { } a ||
+                samples[(i + 1) % count, bands / 2] is not { } b || !Connected(a, b)) { continue; }
+            if (!core) { _ringCoreMesh.SurfaceBegin(Mesh.PrimitiveType.Lines); core = true; }
+            _ringCoreMesh.SurfaceAddVertex(a.Position); _ringCoreMesh.SurfaceAddVertex(b.Position);
+        }
+        if (core) { _ringCoreMesh.SurfaceEnd(); _ringCore.Show(); }
         SurfacePoints = points;
 
-        void GlowLine(Vector3 a, Vector3 b)
+        static bool Connected((Vector3 Position, Vector3 Normal) a, (Vector3 Position, Vector3 Normal) b)
         {
-            Vector2 start = camera.UnprojectPosition(a); Vector2 end = camera.UnprojectPosition(b);
-            float startDepth = -camera.ToLocal(a).Z; float endDepth = -camera.ToLocal(b).Z;
-            if (Math.Min(startDepth, endDepth) <= camera.Near) { return; }
-            float screenScale = camera.GetViewport().GetVisibleRect().Size.Y / 1080;
-            float width = Mathf.Clamp(.22f / metrePerPixel, 1.5f * screenScale, 5 * screenScale);
-            Vector2 side = (end - start).Normalized().Orthogonal() * width;
-            Quad(_ringCoreMesh, camera.ProjectPosition(start - side, startDepth), camera.ProjectPosition(start + side, startDepth),
-                camera.ProjectPosition(end - side, endDepth), camera.ProjectPosition(end + side, endDepth));
-        }
-
-        Vector3? Footprint(Vector3 offset)
-        {
-            Vector3 plane = ground.Position + offset;
-            plane.Y -= ground.Normal.Dot(offset) / ground.Normal.Y;
-            return Sample(plane + Vector3.Up * .45f, .9f) is { } hit && Math.Abs(hit.Position.Y - plane.Y) < .4f
-                ? hit.Position + hit.Normal * .018f : null;
+            Vector3 delta = b.Position - a.Position;
+            return delta.LengthSquared() < 1 && Math.Abs(delta.Dot(a.Normal)) < .15f && Math.Abs(delta.Dot(b.Normal)) < .15f;
         }
     }
-
     private (Vector3 Position, Vector3 Normal)? Sample(Vector3 origin, float down)
     {
         using var query = PhysicsRayQueryParameters3D.Create(origin, origin + Vector3.Down * down, 1);
@@ -164,10 +195,10 @@ internal sealed partial class AssistedTargetIndicator : Node3D
         return (hit["position"].AsVector3(), hit["normal"].AsVector3());
     }
 
-    private static void Quad(ImmediateMesh mesh, Vector3 a, Vector3 b, Vector3 c, Vector3 d)
+    private static void Quad(ImmediateMesh mesh, Vector3 a, Vector3 b, Vector3 c, Vector3 d, float first = -1, float second = 1)
     {
-        Vertex(a, -1); Vertex(b, 1); Vertex(c, -1);
-        Vertex(b, 1); Vertex(d, 1); Vertex(c, -1);
+        Vertex(a, first); Vertex(b, second); Vertex(c, first);
+        Vertex(b, second); Vertex(d, second); Vertex(c, first);
         void Vertex(Vector3 p, float across) { mesh.SurfaceSetUV(new(0, across)); mesh.SurfaceAddVertex(p); }
     }
 
@@ -177,5 +208,6 @@ internal sealed partial class AssistedTargetIndicator : Node3D
         _ringCore.Mesh = null; _ringCore.MaterialOverride = null;
         _ring.MaterialOverride = null; _chevron.MaterialOverride = null;
         _ringMesh.Dispose(); _chevronMesh.Dispose(); _ringCoreMesh.Dispose(); _material.Dispose(); _shader.Dispose();
+        _coreMaterial.Dispose(); _chevronMaterial.Dispose(); _chevronShader.Dispose();
     }
 }

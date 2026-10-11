@@ -1,0 +1,97 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Three UDP peers initialized
+Host tuning applied
+Supported 0-degree bank must show the footprint
+MARKER_SURFACE name=bank-0 vertices=768 maxVerticalGap=0.0450m
+Ground geometry conforms across the whole ring, not just its centre
+Airborne state hides the ring even above a bank
+Supported 20-degree bank must show the footprint
+MARKER_SURFACE name=bank-20 vertices=768 maxVerticalGap=0.0479m
+Ground geometry conforms across the whole ring, not just its centre
+Airborne state hides the ring even above a bank
+Supported 35-degree bank must show the footprint
+MARKER_SURFACE name=bank-35 vertices=768 maxVerticalGap=0.0549m
+Ground geometry conforms across the whole ring, not just its centre
+Airborne state hides the ring even above a bank
+Supported 45-degree bank must show the footprint
+MARKER_SURFACE name=bank-45 vertices=768 maxVerticalGap=0.0636m
+Ground geometry conforms across the whole ring, not just its centre
+Airborne state hides the ring even above a bank
+Moving footprint survives curved elevation and cross-slope changes
+MARKER_SURFACE name=curve-0 vertices=768 maxVerticalGap=0.0617m
+Ground geometry conforms across the whole ring, not just its centre
+Moving footprint survives curved elevation and cross-slope changes
+MARKER_SURFACE name=curve-1 vertices=768 maxVerticalGap=0.0600m
+Ground geometry conforms across the whole ring, not just its centre
+Moving footprint survives curved elevation and cross-slope changes
+MARKER_SURFACE name=curve-2 vertices=768 maxVerticalGap=0.0584m
+Ground geometry conforms across the whole ring, not just its centre
+Moving footprint survives curved elevation and cross-slope changes
+MARKER_SURFACE name=curve-3 vertices=768 maxVerticalGap=0.0560m
+Ground geometry conforms across the whole ring, not just its centre
+Moving footprint survives curved elevation and cross-slope changes
+MARKER_SURFACE name=curve-4 vertices=768 maxVerticalGap=0.0541m
+Ground geometry conforms across the whole ring, not just its centre
+Moving footprint survives curved elevation and cross-slope changes
+MARKER_SURFACE name=curve-5 vertices=768 maxVerticalGap=0.0554m
+Ground geometry conforms across the whole ring, not just its centre
+Moving footprint survives curved elevation and cross-slope changes
+MARKER_SURFACE name=curve-6 vertices=768 maxVerticalGap=0.0574m
+Ground geometry conforms across the whole ring, not just its centre
+Moving footprint survives curved elevation and cross-slope changes
+MARKER_SURFACE name=curve-7 vertices=768 maxVerticalGap=0.0600m
+Ground geometry conforms across the whole ring, not just its centre
+Moving footprint survives curved elevation and cross-slope changes
+MARKER_SURFACE name=curve-8 vertices=768 maxVerticalGap=0.0616m
+Ground geometry conforms across the whole ring, not just its centre
+Production bank/roller support exists
+Actual production map support retains the ring
+MARKER_SURFACE name=production-195-0 vertices=768 maxVerticalGap=0.0549m
+Ground geometry conforms across the whole ring, not just its centre
+Production bank/roller support exists
+Actual production map support retains the ring
+MARKER_SURFACE name=production--195-0 vertices=768 maxVerticalGap=0.0549m
+Ground geometry conforms across the whole ring, not just its centre
+Production bank/roller support exists
+Actual production map support retains the ring
+MARKER_SURFACE name=production--95-48 vertices=768 maxVerticalGap=0.0454m
+Ground geometry conforms across the whole ring, not just its centre
+Production bank/roller support exists
+Actual production map support retains the ring
+MARKER_SURFACE name=production-174--57 vertices=768 maxVerticalGap=0.0549m
+Ground geometry conforms across the whole ring, not just its centre
+Production bank/roller support exists
+Actual production map support retains the ring
+MARKER_SURFACE name=production-183--44 vertices=768 maxVerticalGap=0.0549m
+Ground geometry conforms across the whole ring, not just its centre
+Production bank/roller support exists
+Actual production map support retains the ring
+MARKER_SURFACE name=production-190--30 vertices=768 maxVerticalGap=0.0549m
+Ground geometry conforms across the whole ring, not just its centre
+Production bank/roller support exists
+Actual production map support retains the ring
+MARKER_SURFACE name=production-194--15 vertices=768 maxVerticalGap=0.0549m
+Ground geometry conforms across the whole ring, not just its centre
+Production bank/roller support exists
+Actual production map support retains the ring
+MARKER_SURFACE name=production-195-0 vertices=768 maxVerticalGap=0.0549m
+Ground geometry conforms across the whole ring, not just its centre
+Production bank/roller support exists
+Actual production map support retains the ring
+MARKER_SURFACE name=production-194-15 vertices=768 maxVerticalGap=0.0549m
+Ground geometry conforms across the whole ring, not just its centre
+Production bank/roller support exists
+Actual production map support retains the ring
+MARKER_SURFACE name=production-190-30 vertices=768 maxVerticalGap=0.0549m
+Ground geometry conforms across the whole ring, not just its centre
+Production bank/roller support exists
+Actual production map support retains the ring
+MARKER_SURFACE name=production-183-44 vertices=768 maxVerticalGap=0.0549m
+Ground geometry conforms across the whole ring, not just its centre
+Production bank/roller support exists
+Actual production map support retains the ring
+MARKER_SURFACE name=production-174-57 vertices=768 maxVerticalGap=0.0549m
+Ground geometry conforms across the whole ring, not just its centre
+Weapon aiming integration passed: 68 accuracy/retention checks.
