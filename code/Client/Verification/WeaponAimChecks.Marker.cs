@@ -25,6 +25,7 @@ public sealed partial class WeaponAimChecks
             peer.AddChild(platform); platforms.Add(platform); surfaces.Add(material);
         }
         Vector3 Center() => arena.Bodies[1].VisualTransform * new Vector3(0, .3f, 0);
+        var widths = new Dictionary<(float Distance, int Variant), float>();
         foreach (float distance in new[] { 6f, 35f, 200f })
         foreach (int variant in new[] { 0, 1 })
         {
@@ -47,12 +48,28 @@ public sealed partial class WeaponAimChecks
             Require(_arenas.Where(a => a != arena).All(a => a.TargetIndicator.Target == 0), "Other peer cameras do not inherit the local target indicator");
             Require(arena.AimOverlay.Bounds.HasValue, "Unexpanded accuracy reference remains available independently of marker geometry");
             CheckMarkerSupport();
+            widths[(distance, variant)] = marker.ChevronWidth / _views[1].Size.Y;
+            GD.Print($"MARKER_SCALE distance={distance} variant={variant} widthPixels={marker.ChevronWidth:F3}");
             GD.Print($"MARKER distance={distance} measured={arena.Bodies[Shooter].VisualPosition.DistanceTo(arena.Bodies[1].VisualPosition):F3} fov={Camera.Fov} size={_views[1].Size} ringPoints={marker.SurfacePoints.Count} tip={Camera.UnprojectPosition(marker.ChevronTip)}");
             await Capture($"marker-{distance}-{variant}-" + (marker.Engaged ? "engaged" : "restricted"));
+            if (distance == 35 && variant == 0 && DisplayServer.GetName() != "headless")
+            {
+                Vector2 foot = Camera.UnprojectPosition(arena.Bodies[1].VisualPosition - Vector3.Up * 1.145f);
+                var region = new Rect2I((Vector2I)(foot - new Vector2(65, 8)), new(130, 18));
+                int lit = await WarmPixels(region);
+                marker.Hide(); int unmarked = await WarmPixels(region); marker.Show();
+                GD.Print($"MARKER_RING_PIXELS lit={lit} unmarked={unmarked} contribution={lit - unmarked}");
+                Require(lit - unmarked > 40, "Ground ring makes a measurable luminous contribution around the supported footprint");
+            }
             Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false }); await Frames(2);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             Require(marker.Target == 0 && !marker.RingVisible && !marker.ChevronVisible, "RMB release clears both hybrid elements immediately");
+        }
+        foreach (int variant in new[] { 0, 1 })
+        {
+            Require(widths[(6, variant)] > widths[(35, variant)] * 1.25f && widths[(35, variant)] > widths[(200, variant)] * 1.25f,
+                "Chevron visibly shrinks from near to intermediate to far at each FOV instead of keeping a fixed pixel size");
         }
         settings.UpdateSettings(new()); _views[1].Size = new(1280, 800);
         foreach (var material in surfaces) { material.AlbedoColor = new(.3f, .32f, .34f); }
@@ -103,7 +120,7 @@ public sealed partial class WeaponAimChecks
             _heldTargets = (new(i * .025f, floor, 0), new(6 + i * .025f, floor, 0)); await Frames(1);
             RequireShot(marker.Target == 1 && marker.ChevronVisible, "Moving/turning car keeps the marker on its assisted identity");
             Vector2 gap = Camera.UnprojectPosition(marker.ChevronTip) - Camera.UnprojectPosition(arena.Bodies[1].VisualPosition + Vector3.Up * 1.6f);
-            RequireShot(Math.Abs(gap.X) < .01f && Math.Abs(gap.Y + 8 * Math.Max(.7f, _views[1].Size.Y / 1080f)) < .01f,
+            RequireShot(Math.Abs(gap.X) < .01f && gap.Y < -2 && gap.Y > -20,
                 "Chevron stays upright at its world-up anchor through chassis pitch and roll");
         }
         Require(true, "Turning and moving target retained for 90 native frames");
