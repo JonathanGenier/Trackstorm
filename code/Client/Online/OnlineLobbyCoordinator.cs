@@ -196,7 +196,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     internal bool HostRetired(Core.Sessions.MigrationCheckpoint checkpoint) => CoordinationAvailable && _retiredHost is { } retired &&
         retired.Subject == checkpoint.Lobby.Subjects[checkpoint.Lobby.State.CurrentHostId] && retired.Epoch == checkpoint.Lobby.State.AuthorityEpoch &&
         _time.GetElapsedTime(retired.At).TotalSeconds >= CoordinationLeaseSeconds &&
-        retired.Survivors.ToHashSet(StringComparer.Ordinal).SetEquals(checkpoint.Lobby.State.Players.Where(player => player.Connected && player.Id != checkpoint.Lobby.State.CurrentHostId).Select(player => checkpoint.Lobby.Subjects[player.Id]));
+        retired.Survivors.ToHashSet(StringComparer.Ordinal).SetEquals(checkpoint.Lobby.State.Players.Where(player => player.Connected && !player.PracticeCar && player.Id != checkpoint.Lobby.State.CurrentHostId).Select(player => checkpoint.Lobby.Subjects[player.Id]));
 
     /// <summary>Returns the original monotonic service-retirement event boundary after all retirement checks pass.</summary>
     /// <param name="checkpoint">Exact prior authority and eligible survivor cohort.</param>

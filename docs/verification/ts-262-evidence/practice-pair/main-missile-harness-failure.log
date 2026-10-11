@@ -1,0 +1,29 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Two production UDP peers connected
+All five body sections overlap across 101 extension poses; minimum 0.050m
+Compact missile remains inside original horizontal envelope
+Production grant
+Early tap rejected locally
+Early tap rejected by authority
+Owner and remote finish deployment
+No queued shot
+Native airborne Car retains ready mounted assembly (fixture launch)
+Native Car lands after fixture launch
+Landing preserves mounted capability on both peers
+Ready mechanism remains coherent after driving
+Ready press accepted
+Exactly one pickup round consumed
+No replacement shot
+New pickup during stow retained
+Both peers retain returning Missile mount
+Empty mount never reloads
+Rack reaches full closed boundary before new deployment
+New pickup capability preserved
+Next weapon appears on both peers after complete stow
+Repeated Missile grant before Missile
+Repeated Missile ready on both peers
+System.InvalidOperationException: Repeated Missile launch accepted
+   at Trackstorm.Client.Verification.MissilePresentationChecks.Require(Boolean valid, String reason, Boolean record) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\MissilePresentationChecks.cs:line 269
+   at Trackstorm.Client.Verification.MissilePresentationChecks.Replacement(HeldItem next) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\MissilePresentationChecks.cs:line 159
+   at Trackstorm.Client.Verification.MissilePresentationChecks.Run() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\MissilePresentationChecks.cs:line 117

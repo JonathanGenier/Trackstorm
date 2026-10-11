@@ -5,7 +5,7 @@ namespace Trackstorm.Core.Items;
 /// <summary>Deterministic short-range ray construction and damage falloff; no independent projectile authority.</summary>
 internal static class MachineGunShot
 {
-    internal static Vector3 Direction(ulong token, int ordinal, Quaternion orientation, float spreadDegrees)
+    internal static Vector3 Direction(ulong token, int ordinal, Vector3 acceptedDirection, Quaternion orientation, float spreadDegrees)
     {
         // Stateless sampling keeps spread identical after checkpoint replacement and independent of loot RNG.
         ulong seed = unchecked(token * 0x9E3779B97F4A7C15UL + (ulong)ordinal);
@@ -19,7 +19,11 @@ internal static class MachineGunShot
         }
         double radius = Math.Sqrt(Sample()) * Math.Tan(spreadDegrees * Math.PI / 180);
         double angle = Sample() * Math.Tau;
-        return Vector3.Normalize(Vector3.Transform(new Vector3((float)(radius * Math.Cos(angle)), (float)(radius * Math.Sin(angle)), -1), orientation));
+        Vector3 forward = Vector3.Normalize(acceptedDirection);
+        Vector3 up = Vector3.Transform(Vector3.UnitY, orientation);
+        Vector3 right = Vector3.Normalize(Vector3.Cross(forward, up));
+        up = Vector3.Cross(right, forward);
+        return Vector3.Normalize(forward + right * (float)(radius * Math.Cos(angle)) + up * (float)(radius * Math.Sin(angle)));
     }
 
     internal static float Falloff(float distance, ItemConfiguration config) => distance >= config.MachineGunRange ? 0 :

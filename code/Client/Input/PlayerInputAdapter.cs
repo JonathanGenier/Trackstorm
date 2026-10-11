@@ -35,6 +35,9 @@ internal sealed class PlayerInputAdapter
     private bool _gameplaySuppressed;
     private bool _diagnosticSuppressed;
     private Godot.Vector2 _cameraMotion;
+    private bool _cameraAvailable;
+    private bool _mouseAimHeld;
+    private bool _controllerAiming;
 
     /// <summary>Creates an adapter around the Client-owned mapping.</summary>
     /// <param name="bindings">The single local player's bindings.</param>
@@ -142,12 +145,30 @@ internal sealed class PlayerInputAdapter
         set => SetControlState(ref _diagnosticSuppressed, value);
     }
 
-    internal bool CameraAvailable { get; set; }
+    internal bool CameraAvailable
+    {
+        get => _cameraAvailable;
+        set { _cameraAvailable = value; if (!value) { ResetCameraEngagement(); } }
+    }
     internal bool CameraEnabled => CameraAvailable && Enabled && !GameplaySuppressed && !DiagnosticSuppressed;
-    internal bool MouseLookHeld => CameraEnabled && Godot.Input.IsMouseButtonPressed(Godot.MouseButton.Right);
+    internal bool MouseLookHeld => CameraEnabled && _mouseAimHeld && Godot.Input.IsMouseButtonPressed(Godot.MouseButton.Right);
+    // Mouse intent is held, while the existing remappable camera axis initiates controller
+    // engagement. Neither firing nor driving input grants aiming intent.
+    internal bool CameraAimActive => CameraEnabled && (MouseLookHeld || _controllerAiming);
+    internal ulong CameraAimRevision { get; private set; }
 
     internal void ObserveCamera(Godot.InputEvent input)
     {
+        if (input is Godot.InputEventMouseButton { ButtonIndex: Godot.MouseButton.Right } button)
+        {
+            if (_mouseAimHeld != button.Pressed || _controllerAiming) { CameraAimRevision++; }
+            _mouseAimHeld = button.Pressed && CameraEnabled;
+            _controllerAiming = false;
+        }
+        else if (CameraEnabled && input is not Godot.InputEventMouse && CameraIntent != Godot.Vector2.Zero)
+        {
+            _controllerAiming = true;
+        }
         if (input is Godot.InputEventMouseMotion motion && MouseLookHeld)
         {
             _cameraMotion += motion.ScreenRelative;
@@ -162,6 +183,13 @@ internal sealed class PlayerInputAdapter
     }
 
     internal void ResetCameraMotion() => _cameraMotion = Godot.Vector2.Zero;
+
+    private void ResetCameraEngagement()
+    {
+        if (_mouseAimHeld || _controllerAiming) { CameraAimRevision++; }
+        _mouseAimHeld = false;
+        _controllerAiming = false;
+    }
 
     /// <summary>Samples aggregate digital state; preserves press/release transitions until capture.</summary>
     public void Observe()
@@ -284,6 +312,7 @@ internal sealed class PlayerInputAdapter
         {
             state = value;
             ResetCameraMotion();
+            ResetCameraEngagement();
             ControlStateChanged?.Invoke();
         }
     }

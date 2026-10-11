@@ -1,0 +1,56 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.87
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Three UDP peers initialized
+Host tuning applied
+AIM_AT requested=(2.4, 21.949692, 0) firstTargetDrift=(0, 5.9127808E-05, 0) requestedScreen=(642.08636, 401.61633)
+ACQUISITION distance=6.000m offset=2.40m initialError=0.14879 acquired=0
+AIM_RELEASE target=1 reason=deliberate sweep
+AIM_AT requested=(0, 21.949661, 0) firstTargetDrift=(0, 2.861023E-05, 0) requestedScreen=(640.0526, 399.99857)
+JOLTS distance=6 retained=180/180 angularLosses=0 releases=
+AIM_RELEASE target=1 reason=intent/lifecycle reset
+RMB release bypasses all recovery tolerance
+AIM_AT requested=(3.2, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0057, 400.0001)
+ACQUISITION distance=35.000m offset=3.20m initialError=0.07207 acquired=1
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+JOLTS distance=35 retained=180/180 angularLosses=0 releases=
+AIM_RELEASE target=1 reason=intent/lifecycle reset
+RMB release bypasses all recovery tolerance
+AIM_AT requested=(13, 21.949999, 0) firstTargetDrift=(0, 1.9073486E-06, 0) requestedScreen=(640, 400)
+ACQUISITION distance=200.000m offset=13.00m initialError=0.06205 acquired=0
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+JOLTS distance=200 retained=0/180 angularLosses=0 releases=
+RMB release bypasses all recovery tolerance
+ERROR: System.InvalidOperationException: Body-aware acquisition 1/3; unintended angular releases=0
+   at Trackstorm.Client.Verification.WeaponAimChecks.Require(Boolean condition, String message) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 564
+   at Trackstorm.Client.Verification.WeaponAimChecks.CheckAimRecovery() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Recovery.cs:line 64
+   at Trackstorm.Client.Verification.WeaponAimChecks.Run() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 109
+   at: void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__24.MoveNext() (res://code/Client/Verification/WeaponAimChecks.cs:109)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__24.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:109)
+       [2] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [3] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [4] void System.Threading.Tasks.Task.RunContinuations(object)
+       [5] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [6] bool System.Threading.Tasks.Task.TrySetException(object)
+       [7] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [8] void Trackstorm.Client.Verification.WeaponAimChecks+<CheckAimRecovery>d__50.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Recovery.cs:64)
+       [9] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [10] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [11] void System.Threading.Tasks.Task.RunContinuations(object)
+       [12] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder.SetResult()
+       [13] void Trackstorm.Client.Verification.WeaponAimChecks+<Frames>d__37.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:517)
+       [14] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [15] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [16] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)

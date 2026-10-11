@@ -39,6 +39,10 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'PracticeVehicleInput|PracticeCar|HostedPractice|hosted_practice|check-hosted-practice') {
+            Add-Extended 'check-hosted-practice.ps1'
+            Add-Manual 'Check hosted practice driving on both maps, target acquisition/fire, respawn and host migration; use check-hosted-practice.ps1 -OldMap for the smaller route.'
+        }
         if ($path -match '(?i)missile|CarRackPresentation') { Add-Runtime 'check-missile-presentation.ps1' }
         if ($path -match 'Missile|missile_terrain|check-missile-terrain') {
             Add-Runtime 'check-missile-terrain.ps1'
@@ -78,9 +82,10 @@ function Get-FastCheckPlan {
         if ($path -match 'TrophyTruck|trophy_truck|check-trophy-truck|VehicleCollision|NetworkVehicleBody') {
             Add-Runtime 'check-trophy-truck.ps1'
         }
-        if ($path -match 'WeaponAim|Aiming|weapon_aim|check-weapon-aim') {
+        if ($path -match 'WeaponAim|Aiming|CameraAimAttraction|weapon_aim|check-weapon-aim') {
             Add-Runtime 'check-weapon-aim.ps1'
             Add-Manual 'Inspect aiming while driving, close/airborne/crossing targets, mouse and physical controller feel, and impaired remote articulation with check-weapon-aim.ps1 -Visual -Impaired.'
+            Add-Manual 'Measure actual 200 m grouping with check-weapon-aim.ps1 -Accuracy -Impaired; inspect retention/breakaway with -Sticky -Visual -Impaired and driving/placement freedom with -Freedom -Visual -Impaired -Oval.'
         }
         if ($path -match 'CarRack|RackItemVisual|car_rack|check-car-rack') {
             Add-Runtime 'check-car-rack.ps1'

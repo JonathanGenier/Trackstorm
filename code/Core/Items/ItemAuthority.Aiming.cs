@@ -26,7 +26,7 @@ public sealed partial class ItemAuthority
         return true;
     }
 
-    /// <summary>Current solution for future direct-fire consumers; never falls back to a stale capability.</summary>
+    /// <summary>Ready solution for direct-fire consumers; never falls back to a stale capability.</summary>
     public WeaponAimSolution? AcceptedAim(ulong vehicle, ulong life, ulong token) =>
         _aims.TryGetValue(vehicle, out var aim) && aim.Life == life && aim.Token == token && aim.Ready ? aim : null;
 
