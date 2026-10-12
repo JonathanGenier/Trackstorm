@@ -17,6 +17,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 | Evidence | Reports |
 | --- | --- |
 | Machine Gun camera aiming | [TS-262 accepted firing, sticky car assistance, 200 m grouping, native multiplayer and critique](ts-262.md) |
+| Standard Missile camera aiming | [TS-263 shared free aim, car assistance, launcher articulation, multiplayer/runtime verification and Astra critique](ts-263.md) |
 | Missile model and flight VFX | [Implementation and runtime verification](ts-240.md) |
 | Momentum advantage, loaded drive and off-center collision response | [TS-288 verification evidence](ts-288.md) |
 | Audit and resolution of two stale local stashes | [TS-289 verification evidence](ts-289.md) |
