@@ -92,7 +92,7 @@ internal sealed class CameraFreeLookTests
         var look = new CameraFreeLook();
         look.Advance(new Vector2(100000, -100000), true, Vector2.Zero, 1f / 60, -0.4f, weaponAiming);
         Assert.That(look.Yaw, Is.InRange(-MathF.PI, MathF.PI));
-        Assert.That(look.Pitch - 0.4f, Is.EqualTo(85 * MathF.PI / 180).Within(0.00001), "Upward view stops before the pole.");
+        Assert.That(look.Pitch - 0.4f, Is.EqualTo(90 * MathF.PI / 180).Within(0.00001), "Upward view reaches the vertical pole without crossing it.");
         look.Advance(new Vector2(0, 100000), true, Vector2.Zero, 1f / 60, -0.4f, weaponAiming);
         Assert.That(look.Pitch - 0.4f, Is.EqualTo(-85 * MathF.PI / 180).Within(0.00001), "Downward orbit stops before the pole.");
         look.Reset();

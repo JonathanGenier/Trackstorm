@@ -167,7 +167,9 @@ public sealed partial class MissilePresentationChecks : Node
         Require(closed && _arenas.All(a => a.Bodies[1].Rack.PresentedItem == next), $"Full closure precedes {next} deployment on both peers");
     }
 
-    private bool MissileReady() => _arenas.All(a => a.Driver.ItemState?.Slots.SingleOrDefault(s => s.Vehicle == 1) is { } inventory &&
+    private bool MissileReady() => _arenas[0].Driver.Host is { } host &&
+        host.Items.Slots.SingleOrDefault(s => s.Vehicle == 1) is { } selected && host.World.State.Tick >= selected.MissileReadyTick &&
+        _arenas.All(a => a.Driver.ItemState?.Slots.SingleOrDefault(s => s.Vehicle == 1) is { } inventory &&
         a.Bodies[1].Rack.IsMissileReady(inventory));
 
     private async Task Frame(InputFrame input = default)

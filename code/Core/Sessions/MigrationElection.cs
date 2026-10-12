@@ -13,8 +13,8 @@ public sealed class MigrationElection
     public MigrationElection(MigrationCheckpoint checkpoint, string digest)
     {
         var state = checkpoint.Lobby.State;
-        _voters = state.Players.Where(player => player.Connected && player.Id != state.CurrentHostId).Select(player => player.Id).ToHashSet();
-        bool soleSurvivor = state.Players.Count == 2 && _voters.Count == 1;
+        _voters = state.Players.Where(player => player.Connected && !player.PracticeCar && player.Id != state.CurrentHostId).Select(player => player.Id).ToHashSet();
+        bool soleSurvivor = state.Players.Count(player => !player.PracticeCar) == 2 && _voters.Count == 1;
         if ((!soleSurvivor && _voters.Count < 2) || digest.Length != 64 || !digest.All(Uri.IsHexDigit) || state.AuthorityEpoch == ulong.MaxValue)
         {
             throw new ArgumentException("Migration requires an eligible two-player survivor or multiple agreeing survivors and a valid boundary.");

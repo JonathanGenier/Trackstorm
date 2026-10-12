@@ -72,6 +72,11 @@ public sealed partial class RearShieldChecks : Node
                 ushort throttle = _stage == 3 && _scenario is 1 or 6 ? ushort.MaxValue : (ushort)0;
                 var input = new InputFrame((ulong)_frame, 0, throttle, 0, fire ? InputButtons.UseItem : 0,
                     fire && elapsed == 1 ? InputButtons.UseItem : 0, 0);
+                if (i == 0 && _arenas[0].Driver.LocalState is { } shooter && _arenas[0].Driver.Host!.World.State.Vehicles.FirstOrDefault(v => v.VehicleId == 2) is { } target)
+                {
+                    var origin = shooter.ObservedPhysics.Position + N.Vector3.Transform(WeaponAim.Pivot, shooter.ObservedPhysics.Orientation);
+                    _arenas[0].Driver.DesiredAim = N.Vector3.Normalize(target.ObservedPhysics.Position + N.Vector3.UnitY * .7f - origin);
+                }
                 _arenas[i].Advance(input);
                 Check(_arenas[i].Driver.Failure.Length == 0, _arenas[i].Driver.Failure);
             }
@@ -106,7 +111,7 @@ public sealed partial class RearShieldChecks : Node
                     Check(host.Items.Grant(host.World, 1, HeldItem.MachineGun), "Shooter second slot");
                     Check(_arenas[0].Driver.RequestItemSwitch(), "Select weapon and stow shooter shield");
                     Next(2); break;
-                case 2 when elapsed > 40:
+                case 2 when elapsed > 180:
                     Check(_arenas.All(a => !a.Bodies[1].HasRearShield && a.Bodies[2].HasRearShield), "Only selected shield has physical cover on both peers");
                     Position();
                     _vehicleHP = host.World.GetVehicle(2).Damage.CurrentHP;

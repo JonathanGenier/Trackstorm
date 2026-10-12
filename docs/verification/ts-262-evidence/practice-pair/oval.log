@@ -1,0 +1,14 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connected; None; 
+Transport peer 1: Connected; None; 
+HOSTED_PRACTICE frames=9000 travel=2086.71m speed=13.76..14.07m/s HP=1000.00
+PRACTICE_PAIR gap=9.82..10.13m followerSpeed=13.58..14.07m/s HP=1000.00
+HOSTED_PRACTICE respawn life=1->2 speed=14.13m/s
+Transport peer 1: Connecting; None; 
+Transport peer 2: Connecting; None; 
+Transport peer 2: Connected; None; 
+Transport peer 1: Connected; None; 
+Hosted practice passed: steady laps, remote presentation, late join, return and repeat start.

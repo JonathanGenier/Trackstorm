@@ -1,0 +1,115 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Three UDP peers initialized
+Host tuning applied
+Accuracy sample magazine configured
+AIM_AT requested=(0, 56.95, -88.14929) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400.08087)
+200m car acquired: yaw=0, FOV=50
+Accuracy fire uses ordinary remote sustained-use request
+Verification restored synthetic focus after a desktop focus change
+Verification restored synthetic focus after a desktop focus change
+Half-magazine actual-ray sample collected
+Complete authoritative magazine sampled (including non-tracers)
+ACCURACY yaw=0 fov=50 shots=2400 inside=1951 outside=449 percent=81.292 nativeVehicleHits=1524 distance=200.000..200.000m spread=0.42deg
+200m grouping within statistical tolerance: 1951/2400 (81.29%) yaw=0 FOV=50; collision count 1524 is separate
+AIM_AT requested=(0, 56.95, -88.14929) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400.01855)
+200m car acquired: yaw=0, FOV=90
+Accuracy fire uses ordinary remote sustained-use request
+Half-magazine actual-ray sample collected
+Complete authoritative magazine sampled (including non-tracers)
+ACCURACY yaw=0 fov=90 shots=2400 inside=1909 outside=491 percent=79.542 nativeVehicleHits=1514 distance=200.000..200.000m spread=0.42deg
+200m grouping within statistical tolerance: 1909/2400 (79.54%) yaw=0 FOV=90; collision count 1514 is separate
+AIM_AT requested=(0, 56.95, -88.14929) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400.05438)
+200m car acquired: yaw=45, FOV=50
+Accuracy fire uses ordinary remote sustained-use request
+Half-magazine actual-ray sample collected
+Complete authoritative magazine sampled (including non-tracers)
+ACCURACY yaw=45 fov=50 shots=2400 inside=1931 outside=469 percent=80.458 nativeVehicleHits=1518 distance=200.000..200.000m spread=0.42deg
+200m grouping within statistical tolerance: 1931/2400 (80.46%) yaw=45 FOV=50; collision count 1518 is separate
+AIM_AT requested=(0, 56.950005, -88.14929) firstTargetDrift=(0, -7.6293945E-06, 0) requestedScreen=(640, 400.01828)
+200m car acquired: yaw=45, FOV=90
+Accuracy fire uses ordinary remote sustained-use request
+Half-magazine actual-ray sample collected
+Complete authoritative magazine sampled (including non-tracers)
+ACCURACY yaw=45 fov=90 shots=2400 inside=1937 outside=463 percent=80.708 nativeVehicleHits=1554 distance=200.000..200.000m spread=0.42deg
+200m grouping within statistical tolerance: 1937/2400 (80.71%) yaw=45 FOV=90; collision count 1554 is separate
+AIM_AT requested=(0, 56.95, -88.14929) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400.05597)
+200m car acquired: yaw=90, FOV=50
+Accuracy fire uses ordinary remote sustained-use request
+Half-magazine actual-ray sample collected
+Complete authoritative magazine sampled (including non-tracers)
+ACCURACY yaw=90 fov=50 shots=2400 inside=1944 outside=456 percent=81.000 nativeVehicleHits=1599 distance=200.000..200.000m spread=0.42deg
+200m grouping within statistical tolerance: 1944/2400 (81.00%) yaw=90 FOV=50; collision count 1599 is separate
+AIM_AT requested=(0, 56.95, -88.14929) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400.01883)
+200m car acquired: yaw=90, FOV=90
+Accuracy fire uses ordinary remote sustained-use request
+Half-magazine actual-ray sample collected
+Complete authoritative magazine sampled (including non-tracers)
+ACCURACY yaw=90 fov=90 shots=2400 inside=1894 outside=506 percent=78.917 nativeVehicleHits=1547 distance=200.000..200.000m spread=0.42deg
+200m grouping within statistical tolerance: 1894/2400 (78.92%) yaw=90 FOV=90; collision count 1547 is separate
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Sticky acquisition selects a visible living rival car
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Camera attraction follows a displaced car without input/recentering: 0.00064 -> 0.00000 rad
+Attraction improves retention alignment over disabled pull (0.04513 rad unassisted)
+Moving target retained through 90 frames of small mouse errors
+Small alternating corrections retain aim near the moving body centre
+STICKY_BREAK mouse yaw=-0.13466527->0.07533475 held=True target=0 bounds=
+Deliberate mouse breakaway promptly restores free aim
+Unframed cursor-directed free fire produces actual rounds (40)
+AIM_AT requested=(5.56, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Small controller corrections retain the same framed car
+Full controller aim-away releases without trapping input
+AIM_AT requested=(5.56, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00006, 400)
+Crossing rear car does not cause target switching or bracket flicker
+Intervening car breaks retention of the covered car
+AIM_AT requested=(5.56, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Solid non-vehicle cover releases assistance and never acquires brackets
+AIM_AT requested=(5.5600004, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, -1.9073486E-06, 0) requestedScreen=(640, 399.99994)
+Retained moving-car aim survives 30 FPS, gain 0.25, FOV 50, recenter 3: error=0.00000 rad
+Full controller breakaway remains immediate at 30 FPS and sensitivity gain 0.25
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00006, 400)
+Mouse sweep breakaway remains immediate at 30 FPS and sensitivity gain 0.25
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99997)
+Retained moving-car aim survives 30 FPS, gain 3, FOV 90, recenter 3: error=0.00000 rad
+Full controller breakaway remains immediate at 30 FPS and sensitivity gain 3
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0008, 400)
+Mouse sweep breakaway remains immediate at 30 FPS and sensitivity gain 3
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99997)
+Retained moving-car aim survives 60 FPS, gain 0.25, FOV 50, recenter 3: error=0.00000 rad
+Full controller breakaway remains immediate at 60 FPS and sensitivity gain 0.25
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0001, 400)
+Mouse sweep breakaway remains immediate at 60 FPS and sensitivity gain 0.25
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99997)
+Retained moving-car aim survives 60 FPS, gain 3, FOV 90, recenter 3: error=0.00000 rad
+Full controller breakaway remains immediate at 60 FPS and sensitivity gain 3
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Mouse sweep breakaway remains immediate at 60 FPS and sensitivity gain 3
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99997)
+Retained moving-car aim survives 144 FPS, gain 0.25, FOV 50, recenter 3: error=0.00000 rad
+Full controller breakaway remains immediate at 144 FPS and sensitivity gain 0.25
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Mouse sweep breakaway remains immediate at 144 FPS and sensitivity gain 0.25
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Retained moving-car aim survives 144 FPS, gain 3, FOV 90, recenter 3: error=0.00000 rad
+Full controller breakaway remains immediate at 144 FPS and sensitivity gain 3
+Continuing deliberate input cannot repeatedly reacquire the car
+AIM_AT requested=(2, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Mouse sweep breakaway remains immediate at 144 FPS and sensitivity gain 3
+AIM_AT requested=(2, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.001, 399.99997)
+Production missile crossing an engaged view never replaces the retained car
+Production missile presentation under cursor never becomes an assisted target
+Production mine presentation under cursor never becomes an assisted target
+Production rock artwork never becomes an assisted target
+Production pickup presentation never becomes an assisted target
+Non-vehicle objects retain the centred ordinary cursor
+Suppression retires acquired identity and HUD
+Weapon aiming integration passed: 76 accuracy/retention checks.
+Weapon aiming artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\aim-checks\c4041032e767423ca5e1a62fd51abe0a

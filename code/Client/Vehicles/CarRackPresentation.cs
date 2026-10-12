@@ -19,9 +19,6 @@ internal sealed partial class CarRackPresentation : Node
     private float _useTime;
     private ulong _life;
     private float _nitroRemaining;
-    private float _replacementStart;
-    private float _replacementNozzle;
-    private ulong _nitroReadyTick;
     private ProxyMineState? _placement;
     private bool _mineReturning;
     private WeaponAimSolution? _aim;
@@ -31,7 +28,9 @@ internal sealed partial class CarRackPresentation : Node
     internal HeldItem PresentedItem => _payload?.Visible == true ? _mounted : HeldItem.None;
     internal float Progress => _mechanism.Progress;
     internal Func<bool>? ShieldReturning { get; set; }
-    internal bool ShieldRequested => _desired == HeldItem.Shield && !_replace;
+    // Selection expresses intent; only the installed carriage owns deployment.
+    // A returning Missile can still hold the shared rack fully raised.
+    internal bool ShieldRequested => _desired == HeldItem.Shield && _payload is Items.ShieldRack && !_replace;
     internal bool IsShieldSelection(ItemSlot inventory) => ShieldRequested && Progress >= .999f &&
         _previous?.SelectionRevision == inventory.SelectionRevision && _previous.Active.Token == inventory.Active.Token &&
         _previous.Life == inventory.Life;
@@ -81,8 +80,6 @@ internal sealed partial class CarRackPresentation : Node
         if (selection || acquired)
         {
             _aim = null;
-            _replacementStart = _mechanism.Progress;
-            _replacementNozzle = Boost.Deployment;
             _replace = _mounted != HeldItem.None;
             _usePending = false;
             _useTime = 0;
@@ -109,13 +106,6 @@ internal sealed partial class CarRackPresentation : Node
             _usePending = false;
             _replace = _mounted is not (HeldItem.None or HeldItem.ProxyMine);
         }
-        if (_desired == HeldItem.Nitro)
-        {
-            float confirmedRemaining = inventory!.NitroDeploymentTicks / 60f;
-            _nitroReadyTick = checked(tick + (ulong)inventory.NitroDeploymentTicks);
-            _nitroRemaining = selection || acquired ? confirmedRemaining : Math.Min(_nitroRemaining, confirmedRemaining);
-            if (!_missileStowing && _payload is not Items.MissileLauncher && ShieldReturning?.Invoke() != true) { AnimateNitroDeployment(0); }
-        }
     }
 
     internal void Reset()
@@ -140,12 +130,18 @@ internal sealed partial class CarRackPresentation : Node
     public override void _Process(double delta)
     {
         if (AnimateMissile(Math.Max(0, (float)delta))) { return; }
-        if (_desired == HeldItem.Nitro)
+        if (_desired == HeldItem.Nitro && (_mounted == HeldItem.None || (_mounted == HeldItem.Nitro && !_replace)))
         {
-            // The wide shield must finish nesting before the Boost timeline can
-            // lower or replace its rack. This never delays authoritative Boost.
-            if (ShieldReturning?.Invoke() == true)
-            { _mechanism.SetTimelineProgress(null); _mechanism.Deployed = true; return; }
+            // A new timeline may own the rack only after the outgoing payload,
+            // rack and trunk have completed the normal return path below.
+            if (_mounted == HeldItem.None)
+            {
+                _nitroRemaining = ItemSlot.NitroDeploymentDurationTicks / 60f;
+                Boost.Reset();
+                _mounted = HeldItem.Nitro;
+                _payload = Boost;
+                _replace = false;
+            }
             AnimateNitroDeployment(Math.Max(0, (float)delta));
             return;
         }
@@ -228,23 +224,13 @@ internal sealed partial class CarRackPresentation : Node
     private void AnimateNitroDeployment(float delta)
     {
         _nitroRemaining = Math.Max(0, _nitroRemaining - delta);
-        if (_previous is { EngagedToken: > 0 } inventory && inventory.EngagedToken == inventory.Active.Token &&
-            Boost.Source()?.Movement is { Nitro.Active: true } movement && movement.Tick >= _nitroReadyTick) { _nitroRemaining = 0; }
         float elapsed = ItemSlot.NitroDeploymentDurationTicks / 60f - _nitroRemaining;
         if (elapsed < .12f)
         {
-            _mechanism.SetTimelineProgress(_replacementStart * (1 - Mathf.Clamp((elapsed - .05f) / .07f, 0, 1)));
+            _mechanism.SetTimelineProgress(0);
             Boost.Deploy = false;
-            Boost.DeploymentTimeline = _replacementNozzle * Math.Max(0, 1 - elapsed / .05f);
+            Boost.DeploymentTimeline = 0;
             return;
-        }
-        if (_mounted != HeldItem.Nitro || _replace)
-        {
-            ClearPayload();
-            Boost.Reset();
-            _mounted = HeldItem.Nitro;
-            _payload = Boost;
-            _replace = false;
         }
         _mechanism.SetTimelineProgress(Mathf.Clamp((elapsed - .12f) / .32f, 0, 1));
         Boost.DeploymentTimeline = _nitroRemaining <= 0 ? 1 : Mathf.Clamp((elapsed - .44f) / .16f, 0, 1);

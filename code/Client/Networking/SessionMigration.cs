@@ -382,7 +382,7 @@ internal sealed class SessionMigration
         ulong maximumRollbackTicks = (ulong)(MaximumRecoverableCheckpointAgeSeconds * HostVehicleSession.TickRate);
         var current = _lobby.State!;
         if (checkpoint.Lobby.State.Match != current.Match || checkpoint.Lobby.State.Phase != current.Phase ||
-            (checkpoint.Lobby.State.Players.Count == 2 && current.Players.Count != 2) || tick > observed ||
+            (checkpoint.Lobby.State.Players.Count(player => !player.PracticeCar) == 2 && current.Players.Count(player => !player.PracticeCar) != 2) || tick > observed ||
             observed - tick > maximumRollbackTicks)
         {
             return false;
@@ -412,7 +412,7 @@ internal sealed class SessionMigration
     {
         _publishedAt = _seconds;
         var authority = _lobby.Authority!;
-        if (authority.State.Players.Any(player => player.Connected && player.Id != authority.State.CurrentHostId && !authority.Peers.Values.Contains(player.Id)))
+        if (authority.State.Players.Any(player => player.Connected && !player.PracticeCar && player.Id != authority.State.CurrentHostId && !authority.Peers.Values.Contains(player.Id)))
         {
             return;
         }
@@ -447,10 +447,10 @@ internal sealed class SessionMigration
 
     private void Retain(MigrationCheckpoint checkpoint, byte[] bytes)
     {
-        if (checkpoint.Lobby.State.Players.Count > 2)
+        if (checkpoint.Lobby.State.Players.Count(player => !player.PracticeCar) > 2)
         {
             // A larger roster revokes permission to recover alone from an older two-player copy.
-            _retained.RemoveAll(entry => entry.State.Lobby.State.Players.Count == 2);
+            _retained.RemoveAll(entry => entry.State.Lobby.State.Players.Count(player => !player.PracticeCar) == 2);
         }
 
         if (_retained.Count > 0 && (_retained[^1].State.Lobby.State.AuthorityEpoch != checkpoint.Lobby.State.AuthorityEpoch || _retained[^1].State.Lobby.State.Match != checkpoint.Lobby.State.Match || _retained[^1].State.Lobby.State.Phase != checkpoint.Lobby.State.Phase))
@@ -510,7 +510,7 @@ internal sealed class SessionMigration
                 continue;
             }
 
-            var voters = entry.State.Lobby.State.Players.Where(player => player.Connected && player.Id != entry.State.Lobby.State.CurrentHostId).Select(player => player.Id).ToArray();
+            var voters = entry.State.Lobby.State.Players.Where(player => player.Connected && !player.PracticeCar && player.Id != entry.State.Lobby.State.CurrentHostId).Select(player => player.Id).ToArray();
             if (voters.Any(id => !_offers.TryGetValue(id, out var hashes) || !hashes.Contains(entry.Digest)))
             {
                 continue;

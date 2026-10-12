@@ -1,6 +1,6 @@
 # In-Match Combat HUD
 
-[Shared weapon aiming](weapon-aiming.md) adds a compact square fixed at the camera viewport center. Direct center-ray intersection with another living, visible car replaces it with four disconnected red/white corner brackets, including at close range. Looking away or hitting cover returns to the centered square. Accepted item aim supplies readiness color, while native camera queries supply the viewed target; neither brackets nor the square claim perfect firing alignment. The overlay clears on selection/lifecycle/suppression/resync boundaries and adds no HUD gameplay authority.
+[Shared weapon aiming](weapon-aiming.md) adds a compact free-aim square fixed at the camera viewport center. A locally assisted living rival instead receives a thin segmented support-surface ellipse and one upright tapered downward pointer above its roof, with a bright core and soft neon glow. The chevron scales with perspective inside near/far readability limits; the ring leaves visible arcs outside the tires with the entire glow ribbon projected onto the local slope or changing elevation. White/light grey is acquired/not-ready; warm red/orange follows accepted readiness. There is no target box or side chevron. Native scene depth occludes the marker; unsupported/airborne targets keep only the top glyph. Target loss returns to the ordinary cursor. Marker dimensions never define targeting or the unchanged body-reference accuracy region. The presentation clears on the existing release/selection/lifecycle/suppression/resync boundaries and adds no gameplay authority or guarantee of a hit.
 
 ## Behavior and Layout
 
@@ -17,6 +17,8 @@ Empty, Wrench, Missile, Oil, Nitro, Proxy Mine, Salvo, Machine Gun and Shield ha
 The bottom-right speedometer and two physical slots share one scaled assembly anchored flush to the bottom and right viewport edges. Its flat baseline/right boundary and shallow armored shoulders conserve gameplay space. Rusted beveled rails, restrained upper/left spikes, bolts and a recessed skull divider retain the Carnage identity. Slot numbers remain stable; a yellow perimeter follows the selected physical slot, including when empty, without ACTIVE/SELECTED wording. Each slot binds its own identity, optically centered icon and optional resource independently of selection. Replacement, removal, life changes and missing inventory clear obsolete content immediately. The separate bottom-left HP artwork and binding retain their existing placement and common scale.
 
 ## Remote vehicle tags
+
+For the locally assisted car, the arena lays out the tag after the current frame's chevron: name above HP, then a viewport-scaled gap above the full chevron glow. The stack moves upward only as needed and returns to its ordinary height when assistance clears. This spacing preserves depth testing and fixed world dimensions; it does not enlarge distant text or render through walls.
 
 Network arenas show each connected remote player's canonical `SessionPlayer.Name` above their vehicle, with a compact red HP bar directly below. The bar reads that vehicle's latest accepted `VehicleSnapshot.Damage.CurrentHP / MaxHP`, independently of delayed pose interpolation. There is no numeric HP text or additional tag data. Local vehicles and practice targets have no world tag.
 

@@ -7,7 +7,7 @@ namespace Trackstorm.Core.Development;
 public sealed class DeveloperSettingsFile
 {
     /// <summary>Current host-local file schema, independent of the gameplay wire protocol.</summary>
-    public const int SchemaVersion = 2;
+    public const int SchemaVersion = 3;
     private readonly Dictionary<string, string> _unknown = new(StringComparer.Ordinal);
 
     /// <summary>Validated effective values, defaulting missing fields to the caller's canonical configuration.</summary>
@@ -100,6 +100,11 @@ public sealed class DeveloperSettingsFile
                 }
             }
         }
+
+        // Prior files wrote every field, including the superseded default dispersion.
+        // Migrate that default once; keep other custom spreads and all schema-three overrides.
+        if (loadedSchema < 3 && pending.TryGetValue("items.machine_gun_spread", out double spread) && Math.Abs(spread - 6) < .000001)
+        { pending.Remove("items.machine_gun_spread"); }
 
         // Apply related valid fields together first, then salvage independent values from a damaged transaction.
         if (GameplayOptions.TryApply(result.Configuration, pending, out var complete, out _))
