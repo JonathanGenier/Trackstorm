@@ -111,6 +111,15 @@ public sealed partial class WeaponAimChecks : Node
             await Until(() => _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 3), "Three UDP peers initialized", 1200);
             var host = _arenas[0].Driver.Host!;
             Require(host.TryConfigure(0, new Dictionary<string, double> { ["match.minimum_players"] = 1, ["match.countdown_ticks"] = 1 }, out _), "Host tuning applied");
+            if (OS.GetCmdlineUserArgs().Contains("--aim-missile"))
+            {
+                await CheckMissileAim();
+                System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "missile-evidence.txt"), _evidence);
+                GD.Print($"Weapon aiming integration passed: {_evidence.Count} Missile checks.");
+                foreach (var arena in _arenas) { arena.QueueFree(); }
+                for (int i = 0; i < 4; i++) { await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); }
+                GetTree().Quit(); return;
+            }
             if (OS.GetCmdlineUserArgs().Contains("--aim-surfaces") || OS.GetCmdlineUserArgs().Contains("--aim-marker") || OS.GetCmdlineUserArgs().Contains("--aim-look") || OS.GetCmdlineUserArgs().Contains("--aim-death") || OS.GetCmdlineUserArgs().Contains("--aim-close") || OS.GetCmdlineUserArgs().Contains("--aim-road") || OS.GetCmdlineUserArgs().Contains("--aim-accuracy") || OS.GetCmdlineUserArgs().Contains("--aim-sticky") || OS.GetCmdlineUserArgs().Contains("--aim-freedom") || OS.GetCmdlineUserArgs().Contains("--aim-recovery"))
             {
                 if (OS.GetCmdlineUserArgs().Contains("--aim-accuracy")) { await CheckAccuracy(); }

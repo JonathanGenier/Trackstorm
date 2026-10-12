@@ -16,10 +16,12 @@ internal sealed partial class VehicleNetworkDriverTests
         using var client = new VehicleNetworkDriver(clientWire, 0, ServerPeer);
         int probes = 0, samples = 0;
         IReadOnlyList<MissileState>? motion = null;
+        // Preserve the fixture's two-metre launch clearance at the rack socket.
+        float surfaceHeight = WeaponAim.Pivot.Y - 1;
         host.QueryMissileTerrain = (a, b) =>
         {
             probes++;
-            return a.Y >= -1 && b.Y <= -1 ? new(new(a.X, -1, a.Z), Vector3.UnitY) : null;
+            return a.Y >= surfaceHeight && b.Y <= surfaceHeight ? new(new(a.X, surfaceHeight, a.Z), Vector3.UnitY) : null;
         };
         client.QueryMissileTerrain = (_, _) => throw new InvalidOperationException("A client must not steer authoritative missiles.");
         client.ProjectileMotionReceived += missiles => { samples++; motion = missiles; };
@@ -38,7 +40,7 @@ internal sealed partial class VehicleNetworkDriverTests
         Assert.That(probes, Is.GreaterThan(20));
         Assert.That(samples, Is.GreaterThan(0));
         Assert.That(motion!.Single().Velocity.Y, Is.LessThan(0));
-        Assert.That(motion!.Single().Position.Y, Is.LessThan(1));
+        Assert.That(motion!.Single().Position.Y, Is.LessThan(surfaceHeight + 2));
         Assert.That(motion!.Single().Velocity.X, Is.Zero);
         Assert.That(client.ItemState!.Missiles.Select(m => m.Id), Is.EqualTo(host.ItemState!.Missiles.Select(m => m.Id)));
     }

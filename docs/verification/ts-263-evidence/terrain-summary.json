@@ -1,0 +1,137 @@
+[
+  {
+    "name": "flat",
+    "ticks": 340,
+    "shots": 1,
+    "impacts": 0,
+    "minimumClearance": 0.9999936,
+    "maximumClearance": 1.9890147,
+    "peakPitchDegreesPerSecond": 15.733695
+  },
+  {
+    "name": "ramp",
+    "ticks": 340,
+    "shots": 1,
+    "impacts": 0,
+    "minimumClearance": 1,
+    "maximumClearance": 2.3998775,
+    "peakPitchDegreesPerSecond": 29.773472
+  },
+  {
+    "name": "bank",
+    "ticks": 340,
+    "shots": 1,
+    "impacts": 0,
+    "minimumClearance": 1,
+    "maximumClearance": 1,
+    "peakPitchDegreesPerSecond": 0
+  },
+  {
+    "name": "uneven",
+    "ticks": 340,
+    "shots": 1,
+    "impacts": 0,
+    "minimumClearance": 0.9756349,
+    "maximumClearance": 1.0717852,
+    "peakPitchDegreesPerSecond": 9.622534
+  },
+  {
+    "name": "cliff",
+    "ticks": 340,
+    "shots": 1,
+    "impacts": 0,
+    "minimumClearance": 1,
+    "maximumClearance": 9,
+    "peakPitchDegreesPerSecond": 0
+  },
+  {
+    "name": "reacquire",
+    "ticks": 340,
+    "shots": 1,
+    "impacts": 0,
+    "minimumClearance": 0.6020171,
+    "maximumClearance": 1.9890147,
+    "peakPitchDegreesPerSecond": 30.348686
+  },
+  {
+    "name": "sky",
+    "ticks": 340,
+    "shots": 1,
+    "impacts": 0,
+    "minimumClearance": 2.9318519,
+    "maximumClearance": 346.8018,
+    "peakPitchDegreesPerSecond": 0
+  },
+  {
+    "name": "down",
+    "ticks": 220,
+    "shots": 1,
+    "impacts": 1,
+    "minimumClearance": null,
+    "maximumClearance": 0,
+    "peakPitchDegreesPerSecond": 0
+  },
+  {
+    "name": "wall",
+    "ticks": 220,
+    "shots": 1,
+    "impacts": 1,
+    "minimumClearance": 1,
+    "maximumClearance": 1,
+    "peakPitchDegreesPerSecond": 0
+  },
+  {
+    "name": "steep",
+    "ticks": 220,
+    "shots": 1,
+    "impacts": 1,
+    "minimumClearance": 1,
+    "maximumClearance": 1,
+    "peakPitchDegreesPerSecond": 0
+  },
+  {
+    "name": "tuning",
+    "ticks": 340,
+    "shots": 1,
+    "impacts": 0,
+    "minimumClearance": 1.6,
+    "maximumClearance": 1.6,
+    "peakPitchDegreesPerSecond": 0
+  },
+  {
+    "name": "sustained",
+    "ticks": 1200,
+    "shots": 6,
+    "impacts": 0,
+    "minimumClearance": 1,
+    "maximumClearance": 1,
+    "peakPitchDegreesPerSecond": 0
+  },
+  {
+    "name": "three-peer-impaired",
+    "uses": [
+      12,
+      12,
+      12
+    ],
+    "motions": [
+      1045,
+      1017,
+      1021
+    ],
+    "curved": [
+      true,
+      true,
+      true
+    ],
+    "delayMilliseconds": 30,
+    "jitterMilliseconds": 5,
+    "lossPercent": 2
+  },
+  {
+    "name": "production-oval",
+    "queries": 276,
+    "suitable": 252,
+    "impacts": 1
+  }
+]

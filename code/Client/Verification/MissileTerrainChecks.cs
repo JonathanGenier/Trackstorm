@@ -121,7 +121,11 @@ public sealed partial class MissileTerrainChecks : Node3D
         if (name == "tuning") { config = config with { MissileTerrain = config.MissileTerrain with { Clearance = 1.6f }, MissileSpeed = 80 }; }
         _host = new HostVehicleSession(99, config);
         float angle = name == "sky" ? 75 : name == "down" ? -60 : 0;
-        _launch = new(new N.Vector3(0, name == "tuning" ? 1.6f : name == "flat" || name == "reacquire" ? 2 : 1, 0), N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitX, angle * MathF.PI / 180), N.Vector3.Zero, N.Vector3.Zero);
+        var orientation = N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitX, angle * MathF.PI / 180);
+        var origin = new N.Vector3(0, name == "tuning" ? 1.6f : name == "flat" || name == "reacquire" ? 2 : 1, 0);
+        // These profiles specify projectile clearance. Place the fixture vehicle
+        // so its production rack socket begins at that same measured origin.
+        _launch = new(origin - N.Vector3.Transform(WeaponAim.Pivot, orientation), orientation, N.Vector3.Zero, N.Vector3.Zero);
         await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
         var sample = MissileTerrainQuery.Cast(GetWorld3D().DirectSpaceState, new(0, 2, 0), new(0, -2, 0));
         Require(sample is not null && sample.Normal.Y > 0.9f, $"{name}: native authored ground query");

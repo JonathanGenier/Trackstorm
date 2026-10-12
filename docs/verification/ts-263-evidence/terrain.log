@@ -1,0 +1,30 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Missile flat: 1 shots, 0 impacts, clearance 1.000..1.989, peak pitch 15.73 deg/s
+Missile ramp: 1 shots, 0 impacts, clearance 1.000..2.400, peak pitch 29.77 deg/s
+Missile bank: 1 shots, 0 impacts, clearance 1.000..1.000, peak pitch 0.00 deg/s
+Missile uneven: 1 shots, 0 impacts, clearance 0.976..1.072, peak pitch 9.62 deg/s
+Missile cliff: 1 shots, 0 impacts, clearance 1.000..9.000, peak pitch 0.00 deg/s
+Missile reacquire: 1 shots, 0 impacts, clearance 0.602..1.989, peak pitch 30.35 deg/s
+Missile sky: 1 shots, 0 impacts, clearance 2.932..346.802, peak pitch 0.00 deg/s
+Missile down: 1 shots, 1 impacts, clearance n/a, peak pitch 0.00 deg/s
+Missile wall: 1 shots, 1 impacts, clearance 1.000..1.000, peak pitch 0.00 deg/s
+Missile steep: 1 shots, 1 impacts, clearance 1.000..1.000, peak pitch 0.00 deg/s
+Missile tuning: 1 shots, 0 impacts, clearance 1.600..1.600, peak pitch 0.00 deg/s
+Missile sustained: 6 shots, 0 impacts, clearance 1.000..1.000, peak pitch 0.00 deg/s
+Missile native network: launches=12,12,12, motion=1045,1017,1021, curved=True,True,True, cleanup confirmed
+Missile production oval: 276 probes, 252 suitable hits, 1 impacts, cleanup confirmed
+Production table-east-60: pass=True, launch=<-62.135838, 7.516231, 9.314619E-05>, pitch=0.292, furthest=205.173, min=0.388, peak=210.000, impact=(205.37079, 10.628786, -0.004255922), material=Concrete, collider=/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter
+Production table-west-60: pass=True, launch=<62.138508, 7.5161505, -7.9589285E-05>, pitch=0.292, furthest=205.170, min=0.389, peak=210.000, impact=(-205.37079, 10.627817, -0.00023828915), material=Concrete, collider=/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter
+Production bank-60: pass=True, launch=<-189.84064, 0.9800489, 0.0070324074>, pitch=21.098, furthest=205.291, min=0.988, peak=210.000, impact=(-205.37079, 11.311256, 0.016913943), material=Concrete, collider=/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter
+Production table-east-120: pass=True, launch=<-62.135838, 7.516231, 9.314619E-05>, pitch=0.292, furthest=204.204, min=0.980, peak=206.839, impact=(205.37079, 10.633972, -0.004255913), material=Concrete, collider=/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter
+Production table-west-120: pass=True, launch=<62.138508, 7.5161505, -7.9589285E-05>, pitch=0.292, furthest=204.201, min=0.981, peak=206.503, impact=(-205.37079, 10.633153, -0.00023828962), material=Concrete, collider=/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter
+Production bank-120: pass=True, launch=<-189.84064, 0.9800489, 0.0070324074>, pitch=21.098, furthest=203.820, min=0.562, peak=163.219, impact=(-205.37079, 10.862837, 0.016913937), material=Concrete, collider=/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter
+Production table-east-180: pass=True, launch=<-62.135838, 7.516231, 9.314619E-05>, pitch=0.292, furthest=203.208, min=1.620, peak=0.799, impact=(205.37079, 10.570562, -0.0042559137), material=Concrete, collider=/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter
+Production table-west-180: pass=True, launch=<62.138508, 7.5161505, -7.9589285E-05>, pitch=0.292, furthest=203.205, min=1.621, peak=0.800, impact=(-205.37079, 10.569977, -0.00023828974), material=Concrete, collider=/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter
+Production bank-180: pass=True, launch=<-189.84064, 0.9800489, 0.0070324074>, pitch=21.098, furthest=203.922, min=0.302, peak=204.856, impact=(-205.37079, 10.569834, 0.016913936), material=Concrete, collider=/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter
+Production table-offset-north: pass=True, launch=<-62.128815, 7.5158634, -4.995082>, pitch=0.309, furthest=204.195, min=1.038, peak=184.400, impact=(205.34853, 10.693199, -2.095431), material=Concrete, collider=/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter
+Production table-offset-south: pass=True, launch=<62.129436, 7.51585, 4.9950314>, pitch=0.310, furthest=204.195, min=1.041, peak=183.106, impact=(-205.34866, 10.695663, 2.089848), material=Concrete, collider=/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter
+Production bank-mid: pass=True, launch=<-195.761, 5.059089, -0.00051605457>, pitch=34.684, furthest=204.884, min=3.602, peak=0.000, impact=(-206.01414, 14.368783, -0.0019039614), material=Concrete, collider=/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter
+Missile terrain integration passed: native traversal, transitions, impacts, tuning, serialized continuation and sustained cleanup.
+Missile verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\missile-checks

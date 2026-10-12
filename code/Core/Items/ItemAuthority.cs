@@ -319,14 +319,23 @@ public sealed partial class ItemAuthority
                 }
                 continue;
             }
+            // Camera intent uses only the current shared accepted solution. A missing,
+            // expired or blocked solution must not silently become a forward shot.
+            var missileAim = slot.Item == HeldItem.Missile ? AcceptedAim(slot.Vehicle, slot.Life, slot.Token) : null;
+            bool aimedMissile = slot.Item == HeldItem.Missile && _aimIntents.ContainsKey(slot.Vehicle);
             if (request.Reset.HasValue || handler is null || (slot.Item == HeldItem.Salvo && input.Tick < slot.SalvoReadyTick) ||
-                !handler.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil, boosts, mines, moveMine is null ? null : placeMine, NextToken, ground))
+                (slot.Item == HeldItem.Missile && (inventory.Active.Token != slot.Token || world.State.Tick < inventory.MissileReadyTick ||
+                    (aimedMissile && (missileAim is null || missileAim.Tick != world.State.Tick)))) ||
+                !(slot.Item == HeldItem.Missile
+                    ? MissileUseHandler.Stage(slot, request.Observation.Physics, Configuration, missiles, missileAim)
+                    : handler.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil, boosts, mines, moveMine is null ? null : placeMine, NextToken, ground)))
             {
                 continue;
             }
 
             if (slot.Item == HeldItem.Missile) { inventory = StowMissile(inventory, input.Tick); }
-            if (slot.Item != HeldItem.Salvo) { events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, request.Observation.Physics.Position, false)); }
+            if (slot.Item != HeldItem.Salvo) { events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item,
+                slot.Item == HeldItem.Missile ? missiles[^1].Position : request.Observation.Physics.Position, false)); }
             if (slot.Item == HeldItem.Salvo)
             {
                 int remaining = slot.SalvoShots - 1;

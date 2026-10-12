@@ -49,6 +49,17 @@ public sealed partial class HostedPracticeChecks : Node
             ulong[] cars = host.Lobby!.State!.Players.Where(player => player.PracticeCar).Select(player => player.Id).Order().ToArray();
             ulong car = cars[0], follower = cars[1];
             await Frames(600);
+            if (OS.GetCmdlineUserArgs().Contains("--missile-aim"))
+            {
+                await CheckMissilePracticePair(host, remote, cars);
+                foreach (var session in _sessions) { session.Leave(); }
+                await Until(() => _sessions.All(session => session.LeaveComplete), "clean departure after Missile aiming");
+                _done = true;
+                foreach (var session in _sessions) { session.GetParent().QueueFree(); }
+                await Frames(4);
+                GD.Print("Hosted Missile aiming passed: both lobby practice cars, switching, lock markers and remote launch.");
+                GetTree().Quit(); return;
+            }
             var authority = host.Arena!.Driver.Host!;
             var previous = authority.World.GetVehicle(car).Movement.Physics.Position;
             float travel = 0, min = float.MaxValue, max = 0;

@@ -1,0 +1,398 @@
+[
+  {
+    "scenario": "table-east-60",
+    "passed": true,
+    "speed": 60,
+    "drivenFrames": 226,
+    "launch": {
+      "x": -62.135838,
+      "y": 7.516231,
+      "z": 9.314619E-05
+    },
+    "actualLaunchOrigin": {
+      "x": -63.789955,
+      "y": 9.316461,
+      "z": 8.8786255E-05
+    },
+    "launchDirection": {
+      "x": 0.99998695,
+      "y": 0.0051036426,
+      "z": -1.4460995E-05
+    },
+    "launchPitch": 0.29241845,
+    "furthest": 205.17279,
+    "deckMinimum": 2.9710512,
+    "minimumClearance": 0.38846016,
+    "peakPitchRate": 210.00006,
+    "impact": {
+      "x": 205.37079,
+      "y": 10.628786,
+      "z": -0.004255922
+    },
+    "impactMaterial": "Concrete",
+    "impactCollider": "/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter"
+  },
+  {
+    "scenario": "table-west-60",
+    "passed": true,
+    "speed": 60,
+    "drivenFrames": 226,
+    "launch": {
+      "x": 62.138508,
+      "y": 7.5161505,
+      "z": -7.9589285E-05
+    },
+    "actualLaunchOrigin": {
+      "x": 63.79263,
+      "y": 9.316382,
+      "z": -4.2132204E-05
+    },
+    "launchDirection": {
+      "x": -0.99998695,
+      "y": 0.0051033306,
+      "z": -1.7160783E-06
+    },
+    "launchPitch": 0.29240057,
+    "furthest": 205.17014,
+    "deckMinimum": 2.9709744,
+    "minimumClearance": 0.38862324,
+    "peakPitchRate": 210.00006,
+    "impact": {
+      "x": -205.37079,
+      "y": 10.627817,
+      "z": -0.00023828915
+    },
+    "impactMaterial": "Concrete",
+    "impactCollider": "/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter"
+  },
+  {
+    "scenario": "bank-60",
+    "passed": true,
+    "speed": 60,
+    "drivenFrames": 104,
+    "launch": {
+      "x": -189.84064,
+      "y": 0.9800489,
+      "z": 0.0070324074
+    },
+    "actualLaunchOrigin": {
+      "x": -187.61194,
+      "y": 2.0676627,
+      "z": 0.0050263354
+    },
+    "launchDirection": {
+      "x": -0.9329672,
+      "y": 0.35996142,
+      "z": 0.0005466342
+    },
+    "launchPitch": 21.09782,
+    "furthest": 205.29149,
+    "deckMinimum": null,
+    "minimumClearance": 0.987504,
+    "peakPitchRate": 210.00023,
+    "impact": {
+      "x": -205.37079,
+      "y": 11.311256,
+      "z": 0.016913943
+    },
+    "impactMaterial": "Concrete",
+    "impactCollider": "/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter"
+  },
+  {
+    "scenario": "table-east-120",
+    "passed": true,
+    "speed": 120,
+    "drivenFrames": 226,
+    "launch": {
+      "x": -62.135838,
+      "y": 7.516231,
+      "z": 9.314619E-05
+    },
+    "actualLaunchOrigin": {
+      "x": -63.789955,
+      "y": 9.316461,
+      "z": 8.8786255E-05
+    },
+    "launchDirection": {
+      "x": 0.99998695,
+      "y": 0.0051036426,
+      "z": -1.4460995E-05
+    },
+    "launchPitch": 0.29241845,
+    "furthest": 204.20392,
+    "deckMinimum": 2.9755106,
+    "minimumClearance": 0.9798565,
+    "peakPitchRate": 206.83867,
+    "impact": {
+      "x": 205.37079,
+      "y": 10.633972,
+      "z": -0.004255913
+    },
+    "impactMaterial": "Concrete",
+    "impactCollider": "/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter"
+  },
+  {
+    "scenario": "table-west-120",
+    "passed": true,
+    "speed": 120,
+    "drivenFrames": 226,
+    "launch": {
+      "x": 62.138508,
+      "y": 7.5161505,
+      "z": -7.9589285E-05
+    },
+    "actualLaunchOrigin": {
+      "x": 63.79263,
+      "y": 9.316382,
+      "z": -4.2132204E-05
+    },
+    "launchDirection": {
+      "x": -0.99998695,
+      "y": 0.0051033306,
+      "z": -1.7160783E-06
+    },
+    "launchPitch": 0.29240057,
+    "furthest": 204.20123,
+    "deckMinimum": 2.975453,
+    "minimumClearance": 0.98069954,
+    "peakPitchRate": 206.50294,
+    "impact": {
+      "x": -205.37079,
+      "y": 10.633153,
+      "z": -0.00023828962
+    },
+    "impactMaterial": "Concrete",
+    "impactCollider": "/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter"
+  },
+  {
+    "scenario": "bank-120",
+    "passed": true,
+    "speed": 120,
+    "drivenFrames": 104,
+    "launch": {
+      "x": -189.84064,
+      "y": 0.9800489,
+      "z": 0.0070324074
+    },
+    "actualLaunchOrigin": {
+      "x": -187.61194,
+      "y": 2.0676627,
+      "z": 0.0050263354
+    },
+    "launchDirection": {
+      "x": -0.9329672,
+      "y": 0.35996142,
+      "z": 0.0005466342
+    },
+    "launchPitch": 21.09782,
+    "furthest": 203.81973,
+    "deckMinimum": null,
+    "minimumClearance": 0.5623083,
+    "peakPitchRate": 163.21907,
+    "impact": {
+      "x": -205.37079,
+      "y": 10.862837,
+      "z": 0.016913937
+    },
+    "impactMaterial": "Concrete",
+    "impactCollider": "/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter"
+  },
+  {
+    "scenario": "table-east-180",
+    "passed": true,
+    "speed": 180,
+    "drivenFrames": 226,
+    "launch": {
+      "x": -62.135838,
+      "y": 7.516231,
+      "z": 9.314619E-05
+    },
+    "actualLaunchOrigin": {
+      "x": -63.789955,
+      "y": 9.316461,
+      "z": 8.8786255E-05
+    },
+    "launchDirection": {
+      "x": 0.99998695,
+      "y": 0.0051036426,
+      "z": -1.4460995E-05
+    },
+    "launchPitch": 0.29241845,
+    "furthest": 203.20766,
+    "deckMinimum": 2.979971,
+    "minimumClearance": 1.6195583,
+    "peakPitchRate": 0.798634,
+    "impact": {
+      "x": 205.37079,
+      "y": 10.570562,
+      "z": -0.0042559137
+    },
+    "impactMaterial": "Concrete",
+    "impactCollider": "/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter"
+  },
+  {
+    "scenario": "table-west-180",
+    "passed": true,
+    "speed": 180,
+    "drivenFrames": 226,
+    "launch": {
+      "x": 62.138508,
+      "y": 7.5161505,
+      "z": -7.9589285E-05
+    },
+    "actualLaunchOrigin": {
+      "x": 63.79263,
+      "y": 9.316382,
+      "z": -4.2132204E-05
+    },
+    "launchDirection": {
+      "x": -0.99998695,
+      "y": 0.0051033306,
+      "z": -1.7160783E-06
+    },
+    "launchPitch": 0.29240057,
+    "furthest": 203.20499,
+    "deckMinimum": 2.9799309,
+    "minimumClearance": 1.6206741,
+    "peakPitchRate": 0.80043733,
+    "impact": {
+      "x": -205.37079,
+      "y": 10.569977,
+      "z": -0.00023828974
+    },
+    "impactMaterial": "Concrete",
+    "impactCollider": "/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter"
+  },
+  {
+    "scenario": "bank-180",
+    "passed": true,
+    "speed": 180,
+    "drivenFrames": 104,
+    "launch": {
+      "x": -189.84064,
+      "y": 0.9800489,
+      "z": 0.0070324074
+    },
+    "actualLaunchOrigin": {
+      "x": -187.61194,
+      "y": 2.0676627,
+      "z": 0.0050263354
+    },
+    "launchDirection": {
+      "x": -0.9329672,
+      "y": 0.35996142,
+      "z": 0.0005466342
+    },
+    "launchPitch": 21.09782,
+    "furthest": 203.92235,
+    "deckMinimum": null,
+    "minimumClearance": 0.30229473,
+    "peakPitchRate": 204.85588,
+    "impact": {
+      "x": -205.37079,
+      "y": 10.569834,
+      "z": 0.016913936
+    },
+    "impactMaterial": "Concrete",
+    "impactCollider": "/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter"
+  },
+  {
+    "scenario": "table-offset-north",
+    "passed": true,
+    "speed": 120,
+    "drivenFrames": 226,
+    "launch": {
+      "x": -62.128815,
+      "y": 7.5158634,
+      "z": -4.995082
+    },
+    "actualLaunchOrigin": {
+      "x": -63.782967,
+      "y": 9.315535,
+      "z": -5.0156727
+    },
+    "launchDirection": {
+      "x": 0.9999308,
+      "y": 0.005393693,
+      "z": 0.010470677
+    },
+    "launchPitch": 0.3090373,
+    "furthest": 204.19548,
+    "deckMinimum": 2.975287,
+    "minimumClearance": 1.0380154,
+    "peakPitchRate": 184.40038,
+    "impact": {
+      "x": 205.34853,
+      "y": 10.693199,
+      "z": -2.095431
+    },
+    "impactMaterial": "Concrete",
+    "impactCollider": "/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter"
+  },
+  {
+    "scenario": "table-offset-south",
+    "passed": true,
+    "speed": 120,
+    "drivenFrames": 226,
+    "launch": {
+      "x": 62.129436,
+      "y": 7.51585,
+      "z": 4.9950314
+    },
+    "actualLaunchOrigin": {
+      "x": 63.78362,
+      "y": 9.315496,
+      "z": 5.015682
+    },
+    "launchDirection": {
+      "x": -0.99993044,
+      "y": 0.0054078633,
+      "z": -0.010492127
+    },
+    "launchPitch": 0.30984923,
+    "furthest": 204.19475,
+    "deckMinimum": 2.975275,
+    "minimumClearance": 1.0414009,
+    "peakPitchRate": 183.10602,
+    "impact": {
+      "x": -205.34866,
+      "y": 10.695663,
+      "z": 2.089848
+    },
+    "impactMaterial": "Concrete",
+    "impactCollider": "/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter"
+  },
+  {
+    "scenario": "bank-mid",
+    "passed": true,
+    "speed": 120,
+    "drivenFrames": 124,
+    "launch": {
+      "x": -195.761,
+      "y": 5.059089,
+      "z": -0.00051605457
+    },
+    "actualLaunchOrigin": {
+      "x": -193.377,
+      "y": 5.6113167,
+      "z": -0.00033665524
+    },
+    "launchDirection": {
+      "x": -0.8222982,
+      "y": 0.56905663,
+      "z": -0.00013916194
+    },
+    "launchPitch": 34.68447,
+    "furthest": 204.88402,
+    "deckMinimum": null,
+    "minimumClearance": 3.6020756,
+    "peakPitchRate": 0,
+    "impact": {
+      "x": -206.01414,
+      "y": 14.368783,
+      "z": -0.0019039614
+    },
+    "impactMaterial": "Concrete",
+    "impactCollider": "/root/MissileTerrainChecks/@SubViewportContainer@1588/@SubViewport@1589/@Node3D@1590/OvalFoundation/MapContent/PhysicalPerimeter"
+  }
+]
