@@ -101,17 +101,11 @@ internal sealed partial class ItemPresentation : Node3D
         {
             if (!_oil.TryGetValue(patch.Id, out var node))
             {
-                node = new MeshInstance3D
-                {
-                    Mesh = new CylinderMesh { TopRadius = patch.Radius, BottomRadius = patch.Radius, Height = 0.012f, RadialSegments = 64 },
-                    MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.035f, 0.022f, 0.055f), Metallic = 0.65f, Roughness = 0.18f },
-                    CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
-                };
+                node = new OilHazardVisual();
                 AddChild(node);
                 _oil.Add(patch.Id, node);
             }
-            node.Position = VehicleBody.ToGodot(patch.Position + patch.Normal * 0.07f);
-            node.Quaternion = new Quaternion(Vector3.Up, VehicleBody.ToGodot(patch.Normal));
+            ((OilHazardVisual)node).Apply(patch);
         }
 
         foreach (ulong id in _missiles.Keys.Except(state.Missiles.Where(missile => missile.Launched).Select(missile => missile.Id)).ToArray())

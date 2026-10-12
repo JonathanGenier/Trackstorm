@@ -44,11 +44,11 @@ public sealed class VehicleMovement
     /// <param name="wheels">Optional independent spring observations.</param>
     /// <param name="nitro">New authoritative activation; prediction only continues existing state.</param>
     /// <param name="clearNitro">Explicit match boundary expiry.</param>
-    /// <param name="oilContact">Host-confirmed overlap refreshes recovery; prediction continues restored handling memory.</param>
+    /// <param name="oilContact">Host-confirmed wheel entry edges; prediction only continues restored contamination.</param>
     /// <param name="contacts">Raw chassis contacts, preserved independently of movement damping.</param>
     /// <param name="waterDepth">Immersion from the shared native observation.</param>
     /// <returns>Next movement snapshot and commanded velocities.</returns>
-    public VehicleState Step(InputFrame input, VehiclePhysicsState observed, Vector3 groundNormal, bool driveEnabled = true, SurfaceType surface = SurfaceType.Concrete, WheelSupport? wheels = null, bool oilContact = false, NitroState nitro = default, bool clearNitro = false, float waterDepth = 0, IReadOnlyList<VehicleContact>? contacts = null)
+    public VehicleState Step(InputFrame input, VehiclePhysicsState observed, Vector3 groundNormal, bool driveEnabled = true, SurfaceType surface = SurfaceType.Concrete, WheelSupport? wheels = null, WheelMask oilContact = WheelMask.None, NitroState nitro = default, bool clearNitro = false, float waterDepth = 0, IReadOnlyList<VehicleContact>? contacts = null)
     {
         if (input.Tick != checked(State.Tick + 1))
         {
@@ -61,8 +61,7 @@ public sealed class VehicleMovement
             throw new ArgumentException("Ground support must be a unit normal or zero.", nameof(groundNormal));
         }
 
-        int recoveryTicks = (int)MathF.Ceiling(Configuration.OilRecoverySeconds * Configuration.TicksPerSecond);
-        int oilTicks = !driveEnabled ? 0 : oilContact ? recoveryTicks : Math.Max(0, State.OilTicks - 1);
+        OilTractionState oil = !driveEnabled ? default : State.Oil.Advance(oilContact, Configuration);
         int wheelCount = wheels.HasValue ? VehicleCrash.WheelCount(wheels) :
             groundNormal.Y >= Configuration.SupportNormalMinimum && VehicleLanding.Landable(observed.Orientation, groundNormal) ? 4 : 0;
         bool bodyContact = contacts is not null && contacts.Any(contact => !VehicleLanding.SafeContact(observed.Orientation, contact, wheels));
@@ -147,6 +146,7 @@ public sealed class VehicleMovement
         bool holding = driveEnabled && grounded && waterDepth == 0 && wheelCount >= 2 &&
             (input.Held & InputButtons.Drift) != 0 && steeringSpeed <= c.HandbrakeHoldSpeed;
         float holdCapacity = 0;
+        float holdLateralCapacity = 0;
         float dirtCorner = grounded ? c.DirtCornering * Math.Clamp((c.DirtCornerFadeSpeed - steeringSpeed) / (c.DirtCornerFadeSpeed - c.DirtCornerFullSpeed), 0, 1) : 0;
         // Change the usable wheel range, never the body's heading or velocity. Air control
         // consumes the original frame independently of this ground-only speed envelope.
@@ -260,7 +260,8 @@ public sealed class VehicleMovement
             // direction as well as the nose, so tight steering does not become a stationary spin.
             float totalGrip = c.TireFriction * tireLoad;
             float[] tireGrip = profiles.Select((profile, index) => profile.Grip * (waterDepth == 0 && materials[index] == SurfaceType.Dirt ? 1 + c.DirtCornerGrip * dirtCorner * Math.Abs(steerIntent) : 1)).ToArray();
-            float oilGrip = 1 - c.OilGripReduction * Math.Clamp((float)oilTicks / recoveryTicks, 0, 1);
+            float OilSide(int index) => 1 - (index < 2 ? c.OilGripReduction : c.OilRearLateralReduction) * oil.Strength(index, c);
+            float OilDrive(int index) => index < 2 ? 1 : 1 - c.OilRearDriveReduction * oil.Strength(index, c);
             float frontCapacity = totalGrip * frontLoad;
             float rearCapacity = totalGrip * (1 - frontLoad);
             // Ordinary throttle/steering never manufactures rear slip. Retained legacy
@@ -287,8 +288,8 @@ public sealed class VehicleMovement
             float BrakeScale(int index, float demand) => demand * longitudinal < 0 ? braking[index].Deceleration : 1;
             float flBrake = BrakeScale(0, frontLong), frBrake = BrakeScale(1, frontLong);
             float rlBrake = BrakeScale(2, rearLong), rrBrake = BrakeScale(3, rearLong);
-            var fl = Tire(frontDemand * frontLeftShare, frontLong * frontLeftShare * flBrake, frontCapacity * frontLeftShare * tireGrip[0], LateralGrip(0, false), driveReserve, brakeGrip * flBrake);
-            var fr = Tire(frontDemand * (1 - frontLeftShare), frontLong * (1 - frontLeftShare) * frBrake, frontCapacity * (1 - frontLeftShare) * tireGrip[1], LateralGrip(1, false), driveReserve, brakeGrip * frBrake);
+            var fl = Tire(frontDemand * frontLeftShare, frontLong * frontLeftShare * flBrake, frontCapacity * frontLeftShare * tireGrip[0], LateralGrip(0, false) * OilSide(0), driveReserve, brakeGrip * flBrake);
+            var fr = Tire(frontDemand * (1 - frontLeftShare), frontLong * (1 - frontLeftShare) * frBrake, frontCapacity * (1 - frontLeftShare) * tireGrip[1], LateralGrip(1, false) * OilSide(1), driveReserve, brakeGrip * frBrake);
             // Reserve part of saturated front dirt traction for the filtered wheel direction.
             // This changes force allocation, not the surface's friction budget or drive demand.
             // Half authority near a 22-degree slide; the speed floor calms parking-speed input.
@@ -311,19 +312,22 @@ public sealed class VehicleMovement
                 // lateral travel rather than reserving it for a direction nobody requested.
                 float grassCommitment = Math.Clamp(Math.Abs(wheel) / steeringLimit, 0, 1);
                 float Reserve(int index) => materials[index] == SurfaceType.Dirt ? c.DirtSteeringReserve : materials[index] == SurfaceType.Grass ? c.GrassSteeringReserve * grassCommitment : 0;
-                fl = SlideFront(fl, frontLong * frontLeftShare * flBrake, steeringDemand * frontLeftShare, frontCapacity * frontLeftShare * tireGrip[0], steeringReserve * Reserve(0), LateralGrip(0, false), brakeGrip * flBrake);
-                fr = SlideFront(fr, frontLong * (1 - frontLeftShare) * frBrake, steeringDemand * (1 - frontLeftShare), frontCapacity * (1 - frontLeftShare) * tireGrip[1], steeringReserve * Reserve(1), LateralGrip(1, false), brakeGrip * frBrake);
+                fl = SlideFront(fl, frontLong * frontLeftShare * flBrake, steeringDemand * frontLeftShare, frontCapacity * frontLeftShare * tireGrip[0], steeringReserve * Reserve(0), LateralGrip(0, false) * OilSide(0), brakeGrip * flBrake);
+                fr = SlideFront(fr, frontLong * (1 - frontLeftShare) * frBrake, steeringDemand * (1 - frontLeftShare), frontCapacity * (1 - frontLeftShare) * tireGrip[1], steeringReserve * Reserve(1), LateralGrip(1, false) * OilSide(1), brakeGrip * frBrake);
             }
-            var rl = Tire(rearDemand * rearLeftShare, rearLong * rearLeftShare * rlBrake, rearCapacity * rearLeftShare * tireGrip[2], LateralGrip(2, true), driveReserve, rearLongGrip * rlBrake);
-            var rr = Tire(rearDemand * (1 - rearLeftShare), rearLong * (1 - rearLeftShare) * rrBrake, rearCapacity * (1 - rearLeftShare) * tireGrip[3], LateralGrip(3, true), driveReserve, rearLongGrip * rrBrake);
+            var rl = Tire(rearDemand * rearLeftShare, rearLong * rearLeftShare * rlBrake, rearCapacity * rearLeftShare * tireGrip[2], LateralGrip(2, true) * OilSide(2), driveReserve, rearLongGrip * rlBrake * OilDrive(2));
+            var rr = Tire(rearDemand * (1 - rearLeftShare), rearLong * (1 - rearLeftShare) * rrBrake, rearCapacity * (1 - rearLeftShare) * tireGrip[3], LateralGrip(3, true) * OilSide(3), driveReserve, rearLongGrip * rrBrake * OilDrive(3));
             // Static friction acts in the support plane after gravity. Its impulse is bounded
             // by supported tire load, surface purchase and the ordinary mechanical brake.
             holdCapacity = Math.Min(c.HandbrakeBraking * forceScale,
                 (frontCapacity * (tireGrip[0] * frontLeftShare * braking[0].Deceleration + tireGrip[1] * (1 - frontLeftShare) * braking[1].Deceleration) +
-                rearCapacity * (tireGrip[2] * rearLeftShare * braking[2].Deceleration + tireGrip[3] * (1 - rearLeftShare) * braking[3].Deceleration)) * oilGrip);
-            float frontForce = ((fl.Side + fr.Side) * wheelCos + (fl.Drive + fr.Drive) * wheelSin) * oilGrip;
-            float rearForce = (rl.Side + rr.Side) * oilGrip;
-            float frontDrive = (fl.Drive + fr.Drive) * wheelCos - (fl.Side + fr.Side) * wheelSin * oilGrip;
+                rearCapacity * (tireGrip[2] * rearLeftShare * braking[2].Deceleration * OilDrive(2) + tireGrip[3] * (1 - rearLeftShare) * braking[3].Deceleration * OilDrive(3))));
+            holdLateralCapacity = Math.Min(c.HandbrakeBraking * forceScale,
+                frontCapacity * (tireGrip[0] * frontLeftShare * braking[0].Deceleration * OilSide(0) + tireGrip[1] * (1 - frontLeftShare) * braking[1].Deceleration * OilSide(1)) +
+                rearCapacity * (tireGrip[2] * rearLeftShare * braking[2].Deceleration * OilSide(2) + tireGrip[3] * (1 - rearLeftShare) * braking[3].Deceleration * OilSide(3)));
+            float frontForce = (fl.Side + fr.Side) * wheelCos + (fl.Drive + fr.Drive) * wheelSin;
+            float rearForce = rl.Side + rr.Side;
+            float frontDrive = (fl.Drive + fr.Drive) * wheelCos - (fl.Side + fr.Side) * wheelSin;
             float rearDrive = rl.Drive + rr.Drive;
             frontSlip = fl.Slip * frontLeftShare + fr.Slip * (1 - frontLeftShare);
             rearSlip = rl.Slip * rearLeftShare + rr.Slip * (1 - rearLeftShare);
@@ -347,7 +351,7 @@ public sealed class VehicleMovement
             angular -= tireNormal * (Vector3.Dot(angular, tireNormal) * (1 - MathF.Exp(-c.StabilityDamping * dt)));
             float Recovery(int index) => materials[index] == SurfaceType.Dirt ? c.DirtRecovery : materials[index] == SurfaceType.Grass ? c.GrassRecovery : 0;
             float recoveryRate = waterDepth > 0 || (wheels.HasValue && frontTotal == 0) ? 0 : Recovery(0) * frontLeftShare + Recovery(1) * (1 - frontLeftShare);
-            float recoveryGrip = (Recovery(0) > 0 ? tireGrip[0] * frontLeftShare * LateralGrip(0, false) : 0) + (Recovery(1) > 0 ? tireGrip[1] * (1 - frontLeftShare) * LateralGrip(1, false) : 0);
+            float recoveryGrip = (Recovery(0) > 0 ? tireGrip[0] * frontLeftShare * LateralGrip(0, false) * OilSide(0) : 0) + (Recovery(1) > 0 ? tireGrip[1] * (1 - frontLeftShare) * LateralGrip(1, false) * OilSide(1) : 0);
             if (driveEnabled && !holding && recoveryRate > 0 && tireLoad > 0)
             {
                 // A bounded arcade correction arrests runaway yaw while retaining tire-driven
@@ -359,7 +363,7 @@ public sealed class VehicleMovement
                 // only rotation already following the wheel retains the loose drift response.
                 float recovery = intendedYaw * currentYaw < 0 ? 1 : 1 - 0.75f * handbrake;
                 float correction = (intendedYaw - currentYaw) * (1 - MathF.Exp(-recoveryRate * Math.Max(slide, powerTurn) * recovery * dt));
-                float authority = frontCapacity * oilGrip * recoveryGrip * halfAxle / inertiaPerMass * dt;
+                float authority = frontCapacity * recoveryGrip * halfAxle / inertiaPerMass * dt;
                 angular += tireNormal * Math.Clamp(correction, -authority, authority);
             }
         }
@@ -487,9 +491,17 @@ public sealed class VehicleMovement
         {
             Vector3 tangent = velocity - groundNormal * Vector3.Dot(velocity, groundNormal);
             float speed = tangent.Length();
-            if (speed > 0) { velocity -= tangent * Math.Min(1, holdCapacity * dt / speed); }
+            if (speed > 0)
+            {
+                // Preserve the existing dry hold exactly; contaminated tires constrain the
+                // direction actually being held instead of bypassing their lateral loss.
+                float longShare = Math.Clamp(MathF.Pow(Vector3.Dot(tangent, forward) / speed, 2), 0, 1);
+                float capacity = oil.RemainingTicks == 0 ? holdCapacity :
+                    1 / MathF.Sqrt(longShare / (holdCapacity * holdCapacity) + (1 - longShare) / Math.Max(0.000001f, holdLateralCapacity * holdLateralCapacity));
+                velocity -= tangent * Math.Min(1, capacity * dt / speed);
+            }
             float yaw = Vector3.Dot(angular, groundNormal);
-            float holdTorque = holdCapacity * (c.Wheelbase / 2) / (c.Wheelbase * c.Wheelbase / 3);
+            float holdTorque = Math.Min(holdCapacity, holdLateralCapacity) * (c.Wheelbase / 2) / (c.Wheelbase * c.Wheelbase / 3);
             angular -= groundNormal * Math.Clamp(yaw, -holdTorque * dt, holdTorque * dt);
         }
         float landing = grounded && !State.Grounded ? Math.Clamp(-State.Physics.LinearVelocity.Y / 12, 0, 1) : Math.Max(0, State.LandingIntensity - (dt * c.LandingReboundDecay));
@@ -502,7 +514,7 @@ public sealed class VehicleMovement
         }
         bool sliding = grounded && Math.Abs(lateral) > 1 && rearSlip > 0.35f;
         var physics = new VehiclePhysicsState(observed.Position, observed.Orientation, Limit(velocity, c.MaximumPhysicsSpeed), Limit(angular, c.MaximumAngularSpeed));
-        State = new VehicleState(input.Tick, physics, grounded, sliding, wheel, handbrake, currentSurface, frontSlip, rearSlip, longAcceleration, sideAcceleration, landing, wheels ?? default, oilTicks, boost, powerSlip, air, crashSeconds, throttle, brakeMode);
+        State = new VehicleState(input.Tick, physics, grounded, sliding, wheel, handbrake, currentSurface, frontSlip, rearSlip, longAcceleration, sideAcceleration, landing, wheels ?? default, oil, boost, powerSlip, air, crashSeconds, throttle, brakeMode);
         return State;
     }
 

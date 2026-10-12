@@ -446,7 +446,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private OilPatch? PlaceOil(ItemSlot slot, VehiclePhysicsState pose)
     {
         Vector3 up = VehicleBody.ToGodot(System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitY, pose.Orientation));
-        Vector3 behind = VehicleBody.ToGodot(pose.Position + System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitZ * 4, pose.Orientation));
+        Vector3 behind = VehicleBody.ToGodot(pose.Position + System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitZ * (_driver.Host!.Configuration.Configuration.Vehicle.Wheelbase / 2 + 3.5f), pose.Orientation));
         using var ray = PhysicsRayQueryParameters3D.Create(behind + up, behind - up * 5, 1);
         var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
         if (hit.Count == 0 || hit["collider"].AsGodotObject() is not StaticBody3D) { return null; }

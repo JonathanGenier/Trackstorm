@@ -88,7 +88,7 @@ public sealed record ItemConfiguration
     /// <summary>Number of successful vehicle passes before removal, including repeated and owner passes.</summary>
     public int OilPasses { get; init; } = 2;
     /// <summary>Maximum lifetime of new patches in seconds at the authoritative 60 Hz clock.</summary>
-    public float OilLifetimeSeconds { get; init; } = 60;
+    public float OilLifetimeSeconds { get; init; } = 30;
 
     /// <summary>HP restored to a living vehicle.</summary>
     public float WrenchHeal { get; init; } = 500;

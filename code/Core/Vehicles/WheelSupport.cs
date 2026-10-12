@@ -11,7 +11,8 @@ public readonly record struct WheelSupport
     /// <param name="frontRight">Optional observed front-right surface.</param>
     /// <param name="rearLeft">Optional observed rear-left surface.</param>
     /// <param name="rearRight">Optional observed rear-right surface.</param>
-    public WheelSupport(Vector4 compression, SurfaceType? frontLeft = null, SurfaceType? frontRight = null, SurfaceType? rearLeft = null, SurfaceType? rearRight = null)
+    /// <param name="contacts">Exact native support points, omitted by pure compression fixtures.</param>
+    public WheelSupport(Vector4 compression, SurfaceType? frontLeft = null, SurfaceType? frontRight = null, SurfaceType? rearLeft = null, SurfaceType? rearRight = null, WheelContactPoints? contacts = null)
     {
         if (new[] { compression.X, compression.Y, compression.Z, compression.W }.Any(value => !float.IsFinite(value) || value < 0 || value > 1))
         {
@@ -27,10 +28,14 @@ public readonly record struct WheelSupport
         FrontRight = frontRight;
         RearLeft = rearLeft;
         RearRight = rearRight;
+        contacts?.Validate();
+        Contacts = contacts;
     }
 
     /// <summary>Individual spring compression, in metres.</summary>
     public Vector4 Compression { get; }
+    /// <summary>Transient native support points; movement snapshots retain only spring compression.</summary>
+    public WheelContactPoints? Contacts { get; }
     /// <summary>Observed front-left material; null uses the aggregate fallback.</summary>
     public SurfaceType? FrontLeft { get; }
     /// <summary>Observed front-right material; null uses the aggregate fallback.</summary>

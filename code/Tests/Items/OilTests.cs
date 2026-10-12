@@ -17,10 +17,10 @@ internal sealed class OilTests
         var host = Create();
         Deploy(host);
         Step(host, vehicle);
-        for (int i = 0; i < 130; i++) { Step(host, vehicle); }
+        for (int i = 0; i < 430; i++) { Step(host, vehicle); }
         Assert.That(host.Items.Patches.Single().PassesUsed, Is.EqualTo(1));
         Assert.That(host.Items.OilContacts.Single().Vehicle, Is.EqualTo(vehicle));
-        Assert.That(host.World.GetVehicle(vehicle).Movement.OilTicks, Is.EqualTo(30));
+        Assert.That(host.World.GetVehicle(vehicle).Movement.OilTicks, Is.Zero);
         Step(host);
         Assert.That(host.Items.OilContacts, Is.Empty);
         Assert.That(host.Items.Patches.Single().PassesUsed, Is.EqualTo(1));
@@ -28,7 +28,7 @@ internal sealed class OilTests
         Assert.That(host.Items.Patches, Is.Empty);
         Assert.That(host.Items.OilContacts, Is.Empty);
         Assert.That(host.World.Events.Entries.Count(e => e.Kind == "Oil triggered"), Is.EqualTo(2));
-        Assert.That(host.World.GetVehicle(vehicle).Movement.OilTicks, Is.EqualTo(30));
+        Assert.That(host.World.GetVehicle(vehicle).Movement.OilTicks, Is.EqualTo(420));
     }
 
     [TestCase(1ul, 2ul)]
@@ -39,8 +39,8 @@ internal sealed class OilTests
         Deploy(host);
         Step(host, first, second);
         Assert.That(host.Items.Patches, Is.Empty);
-        Assert.That(host.World.GetVehicle(first).Movement.OilTicks, Is.EqualTo(30));
-        Assert.That(host.World.GetVehicle(second).Movement.OilTicks, Is.EqualTo(30));
+        Assert.That(host.World.GetVehicle(first).Movement.OilTicks, Is.EqualTo(420));
+        Assert.That(host.World.GetVehicle(second).Movement.OilTicks, Is.EqualTo(420));
     }
 
     [TestCase(1ul, false)]
@@ -163,41 +163,14 @@ internal sealed class OilTests
         Assert.That(decoded.OilContacts.Single().Vehicle, Is.EqualTo(2));
     }
 
-    [Test]
-    public void OilHasNoEntryYawAndRecoversProgressivelyWhilePreservingSteeringAndDrive()
-    {
-        var pose = new VehiclePhysicsState(new(0, 0.9f, 0), Quaternion.Identity, new(5, 0, -15), Vector3.Zero);
-        var dry = new VehicleMovement(new(), pose);
-        var oil = new VehicleMovement(new(), pose);
-        var input = new InputFrame(1, 16000, 65535, 0, 0, 0, 0);
-        var baseline = dry.Step(input, pose, Vector3.UnitY);
-        var slippery = oil.Step(input, pose, Vector3.UnitY, oilContact: true);
-        Assert.That(slippery.SteeringAngle, Is.EqualTo(baseline.SteeringAngle).And.Not.Zero);
-        Assert.That(slippery.LateralAcceleration, Is.EqualTo(baseline.LateralAcceleration * 0.9f).Within(0.001));
-        // Steered lateral forces also project along the chassis; oil changes that scrub.
-        // With straight wheels the rear engine contribution must remain identical.
-        var straightInput = new InputFrame(1, 0, 65535, 0, 0, 0, 0);
-        var dryDrive = new VehicleMovement(new(), pose).Step(straightInput, pose, Vector3.UnitY);
-        var oilDrive = new VehicleMovement(new(), pose).Step(straightInput, pose, Vector3.UnitY, oilContact: true);
-        Assert.That(oilDrive.LongitudinalAcceleration, Is.EqualTo(dryDrive.LongitudinalAcceleration));
-        Assert.That(Math.Abs(slippery.Physics.AngularVelocity.Y), Is.LessThan(0.3));
-        var replay = new VehicleMovement(new(), pose);
-        replay.Restore(VehicleStateCodec.Decode(VehicleStateCodec.Encode(slippery)));
-        for (ulong tick = 2; tick <= 106; tick++)
-        {
-            input = new InputFrame(tick, 16000, 65535, 0, 0, 0, 0);
-            var before = oil.State;
-            var next = oil.Step(input, pose, Vector3.UnitY);
-            Assert.That(replay.Step(input, pose, Vector3.UnitY), Is.EqualTo(next));
-            Assert.That(next.OilTicks, Is.EqualTo(Math.Max(0, before.OilTicks - 1)));
-        }
-        Assert.That(oil.State.OilTicks, Is.Zero);
-        var straight = new VehicleMovement(new(), new(Vector3.Zero, Quaternion.Identity, new(0, 0, -15), Vector3.Zero));
-        Assert.That(straight.Step(new(1, 0, 0, 0, 0, 0, 0), straight.State.Physics, Vector3.UnitY, oilContact: true).Physics.AngularVelocity.Y, Is.Zero);
-    }
-
     [TestCase("vehicle.oil_grip_reduction", -0.1)]
-    [TestCase("vehicle.oil_grip_reduction", 0.9)]
+    [TestCase("vehicle.oil_grip_reduction", 0.96)]
+    [TestCase("vehicle.oil_rear_drive_reduction", 1)]
+    [TestCase("vehicle.oil_rear_lateral_reduction", double.NaN)]
+    [TestCase("vehicle.oil_impairment_seconds", 0)]
+    [TestCase("vehicle.oil_impairment_seconds", 21)]
+    [TestCase("vehicle.oil_recovery_curve", 0.4)]
+    [TestCase("vehicle.oil_recovery_curve", 4)]
     [TestCase("vehicle.oil_recovery_seconds", 0)]
     [TestCase("vehicle.oil_recovery_seconds", 11)]
     [TestCase("items.oil_enemy_contacts", 1.5)]
@@ -206,18 +179,6 @@ internal sealed class OilTests
     [TestCase("items.oil_lifetime_seconds", double.NaN)]
     public void UnsafeTuningIsRejected(string key, double value) =>
         Assert.That(GameplayOptions.TryApply(new(), new Dictionary<string, double> { [key] = value }, out _, out _), Is.False);
-
-    [Test]
-    public void BankedContactRejectsFlightAndOtherRoadLevels()
-    {
-        var normal = Vector3.Normalize(new Vector3(0.4f, 1, 0));
-        var patch = new OilPatch(1, 1, new(1, 2, 3), normal, 3);
-        VehicleObservation At(Vector3 offset, Vector3 support) => new(new(patch.Position + offset, Quaternion.Identity, Vector3.Zero, Vector3.Zero), support);
-        Assert.That(patch.Contains(At(normal * 0.9f, normal)), Is.True);
-        Assert.That(patch.Contains(At(normal * 0.9f, Vector3.Zero)), Is.False);
-        Assert.That(patch.Contains(At(normal * 4, normal)), Is.False);
-        Assert.That(patch.Contains(At(-normal, normal)), Is.False);
-    }
 
     private static HostVehicleSession Create()
     {
@@ -235,5 +196,5 @@ internal sealed class OilTests
     private static void Deploy(HostVehicleSession host) { Grant(host); host.Step(default, v => Observe(v, false), placeOil: Place); }
     private static OilPatch Place(ItemSlot slot, VehiclePhysicsState pose) => new(slot.Token, slot.Vehicle, Vector3.Zero, Vector3.UnitY, 3);
     private static void Step(HostVehicleSession host, params ulong[] inside) => host.Step(default, v => Observe(v, inside.Contains(v.VehicleId)));
-    private static VehicleObservation Observe(VehicleSnapshot v, bool inside) => new(new(new(inside ? 0 : 6, 0.9f, 0), Quaternion.Identity, Vector3.Zero, Vector3.Zero), Vector3.UnitY);
+    private static VehicleObservation Observe(VehicleSnapshot v, bool inside) => new(new(new(inside ? 0 : 6, 0.9f, 0), Quaternion.Identity, Vector3.Zero, Vector3.Zero), Vector3.UnitY, wheels: new WheelSupport(new Vector4(new VehicleConfiguration().SuspensionLength - 0.9f)));
 }

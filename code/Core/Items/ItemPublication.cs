@@ -72,7 +72,7 @@ public sealed class ItemPublication
         var contactCounts = contacts.GroupBy(contact => contact.Patch).ToDictionary(group => group.Key, group => group.Count());
         if (oil.Length > ItemAuthority.MaximumPatches || oil.Any(patch => !patchIds.TryAdd(patch.Id, patch) || patch.ExpiresAtTick <= world.Tick || patch.ExpiresAtTick - world.Tick > 36000) ||
             contacts.Length > ItemAuthority.MaximumPatches * 6 || contacts.Select(contact => (contact.Patch, contact.Vehicle)).Distinct().Count() != contacts.Length ||
-            contacts.Any(contact => contact.Vehicle == 0 || contact.Life == 0 || !patchIds.ContainsKey(contact.Patch) ||
+            contacts.Any(contact => contact.Wheels == WheelMask.None || (contact.Wheels & ~WheelMask.All) != 0 || contact.Vehicle == 0 || contact.Life == 0 || !patchIds.ContainsKey(contact.Patch) ||
                 !world.Vehicles.Any(vehicle => vehicle.State.VehicleId == contact.Vehicle && vehicle.State.LifeId == contact.Life && vehicle.State.CanInteract)) ||
             oil.Any(patch => contactCounts.GetValueOrDefault(patch.Id) > patch.PassesUsed))
         {

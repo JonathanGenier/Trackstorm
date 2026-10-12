@@ -4,7 +4,7 @@ using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-twenty-three item protocol. Reliable outcomes and replaceable aim share existing item ownership.</summary>
+/// <summary>Bounded version-twenty-four item protocol. Reliable outcomes and replaceable aim share existing item ownership.</summary>
 public static partial class ItemCodec
 {
     /// <summary>Accommodates the maximum lifetime-derived Oil set and its pass counts and overlap latches.</summary>
@@ -222,6 +222,14 @@ public static partial class ItemCodec
                 writer.Write(patch.ExpiresAtTick);
                 writer.Write((byte)patch.PassLimit);
                 writer.Write((byte)patch.PassesUsed);
+                writer.Write((byte)patch.AdditionalSegments.Segments.Count);
+                foreach (var segment in patch.AdditionalSegments.Segments)
+                {
+                    Vector(writer, segment.Start);
+                    Vector(writer, segment.End);
+                    Vector(writer, segment.Normal);
+                    writer.Write(segment.Radius);
+                }
             }
             writer.Write(state.OilContacts.Count);
             foreach (var contact in state.OilContacts)
@@ -229,6 +237,7 @@ public static partial class ItemCodec
                 writer.Write(contact.Patch);
                 writer.Write(contact.Vehicle);
                 writer.Write(contact.Life);
+                writer.Write((byte)contact.Wheels);
             }
         }
 
@@ -328,12 +337,15 @@ public static partial class ItemCodec
             for (int i = 0; i < patches.Length; i++)
             {
                 patches[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader), reader.ReadSingle()) { ExpiresAtTick = reader.ReadUInt64(), PassLimit = reader.ReadByte(), PassesUsed = reader.ReadByte() };
+                var segments = new OilSegment[Count(reader, OilFootprint.MaximumSegments)];
+                for (int j = 0; j < segments.Length; j++) { segments[j] = new(Vector(reader), Vector(reader), Vector(reader), reader.ReadSingle()); }
+                patches[i] = patches[i] with { AdditionalSegments = new OilFootprint(segments) };
             }
             int contactCount = WideCount(reader, ItemAuthority.MaximumPatches * 6);
             contacts = new OilContact[contactCount];
             for (int i = 0; i < contacts.Length; i++)
             {
-                contacts[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64());
+                contacts[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(), (Vehicles.WheelMask)reader.ReadByte());
             }
         }
 
@@ -372,7 +384,7 @@ public static partial class ItemCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 23, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 24, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {
@@ -384,7 +396,7 @@ public static partial class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 23 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 24 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }
