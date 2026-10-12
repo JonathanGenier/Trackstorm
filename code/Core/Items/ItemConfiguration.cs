@@ -106,8 +106,8 @@ public sealed record ItemConfiguration
     public float MissileStowSeconds { get; init; } = .9f;
     /// <summary>Terrain-only guidance; authoritative gameplay tuning.</summary>
     public MissileTerrainConfiguration MissileTerrain { get; init; } = new();
-    /// <summary>Explosion radius in metres.</summary>
-    public float ExplosionRadius { get; init; } = 8;
+    /// <summary>Damaging radial reach in metres; one production-car collision length by default.</summary>
+    public float ExplosionRadius { get; init; } = Vehicles.VehicleDimensions.Length;
     /// <summary>Damage at the exact center.</summary>
     public float MaximumDamage { get; init; } = 55;
     /// <summary>Outward impulse in Newton seconds at the center.</summary>

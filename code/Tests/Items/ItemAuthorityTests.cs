@@ -218,7 +218,7 @@ internal sealed class ItemAuthorityTests
         Assert.That(host.Items.Events.Count(outcome => outcome.Impact), Is.EqualTo(1));
         Assert.That(host.Items.Missiles, Is.Empty);
         Assert.That(host.World.GetVehicle(1).Damage.CurrentHP, Is.EqualTo(45));
-        Assert.That(host.World.GetVehicle(2).Damage.CurrentHP, Is.EqualTo(72.5f));
+        Assert.That(host.World.GetVehicle(2).Damage.CurrentHP, Is.EqualTo(100 - 55 * (1 - 4 / VehicleDimensions.Length)).Within(.001));
         Assert.That(host.World.State.Vehicles.All(state => state.Effects.Count == 1), Is.True);
         var decoded = VehicleNetworkCodec.DecodeSnapshot(VehicleNetworkCodec.EncodeSnapshot(host.Snapshot()));
         Assert.That(decoded.Vehicles[0].State.Effects.Single(), Is.EqualTo(host.World.GetVehicle(1).Effects.Single()));

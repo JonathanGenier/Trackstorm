@@ -16,7 +16,7 @@ public sealed record GameplayConfiguration
     {
         Vehicle = new(),
         Damage = new() { MaxHP = 1000, CollisionScale = 5 },
-        Items = new() { ExplosionRadius = 12, MaximumDamage = 300 },
+        Items = new() { MaximumDamage = 300 },
     };
 
     /// <summary>Session tuning for digital driving intent before input-frame recording.</summary>

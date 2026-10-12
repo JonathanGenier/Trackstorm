@@ -12,12 +12,18 @@ internal sealed partial class ItemPresentation : Node3D
     private readonly Dictionary<ulong, Node3D> _missiles = new();
     private readonly List<(Node3D Node, float Age, float Lifetime)> _bursts = new();
     private readonly List<ProxyMineExplosion> _mineExplosions = new();
+    private readonly List<MissileExplosion> _missileExplosions = new();
+    private readonly List<MissileSmokeResidue> _missileSmoke = new();
+    internal const int MaximumMissileSmokeResidues = 32;
+    internal const int MaximumMissileExplosions = 32;
     private readonly List<ProxyMineScar> _mineScars = new();
     private const int MaximumMineScars = 64;
 
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        _missileSmoke.RemoveAll(smoke => !GodotObject.IsInstanceValid(smoke) || smoke.IsQueuedForDeletion());
+        _missileExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());
         _mineExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());
         _mineScars.RemoveAll(scar => !GodotObject.IsInstanceValid(scar) || scar.IsQueuedForDeletion());
         for (int i = _bursts.Count - 1; i >= 0; i--)
@@ -67,7 +73,8 @@ internal sealed partial class ItemPresentation : Node3D
 
     /// <summary>Consumes a new reliable publication exactly once.</summary>
     /// <param name="state">Accepted authority state.</param>
-    internal void Apply(ItemPublication state)
+    /// <param name="missileBlastRadius">Current shared authoritative radius, used only to bound the central fire.</param>
+    internal void Apply(ItemPublication state, float missileBlastRadius = Trackstorm.Core.Vehicles.VehicleDimensions.Length)
     {
         foreach (ulong id in _mines.Keys.Except(state.Mines.Where(mine => !mine.IsPlacing).Select(mine => mine.Id)).ToArray())
         {
@@ -109,6 +116,13 @@ internal sealed partial class ItemPresentation : Node3D
 
         foreach (ulong id in _missiles.Keys.Except(state.Missiles.Where(missile => missile.Launched).Select(missile => missile.Id)).ToArray())
         {
+            if (_missiles[id] is MissileFlightVisual flight && flight.RetireSmoke() is { } smoke)
+            {
+                _missileSmoke.RemoveAll(s => !GodotObject.IsInstanceValid(s) || s.IsQueuedForDeletion());
+                if (_missileSmoke.Count >= MaximumMissileSmokeResidues)
+                { _missileSmoke[0].QueueFree(); _missileSmoke.RemoveAt(0); }
+                _missileSmoke.Add(smoke);
+            }
             _missiles[id].QueueFree();
             _missiles.Remove(id);
         }
@@ -128,6 +142,24 @@ internal sealed partial class ItemPresentation : Node3D
 
         foreach (var outcome in state.Events)
         {
+            if (outcome.Item == HeldItem.Missile && outcome.Impact)
+            {
+                _missileExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());
+                if (_missileExplosions.Count >= MaximumMissileExplosions)
+                {
+                    _missileExplosions[0].QueueFree();
+                    _missileExplosions.RemoveAt(0);
+                }
+                var explosion = new MissileExplosion
+                {
+                    Position = VehicleBody.ToGodot(outcome.Position),
+                    BlastRadius = missileBlastRadius,
+                    Seed = outcome.Token,
+                };
+                AddChild(explosion);
+                _missileExplosions.Add(explosion);
+                continue;
+            }
             if (outcome.Item == HeldItem.ProxyMine && outcome.Impact)
             {
                 _mineExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());

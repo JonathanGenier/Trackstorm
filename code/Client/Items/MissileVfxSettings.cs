@@ -5,9 +5,10 @@ internal sealed record MissileVfxSettings
 {
     internal float FlameLength { get; init; } = 1.15f;
     internal float FlameWidth { get; init; } = .22f;
-    internal float SmokeLifetime { get; init; } = .65f;
-    internal float SmokeSize { get; init; } = .65f;
-    internal float SmokeOpacity { get; init; } = .42f;
+    internal float SmokeLifetime { get; init; } = 4.5f;
+    internal float SmokeSize { get; init; } = 1.4f;
+    internal float SmokeTrailLength { get; init; } = 7.6f;
+    internal float SmokeOpacity { get; init; } = .6f;
     internal float Density { get; init; } = 1;
     internal float ConfettiLifetime { get; init; } = .38f;
     internal float ConfettiSize { get; init; } = .085f;
