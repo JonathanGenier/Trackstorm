@@ -1,0 +1,415 @@
+WorkerThreadPool: 24 threads, 7 max low-priority.
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+TextServer: Added interface "Dummy"
+TextServer: Added interface "ICU / HarfBuzz / Graphite (Built-in)"
+Accessibility: AccessKit driver loaded.
+Native OpenGL API detected: 3.3: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+NVAPI: Init OK!
+NVAPI: Application not found in profile, creating...
+NVAPI: Error creating application: NVAPI_EXECUTABLE_ALREADY_IN_USE(code -167)
+Accessibility: window 0 adapter created.
+SDL: Init OK!
+Accessibility: window 0 adapter activated.
+Using "winink" pen tablet driver...
+Shader 'CanvasSdfShaderGLES3' SHA256: b0023da22ed0805ed2931e4822b53b49b2d04b9ed2c8e35f52fbbdf37e7c163a
+Shader 'SkeletonShaderGLES3' SHA256: ec1b12409b72a3b553a60173209de4f229a19062cc9175bae5475ca5893d0809
+Shader 'ParticlesShaderGLES3' SHA256: 78a0993282872c14cbff02486630deeab4a768c4d453cceebc93bd4d15b0bc7e
+Shader 'ParticlesCopyShaderGLES3' SHA256: 6593dd126ee6e33ca37ba3c6a0f25c32c404ccdfdbd54cc69bea482dfdbb3867
+Shader 'CopyShaderGLES3' SHA256: d56afb26df5f20688b09f5de05e63d11c7294eb04a6fb26d521b49d922fb7a57
+Shader 'CubemapFilterShaderGLES3' SHA256: 83092ff7735795cb507f42aa1e503ec894c0d422b960f8806f3b10c93084817e
+Shader 'GlowShaderGLES3' SHA256: 772699f69c2afe0ea9d840540f32300a59fee03c88b56a5cecbd423990afff3a
+Shader 'PostShaderGLES3' SHA256: 1a4042bf8421cfbc3c2020f9929f21211f3842922cf66f7ca0da4ab21c5e2b45
+Shader 'FeedShaderGLES3' SHA256: 93a6109fadbc41d503e72989014d1a843068d8130adb1f07c96003efe80dc809
+Shader 'CanvasShaderGLES3' SHA256: 5c3b70361dae017486c749fa2c63d861a6bb8dad17b8d275417ce9eaaa447184
+Shader 'CanvasOcclusionShaderGLES3' SHA256: a31ac634701925e3af0a716bce7fe6c45561fc4044270a34cf1ad6eb3077eea3
+Shader 'SceneShaderGLES3' SHA256: 2fc0c5537e9732ac4143271094001848d5ea5cb040a70566bc20ffc6864b77f4
+Shader 'SkyShaderGLES3' SHA256: 1fa8f38e478b9a96db9827d88a6aa6ef5a9db902f90543c8706cd1391e2f06c9
+Shader 'TexBlitShaderGLES3' SHA256: 7d3ae9df4cd9558d7f403b5fd8ec028fb569d314cd63a1cf747643ac9ce56a75
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+WASAPI: Activated output_device using IAudioClient3 interface
+WASAPI: wFormatTag = 65534
+WASAPI: nChannels = 2
+WASAPI: nSamplesPerSec = 48000
+WASAPI: nAvgBytesPerSec = 384000
+WASAPI: nBlockAlign = 8
+WASAPI: wBitsPerSample = 32
+WASAPI: cbSize = 22
+WASAPI: mix_rate = 48000
+WASAPI: fundamental_period_frames = 480
+WASAPI: min_period_frames = 480
+WASAPI: max_period_frames = 480
+WASAPI: selected a period frame size of 480
+WASAPI: detected 2 channels
+WASAPI: audio buffer frames: 480 calculated latency: 10ms
+
+TextServer: Primary interface set to: "ICU / HarfBuzz / Graphite (Built-in)".
+.NET: Initializing module...
+Found hostfxr: C:/Program Files/dotnet/host/fxr/10.0.12/hostfxr.dll
+.NET: hostfxr initialized
+.NET: GodotPlugins initialized
+CORE API HASH: 3677103882
+EDITOR API HASH: 1629494564
+SceneTreeFTI: traversal method DEFAULT
+Loaded system CA certificates
+Loading resource: res://scenes/verification/weapon_aim_checks.tscn remapped: res://scenes/verification/weapon_aim_checks.tscn
+Loading resource: res://code/Client/Verification/WeaponAimChecks.cs remapped: res://code/Client/Verification/WeaponAimChecks.cs
+Completed load for: 'res://code/Client/Verification/WeaponAimChecks.cs' remapped 'res://code/Client/Verification/WeaponAimChecks.cs' at thread -1
+Completed load for: 'res://scenes/verification/weapon_aim_checks.tscn' remapped 'res://scenes/verification/weapon_aim_checks.tscn' at thread -1
+Loading resource: res://code/Client/Input/PlayerInput.cs remapped: res://code/Client/Input/PlayerInput.cs
+Completed load for: 'res://code/Client/Input/PlayerInput.cs' remapped 'res://code/Client/Input/PlayerInput.cs' at thread -1
+Loading resource: res://code/Client/Items/WeaponAimOverlay.cs remapped: res://code/Client/Items/WeaponAimOverlay.cs
+Completed load for: 'res://code/Client/Items/WeaponAimOverlay.cs' remapped 'res://code/Client/Items/WeaponAimOverlay.cs' at thread -1
+Loading resource: res://code/Client/Arenas/EnvironmentPresentation.cs remapped: res://code/Client/Arenas/EnvironmentPresentation.cs
+Completed load for: 'res://code/Client/Arenas/EnvironmentPresentation.cs' remapped 'res://code/Client/Arenas/EnvironmentPresentation.cs' at thread -1
+Loading resource: res://code/Client/Vehicles/VehicleChaseCamera.cs remapped: res://code/Client/Vehicles/VehicleChaseCamera.cs
+Completed load for: 'res://code/Client/Vehicles/VehicleChaseCamera.cs' remapped 'res://code/Client/Vehicles/VehicleChaseCamera.cs' at thread -1
+Loading resource: res://code/Client/Items/ItemPresentation.cs remapped: res://code/Client/Items/ItemPresentation.cs
+Completed load for: 'res://code/Client/Items/ItemPresentation.cs' remapped 'res://code/Client/Items/ItemPresentation.cs' at thread -1
+Loading resource: res://code/Client/Items/ShieldWorld.cs remapped: res://code/Client/Items/ShieldWorld.cs
+Completed load for: 'res://code/Client/Items/ShieldWorld.cs' remapped 'res://code/Client/Items/ShieldWorld.cs' at thread -1
+Loading resource: res://code/Client/Items/SalvoMarker.cs remapped: res://code/Client/Items/SalvoMarker.cs
+Completed load for: 'res://code/Client/Items/SalvoMarker.cs' remapped 'res://code/Client/Items/SalvoMarker.cs' at thread -1
+Loading resource: res://code/Client/Vehicles/VehicleDestructionEffects.cs remapped: res://code/Client/Vehicles/VehicleDestructionEffects.cs
+Completed load for: 'res://code/Client/Vehicles/VehicleDestructionEffects.cs' remapped 'res://code/Client/Vehicles/VehicleDestructionEffects.cs' at thread -1
+Loading resource: res://code/Client/Audio/ArenaAudio.cs remapped: res://code/Client/Audio/ArenaAudio.cs
+Completed load for: 'res://code/Client/Audio/ArenaAudio.cs' remapped 'res://code/Client/Audio/ArenaAudio.cs' at thread -1
+Loading resource: res://code/Client/Items/ItemSpawnPresentation.cs remapped: res://code/Client/Items/ItemSpawnPresentation.cs
+Completed load for: 'res://code/Client/Items/ItemSpawnPresentation.cs' remapped 'res://code/Client/Items/ItemSpawnPresentation.cs' at thread -1
+Loading resource: res://code/Client/Hud/RaceCountdown.cs remapped: res://code/Client/Hud/RaceCountdown.cs
+Completed load for: 'res://code/Client/Hud/RaceCountdown.cs' remapped 'res://code/Client/Hud/RaceCountdown.cs' at thread -1
+Loading resource: res://code/Client/Networking/NetworkVehicleArena.cs remapped: res://code/Client/Networking/NetworkVehicleArena.cs
+Completed load for: 'res://code/Client/Networking/NetworkVehicleArena.cs' remapped 'res://code/Client/Networking/NetworkVehicleArena.cs' at thread -1
+Loading resource: res://scenes/maps/oval_foundation.tscn remapped: res://scenes/maps/oval_foundation.tscn
+Loading resource: res://assets/maps/oval/oval_foundation.glb remapped: res://assets/maps/oval/oval_foundation.glb
+Loading resource: res://.godot/imported/oval_foundation.glb-d53fc80b05e7986b35e9004686cf9c44.scn remapped: res://.godot/imported/oval_foundation.glb-d53fc80b05e7986b35e9004686cf9c44.scn
+Completed load for: 'res://assets/maps/oval/oval_foundation.glb' remapped 'res://assets/maps/oval/oval_foundation.glb' at thread -1
+Loading resource: res://assets/maps/oval/Grass.tres remapped: res://assets/maps/oval/Grass.tres
+Loading resource: res://assets/maps/oval/grass_albedo.png remapped: res://assets/maps/oval/grass_albedo.png
+Loading resource: res://.godot/imported/grass_albedo.png-024e1f8c144c0d22d7ba2f899be398d9.s3tc.ctex remapped: res://.godot/imported/grass_albedo.png-024e1f8c144c0d22d7ba2f899be398d9.s3tc.ctex
+Completed load for: 'res://assets/maps/oval/grass_albedo.png' remapped 'res://assets/maps/oval/grass_albedo.png' at thread -1
+Loading resource: res://assets/maps/oval/grass_normal.png remapped: res://assets/maps/oval/grass_normal.png
+Loading resource: res://.godot/imported/grass_normal.png-126c70b217f398b5f0d09a158aa963a3.s3tc.ctex remapped: res://.godot/imported/grass_normal.png-126c70b217f398b5f0d09a158aa963a3.s3tc.ctex
+Completed load for: 'res://assets/maps/oval/grass_normal.png' remapped 'res://assets/maps/oval/grass_normal.png' at thread -1
+Loading resource: res://assets/maps/oval/grass_variation.png remapped: res://assets/maps/oval/grass_variation.png
+Loading resource: res://.godot/imported/grass_variation.png-a6b9081b462c34e714657b776b20d41d.s3tc.ctex remapped: res://.godot/imported/grass_variation.png-a6b9081b462c34e714657b776b20d41d.s3tc.ctex
+Completed load for: 'res://assets/maps/oval/grass_variation.png' remapped 'res://assets/maps/oval/grass_variation.png' at thread -1
+Completed load for: 'res://assets/maps/oval/Grass.tres' remapped 'res://assets/maps/oval/Grass.tres' at thread -1
+Loading resource: res://assets/maps/oval/Asphalt.tres remapped: res://assets/maps/oval/Asphalt.tres
+Loading resource: res://assets/arena/polyhaven/asphalt_04/asphalt_04_diff_1k.jpg remapped: res://assets/arena/polyhaven/asphalt_04/asphalt_04_diff_1k.jpg
+Loading resource: res://.godot/imported/asphalt_04_diff_1k.jpg-6b88b3fa7067fce56cf6d7b055ee7d09.s3tc.ctex remapped: res://.godot/imported/asphalt_04_diff_1k.jpg-6b88b3fa7067fce56cf6d7b055ee7d09.s3tc.ctex
+Completed load for: 'res://assets/arena/polyhaven/asphalt_04/asphalt_04_diff_1k.jpg' remapped 'res://assets/arena/polyhaven/asphalt_04/asphalt_04_diff_1k.jpg' at thread -1
+Loading resource: res://assets/arena/polyhaven/asphalt_04/asphalt_04_nor_gl_1k.jpg remapped: res://assets/arena/polyhaven/asphalt_04/asphalt_04_nor_gl_1k.jpg
+Loading resource: res://.godot/imported/asphalt_04_nor_gl_1k.jpg-dad47ee8ae612af66ba5ddab267dddc9.s3tc.ctex remapped: res://.godot/imported/asphalt_04_nor_gl_1k.jpg-dad47ee8ae612af66ba5ddab267dddc9.s3tc.ctex
+Completed load for: 'res://assets/arena/polyhaven/asphalt_04/asphalt_04_nor_gl_1k.jpg' remapped 'res://assets/arena/polyhaven/asphalt_04/asphalt_04_nor_gl_1k.jpg' at thread -1
+Loading resource: res://assets/arena/polyhaven/asphalt_04/asphalt_04_rough_1k.jpg remapped: res://assets/arena/polyhaven/asphalt_04/asphalt_04_rough_1k.jpg
+Loading resource: res://.godot/imported/asphalt_04_rough_1k.jpg-f961533be64841b1c10e4ca294950e0e.s3tc.ctex remapped: res://.godot/imported/asphalt_04_rough_1k.jpg-f961533be64841b1c10e4ca294950e0e.s3tc.ctex
+Completed load for: 'res://assets/arena/polyhaven/asphalt_04/asphalt_04_rough_1k.jpg' remapped 'res://assets/arena/polyhaven/asphalt_04/asphalt_04_rough_1k.jpg' at thread -1
+Loading resource: res://assets/maps/oval/ground_macro.png remapped: res://assets/maps/oval/ground_macro.png
+Loading resource: res://.godot/imported/ground_macro.png-38cbb57649fa6ccaf98cdc462a46ede7.s3tc.ctex remapped: res://.godot/imported/ground_macro.png-38cbb57649fa6ccaf98cdc462a46ede7.s3tc.ctex
+Completed load for: 'res://assets/maps/oval/ground_macro.png' remapped 'res://assets/maps/oval/ground_macro.png' at thread -1
+Completed load for: 'res://assets/maps/oval/Asphalt.tres' remapped 'res://assets/maps/oval/Asphalt.tres' at thread -1
+Loading resource: res://assets/maps/oval/TrackCollision.tres remapped: res://assets/maps/oval/TrackCollision.tres
+Completed load for: 'res://assets/maps/oval/TrackCollision.tres' remapped 'res://assets/maps/oval/TrackCollision.tres' at thread -1
+Loading resource: res://assets/arena/materials/Concrete.tres remapped: res://assets/arena/materials/Concrete.tres
+Loading resource: res://assets/arena/polyhaven/concrete/concrete_diff_1k.jpg remapped: res://assets/arena/polyhaven/concrete/concrete_diff_1k.jpg
+Loading resource: res://.godot/imported/concrete_diff_1k.jpg-7876246f6abbd4096d1809030da56f8f.s3tc.ctex remapped: res://.godot/imported/concrete_diff_1k.jpg-7876246f6abbd4096d1809030da56f8f.s3tc.ctex
+Completed load for: 'res://assets/arena/polyhaven/concrete/concrete_diff_1k.jpg' remapped 'res://assets/arena/polyhaven/concrete/concrete_diff_1k.jpg' at thread -1
+Loading resource: res://assets/arena/polyhaven/concrete/concrete_nor_gl_1k.jpg remapped: res://assets/arena/polyhaven/concrete/concrete_nor_gl_1k.jpg
+Loading resource: res://.godot/imported/concrete_nor_gl_1k.jpg-a3c8e8a84f24eda62daaed1cbb003709.s3tc.ctex remapped: res://.godot/imported/concrete_nor_gl_1k.jpg-a3c8e8a84f24eda62daaed1cbb003709.s3tc.ctex
+Completed load for: 'res://assets/arena/polyhaven/concrete/concrete_nor_gl_1k.jpg' remapped 'res://assets/arena/polyhaven/concrete/concrete_nor_gl_1k.jpg' at thread -1
+Loading resource: res://assets/arena/polyhaven/concrete/concrete_rough_1k.jpg remapped: res://assets/arena/polyhaven/concrete/concrete_rough_1k.jpg
+Loading resource: res://.godot/imported/concrete_rough_1k.jpg-14889ccb4a7e90611040cd2d7ba3ad4e.s3tc.ctex remapped: res://.godot/imported/concrete_rough_1k.jpg-14889ccb4a7e90611040cd2d7ba3ad4e.s3tc.ctex
+Completed load for: 'res://assets/arena/polyhaven/concrete/concrete_rough_1k.jpg' remapped 'res://assets/arena/polyhaven/concrete/concrete_rough_1k.jpg' at thread -1
+Completed load for: 'res://assets/arena/materials/Concrete.tres' remapped 'res://assets/arena/materials/Concrete.tres' at thread -1
+Loading resource: res://assets/maps/oval/CatchFence.gdshader remapped: res://assets/maps/oval/CatchFence.gdshader
+Completed load for: 'res://assets/maps/oval/CatchFence.gdshader' remapped 'res://assets/maps/oval/CatchFence.gdshader' at thread -1
+Loading resource: res://assets/maps/infield/infield_terrain.glb remapped: res://assets/maps/infield/infield_terrain.glb
+Loading resource: res://.godot/imported/infield_terrain.glb-06e456ef65546637923a7fb3cfcfc94d.scn remapped: res://.godot/imported/infield_terrain.glb-06e456ef65546637923a7fb3cfcfc94d.scn
+Loading resource: res://assets/maps/infield/SurfaceField.tres remapped: res://assets/maps/infield/SurfaceField.tres
+Loading resource: res://assets/maps/infield/SurfaceField.gdshader remapped: res://assets/maps/infield/SurfaceField.gdshader
+Completed load for: 'res://assets/maps/infield/SurfaceField.gdshader' remapped 'res://assets/maps/infield/SurfaceField.gdshader' at thread -1
+Loading resource: res://assets/maps/infield/surface_field.png remapped: res://assets/maps/infield/surface_field.png
+Loading resource: res://.godot/imported/surface_field.png-88706ed7734ec7f78fb01129122e3888.ctex remapped: res://.godot/imported/surface_field.png-88706ed7734ec7f78fb01129122e3888.ctex
+Completed load for: 'res://assets/maps/infield/surface_field.png' remapped 'res://assets/maps/infield/surface_field.png' at thread -1
+Completed load for: 'res://assets/maps/infield/SurfaceField.tres' remapped 'res://assets/maps/infield/SurfaceField.tres' at thread -1
+Loading resource: res://assets/maps/infield/Water.gdshader remapped: res://assets/maps/infield/Water.gdshader
+Completed load for: 'res://assets/maps/infield/Water.gdshader' remapped 'res://assets/maps/infield/Water.gdshader' at thread -1
+Completed load for: 'res://assets/maps/infield/infield_terrain.glb' remapped 'res://assets/maps/infield/infield_terrain.glb' at thread -1
+Loading resource: res://assets/maps/infield/infield_structures.glb remapped: res://assets/maps/infield/infield_structures.glb
+Loading resource: res://.godot/imported/infield_structures.glb-518af2c8ec374754f7274d77d9c169b6.scn remapped: res://.godot/imported/infield_structures.glb-518af2c8ec374754f7274d77d9c169b6.scn
+Completed load for: 'res://assets/maps/infield/infield_structures.glb' remapped 'res://assets/maps/infield/infield_structures.glb' at thread -1
+Loading resource: res://scenes/maps/infield_dressing.tscn remapped: res://scenes/maps/infield_dressing.tscn
+Loading resource: res://assets/environment/models/RockSlab.glb remapped: res://assets/environment/models/RockSlab.glb
+Loading resource: res://.godot/imported/RockSlab.glb-a526d3e00528b2adde8de79f5ed96d7f.scn remapped: res://.godot/imported/RockSlab.glb-a526d3e00528b2adde8de79f5ed96d7f.scn
+Loading resource: res://assets/environment/Rock.tres remapped: res://assets/environment/Rock.tres
+Loading resource: res://assets/environment/textures/StoneAlbedo.png remapped: res://assets/environment/textures/StoneAlbedo.png
+Loading resource: res://.godot/imported/StoneAlbedo.png-937a9619bd21fc5ab7b63faf0e048595.s3tc.ctex remapped: res://.godot/imported/StoneAlbedo.png-937a9619bd21fc5ab7b63faf0e048595.s3tc.ctex
+Completed load for: 'res://assets/environment/textures/StoneAlbedo.png' remapped 'res://assets/environment/textures/StoneAlbedo.png' at thread -1
+Loading resource: res://assets/environment/textures/StoneNormal.png remapped: res://assets/environment/textures/StoneNormal.png
+Loading resource: res://.godot/imported/StoneNormal.png-5732eb90bef512fe0ae5245e6113c3c0.s3tc.ctex remapped: res://.godot/imported/StoneNormal.png-5732eb90bef512fe0ae5245e6113c3c0.s3tc.ctex
+Completed load for: 'res://assets/environment/textures/StoneNormal.png' remapped 'res://assets/environment/textures/StoneNormal.png' at thread -1
+Completed load for: 'res://assets/environment/Rock.tres' remapped 'res://assets/environment/Rock.tres' at thread -1
+Completed load for: 'res://assets/environment/models/RockSlab.glb' remapped 'res://assets/environment/models/RockSlab.glb' at thread -1
+Loading resource: res://assets/environment/models/BoulderLow.glb remapped: res://assets/environment/models/BoulderLow.glb
+Loading resource: res://.godot/imported/BoulderLow.glb-70e4d0919e51946a4366ed26b661f742.scn remapped: res://.godot/imported/BoulderLow.glb-70e4d0919e51946a4366ed26b661f742.scn
+Completed load for: 'res://assets/environment/models/BoulderLow.glb' remapped 'res://assets/environment/models/BoulderLow.glb' at thread -1
+Loading resource: res://assets/environment/models/RockLedge.glb remapped: res://assets/environment/models/RockLedge.glb
+Loading resource: res://.godot/imported/RockLedge.glb-0b6b3ce0869ba7afe7daa531ff82a325.scn remapped: res://.godot/imported/RockLedge.glb-0b6b3ce0869ba7afe7daa531ff82a325.scn
+Completed load for: 'res://assets/environment/models/RockLedge.glb' remapped 'res://assets/environment/models/RockLedge.glb' at thread -1
+Loading resource: res://assets/environment/models/RockCluster.glb remapped: res://assets/environment/models/RockCluster.glb
+Loading resource: res://.godot/imported/RockCluster.glb-95e8567a11ce736b293a148a0fdf8a38.scn remapped: res://.godot/imported/RockCluster.glb-95e8567a11ce736b293a148a0fdf8a38.scn
+Completed load for: 'res://assets/environment/models/RockCluster.glb' remapped 'res://assets/environment/models/RockCluster.glb' at thread -1
+Loading resource: res://assets/environment/models/BoulderTall.glb remapped: res://assets/environment/models/BoulderTall.glb
+Loading resource: res://.godot/imported/BoulderTall.glb-0c19c96b3f926990993672aedcf526cd.scn remapped: res://.godot/imported/BoulderTall.glb-0c19c96b3f926990993672aedcf526cd.scn
+Completed load for: 'res://assets/environment/models/BoulderTall.glb' remapped 'res://assets/environment/models/BoulderTall.glb' at thread -1
+Loading resource: res://assets/environment/models/LightPole9m.glb remapped: res://assets/environment/models/LightPole9m.glb
+Loading resource: res://.godot/imported/LightPole9m.glb-ec3cea3e79ba82d59cefaba704283720.scn remapped: res://.godot/imported/LightPole9m.glb-ec3cea3e79ba82d59cefaba704283720.scn
+Completed load for: 'res://assets/environment/models/LightPole9m.glb' remapped 'res://assets/environment/models/LightPole9m.glb' at thread -1
+Loading resource: res://assets/environment/models/Guardrail4m.glb remapped: res://assets/environment/models/Guardrail4m.glb
+Loading resource: res://.godot/imported/Guardrail4m.glb-65eaf9020beae547bd9aaf9c3823ee71.scn remapped: res://.godot/imported/Guardrail4m.glb-65eaf9020beae547bd9aaf9c3823ee71.scn
+Completed load for: 'res://assets/environment/models/Guardrail4m.glb' remapped 'res://assets/environment/models/Guardrail4m.glb' at thread -1
+Completed load for: 'res://scenes/maps/infield_dressing.tscn' remapped 'res://scenes/maps/infield_dressing.tscn' at thread -1
+Completed load for: 'res://scenes/maps/oval_foundation.tscn' remapped 'res://scenes/maps/oval_foundation.tscn' at thread -1
+Loading resource: res://assets/effects/EnvironmentSky.gdshader remapped: res://assets/effects/EnvironmentSky.gdshader
+Completed load for: 'res://assets/effects/EnvironmentSky.gdshader' remapped 'res://assets/effects/EnvironmentSky.gdshader' at thread -1
+Loading resource: res://assets/audio/project/music/Welcome to the Carnage Circus Arena 2.mp3 remapped: res://assets/audio/project/music/Welcome to the Carnage Circus Arena 2.mp3
+Loading resource: res://.godot/imported/Welcome to the Carnage Circus Arena 2.mp3-ad727715e455c4bde04cb9ae3156ea2b.mp3str remapped: res://.godot/imported/Welcome to the Carnage Circus Arena 2.mp3-ad727715e455c4bde04cb9ae3156ea2b.mp3str
+Completed load for: 'res://assets/audio/project/music/Welcome to the Carnage Circus Arena 2.mp3' remapped 'res://assets/audio/project/music/Welcome to the Carnage Circus Arena 2.mp3' at thread -1
+Loading resource: res://assets/audio/freesound/arena/ambience.wav remapped: res://assets/audio/freesound/arena/ambience.wav
+Loading resource: res://.godot/imported/ambience.wav-c409724aa262f6e12cd79d808a66352c.sample remapped: res://.godot/imported/ambience.wav-c409724aa262f6e12cd79d808a66352c.sample
+Completed load for: 'res://assets/audio/freesound/arena/ambience.wav' remapped 'res://assets/audio/freesound/arena/ambience.wav' at thread -1
+Loading resource: res://assets/items/kenney/weapons/ammo_rocket.obj remapped: res://assets/items/kenney/weapons/ammo_rocket.obj
+Loading resource: res://.godot/imported/ammo_rocket.obj-c0a186700287a8a57d8008a196a6b03a.mesh remapped: res://.godot/imported/ammo_rocket.obj-c0a186700287a8a57d8008a196a6b03a.mesh
+Completed load for: 'res://assets/items/kenney/weapons/ammo_rocket.obj' remapped 'res://assets/items/kenney/weapons/ammo_rocket.obj' at thread -1
+Loading resource: res://assets/items/materials/Pickup.tres remapped: res://assets/items/materials/Pickup.tres
+Completed load for: 'res://assets/items/materials/Pickup.tres' remapped 'res://assets/items/materials/Pickup.tres' at thread -1
+Loading resource: res://code/Client/Items/ProxyMinePhysics.cs remapped: res://code/Client/Items/ProxyMinePhysics.cs
+Completed load for: 'res://code/Client/Items/ProxyMinePhysics.cs' remapped 'res://code/Client/Items/ProxyMinePhysics.cs' at thread -1
+Loading resource: res://code/Client/Vehicles/CameraSpeedStreaks.cs remapped: res://code/Client/Vehicles/CameraSpeedStreaks.cs
+Completed load for: 'res://code/Client/Vehicles/CameraSpeedStreaks.cs' remapped 'res://code/Client/Vehicles/CameraSpeedStreaks.cs' at thread -1
+Loading resource: res://assets/audio/freesound/arena/ambience.wav remapped: res://assets/audio/freesound/arena/ambience.wav
+Loading resource: res://.godot/imported/ambience.wav-c409724aa262f6e12cd79d808a66352c.sample remapped: res://.godot/imported/ambience.wav-c409724aa262f6e12cd79d808a66352c.sample
+Completed load for: 'res://assets/audio/freesound/arena/ambience.wav' remapped 'res://assets/audio/freesound/arena/ambience.wav' at thread -1
+Loading resource: res://code/Client/Hud/ItemHudSlot.cs remapped: res://code/Client/Hud/ItemHudSlot.cs
+Completed load for: 'res://code/Client/Hud/ItemHudSlot.cs' remapped 'res://code/Client/Hud/ItemHudSlot.cs' at thread -1
+Loading resource: res://code/Client/Hud/CombatHud.cs remapped: res://code/Client/Hud/CombatHud.cs
+Completed load for: 'res://code/Client/Hud/CombatHud.cs' remapped 'res://code/Client/Hud/CombatHud.cs' at thread -1
+Loading resource: res://assets/hud/Health.png remapped: res://assets/hud/Health.png
+Loading resource: res://.godot/imported/Health.png-b5e63646c388c3b1b2e61fa0def3cf1f.ctex remapped: res://.godot/imported/Health.png-b5e63646c388c3b1b2e61fa0def3cf1f.ctex
+Completed load for: 'res://assets/hud/Health.png' remapped 'res://assets/hud/Health.png' at thread -1
+Loading resource: res://assets/hud/Component.gdshader remapped: res://assets/hud/Component.gdshader
+Completed load for: 'res://assets/hud/Component.gdshader' remapped 'res://assets/hud/Component.gdshader' at thread -1
+Loading resource: res://code/Client/Hud/ItemHudFrame.cs remapped: res://code/Client/Hud/ItemHudFrame.cs
+Completed load for: 'res://code/Client/Hud/ItemHudFrame.cs' remapped 'res://code/Client/Hud/ItemHudFrame.cs' at thread -1
+Loading resource: res://assets/hud/CornerAssembly.png remapped: res://assets/hud/CornerAssembly.png
+Loading resource: res://.godot/imported/CornerAssembly.png-bba9b0f11cd29212883ec1c216374744.ctex remapped: res://.godot/imported/CornerAssembly.png-bba9b0f11cd29212883ec1c216374744.ctex
+Completed load for: 'res://assets/hud/CornerAssembly.png' remapped 'res://assets/hud/CornerAssembly.png' at thread -1
+Loading resource: res://assets/hud/CornerAssembly.gdshader remapped: res://assets/hud/CornerAssembly.gdshader
+Completed load for: 'res://assets/hud/CornerAssembly.gdshader' remapped 'res://assets/hud/CornerAssembly.gdshader' at thread -1
+Loading resource: res://assets/hud/Wrench.svg remapped: res://assets/hud/Wrench.svg
+Loading resource: res://.godot/imported/Wrench.svg-dbb1444e669b4ffa00141079d644d34d.ctex remapped: res://.godot/imported/Wrench.svg-dbb1444e669b4ffa00141079d644d34d.ctex
+Completed load for: 'res://assets/hud/Wrench.svg' remapped 'res://assets/hud/Wrench.svg' at thread -1
+Loading resource: res://assets/hud/Missile.svg remapped: res://assets/hud/Missile.svg
+Loading resource: res://.godot/imported/Missile.svg-8129a3f4cf3d426f2130b13dd3f40213.ctex remapped: res://.godot/imported/Missile.svg-8129a3f4cf3d426f2130b13dd3f40213.ctex
+Completed load for: 'res://assets/hud/Missile.svg' remapped 'res://assets/hud/Missile.svg' at thread -1
+Loading resource: res://assets/hud/Oil.svg remapped: res://assets/hud/Oil.svg
+Loading resource: res://.godot/imported/Oil.svg-248f7354d6ae5f4d061ce4c93e771d88.ctex remapped: res://.godot/imported/Oil.svg-248f7354d6ae5f4d061ce4c93e771d88.ctex
+Completed load for: 'res://assets/hud/Oil.svg' remapped 'res://assets/hud/Oil.svg' at thread -1
+Loading resource: res://assets/hud/Nitro.svg remapped: res://assets/hud/Nitro.svg
+Loading resource: res://.godot/imported/Nitro.svg-c12b7bc2958b38216034675df7028a46.ctex remapped: res://.godot/imported/Nitro.svg-c12b7bc2958b38216034675df7028a46.ctex
+Completed load for: 'res://assets/hud/Nitro.svg' remapped 'res://assets/hud/Nitro.svg' at thread -1
+Loading resource: res://assets/hud/ProxyMine.svg remapped: res://assets/hud/ProxyMine.svg
+Loading resource: res://.godot/imported/ProxyMine.svg-5668be47e03fbe8f4916432e0f33a306.ctex remapped: res://.godot/imported/ProxyMine.svg-5668be47e03fbe8f4916432e0f33a306.ctex
+Completed load for: 'res://assets/hud/ProxyMine.svg' remapped 'res://assets/hud/ProxyMine.svg' at thread -1
+Loading resource: res://assets/hud/Salvo.svg remapped: res://assets/hud/Salvo.svg
+Loading resource: res://.godot/imported/Salvo.svg-58890b2c93159c3e5e94667b8dcf02bf.ctex remapped: res://.godot/imported/Salvo.svg-58890b2c93159c3e5e94667b8dcf02bf.ctex
+Completed load for: 'res://assets/hud/Salvo.svg' remapped 'res://assets/hud/Salvo.svg' at thread -1
+Loading resource: res://assets/hud/MachineGun.svg remapped: res://assets/hud/MachineGun.svg
+Loading resource: res://.godot/imported/MachineGun.svg-56a026125ae004c71ff361076629f022.ctex remapped: res://.godot/imported/MachineGun.svg-56a026125ae004c71ff361076629f022.ctex
+Completed load for: 'res://assets/hud/MachineGun.svg' remapped 'res://assets/hud/MachineGun.svg' at thread -1
+Loading resource: res://assets/hud/Shield.svg remapped: res://assets/hud/Shield.svg
+Loading resource: res://.godot/imported/Shield.svg-0df21b91256eb1905cbd0574bbef4345.ctex remapped: res://.godot/imported/Shield.svg-0df21b91256eb1905cbd0574bbef4345.ctex
+Completed load for: 'res://assets/hud/Shield.svg' remapped 'res://assets/hud/Shield.svg' at thread -1
+Loading resource: res://assets/hud/Timer.png remapped: res://assets/hud/Timer.png
+Loading resource: res://.godot/imported/Timer.png-1ee0f4c7f4df205d46464c98099f02e5.ctex remapped: res://.godot/imported/Timer.png-1ee0f4c7f4df205d46464c98099f02e5.ctex
+Completed load for: 'res://assets/hud/Timer.png' remapped 'res://assets/hud/Timer.png' at thread -1
+Loading resource: res://scenes/maps/oval_foundation.tscn remapped: res://scenes/maps/oval_foundation.tscn
+Loading resource: res://assets/maps/oval/oval_foundation.glb remapped: res://assets/maps/oval/oval_foundation.glb
+Loading resource: res://.godot/imported/oval_foundation.glb-d53fc80b05e7986b35e9004686cf9c44.scn remapped: res://.godot/imported/oval_foundation.glb-d53fc80b05e7986b35e9004686cf9c44.scn
+Completed load for: 'res://assets/maps/oval/oval_foundation.glb' remapped 'res://assets/maps/oval/oval_foundation.glb' at thread -1
+Loading resource: res://assets/maps/infield/infield_terrain.glb remapped: res://assets/maps/infield/infield_terrain.glb
+Loading resource: res://.godot/imported/infield_terrain.glb-06e456ef65546637923a7fb3cfcfc94d.scn remapped: res://.godot/imported/infield_terrain.glb-06e456ef65546637923a7fb3cfcfc94d.scn
+Completed load for: 'res://assets/maps/infield/infield_terrain.glb' remapped 'res://assets/maps/infield/infield_terrain.glb' at thread -1
+Loading resource: res://assets/maps/infield/infield_structures.glb remapped: res://assets/maps/infield/infield_structures.glb
+Loading resource: res://.godot/imported/infield_structures.glb-518af2c8ec374754f7274d77d9c169b6.scn remapped: res://.godot/imported/infield_structures.glb-518af2c8ec374754f7274d77d9c169b6.scn
+Completed load for: 'res://assets/maps/infield/infield_structures.glb' remapped 'res://assets/maps/infield/infield_structures.glb' at thread -1
+Loading resource: res://scenes/maps/infield_dressing.tscn remapped: res://scenes/maps/infield_dressing.tscn
+Loading resource: res://assets/environment/models/RockSlab.glb remapped: res://assets/environment/models/RockSlab.glb
+Loading resource: res://.godot/imported/RockSlab.glb-a526d3e00528b2adde8de79f5ed96d7f.scn remapped: res://.godot/imported/RockSlab.glb-a526d3e00528b2adde8de79f5ed96d7f.scn
+Completed load for: 'res://assets/environment/models/RockSlab.glb' remapped 'res://assets/environment/models/RockSlab.glb' at thread -1
+Loading resource: res://assets/environment/models/RockLedge.glb remapped: res://assets/environment/models/RockLedge.glb
+Loading resource: res://.godot/imported/RockLedge.glb-0b6b3ce0869ba7afe7daa531ff82a325.scn remapped: res://.godot/imported/RockLedge.glb-0b6b3ce0869ba7afe7daa531ff82a325.scn
+Completed load for: 'res://assets/environment/models/RockLedge.glb' remapped 'res://assets/environment/models/RockLedge.glb' at thread -1
+Loading resource: res://assets/environment/models/RockCluster.glb remapped: res://assets/environment/models/RockCluster.glb
+Loading resource: res://.godot/imported/RockCluster.glb-95e8567a11ce736b293a148a0fdf8a38.scn remapped: res://.godot/imported/RockCluster.glb-95e8567a11ce736b293a148a0fdf8a38.scn
+Completed load for: 'res://assets/environment/models/RockCluster.glb' remapped 'res://assets/environment/models/RockCluster.glb' at thread -1
+Loading resource: res://assets/environment/models/BoulderTall.glb remapped: res://assets/environment/models/BoulderTall.glb
+Loading resource: res://.godot/imported/BoulderTall.glb-0c19c96b3f926990993672aedcf526cd.scn remapped: res://.godot/imported/BoulderTall.glb-0c19c96b3f926990993672aedcf526cd.scn
+Completed load for: 'res://assets/environment/models/BoulderTall.glb' remapped 'res://assets/environment/models/BoulderTall.glb' at thread -1
+Loading resource: res://assets/environment/models/LightPole9m.glb remapped: res://assets/environment/models/LightPole9m.glb
+Loading resource: res://.godot/imported/LightPole9m.glb-ec3cea3e79ba82d59cefaba704283720.scn remapped: res://.godot/imported/LightPole9m.glb-ec3cea3e79ba82d59cefaba704283720.scn
+Completed load for: 'res://assets/environment/models/LightPole9m.glb' remapped 'res://assets/environment/models/LightPole9m.glb' at thread -1
+Loading resource: res://assets/environment/models/Guardrail4m.glb remapped: res://assets/environment/models/Guardrail4m.glb
+Loading resource: res://.godot/imported/Guardrail4m.glb-65eaf9020beae547bd9aaf9c3823ee71.scn remapped: res://.godot/imported/Guardrail4m.glb-65eaf9020beae547bd9aaf9c3823ee71.scn
+Completed load for: 'res://assets/environment/models/Guardrail4m.glb' remapped 'res://assets/environment/models/Guardrail4m.glb' at thread -1
+Completed load for: 'res://scenes/maps/infield_dressing.tscn' remapped 'res://scenes/maps/infield_dressing.tscn' at thread -1
+Completed load for: 'res://scenes/maps/oval_foundation.tscn' remapped 'res://scenes/maps/oval_foundation.tscn' at thread -1
+Loading resource: res://assets/audio/project/music/Welcome to the Carnage Circus Arena.mp3 remapped: res://assets/audio/project/music/Welcome to the Carnage Circus Arena.mp3
+Loading resource: res://.godot/imported/Welcome to the Carnage Circus Arena.mp3-6c335eef7e82ad07898258745d108ffd.mp3str remapped: res://.godot/imported/Welcome to the Carnage Circus Arena.mp3-6c335eef7e82ad07898258745d108ffd.mp3str
+Completed load for: 'res://assets/audio/project/music/Welcome to the Carnage Circus Arena.mp3' remapped 'res://assets/audio/project/music/Welcome to the Carnage Circus Arena.mp3' at thread -1
+Loading resource: res://assets/audio/freesound/arena/ambience.wav remapped: res://assets/audio/freesound/arena/ambience.wav
+Loading resource: res://.godot/imported/ambience.wav-c409724aa262f6e12cd79d808a66352c.sample remapped: res://.godot/imported/ambience.wav-c409724aa262f6e12cd79d808a66352c.sample
+Completed load for: 'res://assets/audio/freesound/arena/ambience.wav' remapped 'res://assets/audio/freesound/arena/ambience.wav' at thread -1
+Loading resource: res://code/Client/Networking/NetworkVehicleBody.cs remapped: res://code/Client/Networking/NetworkVehicleBody.cs
+Completed load for: 'res://code/Client/Networking/NetworkVehicleBody.cs' remapped 'res://code/Client/Networking/NetworkVehicleBody.cs' at thread -1
+Loading resource: res://code/Client/Items/ShieldVisual.cs remapped: res://code/Client/Items/ShieldVisual.cs
+Completed load for: 'res://code/Client/Items/ShieldVisual.cs' remapped 'res://code/Client/Items/ShieldVisual.cs' at thread -1
+Loading resource: res://assets/items/shield/Shield.glb remapped: res://assets/items/shield/Shield.glb
+Loading resource: res://.godot/imported/Shield.glb-11ca457764555ce780e9fa6f57735369.scn remapped: res://.godot/imported/Shield.glb-11ca457764555ce780e9fa6f57735369.scn
+Completed load for: 'res://assets/items/shield/Shield.glb' remapped 'res://assets/items/shield/Shield.glb' at thread -1
+Loading resource: res://assets/items/shield/Shield.gdshader remapped: res://assets/items/shield/Shield.gdshader
+Completed load for: 'res://assets/items/shield/Shield.gdshader' remapped 'res://assets/items/shield/Shield.gdshader' at thread -1
+Loading resource: res://assets/items/kenney/particles/spark_01.png remapped: res://assets/items/kenney/particles/spark_01.png
+Loading resource: res://.godot/imported/spark_01.png-a406287f415a9b8c7eb8f7e8532b0ff9.ctex remapped: res://.godot/imported/spark_01.png-a406287f415a9b8c7eb8f7e8532b0ff9.ctex
+Completed load for: 'res://assets/items/kenney/particles/spark_01.png' remapped 'res://assets/items/kenney/particles/spark_01.png' at thread -1
+Loading resource: res://code/Client/Vehicles/TireFeedback.cs remapped: res://code/Client/Vehicles/TireFeedback.cs
+Completed load for: 'res://code/Client/Vehicles/TireFeedback.cs' remapped 'res://code/Client/Vehicles/TireFeedback.cs' at thread -1
+Loading resource: res://code/Client/Vehicles/TireMarkBatch.cs remapped: res://code/Client/Vehicles/TireMarkBatch.cs
+Completed load for: 'res://code/Client/Vehicles/TireMarkBatch.cs' remapped 'res://code/Client/Vehicles/TireMarkBatch.cs' at thread -1
+Loading resource: res://assets/effects/WaterWake.gdshader remapped: res://assets/effects/WaterWake.gdshader
+Completed load for: 'res://assets/effects/WaterWake.gdshader' remapped 'res://assets/effects/WaterWake.gdshader' at thread -1
+Loading resource: res://assets/items/kenney/particles/smoke_01.png remapped: res://assets/items/kenney/particles/smoke_01.png
+Loading resource: res://.godot/imported/smoke_01.png-1c7c56514fa7852c41eb8d9f61dac2c0.ctex remapped: res://.godot/imported/smoke_01.png-1c7c56514fa7852c41eb8d9f61dac2c0.ctex
+Completed load for: 'res://assets/items/kenney/particles/smoke_01.png' remapped 'res://assets/items/kenney/particles/smoke_01.png' at thread -1
+Loading resource: res://assets/items/materials/DamageFlash.gdshader remapped: res://assets/items/materials/DamageFlash.gdshader
+Completed load for: 'res://assets/items/materials/DamageFlash.gdshader' remapped 'res://assets/items/materials/DamageFlash.gdshader' at thread -1
+Loading resource: res://assets/vehicles/WastelandVehicle.tscn remapped: res://assets/vehicles/WastelandVehicle.tscn
+Loading resource: res://assets/vehicles/TrackstormCar.glb remapped: res://assets/vehicles/TrackstormCar.glb
+Loading resource: res://.godot/imported/TrackstormCar.glb-1217977309559a594aefb86508368cd3.scn remapped: res://.godot/imported/TrackstormCar.glb-1217977309559a594aefb86508368cd3.scn
+Loading resource: res://assets/vehicles/materials/CarPaint.tres remapped: res://assets/vehicles/materials/CarPaint.tres
+Loading resource: res://assets/vehicles/materials/CarPaint.gdshader remapped: res://assets/vehicles/materials/CarPaint.gdshader
+Completed load for: 'res://assets/vehicles/materials/CarPaint.gdshader' remapped 'res://assets/vehicles/materials/CarPaint.gdshader' at thread -1
+Completed load for: 'res://assets/vehicles/materials/CarPaint.tres' remapped 'res://assets/vehicles/materials/CarPaint.tres' at thread -1
+Loading resource: res://assets/vehicles/materials/CarGlass.tres remapped: res://assets/vehicles/materials/CarGlass.tres
+Loading resource: res://assets/vehicles/materials/CarGlass.gdshader remapped: res://assets/vehicles/materials/CarGlass.gdshader
+Completed load for: 'res://assets/vehicles/materials/CarGlass.gdshader' remapped 'res://assets/vehicles/materials/CarGlass.gdshader' at thread -1
+Completed load for: 'res://assets/vehicles/materials/CarGlass.tres' remapped 'res://assets/vehicles/materials/CarGlass.tres' at thread -1
+Loading resource: res://assets/vehicles/materials/CarSteel.tres remapped: res://assets/vehicles/materials/CarSteel.tres
+Completed load for: 'res://assets/vehicles/materials/CarSteel.tres' remapped 'res://assets/vehicles/materials/CarSteel.tres' at thread -1
+Loading resource: res://assets/vehicles/materials/Tire.tres remapped: res://assets/vehicles/materials/Tire.tres
+Loading resource: res://assets/vehicles/polyhaven/rubberized_track/rubberized_track_diff_1k.jpg remapped: res://assets/vehicles/polyhaven/rubberized_track/rubberized_track_diff_1k.jpg
+Loading resource: res://.godot/imported/rubberized_track_diff_1k.jpg-abd8b661e4689cea167a690ab024cf90.s3tc.ctex remapped: res://.godot/imported/rubberized_track_diff_1k.jpg-abd8b661e4689cea167a690ab024cf90.s3tc.ctex
+Completed load for: 'res://assets/vehicles/polyhaven/rubberized_track/rubberized_track_diff_1k.jpg' remapped 'res://assets/vehicles/polyhaven/rubberized_track/rubberized_track_diff_1k.jpg' at thread -1
+Loading resource: res://assets/vehicles/polyhaven/rubberized_track/rubberized_track_nor_gl_1k.jpg remapped: res://assets/vehicles/polyhaven/rubberized_track/rubberized_track_nor_gl_1k.jpg
+Loading resource: res://.godot/imported/rubberized_track_nor_gl_1k.jpg-9d4f18b450ba7ebb2254ba7d107b85b9.s3tc.ctex remapped: res://.godot/imported/rubberized_track_nor_gl_1k.jpg-9d4f18b450ba7ebb2254ba7d107b85b9.s3tc.ctex
+Completed load for: 'res://assets/vehicles/polyhaven/rubberized_track/rubberized_track_nor_gl_1k.jpg' remapped 'res://assets/vehicles/polyhaven/rubberized_track/rubberized_track_nor_gl_1k.jpg' at thread -1
+Loading resource: res://assets/vehicles/polyhaven/rubberized_track/rubberized_track_rough_1k.jpg remapped: res://assets/vehicles/polyhaven/rubberized_track/rubberized_track_rough_1k.jpg
+Loading resource: res://.godot/imported/rubberized_track_rough_1k.jpg-50271bc069aabb693d37ff6ac15e4d6a.s3tc.ctex remapped: res://.godot/imported/rubberized_track_rough_1k.jpg-50271bc069aabb693d37ff6ac15e4d6a.s3tc.ctex
+Completed load for: 'res://assets/vehicles/polyhaven/rubberized_track/rubberized_track_rough_1k.jpg' remapped 'res://assets/vehicles/polyhaven/rubberized_track/rubberized_track_rough_1k.jpg' at thread -1
+Completed load for: 'res://assets/vehicles/materials/Tire.tres' remapped 'res://assets/vehicles/materials/Tire.tres' at thread -1
+Completed load for: 'res://assets/vehicles/TrackstormCar.glb' remapped 'res://assets/vehicles/TrackstormCar.glb' at thread -1
+Completed load for: 'res://assets/vehicles/WastelandVehicle.tscn' remapped 'res://assets/vehicles/WastelandVehicle.tscn' at thread -1
+Loading resource: res://code/Client/Vehicles/CarDeployment.cs remapped: res://code/Client/Vehicles/CarDeployment.cs
+Completed load for: 'res://code/Client/Vehicles/CarDeployment.cs' remapped 'res://code/Client/Vehicles/CarDeployment.cs' at thread -1
+Loading resource: res://code/Client/Vehicles/CarLighting.cs remapped: res://code/Client/Vehicles/CarLighting.cs
+Completed load for: 'res://code/Client/Vehicles/CarLighting.cs' remapped 'res://code/Client/Vehicles/CarLighting.cs' at thread -1
+Loading resource: res://code/Client/Vehicles/WheelPresentation.cs remapped: res://code/Client/Vehicles/WheelPresentation.cs
+Completed load for: 'res://code/Client/Vehicles/WheelPresentation.cs' remapped 'res://code/Client/Vehicles/WheelPresentation.cs' at thread -1
+Loading resource: res://code/Client/Vehicles/BoostExhaust.cs remapped: res://code/Client/Vehicles/BoostExhaust.cs
+Completed load for: 'res://code/Client/Vehicles/BoostExhaust.cs' remapped 'res://code/Client/Vehicles/BoostExhaust.cs' at thread -1
+Loading resource: res://code/Client/Vehicles/CarRackPresentation.cs remapped: res://code/Client/Vehicles/CarRackPresentation.cs
+Completed load for: 'res://code/Client/Vehicles/CarRackPresentation.cs' remapped 'res://code/Client/Vehicles/CarRackPresentation.cs' at thread -1
+Loading resource: res://assets/vehicles/boost/BoostJet.glb remapped: res://assets/vehicles/boost/BoostJet.glb
+Loading resource: res://.godot/imported/BoostJet.glb-076026e4295e022b2721272c318aa921.scn remapped: res://.godot/imported/BoostJet.glb-076026e4295e022b2721272c318aa921.scn
+Completed load for: 'res://assets/vehicles/boost/BoostJet.glb' remapped 'res://assets/vehicles/boost/BoostJet.glb' at thread -1
+Loading resource: res://assets/effects/BoostFlame.gdshader remapped: res://assets/effects/BoostFlame.gdshader
+Completed load for: 'res://assets/effects/BoostFlame.gdshader' remapped 'res://assets/effects/BoostFlame.gdshader' at thread -1
+Loading resource: res://assets/effects/BoostThroat.gdshader remapped: res://assets/effects/BoostThroat.gdshader
+Completed load for: 'res://assets/effects/BoostThroat.gdshader' remapped 'res://assets/effects/BoostThroat.gdshader' at thread -1
+Loading resource: res://assets/effects/TireTrack.gdshader remapped: res://assets/effects/TireTrack.gdshader
+Completed load for: 'res://assets/effects/TireTrack.gdshader' remapped 'res://assets/effects/TireTrack.gdshader' at thread -1
+Loading resource: res://code/Client/Audio/VehicleAudio.cs remapped: res://code/Client/Audio/VehicleAudio.cs
+Completed load for: 'res://code/Client/Audio/VehicleAudio.cs' remapped 'res://code/Client/Audio/VehicleAudio.cs' at thread -1
+Loading resource: res://assets/audio/freesound/vehicle/idle.wav remapped: res://assets/audio/freesound/vehicle/idle.wav
+Loading resource: res://.godot/imported/idle.wav-1e236b3e866941f22fd497d38067e631.sample remapped: res://.godot/imported/idle.wav-1e236b3e866941f22fd497d38067e631.sample
+Completed load for: 'res://assets/audio/freesound/vehicle/idle.wav' remapped 'res://assets/audio/freesound/vehicle/idle.wav' at thread -1
+Loading resource: res://assets/audio/freesound/vehicle/low.wav remapped: res://assets/audio/freesound/vehicle/low.wav
+Loading resource: res://.godot/imported/low.wav-06fbc6a6a2931bc8faa0c59e246760ae.sample remapped: res://.godot/imported/low.wav-06fbc6a6a2931bc8faa0c59e246760ae.sample
+Completed load for: 'res://assets/audio/freesound/vehicle/low.wav' remapped 'res://assets/audio/freesound/vehicle/low.wav' at thread -1
+Loading resource: res://assets/audio/freesound/vehicle/high.wav remapped: res://assets/audio/freesound/vehicle/high.wav
+Loading resource: res://.godot/imported/high.wav-202ae2d276e89631c84c1fbd08682106.sample remapped: res://.godot/imported/high.wav-202ae2d276e89631c84c1fbd08682106.sample
+Completed load for: 'res://assets/audio/freesound/vehicle/high.wav' remapped 'res://assets/audio/freesound/vehicle/high.wav' at thread -1
+Loading resource: res://assets/audio/freesound/vehicle/skid.wav remapped: res://assets/audio/freesound/vehicle/skid.wav
+Loading resource: res://.godot/imported/skid.wav-9ec7bd3033410a49bc031b7ea744ccef.sample remapped: res://.godot/imported/skid.wav-9ec7bd3033410a49bc031b7ea744ccef.sample
+Completed load for: 'res://assets/audio/freesound/vehicle/skid.wav' remapped 'res://assets/audio/freesound/vehicle/skid.wav' at thread -1
+Loading resource: res://assets/audio/kenney/interface/tick_001.ogg remapped: res://assets/audio/kenney/interface/tick_001.ogg
+Loading resource: res://.godot/imported/tick_001.ogg-09ee4addb3e9d201b178ef7302a025f6.oggvorbisstr remapped: res://.godot/imported/tick_001.ogg-09ee4addb3e9d201b178ef7302a025f6.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/interface/tick_001.ogg' remapped 'res://assets/audio/kenney/interface/tick_001.ogg' at thread -1
+Three UDP peers initialized
+Host tuning applied
+Loading resource: res://assets/audio/kenney/interface/confirmation_004.ogg remapped: res://assets/audio/kenney/interface/confirmation_004.ogg
+Loading resource: res://.godot/imported/confirmation_004.ogg-486b00f22fabd5aa1abaad1a9215ead5.oggvorbisstr remapped: res://.godot/imported/confirmation_004.ogg-486b00f22fabd5aa1abaad1a9215ead5.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/interface/confirmation_004.ogg' remapped 'res://assets/audio/kenney/interface/confirmation_004.ogg' at thread -1
+Loading resource: res://assets/audio/kenney/scifi/forceField_001.ogg remapped: res://assets/audio/kenney/scifi/forceField_001.ogg
+Loading resource: res://.godot/imported/forceField_001.ogg-2ee102abfba835460749a736d95bdfea.oggvorbisstr remapped: res://.godot/imported/forceField_001.ogg-2ee102abfba835460749a736d95bdfea.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/scifi/forceField_001.ogg' remapped 'res://assets/audio/kenney/scifi/forceField_001.ogg' at thread -1
+Loading resource: res://assets/audio/kenney/scifi/forceField_000.ogg remapped: res://assets/audio/kenney/scifi/forceField_000.ogg
+Loading resource: res://.godot/imported/forceField_000.ogg-e3642a603e8ccef3783d2c9c19045824.oggvorbisstr remapped: res://.godot/imported/forceField_000.ogg-e3642a603e8ccef3783d2c9c19045824.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/scifi/forceField_000.ogg' remapped 'res://assets/audio/kenney/scifi/forceField_000.ogg' at thread -1
+Loading resource: res://code/Client/Items/WeaponAimMount.cs remapped: res://code/Client/Items/WeaponAimMount.cs
+Completed load for: 'res://code/Client/Items/WeaponAimMount.cs' remapped 'res://code/Client/Items/WeaponAimMount.cs' at thread -1
+AIM_AT requested=(3.2, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0057, 399.99847)
+Near-car acquisition starts from a genuine cursor miss with assistance disabled
+Forgiving acquisition gently converges on the visible car: error=0.00000 rad
+Fine placement remains off-centre without centre tug: 0.01198->0.01198 rad
+Loading resource: res://assets/audio/kenney/impact/impactMetal_medium_001.ogg remapped: res://assets/audio/kenney/impact/impactMetal_medium_001.ogg
+Loading resource: res://.godot/imported/impactMetal_medium_001.ogg-818349e4a7d3917e9f0d320d392cddcd.oggvorbisstr remapped: res://.godot/imported/impactMetal_medium_001.ogg-818349e4a7d3917e9f0d320d392cddcd.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/impact/impactMetal_medium_001.ogg' remapped 'res://assets/audio/kenney/impact/impactMetal_medium_001.ogg' at thread -1
+Loading resource: res://assets/audio/kenney/impact/impactMetal_light_000.ogg remapped: res://assets/audio/kenney/impact/impactMetal_light_000.ogg
+Loading resource: res://.godot/imported/impactMetal_light_000.ogg-125acd62cfb9a631d59d28200f7b2ed3.oggvorbisstr remapped: res://.godot/imported/impactMetal_light_000.ogg-125acd62cfb9a631d59d28200f7b2ed3.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/impact/impactMetal_light_000.ogg' remapped 'res://assets/audio/kenney/impact/impactMetal_light_000.ogg' at thread -1
+Actual authoritative shots preserve adjusted placement: 40 rays, 0.01433 rad off centre
+AIM_AT requested=(0, 1.95, -25) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.9971)
+Loading resource: res://assets/audio/kenney/impact/impactMetal_medium_001.ogg remapped: res://assets/audio/kenney/impact/impactMetal_medium_001.ogg
+Loading resource: res://.godot/imported/impactMetal_medium_001.ogg-818349e4a7d3917e9f0d320d392cddcd.oggvorbisstr remapped: res://.godot/imported/impactMetal_medium_001.ogg-818349e4a7d3917e9f0d320d392cddcd.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/impact/impactMetal_medium_001.ogg' remapped 'res://assets/audio/kenney/impact/impactMetal_medium_001.ogg' at thread -1
+Loading resource: res://assets/audio/kenney/impact/impactMetal_heavy_000.ogg remapped: res://assets/audio/kenney/impact/impactMetal_heavy_000.ogg
+Loading resource: res://.godot/imported/impactMetal_heavy_000.ogg-2145852346d2186ce661b81033cfdbdc.oggvorbisstr remapped: res://.godot/imported/impactMetal_heavy_000.ogg-2145852346d2186ce661b81033cfdbdc.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/impact/impactMetal_heavy_000.ogg' remapped 'res://assets/audio/kenney/impact/impactMetal_heavy_000.ogg' at thread -1
+Loading resource: res://assets/audio/kenney/impact/impactMetal_medium_001.ogg remapped: res://assets/audio/kenney/impact/impactMetal_medium_001.ogg
+Loading resource: res://.godot/imported/impactMetal_medium_001.ogg-818349e4a7d3917e9f0d320d392cddcd.oggvorbisstr remapped: res://.godot/imported/impactMetal_medium_001.ogg-818349e4a7d3917e9f0d320d392cddcd.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/impact/impactMetal_medium_001.ogg' remapped 'res://assets/audio/kenney/impact/impactMetal_medium_001.ogg' at thread -1
+Driving/fire exercised assist=False: speed=18.89m/s distance=16.03m turn=0.949rad rays=240 hits=62 retained=0/180 meanError=0.39997rad
+AIM_AT requested=(0, 1.95, -25) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99982)
+Loading resource: res://assets/audio/kenney/impact/impactMetal_medium_001.ogg remapped: res://assets/audio/kenney/impact/impactMetal_medium_001.ogg
+Loading resource: res://.godot/imported/impactMetal_medium_001.ogg-818349e4a7d3917e9f0d320d392cddcd.oggvorbisstr remapped: res://.godot/imported/impactMetal_medium_001.ogg-818349e4a7d3917e9f0d320d392cddcd.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/impact/impactMetal_medium_001.ogg' remapped 'res://assets/audio/kenney/impact/impactMetal_medium_001.ogg' at thread -1
+Driving/fire exercised assist=True: speed=18.89m/s distance=16.04m turn=0.949rad rays=241 hits=241 retained=180/180 meanError=0.00141rad
+Driving compensation retains engagement and native hits while materially reducing tracking error
+Deliberate aim-away releases even after sustained driving engagement
+AIM_AT requested=(-4, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.9991)
+First rival can be deliberately acquired before switching
+AIM_AT requested=(4, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00006, 399.99994)
+Deliberate sweep switches to the chosen second car
+Slow deliberate adjustment beyond the frame also releases
+Stopping beside the dismissed car does not pull free aim back onto it
+Deliberately returning toward the dismissed car rearms acquisition
+Chase return after engagement preserves the centred logical cursor
+Released neutral camera returns behind the vehicle instead of retaining a target camera
+Weapon aiming integration passed: 17 accuracy/retention checks.
+Unloading: Disposing tracked instances...
+Unloading: Finished disposing tracked instances.
+XR: Clearing primary interface
+XR: Removed interface "Native mobile"
+XR: Removed interface "OpenXR"
+Accessibility: window 0 adapter destroyed.

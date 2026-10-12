@@ -1,0 +1,7 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Camera shake settings passed: 0/25/50/100%, active disable/re-enable, minor/repeated contacts, bounds, local isolation and unchanged chase transform.
+Camera framing settings passed: 81 rate/range combinations, brief hops, rising rotating flight, translation, aim direction, landing, live edits and reset.
+Camera look settings passed: 36 armed/device/rate/gain/inversion combinations plus nine FOV/height bounds.
+Camera integration passed: armed/unarmed chase framing, upward/downward 85-degree tilt bounds, fixed-height upward aim, RMB orbit/hold/release, controller/dead-zone return, suppression, identity/life/reseed resets, 30/60/144 FPS, unchanged gameplay input, heading/inertia/feedback regressions.
+Camera verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\camera-checks\19121cf7805c4fdcb8d8e655fa35002e

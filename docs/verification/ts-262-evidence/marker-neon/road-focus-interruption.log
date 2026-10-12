@@ -1,0 +1,37 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Three UDP peers initialized
+Host tuning applied
+AIM_AT requested=(-112.01451, 2.9283633, 47.99982) firstTargetDrift=(0.0020446777, -0.012129784, 7.6293945E-06) requestedScreen=(639.8347, 399.25522)
+ROAD_ACQUIRE distance=8 mode=0 measured=9.288m initialError=0.06327rad ticks=5 elapsed=0.100s
+Near-body cursor miss acquires without corrective input on production terrain
+Verification restored synthetic focus after a desktop focus change
+ROAD_RELEASE distance=8 mode=0 target=1 reason=input boundary revision=1->3 active=True angle=0.00408 sight=True hit=(-110.43353, 2.5401878, 48.01615) lens=(-124.069244, 5.041134, 48.106644) target=(-107.95517, 2.0856276, 47.999706) accepted=1 active=True dismissed=0
+ROAD distance=8 mode=0 fps=30 fov=50.000008 acquiredTick=0 retained=360/360 releases=1 reasons=target=1 reason=input boundary revision=1->3 active=True travel=52.980m rise=0.834m heave=2.421m/s maxError=0.00136 finalMeanError=0.00004rad acceptedMeanError=0.11844rad readySamples=21 restricted=339 readyMeanError=0.01477rad
+Shooter drove actual production elevation changes
+ROAD_MARKER distance=8 mode=0 marked=360/360 supportedRing=360/360
+Hybrid marker stays on the assisted production-road rival and samples real terrain support
+ERROR: System.InvalidOperationException: Visible moving rival survives repeated authored rollers and small corrections without replacement
+   at Trackstorm.Client.Verification.WeaponAimChecks.Require(Boolean condition, String message) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 564
+   at Trackstorm.Client.Verification.WeaponAimChecks.CheckAimRoad() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Road.cs:line 107
+   at Trackstorm.Client.Verification.WeaponAimChecks.Run() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 121
+   at: void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__25.MoveNext() (res://code/Client/Verification/WeaponAimChecks.cs:121)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__25.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:121)
+       [2] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [3] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [4] void System.Threading.Tasks.Task.RunContinuations(object)
+       [5] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [6] bool System.Threading.Tasks.Task.TrySetException(object)
+       [7] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [8] void Trackstorm.Client.Verification.WeaponAimChecks+<CheckAimRoad>d__55.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Road.cs:107)
+       [9] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [10] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [11] void System.Threading.Tasks.Task.RunContinuations(object)
+       [12] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder.SetResult()
+       [13] void Trackstorm.Client.Verification.WeaponAimChecks+<Frames>d__38.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:517)
+       [14] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [15] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [16] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)

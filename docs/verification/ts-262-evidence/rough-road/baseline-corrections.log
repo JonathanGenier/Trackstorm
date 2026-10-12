@@ -1,0 +1,17 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Three UDP peers initialized
+Host tuning applied
+AIM_AT requested=(-112.01187, 1.7255908, 47.99981) firstTargetDrift=(0.0029754639, -0.016611814, 1.5258789E-05) requestedScreen=(639.99426, 399.95923)
+ROAD distance=8 mode=1 fps=60 fov=90.00001 acquiredTick=0 retained=360/360 releases=0 reasons= travel=53.998m rise=0.810m heave=2.415m/s maxError=0.03559 finalMeanError=0.01061rad
+Shooter drove actual production elevation changes
+AIM_AT requested=(-85, 1.5750735, 48) firstTargetDrift=(0, 0, 0) requestedScreen=(639.9984, 399.99554)
+ROAD distance=35 mode=1 fps=60 fov=90.04585 acquiredTick=0 retained=360/360 releases=0 reasons= travel=54.597m rise=0.802m heave=2.395m/s maxError=0.02678 finalMeanError=0.00153rad
+Shooter drove actual production elevation changes
+AIM_AT requested=(80, 1.4450018, 48) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00006, 399.9995)
+ROAD_RELEASE distance=200 mode=1 target=1 reason=deliberate frame exit angle=0.01350 sight=True hit=(77.09826, 1.4759345, 48.000538) lens=(-129.2202, 4.050847, 48.045425) target=(79.57679, 1.4450018, 48) accepted=1 active=True dismissed=1
+ROAD_RELEASE distance=200 mode=1 target=3 reason=occluded angle=0.03767 sight=True hit=(77.99126, 1.4761975, 47.997196) lens=(-127.99951, 4.068887, 47.764027) target=(80.46977, 1.4450018, 48) accepted=1 active=True dismissed=1
+ROAD_RELEASE distance=200 mode=1 target=1 reason=deliberate frame exit angle=0.01264 sight=True hit=(97.93529, 1.4784265, 48.000355) lens=(-106.38149, 4.21894, 48.0297) target=(100.41382, 1.4451818, 48) accepted=1 active=True dismissed=1
+ROAD distance=200 mode=1 fps=60 fov=90.04609 acquiredTick=0 retained=168/360 releases=3 reasons=target=1 reason=deliberate frame exit;target=3 reason=occluded;target=1 reason=deliberate frame exit travel=54.393m rise=0.808m heave=2.392m/s maxError=0.04055 finalMeanError=0.02373rad
+Shooter drove actual production elevation changes
+Weapon aiming integration passed: 5 accuracy/retention checks.

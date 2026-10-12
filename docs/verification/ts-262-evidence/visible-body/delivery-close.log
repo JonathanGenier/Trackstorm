@@ -1,0 +1,14 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Three UDP peers initialized
+Host tuning applied
+AIM_AT requested=(0, 2.0833514, 25) firstTargetDrift=(0, -0.41233218, 0) requestedScreen=(640, 399.53333)
+AIM_GEOMETRY alongside regression: lens=(0, 4.8134956, 44.07665) rotation=(-0.143765, 0, 0) targetDisplayed=(0, 1.1518013, 25) targetNative=(0, 1.1515783, 25) targetScreen=(640, 400.00284) center=(640, 400) bounds=(583.41785, 377.8633), (113.16431, 94.674225)
+ALONGSIDE x=0 target=1 angle=0.03066 sight=True hit=(0, 1.8885703, 27.478539) lens=(0, 4.8134956, 44.07665) target=(0, 1.4518013, 25) accepted=1 active=True dismissed=0
+Aiming onto a close car body is acquisition/fine placement, not centre-relative departure
+ALONGSIDE_RELEASE target=1 reason=camera presentation reset
+AIM_AT requested=(-3.7, 2.0705857, 35) firstTargetDrift=(0, -0.22304118, 0) requestedScreen=(640.0113, 399.458)
+AIM_GEOMETRY alongside regression: lens=(5.818492, 6.629063, 39.74592) rotation=(-0.4066202, 1.1082946, 0) targetDisplayed=(-3.7, 1.1491767, 35) targetNative=(-3.7, 1.1511145, 35) targetScreen=(640.0145, 399.99033) center=(640, 400) bounds=(477.69528, 337.88638), (329.46902, 217.84604)
+ALONGSIDE x=-3.7 target=1 angle=0.04658 sight=True hit=(-2.4944155, 2.1052465, 35.601105) lens=(5.818492, 6.629063, 39.74592) target=(-3.7, 1.4491768, 35) accepted=1 active=True dismissed=0
+Aiming onto a close car body is acquisition/fine placement, not centre-relative departure
+Weapon aiming integration passed: 4 accuracy/retention checks.

@@ -1,0 +1,111 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.50
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Three UDP peers initialized
+Host tuning applied
+AIM_AT requested=(2.4, 56.949696, 0) firstTargetDrift=(0, -3.0517578E-05, 0) requestedScreen=(642.8504, 402.20792)
+ACQUISITION distance=6.000m FOV=50 fps=30 gain=0.25 offset=2.40m initialError=0.14879 acquired=1 angle=0.00001 sight=True hit=(-7.598792E-06, 57.34651, 1.3311548) lens=(-8.408642E-05, 61.340443, 14.730247) target=(0, 56.949726, 0) accepted=1 active=True dismissed=0
+AIM_AT requested=(0, 56.949665, 0) firstTargetDrift=(0, -6.1035156E-05, 0) requestedScreen=(640, 400.00113)
+Visible centre target established before retention measurement
+JOLT_START angle=0.00000 sight=True hit=(1.0266554E-14, 57.346485, 1.3311558) lens=(1.1360711E-13, 61.340466, 14.730238) target=(0, 56.949696, 0) accepted=1 active=True dismissed=0 acquired=1
+JOLTS distance=6 retained=180/180 angularLosses=0 releases=
+Repeated visible native/camera jolts do not drop or replace the acquired car
+AIM_RELEASE target=1 reason=intent/lifecycle reset
+RMB release bypasses all recovery tolerance
+AIM_RELEASE target=1 reason=deliberate sweep
+AIM_RELEASE target=1 reason=deliberate sweep
+AIM_AT requested=(-0.0065813665, 56.95011, -5.1749184E-06) firstTargetDrift=(0.027347013, -0.00079345703, -6.250497E-06) requestedScreen=(667.6462, 327.01172)
+AIM_RELEASE target=1 reason=intent/lifecycle reset
+Controller acquires after the mouse releases without a new binding
+AIM_RELEASE target=1 reason=occluded
+Real native cover releases immediately, independently of framing recovery
+AIM_AT requested=(2.4, 56.949635, 0) firstTargetDrift=(0, 6.1035156E-05, 0) requestedScreen=(641.32916, 401.0309)
+ACQUISITION distance=6.000m FOV=90 fps=144 gain=3 offset=2.40m initialError=0.14879 acquired=1 angle=0.00000 sight=True hit=(-4.4477274E-06, 57.34651, 1.3311567) lens=(-4.921744E-05, 61.34044, 14.7302475) target=(0, 56.949726, 0) accepted=1 active=True dismissed=0
+AIM_AT requested=(0, 56.949696, 0) firstTargetDrift=(0, -3.0517578E-05, 0) requestedScreen=(640, 399.99997)
+Visible centre target established before retention measurement
+JOLT_START angle=0.00000 sight=True hit=(1.3228678E-18, 57.34651, 1.3311567) lens=(1.4638521E-17, 61.34044, 14.730248) target=(0, 56.949726, 0) accepted=1 active=True dismissed=0 acquired=1
+JOLTS distance=6 retained=180/180 angularLosses=0 releases=
+Repeated visible native/camera jolts do not drop or replace the acquired car
+AIM_RELEASE target=1 reason=intent/lifecycle reset
+RMB release bypasses all recovery tolerance
+AIM_RELEASE target=1 reason=deliberate sweep
+AIM_RELEASE target=1 reason=deliberate sweep
+AIM_AT requested=(-0.001206846, 56.952835, -4.4726068E-05) firstTargetDrift=(0.003958149, -0.0010795593, -5.221003E-05) requestedScreen=(652.83844, 367.7791)
+AIM_RELEASE target=1 reason=intent/lifecycle reset
+Controller acquires after the mouse releases without a new binding
+AIM_RELEASE target=1 reason=occluded
+Real native cover releases immediately, independently of framing recovery
+AIM_AT requested=(3.2, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0078, 400.0001)
+ACQUISITION distance=35.000m FOV=50 fps=30 gain=0.25 offset=3.20m initialError=0.07207 acquired=1 angle=0.00000 sight=True hit=(-9.526593E-08, 57.033276, 1.3311577) lens=(-3.16346E-06, 59.715282, 44.203255) target=(0, 56.95, 0) accepted=1 active=True dismissed=0
+AIM_AT requested=(0, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Visible centre target established before retention measurement
+JOLT_START angle=0.00000 sight=True hit=(8.443913E-18, 57.033276, 1.3311577) lens=(2.8039398E-16, 59.715282, 44.203255) target=(0, 56.95, 0) accepted=1 active=True dismissed=0 acquired=1
+JOLTS distance=35 retained=180/180 angularLosses=0 releases=
+Repeated visible native/camera jolts do not drop or replace the acquired car
+AIM_RELEASE target=1 reason=intent/lifecycle reset
+RMB release bypasses all recovery tolerance
+AIM_RELEASE target=1 reason=deliberate sweep
+AIM_RELEASE target=1 reason=deliberate sweep
+AIM_AT requested=(-0.0072737755, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(641.8474, 395.14996)
+AIM_RELEASE target=1 reason=intent/lifecycle reset
+Controller acquires after the mouse releases without a new binding
+AIM_RELEASE target=1 reason=occluded
+Real native cover releases immediately, independently of framing recovery
+AIM_AT requested=(3.2, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00366, 400.00003)
+ACQUISITION distance=35.000m FOV=90 fps=144 gain=3 offset=3.20m initialError=0.07207 acquired=1 angle=0.00000 sight=True hit=(-7.475228E-08, 57.033276, 1.3311577) lens=(-2.4822702E-06, 59.715282, 44.203255) target=(0, 56.95, 0) accepted=1 active=True dismissed=0
+AIM_AT requested=(0, 56.949997, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400.00003)
+Visible centre target established before retention measurement
+JOLT_START angle=0.00000 sight=True hit=(-3.258413E-21, 57.033276, 1.3311577) lens=(-1.0820093E-19, 59.71528, 44.203255) target=(0, 56.95, 0) accepted=1 active=True dismissed=0 acquired=1
+JOLTS distance=35 retained=180/180 angularLosses=0 releases=
+Repeated visible native/camera jolts do not drop or replace the acquired car
+AIM_RELEASE target=1 reason=intent/lifecycle reset
+RMB release bypasses all recovery tolerance
+AIM_RELEASE target=1 reason=deliberate sweep
+AIM_RELEASE target=1 reason=deliberate sweep
+AIM_AT requested=(-0.0072737755, 56.95, 0) firstTargetDrift=(0.013465705, 0, 0) requestedScreen=(641.05756, 397.24414)
+AIM_RELEASE target=1 reason=intent/lifecycle reset
+Controller acquires after the mouse releases without a new binding
+AIM_RELEASE target=1 reason=occluded
+Real native cover releases immediately, independently of framing recovery
+AIM_AT requested=(13, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+ACQUISITION distance=200.000m FOV=50 fps=30 gain=0.25 offset=13.00m initialError=0.06205 acquired=1 angle=0.00000 sight=True hit=(-1.6209015E-08, 56.96753, 1.3311157) lens=(-2.547509E-06, 59.70505, 209.205) target=(0, 56.95, 0) accepted=1 active=True dismissed=0
+AIM_AT requested=(0, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Visible centre target established before retention measurement
+JOLT_START angle=0.00000 sight=True hit=(4.888505E-19, 56.96753, 1.3311157) lens=(7.683012E-17, 59.70505, 209.205) target=(0, 56.95, 0) accepted=1 active=True dismissed=0 acquired=1
+JOLTS distance=200 retained=180/180 angularLosses=0 releases=
+Repeated visible native/camera jolts do not drop or replace the acquired car
+AIM_RELEASE target=1 reason=intent/lifecycle reset
+RMB release bypasses all recovery tolerance
+AIM_AT requested=(-0.0072737755, 56.95, 0) firstTargetDrift=(0.017650813, 0, 0) requestedScreen=(639.97217, 400.04785)
+AIM_RELEASE target=1 reason=intent/lifecycle reset
+Controller acquires after the mouse releases without a new binding
+AIM_RELEASE target=1 reason=occluded
+Real native cover releases immediately, independently of framing recovery
+AIM_AT requested=(13, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+ACQUISITION distance=200.000m FOV=90 fps=144 gain=3 offset=13.00m initialError=0.06205 acquired=1 angle=0.00000 sight=True hit=(-1.078115E-08, 56.96753, 1.3311157) lens=(-1.694416E-06, 59.705055, 209.205) target=(0, 56.95, 0) accepted=1 active=True dismissed=0
+AIM_AT requested=(0, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Visible centre target established before retention measurement
+JOLT_START angle=0.00000 sight=True hit=(-3.829717E-22, 56.96753, 1.3311157) lens=(-6.018934E-20, 59.70505, 209.205) target=(0, 56.95, 0) accepted=1 active=True dismissed=0 acquired=1
+JOLTS distance=200 retained=180/180 angularLosses=0 releases=
+Repeated visible native/camera jolts do not drop or replace the acquired car
+AIM_RELEASE target=1 reason=intent/lifecycle reset
+RMB release bypasses all recovery tolerance
+AIM_AT requested=(-0.0072737755, 56.95, 0) firstTargetDrift=(0, 3.8146973E-06, 0) requestedScreen=(639.96967, 400.05612)
+AIM_RELEASE target=1 reason=intent/lifecycle reset
+Controller acquires after the mouse releases without a new binding
+AIM_RELEASE target=1 reason=occluded
+Real native cover releases immediately, independently of framing recovery
+Body-aware acquisition 6/6; unintended angular releases=0
+Weapon aiming integration passed: 33 accuracy/retention checks.
+Weapon aiming artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\aim-checks\5b0ad22be7004804bf1ed6966cc44ada

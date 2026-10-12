@@ -1,0 +1,107 @@
+  Determining projects to restore...
+  Restored C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\Trackstorm.Client.csproj (in 248 ms).
+  2 of 3 projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.33
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Three UDP peers initialized
+Host tuning applied
+AIM_AT requested=(0, 2.25, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+AIM_GEOMETRY forward: lens=(0, 4.205002, 44.205) rotation=(-0.04419697, 0, 0) targetDisplayed=(0, 1.65, 0) targetNative=(0, 1.65, 0) targetScreen=(640, 395.74597) center=(640, 400) bounds=(617.3711, 389.08017), (45.257812, 32.200226)
+Machine Gun forward accepted ready
+MG_GEOMETRY forward: aim=WeaponAimSolution { Vehicle = 3, Life = 1, Token = 1, Tick = 367, Yaw = 0, Pitch = -0.01914088, Origin = <0, 2.9550014, 36.845>, Direction = <0, -0.019139713, -0.99981683>, Clear = True, Ready = True } target=<0, 1.65, 0> cameraDesired=<0, -0.019139713, -0.99981683>
+Camera shooter submits ordinary held-use request
+Machine Gun forward: native hit/damage, 29 rounds, 29 target hits
+AIM_REMOTE firing-forward: acceptedYaw=0 renderedYaw=0 acceptedPitch=-0.01914088 renderedPitch=-0.01914088
+Remote mount yaw and payload pitch settle to accepted firing-forward aim on actual presentation nodes
+forward: fixed rack, full payload scale and shared pivot origin align on observer
+AIM_AT requested=(20, 2.25, 35) firstTargetDrift=(0, 0, 0) requestedScreen=(640.496, 394.3272)
+AIM_GEOMETRY side: lens=(-7.2902627, 4.4150944, 37.517532) rotation=(-0.08970525, -1.4788063, 0) targetDisplayed=(20, 1.6499999, 35) targetNative=(20, 1.65, 35) targetScreen=(640.0001, 386.33774) center=(640, 400) bounds=(574.59705, 375.20654), (125.28461, 52.721527)
+Machine Gun side accepted ready
+MG_GEOMETRY side: aim=WeaponAimSolution { Vehicle = 3, Life = 1, Token = 1, Tick = 612, Yaw = -1.4788063, Pitch = -0.049995515, Origin = <0, 2.9550014, 36.845>, Direction = <0.9945277, -0.04997469, -0.09174561>, Clear = True, Ready = True } target=<20, 1.65, 35> cameraDesired=<0.9945277, -0.049974885, -0.09174563>
+Camera shooter submits ordinary held-use request
+Machine Gun side: native hit/damage, 29 rounds, 29 target hits
+AIM_REMOTE firing-side: acceptedYaw=-1.4788065 renderedYaw=-1.4788065 acceptedPitch=-0.049995903 renderedPitch=-0.049995903
+Remote mount yaw and payload pitch settle to accepted firing-side aim on actual presentation nodes
+side: fixed rack, full payload scale and shared pivot origin align on observer
+AIM_AT requested=(0, 2.2432132, 45) firstTargetDrift=(0, -0.0012364388, 0) requestedScreen=(640, 366.32596)
+AIM_GEOMETRY rear: lens=(6.025759E-07, 5.822627, 29.952335) rotation=(-0.28711212, 3.1415925, 0) targetDisplayed=(0, 1.6432133, 45) targetNative=(0, 1.65, 45) targetScreen=(640, 354.3788) center=(640, 400) bounds=
+Machine Gun rear accepted ready
+MG_GEOMETRY rear: aim=WeaponAimSolution { Vehicle = 3, Life = 1, Token = 1, Tick = 857, Yaw = 3.1415925, Pitch = -0.14489472, Origin = <0, 2.9550014, 36.845>, Direction = <-1.4941355E-07, -0.14438827, 0.98952115>, Clear = True, Ready = True } target=<0, 1.65, 45> cameraDesired=<-8.650671E-08, -0.14438826, 0.98952115>
+Camera shooter submits ordinary held-use request
+Machine Gun rear: native hit/damage, 30 rounds, 30 target hits
+AIM_REMOTE firing-rear: acceptedYaw=3.1415925 renderedYaw=-3.141593 acceptedPitch=-0.14489467 renderedPitch=-0.1448947
+Remote mount yaw and payload pitch settle to accepted firing-rear aim on actual presentation nodes
+rear: fixed rack, full payload scale and shared pivot origin align on observer
+AIM_AT requested=(0, 14.25, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+AIM_GEOMETRY airborne: lens=(0, 4.2050014, 44.205) rotation=(0.22344233, 0, 0) targetDisplayed=(0, 13.65, 0) targetNative=(0, 13.65, 0) targetScreen=(640, 395.95407) center=(640, 400) bounds=(617.8442, 381.59973), (44.311646, 42.731903)
+Machine Gun airborne accepted ready
+MG_GEOMETRY airborne: aim=WeaponAimSolution { Vehicle = 3, Life = 1, Token = 1, Tick = 1102, Yaw = 0, Pitch = 0.29758692, Origin = <0, 2.9550014, 36.845>, Direction = <0, 0.29321405, -0.9560468>, Clear = True, Ready = True } target=<0, 13.65, 0> cameraDesired=<0, 0.29321405, -0.9560469>
+Camera shooter submits ordinary held-use request
+Machine Gun airborne: native hit/damage, 29 rounds, 29 target hits
+AIM_REMOTE firing-airborne: acceptedYaw=0 renderedYaw=-6.2831855 acceptedPitch=0.29758692 renderedPitch=0.29758692
+Remote mount yaw and payload pitch settle to accepted firing-airborne aim on actual presentation nodes
+airborne: fixed rack, full payload scale and shared pivot origin align on observer
+AIM_AT requested=(-4.5, 2.2163887, 35) firstTargetDrift=(0, -0.0030555725, 0) requestedScreen=(602.46735, 404.5949)
+AIM_GEOMETRY close-side: lens=(5.882938, 5.9019628, 40.371838) rotation=(-0.2986502, 1.0307429, 0) targetDisplayed=(-4.5, 1.6102777, 35) targetNative=(-4.5, 1.65, 35) targetScreen=(602.2002, 390.11124) center=(640, 400) bounds=
+Machine Gun close-side accepted ready
+MG_GEOMETRY close-side: aim=WeaponAimSolution { Vehicle = 3, Life = 1, Token = 1, Tick = 1347, Yaw = 1.0307434, Pitch = -0.0974452, Origin = <0, 2.9550014, 36.845>, Direction = <-0.8536126, -0.09729106, -0.5117422>, Clear = True, Ready = True } target=<-4.5, 1.65, 35> cameraDesired=<-0.8536126, -0.09729105, -0.5117421>
+Camera shooter submits ordinary held-use request
+Machine Gun close-side: native hit/damage, 29 rounds, 29 target hits
+AIM_REMOTE firing-close-side: acceptedYaw=1.0307434 renderedYaw=-5.2524424 acceptedPitch=-0.0974452 renderedPitch=-0.09741448
+Remote mount yaw and payload pitch settle to accepted firing-close-side aim on actual presentation nodes
+close-side: fixed rack, full payload scale and shared pivot origin align on observer
+Self-blocked camera direction is not firing-ready
+Self-blocked held fire spends no rounds
+AIM_AT requested=(0, 14.65, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Second shooter receives a fresh selected Machine Gun
+Both shooters submit sustained activation
+Two simultaneous shooters sustain default spread and cadence through real UDP (324 rounds)
+Observer receives identical ordered firing endpoints/tracers (470 rounds)
+Release stops actual firing on both peers
+Aim expiry stops held fire without stale-forward fallback
+Fresh camera intent resumes held fire after aim expiry
+Suppression clears camera aiming and firing presentation
+Switch retires Machine Gun capability
+Switch back does not replay earlier sustained activation
+Machine Gun camera firing verified: 586 native rays, 342 target hits; fixed rack uses existing yaw/pitch payload
+AIM_AT requested=(3.2, 1.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0057, 399.9985)
+Near-car acquisition starts from a genuine cursor miss with assistance disabled
+Forgiving acquisition gently converges on the visible car: error=0.00000 rad
+Fine placement remains off-centre without centre tug: 0.01198->0.01198 rad
+Actual authoritative shots preserve adjusted placement: 40 rays, 0.01511 rad off centre
+AIM_AT requested=(0, 1.95, -25) firstTargetDrift=(0, 1.1920929E-07, 0) requestedScreen=(640, 399.9967)
+Driving/fire exercised assist=False: speed=18.89m/s distance=16.03m turn=0.949rad rays=232 hits=52 retained=0/180 meanError=0.39268rad
+AIM_AT requested=(0, 1.95, -25) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99976)
+ERROR: System.InvalidOperationException: Driving/fire exercised assist=True: speed=19.00m/s distance=16.07m turn=0.960rad rays=5 hits=5 retained=180/180 meanError=0.00132rad
+   at Trackstorm.Client.Verification.WeaponAimChecks.Require(Boolean condition, String message) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 524
+   at Trackstorm.Client.Verification.WeaponAimChecks.CheckAimFreedom() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Freedom.cs:line 84
+   at Trackstorm.Client.Verification.WeaponAimChecks.Run() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 94
+   at: void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__18.MoveNext() (res://code/Client/Verification/WeaponAimChecks.cs:94)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__18.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:94)
+       [2] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [3] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [4] void System.Threading.Tasks.Task.RunContinuations(object)
+       [5] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [6] bool System.Threading.Tasks.Task.TrySetException(object)
+       [7] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [8] void Trackstorm.Client.Verification.WeaponAimChecks+<CheckAimFreedom>d__37.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.Freedom.cs:84)
+       [9] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [10] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [11] void System.Threading.Tasks.Task.RunContinuations(object)
+       [12] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder.SetResult()
+       [13] void Trackstorm.Client.Verification.WeaponAimChecks+<Frames>d__30.MoveNext() (C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:477)
+       [14] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [15] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [16] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)

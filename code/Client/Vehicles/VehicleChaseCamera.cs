@@ -24,6 +24,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
     private float _distanceScale = 1.15f;
     private float _airSeconds;
     private bool _recoveringHeading;
+    private float _aimHeadingWeight;
 
     /// <summary>Horizontal chase distance behind the deployed weapon attachment in metres.</summary>
     [Export(PropertyHint.Range, "2,25,0.1")]
@@ -81,13 +82,20 @@ public sealed partial class VehicleChaseCamera : Camera3D
     internal bool WeaponAiming { get; set; }
     /// <summary>Local near-target friction; scales only deliberate input and never steers the camera.</summary>
     internal Func<Vector2, Vector2, float, (float Mouse, float Stick)>? AimFriction { get; set; }
+    /// <summary>Acquired-car pull and recenter hold, sharing the existing look and preference path.</summary>
+    internal Func<Vector2, Vector2, Vector2, float, (Vector2 Pull, bool Engaged)>? AimAttraction { get; set; }
+    /// <summary>Tracking correction evaluated from this frame's collision-safe final lens.</summary>
+    internal Func<float, Vector2>? AimTracking { get; set; }
+    internal Action? AimReset { get; set; }
 
     private float ShakeIntensity => (float)(SettingsSource?.Current.CameraShakeIntensity ?? 1);
 
     /// <summary>Clears presentation memory at a restored/reassigned display boundary, even for the same life.</summary>
     internal void ResetFollow()
     {
+        AimReset?.Invoke();
         _initialized = false;
+        _aimHeadingWeight = 0;
         _boost.Reset();
         _aerial.Reset();
         if (IsNodeReady()) { Fov = (float)(SettingsSource?.Current.CameraFov ?? _baseFov); _streaks.Reset(); _streaks.Hide(); }
@@ -133,6 +141,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
     internal void Follow(Transform3D pose, VehicleSnapshot state, float delta, Rid followedBody = default)
     {
         bool reset = !_initialized || state.VehicleId != _vehicle || state.LifeId != _life;
+        float previousHeading = _heading;
         var preferences = SettingsSource?.Current;
         float inertia = (float)(preferences?.CameraInertia ?? .5) * 2;
         float distanceScale = (float)(preferences?.CameraDistance ?? 1.15);
@@ -147,6 +156,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
         if (reset)
         {
             _look.Reset();
+            _aimHeadingWeight = 0;
             _boost.Reset();
             _aerial.Reset();
             _distanceScale = distanceScale;
@@ -240,9 +250,20 @@ public sealed partial class VehicleChaseCamera : Camera3D
             float mouseGain = WeaponAiming ? (float)(preferences?.MouseAimSensitivity ?? 1) : 1;
             float stickGain = (float)(preferences?.StickAimSensitivity ?? 1);
             var friction = WeaponAiming ? AimFriction?.Invoke(mouse * axisGain * mouseGain, (stick * axisGain * stickGain).LimitLength(), delta) ?? (1f, 1f) : (1f, 1f);
-            _look.Advance(new(mouse.X, mouse.Y), InputSource?.MouseLookHeld == true, new(stick.X, stick.Y), delta, basePitch, WeaponAiming,
+            // Breakaway measures deliberate physical input after inversion. Low sensitivity
+            // must never turn full stick or a mouse sweep into an inescapable fine correction.
+            var lookInput = CameraFreeLook.InputMovement(new(mouse.X, mouse.Y), new(stick.X, stick.Y), delta, WeaponAiming,
+                friction.Item1 * mouseGain, friction.Item2 * stickGain, (float)(preferences?.StickAimCurve ?? 2), axisGain.X, axisGain.Y);
+            var attraction = WeaponAiming ? AimAttraction?.Invoke(mouse, stick, new(lookInput.X, lookInput.Y), delta) ?? (Vector2.Zero, false) : (Vector2.Zero, false);
+            // Engaged aim is world-relative: steering is not a request to look away.
+            // Breakaway fades compensation; releasing aim intent stops it immediately.
+            bool aimHeld = InputSource?.CameraAimActive == true;
+            _aimHeadingWeight = !aimHeld ? 0 : attraction.Item2 ? 1 : _aimHeadingWeight * MathF.Exp(-8 * delta);
+            _look.Attract(new(Mathf.AngleDifference(previousHeading, _heading) * _aimHeadingWeight, 0), basePitch);
+            _look.Advance(new(mouse.X, mouse.Y), InputSource?.MouseLookHeld == true || (aimHeld && attraction.Item2), new(stick.X, stick.Y), delta, basePitch, WeaponAiming,
                 friction.Item1 * mouseGain, friction.Item2 * stickGain, (float)(preferences?.StickAimCurve ?? 2), axisGain.X, axisGain.Y,
                 (float)(preferences?.CameraRecenterSpeed ?? 1));
+            _look.Attract(new(attraction.Item1.X, attraction.Item1.Y), basePitch);
         }
 
         GlobalBasis = Basis.FromEuler(new Vector3(basePitch + _look.Pitch, _heading + _look.Yaw, 0));
@@ -273,6 +294,18 @@ public sealed partial class VehicleChaseCamera : Camera3D
             float horizontal = new Vector2(offset.X, offset.Z).Length();
             float pitchCorrection = MathF.Atan2(offset.Y, horizontal) - MathF.Atan2(offset.Y - _obstruction.Lift, horizontal);
             GlobalBasis = GlobalBasis.Rotated(GlobalBasis.X, -pitchCorrection);
+        }
+        if (!reset && WeaponAiming && !_obstruction.Reframed && AimTracking is { } track)
+        {
+            // Resolve shake, boom travel and obstruction before compensating target
+            // motion. Rotation leaves the enclosing collision sphere at its safe lens.
+            Vector2 correction = track(delta);
+            float previousYaw = _look.Yaw, previousPitch = _look.Pitch;
+            _look.Attract(new(correction.X, correction.Y), basePitch);
+            Vector3 angles = GlobalBasis.GetEuler();
+            angles.X += _look.Pitch - previousPitch;
+            angles.Y += Mathf.AngleDifference(previousYaw, _look.Yaw);
+            GlobalBasis = Basis.FromEuler(angles);
         }
         // Use the final view, including rollover framing, to avoid false forward
         // flow while looking sideways. Normal chase/Boost wisps are unchanged.

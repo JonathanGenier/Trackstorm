@@ -1,0 +1,4 @@
+Practice driver completes two laps: travel=2085.09m speed=13.76..14.10m/s maximum lane error=1.23m.
+Practice driver keeps full health without wall assistance.
+Exactly one practice car receives autonomous driving input.
+Practice target resumes driving after ordinary arena reset.
