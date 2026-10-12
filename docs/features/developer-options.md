@@ -30,7 +30,7 @@ Every accordion contains **Reset to Defaults** inside its body. Search matches l
 
 ## Authority and runtime application
 
-Core `GameplayConfiguration` composes the existing vehicle, digital-input shaping, damage, item, spawn, respawn and match records plus destruction tuning and the shared environment identity. `GameplayOptions` is the explicit 245-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
+Core `GameplayConfiguration` composes the existing vehicle, digital-input shaping, damage, item, spawn, respawn and match records plus destruction tuning and the shared environment identity. `GameplayOptions` is the explicit 249-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
 
 Live scalar tuning additionally rejects positive values below 0.0001: subnormal mass/axle lengths can overflow fixed-step divisions despite passing older positive-only checks. Zero remains allowed where the owning rule explicitly supports it. Collision/respawn timers are bounded to one hour and the simulation clock remains fixed at 60 Hz.
 
@@ -46,7 +46,7 @@ The version-one `TD` session configuration channel carries bounded catalog-index
 
 Complete session publications reach lobby clients and late arrivals even before an arena exists. Arena gameplay retains the existing configuration-before-world boundary below; the session replica is only a projection for lobby presentation and next-arena continuity. Recovery/migration uses the existing complete checkpoint and epoch reset, with no successor-local defaults reload.
 
-The reliable version-forty-eight `TC` message carries arena generation, configuration revision and all 245 values (1981 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
+The reliable version-forty-nine `TC` message carries arena generation, configuration revision and all 249 values (2013 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
 
 The host sends configuration before its reliable world boundary on admission or edits. Version-fourteen `TS` world snapshots include the configuration revision; clients reject world/item boundaries for a different revision, preventing mismatched simulation. Subsequent unreliable snapshots recover normal movement after an ordered tuning change. EOS lobby metadata does not store gameplay tuning. Discovery compatibility is `trackstorm-lobby-19`.
 
@@ -283,7 +283,7 @@ The Air control category uses the same staged Apply/Cancel and immediate Reset, 
 | `air_release_damping` | 10 | Post-input angular decay per second; range 1-30 |
 | `support_normal_minimum` | 0.55 | Ground/wheel support minimum world-normal Y; range 0.55â€“1 |
 
-`VehicleMovement` consumes the rate, acceleration, input-response and release-damping values through the existing authority and prediction paths; the support threshold also reaches both native adapters and wheel ray observations. No orientation target, leveling strength or redundant torque multiplier exists. `AirControlTests`, native `check-air-control.ps1`, and release-default coverage verify this mapping and continuation. Configuration version 48 carries the complete 245-key catalog; old layouts are rejected.
+`VehicleMovement` consumes the rate, acceleration, input-response and release-damping values through the existing authority and prediction paths; the support threshold also reaches both native adapters and wheel ray observations. No orientation target, leveling strength or redundant torque multiplier exists. `AirControlTests`, native `check-air-control.ps1`, and release-default coverage verify this mapping and continuation. Configuration version 48 carries the complete 249-key catalog; old layouts are rejected.
 ## Collision and destruction tuning
 
 Vehicle defaults target a 3000 kg arcade trophy truck: acceleration 24 and braking
@@ -343,17 +343,24 @@ Item damage contributes to Circus through `match.item_points_per_damage` (defaul
 
 ## Oil tuning
 
-The Oil accordion contains four host-authoritative keys, using the ordinary staged Apply/Cancel, per-category Reset, session configuration and complete configuration/recovery paths:
+The Oil accordion contains eight host-authoritative keys using staged Apply/Cancel, category Reset, persistence, session replication and complete recovery:
 
-| Key | Default | Range |
+| Key | Default | Range / meaning |
 | --- | ---: | --- |
-| `vehicle.oil_grip_reduction` | 0.1 | 0â€“0.8 fraction of lateral force removed |
-| `vehicle.oil_recovery_seconds` | 0.5 | 0.1â€“10 seconds after supported overlap ends |
-| `items.oil_enemy_contacts` | 2 | 1â€“7 vehicle passes, including the owner |
-| `items.oil_lifetime_seconds` | 60 | 1â€“600 seconds |
+| `vehicle.oil_grip_reduction` | 0.85 | 0–0.95 front tire lateral grip reduction |
+| `vehicle.oil_rear_drive_reduction` | 0.85 | 0–0.95 rear tire longitudinal grip reduction |
+| `vehicle.oil_rear_lateral_reduction` | 0.65 | 0–0.95 rear tire lateral grip reduction |
+| `vehicle.oil_impairment_seconds` | 5 | 0.1–20 seconds at full impairment after an entry |
+| `vehicle.oil_recovery_seconds` | 2 | 0.1–10 seconds of progressive recovery |
+| `vehicle.oil_recovery_curve` | 1 | 0.5–3 exponent applied to progress before smoothstep easing |
+| `items.oil_enemy_contacts` | 2 | 1–7 successful vehicle contacts per firing activation, including owner |
+| `items.oil_lifetime_seconds` | 30 | 1–600 seconds per firing activation |
 
-Grip edits affect subsequent movement; recovery-duration edits preserve the current recovery fraction with fixed-step rounding. New deployments capture pass budget and lifetime; changing settings never refreshes deadlines or refunds consumed passes. Every new supported entry counts, including the owner and the same vehicle after exit. Continuous overlap counts once; owner entry scores zero. The existing `items.oil_enemy_contacts` persistence key is retained to preserve saved tuning, but the UI now labels it "Vehicle passes before removal" and its meaning includes all vehicles. The obsolete `items.maximum_oil_patches` key has no gameplay effect; unknown persisted keys follow the existing preservation policy. The catalog has 245 keys in configuration protocol version 46.
-**Arena boundary** exposes `vehicle.oob.damage` (default 100, 0â€“10000 HP/s) through the same host-only transaction and persistence path. See [out-of-bounds damage](out-of-bounds.md).
+The existing grip and quota persistence keys are retained with precise labels. Older saved overrides remain explicit overrides; Reset selects the current defaults. Grip/curve edits affect subsequent steps. Duration edits preserve each tire's current hold/recovery phase, with fixed-step rounding. Continuous overlap never refreshes a tire or consumes another vehicle contact, even after recovery reaches zero. Each wheel's exit/re-entry refreshes that tire; only exit from the complete footprint followed by vehicle re-entry consumes another quota use. These identity rules are fixed rather than exposed as ambiguous tuning switches. New deployments capture quota and expiry; existing deadlines and consumed counts remain unchanged.
+
+The configuration catalog has 249 keys in protocol 49 (2013 bytes). Stats exposes remaining FL/FR/RL/RR contamination independently. Front and rear reductions leave a minimum five percent configured grip at maximum severity; no setting disables player controls or requests scripted yaw.
+
+**Arena boundary** exposes `vehicle.oob.damage` (default 100, 0–10000 HP/s) through the same transaction and persistence path. See [out-of-bounds damage](out-of-bounds.md).
 
 ## Car deployment
 
@@ -377,7 +384,7 @@ Low/medium Dirt corner strength (`vehicle.dirt_cornering`, 0â€“2), body-supporte
 
 ### TS-197 latest handling correction tuning
 
-The complete 245-key catalog uses wire version 48 (1981 bytes). `vehicle.steering_speed` remains a retired legacy key; the current speed envelope uses the explicit full/fade/scale controls below. Old saved unknown keys do not affect handling. Retired `vehicle.air_delay`, `vehicle.air_dead_zone`, `vehicle.air_stabilization` and `vehicle.air_stabilization_response` overrides are ignored. Never-controlled neutral flight preserves inertia. After aerial input, releasing all axes progressively settles angular motion until wheel/body contact; the finite decay uses `vehicle.air_release_damping` and does not use the retired stabilization sliders. Rate limits bound player-added spin without reducing faster existing rotation. Aerial intent is accepted immediately without tire support outside the existing crash latch; player controller deadzone and sensitivity live in Controls.
+The complete 249-key catalog uses wire version 48 (1981 bytes). `vehicle.steering_speed` remains a retired legacy key; the current speed envelope uses the explicit full/fade/scale controls below. Old saved unknown keys do not affect handling. Retired `vehicle.air_delay`, `vehicle.air_dead_zone`, `vehicle.air_stabilization` and `vehicle.air_stabilization_response` overrides are ignored. Never-controlled neutral flight preserves inertia. After aerial input, releasing all axes progressively settles angular motion until wheel/body contact; the finite decay uses `vehicle.air_release_damping` and does not use the retired stabilization sliders. Rate limits bound player-added spin without reducing faster existing rotation. Aerial intent is accepted immediately without tire support outside the existing crash latch; player controller deadzone and sensitivity live in Controls.
 
 The following previously fixed values now use the same Configs draft, validation, persistence, host replication and authority/prediction path:
 
@@ -559,7 +566,7 @@ The shared aiming upward limit (items.aim_up) defaults to 90 degrees and validat
 
 ## Missile presentation
 
-The existing shared **Missile** category also exposes `items.missile_deploy_seconds` (default 1.6 s, range 1â€“4) and `items.missile_stow_seconds` (default 0.9 s, range 0.5â€“3). These control the complete Missile mechanical timeline, including its trunk/rack phases, independently of the generic mechanism speed controls. Authority captures deadlines at selection/return; live edits affect future cycles without jumping an in-progress cycle. Configuration TC48 contains 245 values / 1981 bytes; inventory TI23 carries captured deadlines through reliable state and recovery.
+The existing shared **Missile** category also exposes `items.missile_deploy_seconds` (default 1.6 s, range 1â€“4) and `items.missile_stow_seconds` (default 0.9 s, range 0.5â€“3). These control the complete Missile mechanical timeline, including its trunk/rack phases, independently of the generic mechanism speed controls. Authority captures deadlines at selection/return; live edits affect future cycles without jumping an in-progress cycle. Configuration TC49 contains 249 values / 2013 bytes; inventory TI23 carries captured deadlines through reliable state and recovery.
 
 The separate **Missile Â· Local flight VFX** accordion is explicitly device-local, immediate and session-only. It controls orange flame length/width, smoke residue lifetime (1â€“6 s, default 4.5), dense wake length (6â€“9.2 m, default 7.6), smoke size/opacity, trail density, confetti lifetime/size and red-ember lifetime. Density zero disables smoke/confetti/embers while retaining the flame; bounded controls cap particle allocation. Changes rebuild the production flight emitters on the next render update. Its reset restores local defaults. These values never enter gameplay Apply/Cancel, persistence, authority, configuration messages or migration. The shared TS-239 traversal/damage settings retain their existing semantics.
 

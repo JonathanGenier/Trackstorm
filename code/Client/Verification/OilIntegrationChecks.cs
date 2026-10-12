@@ -128,7 +128,7 @@ public sealed partial class OilIntegrationChecks : Node
 
                     Next("Owner receives temporary traction loss without a forced spin, score; one pass is consumed.");
                     break;
-                case 4 when _frames - _boundary > 180:
+                case 4 when _frames - _boundary > 480:
                     Capture("banked-oil.png");
                     Check(host.Items.Patches.Single().PassesUsed == 1, "first owner pass remains consumed after leaving");
                     Check(host.World.GetVehicle(1).Movement.OilTicks == 0, "effect recovers");

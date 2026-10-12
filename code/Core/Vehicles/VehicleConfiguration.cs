@@ -8,10 +8,18 @@ public sealed record VehicleConfiguration
     public float TrunkDeploymentSpeed { get; init; } = 3;
     /// <summary>Rack mechanism speed relative to its original 0.88-second travel; independently tunable.</summary>
     public float RackDeploymentSpeed { get; init; } = 3;
-    /// <summary>Fraction of lateral tire grip lost on Oil; propulsion and steering remain available.</summary>
-    public float OilGripReduction { get; init; } = 0.1f;
-    /// <summary>Seconds of progressive lateral-grip recovery after the last supported Oil contact.</summary>
-    public float OilRecoverySeconds { get; init; } = 0.5f;
+    /// <summary>Front tire lateral grip reduction during contamination.</summary>
+    public float OilGripReduction { get; init; } = 0.85f;
+    /// <summary>Rear tire longitudinal grip reduction, including drive and braking.</summary>
+    public float OilRearDriveReduction { get; init; } = 0.85f;
+    /// <summary>Rear tire lateral grip reduction during contamination.</summary>
+    public float OilRearLateralReduction { get; init; } = 0.65f;
+    /// <summary>Full-strength impairment following a distinct tire entry.</summary>
+    public float OilImpairmentSeconds { get; init; } = 5;
+    /// <summary>Progressive recovery after the full impairment interval.</summary>
+    public float OilRecoverySeconds { get; init; } = 2;
+    /// <summary>Recovery progression exponent before smoothstep easing.</summary>
+    public float OilRecoveryCurve { get; init; } = 1;
     /// <summary>Asphalt tire capacity; neutral drag/drive retain approved power and coasting.</summary>
     public float AsphaltGrip { get; init; } = 3;
     /// <summary>Highest braking purchase and shortest deliberate rear-lock slide.</summary>
@@ -294,10 +302,14 @@ public sealed record VehicleConfiguration
         {
             throw new ArgumentException("Trunk and rack deployment speeds must each be between 0.1 and 10.");
         }
-        if (!float.IsFinite(OilGripReduction) || OilGripReduction is < 0 or > 0.8f ||
+        if (!float.IsFinite(OilGripReduction) || OilGripReduction is < 0 or > 0.95f ||
+            !float.IsFinite(OilRearDriveReduction) || OilRearDriveReduction is < 0 or > 0.95f ||
+            !float.IsFinite(OilRearLateralReduction) || OilRearLateralReduction is < 0 or > 0.95f ||
+            !float.IsFinite(OilImpairmentSeconds) || OilImpairmentSeconds is < 0.1f or > 20 ||
+            !float.IsFinite(OilRecoveryCurve) || OilRecoveryCurve is < 0.5f or > 3 ||
             !float.IsFinite(OilRecoverySeconds) || OilRecoverySeconds is < 0.1f or > 10)
         {
-            throw new ArgumentException("Oil requires grip reduction 0–0.8 and recovery 0.1–10 seconds.");
+            throw new ArgumentException("Oil requires grip reduction 0–0.95, impairment 0.1–20 s, recovery 0.1–10 s and curve 0.5–3.");
         }
         if (!float.IsFinite(WallDrag) || WallDrag is < 0 or > 5 ||
             !float.IsFinite(CrashDissipation) || CrashDissipation is < 0 or > 1 ||

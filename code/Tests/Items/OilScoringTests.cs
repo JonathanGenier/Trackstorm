@@ -60,7 +60,7 @@ internal sealed class OilScoringTests
         Assert.That(host.World.State.Match!.Awards.Single(), Is.EqualTo(new CircusScoreAward(1, CircusScoreCategory.Oil, 50)));
         for (int i = 0; i < 130; i++) { Step(host, 2); }
         Assert.That(Score(host), Is.EqualTo(50));
-        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(30));
+        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(290));
         Step(host);
         var w = host.World.State;
         var m = w.Match!;
@@ -151,7 +151,7 @@ internal sealed class OilScoringTests
         host.Step(default, v => Observe(v, false), placeOil: (s, _) => new OilPatch(s.Token, s.Vehicle, Vector3.Zero, Vector3.UnitY, 3));
         Step(host, 2);
         Assert.That(Score(host), Is.EqualTo(100));
-        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(30));
+        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(420));
         Step(host, 2);
         Assert.That(Score(host), Is.EqualTo(100));
     }
@@ -175,7 +175,7 @@ internal sealed class OilScoringTests
     {
         var host = Create(mode, active);
         Step(host, 2);
-        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(30));
+        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(420));
         Assert.That(Score(host), Is.Zero);
     }
 
@@ -193,5 +193,5 @@ internal sealed class OilScoringTests
 
     private static double Score(HostVehicleSession host) => host.World.State.Match!.Players.Single(p => p.Player == 1).CircusScore;
     private static void Step(HostVehicleSession host, params ulong[] inside) => host.Step(default, v => Observe(v, inside.Contains(v.VehicleId)));
-    private static VehicleObservation Observe(VehicleSnapshot v, bool inside) => new(new VehiclePhysicsState(new Vector3(inside ? 0 : 6, 0.9f, 0), Quaternion.Identity, Vector3.Zero, Vector3.Zero), Vector3.UnitY);
+    private static VehicleObservation Observe(VehicleSnapshot v, bool inside) => new(new VehiclePhysicsState(new Vector3(inside ? 0 : 6, 0.9f, 0), Quaternion.Identity, Vector3.Zero, Vector3.Zero), Vector3.UnitY, wheels: new WheelSupport(new Vector4(new VehicleConfiguration().SuspensionLength - 0.9f)));
 }

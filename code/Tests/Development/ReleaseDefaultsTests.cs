@@ -75,8 +75,8 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("vehicle.dirt_steering_reserve", (double)0.95f)]
     [TestCase("vehicle.dirt.grip", 2d)]
     [TestCase("vehicle.grass.grip", 1.899999976158142d)]
-    [TestCase("vehicle.oil_grip_reduction", (double)0.1f)]
-    [TestCase("vehicle.oil_recovery_seconds", 0.5d)]
+    [TestCase("vehicle.oil_grip_reduction", (double)0.85f)]
+    [TestCase("vehicle.oil_recovery_seconds", 2d)]
     [TestCase("damage.max_hp", 1000d)]
     [TestCase("damage.collision_threshold", 4d)]
     [TestCase("damage.collision_scale", 5d)]
@@ -126,7 +126,7 @@ internal sealed class ReleaseDefaultsTests
     public void ReleaseDefaultsValidateAndRoundTrip()
     {
         var defaults = GameplayConfiguration.HostedDefaults;
-        Assert.That(GameplayOptions.All.Count, Is.EqualTo(245));
+        Assert.That(GameplayOptions.All.Count, Is.EqualTo(249));
         Assert.That(defaults.Items.OilPasses, Is.EqualTo(2));
         Assert.DoesNotThrow(defaults.Validate);
         var file = DeveloperSettingsFile.Read(string.Empty, defaults);
@@ -166,8 +166,8 @@ internal sealed class ReleaseDefaultsTests
         Assert.That(GameplayOptions.All.Any(option => option.Key.StartsWith("vehicle.air_stabilization", StringComparison.Ordinal)), Is.False);
         Assert.That(DeveloperSettingsFile.Read(file.Write(file.Configuration)).Configuration, Is.EqualTo(file.Configuration));
         byte[] wire = GameplayConfigurationCodec.Encode(1, new(0, file.Configuration));
-        Assert.That(wire.Length, Is.EqualTo(1981));
-        Assert.That(wire[2], Is.EqualTo(48));
+        Assert.That(wire.Length, Is.EqualTo(2013));
+        Assert.That(wire[2], Is.EqualTo(49));
         Assert.That(GameplayConfigurationCodec.Decode(wire).State.Configuration, Is.EqualTo(file.Configuration));
     }
 

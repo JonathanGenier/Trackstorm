@@ -36,6 +36,7 @@ public sealed partial class HandlingPlaytest : Node3D
     private readonly Core.Items.ItemAuthority _items = new(new() { MaximumDamage = 300 });
     private readonly List<Core.Items.ItemEvent> _impacts = new();
     private Core.Items.OilPatch? _oil;
+    private WheelMask _oilWheels;
     private long _lastRenderStamp;
     private double _renderFrameMs;
 
@@ -48,12 +49,14 @@ public sealed partial class HandlingPlaytest : Node3D
 
     public override void _Ready()
     {
-        _directory = ProjectSettings.GlobalizePath(OS.GetCmdlineUserArgs().Contains("--air-playtest") ? "res://.godot/ts-269/playtest" : OS.GetCmdlineUserArgs().Contains("--surface-playtest") ? "res://.godot/ts-266/playtest" : OS.GetCmdlineUserArgs().Contains("--steering-playtest") ? "res://.godot/ts-268/playtest" : OS.GetCmdlineUserArgs().Contains("--rock-playtest") ? "res://.godot/ts-267/playtest" : OS.GetCmdlineUserArgs().Contains("--oil-playtest") ? "res://.godot/ts-172/playtest" : OS.GetCmdlineUserArgs().Contains("--destructible-playtest") ? "res://.godot/ts-162/playtest" : "res://.godot/ts-160/playtest");
+        _directory = ProjectSettings.GlobalizePath(OS.GetCmdlineUserArgs().Contains("--air-playtest") ? "res://.godot/ts-269/playtest" : OS.GetCmdlineUserArgs().Contains("--surface-playtest") ? "res://.godot/ts-266/playtest" : OS.GetCmdlineUserArgs().Contains("--steering-playtest") ? "res://.godot/ts-268/playtest" : OS.GetCmdlineUserArgs().Contains("--rock-playtest") ? "res://.godot/ts-267/playtest" : OS.GetCmdlineUserArgs().Contains("--oil-playtest") ? "res://.godot/ts-244/playtest" : OS.GetCmdlineUserArgs().Contains("--destructible-playtest") ? "res://.godot/ts-162/playtest" : "res://.godot/ts-160/playtest");
         if (OS.GetCmdlineUserArgs().Contains("--world-collision-playtest")) { _directory = ProjectSettings.GlobalizePath("res://.godot/ts-274/playtest"); }
         if (OS.GetCmdlineUserArgs().Contains("--tunnel-scrape-playtest")) { _directory = ProjectSettings.GlobalizePath("res://.godot/ts-275/playtest"); }
         if (OS.GetCmdlineUserArgs().Contains("--automatic-air-playtest")) { _directory = ProjectSettings.GlobalizePath("res://.godot/ts-281/playtest"); }
         if (OS.GetCmdlineUserArgs().Contains("--inertia-playtest")) { _directory = ProjectSettings.GlobalizePath("res://.godot/ts-282/playtest"); }
         if (OS.GetCmdlineUserArgs().Contains("--settle-playtest")) { _directory = ProjectSettings.GlobalizePath("res://.godot/ts-283/playtest"); }
+        string? output = OS.GetCmdlineUserArgs().FirstOrDefault(arg => arg.StartsWith("--handling-output=", StringComparison.Ordinal));
+        if (output is not null) { _directory = output["--handling-output=".Length..]; }
         System.IO.Directory.CreateDirectory(_directory);
         if (OS.GetCmdlineUserArgs().Contains("--handling-flat"))
         {
@@ -127,6 +130,7 @@ public sealed partial class HandlingPlaytest : Node3D
             {
                 using var document = JsonDocument.Parse(text);
                 var command = document.RootElement;
+                if (command.TryGetProperty("quit", out var quit) && quit.GetBoolean()) { GetTree().Quit(); return; }
                 if (_road is not null && command.TryGetProperty("surface", out var surface))
                 {
                     _road.SetMeta("surface_identity", surface.GetString()!);
@@ -136,7 +140,8 @@ public sealed partial class HandlingPlaytest : Node3D
                 if (command.TryGetProperty("oilPatch", out var oil))
                 {
                     _oil = oil.ValueKind == JsonValueKind.Null ? null : new Core.Items.OilPatch(1, 2,
-                        new(oil[0].GetSingle(), oil[1].GetSingle(), oil[2].GetSingle()), N.Vector3.UnitY, 3);
+                        new(oil[0].GetSingle(), oil[1].GetSingle(), oil[2].GetSingle()), oil.GetArrayLength() > 6 ? N.Vector3.Normalize(new(oil[4].GetSingle(), oil[5].GetSingle(), oil[6].GetSingle())) : N.Vector3.UnitY, oil.GetArrayLength() > 3 ? oil[3].GetSingle() : 3);
+                    _oilWheels = WheelMask.None;
                 }
                 _remaining = Math.Clamp(command.GetProperty("frames").GetInt32(), 1, 600);
                 _steer = (short)(Math.Clamp(command.GetProperty("steer").GetSingle(), -1, 1) * short.MaxValue);
@@ -147,6 +152,7 @@ public sealed partial class HandlingPlaytest : Node3D
                 if (command.TryGetProperty("blast", out var blast)) { _impacts.Add(new((ulong)(_world.State.Tick + 1), 1, Core.Items.HeldItem.Missile, new(blast[0].GetSingle(), blast[1].GetSingle(), blast[2].GetSingle()), true)); }
                 if (command.TryGetProperty("spawn", out var spawn))
                 {
+                    _oilWheels = WheelMask.None;
                     float yaw = command.GetProperty("yaw").GetSingle();
                     float speed = command.GetProperty("speed").GetSingle();
                     float pitch = command.TryGetProperty("pitch", out var pitchValue) ? pitchValue.GetSingle() : 0;
@@ -210,11 +216,13 @@ public sealed partial class HandlingPlaytest : Node3D
         var request = _body is not null ? _body.Capture(input) : new VehicleStepRequest(1, input, _network!.Observe(_world.GetVehicle(1)), reset: _pendingReset);
         double observationMs = System.Diagnostics.Stopwatch.GetElapsedTime(observationStarted).TotalMilliseconds;
         _pendingReset = null;
-        if (_oil?.Contains(request.Observation) == true)
+        WheelMask oilWheels = request.Reset.HasValue ? WheelMask.None : _oil?.ContactWheels(request.Observation, _configuration) ?? WheelMask.None;
+        if (oilWheels != WheelMask.None)
         {
             request = new(request.VehicleId, request.Input, request.Observation, request.Effects, request.Reset,
-                request.Repair, request.RepairCause, oilContact: true);
+                request.Repair, request.RepairCause, oilContact: oilWheels & ~_oilWheels);
         }
+        _oilWheels = oilWheels;
         var result = _world.Step(input, new[] { request })[0];
         if (_body is not null) { _body.Apply(result); }
         else { _network!.Apply(result.Snapshot); _network.PresentRemote(result.Snapshot.Movement.Physics); }
@@ -225,7 +233,7 @@ public sealed partial class HandlingPlaytest : Node3D
         N.Vector3 forward = N.Vector3.Transform(-N.Vector3.UnitZ, p.Orientation);
         N.Vector3 right = N.Vector3.Transform(N.Vector3.UnitX, p.Orientation);
         var w = state.Movement.Wheels.Compression;
-        _trace.Add(new { observationMs, renderFrameMs = _renderFrameMs, tick = state.Movement.Tick, position = new[] { p.Position.X, p.Position.Y, p.Position.Z }, velocity = new[] { p.LinearVelocity.X, p.LinearVelocity.Y, p.LinearVelocity.Z }, orientation = new[] { p.Orientation.X, p.Orientation.Y, p.Orientation.Z, p.Orientation.W }, compression = new[] { w.X, w.Y, w.Z, w.W }, support = new[] { request.Observation.Support.X, request.Observation.Support.Y, request.Observation.Support.Z }, contacts = request.Observation.Contacts.Count, observedVelocity = new[] { request.Observation.Physics.LinearVelocity.X, request.Observation.Physics.LinearVelocity.Y, request.Observation.Physics.LinearVelocity.Z }, contactDetails = request.Observation.Contacts.Select(c => new { normal = new[] { c.Normal.X, c.Normal.Y, c.Normal.Z }, c.Impulse, c.Terrain, c.StaticObstacle }), longAcceleration = state.Movement.LongitudinalAcceleration, sideAcceleration = state.Movement.LateralAcceleration, up = N.Vector3.Transform(N.Vector3.UnitY, p.Orientation).Y, speed = state.Speed, yaw = p.AngularVelocity.Y, lateral = N.Vector3.Dot(p.LinearVelocity, right), longitudinal = N.Vector3.Dot(p.LinearVelocity, forward), slip = state.Movement.PowerSlip, throttle = state.Movement.Throttle, oilTicks = state.Movement.OilTicks, steering = state.Movement.SteeringAngle, inputSteering = input.Steering, inputThrottle = input.Accelerate, inputBrake = input.Brake, brakeMode = state.Movement.BrakeMode.ToString(), handbrake = state.Movement.Handbrake, frontSlip = state.Movement.FrontSlip, rearSlip = state.Movement.RearSlip, surface = state.Movement.CurrentSurface.ToString(), grounded = state.Movement.Grounded, airSeconds = state.Movement.Air.Seconds, airInput = new[] { state.Movement.Air.Input.X, state.Movement.Air.Input.Y, state.Movement.Air.Input.Z }, crashSeconds = state.Movement.CrashSeconds, angular = new[] { p.AngularVelocity.X, p.AngularVelocity.Y, p.AngularVelocity.Z }, hp = state.Damage.CurrentHP });
+        _trace.Add(new { observationMs, renderFrameMs = _renderFrameMs, tick = state.Movement.Tick, position = new[] { p.Position.X, p.Position.Y, p.Position.Z }, velocity = new[] { p.LinearVelocity.X, p.LinearVelocity.Y, p.LinearVelocity.Z }, orientation = new[] { p.Orientation.X, p.Orientation.Y, p.Orientation.Z, p.Orientation.W }, compression = new[] { w.X, w.Y, w.Z, w.W }, support = new[] { request.Observation.Support.X, request.Observation.Support.Y, request.Observation.Support.Z }, contacts = request.Observation.Contacts.Count, observedVelocity = new[] { request.Observation.Physics.LinearVelocity.X, request.Observation.Physics.LinearVelocity.Y, request.Observation.Physics.LinearVelocity.Z }, contactDetails = request.Observation.Contacts.Select(c => new { normal = new[] { c.Normal.X, c.Normal.Y, c.Normal.Z }, c.Impulse, c.Terrain, c.StaticObstacle }), longAcceleration = state.Movement.LongitudinalAcceleration, sideAcceleration = state.Movement.LateralAcceleration, up = N.Vector3.Transform(N.Vector3.UnitY, p.Orientation).Y, speed = state.Speed, yaw = p.AngularVelocity.Y, lateral = N.Vector3.Dot(p.LinearVelocity, right), longitudinal = N.Vector3.Dot(p.LinearVelocity, forward), slip = state.Movement.PowerSlip, throttle = state.Movement.Throttle, oilTicks = state.Movement.OilTicks, oilWheels = new[] { state.Movement.Oil.FrontLeft, state.Movement.Oil.FrontRight, state.Movement.Oil.RearLeft, state.Movement.Oil.RearRight }, oilContact = (byte)oilWheels, steering = state.Movement.SteeringAngle, inputSteering = input.Steering, inputThrottle = input.Accelerate, inputBrake = input.Brake, brakeMode = state.Movement.BrakeMode.ToString(), handbrake = state.Movement.Handbrake, frontSlip = state.Movement.FrontSlip, rearSlip = state.Movement.RearSlip, surface = state.Movement.CurrentSurface.ToString(), grounded = state.Movement.Grounded, airSeconds = state.Movement.Air.Seconds, airInput = new[] { state.Movement.Air.Input.X, state.Movement.Air.Input.Y, state.Movement.Air.Input.Z }, crashSeconds = state.Movement.CrashSeconds, angular = new[] { p.AngularVelocity.X, p.AngularVelocity.Y, p.AngularVelocity.Z }, hp = state.Damage.CurrentHP });
         Vector3 position = VehicleBody.ToGodot(p.Position);
         _camera.Position = position - VehicleBody.ToGodot(forward) * 10 + Vector3.Up * 5;
         if (OS.GetCmdlineUserArgs().Contains("--world-collision-playtest") || OS.GetCmdlineUserArgs().Contains("--tunnel-scrape-playtest")) { _camera.Position = position - VehicleBody.ToGodot(forward) * 6 + VehicleBody.ToGodot(right) * 3 + Vector3.Up * 2; }
@@ -247,9 +255,12 @@ public sealed partial class HandlingPlaytest : Node3D
 
     private async void Capture(string completedCommand)
     {
-        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
-        using var image = GetViewport().GetTexture().GetImage();
-        image.SavePng(System.IO.Path.Combine(_directory, "view.png"));
+        if (DisplayServer.GetName() != "headless")
+        {
+            await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            using var image = GetViewport().GetTexture().GetImage();
+            image.SavePng(System.IO.Path.Combine(_directory, "view.png"));
+        }
         System.IO.File.WriteAllText(System.IO.Path.Combine(_directory, "completed-command.json"), completedCommand);
     }
 }

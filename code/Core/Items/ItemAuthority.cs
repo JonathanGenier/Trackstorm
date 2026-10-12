@@ -246,10 +246,10 @@ public sealed partial class ItemAuthority
         var patches = _patches.Where(patch => patch.ExpiresAtTick > input.Tick).ToList();
         var mines = new List<ProxyMineState>(_mines);
         var contacts = new List<OilContact>();
-        var priorContacts = _contacts.ToHashSet();
+        var priorContacts = _contacts.ToDictionary(contact => (contact.Patch, contact.Vehicle, contact.Life));
         var contactCounts = patches.ToDictionary(patch => patch.Id, patch => patch.PassesUsed);
         var oilTriggers = new List<OilTrigger>();
-        var oilVehicles = new HashSet<ulong>();
+        var oilEntries = new Dictionary<ulong, WheelMask>();
         var journal = new List<RuntimeEvent>();
         var repair = new Dictionary<ulong, float>();
         var boosts = new Dictionary<ulong, NitroState>();
@@ -445,12 +445,14 @@ public sealed partial class ItemAuthority
                 if (!vehicle.CanInteract || request.Reset.HasValue) { continue; }
                 foreach (var patch in patches.OrderBy(patch => patch.Id))
                 {
-                    if (!patch.Contains(request.Observation)) { continue; }
-                    var contact = new OilContact(patch.Id, vehicle.VehicleId, vehicle.LifeId);
-                    if (!priorContacts.Contains(contact) && contactCounts.GetValueOrDefault(patch.Id) >= patch.PassLimit) { continue; }
-                    oilVehicles.Add(vehicle.VehicleId);
+                    WheelMask wheels = patch.ContactWheels(request.Observation, world.MovementTuning(vehicle.VehicleId));
+                    if (wheels == WheelMask.None) { continue; }
+                    var contact = new OilContact(patch.Id, vehicle.VehicleId, vehicle.LifeId, wheels);
+                    priorContacts.TryGetValue((contact.Patch, contact.Vehicle, contact.Life), out var previousContact);
+                    if (previousContact is null && contactCounts.GetValueOrDefault(patch.Id) >= patch.PassLimit) { continue; }
+                    oilEntries[vehicle.VehicleId] = oilEntries.GetValueOrDefault(vehicle.VehicleId) | (wheels & ~(previousContact?.Wheels ?? WheelMask.None));
                     contacts.Add(contact);
-                    if (!priorContacts.Contains(contact))
+                    if (previousContact is null)
                     {
                         contactCounts[patch.Id] = contactCounts.GetValueOrDefault(patch.Id) + 1;
                         oilTriggers.Add(new(patch.Id, patch.Owner, vehicle.VehicleId, vehicle.LifeId));
@@ -571,7 +573,7 @@ public sealed partial class ItemAuthority
         }
 
         var observations = shields.Collisions();
-        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, observations[request.VehicleId], effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause, oilVehicles.Contains(request.VehicleId), boosts.GetValueOrDefault(request.VehicleId), request.ClearNitro || !boosts.ContainsKey(request.VehicleId))).ToArray(), journal.Concat(events.Where(outcome => outcome.Item != HeldItem.MachineGun).Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick })).ToArray(), oilTriggers, shields.ProtectedVehicleImpacts);
+        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, observations[request.VehicleId], effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause, oilEntries.GetValueOrDefault(request.VehicleId), boosts.GetValueOrDefault(request.VehicleId), request.ClearNitro || !boosts.ContainsKey(request.VehicleId))).ToArray(), journal.Concat(events.Where(outcome => outcome.Item != HeldItem.MachineGun).Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick })).ToArray(), oilTriggers, shields.ProtectedVehicleImpacts);
         foreach (var pair in slots.ToArray())
         {
             VehicleSnapshot state = world.GetVehicle(pair.Key);
@@ -589,13 +591,13 @@ public sealed partial class ItemAuthority
         }
 
         // Commit only successful effects. Expired overlaps release their latch, never their consumed pass.
-        contacts.RemoveAll(contact => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == contact.Vehicle && vehicle.LifeId == contact.Life && vehicle.CanInteract && vehicle.Movement.OilTicks > 0));
+        contacts.RemoveAll(contact => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == contact.Vehicle && vehicle.LifeId == contact.Life && vehicle.CanInteract));
         var patchOwners = patches.ToDictionary(patch => patch.Id, patch => patch.Owner);
-        foreach (var contact in contacts.Where(contact => !priorContacts.Contains(contact)))
+        foreach (var contact in contacts.Where(contact => !priorContacts.ContainsKey((contact.Patch, contact.Vehicle, contact.Life))))
         {
             world.Events.Record(EventCategory.Item, "Oil triggered", actor: patchOwners[contact.Patch], target: contact.Vehicle, cause: "Oil", tick: input.Tick);
         }
-        contactCounts = contacts.Where(contact => !priorContacts.Contains(contact)).GroupBy(contact => contact.Patch).ToDictionary(group => group.Key, group => group.Count());
+        contactCounts = contacts.Where(contact => !priorContacts.ContainsKey((contact.Patch, contact.Vehicle, contact.Life))).GroupBy(contact => contact.Patch).ToDictionary(group => group.Key, group => group.Count());
         for (int i = 0; i < patches.Count; i++) { patches[i] = patches[i] with { PassesUsed = patches[i].PassesUsed + contactCounts.GetValueOrDefault(patches[i].Id) }; }
         patches.RemoveAll(patch => patch.PassesUsed >= patch.PassLimit);
         var activePatchIds = patches.Select(patch => patch.Id).ToHashSet();

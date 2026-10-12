@@ -17,6 +17,8 @@ internal static class WheelSuspension
         Span<SurfaceType?> wheelSurfaces = stackalloc SurfaceType?[4];
         compression.Clear();
         wheelSurfaces.Clear();
+        Span<System.Numerics.Vector3?> points = stackalloc System.Numerics.Vector3?[4];
+        points.Clear();
         Vector3 normal = Vector3.Zero;
         Vector3 terrainNormal = Vector3.Zero;
         SurfaceType surface = SurfaceType.Concrete;
@@ -35,6 +37,7 @@ internal static class WheelSuspension
             if (hit.Count > 0 && hit["collider"].AsGodotObject() is not (VehicleBody or Networking.NetworkVehicleBody) && hit["normal"].AsVector3().Y >= configuration.SupportNormalMinimum && EnvironmentContact.IsWheelSupport(hit["collider"].AsGodotObject(), hit["normal"].AsVector3()))
             {
                 compression[index] = Math.Clamp(configuration.SuspensionLength - origin.DistanceTo(hit["position"].AsVector3()), 0, 1);
+                points[index] = VehicleBody.ToCore(hit["position"].AsVector3());
                 normal += hit["normal"].AsVector3();
                 if (hit["collider"].AsGodotObject() is Node terrain && terrain.IsInGroup("landing_terrain")) { terrainNormal += hit["normal"].AsVector3(); }
                 surface = (hit["collider"].AsGodotObject() as SurfaceBody)?.Surface ?? SurfaceType.Concrete;
@@ -52,6 +55,6 @@ internal static class WheelSuspension
             identity = SurfaceIdentityResolver.Resolve(centerHit["collider"].AsGodotObject(), centerHit["position"].AsVector3());
         }
 
-        return (new WheelSupport(new System.Numerics.Vector4(compression[0], compression[1], compression[2], compression[3]), wheelSurfaces[0], wheelSurfaces[1], wheelSurfaces[2], wheelSurfaces[3]), normal.IsZeroApprox() ? Vector3.Zero : normal.Normalized(), SurfaceHandling.Resolve(identity, surface), terrainNormal.IsZeroApprox() ? Vector3.Zero : terrainNormal.Normalized(), identity);
+        return (new WheelSupport(new System.Numerics.Vector4(compression[0], compression[1], compression[2], compression[3]), wheelSurfaces[0], wheelSurfaces[1], wheelSurfaces[2], wheelSurfaces[3], new(points[0], points[1], points[2], points[3])), normal.IsZeroApprox() ? Vector3.Zero : normal.Normalized(), SurfaceHandling.Resolve(identity, surface), terrainNormal.IsZeroApprox() ? Vector3.Zero : terrainNormal.Normalized(), identity);
     }
 }

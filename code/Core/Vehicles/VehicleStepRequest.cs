@@ -15,8 +15,8 @@ public sealed class VehicleStepRequest
     /// <param name="repairCause">Allowlisted source of repair.</param>
     /// <param name="nitro">New boost staged by item authority.</param>
     /// <param name="clearNitro">Match boundary clearing temporary boost.</param>
-    /// <param name="oilContact">Supported Oil overlap confirmed by item authority.</param>
-    public VehicleStepRequest(ulong vehicleId, InputFrame input, VehicleObservation observation, IEnumerable<VehicleEffectRequest>? effects = null, VehiclePhysicsState? reset = null, float repair = 0, string repairCause = "repair", bool oilContact = false, NitroState nitro = default, bool clearNitro = false)
+    /// <param name="oilContact">Distinct per-wheel Oil entries confirmed by item authority.</param>
+    public VehicleStepRequest(ulong vehicleId, InputFrame input, VehicleObservation observation, IEnumerable<VehicleEffectRequest>? effects = null, VehiclePhysicsState? reset = null, float repair = 0, string repairCause = "repair", WheelMask oilContact = WheelMask.None, NitroState nitro = default, bool clearNitro = false)
     {
         ArgumentNullException.ThrowIfNull(observation);
         if (vehicleId == 0 || !float.IsFinite(repair))
@@ -35,6 +35,7 @@ public sealed class VehicleStepRequest
             ArgumentNullException.ThrowIfNull(effect);
         }
 
+        if ((oilContact & ~WheelMask.All) != 0) { throw new ArgumentOutOfRangeException(nameof(oilContact)); }
         OilContact = oilContact;
         nitro.Validate();
         Nitro = nitro;
@@ -48,8 +49,8 @@ public sealed class VehicleStepRequest
         RepairCause = repairCause == "Wrench" ? "Wrench" : "repair";
     }
 
-    /// <summary>Authoritative supported Oil overlap; false allows progressive recovery.</summary>
-    public bool OilContact { get; }
+    /// <summary>Authoritative wheel entry edges; no entry allows existing contamination to age.</summary>
+    public WheelMask OilContact { get; }
     /// <summary>Newly authorized boost; clients cannot originate this intent.</summary>
     public NitroState Nitro { get; }
     /// <summary>Ends a boost at the authoritative match boundary.</summary>
