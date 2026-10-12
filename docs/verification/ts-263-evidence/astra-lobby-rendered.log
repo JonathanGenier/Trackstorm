@@ -1,0 +1,22 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Transport peer 1: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connected; None;
+LOBBY_SHOOTER placement=<138.06389, -0.07119441, 66.1561> support=(138.0639, -1.271194, 66.1561)
+LOBBY_AIM target=2 selected=2 angle=0.01081 sight=True hit=(168.53757, 6.031449, 63.596363) lens=(129.43478, 2.965012, 67.72236) target=(170.8624, 6.2137637, 63.351055) accepted=1 active=True dismissed=0
+LOBBY_AIM target=3 selected=0 angle=0.02027 sight=True hit=(168.39014, 6.031865, 63.744473) lens=(129.61066, 2.9606724, 67.32346) target=(170.6857, 6.2136645, 63.532616) accepted=1 active=True dismissed=2
+LOBBY_AIM target=3 selected=3 angle=0.00660 sight=True hit=(170.62074, 6.035869, 61.491844) lens=(129.74107, 2.9590058, 67.78249) target=(172.96027, 6.211957, 61.131817) accepted=1 active=True dismissed=0
+LOBBY_AIM target=2 selected=0 angle=0.05534 sight=True hit=(182.09462, 5.992701, 46.63107) lens=(130.36868, 2.9536915, 69.2113) target=(184.32324, 6.1236253, 45.658176) accepted=1 active=True dismissed=3
+LOBBY_AIM target=2 selected=2 angle=0.00638 sight=True hit=(183.91008, 5.981374, 43.53896) lens=(130.72923, 2.9515183, 69.77734) target=(186.09767, 6.105996, 42.459652) accepted=1 active=True dismissed=3
+LOBBY_MISSILE target=2 token=1 direction=<0.86605614, 0.07438669, -0.49438196> speed=13.960
+LOBBY_SHOOTER placement=<179.38414, -0.60476375, 13.203118> support=(179.3841, -1.804764, 13.20312)
+LOBBY_AIM target=3 selected=3 angle=0.03702 sight=True hit=(195.13779, 5.830467, -3.3700864) lens=(174.57158, 2.4063745, 20.787775) target=(196.58055, 6.070674, -5.064822) accepted=1 active=True dismissed=0
+LOBBY_AIM target=2 selected=0 angle=0.06120 sight=True hit=(192.5823, 5.87981, -21.471405) lens=(176.09436, 2.4061298, 21.695662) target=(193.49487, 6.07207, -23.860613) accepted=1 active=True dismissed=3
+LOBBY_AIM target=2 selected=2 angle=0.00817 sight=True hit=(191.6627, 5.8868403, -24.87586) lens=(176.81503, 2.4060636, 21.970821) target=(192.45068, 6.071556, -27.362093) accepted=1 active=True dismissed=3
+LOBBY_AIM target=3 selected=0 angle=0.02129 sight=True hit=(191.80661, 5.8846016, -24.375175) lens=(176.7237, 2.405911, 21.919554) target=(192.61172, 6.070297, -26.846361) accepted=1 active=True dismissed=2
+LOBBY_AIM target=3 selected=3 angle=0.00513 sight=True hit=(190.80814, 5.8941574, -27.650848) lens=(177.13567, 2.4058604, 22.042202) target=(191.50003, 6.0706778, -30.165646) accepted=1 active=True dismissed=0
+LOBBY_MISSILE target=3 token=3 direction=<0.1992212, 0.09520949, -0.9753185> speed=13.918
+Hosted Missile aiming passed: both lobby practice cars, switching, lock markers and remote launch.

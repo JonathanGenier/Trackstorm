@@ -1,4 +1,4 @@
-param([Parameter(Mandatory)][string]$GodotPath, [switch]$NoBuild, [switch]$Visual, [switch]$Impaired, [switch]$Oval, [switch]$Accuracy, [switch]$Sticky, [switch]$Freedom, [switch]$Recovery, [switch]$Road)
+param([Parameter(Mandatory)][string]$GodotPath, [switch]$NoBuild, [switch]$Visual, [switch]$Impaired, [switch]$Oval, [switch]$Accuracy, [switch]$Sticky, [switch]$Freedom, [switch]$Recovery, [switch]$Road, [switch]$Missile)
 $ErrorActionPreference = 'Stop'
 if ($Recovery -and $Oval) { throw 'The isolated recovery fixture extends beyond the oval boundary. Use -Recovery without -Oval, or -Road for production-terrain retention.' }
 if (-not $NoBuild) {
@@ -13,6 +13,7 @@ $arguments += @('--', "--aim-output=$outputDirectory")
 if ($Impaired) { $arguments += '--aim-impaired' }
 if ($Oval) { $arguments += '--aim-oval' }
 if ($Accuracy) { $arguments += '--aim-accuracy' }
+if ($Missile) { $arguments += '--aim-missile' }
 if ($Sticky) { $arguments += '--aim-sticky' }
 if ($Freedom) { $arguments += '--aim-freedom' }
 if ($Recovery) { $arguments += '--aim-recovery' }

@@ -85,7 +85,7 @@ public sealed partial class MissilePresentationChecks : Node
             await Capture("05-driving");
             await Airborne();
             Require(MissileReady(), "Ready mechanism remains coherent after driving");
-            // Accepted articulation controls the turret only; existing forward launch is retained.
+            // Accepted articulation turns the production turret above the fixed rack.
             for (int i = 0; i < 240; i++)
             {
                 slot = host.Items.Slots.Single(s => s.Vehicle == 1);

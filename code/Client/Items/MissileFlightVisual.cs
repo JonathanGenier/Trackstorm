@@ -38,7 +38,11 @@ internal sealed partial class MissileFlightVisual : Node3D
         _velocity = velocity;
         _sampleAge = 0;
         if (!_observed || Position.DistanceSquaredTo(position) > 400)
-        { Position = position; _observed = true; }
+        {
+            Position = position;
+            if (velocity.LengthSquared() > .001f) { Quaternion = new Quaternion(Vector3.Forward, velocity.Normalized()); }
+            _observed = true;
+        }
     }
 
     public override void _Process(double delta)

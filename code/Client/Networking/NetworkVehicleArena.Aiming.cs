@@ -28,7 +28,7 @@ internal sealed partial class NetworkVehicleArena
     private Vector2 _aimDeparture;
     private System.Numerics.Vector2 _aimGesture;
     internal ulong AssistedCar => StickyAiming ? _aimTarget : 0;
-    private bool StickyAiming => _driver.LocalItem?.Active.Item == HeldItem.MachineGun;
+    private bool StickyAiming => WeaponAim.Supports(_driver.LocalItem?.Active.Item ?? HeldItem.None);
     internal WeaponAimOverlay AimOverlay => _aimOverlay;
     internal float AimRecoverySeconds => _aimRecoverySeconds;
     internal Action<string>? AimReleaseObserved { get; set; }
@@ -74,8 +74,7 @@ internal sealed partial class NetworkVehicleArena
             ResetAssistance($"input boundary revision={_aimIntentRevision}->{input.CameraAimRevision} active={input.CameraAimActive}");
             _aimIntentRevision = input.CameraAimRevision;
         }
-        if (StickyAiming) { ValidateStickyTarget(); }
-        else { SelectAimTarget(); }
+        ValidateStickyTarget();
     }
 
     private void ResetAiming() => ResetAiming("aim disabled/lifecycle");
@@ -148,6 +147,10 @@ internal sealed partial class NetworkVehicleArena
         // direction from the weapon pivot, including exactly vertical free aim.
         if (framed is null && hit.Point == rayEnd) { desiredPoint = origin + _camera.ProjectRayNormal(center) * 300; }
         if (origin.DistanceSquaredTo(desiredPoint) > .001f) { _driver.DesiredAim = VehicleBody.ToCore((desiredPoint - origin).Normalized()); }
+        // Missile driving fire keeps its chassis-forward intent. Explicit camera
+        // input selects the same free/assisted solution as every direct-fire weapon.
+        if (slot.Active.Item == HeldItem.Missile && CameraInput?.CameraAimActive != true)
+        { _driver.DesiredAim = System.Numerics.Vector3.Transform(-System.Numerics.Vector3.UnitZ, local.ObservedPhysics.Orientation); }
         var accepted = _driver.AcceptedAims.FirstOrDefault(value => value.Vehicle == local.VehicleId && value.Life == local.LifeId && value.Token == slot.Active.Token);
         Rect2? bounds = null;
         if (framed is { } target)
@@ -379,39 +382,6 @@ internal sealed partial class NetworkVehicleArena
         var pull = strength <= 0 ? System.Numerics.Vector2.Zero : motion +
             CameraAimAttraction.Pull(error - motion - new System.Numerics.Vector2(_aimPlacement.X, _aimPlacement.Y), strength, delta);
         return new(pull.X, pull.Y);
-    }
-
-    private void SelectAimTarget()
-    {
-        float cone = _driver.Configuration.Configuration.Items.Aim.AssistDegrees * MathF.PI / 180;
-        ulong selected = 0;
-        float score = float.MaxValue;
-        Vector2 offset = Vector2.Zero;
-        float angle = 0;
-        foreach (var pair in _bodies)
-        {
-            var state = _driver.Latest?.Vehicles.FirstOrDefault(value => value.State.VehicleId == pair.Key)?.State;
-            if (pair.Key == _driver.LocalVehicleId || state is not { CanInteract: true } || !pair.Value.IsPresented) { continue; }
-            Vector3 center = pair.Value.VisualPosition + Vector3.Up * .35f;
-            Vector3 to = center - _camera.GlobalPosition;
-            if (to.LengthSquared() is < .01f or > 90000 || _camera.IsPositionBehind(center)) { continue; }
-            float distance = to.Length();
-            float candidateAngle = MathF.Acos(Math.Clamp((-_camera.GlobalBasis.Z).Dot(to / distance), -1, 1));
-            // Target extent permits useful close encounters; total assist cone stays bounded.
-            float extent = Math.Min(.10f, MathF.Atan2(1.4f, distance));
-            if (cone <= 0 || candidateAngle > cone + extent) { continue; }
-            if (!HasAimSight(pair.Key, _camera.GlobalPosition, center)) { continue; }
-            float candidateScore = candidateAngle - (pair.Key == _aimTarget ? .012f : 0);
-            if (candidateScore >= score) { continue; }
-            score = candidateScore;
-            selected = pair.Key;
-            angle = Math.Max(0, candidateAngle - extent);
-            Vector2 projected = _camera.UnprojectPosition(center);
-            offset = projected - GetViewport().GetVisibleRect().Size * .5f;
-        }
-        _aimTarget = selected;
-        _aimTargetAngle = angle;
-        _aimTargetOffset = offset;
     }
 
     private (float Mouse, float Stick) AimFriction(Vector2 mouse, Vector2 stick, float delta)

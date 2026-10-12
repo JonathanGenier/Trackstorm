@@ -1,0 +1,287 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Three UDP peers initialized
+Host tuning applied
+Fresh one-shot Missile grant
+Deployment rejects local tap without queuing
+Authority rejects deploying tap
+Production Missile completes deployment
+Deployment did not replay the rejected tap
+normal-forward: unlocked aim has no lock marker
+RMB-up driving intent is chassis-forward
+normal-forward: shared accepted aim is ready
+normal-forward: production rack remains fixed and full scale
+normal-forward: production turret and upper mount follow accepted yaw/pitch on peer 1
+normal-forward: authored Missile socket equals shared launch pivot
+normal-forward: production rack remains fixed and full scale
+normal-forward: production turret and upper mount follow accepted yaw/pitch on peer 2
+normal-forward: authored Missile socket equals shared launch pivot
+normal-forward: production rack remains fixed and full scale
+normal-forward: production turret and upper mount follow accepted yaw/pitch on peer 3
+normal-forward: authored Missile socket equals shared launch pivot
+normal-forward: ordinary remote use sent
+normal-forward: authoritative swept projectile launched
+normal-forward: initial velocity follows accepted aim
+normal-forward: production pivot is launch origin
+normal-forward: launch ray clears self vehicle
+normal-forward: reliable depletion reaches shooter
+normal-forward: depleted one-shot capability cannot fire again
+normal-forward: post-launch camera movement cannot steer horizontal flight
+normal-forward: empty mount/rack/trunk fully stows
+Fresh one-shot Missile grant
+Deployment rejects local tap without queuing
+Authority rejects deploying tap
+Production Missile completes deployment
+Deployment did not replay the rejected tap
+AIM_AT requested=(0, 26.708855, -55.795) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99973)
+free-forward: unlocked aim has no lock marker
+free-forward: shared accepted aim is ready
+free-forward: production rack remains fixed and full scale
+free-forward: production turret and upper mount follow accepted yaw/pitch on peer 1
+free-forward: authored Missile socket equals shared launch pivot
+free-forward: production rack remains fixed and full scale
+free-forward: production turret and upper mount follow accepted yaw/pitch on peer 2
+free-forward: authored Missile socket equals shared launch pivot
+free-forward: production rack remains fixed and full scale
+free-forward: production turret and upper mount follow accepted yaw/pitch on peer 3
+free-forward: authored Missile socket equals shared launch pivot
+free-forward: ordinary remote use sent
+free-forward: authoritative swept projectile launched
+free-forward: initial velocity follows accepted aim
+free-forward: production pivot is launch origin
+free-forward: launch ray clears self vehicle
+free-forward: reliable depletion reaches shooter
+free-forward: depleted one-shot capability cannot fire again
+free-forward: post-launch camera movement cannot steer horizontal flight
+free-forward: empty mount/rack/trunk fully stows
+Fresh one-shot Missile grant
+Deployment rejects local tap without queuing
+Authority rejects deploying tap
+Production Missile completes deployment
+Deployment did not replay the rejected tap
+AIM_AT requested=(100, 32.709084, 44.205) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0009, 400.0001)
+free-side: unlocked aim has no lock marker
+free-side: shared accepted aim is ready
+free-side: production rack remains fixed and full scale
+free-side: production turret and upper mount follow accepted yaw/pitch on peer 1
+free-side: authored Missile socket equals shared launch pivot
+free-side: production rack remains fixed and full scale
+free-side: production turret and upper mount follow accepted yaw/pitch on peer 2
+free-side: authored Missile socket equals shared launch pivot
+free-side: production rack remains fixed and full scale
+free-side: production turret and upper mount follow accepted yaw/pitch on peer 3
+free-side: authored Missile socket equals shared launch pivot
+free-side: ordinary remote use sent
+free-side: authoritative swept projectile launched
+free-side: initial velocity follows accepted aim
+free-side: production pivot is launch origin
+free-side: launch ray clears self vehicle
+free-side: reliable depletion reaches shooter
+free-side: depleted one-shot capability cannot fire again
+free-side: post-launch camera movement cannot steer horizontal flight
+free-side: empty mount/rack/trunk fully stows
+Fresh one-shot Missile grant
+Deployment rejects local tap without queuing
+Authority rejects deploying tap
+Production Missile completes deployment
+Deployment did not replay the rejected tap
+AIM_AT requested=(0, 32.709023, 144.205) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00006, 399.99976)
+free-rear: unlocked aim has no lock marker
+free-rear: shared accepted aim is ready
+free-rear: production rack remains fixed and full scale
+free-rear: production turret and upper mount follow accepted yaw/pitch on peer 1
+free-rear: authored Missile socket equals shared launch pivot
+free-rear: production rack remains fixed and full scale
+free-rear: production turret and upper mount follow accepted yaw/pitch on peer 2
+free-rear: authored Missile socket equals shared launch pivot
+free-rear: production rack remains fixed and full scale
+free-rear: production turret and upper mount follow accepted yaw/pitch on peer 3
+free-rear: authored Missile socket equals shared launch pivot
+free-rear: ordinary remote use sent
+free-rear: authoritative swept projectile launched
+free-rear: initial velocity follows accepted aim
+free-rear: production pivot is launch origin
+free-rear: launch ray clears self vehicle
+free-rear: reliable depletion reaches shooter
+free-rear: depleted one-shot capability cannot fire again
+free-rear: empty mount/rack/trunk fully stows
+Fresh one-shot Missile grant
+Deployment rejects local tap without queuing
+Authority rejects deploying tap
+Production Missile completes deployment
+Deployment did not replay the rejected tap
+AIM_AT requested=(0, 124.7088, -35.795) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99957)
+free-elevated: unlocked aim has no lock marker
+free-elevated: shared accepted aim is ready
+free-elevated: production rack remains fixed and full scale
+free-elevated: production turret and upper mount follow accepted yaw/pitch on peer 1
+free-elevated: authored Missile socket equals shared launch pivot
+free-elevated: production rack remains fixed and full scale
+free-elevated: production turret and upper mount follow accepted yaw/pitch on peer 2
+free-elevated: authored Missile socket equals shared launch pivot
+free-elevated: production rack remains fixed and full scale
+free-elevated: production turret and upper mount follow accepted yaw/pitch on peer 3
+free-elevated: authored Missile socket equals shared launch pivot
+free-elevated: ordinary remote use sent
+free-elevated: authoritative swept projectile launched
+free-elevated: initial velocity follows accepted aim
+free-elevated: production pivot is launch origin
+free-elevated: launch ray clears self vehicle
+free-elevated: reliable depletion reaches shooter
+free-elevated: depleted one-shot capability cannot fire again
+free-elevated: post-launch camera movement cannot steer horizontal flight
+free-elevated: empty mount/rack/trunk fully stows
+Fresh one-shot Missile grant
+Deployment rejects local tap without queuing
+Authority rejects deploying tap
+Production Missile completes deployment
+Deployment did not replay the rejected tap
+AIM_AT requested=(0, 6.7089024, 124.205) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00006, 400.0001)
+free-downward: unlocked aim has no lock marker
+free-downward: shared accepted aim is ready
+free-downward: production rack remains fixed and full scale
+free-downward: production turret and upper mount follow accepted yaw/pitch on peer 1
+free-downward: authored Missile socket equals shared launch pivot
+free-downward: production rack remains fixed and full scale
+free-downward: production turret and upper mount follow accepted yaw/pitch on peer 2
+free-downward: authored Missile socket equals shared launch pivot
+free-downward: production rack remains fixed and full scale
+free-downward: production turret and upper mount follow accepted yaw/pitch on peer 3
+free-downward: authored Missile socket equals shared launch pivot
+free-downward: ordinary remote use sent
+free-downward: authoritative swept projectile launched
+free-downward: initial velocity follows accepted aim
+free-downward: production pivot is launch origin
+free-downward: launch ray clears self vehicle
+free-downward: reliable depletion reaches shooter
+free-downward: depleted one-shot capability cannot fire again
+free-downward: empty mount/rack/trunk fully stows
+Fresh one-shot Missile grant
+Deployment rejects local tap without queuing
+Authority rejects deploying tap
+Production Missile completes deployment
+Deployment did not replay the rejected tap
+AIM_AT requested=(-60, 49.708836, 4.205002) firstTargetDrift=(0, 0, 0) requestedScreen=(639.9957, 399.99997)
+interception: unlocked aim has no lock marker
+interception: shared accepted aim is ready
+interception: production rack remains fixed and full scale
+interception: production turret and upper mount follow accepted yaw/pitch on peer 1
+interception: authored Missile socket equals shared launch pivot
+interception: production rack remains fixed and full scale
+interception: production turret and upper mount follow accepted yaw/pitch on peer 2
+interception: authored Missile socket equals shared launch pivot
+interception: production rack remains fixed and full scale
+interception: production turret and upper mount follow accepted yaw/pitch on peer 3
+interception: authored Missile socket equals shared launch pivot
+interception: ordinary remote use sent
+interception: authoritative swept projectile launched
+interception: initial velocity follows accepted aim
+interception: production pivot is launch origin
+interception: launch ray clears self vehicle
+interception: reliable depletion reaches shooter
+interception: depleted one-shot capability cannot fire again
+interception: post-launch camera movement cannot steer horizontal flight
+interception: empty mount/rack/trunk fully stows
+Fresh one-shot Missile grant
+Deployment rejects local tap without queuing
+Authority rejects deploying tap
+Production Missile completes deployment
+Deployment did not replay the rejected tap
+AIM_AT requested=(-7, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(639.99994, 400)
+Shared Missile lock selects/switches car 1, with ground ring and overhead chevron
+AIM_AT requested=(7, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Shared Missile lock selects/switches car 3, with ground ring and overhead chevron
+AIM_AT requested=(-7, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400)
+Shared Missile lock selects/switches car 1, with ground ring and overhead chevron
+locked-first: shared accepted aim is ready
+locked-first: production rack remains fixed and full scale
+locked-first: production turret and upper mount follow accepted yaw/pitch on peer 1
+locked-first: authored Missile socket equals shared launch pivot
+locked-first: production rack remains fixed and full scale
+locked-first: production turret and upper mount follow accepted yaw/pitch on peer 2
+locked-first: authored Missile socket equals shared launch pivot
+locked-first: production rack remains fixed and full scale
+locked-first: production turret and upper mount follow accepted yaw/pitch on peer 3
+locked-first: authored Missile socket equals shared launch pivot
+locked-first: ordinary remote use sent
+locked-first: authoritative swept projectile launched
+locked-first: initial velocity follows accepted aim
+locked-first: production pivot is launch origin
+locked-first: launch ray clears self vehicle
+locked-first: reliable depletion reaches shooter
+locked-first: depleted one-shot capability cannot fire again
+locked-first: native impact
+locked-first: aimed native hit damages selected car
+locked-first: empty mount/rack/trunk fully stows
+Fresh one-shot Missile grant
+Deployment rejects local tap without queuing
+Authority rejects deploying tap
+Production Missile completes deployment
+Deployment did not replay the rejected tap
+AIM_AT requested=(7, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00055, 400.00003)
+locked-second: shared accepted aim is ready
+locked-second: production rack remains fixed and full scale
+locked-second: production turret and upper mount follow accepted yaw/pitch on peer 1
+locked-second: authored Missile socket equals shared launch pivot
+locked-second: production rack remains fixed and full scale
+locked-second: production turret and upper mount follow accepted yaw/pitch on peer 2
+locked-second: authored Missile socket equals shared launch pivot
+locked-second: production rack remains fixed and full scale
+locked-second: production turret and upper mount follow accepted yaw/pitch on peer 3
+locked-second: authored Missile socket equals shared launch pivot
+locked-second: ordinary remote use sent
+locked-second: authoritative swept projectile launched
+locked-second: initial velocity follows accepted aim
+locked-second: production pivot is launch origin
+locked-second: launch ray clears self vehicle
+locked-second: reliable depletion reaches shooter
+locked-second: depleted one-shot capability cannot fire again
+locked-second: native impact
+locked-second: aimed native hit damages selected car
+locked-second: empty mount/rack/trunk fully stows
+Fresh one-shot Missile grant
+Deployment rejects local tap without queuing
+Authority rejects deploying tap
+Production Missile completes deployment
+Deployment did not replay the rejected tap
+AIM_AT requested=(-7, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(639.99945, 400.00003)
+Releasing camera aim clears lock and restores normal forward intent
+released-forward: shared accepted aim is ready
+released-forward: production rack remains fixed and full scale
+released-forward: production turret and upper mount follow accepted yaw/pitch on peer 1
+released-forward: authored Missile socket equals shared launch pivot
+released-forward: production rack remains fixed and full scale
+released-forward: production turret and upper mount follow accepted yaw/pitch on peer 2
+released-forward: authored Missile socket equals shared launch pivot
+released-forward: production rack remains fixed and full scale
+released-forward: production turret and upper mount follow accepted yaw/pitch on peer 3
+released-forward: authored Missile socket equals shared launch pivot
+released-forward: ordinary remote use sent
+released-forward: authoritative swept projectile launched
+released-forward: initial velocity follows accepted aim
+released-forward: production pivot is launch origin
+released-forward: launch ray clears self vehicle
+released-forward: reliable depletion reaches shooter
+released-forward: depleted one-shot capability cannot fire again
+released-forward: post-launch camera movement cannot steer horizontal flight
+released-forward: empty mount/rack/trunk fully stows
+Fresh one-shot Missile grant
+Deployment rejects local tap without queuing
+Authority rejects deploying tap
+Production Missile completes deployment
+Deployment did not replay the rejected tap
+Existing controller camera input supplies Missile aim without RMB
+Self-obstructed downward aim is not ready
+Blocked fire preserves round and does not launch through Car
+Ready launcher remains deployed during native flight
+Airborne aimed launch accepted
+Airborne projectile launched
+Next weapon pickup retained during fired Missile return
+Pickup cannot interrupt returning empty Missile launcher
+Complete stow precedes new weapon deployment
+Replacement deploys after stow
+Replacement ownership survives return
+Native landing completes
+Observer receives identical ordered launch/impact outcomes (19) over real UDP
+Weapon aiming integration passed: 272 Missile checks.

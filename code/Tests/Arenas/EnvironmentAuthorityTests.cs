@@ -16,7 +16,7 @@ internal sealed class EnvironmentAuthorityTests
     public void CommittedWeaponAdmissionAndReplacementUseOneCompleteBoundary()
     {
         var old = PrototypeArena.Configuration;
-        Vector3 point = old.Players[0].Position;
+        Vector3 point = old.Players[0].Position + Vector3.Transform(WeaponAim.Pivot, Quaternion.CreateFromAxisAngle(Vector3.UnitY, old.Players[0].Yaw));
         var layout = new EnvironmentLayout([point], [point]);
         var arena = new ArenaConfiguration(old.Minimum, old.Maximum, old.Players, old.Items, old.Surfaces, layout);
         var host = new Core.Networking.Replication.HostVehicleSession(7, arena: arena, itemConfiguration: new() { MaximumDamage = 300 });

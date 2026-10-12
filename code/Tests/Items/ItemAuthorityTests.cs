@@ -167,9 +167,10 @@ internal sealed class ItemAuthorityTests
         Step(items, world);
         Vector3 velocity = Vector3.Transform(-Vector3.UnitZ, pose.Orientation) * 60;
         Assert.That(items.Missiles.Single().Velocity, Is.EqualTo(velocity));
-        Assert.That(items.Missiles.Single().Position, Is.EqualTo(velocity / 60));
+        Vector3 origin = Vector3.Transform(WeaponAim.Pivot, pose.Orientation);
+        Assert.That(items.Missiles.Single().Position, Is.EqualTo(origin + velocity / 60));
         Step(items, world);
-        Assert.That(items.Missiles.Single().Position, Is.EqualTo(velocity / 30));
+        Assert.That(Vector3.Distance(items.Missiles.Single().Position, origin + velocity / 30), Is.LessThan(.0001));
         Step(items, world);
         Assert.That(items.Missiles, Is.Empty);
         Assert.That(items.Events, Is.Empty);
@@ -217,14 +218,16 @@ internal sealed class ItemAuthorityTests
         host.Step(default, Observe, (_, _) => 0);
         Assert.That(host.Items.Events.Count(outcome => outcome.Impact), Is.EqualTo(1));
         Assert.That(host.Items.Missiles, Is.Empty);
-        Assert.That(host.World.GetVehicle(1).Damage.CurrentHP, Is.EqualTo(45));
-        Assert.That(host.World.GetVehicle(2).Damage.CurrentHP, Is.EqualTo(100 - 55 * (1 - 4 / VehicleDimensions.Length)).Within(.001));
+        float ownerHp = 100 - 55 * (1 - WeaponAim.Pivot.Length() / VehicleDimensions.Length);
+        float rivalHp = 100 - 55 * (1 - Vector3.Distance(WeaponAim.Pivot, new(4, 0, 0)) / VehicleDimensions.Length);
+        Assert.That(host.World.GetVehicle(1).Damage.CurrentHP, Is.EqualTo(ownerHp).Within(.001));
+        Assert.That(host.World.GetVehicle(2).Damage.CurrentHP, Is.EqualTo(rivalHp).Within(.001));
         Assert.That(host.World.State.Vehicles.All(state => state.Effects.Count == 1), Is.True);
         var decoded = VehicleNetworkCodec.DecodeSnapshot(VehicleNetworkCodec.EncodeSnapshot(host.Snapshot()));
         Assert.That(decoded.Vehicles[0].State.Effects.Single(), Is.EqualTo(host.World.GetVehicle(1).Effects.Single()));
         host.Step(default, Observe);
         Assert.That(host.Items.Events, Is.Empty);
-        Assert.That(host.World.GetVehicle(1).Damage.CurrentHP, Is.EqualTo(45));
+        Assert.That(host.World.GetVehicle(1).Damage.CurrentHP, Is.EqualTo(ownerHp).Within(.001));
     }
 
     /// <summary>Bad native observations cannot partially consume inventory or emit effects.</summary>

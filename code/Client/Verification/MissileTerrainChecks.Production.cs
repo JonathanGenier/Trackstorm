@@ -200,6 +200,9 @@ public sealed partial class MissileTerrainChecks
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             display.QueueFree();
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            // Native audio releases stopped playback on its mixer thread. Let that
+            // finish before collecting wrappers and quitting the verification scene.
+            await ToSignal(GetTree().CreateTimer(.25), SceneTreeTimer.SignalName.Timeout);
             GC.Collect(); GC.WaitForPendingFinalizers();
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         }
