@@ -109,8 +109,8 @@ internal sealed class OilWheelTests
     {
         var host = Create();
         var segments = new OilFootprint([
-            new(new(-2, 0, -3), new(-2, 0, 3), Vector3.UnitY, 1.3f),
-            new(new(2, 0, -3), new(2, 0, 3), Vector3.UnitY, 1.3f)]);
+            new(new(-2, 0, -3), new(-2, 0, 3), Vector3.UnitY, 1.5f),
+            new(new(2, 0, -3), new(2, 0, 3), Vector3.UnitY, 1.5f)]);
         var patch = new OilPatch(1, 1, Vector3.Zero, Vector3.UnitY, 0.1f) { AdditionalSegments = segments, ExpiresAtTick = host.World.State.Tick + 1800 };
         host.Items.Restore(new(1, host.Snapshot(), [], [], [], patches: [patch]), 1, 1);
         Step(host, WheelMask.FrontLeft);

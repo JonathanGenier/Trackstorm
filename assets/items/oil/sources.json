@@ -1,0 +1,26 @@
+{
+  "provenance": "Original Trackstorm Blender geometry and procedural patina; approved Jira concept attachments 10150, 10151, 10149 used only as art direction. No third-party acquisition or reference pixels distributed.",
+  "tool": "Blender 5.2.2 LTS",
+  "files": [
+    {
+      "path": "source/BuildJackInTheBox.py",
+      "sha256": "f2c50c5c21cefa1bb676e6089161b5d988061d8bf22085fd36b27e5e7680c80c"
+    },
+    {
+      "path": "source/JackInTheBox.blend",
+      "sha256": "933df30d8e864fe0d0af85017498f8e17535afe23cd6f84d1294ec85150f5957"
+    },
+    {
+      "path": "source/Patina.png",
+      "sha256": "8413dfe02ae86ada6deb459f6d40be2cf36efbfafbc2c3d1bc6d80b690a5e20d"
+    },
+    {
+      "path": "JackInTheBox.glb",
+      "sha256": "2de3679c9c2b47e5f1fe9be7c6c526d241522276d9eabaaa442f34b86930c1a1"
+    },
+    {
+      "path": "JackInTheBox_Original oil patina.png",
+      "sha256": "8413dfe02ae86ada6deb459f6d40be2cf36efbfafbc2c3d1bc6d80b690a5e20d"
+    }
+  ]
+}

@@ -13,8 +13,8 @@ public sealed partial class ItemAuthority
     private readonly Dictionary<ulong, ItemSlot> _slots = new();
     private readonly Dictionary<ulong, (ulong Token, ulong Expires, uint? InputSequence)> _pending = new();
     private readonly List<MissileState> _missiles = new();
-    /// <summary>Allocation bound derived from eight uses per step and the maximum 600-second lifetime, not a deployment gate.</summary>
-    public const int MaximumPatches = 8 * 60 * 600;
+    /// <summary>Allocation bound from eight players, the 0.5-second minimum firing duration and 600-second maximum lifetime.</summary>
+    public const int MaximumPatches = 8 * 1200;
     private readonly List<OilPatch> _patches = new();
     private readonly List<OilContact> _contacts = new();
     /// <summary>Bounded persistent magnetic hazards per match.</summary>
@@ -235,8 +235,9 @@ public sealed partial class ItemAuthority
     /// <param name="ground">Host terrain projection at the fixed salvo range; missing terrain rejects use.</param>
     /// <param name="placeShield">Host-only native rear placement and clearance query.</param>
     /// <param name="observeShield">Host-only native wall motion observation.</param>
+    /// <param name="oilCollision">Host-only swept Oil surface collision.</param>
     /// <param name="missileTerrain">Bounded host-only suitable terrain ray; never vehicle queries.</param>
-    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeShield = null, Func<ShieldState, ShieldObservation?>? observeShield = null, Func<Vector3, Vector3, MissileTerrainSample?>? missileTerrain = null)
+    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeShield = null, Func<ShieldState, ShieldObservation?>? observeShield = null, Func<Vector3, Vector3, MissileTerrainSample?>? missileTerrain = null, Func<Vector3, Vector3, float, OilImpact?>? oilCollision = null)
     {
         ulong token = _token;
         ulong NextToken() => checked(++token);
@@ -323,7 +324,8 @@ public sealed partial class ItemAuthority
             // expired or blocked solution must not silently become a forward shot.
             var missileAim = slot.Item == HeldItem.Missile ? AcceptedAim(slot.Vehicle, slot.Life, slot.Token) : null;
             bool aimedMissile = slot.Item == HeldItem.Missile && _aimIntents.ContainsKey(slot.Vehicle);
-            if (request.Reset.HasValue || handler is null || (slot.Item == HeldItem.Salvo && input.Tick < slot.SalvoReadyTick) ||
+            if (request.Reset.HasValue || handler is null ||
+                (slot.Item == HeldItem.Oil && (patches.Count >= MaximumPatches || patches.Any(p => p.Owner == slot.Vehicle && p.Pour is { Cancelled: false } pour && input.Tick < pour.StartTick + (ulong)pour.DurationTicks))) || (slot.Item == HeldItem.Salvo && input.Tick < slot.SalvoReadyTick) ||
                 (slot.Item == HeldItem.Missile && (inventory.Active.Token != slot.Token || world.State.Tick < inventory.MissileReadyTick ||
                     (aimedMissile && (missileAim is null || missileAim.Tick != world.State.Tick)))) ||
                 !(slot.Item == HeldItem.Missile
@@ -434,7 +436,16 @@ public sealed partial class ItemAuthority
         var previousPatchIds = _patches.Select(patch => patch.Id).ToHashSet();
         for (int i = 0; i < patches.Count; i++)
         {
-            if (!previousPatchIds.Contains(patches[i].Id)) { patches[i] = patches[i] with { ExpiresAtTick = checked(input.Tick + (ulong)MathF.Ceiling(Configuration.OilLifetimeSeconds * 60)) }; }
+            if (!previousPatchIds.Contains(patches[i].Id)) { patches[i] = patches[i] with { ExpiresAtTick = checked(input.Tick + (ulong)MathF.Ceiling(Configuration.OilLifetimeSeconds * 60)), Pour = patches[i].Pour is { } pour ? pour with { StartTick = input.Tick } : null }; }
+        }
+
+        for (int i = 0; i < patches.Count; i++)
+        {
+            var patch = patches[i];
+            if (patch.Pour is null) { continue; }
+            var owner = requests.FirstOrDefault(r => r.VehicleId == patch.Owner && !r.Reset.HasValue &&
+                world.GetVehicle(r.VehicleId).CanInteract && world.GetVehicle(r.VehicleId).LifeId == patch.Pour.Life);
+            patches[i] = OilDeposition.Advance(patch, input.Tick, owner?.Observation.Physics, oilCollision);
         }
 
         if (world.State.Match?.Phase != Matches.MatchPhase.Finished)
@@ -617,7 +628,9 @@ public sealed partial class ItemAuthority
         _shields.AddRange(shields.States);
         shieldsChanged |= ReconcileShields(world, slots);
         bool reliableChanged = shieldsChanged || !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) ||
-            !patches.SequenceEqual(_patches) || !contacts.SequenceEqual(_contacts) || journal.Count > 0 ||
+            !patches.Select(p => (p.Id, p.PassesUsed, p.Pour?.Cancelled)).SequenceEqual(_patches.Select(p => (p.Id, p.PassesUsed, p.Pour?.Cancelled))) ||
+            (input.Tick % 6 == 0 && patches.Any(p => p.Pour is { } pour && input.Tick < pour.StartTick + (ulong)pour.DurationTicks + 180)) ||
+            !contacts.SequenceEqual(_contacts) || journal.Count > 0 ||
             !movingMines.SequenceEqual(_mines) || events.Count > 0 ||
             !_missiles.Select(missile => missile.Id).SequenceEqual(advanced.Select(missile => missile.Id));
         bool changed = reliableChanged || missiles.Count > 0;

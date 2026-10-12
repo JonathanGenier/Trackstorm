@@ -90,6 +90,25 @@ public sealed record ItemConfiguration
     /// <summary>Maximum lifetime of new patches in seconds at the authoritative 60 Hz clock.</summary>
     public float OilLifetimeSeconds { get; init; } = 30;
 
+    /// <summary>Oil FireSeconds tuning, captured by an activation where applicable.</summary>
+    public float OilFireSeconds { get; init; } = 2f;
+    /// <summary>Oil Speed tuning, captured by an activation where applicable.</summary>
+    public float OilSpeed { get; init; } = 8f;
+    /// <summary>Oil Gravity tuning, captured by an activation where applicable.</summary>
+    public float OilGravity { get; init; } = 9.81f;
+    /// <summary>Oil Radius tuning, captured by an activation where applicable.</summary>
+    public float OilRadius { get; init; } = 0.65f;
+    /// <summary>Oil SpringStiffness tuning, captured by an activation where applicable.</summary>
+    public float OilSpringStiffness { get; init; } = 30f;
+    /// <summary>Oil SpringDamping tuning, captured by an activation where applicable.</summary>
+    public float OilSpringDamping { get; init; } = 7f;
+    /// <summary>Oil SpringReaction tuning, captured by an activation where applicable.</summary>
+    public float OilSpringReaction { get; init; } = 0.18f;
+    /// <summary>Oil Roughness tuning, captured by an activation where applicable.</summary>
+    public float OilRoughness { get; init; } = 0.16f;
+    /// <summary>Bounded fixed-step parcel emission cadence.</summary>
+    public int OilIntervalTicks { get; init; } = 3;
+
     /// <summary>HP restored to a living vehicle.</summary>
     public float WrenchHeal { get; init; } = 500;
     /// <summary>Metres per second along the launch forward direction.</summary>
@@ -164,6 +183,15 @@ public sealed record ItemConfiguration
         { throw new ArgumentException("Invalid Proxy Mine tuning."); }
         new Vehicles.NitroState(1, NitroForwardThrust, NitroSpeedMultiplier, NitroAirborneThrustScale).Validate();
         if (!double.IsFinite(NitroConsumptionPerSecond) || NitroConsumptionPerSecond is < 2 or > 6000) { throw new ArgumentException("Nitro consumption must be 2–6000 percentage points per second."); }
+        if (!float.IsFinite(OilFireSeconds) || OilFireSeconds is < .5f or > 4 || OilIntervalTicks is < 2 or > 30 ||
+            MathF.Ceiling(OilFireSeconds * 60 / OilIntervalTicks) > 48 ||
+            !float.IsFinite(OilSpeed) || OilSpeed is < 1 or > 30 || !float.IsFinite(OilGravity) || OilGravity is < 1 or > 40 ||
+            !float.IsFinite(OilRadius) || OilRadius is < .1f or > 1.5f ||
+            !float.IsFinite(OilSpringStiffness) || OilSpringStiffness is < 5 or > 100 ||
+            !float.IsFinite(OilSpringDamping) || OilSpringDamping is < 1 or > 20 ||
+            !float.IsFinite(OilSpringReaction) || OilSpringReaction is < 0 or > .5f ||
+            !float.IsFinite(OilRoughness) || OilRoughness is < .05f or > .6f)
+        { throw new ArgumentException("Invalid Oil physics/presentation tuning."); }
         if (OilPasses is < 1 or > 7 || !float.IsFinite(OilLifetimeSeconds) || OilLifetimeSeconds is < 1 or > 600 ||
             !float.IsFinite(WrenchHeal) || WrenchHeal < 0 || WrenchHeal > 10000 ||
             !float.IsFinite(MissileSpeed) || MissileSpeed <= 0 || MissileSpeed > 300 ||

@@ -343,7 +343,7 @@ Item damage contributes to Circus through `match.item_points_per_damage` (defaul
 
 ## Oil tuning
 
-The Oil accordion contains eight host-authoritative keys using staged Apply/Cancel, category Reset, persistence, session replication and complete recovery:
+The Oil accordion contains seventeen host-authoritative keys using staged Apply/Cancel, category Reset, persistence, session replication and complete recovery:
 
 | Key | Default | Range / meaning |
 | --- | ---: | --- |
@@ -355,10 +355,20 @@ The Oil accordion contains eight host-authoritative keys using staged Apply/Canc
 | `vehicle.oil_recovery_curve` | 1 | 0.5–3 exponent applied to progress before smoothstep easing |
 | `items.oil_enemy_contacts` | 2 | 1–7 successful vehicle contacts per firing activation, including owner |
 | `items.oil_lifetime_seconds` | 30 | 1–600 seconds per firing activation |
+| `items.oil_fire_seconds` | 2 | 0.5–4 seconds; captured firing duration |
+| `items.oil_interval_ticks` | 3 | 2–30 fixed ticks between parcels; duration/cadence must emit at most 48 |
+| `items.oil_speed` | 8 | 1–30 m/s chassis-rearward relative launch speed |
+| `items.oil_gravity` | 9.81 | 1–40 m/s² parcel gravity |
+| `items.oil_radius` | 0.65 | 0.1–1.5 m maximum supported deposition radius |
+| `items.oil_spring_stiffness` | 30 | 5–100 fixed-step head spring stiffness |
+| `items.oil_spring_damping` | 7 | 1–20 head spring damping |
+| `items.oil_spring_reaction` | 0.18 | 0–0.5 acceleration-to-head reaction |
+| `items.oil_roughness` | 0.16 | 0.05–0.6 wet fluid PBR roughness |
+
 
 The existing grip and quota persistence keys are retained with precise labels. Older saved overrides remain explicit overrides; Reset selects the current defaults. Grip/curve edits affect subsequent steps. Duration edits preserve each tire's current hold/recovery phase, with fixed-step rounding. Continuous overlap never refreshes a tire or consumes another vehicle contact, even after recovery reaches zero. Each wheel's exit/re-entry refreshes that tire; only exit from the complete footprint followed by vehicle re-entry consumes another quota use. These identity rules are fixed rather than exposed as ambiguous tuning switches. New deployments capture quota and expiry; existing deadlines and consumed counts remain unchanged.
 
-The configuration catalog has 249 keys in protocol 49 (2013 bytes). Stats exposes remaining FL/FR/RL/RR contamination independently. Front and rear reductions leave a minimum five percent configured grip at maximum severity; no setting disables player controls or requests scripted yaw.
+The configuration catalog has 258 keys in protocol 50 (2085 bytes). Emission physics and spring values are captured on activation; later edits cannot change in-flight parcels. Ready animation uses accepted live spring settings, and roughness updates current visual owners. The 0.45 m head displacement, 48-parcel activation budget, 63 additional surface pieces, three-second parcel lifetime and 4096 m world bounds remain safety invariants. Stats exposes remaining FL/FR/RL/RR contamination independently. Front and rear reductions leave a minimum five percent configured grip at maximum severity; no setting disables player controls or requests scripted yaw.
 
 **Arena boundary** exposes `vehicle.oob.damage` (default 100, 0–10000 HP/s) through the same transaction and persistence path. See [out-of-bounds damage](out-of-bounds.md).
 

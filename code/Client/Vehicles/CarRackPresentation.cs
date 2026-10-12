@@ -110,6 +110,7 @@ internal sealed partial class CarRackPresentation : Node
 
     internal void Reset()
     {
+        _oilPour = null; _oilFired = false; _oilClock = 0;
         _missileProgress = _missileReturn = 0;
         _missileStowing = false;
         _missileReturnBoundary = 0;
@@ -129,6 +130,7 @@ internal sealed partial class CarRackPresentation : Node
 
     public override void _Process(double delta)
     {
+        if (AnimateOil(Math.Max(0, (float)delta))) { return; }
         if (AnimateMissile(Math.Max(0, (float)delta))) { return; }
         if (_desired == HeldItem.Nitro && (_mounted == HeldItem.None || (_mounted == HeldItem.Nitro && !_replace)))
         {

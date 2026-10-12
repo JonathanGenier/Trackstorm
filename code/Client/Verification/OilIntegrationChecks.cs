@@ -89,6 +89,7 @@ public sealed partial class OilIntegrationChecks : Node
         try
         {
             _frames++;
+            if (_stage is 7 or 8 && _patch is not null) { Position(2, ContactPose(_patch)); }
             foreach (var arena in _arenas)
             {
                 arena.Advance(default);
@@ -109,7 +110,7 @@ public sealed partial class OilIntegrationChecks : Node
                     Check(_arenas[0].Driver.RequestItemUse(), "ordinary host use");
                     Next("Two native UDP peers ready; Oil requested through the normal held slot.");
                     break;
-                case 1 when host.Items.Patches.Count == 1 && _arenas[1].Driver.ItemState?.Patches.Count == 1:
+                case 1 when host.Items.Patches.Count == 1 && host.Items.Patches.Single().Pour is { Deposited: true } && _frames - _boundary > 300:
                     _patch = host.Items.Patches.Single();
                     Check(N.Vector3.Dot(_patch.Normal, Normal) > 0.999f, "bank normal");
                     Check(Math.Abs(N.Vector3.Dot(_patch.Position - new N.Vector3(0, 20, 0), Normal) - 0.5f) < 0.02f, "bank elevation");
@@ -119,20 +120,21 @@ public sealed partial class OilIntegrationChecks : Node
                     break;
                 case 2 when _arenas.All(a => a.Driver.ItemState?.Patches.Count == 1 && a.Driver.Latest?.Vehicles.Count == 3):
                     Check(_arenas.All(a => a.Driver.ItemState!.Patches.Single().Id == _patch!.Id), "late join exact patch");
-                    Position(1, _patch!.Position + Normal * 0.9f, new N.Vector3(0, 0, -15));
+                    Position(1, ContactPose(_patch!), new N.Vector3(0, 0, -15));
                     Next("Fresh late join restored one identical patch without duplication; owner enters at speed.");
                     break;
                 case 3 when host.World.GetVehicle(1).Movement.OilTicks > 0:
                     Check(Math.Abs(N.Vector3.Dot(host.World.GetVehicle(1).Movement.Physics.AngularVelocity, Normal)) < 0.5f, "no forced entry yaw");
                     Check(_oilPoints.All(points => points == 0), "self-trigger awards zero offensive points");
 
+                    Position(1, new N.Vector3(-12, 20, -12) + Normal * 1.4f);
                     Next("Owner receives temporary traction loss without a forced spin, score; one pass is consumed.");
                     break;
                 case 4 when _frames - _boundary > 480:
                     Capture("banked-oil.png");
                     Check(host.Items.Patches.Single().PassesUsed == 1, "first owner pass remains consumed after leaving");
                     Check(host.World.GetVehicle(1).Movement.OilTicks == 0, "effect recovers");
-                    Position(1, _patch!.Position + Normal * 0.9f);
+                    Position(1, ContactPose(_patch!));
                     Next("Owner exits, recovers, and returns for a second pass.");
                     break;
                 case 5 when _frames - _boundary > 5 && _arenas.All(a => a.Driver.ItemState?.Patches.Count == 0):
@@ -141,10 +143,10 @@ public sealed partial class OilIntegrationChecks : Node
                     Check(host.Items.Grant(host.World, 1, HeldItem.Oil) && _arenas[0].Driver.RequestItemUse(), "repeat deployment after owner consumption");
                     Next("The owner's second pass removed the patch on all peers without score; deploy again.");
                     break;
-                case 6 when _arenas.All(a => a.Driver.ItemState?.Patches.Count == 1):
+                case 6 when _frames - _boundary > 300 && _arenas.All(a => a.Driver.ItemState?.Patches.Count == 1):
                     _patch = host.Items.Patches.Single();
                     Position(1, new N.Vector3(-10, 20, 0) + Normal * 1.4f);
-                    Position(2, _patch.Position + Normal * 0.9f);
+                    Position(2, ContactPose(_patch));
                     Next("Remote enemy begins the first pass through a new patch.");
                     break;
                 case 7 when host.World.GetVehicle(2).Movement.OilTicks > 0:
@@ -160,12 +162,12 @@ public sealed partial class OilIntegrationChecks : Node
                     break;
                 case 9 when _frames - _boundary > 5 && _arenas.All(a => a.Driver.ItemState?.Patches.Count == 2):
                     Check(host.Items.Slots.Single().Item == HeldItem.None, "new Oil consumed with active patches");
-                    Position(2, _patch!.Position + Normal * 0.9f + new N.Vector3(0, 0, 10));
+                    Position(2, ContactPose(_patch!) + new N.Vector3(0, 0, 10));
                     Next("Two simultaneous patches replicated; enemy leaves the original patch.");
                     break;
                 case 10 when _frames - _boundary > 5:
                     Check(!host.Items.OilContacts.Any(c => c.Patch == _patch!.Id && c.Vehicle == 2), "exit releases overlap latch");
-                    Position(2, _patch!.Position + Normal * 0.9f);
+                    Position(2, ContactPose(_patch!));
                     Next("The same enemy returns for the second pass.");
                     break;
                 case 11 when _frames - _boundary > 5 && _oilPoints.Take(3).All(points => points == 100) && _arenas.All(a => a.Driver.ItemState?.Patches.Count == 1):
@@ -213,7 +215,7 @@ public sealed partial class OilIntegrationChecks : Node
             var button = new Button { Text = id == 1 ? "Drive owner through Oil" : "Drive rival through Oil" };
             button.Pressed += () =>
             {
-                Position(id, _patch!.Position + Normal * 0.9f + new N.Vector3(0, 0, 5), new N.Vector3(0, 0, -8));
+                Position(id, ContactPose(_patch!) + new N.Vector3(0, 0, 5), new N.Vector3(0, 0, -8));
                 GD.Print($"Interactive Oil crossing requested for player {id}.");
             };
             panel.AddChild(button);
@@ -228,6 +230,8 @@ public sealed partial class OilIntegrationChecks : Node
         };
         panel.AddChild(quit);
     }
+
+    private static N.Vector3 ContactPose(OilPatch patch) => patch.Position + Normal * .9f - N.Vector3.Transform(new N.Vector3(-VehicleDimensions.WheelTrack / 2, 0, -new VehicleConfiguration().Wheelbase / 2), Rotation);
 
     private void Position(ulong id, N.Vector3 position, N.Vector3 velocity = default)
     {

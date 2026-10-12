@@ -1,0 +1,9 @@
+# Jack-in-the-box Oil
+
+Original Trackstorm geometry and packed procedural patina authored in Blender 5.2.2 LTS, guided by user-approved TS-245 Jira attachments 10150 (closed), 10151 (deployed), and 10149 (firing). Reference pixels are not runtime textures or redistributed assets. The existing vehicle, rack, trunk and hydraulics are unchanged. No third-party asset was acquired.
+
+Run `source/BuildJackInTheBox.py` with the installed Blender 5.2 executable in background mode to rebuild `source/JackInTheBox.blend` and `JackInTheBox.glb`. The master retains editable individual panels, diamond paint, crest, straps/rivets, face/hat/teeth/collar and coil. The GLB batches four rigid groups, with separate `LidPivot`, `JesterPivot` and `Spring` parents for runtime articulation. Source is excluded from Godot import. Godot extracts the packed original 256-pixel patina alongside the GLB.
+
+Blender uses metres/Z-up and GLB converts to Godot Y-up. The crate is 0.86 m across including trim. It mounts at rack-local Y=0.09 m; the extended head anchor is Y=1.42 m. Positive Godot Z is rearward. The upper spring endpoint follows the head collar; runtime never generates model collision. `OilJack` instances the cached packed scene through `MatchResourceLoader`; `CarRackPresentation` retains shared mechanism ownership. Core's mouth socket is vehicle-local (0, 2.875, 1.782) plus accepted spring displacement. The head's cosmetic tilt does not change authoritative aim.
+
+Black spill meshes and splash/flight parcels are original Godot geometry with PBR clearcoat. Geometry and contact share `OilSegment.EdgeRadius`; scene owners free as a unit on authoritative removal. See [held items](../../../docs/features/items.md#persistent-oil) and [Oil tuning](../../../docs/features/developer-options.md#oil-tuning) for lifecycle, controls and limitations.
