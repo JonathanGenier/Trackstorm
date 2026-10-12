@@ -486,6 +486,9 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     {
         Rack.Reset();
         _boost.Reset();
+        _mountProgress = 0;
+        _shownShield = null;
+        _rearVisual.Visible = false;
         _initialized = false;
         _flash = 0;
         _previousHP = state.Damage.CurrentHP;
