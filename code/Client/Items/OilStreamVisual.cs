@@ -4,7 +4,7 @@ using Trackstorm.Core.Items;
 
 namespace Trackstorm.Client.Items;
 
-/// <summary>Five interwoven liquid strands over bounded authoritative flight; no extra projectiles.</summary>
+/// <summary>Irregular connected liquid and a fixed spray batch over authoritative ballistic samples.</summary>
 internal sealed partial class OilStreamVisual : MeshInstance3D
 {
     private readonly ArrayMesh _mesh = new();
@@ -15,33 +15,63 @@ internal sealed partial class OilStreamVisual : MeshInstance3D
     private readonly List<(Vector3 Point, float Age)> _curve = new(150);
     private const int Sides = 8;
     private readonly (Vector3 Point, Vector3 Normal, Vector2 Uv)[] _rings = new (Vector3, Vector3, Vector2)[150 * 9];
+    private readonly MultiMesh _spray = new() { TransformFormat = MultiMesh.TransformFormatEnum.Transform3D };
+    private readonly SphereMesh _sprayShape = new() { Radius = 1, Height = 2, RadialSegments = 6, Rings = 3 };
+    private MultiMeshInstance3D? _sprayNode;
+    private readonly Material _material;
 
     internal OilStreamVisual(Material material)
     {
         Mesh = _mesh; MaterialOverride = material;
+        _material = material;
         CastShadow = ShadowCastingSetting.Off;
     }
 
-    internal void Present(OilPour? pour, float age, Vector3? mouth, Vector3 sourceCorrection, float width, double clock, Vector3? impact)
+    public override void _Ready()
+    {
+        _spray.Mesh = _sprayShape; _spray.InstanceCount = 120; _spray.VisibleInstanceCount = 0;
+        _sprayNode = new MultiMeshInstance3D { Multimesh = _spray, MaterialOverride = _material, CastShadow = ShadowCastingSetting.Off };
+        AddChild(_sprayNode);
+    }
+
+    internal void Present(OilPour? pour, float age, Vector3? mouth, Vector3 sourceCorrection, float width, double clock)
     {
         if (pour is null || pour.Drops.Length == 0) { Visible = false; return; }
         _mesh.ClearSurfaces(); _vertices.Clear(); _normals.Clear(); _uvs.Clear(); _points.Clear();
-        if (mouth.HasValue) { _points.Add((mouth.Value, 0)); }
+        // Only a newly emitted parcel can connect to the mouth. Missing/retired
+        // packets cannot create a long folded bridge back to the moving vehicle.
+        if (mouth.HasValue && (180 - pour.Drops.Drops[^1].RemainingTicks) / 60f + age < .20f)
+        { _points.Add((mouth.Value, 0)); }
         OilDrop? previous = null;
+        int spray = 0;
         foreach (var drop in pour.Drops.Drops.Reverse())
         {
             Vector3 point = VehicleBody.ToGodot(drop.Position + drop.Velocity * age) - Vector3.Up * (pour.Gravity * age * age * .5f);
             float flightSeconds = (180 - drop.RemainingTicks) / 60f + age;
-            point += sourceCorrection.LimitLength(8) * MathF.Exp(-Math.Max(0, flightSeconds - .18f) * 2.5f);
+            point += sourceCorrection.LimitLength(3) * MathF.Exp(-flightSeconds * 5);
             // Fractional cadence rounds emission ticks; a larger hole is an actual retired parcel.
-            if (previous is not null && previous.RemainingTicks - drop.RemainingTicks > MathF.Ceiling(pour.IntervalTicks))
+            if (previous is not null && (previous.RemainingTicks - drop.RemainingTicks > MathF.Ceiling(pour.IntervalTicks) ||
+                (_points.Count > 0 && point.DistanceTo(_points[^1].Point) > 2)))
             { Build(width, clock); _points.Clear(); }
             _points.Add((point, flightSeconds));
+            // Two to three small lobes per parcel, always inside a fixed 120-instance
+            // batch. They are cosmetic breakup, never additional hits or hazards.
+            for (int i = 0; i < 3 && spray < 120 && flightSeconds > .05f; i++)
+            {
+                float seed = drop.RemainingTicks * 2.399f + i * 17.7f;
+                float spread = width * (1 + Math.Min(flightSeconds * 4, 3));
+                Vector3 scatter = new(MathF.Sin(seed) * spread, MathF.Cos(seed * .77f) * spread * .65f, MathF.Sin(seed * .53f) * spread);
+                float size = .011f + .029f * (.5f + .5f * MathF.Sin(seed * .37f));
+                Vector3 velocity = VehicleBody.ToGodot(drop.Velocity);
+                var basis = new Basis(new Quaternion(Vector3.Up, velocity.Normalized())).Scaled(new(size, size * 2.8f, size));
+                _spray.SetInstanceTransform(spray++, new Transform3D(basis, point + scatter));
+            }
             previous = drop;
         }
-        if (impact.HasValue && _points.Count > 0 && _points[^1].Point.DistanceTo(impact.Value) < 1.7f)
-        { _points.Add((impact.Value, _points[^1].Age)); }
+        // Never append a retired impact to an extrapolated flight chain: that
+        // backward connection caused the previous folded V at burst shutdown.
         Build(width, clock);
+        _spray.VisibleInstanceCount = spray;
         Visible = _vertices.Count > 0;
         if (!Visible) { return; }
         using var arrays = new Godot.Collections.Array(); arrays.Resize((int)Mesh.ArrayType.Max);
@@ -54,18 +84,20 @@ internal sealed partial class OilStreamVisual : MeshInstance3D
     {
         if (_points.Count < 2) { return; }
         _curve.Clear();
+        Vector3 Smoothed(int i) => i == 0 || i == _points.Count - 1 ? _points[i].Point :
+            (_points[i - 1].Point + _points[i].Point * 2 + _points[i + 1].Point) / 4;
         for (int i = 0; i < _points.Count - 1; i++)
         {
             var a = _points[i]; var b = _points[i + 1];
             for (int j = 0; j < 3; j++)
             {
                 float t = j / 3f;
-                _curve.Add((a.Point.CubicInterpolate(b.Point, _points[Math.Max(0, i - 1)].Point, _points[Math.Min(_points.Count - 1, i + 2)].Point, t), Mathf.Lerp(a.Age, b.Age, t)));
+                _curve.Add((Smoothed(i).Lerp(Smoothed(i + 1), t), Mathf.Lerp(a.Age, b.Age, t)));
             }
         }
         _curve.Add(_points[^1]);
         void Vertex((Vector3 Point, Vector3 Normal, Vector2 Uv) v) { _vertices.Add(v.Point); _normals.Add(v.Normal); _uvs.Add(v.Uv); }
-        for (int strand = 0; strand < 5; strand++)
+        for (int strand = 0; strand < 3; strand++)
         {
             (Vector3 Point, Vector3 Normal, Vector2 Uv) Ring(int index, int side)
             {
@@ -76,20 +108,20 @@ internal sealed partial class OilStreamVisual : MeshInstance3D
                 Vector3 right = direction.Cross(Math.Abs(direction.Y) < .9f ? Vector3.Up : Vector3.Right).Normalized();
                 Vector3 up = right.Cross(direction);
                 float age = _curve[index].Age;
-                float flow = age * 37 - (float)clock * 23 + strand * 2.399f;
-                float turn = strand * Mathf.Tau / 5 + age * 9 + .35f * MathF.Sin(flow * .45f);
-                float spread = width * (.19f + Math.Min(age * .75f, .75f));
+                float flow = age * 43 - (float)clock * 29 + strand * 2.399f;
+                float turn = strand * 2.399f + age * 7 + .7f * MathF.Sin(flow * .37f);
+                float spread = width * (.10f + Math.Min(age * .65f, .48f)) * (strand == 0 ? .3f : 1);
                 center += (right * MathF.Cos(turn) + up * MathF.Sin(turn)) * spread;
                 center += (right * MathF.Sin(flow) + up * MathF.Cos(flow * .81f)) * width * .21f * Math.Min(age * 8, 1);
                 // Soft tips and liquid necks replace cut ends; three inner strands
                 // keep the burst cohesive while the outer two tear into irregular lobes.
                 float tips = Math.Min(1, Math.Min(index / 2f, (_curve.Count - 1 - index) / 4f));
-                float neck = .76f + .38f * MathF.Sin(flow) + .13f * MathF.Sin(flow * 1.71f);
-                if (age > .12f) { neck *= .16f + .84f * Mathf.SmoothStep(-.95f, .1f, MathF.Sin(flow * .43f + strand)); }
-                if (strand >= 3 && age > .18f) { neck *= Mathf.SmoothStep(-.7f, .15f, MathF.Sin(flow * .58f)); }
-                float radius = width * .30f * (1 + Math.Min(age, .8f)) * neck * tips;
+                float neck = .83f + .42f * MathF.Sin(flow) + .21f * MathF.Sin(flow * 1.71f);
+                if (strand > 0 && age > .1f) { neck *= .08f + .92f * Mathf.SmoothStep(-.8f, .2f, MathF.Sin(flow * .43f + strand)); }
+                float radius = width * (strand == 0 ? .55f : .36f) * (1 + Math.Min(age, .8f)) * neck * tips;
                 float angle = side * Mathf.Tau / Sides;
                 Vector3 normal = right * Mathf.Cos(angle) + up * Mathf.Sin(angle);
+                radius *= 1 + .27f * MathF.Sin(angle * 3 + flow * .71f);
                 return (center + normal * radius, normal, new Vector2(side / (float)Sides, age * 5 + strand));
             }
             for (int i = 0; i < _curve.Count; i++)
@@ -105,5 +137,5 @@ internal sealed partial class OilStreamVisual : MeshInstance3D
         }
     }
 
-    public override void _ExitTree() { Mesh = null; _mesh.Dispose(); }
+    public override void _ExitTree() { Mesh = null; _mesh.Dispose(); _spray.Dispose(); _sprayShape.Dispose(); }
 }

@@ -13,5 +13,6 @@ internal sealed class OilFluidMaterial : IDisposable
         Material.SetShaderParameter("flowing", flowing);
     }
     internal void SetRoughness(float value) => Material.SetShaderParameter("roughness", value);
+    internal void SetFade(float value) => Material.SetShaderParameter("dissipation", value);
     public void Dispose() => Material.Dispose();
 }

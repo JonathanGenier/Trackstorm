@@ -96,6 +96,43 @@ internal sealed class OilDepositionTests
         }
     }
 
+    [TestCase(0f)]
+    [TestCase(10f)]
+    [TestCase(20f)]
+    public void FirstBallisticImpactIsCloseBehindTheOriginalRackWithoutVehicleIntersection(float speed)
+    {
+        var patch = Activation() with { Pour = new() { Life = 1, StartTick = 1, PreviousVelocity = new(0, 0, -speed) } };
+        for (ulong tick = 1; tick <= 180; tick++)
+        {
+            var position = new Vector3(0, 1.145f, -speed * (tick - 1) / 60);
+            var pose = new VehiclePhysicsState(position, Quaternion.Identity, new(0, 0, -speed), Vector3.Zero);
+            patch = OilDeposition.Advance(patch, tick, pose, (from, to, radius) => from.Y >= 0 && to.Y <= 0
+                ? new OilImpact(Vector3.Lerp(from, to, from.Y / (from.Y - to.Y)), Vector3.UnitY, radius) : null);
+            if (!patch.Pour!.Deposited) { continue; }
+            float rearClearance = patch.Position.Z - position.Z - VehicleDimensions.Length / 2;
+            TestContext.Out.WriteLine($"{speed} m/s: first impact {rearClearance:F3} m behind rear bumper at tick {tick}.");
+            Assert.That(rearClearance, Is.InRange(1f, 3f));
+            Assert.That(patch.Position.Y, Is.EqualTo(0).Within(.001f));
+            return;
+        }
+        Assert.Fail("The shot never reached the actual ground plane.");
+    }
+
+    [Test]
+    public void DefaultSpringHasLargerReboundAndSlowerSettlingThanPriorPolish()
+    {
+        static (float Peak, float Remaining) Response(float stiffness, float damping)
+        {
+            Vector3 offset = Vector3.Zero, velocity = new(1.6f, 0, 0); float peak = 0;
+            for (int i = 0; i < 120; i++)
+            { (offset, velocity) = OilPour.Spring(offset, velocity, Vector3.Zero, stiffness, damping, .44f); peak = Math.Max(peak, offset.Length()); }
+            return (peak, offset.LengthSquared() * stiffness + velocity.LengthSquared());
+        }
+        var prior = Response(26, 4.5f); var current = Response(new OilPour().Stiffness, new OilPour().Damping);
+        Assert.That(current.Peak, Is.GreaterThan(prior.Peak * 1.4f));
+        Assert.That(current.Remaining, Is.GreaterThan(prior.Remaining * 4));
+    }
+
     [Test]
     public void KickbackMovesHeadForwardWithoutTurningAnyParcelForward()
     {

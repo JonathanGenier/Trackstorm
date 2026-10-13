@@ -360,14 +360,16 @@ The Oil accordion contains eighteen host-authoritative keys using staged Apply/C
 | `items.oil_speed` | 18 | 1–30 m/s base chassis-rearward launch speed; bounded moving-vehicle fan preserves trail extent |
 | `items.oil_gravity` | 9.81 | 1–40 m/s² parcel gravity |
 | `items.oil_radius` | 1.3 | 0.1–1.5 m maximum supported deposition radius |
-| `items.oil_spring_stiffness` | 26 | 5–100 fixed-step head spring stiffness |
-| `items.oil_spring_damping` | 4.5 | 1–20 head spring damping |
-| `items.oil_spring_reaction` | 0.32 | 0–0.5 acceleration-to-head reaction |
+| `items.oil_spring_stiffness` | 12 | 5–100 fixed-step head spring stiffness |
+| `items.oil_spring_damping` | 1.8 | 1–20 head spring damping |
+| `items.oil_spring_reaction` | 0.44 | 0–0.5 acceleration-to-head reaction |
 | `items.oil_kickback` | 1.6 | 0–3 m/s captured initial recoil, with one-quarter upward component |
 | `items.oil_roughness` | 0.16 | 0.05–0.6 wet fluid PBR roughness |
 
 
 Existing relevant grip/physics/presentation keys are retained. The obsolete `items.oil_enemy_contacts` key has no runtime effect or control; saved unknown records are retained by normal settings persistence. Older relevant overrides remain explicit overrides; Reset selects current defaults. Grip/curve edits affect subsequent steps. Duration edits preserve each tire's current hold/recovery phase, with fixed-step rounding. Continuous overlap never refreshes a tire, even after recovery reaches zero. Each wheel's exit/re-entry refreshes that tire; complete vehicle exit/re-entry permits another scoring event. Contacts never alter the hazard deadline. New activations capture expiration; current hazards keep their original deadlines.
+
+Lifetime controls the gameplay hazard. After accepted expiry, remaining deposited surfaces dissipate for two seconds without contact or scoring; at most 32 visual remnants are retained. The tank gauge is decorative fixed fill and does not introduce a capacity or ammunition control.
 
 The configuration catalog has 259 keys in protocol 52 (2093 bytes). Emission physics, spring and kickback values are captured on activation; later edits cannot change in-flight parcels. Fractional cadence uses an accumulated emission deadline, retaining forty parcels over the default one second. Existing explicit duration/cadence overrides retain their values; Reset selects the new defaults. Ready animation uses accepted live spring settings, and roughness and stream width update current visual owners. The 0.45 m head displacement, 48-parcel activation budget, 63 additional surface pieces, three-second parcel lifetime and 4096 m world bounds remain safety invariants. Stats exposes remaining FL/FR/RL/RR contamination independently. Front and rear reductions leave a minimum five percent configured grip at maximum severity; no setting disables player controls or requests scripted yaw.
 

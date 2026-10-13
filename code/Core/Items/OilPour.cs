@@ -19,12 +19,10 @@ public sealed record OilPour
     public Vector3 PreviousVelocity { get; init; }
     public Vector3 HeadOffset { get; init; }
     public Vector3 HeadVelocity { get; init; }
-    public float Stiffness { get; init; } = 26;
-    public float Damping { get; init; } = 4.5f;
-    public float Reaction { get; init; } = .32f;
+    public float Stiffness { get; init; } = 12;
+    public float Damping { get; init; } = 1.8f;
+    public float Reaction { get; init; } = .44f;
     public float Kickback { get; init; } = 1.6f;
-    /// <summary>Oil-only carriage travel behind the unchanged raised rack.</summary>
-    public const float RearTravel = 1.30f;
     public OilFlight Drops { get; init; } = OilFlight.Empty;
 
     /// <summary>Rejects malformed continuation before recovery or simulation.</summary>
@@ -54,6 +52,6 @@ public sealed record OilPour
     }
 
     /// <summary>The raised rack mouth socket in vehicle coordinates, facing rearward (+Z).</summary>
-    public static Vector3 Mouth(Vector3 offset) => new Vector3(0, 2.85f, 1.845f + RearTravel) + offset +
-        Vector3.Transform(new Vector3(0, .025f, .225f), Quaternion.CreateFromYawPitchRoll(0, offset.Z * .8f, -offset.X * .8f));
+    public static Vector3 Mouth(Vector3 offset) => new Vector3(0, 2.85f, 1.845f) + offset +
+        Vector3.Transform(new Vector3(0, -.055f, .265f), Quaternion.CreateFromYawPitchRoll(0, offset.Z * .8f, -offset.X * .8f));
 }

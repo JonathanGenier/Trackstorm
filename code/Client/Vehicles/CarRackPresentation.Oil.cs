@@ -39,7 +39,7 @@ internal sealed partial class CarRackPresentation
         _mechanism.Deployed = expose || !jack.Nested;
         jack.Visible = _mechanism.Progress > .45f;
         jack.Position = new Vector3(0, .09f, 0);
-        jack.Present(expose && _mechanism.Progress >= .999f, delta, firing ? _oilPour : null, OilConfiguration);
+        jack.Present(expose && _mechanism.Progress >= .999f, delta, _oilFired ? _oilPour : null, OilConfiguration, _oilClock);
         if (!expose && jack.Nested && _mechanism.Progress <= 0)
         {
             ClearPayload(); _mounted = HeldItem.None; _replace = false; _usePending = false; _oilFired = false;

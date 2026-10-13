@@ -23,12 +23,11 @@ internal static class OilDeposition
                 float phase = pour.Emitted * 2.399963f;
                 float travel = Math.Min(1, pose.Value.LinearVelocity.Length() / 18);
                 float turbulence = .2f + .8f * travel;
-                Vector3 direction = Vector3.Transform(Vector3.Normalize(new Vector3(.055f * MathF.Sin(phase) * turbulence, -.45f + .035f * MathF.Cos(phase) * turbulence, 1)), pose.Value.Orientation);
-                // A moving car's shorter burst fans longitudinally: early parcels
-                // travel farther back, retaining trail extent without more liquid.
-                float progress = pour.Emitted / Math.Max(1, MathF.Ceiling(pour.DurationTicks / pour.IntervalTicks) - 1);
-                float speed = pour.Speed * (1 + travel * (.45f - .9f * progress));
-                drops.Add(new(origin, pose.Value.LinearVelocity + direction * speed, 180));
+                // A steep rearward burst clears the rear bumper and reaches nearby
+                // terrain ballistically. Lateral turbulence retains a substantial
+                // moving spill without extending the rack or projecting onto ground.
+                Vector3 direction = Vector3.Transform(Vector3.Normalize(new Vector3(.32f * MathF.Sin(phase) * turbulence, -1.45f + .09f * MathF.Cos(phase) * turbulence, 1)), pose.Value.Orientation);
+                drops.Add(new(origin, pose.Value.LinearVelocity + direction * pour.Speed, 180));
                 pour = pour with { Emitted = pour.Emitted + 1 };
             }
         }

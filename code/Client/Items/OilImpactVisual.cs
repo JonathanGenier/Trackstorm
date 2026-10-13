@@ -24,15 +24,15 @@ internal sealed partial class OilImpactVisual : MeshInstance3D
         _mesh.ClearSurfaces();
         var vertices = new List<Vector3>(384); var normals = new List<Vector3>(384); var uvs = new List<Vector2>(384);
         void Add(Vector3 p) { vertices.Add(p); normals.Add(new Vector3(p.X * .15f, 1, p.Z * .15f).Normalized()); uvs.Add(new Vector2(p.X, p.Z)); }
-        for (int petal = 0; petal < 12; petal++)
+        for (int petal = 0; petal < 9; petal++)
         {
-            float angle = petal * Mathf.Tau / 12 + _seed;
+            float angle = petal * Mathf.Tau / 9 + _seed;
             float reach = _radius * Math.Min(1, _age * 4) * (.72f + .24f * MathF.Sin(petal * 2.399f + _seed));
             float height = Math.Max(0, _age * 3.3f - _age * _age * 7) * (.65f + .35f * MathF.Sin(petal * 1.7f));
             Vector3 Point(float t, float side)
             {
-                float a = angle + side * .11f * (1 - t * .8f);
-                return new Vector3(MathF.Cos(a) * reach * t, height * MathF.Sin(t * 2.3f), MathF.Sin(a) * reach * t);
+                float a = angle + side * .28f * (1 - t * .52f) + .04f * MathF.Sin(petal * 7 + t * 11);
+                return new Vector3(MathF.Cos(a) * reach * t, height * MathF.Sin(t * 3.0f) * (1 + .18f * side), MathF.Sin(a) * reach * t);
             }
             for (int part = 0; part < 3; part++)
             {

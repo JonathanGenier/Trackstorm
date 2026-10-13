@@ -36,6 +36,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         {
             Engine.MaxFps = 60;
             string[] args = OS.GetCmdlineUserArgs();
+            bool oilOnly = args.Contains("--oil-options-only");
             _directory = args.Single(argument => argument.StartsWith("--dev-output=", StringComparison.Ordinal))[13..];
             string phase = args.Single(argument => argument.StartsWith("--phase=", StringComparison.Ordinal))[8..];
             _bootstrap = new SimulationBootstrap { OnlineEnabled = false, SettingsPath = System.IO.Path.Combine(_directory, "settings.json") };
@@ -80,7 +81,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 _client = new DevelopmentSession { Name = "RemoteClient" };
                 viewport.AddChild(_client);
                 _client.Open(false, endpoint, "Joined player");
-                await Until(() => _client.Lobby?.State?.Players.Count == 2, "real UDP client admission");
+                await Until(() => _client.Lobby?.State?.Players.Count(player => !player.PracticeCar) == 2, "real UDP client admission alongside hosted practice cars");
                 _devTools.Configs.Session = () => _client;
                 await Frames(20);
                 Check(Descendants(_devTools.Configs).OfType<LineEdit>().Any(editor => editor.IsVisibleInTree() && editor.Name == "vehicle_mass"), "joined client sees shared gameplay settings");
@@ -96,7 +97,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 string hostDiagnostics = DeveloperDiagnostics.Capture(_host);
                 string clientDiagnostics = DeveloperDiagnostics.Capture(_client);
                 Check(hostDiagnostics.Contains("Local PlayerId: 1; CurrentHostId: 1; role: HOST", StringComparison.Ordinal), "host diagnostic identity and role");
-                Check(clientDiagnostics.Contains("Local PlayerId: 2; CurrentHostId: 1; role: CLIENT", StringComparison.Ordinal), "client diagnostic identity and role");
+                Check(clientDiagnostics.Contains($"Local PlayerId: {_client.Lobby!.LocalPlayerId}; CurrentHostId: 1; role: CLIENT", StringComparison.Ordinal), "client diagnostic identity and role");
                 foreach (string field in new[] { "AuthorityEpoch: 1", "match generation:", "Connection generation:", "Reconnect:", "migration:" })
                 {
                     Check(hostDiagnostics.Contains(field, StringComparison.Ordinal) && clientDiagnostics.Contains(field, StringComparison.Ordinal), "both roles expose " + field);
@@ -130,7 +131,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
 
                 Press("Apply Settings");
                 Check(Descendants(_devTools.Configs).OfType<Label>().Any(label => label.Text == "Shared session settings applied."), "real GNS accepts all five UI impairment controls");
-                foreach (var option in GameplayOptions.All)
+                foreach (var option in GameplayOptions.All.Where(option => !oilOnly || option.Group == "Oil"))
                 {
                     if (option.Key == "match.mode")
                     {
@@ -187,6 +188,8 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
 
                 Press("Apply Settings");
 
+                if (oilOnly) { await FinishOilOptions(viewport); return; }
+
                 var selector = Descendants(_devTools.Configs).OfType<OptionButton>().Single(button => button.Name == "environment_preset");
                 Check(selector.ItemCount == 5, "five named environment presets in Configs");
                 var originalMap = _host.Arena!.Map;
@@ -212,7 +215,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 distributionSearch.Text = "Oil";
                 distributionSearch.EmitSignal(LineEdit.SignalName.TextChanged, distributionSearch.Text);
                 await Frames(3);
-                foreach (string key in new[] { "vehicle_oil_grip_reduction", "vehicle_oil_recovery_seconds", "items_oil_enemy_contacts", "items_oil_lifetime_seconds" })
+                foreach (string key in new[] { "vehicle_oil_grip_reduction", "vehicle_oil_recovery_seconds", "items_oil_fire_seconds", "items_oil_spring_stiffness", "items_oil_lifetime_seconds" })
                 {
                     Check(Descendants(_devTools.Configs).OfType<LineEdit>().Any(editor => editor.Name == key && editor.IsVisibleInTree()), "Oil tuning visible in Configs: " + key);
                 }
@@ -529,7 +532,13 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
             await Frames(1);
         }
 
-        Check(predicate(), message);
+        bool completed = predicate();
+        if (!completed)
+        {
+            GD.Print("Host at verification timeout: " + DeveloperDiagnostics.Capture(_host));
+            if (_client is not null) { GD.Print("Client at verification timeout: " + DeveloperDiagnostics.Capture(_client)); }
+        }
+        Check(completed, message);
     }
 
     private async Task Frames(int frames)

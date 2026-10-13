@@ -1,14 +1,14 @@
 {
-  "provenance": "Original Trackstorm Blender geometry and procedural patina; approved Jira concept attachments 10150, 10151, 10149 used only as art direction. No third-party acquisition or reference pixels distributed.",
+  "provenance": "Original Trackstorm Blender geometry, procedural paint and bespoke lettering; approved Jira references 10150, 10151, 10149 and 10152 used only as art direction. No third-party font, acquisition or reference pixels distributed.",
   "tool": "Blender 5.2.2 LTS",
   "files": [
     {
       "path": "source/BuildJackInTheBox.py",
-      "sha256": "04ce7175f74d17b86cd689325b3070d932185cfaf070f2514131ae612f913ced"
+      "sha256": "308a4042fa034bdccab920a96d89494bf7e0ed080292c8a9dc2db1a4affcad5a"
     },
     {
       "path": "source/JackInTheBox.blend",
-      "sha256": "fbfd7b6acad0c054b724715c1d7c473ed42101ce0de6777fafe5d7512025cf24"
+      "sha256": "83786b4f3f92fac84de2c1a6a35fd8e3e8aadcb65db377bafed680de5f6fd8f7"
     },
     {
       "path": "source/Patina.png",
@@ -16,11 +16,11 @@
     },
     {
       "path": "JackInTheBox.glb",
-      "sha256": "6e8f99441b86f084b36ec593ef40526e5cd33720764ba6ceaa7c017c13f9c8c2"
+      "sha256": "cc7dc969d4d7a5b9e5352e964a4754b6a6968b036a854f4549cd6f0bc66603de"
     },
     {
       "path": "OilFluid.gdshader",
-      "sha256": "98c320861751e45cfc5699bab947fa80488cefa69695aceb4e7b7b63698d4f62"
+      "sha256": "8d6859bac385f5c03deafb5965502bb257dba8f25ae5fc6f6fd9da0a53478476"
     },
     {
       "path": "source/Oil Aged ivory.png",
@@ -69,6 +69,18 @@
     {
       "path": "JackInTheBox_Oil Worn iron.png",
       "sha256": "d07f6f63e4b113c011f1026a96723340bb68a81f460ddc1931f91278ef8f423a"
+    },
+    {
+      "path": "source/BuildOilTank.py",
+      "sha256": "0a42b891a4734e30f93482cf7605eadfb892af1bab24d7bf4c8a91153d54c3c4"
+    },
+    {
+      "path": "source/Oil Tank paint.png",
+      "sha256": "d8f66af4977c7e61a57c3c1ee0c8ed96c75ada401f8e2dd3af2563a5b4872dc7"
+    },
+    {
+      "path": "JackInTheBox_Oil Tank paint.png",
+      "sha256": "d8f66af4977c7e61a57c3c1ee0c8ed96c75ada401f8e2dd3af2563a5b4872dc7"
     }
   ]
 }

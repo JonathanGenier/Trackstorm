@@ -23,6 +23,7 @@ red=mat('Weathered crimson',(.72,.012,.018),.08,.36);cream=mat('Aged ivory',(.93
 def empty(name,pos,parent=None):
  o=bpy.data.objects.new(name,None);bpy.context.collection.objects.link(o);o.location=xyz(pos);o.parent=parent;return o
 box=empty('OilBox',(0,0,0));lid=empty('LidPivot',(0,.68,-.39),box);head=empty('JesterPivot',(0,1.42,0),box);spring=empty('Spring',(0,.105,0),box)
+jaw=empty('JawPivot',(0,0,0),head)
 def finish(o,name,material,parent,pos):
  o.name=name;o.data.materials.append(material);o.parent=parent;o.location=xyz(pos);return o
 def cube(name,pos,size,material,parent=box,bevel=.015):
@@ -83,7 +84,7 @@ pts=[(.16*math.cos(i*math.tau*7/224),i*1.145/224,.16*math.sin(i*math.tau*7/224))
 tube('SpringCoil',pts,.027,steel,spring)
 # Project-authored sculpted jester: cheek planes, brows, pointed nose, black eyes, grin and teeth.
 ball('Face',(0,.16,0),(.24,.29,.2),white)
-ball('Jaw',(0,-.045,.055),(.175,.13,.18),white)
+ball('Jaw',(0,-.045,.055),(.175,.13,.18),white,jaw)
 # Upturned, wide grin is a shaped surface, not a downturned oval mouth.
 def grin(name,material,yshift,z,scale=1):
  vertices=[]
@@ -94,6 +95,10 @@ def grin(name,material,yshift,z,scale=1):
  faces=[(i*2,i*2+1,i*2+3,i*2+2) for i in range(32)]
  mesh=bpy.data.meshes.new(name);mesh.from_pydata(vertices,[],faces);mesh.update()
  o=bpy.data.objects.new(name,mesh);bpy.context.collection.objects.link(o);o.parent=head;mesh.materials.append(material)
+ o.shape_key_add(name='Smile');opened=o.shape_key_add(name='Open')
+ for i in range(33):
+  x=(i/32-.5)*.35;u=x/.175
+  for j,y in enumerate([.04+.075*u*u,-.205+.305*u*u]):opened.data[i*2+j].co=xyz((x*scale,(y+yshift)*scale,z-.085*u*u))
 grin('Carmine smile outline',red,0,.242,1.12);grin('Deep upturned grin',black,0,.249)
 for i in range(11):
  x=(i-5)*.027;u=x/.175;y=.010+.115*u*u
@@ -101,7 +106,7 @@ for i in range(11):
  tooth.rotation_euler[1]=-.6*u
 for i in range(9):
  x=(i-4)*.027;u=x/.175;y=-.068+.20*u*u
- cube('Smile lower tooth',(x,y+.010,.254-.085*u*u),(.020,.018,.010),white,head,.002)
+ cube('Smile lower tooth',(x,y+.010,.254-.085*u*u),(.020,.018,.010),white,jaw,.002)
 for side in [-1,1]:
  ball('High smiling cheek',(side*.18,.14,.13),(.074,.063,.072),white)
  eye=ball('Eye makeup',(side*.092,.245,.176),(.065,.074,.029),black);eye.rotation_euler[1]=-side*.30
@@ -144,9 +149,10 @@ for side in [-1,1]:
 # Paint wear consists of original geometry, no external textures.
 for i in range(65):
  x=random.uniform(-.36,.36);y=random.uniform(.12,.61);cube('Paint chip',(x,y,.408),(random.uniform(.005,.025),random.uniform(.003,.012),.001),steel,box,0)
+exec(compile((root/'source/BuildOilTank.py').read_text(), 'BuildOilTank.py', 'exec'))
 bpy.ops.wm.save_as_mainfile(filepath=str(root/'source/JackInTheBox.blend'))
-for parent in [box,lid,head,spring]:
- objects=[o for o in bpy.context.scene.objects if o.parent==parent and o.type in {'MESH','CURVE'}]
+for parent in [box,lid,head,spring,jaw,tank]:
+ objects=[o for o in bpy.context.scene.objects if o.parent==parent and o.type in {'MESH','CURVE'} and not (o.type=='MESH' and o.data.shape_keys)]
  bpy.ops.object.select_all(action='DESELECT')
  for o in objects:o.select_set(True)
  if objects:

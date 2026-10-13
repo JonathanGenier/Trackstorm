@@ -97,11 +97,11 @@ public sealed record ItemConfiguration
     /// <summary>Oil Radius tuning, captured by an activation where applicable.</summary>
     public float OilRadius { get; init; } = 1.3f;
     /// <summary>Oil SpringStiffness tuning, captured by an activation where applicable.</summary>
-    public float OilSpringStiffness { get; init; } = 26f;
+    public float OilSpringStiffness { get; init; } = 12f;
     /// <summary>Oil SpringDamping tuning, captured by an activation where applicable.</summary>
-    public float OilSpringDamping { get; init; } = 4.5f;
+    public float OilSpringDamping { get; init; } = 1.8f;
     /// <summary>Oil SpringReaction tuning, captured by an activation where applicable.</summary>
-    public float OilSpringReaction { get; init; } = 0.32f;
+    public float OilSpringReaction { get; init; } = 0.44f;
     /// <summary>Captured head recoil velocity at the start of Oil expulsion.</summary>
     public float OilKickback { get; init; } = 1.6f;
     /// <summary>Oil Roughness tuning, captured by an activation where applicable.</summary>

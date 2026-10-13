@@ -16,14 +16,29 @@ internal sealed partial class OilHazardVisual : Node3D
     internal Vector3? StreamMouth { get; private set; }
     private double _clock;
     private double _tick;
-    private Vector3? _impact;
-    private float _impactAge;
     private Vector3 _source;
     private Vector3 _sourceVelocity;
     private readonly List<(MeshInstance3D Node, Vector3 Velocity, float Age)> _splashes = new();
     private readonly List<OilImpactVisual> _crowns = new();
-    private OilFlight _flight = OilFlight.Empty;
     private float _flightAge;
+    internal const float FadeSeconds = 2;
+    internal bool Retired { get; private set; }
+    internal float FadeProgress { get; private set; }
+    internal ulong HazardId => _patch?.Id ?? 0;
+    internal void ObserveTick(ulong tick) { _tick = Math.Max(_tick, tick); }
+    internal bool Retire(ulong tick)
+    {
+        if (_patch is null || tick < _patch.ExpiresAtTick) { return false; }
+        // An old locally extrapolated clock must not skip the fade after a slow
+        // simulation/capture interval. The removal publication owns this boundary.
+        Retired = true; _tick = tick;
+        if (_stream is not null) { _stream.Visible = false; }
+        foreach (var splash in _splashes) { splash.Node.QueueFree(); }
+        _splashes.Clear();
+        foreach (var crown in _crowns.Where(GodotObject.IsInstanceValid)) { crown.QueueFree(); }
+        _crowns.Clear();
+        return true;
+    }
     // The rack and smoothed vehicle model must finish before sampling the mouth.
     public OilHazardVisual() { ProcessPriority = 100; }
     private readonly OilFluidMaterial _streamMaterial = new(true);
@@ -47,7 +62,6 @@ internal sealed partial class OilHazardVisual : Node3D
             var impact = patch.AdditionalSegments.Segments.LastOrDefault(s => s.Radius >= patch.Radius * .45f);
             Vector3 position = VehicleBody.ToGodot(impact.Radius > 0 ? impact.End : patch.Position);
             Vector3 normal = VehicleBody.ToGodot(impact.Radius > 0 ? impact.Normal : patch.Normal);
-            _impact = position; _impactAge = 0;
             _crowns.RemoveAll(c => !GodotObject.IsInstanceValid(c) || c.IsQueuedForDeletion());
             if (_crowns.Count < 6)
             {
@@ -112,8 +126,7 @@ internal sealed partial class OilHazardVisual : Node3D
                 AddChild(_surface);
             }
         }
-        var flight = patch.Pour?.Drops ?? OilFlight.Empty;
-        _flight = flight; _flightAge = 0;
+        _flightAge = 0;
         if (_stream is null && patch.Pour is not null) { _stream = new OilStreamVisual(_streamMaterial.Material); AddChild(_stream); }
         _patch = patch;
     }
@@ -121,12 +134,19 @@ internal sealed partial class OilHazardVisual : Node3D
     public override void _Process(double delta)
     {
         _flightAge = Math.Min(.1f, _flightAge + (float)delta);
-        _clock += delta; _tick += delta * 60; _impactAge += (float)delta;
+        _clock += delta; _tick += delta * 60;
+        if (Retired)
+        {
+            FadeProgress = Mathf.Clamp((float)(_tick - _patch!.ExpiresAtTick) / (60 * FadeSeconds), 0, 1);
+            _surfaceMaterial.SetFade(FadeProgress);
+            if (FadeProgress >= 1) { QueueFree(); }
+            return;
+        }
         bool firing = _patch?.Pour is { Cancelled: false } pour && _tick < pour.StartTick + (ulong)pour.DurationTicks;
         Vector3? mouth = firing ? Mouth?.Invoke() : null;
         StreamMouth = mouth;
         Vector3 correction = mouth.HasValue ? mouth.Value - (_source + _sourceVelocity * _flightAge) : Vector3.Zero;
-        _stream?.Present(_patch?.Pour, _flightAge, mouth, correction, StreamWidth, _clock, _impactAge < .12f ? _impact : null);
+        _stream?.Present(_patch?.Pour, _flightAge, mouth, correction, StreamWidth, _clock);
         for (int i = _splashes.Count - 1; i >= 0; i--)
         {
             var splash = _splashes[i]; float age = splash.Age + (float)delta;
