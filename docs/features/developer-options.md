@@ -353,11 +353,11 @@ The Oil accordion contains eighteen host-authoritative keys using staged Apply/C
 | `vehicle.oil_impairment_seconds` | 5 | 0.1–20 seconds at full impairment after an entry |
 | `vehicle.oil_recovery_seconds` | 2 | 0.1–10 seconds of progressive recovery |
 | `vehicle.oil_recovery_curve` | 1 | 0.5–3 exponent applied to progress before smoothstep easing |
-| `items.oil_stream_width` | 0.24 | 0.08–0.8 m cosmetic stream diameter at the mouth |
+| `items.oil_stream_width` | 0.24 | 0.08–0.8 m nominal free-stream width; the ejection neck stays narrow beside the mechanism |
 | `items.oil_lifetime_seconds` | 30 | 1–600 seconds per firing activation |
 | `items.oil_fire_seconds` | 1 | 0.5–4 seconds; captured firing duration |
 | `items.oil_interval_ticks` | 1.5 | 1–30 fractional 60 Hz ticks between parcels; duration/cadence must emit at most 48 |
-| `items.oil_speed` | 18 | 1–30 m/s base chassis-rearward launch speed; bounded moving-vehicle fan preserves trail extent |
+| `items.oil_speed` | 18 | 1–30 m/s nominal chassis-rearward launch speed; ballistic elevation/rearward clearance floors keep the jet clear of its hardware |
 | `items.oil_gravity` | 9.81 | 1–40 m/s² parcel gravity |
 | `items.oil_radius` | 1.3 | 0.1–1.5 m maximum supported deposition radius |
 | `items.oil_spring_stiffness` | 12 | 5–100 fixed-step head spring stiffness |

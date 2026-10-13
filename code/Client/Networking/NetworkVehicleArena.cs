@@ -100,6 +100,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         }
 
         _items.OilMouth = owner => _bodies.TryGetValue(owner, out var body) ? body.Rack.OilMouth : null;
+        _items.OilFrame = owner => _bodies.TryGetValue(owner, out var body) ? body.VisualTransform : null;
         AddChild(_items);
         AddChild(Walls);
         Walls.MountedPose = owner => _bodies.TryGetValue(owner, out var body)

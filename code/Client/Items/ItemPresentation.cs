@@ -8,6 +8,7 @@ namespace Trackstorm.Client.Items;
 internal sealed partial class ItemPresentation : Node3D
 {
     internal Func<ulong, Vector3?>? OilMouth { get; set; }
+    internal Func<ulong, Transform3D?>? OilFrame { get; set; }
     internal float OilStreamWidth { get; set; } = .24f;
     private float _oilRoughness = .16f;
     internal float OilRoughness
@@ -124,7 +125,7 @@ internal sealed partial class ItemPresentation : Node3D
         {
             if (!_oil.TryGetValue(patch.Id, out var node))
             {
-                node = new OilHazardVisual { Mouth = () => OilMouth?.Invoke(patch.Owner) };
+                node = new OilHazardVisual { Mouth = () => OilMouth?.Invoke(patch.Owner), OwnerFrame = () => OilFrame?.Invoke(patch.Owner) };
                 AddChild(node);
                 _oil.Add(patch.Id, node);
             }

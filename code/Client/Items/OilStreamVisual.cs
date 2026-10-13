@@ -13,12 +13,14 @@ internal sealed partial class OilStreamVisual : MeshInstance3D
     private readonly List<Vector2> _uvs = new(36000);
     private readonly List<(Vector3 Point, float Age)> _points = new(50);
     private readonly List<(Vector3 Point, float Age)> _curve = new(150);
-    private const int Sides = 8;
+    private const int Sides = 6;
     private readonly (Vector3 Point, Vector3 Normal, Vector2 Uv)[] _rings = new (Vector3, Vector3, Vector2)[150 * 9];
     private readonly MultiMesh _spray = new() { TransformFormat = MultiMesh.TransformFormatEnum.Transform3D };
     private readonly SphereMesh _sprayShape = new() { Radius = 1, Height = 2, RadialSegments = 6, Rings = 3 };
     private MultiMeshInstance3D? _sprayNode;
     private readonly Material _material;
+    private Transform3D? _inverseOwner;
+    internal int OccludedQuads { get; private set; }
 
     internal OilStreamVisual(Material material)
     {
@@ -34,9 +36,10 @@ internal sealed partial class OilStreamVisual : MeshInstance3D
         AddChild(_sprayNode);
     }
 
-    internal void Present(OilPour? pour, float age, Vector3? mouth, Vector3 sourceCorrection, float width, double clock)
+    internal void Present(OilPour? pour, float age, Vector3? mouth, Vector3 sourceCorrection, float width, double clock, Transform3D? owner = null)
     {
         if (pour is null || pour.Drops.Length == 0) { Visible = false; return; }
+        _inverseOwner = owner?.AffineInverse(); OccludedQuads = 0;
         _mesh.ClearSurfaces(); _vertices.Clear(); _normals.Clear(); _uvs.Clear(); _points.Clear();
         // Only a newly emitted parcel can connect to the mouth. Missing/retired
         // packets cannot create a long folded bridge back to the moving vehicle.
@@ -49,6 +52,23 @@ internal sealed partial class OilStreamVisual : MeshInstance3D
             Vector3 point = VehicleBody.ToGodot(drop.Position + drop.Velocity * age) - Vector3.Up * (pour.Gravity * age * age * .5f);
             float flightSeconds = (180 - drop.RemainingTicks) / 60f + age;
             point += sourceCorrection.LimitLength(3) * MathF.Exp(-flightSeconds * 5);
+            if (owner is { } frame && mouth is { } outlet && flightSeconds < .45f)
+            {
+                // Reliable flight is sampled at 10 Hz while the car/head render
+                // smoothly. A decaying translation alone can drag that old jet
+                // through today's box. Reconstruct the short ejection neck from
+                // the displayed mouth using the same safe ballistic rule, then
+                // join accepted world flight only beyond the rear hardware.
+                Vector3 localMouth = frame.AffineInverse() * outlet;
+                Vector3 gravity = frame.Basis.Inverse() * (Vector3.Down * pour.Gravity);
+                int ordinal = Math.Max(0, pour.Emitted - 1 - (int)((180 - drop.RemainingTicks) / pour.IntervalTicks));
+                Vector3 velocity = VehicleBody.ToGodot(OilJet.Velocity(VehicleBody.ToCore(localMouth), pour.Speed,
+                    VehicleBody.ToCore(gravity), ordinal, 0));
+                Vector3 neck = localMouth + velocity * flightSeconds + gravity * (.5f * flightSeconds * flightSeconds);
+                Vector3 accepted = frame.AffineInverse() * point;
+                float join = Mathf.SmoothStep(3.10f, 4.3f, Math.Min(neck.Z, accepted.Z));
+                point = frame * neck.Lerp(accepted, join);
+            }
             // Fractional cadence rounds emission ticks; a larger hole is an actual retired parcel.
             if (previous is not null && (previous.RemainingTicks - drop.RemainingTicks > MathF.Ceiling(pour.IntervalTicks) ||
                 (_points.Count > 0 && point.DistanceTo(_points[^1].Point) > 2)))
@@ -63,6 +83,7 @@ internal sealed partial class OilStreamVisual : MeshInstance3D
                 Vector3 scatter = new(MathF.Sin(seed) * spread, MathF.Cos(seed * .77f) * spread * .65f, MathF.Sin(seed * .53f) * spread);
                 float size = .011f + .029f * (.5f + .5f * MathF.Sin(seed * .37f));
                 Vector3 velocity = VehicleBody.ToGodot(drop.Velocity);
+                if (BehindHardware(point + scatter, size * 2.8f)) { continue; }
                 var basis = new Basis(new Quaternion(Vector3.Up, velocity.Normalized())).Scaled(new(size, size * 2.8f, size));
                 _spray.SetInstanceTransform(spray++, new Transform3D(basis, point + scatter));
             }
@@ -97,7 +118,7 @@ internal sealed partial class OilStreamVisual : MeshInstance3D
         }
         _curve.Add(_points[^1]);
         void Vertex((Vector3 Point, Vector3 Normal, Vector2 Uv) v) { _vertices.Add(v.Point); _normals.Add(v.Normal); _uvs.Add(v.Uv); }
-        for (int strand = 0; strand < 3; strand++)
+        for (int strand = 0; strand < 5; strand++)
         {
             (Vector3 Point, Vector3 Normal, Vector2 Uv) Ring(int index, int side)
             {
@@ -108,20 +129,23 @@ internal sealed partial class OilStreamVisual : MeshInstance3D
                 Vector3 right = direction.Cross(Math.Abs(direction.Y) < .9f ? Vector3.Up : Vector3.Right).Normalized();
                 Vector3 up = right.Cross(direction);
                 float age = _curve[index].Age;
-                float flow = age * 43 - (float)clock * 29 + strand * 2.399f;
-                float turn = strand * 2.399f + age * 7 + .7f * MathF.Sin(flow * .37f);
-                float spread = width * (.10f + Math.Min(age * .65f, .48f)) * (strand == 0 ? .3f : 1);
+                float flow = age * (57 + strand * 11) - (float)clock * 37 + strand * 2.399f;
+                float turn = strand * 2.399f + age * 5 + .45f * MathF.Sin(flow * .37f);
+                float free = Mathf.SmoothStep(.06f, .20f, age);
+                if (_inverseOwner is { } inverse) { free *= Mathf.SmoothStep(2.5f, 3.1f, (inverse * center).Z); }
+                float neckWidth = Mathf.Lerp(Math.Min(width, .18f), width, free);
+                float spread = neckWidth * (.10f + free * (.42f + .15f * MathF.Sin(flow * .31f)));
                 center += (right * MathF.Cos(turn) + up * MathF.Sin(turn)) * spread;
-                center += (right * MathF.Sin(flow) + up * MathF.Cos(flow * .81f)) * width * .21f * Math.Min(age * 8, 1);
-                // Soft tips and liquid necks replace cut ends; three inner strands
-                // keep the burst cohesive while the outer two tear into irregular lobes.
-                float tips = Math.Min(1, Math.Min(index / 2f, (_curve.Count - 1 - index) / 4f));
-                float neck = .83f + .42f * MathF.Sin(flow) + .21f * MathF.Sin(flow * 1.71f);
-                if (strand > 0 && age > .1f) { neck *= .08f + .92f * Mathf.SmoothStep(-.8f, .2f, MathF.Sin(flow * .43f + strand)); }
-                float radius = width * (strand == 0 ? .55f : .36f) * (1 + Math.Min(age, .8f)) * neck * tips;
+                center += (right * MathF.Sin(flow) + up * MathF.Cos(flow * .81f)) * neckWidth * .16f * free;
+                // Five distinct narrow rivulets leave one dense throat. Rounded
+                // lobes, irregular necks and offset breakup avoid a dominant cord.
+                float tips = MathF.Sqrt(Math.Min(1, Math.Min(index / 1.5f, (_curve.Count - 1 - index) / 1.5f)));
+                float neck = .78f + .38f * MathF.Sin(flow) + .20f * MathF.Sin(flow * 1.71f);
+                if (age > .1f) { neck *= .18f + .82f * Mathf.SmoothStep(-.85f, .1f, MathF.Sin(flow * .43f + strand)); }
+                float radius = neckWidth * (.22f + .025f * MathF.Sin(strand * 7)) * neck * tips;
                 float angle = side * Mathf.Tau / Sides;
                 Vector3 normal = right * Mathf.Cos(angle) + up * Mathf.Sin(angle);
-                radius *= 1 + .27f * MathF.Sin(angle * 3 + flow * .71f);
+                radius *= 1 + .15f * MathF.Sin(angle * 3 + flow * .71f);
                 return (center + normal * radius, normal, new Vector2(side / (float)Sides, age * 5 + strand));
             }
             for (int i = 0; i < _curve.Count; i++)
@@ -131,10 +155,41 @@ internal sealed partial class OilStreamVisual : MeshInstance3D
                 for (int side = 0; side < Sides; side++)
                 {
                     var a = _rings[i * 9 + side]; var b = _rings[i * 9 + side + 1]; var c = _rings[(i + 1) * 9 + side]; var d = _rings[(i + 1) * 9 + side + 1];
+                    // During a hard spin the vehicle can sweep through older world
+                    // flight. Do not draw a bridge through the current hardware;
+                    // authoritative flight and the impacted terrain stay unchanged.
+                    if (_inverseOwner is { } inverse)
+                    {
+                        var bounds = new Aabb(inverse * a.Point, Vector3.Zero).Expand(inverse * b.Point).Expand(inverse * c.Point).Expand(inverse * d.Point);
+                        if (IntersectsHardware(bounds)) { OccludedQuads++; continue; }
+                    }
                     Vertex(a); Vertex(b); Vertex(c); Vertex(b); Vertex(d); Vertex(c);
                 }
             }
         }
+    }
+
+    // Raised box, tank/rack and rear body, in the unchanged vehicle frame.
+    // Conservative bounds also protect fine spray without world collision cost.
+    private static readonly Aabb[] Hardware =
+    [
+        new(new(-.51f, 1.42f, 1.33f), new(1.02f, .74f, 1.02f)),
+        new(new(-.80f, .71f, 1.25f), new(1.60f, .72f, 1.42f)),
+        new(new(-.95f, .10f, -2.3f), new(1.90f, 1.12f, 5.35f)),
+    ];
+
+    private bool BehindHardware(Vector3 point, float radius)
+    {
+        if (_inverseOwner is not { } inverse) { return false; }
+        point = inverse * point;
+        foreach (var box in Hardware) { if (box.Grow(radius).HasPoint(point)) { return true; } }
+        return false;
+    }
+
+    private static bool IntersectsHardware(Aabb bounds)
+    {
+        foreach (var box in Hardware) { if (box.Intersects(bounds)) { return true; } }
+        return false;
     }
 
     public override void _ExitTree() { Mesh = null; _mesh.Dispose(); _spray.Dispose(); _sprayShape.Dispose(); }

@@ -32,11 +32,15 @@ internal static class OilSurfaceQuery
         for (int attempt = 0; attempt < 4; attempt++, radius *= .5f)
         {
             bool supported = true;
-            for (int i = 0; i < 8; i++)
+            // Include the interior: a narrow ledge can protrude through a disk
+            // even when its center and outer edge lie on one barrier plane.
+            // Four 64-point rings keep the observation cost strictly bounded.
+            for (int i = -1; i < 256; i++)
             {
-                float angle = i * Mathf.Tau / 8;
-                Vector3 point = position + radius * (tangent * Mathf.Cos(angle) + normal.Cross(tangent) * Mathf.Sin(angle));
-                ray.From = point + normal * .1f; ray.To = point - normal * .1f;
+                float angle = i * Mathf.Tau / 64;
+                float distance = i < 0 ? 0 : radius * (1 - (i / 64) * .25f);
+                Vector3 point = position + distance * (tangent * Mathf.Cos(angle) + normal.Cross(tangent) * Mathf.Sin(angle));
+                ray.From = point + normal * .06f; ray.To = point - normal * .06f;
                 using var sample = space.IntersectRay(ray);
                 if (sample.Count == 0 || sample["collider"].AsGodotObject() != body ||
                     sample["normal"].AsVector3().Dot(normal) < .98f || Math.Abs((sample["position"].AsVector3() - point).Dot(normal)) > .01f)

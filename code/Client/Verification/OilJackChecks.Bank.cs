@@ -25,6 +25,8 @@ public sealed partial class OilJackChecks
         try
         {
             _frames++;
+            if (_clearanceFailureFrame > 0 && _frames > _clearanceFailureFrame + 4)
+            { Check(false, $"hard-drift stream entered box on {_liveClearanceIntersections} vertices"); }
             Check(_frames < 5000, "production bank verification timeout");
             var host = _arenas[0].Driver.Host!;
             foreach (var arena in _arenas)
@@ -195,7 +197,11 @@ public sealed partial class OilJackChecks
             Vector3 point = i < 0 ? (start + end) / 2 : (radial.Dot(end - start) >= 0 ? end : start) + radial * segment.EdgeRadius(angle);
             using var ray = PhysicsRayQueryParameters3D.Create(point + normal * .06f, point - normal * .06f, 1);
             using var hit = _arenas[0].GetWorld3D().DirectSpaceState.IntersectRay(ray);
-            if (hit.Count == 0 || Math.Abs((hit["position"].AsVector3() - point).Dot(normal)) > .025f) { supported = false; }
+            if (hit.Count == 0 || Math.Abs((hit["position"].AsVector3() - point).Dot(normal)) > .025f)
+            {
+                if (supported) { GD.Print($"Unsupported perimeter sample {i}: point={point}, hit={(hit.Count == 0 ? "none" : hit["position"].AsVector3().ToString())}."); }
+                supported = false;
+            }
         }
         if (!supported)
         {

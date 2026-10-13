@@ -1,5 +1,7 @@
 # Original geometry, paint and hand-drawn lettering; executed by BuildJackInTheBox.py.
-tank=empty('Tank',(0,-.40,0),box)
+tank=empty('Tank',(0,-.40,.38),box)
+# Larger vessel sits behind the hydraulic columns, beneath the unchanged rack.
+tank.scale=(1.15,1.25,1.25)
 def barrel(name,length,radius,material,parent=tank):
  vertices=[];faces=[]
  for i in range(9):
@@ -56,6 +58,9 @@ cube('Glass reflection',(.39,.005,.325),(.004,.248,.002),white,tank,.002)
 for y in [-.158,.148]:
  for x in [.362,.498]:ball('Gauge screw',(x,y,.296),(.009,.009,.005),steel,tank)
 
+# A plain enamel label field separates the joke from the busy diamond paint.
+cube('Label brass edge',(-.10,0,.272),(.92,.40,.018),brass,tank,.032)
+cube('Label ivory enamel',(-.10,0,.285),(.893,.377,.012),cream,tank,.027)
 # Bespoke painted stroke alphabet; no font or reference pixels are redistributed.
 glyphs={
 'L':[[(0,1),(0,0),(.65,0)]], 'a':[[(0,0),(.34,1),(.68,0)],[(.15,.4),(.53,.4)]],
@@ -70,17 +75,18 @@ def label(text,x,y,height):
  for letter in text:
   if letter==' ':x+=height*.4;continue
   for stroke in glyphs[letter]:
-   pts=[(x+px*height,y+py*height,.273) for px,py in stroke]
-   tube('Letter dark outline',pts,.007,black,tank);tube('Painted Laughing Gas',[(px,py,pz+.003) for px,py,pz in pts],.004,brass,tank)
+   pts=[(x+px*height,y+py*height,.307) for px,py in stroke]
+   tube('Letter gold keyline',pts,.010,brass,tank);tube('Painted Laughing Gas',[(px,py,pz+.005) for px,py,pz in pts],.007,black,tank)
   x+=height*.84
-label('Laughing Gas',-.52,.005,.083)
+label('Laughing',-.53,.035,.12)
+label('Gas',-.48,-.145,.125)
 # Obvious informal correction, above a red handwritten lower-case oil.
-tube('Gas crossed out',[(.12,.012,.293),(.31,.097,.293)],.009,red,tank)
-tube('Second strike',[(.11,.078,.295),(.31,.034,.295)],.006,black,tank)
-tube('Handwritten o',[(.12,-.095,.256),(.10,-.12,.246),(.105,-.16,.226),(.14,-.165,.223),(.16,-.13,.241),(.15,-.10,.254),(.12,-.095,.256)],.008,red,tank)
-tube('Handwritten i',[(.19,-.10,.254),(.18,-.16,.226)],.007,red,tank)
-ball('Oil dot',(.196,-.076,.266),(.009,.009,.009),red,tank)
-tube('Handwritten l',[(.238,-.067,.269),(.22,-.16,.226),(.239,-.156,.228)],.008,red,tank)
+tube('Gas crossed out',[(-.50,-.135,.328),(-.20,-.035,.328)],.010,red,tank)
+tube('Second strike',[(-.49,-.040,.330),(-.18,-.11,.330)],.009,red,tank)
+tube('Handwritten o',[(.005,-.035,.321),(-.045,-.07,.321),(-.035,-.145,.321),(.025,-.16,.321),(.07,-.08,.321),(.04,-.035,.321),(.005,-.035,.321)],.012,red,tank)
+tube('Handwritten i',[(.12,-.065,.322),(.095,-.155,.322)],.011,red,tank)
+ball('Oil dot',(.13,-.025,.322),(.015,.015,.012),red,tank)
+tube('Handwritten l',[(.21,.006,.322),(.17,-.15,.322),(.21,-.14,.322)],.012,red,tank)
 
 # Stepped hex nuts, dark gaskets and scored brass collars read as hose adapters.
 def coupling(name,start,end,parent):

@@ -12,6 +12,7 @@ internal sealed partial class OilHazardVisual : Node3D
     private ArrayMesh? _mesh;
     private OilStreamVisual? _stream;
     internal Func<Vector3?>? Mouth { get; init; }
+    internal Func<Transform3D?>? OwnerFrame { get; init; }
     internal float StreamWidth { get; set; } = .24f;
     internal Vector3? StreamMouth { get; private set; }
     private double _clock;
@@ -146,7 +147,7 @@ internal sealed partial class OilHazardVisual : Node3D
         Vector3? mouth = firing ? Mouth?.Invoke() : null;
         StreamMouth = mouth;
         Vector3 correction = mouth.HasValue ? mouth.Value - (_source + _sourceVelocity * _flightAge) : Vector3.Zero;
-        _stream?.Present(_patch?.Pour, _flightAge, mouth, correction, StreamWidth, _clock);
+        _stream?.Present(_patch?.Pour, _flightAge, mouth, correction, StreamWidth, _clock, OwnerFrame?.Invoke());
         for (int i = _splashes.Count - 1; i >= 0; i--)
         {
             var splash = _splashes[i]; float age = splash.Age + (float)delta;

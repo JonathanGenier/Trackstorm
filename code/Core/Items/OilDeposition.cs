@@ -20,14 +20,9 @@ internal static class OilDeposition
             {
                 Vector3 origin = pose.Value.Position + Vector3.Transform(OilPour.Mouth(pour.HeadOffset), pose.Value.Orientation);
                 // Head motion moves the origin only. Pitch follows the chassis, never spring aim.
-                float phase = pour.Emitted * 2.399963f;
-                float travel = Math.Min(1, pose.Value.LinearVelocity.Length() / 18);
-                float turbulence = .2f + .8f * travel;
-                // A steep rearward burst clears the rear bumper and reaches nearby
-                // terrain ballistically. Lateral turbulence retains a substantial
-                // moving spill without extending the rack or projecting onto ground.
-                Vector3 direction = Vector3.Transform(Vector3.Normalize(new Vector3(.32f * MathF.Sin(phase) * turbulence, -1.45f + .09f * MathF.Cos(phase) * turbulence, 1)), pose.Value.Orientation);
-                drops.Add(new(origin, pose.Value.LinearVelocity + direction * pour.Speed, 180));
+                Vector3 gravity = Vector3.Transform(-Vector3.UnitY * pour.Gravity, Quaternion.Conjugate(pose.Value.Orientation));
+                Vector3 velocity = OilJet.Velocity(OilPour.Mouth(pour.HeadOffset), pour.Speed, gravity, pour.Emitted, pose.Value.LinearVelocity.Length());
+                drops.Add(new(origin, pose.Value.LinearVelocity + Vector3.Transform(velocity, pose.Value.Orientation), 180));
                 pour = pour with { Emitted = pour.Emitted + 1 };
             }
         }

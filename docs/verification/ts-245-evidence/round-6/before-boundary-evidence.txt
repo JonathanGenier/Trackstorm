@@ -1,0 +1,1 @@
+Full spring boundary: 233 rendered poses, 22530 stream vertices inside box bounds.

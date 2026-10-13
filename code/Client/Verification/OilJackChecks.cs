@@ -57,7 +57,9 @@ public sealed partial class OilJackChecks : Node
     private bool _mouthClosedBeforeRetract;
     private bool _fadeObserved;
     private static bool ProductionBank => OS.GetCmdlineUserArgs().Contains("--oil-production-bank");
-    private static string Output => ProjectSettings.GlobalizePath(ProductionBank ? "res://.godot/ts-245-round5/bank" : "res://.godot/ts-245-round5/runtime");
+    private static bool Clearance => OS.GetCmdlineUserArgs().Contains("--oil-clearance");
+    private static bool GameplayCamera => OS.GetCmdlineUserArgs().Contains("--oil-gameplay-camera");
+    private static string Output => ProjectSettings.GlobalizePath(Clearance ? "res://.godot/ts-245-round6/clearance" : GameplayCamera ? "res://.godot/ts-245-round6/gameplay" : ProductionBank ? "res://.godot/ts-245-round6/bank" : "res://.godot/ts-245-round6/runtime");
 
     public override void _Ready()
     {
@@ -110,6 +112,10 @@ public sealed partial class OilJackChecks : Node
         bank.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(100, 1, 100) } });
         bank.SetMeta("surface_identity", "Asphalt");
         bank.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new(100, 1, 100) }, MaterialOverride = MatchResourceLoader.LoadResource<Material>("res://assets/arena/materials/Asphalt.tres") }); arena.AddChild(bank);
+        var bump = new StaticBody3D { Name = "OilFiringBump", Position = new Vector3(0, 20, 0) + Basis.FromEuler(new Vector3(0, 0, .25f)) * new Vector3(0, .60f, -42), Rotation = new(0, 0, .25f), CollisionLayer = 1 };
+        bump.SetMeta("surface_identity", "Asphalt");
+        bump.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(20, .20f, 1.2f) } });
+        bump.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new(20, .20f, 1.2f) }, MaterialOverride = MatchResourceLoader.LoadResource<Material>("res://assets/arena/materials/Asphalt.tres") }); arena.AddChild(bump);
         var ramp = new StaticBody3D { Position = new(-30, 35, 15), Rotation = new(.4f, 0, 0), CollisionLayer = 1 };
         ramp.SetMeta("surface_identity", "Asphalt");
         ramp.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(8, 1, 12) } }); arena.AddChild(ramp);
@@ -121,10 +127,13 @@ public sealed partial class OilJackChecks : Node
     public override void _PhysicsProcess(double delta)
     {
         if (_done) { return; }
+        if (Clearance) { AdvanceClearance(); return; }
         if (ProductionBank) { AdvanceBank(); return; }
         try
         {
             _frames++;
+            if (_clearanceFailureFrame > 0 && _frames > _clearanceFailureFrame + 4)
+            { Check(false, $"moving stream entered box on {_liveClearanceIntersections} vertices"); }
             if (_finishFrame > 0 && _frames >= _finishFrame) { Finish(); return; }
             if (_frames - _boundary > 2600)
             {
@@ -135,7 +144,7 @@ public sealed partial class OilJackChecks : Node
             if (_stage == 3 && (_last?.Pour?.Emitted ?? 0) == 0) { Pose(new(0,40,-15), N.Quaternion.Identity, new(8,3,-10)); }
             foreach (var arena in _arenas)
             {
-                bool braking = _stage == 1 && _frames - _boundary is >= 145 and < 180;
+                bool braking = _stage == 1 && (_frames - _boundary is >= 145 and < 180 or >= 260 and < 285);
                 var input = arena == _arenas[0] && _stage is 1 or 2
                     ? new Trackstorm.Core.Input.InputFrame(0, _stage == 2 ? (short)15000 : (short)0, braking ? (ushort)0 : (ushort)40000, braking ? ushort.MaxValue : (ushort)0,
                         _stage == 2 && _frames - _boundary is > 150 and < 210 ? Trackstorm.Core.Input.InputButtons.Drift : 0, 0, 0)
@@ -332,13 +341,18 @@ public sealed partial class OilJackChecks : Node
     {
         _renderMs = delta * 1000;
         if (_done || _arenas.Count == 0 || !_arenas[0].Bodies.TryGetValue(_shooter, out var car)) { return; }
+        if (Clearance) { RenderClearance(); return; }
         if (!ProductionBank && _stage is >= 1 and <= 5 && _arenas[0].Bodies[1].FindChildren("*", "", true, false).OfType<Items.OilJack>().FirstOrDefault() is { } meterJack)
         {
             var host = _arenas[0].Driver.Host!;
             ObserveMeter(meterJack, host.Items.Patches.FirstOrDefault(p => p.Id == _id), host.World.State.Tick);
+            ObserveLiveClearance(meterJack);
         }
+        if (ProductionBank && car.FindChildren("*", "", true, false).OfType<Items.OilJack>().FirstOrDefault() is { } bankJack)
+        { ObserveLiveClearance(bankJack); }
         var camera = _arenas[0].GetNode<Camera3D>("OilEvidenceCamera");
-        if (_meterCameraHold-- > 0) { AimMeter(camera, car); }
+        if (GameplayCamera) { _arenas[0].GetNode<Camera3D>("ChaseCamera").MakeCurrent(); }
+        else if (_meterCameraHold-- > 0) { AimMeter(camera, car); }
         else if (_cameraHold-- > 0) { camera.GlobalPosition = _cameraPosition; camera.LookAt(_cameraTarget); }
         else
         {
@@ -363,7 +377,7 @@ public sealed partial class OilJackChecks : Node
             // this frame before forcing readback at the next process boundary.
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             if (_done) { return; }
-            var camera = _arenas[0].GetNode<Camera3D>("OilEvidenceCamera");
+            var camera = _views[0].GetCamera3D();
             string path = System.IO.Path.Combine(Output, name);
             System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path)!);
             if (name.Contains("firing"))
@@ -418,6 +432,7 @@ public sealed partial class OilJackChecks : Node
     }
     private void Finish()
     {
+        if (!Clearance) { _evidence.Add($"Moving presentation clearance: {_liveClearanceFrames} rendered flight frames, {_liveClearanceIntersections} liquid vertices inside the box."); }
         System.IO.File.WriteAllLines(System.IO.Path.Combine(Output,"evidence.txt"),_evidence);
         System.IO.File.WriteAllText(System.IO.Path.Combine(Output,"trace.json"),System.Text.Json.JsonSerializer.Serialize(_trace));
         GD.Print("Oil jack integration passed: "+string.Join("\n",_evidence)); _done=true;

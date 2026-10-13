@@ -1,0 +1,20 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Oil connection peer 0: Connecting.
+Oil connection peer 1: Connecting.
+Oil connection peer 1: Connected.
+Oil connection peer 0: Connected.
+Oil admission peer 1: Welcome received with connection=Connected, local=0, rejected=0.
+Bank start surface (-196.36028, 4.0150666, 0.17076667), normal (0.5735623, 0.8191619, -0).
+Grass approach (-185, -1.6610355, 9), normal (0.11600983, 0.99316084, -0.0131623885).
+Native vehicle-roof query: accepted radius=, position=.
+Unsupported perimeter sample 13: point=(-193.52466, 10.286654, 46.800674), hit=(-193.47723, 10.286654, 46.775047).
+UNSUPPORTED Oil piece #1: OilSegment { Start = <-193.35228, 10.396643, 47.119663>, End = <-193.35228, 10.396643, 47.119663>, Normal = <0.87976694, 0, -0.47540525>, Radius = 0.5702453 }
+Unsupported perimeter sample 50: point=(-192.3088, 10.286914, 48.98296), hit=(-192.2623, 10.286914, 48.95645).
+UNSUPPORTED Oil piece #2: OilSegment { Start = <-192.46362, 10.3491125, 48.711277>, End = <-192.46362, 10.3491125, 48.711277>, Normal = <0.8688418, 0, -0.49508977>, Radius = 0.4788585 }
+Live stream/box intersection: stage=1, point=(0.2487793, 0.21470642, 0.18470764), head=(0.34211007, -0.0024984535, -0.27240023), mouth=(-187.10469, 13.560026, 52.680923), frame=730.
+System.InvalidOperationException: hard-drift stream entered box on 276 vertices
+   at Trackstorm.Client.Verification.OilJackChecks.Check(Boolean value, String text) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\OilJackChecks.cs:line 443
+   at Trackstorm.Client.Verification.OilJackChecks.AdvanceBank() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\OilJackChecks.Bank.cs:line 29
+REPLICATION_TRAFFIC {"seconds":22.5351806,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":2093,"messages":1,"peak":2093},{"peer":1,"protocol":"TD","delivery":"Unreliable","bytes":85657,"messages":13,"peak":6589},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":313578,"messages":90,"peak":6336},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":6410,"messages":23,"peak":291},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":513,"messages":2,"peak":493},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":120292,"messages":244,"peak":493}]}
+REPLICATION_TRAFFIC {"seconds":18.1256034,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":106099,"messages":733,"peak":145}]}

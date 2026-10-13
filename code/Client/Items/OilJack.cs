@@ -51,7 +51,7 @@ internal sealed partial class OilJack : Node3D
         _meter = (Node3D)model.FindChild("GaugeLiquidLevel", true, false);
         _lips = model.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>().Where(m => m.GetBlendShapeCount() > 0).ToArray();
         _supply = new OilHose(); _headHose = new OilHose(); AddChild(_supply); AddChild(_headHose);
-        _supply.Present(new(-.38f, -.10f, .06f), new(-.46f, .03f, .16f), new(-.77f, .12f, .13f), new(-.50f, .38f, .10f));
+        _supply.Present(new(-.437f, -.025f, .455f), new(-.70f, .10f, .52f), new(-.79f, .20f, .13f), new(-.50f, .38f, .10f));
         Present(false, 0, null, new(), 0);
     }
 

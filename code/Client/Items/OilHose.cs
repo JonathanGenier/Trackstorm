@@ -5,7 +5,7 @@ namespace Trackstorm.Client.Items;
 /// <summary>A fixed-budget ribbed rubber conduit; four attachment controls never constrain head motion.</summary>
 internal sealed partial class OilHose : MeshInstance3D
 {
-    private const int Rings = 64;
+    private const int Rings = 96;
     private const int Sides = 8;
     private readonly ArrayMesh _mesh = new();
     private readonly Vector3[] _vertices = new Vector3[Rings * Sides * 6];
@@ -32,13 +32,16 @@ internal sealed partial class OilHose : MeshInstance3D
             Vector3 center = Point(t), direction = (Point(Math.Min(1, t + .002f)) - Point(Math.Max(0, t - .002f))).Normalized();
             Vector3 right = direction.Cross(Math.Abs(direction.Z) < .9f ? Vector3.Back : Vector3.Up).Normalized();
             Vector3 up = right.Cross(direction);
-            float radius = ring % 2 == 0 ? .032f : .027f;
+            // Four samples per bellows give visible shoulders and recessed roots,
+            // instead of a tiny zigzag whose smooth normals hid the old ribs.
+            float radius = ring % 4 is 1 or 2 ? .040f : .027f;
+            float slope = ring % 4 is 0 or 1 ? -.42f : .42f;
             for (int side = 0; side < Sides; side++)
             {
                 float angle = side * Mathf.Tau / Sides;
                 Vector3 normal = right * MathF.Cos(angle) + up * MathF.Sin(angle);
                 _ringPoints[ring * Sides + side] = center + normal * radius;
-                _ringNormals[ring * Sides + side] = normal;
+                _ringNormals[ring * Sides + side] = (normal + direction * slope).Normalized();
             }
         }
         int vertex = 0;
@@ -49,7 +52,7 @@ internal sealed partial class OilHose : MeshInstance3D
             // Stable authored-space grime, oxidized reinforcement and rubbed rib
             // edges move with the conduit; no texture swimming or new particles.
             float grain = .5f + .5f * MathF.Sin(ring * 2.399f + side * 7.17f);
-            float worn = Math.Max(0, MathF.Sin(ring * .37f + side * 1.4f)) * (ring % 2 == 0 ? .65f : .12f);
+            float worn = Math.Max(0, MathF.Sin(ring * .37f + side * 1.4f)) * (ring % 4 is 1 or 2 ? .85f : .08f);
             _colors[vertex++] = new Color(.025f + .055f * grain, .022f + .044f * grain, .017f + .029f * grain)
                 .Lerp(new Color(.25f, .15f, .055f), worn);
         }

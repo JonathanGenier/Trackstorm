@@ -1,0 +1,92 @@
+[
+  {
+    "sheet": "firing-1-sequence.png",
+    "source_frames": [
+      "frame-00534.png",
+      "frame-00540.png",
+      "frame-00546.png",
+      "frame-00558.png",
+      "frame-00570.png",
+      "frame-00582.png",
+      "frame-00606.png"
+    ],
+    "source_sha256": [
+      "fd1128170b63813aea8916643e7ae0a0c569f2779d4f32c1b8fdfa7eaa64daf5",
+      "2df3a815c1decde0fbb04d3737a04d7531d0ceb6b62946c7a4758d5544b4cc18",
+      "35064ff27903eb54d201be772b63b6fbc127bf1ca19c01893a06bfbe1375e0ce",
+      "bb4cc5eac6c8bb6b1384ab4eee26f3a637373b3888e6b74640716e0ca6629e71",
+      "d366149e509a07bf5429af935fc14e15c19c1693031dc91fac1979620c70ff77",
+      "91cf5ef0627dbc2e5f96a14b720e0c0b83c3bacaf03347c652f7f4bfcbc0dd98",
+      "1cd589e9826c51d190a9213a4364cac9b35a07d21b8275da4ea8d3f8f9b7caa0"
+    ]
+  },
+  {
+    "sheet": "firing-2-sequence.png",
+    "source_frames": [
+      "frame-00774.png",
+      "frame-00780.png",
+      "frame-00786.png",
+      "frame-00798.png",
+      "frame-00810.png",
+      "frame-00822.png",
+      "frame-00828.png",
+      "frame-00834.png",
+      "frame-00846.png"
+    ],
+    "source_sha256": [
+      "ffdcb6c42078f3ddadb44cb18e6a1a24b20b86a31a3c044c4f8aeb3a79b44570",
+      "ffdcb6c42078f3ddadb44cb18e6a1a24b20b86a31a3c044c4f8aeb3a79b44570",
+      "ffdcb6c42078f3ddadb44cb18e6a1a24b20b86a31a3c044c4f8aeb3a79b44570",
+      "ffdcb6c42078f3ddadb44cb18e6a1a24b20b86a31a3c044c4f8aeb3a79b44570",
+      "05cd988ee7d10cba9c123a60a9f016e9571c96bee721f367023e66a32145116a",
+      "6135bf56ea70ec9e028ee0045deeeb9c116ea13901601eda3c1bdca2c6c18a06",
+      "551202f5f45f595402e79aac16c37e70daa2faa149e17b20e72c10218cbd8475",
+      "48b3dbef2634ccafb6f35a6a04903f93b2061e7a90cd7449092a06b5d69bb132",
+      "e2a438a21418a9b1cbd1b812ac0e1debb39cc49db4b4f5d622f97d64870b0dbf"
+    ]
+  },
+  {
+    "sheet": "firing-3-sequence.png",
+    "source_frames": [
+      "frame-01092.png",
+      "frame-01098.png",
+      "frame-01110.png",
+      "frame-01116.png",
+      "frame-01134.png",
+      "frame-01140.png",
+      "frame-01146.png",
+      "frame-01158.png",
+      "frame-01164.png"
+    ],
+    "source_sha256": [
+      "c1050df96e3564fddffa521a934ca2f77026e38d7408f8904f5f591867029562",
+      "34ec04b401712b51a19fa61e0f32c406aeaa98ff1d690616984507f93f0b7175",
+      "403966c5f902a1c3ee564b2a743fc04947367ed29e31643f2eb892304acb0704",
+      "99afed2edbaceeebd63f8b54e4bde0a51e00317bb8cc5533ff1448d24d6e1a08",
+      "af619e79803854dacef6e0fcc00edee27e6c289105c2b67bbaeb68826f15dd46",
+      "cf6f43d5ae6405756e3fbe3f60860e9cae55c01f2117e8562efcc9250c593e53",
+      "22555d2321354663514852b838a7e9ec96ba45e9f5e7f790d312157025d5f331",
+      "0e0231c1fa15c57ef83e37b826ecfa6f5a642212b95a92095677edae15fcf737",
+      "7e9734e089d53ab470e7f304b742ecd0eeb67883877684d268e538c8578dc610"
+    ]
+  },
+  {
+    "sheet": "firing-5-sequence.png",
+    "source_frames": [
+      "frame-01842.png",
+      "frame-01854.png",
+      "frame-01860.png",
+      "frame-01884.png",
+      "frame-01890.png",
+      "frame-01914.png"
+    ],
+    "source_sha256": [
+      "3fd345a941c16723ad4a70d45417e5aca3d928d8f61bf819859ed67fa4d615ae",
+      "bbbc99ac5ed3c165b7f567945a98a659a4d879bfca8c4986b37d70fab0945a8a",
+      "8c64b15fcb338985368ebc45bd5221e055faadd1bed8b891f71b5bc51fac07f4",
+      "c56b83a935f8ffdc6c86397475d86e91a7723cfc6e8ed898b5b9071a1209cb2b",
+      "bb7120844ff81766c90d85f917e59ed7c780d5f704bd288ccf8712a85f83f6c1",
+      "91065cc4c7ccaea68c1e1a23e6090d7230ae1d08700e15539c99adf8c60fef1c"
+    ]
+  }
+]

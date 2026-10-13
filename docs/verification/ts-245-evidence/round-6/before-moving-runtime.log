@@ -1,0 +1,15 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Oil connection peer 1: Connecting.
+Oil connection peer 0: Connecting.
+Oil connection peer 0: Connected.
+Oil connection peer 1: Connected.
+Oil admission peer 1: Welcome received with connection=Connected, local=0, rejected=0.
+Native banked straight firing with two real UDP peers.
+Live stream/box intersection: stage=1, point=(0.0063495636, 0.59521675, 0.2679863), head=(-0.00048836705, 0.07604293, -0.18853948), mouth=(-1.6741837, 24.259024, -40.364388), frame=552.
+System.InvalidOperationException: moving stream entered box on 360 vertices
+   at Trackstorm.Client.Verification.OilJackChecks.Check(Boolean value, String text) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\OilJackChecks.cs:line 437
+   at Trackstorm.Client.Verification.OilJackChecks._PhysicsProcess(Double delta) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\OilJackChecks.cs:line 132
+REPLICATION_TRAFFIC {"seconds":24.1657535,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":2093,"messages":1,"peak":2093},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":6993,"messages":6,"peak":1527},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":382,"messages":2,"peak":191},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":513,"messages":2,"peak":493},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":123765,"messages":370,"peak":493}]}
+REPLICATION_TRAFFIC {"seconds":23.5990132,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":79709,"messages":551,"peak":145}]}
