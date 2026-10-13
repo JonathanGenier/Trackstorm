@@ -51,7 +51,10 @@ function Get-FastCheckPlan {
     foreach ($path in $normalized) {
         # This guard must precede every feature route, including water and surfaces.
         if ($path -match "\.md$" -and -not $hasProductionChanges) { continue }
-        if ($path -match '^tools/.*\.ps1
+        if ($path -match "^tools/.*\.ps1$" -or $path -eq 'check.ps1' -or $path -match "^\.github/workflows/") {
+            $workflowTests = $true
+        }
+
         if ($path -match 'PracticeVehicleInput|PracticeCar|HostedPractice|hosted_practice|check-hosted-practice') {
             Add-Extended 'check-hosted-practice.ps1'
             Add-Manual 'Check hosted practice driving on both maps, target acquisition/fire, respawn and host migration; use check-hosted-practice.ps1 -OldMap for the smaller route.'
