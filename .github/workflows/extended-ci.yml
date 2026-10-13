@@ -52,6 +52,8 @@ jobs:
         with:
           path: ${{ env.NUGET_PACKAGES }}
           key: trackstorm-nuget-${{ runner.os }}-net10-${{ hashFiles('**/*.csproj', 'Directory.Build.props') }}
+          restore-keys: |
+            trackstorm-nuget-${{ runner.os }}-net10-
 
       - name: Prepare pinned EOS SDK
         run: ./setup-eos.ps1
