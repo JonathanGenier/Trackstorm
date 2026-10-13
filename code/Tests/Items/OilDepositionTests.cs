@@ -84,6 +84,34 @@ internal sealed class OilDepositionTests
         Assert.That(patch.Pour.Drops.Length, Is.Zero);
     }
 
+    [TestCase(0f)]
+    [TestCase(.61f)]
+    [TestCase(1.5707963f)]
+    public void StreaksAndSatellitesRemainInsideTheNativeGuaranteedSupportDisk(float slope)
+    {
+        var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, slope);
+        Vector3 normal = Vector3.Transform(Vector3.UnitY, rotation);
+        Vector3 tangent = Vector3.Transform(Vector3.UnitX, rotation);
+        Vector3 impact = new(10, 12, 14);
+        var patch = Activation() with
+        {
+            Position = impact - tangent * 1.2f, Normal = normal, Radius = 1,
+            Pour = new() { Life = 1, StartTick = 1, Cancelled = true, Deposited = true, Emitted = 40,
+                Drops = new OilFlight([new(impact + normal * .01f, -normal * 2, 150)]) }
+        };
+        var result = OilDeposition.Advance(patch, 60, null, (_, _, _) => new(impact, normal, 1.3f));
+        result.Validate();
+        Assert.That(result.AdditionalSegments.Segments.Count, Is.GreaterThan(0));
+        foreach (var piece in result.AdditionalSegments.Segments)
+        {
+            Assert.That(Vector3.Distance(piece.Start, impact) + piece.Radius, Is.LessThanOrEqualTo(1.30001f), "No new footprint may bridge beyond the checked surface disk.");
+            Assert.That(Vector3.Distance(piece.End, impact) + piece.Radius, Is.LessThanOrEqualTo(1.30001f));
+            Assert.That(Math.Abs(Vector3.Dot(piece.Start - impact, normal)), Is.LessThan(.0001f));
+        }
+        Assert.That(result.Id, Is.EqualTo(patch.Id));
+        Assert.That(result.ExpiresAtTick, Is.EqualTo(patch.ExpiresAtTick));
+    }
+
     [Test]
     public void SpringRemainsBoundedUnderBrakingCorneringAndLandingDiscontinuities()
     {

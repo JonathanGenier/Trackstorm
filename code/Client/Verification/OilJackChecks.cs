@@ -56,7 +56,8 @@ public sealed partial class OilJackChecks : Node
     private bool _mouthClosing;
     private bool _mouthClosedBeforeRetract;
     private bool _fadeObserved;
-    private static string Output => ProjectSettings.GlobalizePath("res://.godot/ts-245-round4/runtime");
+    private static bool ProductionBank => OS.GetCmdlineUserArgs().Contains("--oil-production-bank");
+    private static string Output => ProjectSettings.GlobalizePath(ProductionBank ? "res://.godot/ts-245-round5/bank" : "res://.godot/ts-245-round5/runtime");
 
     public override void _Ready()
     {
@@ -78,7 +79,7 @@ public sealed partial class OilJackChecks : Node
         var view = new SubViewport { Size = new Vector2I(1280, 720), OwnWorld3D = true, RenderTargetUpdateMode = index == 0 ? SubViewport.UpdateMode.Always : SubViewport.UpdateMode.Disabled };
         if (index == 0) { var container = new SubViewportContainer(); AddChild(container); container.AddChild(view); } else { AddChild(view); }
         _views.Add(view);
-        var arena = new NetworkVehicleArena { PrototypeMapForVerification = true };
+        var arena = new NetworkVehicleArena { PrototypeMapForVerification = !ProductionBank, SpawnConfiguration = ProductionBank ? new() { PickupRadius = .01f } : null };
         arena.Initialize(gateway, index == 0 ? 245ul : 0, server);
         gateway.Received = message =>
         {
@@ -99,6 +100,12 @@ public sealed partial class OilJackChecks : Node
             { Check(publication.Patches.SequenceEqual(expected), "exact replicated Oil flight/geometry/deadlines"); }
         };
         view.AddChild(arena); _arenas.Add(arena);
+        if (ProductionBank)
+        {
+            var inspection = new Camera3D { Name = "OilEvidenceCamera", Position = new(6, 27, 9) };
+            arena.AddChild(inspection); inspection.LookAt(new(0, 23, 0)); inspection.MakeCurrent();
+            return;
+        }
         var bank = new StaticBody3D { Position = new(0, 20, 0), Rotation = new(0, 0, .25f), CollisionLayer = 1 };
         bank.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(100, 1, 100) } });
         bank.SetMeta("surface_identity", "Asphalt");
@@ -114,6 +121,7 @@ public sealed partial class OilJackChecks : Node
     public override void _PhysicsProcess(double delta)
     {
         if (_done) { return; }
+        if (ProductionBank) { AdvanceBank(); return; }
         try
         {
             _frames++;
@@ -142,7 +150,8 @@ public sealed partial class OilJackChecks : Node
             if (_stage == 3 && _frames - _boundary == 100) { AddPeer(); _evidence.Add("Fresh peer joins during airborne firing and reconstructs active hardware/flight."); }
             var host = _arenas[0].Driver.Host!;
             if (host.World.State.Match?.Phase == MatchPhase.Active) { _activeFrames++; }
-            if (_hostFire && _frames - _grantFrame >= (_stage == 1 ? 230 : 0))
+            if (_hostFire && _frames - _grantFrame >= (_stage == 1 ? 230 : 0) &&
+                (_stage != 5 || DisplayServer.GetName() == "headless" || _completedCaptures.Contains("meter-full.png")))
             { Check(_arenas[0].Driver.RequestItemUse(), "ordinary Oil use queued/sent"); _hostFire = false; }
             if (_stage == 2)
             {
@@ -178,7 +187,7 @@ public sealed partial class OilJackChecks : Node
                     headOffset = p?.Pour is { } motion ? new[] { motion.HeadOffset.X, motion.HeadOffset.Y, motion.HeadOffset.Z } : null,
                     emitted = p?.Pour?.Emitted, flight = p?.Pour?.Drops.Length, deposited = p?.Pour?.Deposited, segments = p?.AdditionalSegments.Segments.Count,
                     renderedHead = renderedJack is not null ? new[] { renderedJack.HeadOffset.X, renderedJack.HeadOffset.Y, renderedJack.HeadOffset.Z } : null,
-                    mouthOpening = renderedJack?.MouthOpening, hoseError = renderedJack?.HoseEndpointError, extension = renderedJack?.Extension,
+                    mouthOpening = renderedJack?.MouthOpening, meterLevel = renderedJack?.MeterLevel, hoseError = renderedJack?.HoseEndpointError, extension = renderedJack?.Extension,
                     residues = _arenas[0].FindChildren("*", "", true, false).OfType<Items.OilHazardVisual>().Count(o => o.Retired), forcedRepeatRender = _stage == 7,
                     renderMs = _renderMs, grounded = host.World.GetVehicle(1).Movement.Grounded,
                     nodes = Performance.GetMonitor(Performance.Monitor.ObjectNodeCount), resources = Performance.GetMonitor(Performance.Monitor.ObjectResourceCount),
@@ -233,6 +242,7 @@ public sealed partial class OilJackChecks : Node
             }
             if (_stage <= 5 && DisplayServer.GetName() != "headless" && _frames % 6 == 0 && _capture is null)
             { _capture = $"motion/frame-{_frames:D5}.png"; }
+            if (_stage == 5 && jack is not null) { RecordMeter(jack); }
             switch (_stage)
             {
                 case 0 when _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 2) && _activeFrames > 120:
@@ -275,6 +285,9 @@ public sealed partial class OilJackChecks : Node
                     {
                         Check(_nestedGeometry, "fully retracted Oil geometry observed before replacement");
                         Check(_mouthClosedBeforeRetract, "open/vomit/close/retract sequence observed");
+                        Check(_meterFull && _meterHalf && _meterEmpty && _meterRefilled && _meterPeerSamples > 10,
+                            $"meter full={_meterFull}, halfway={_meterHalf}, empty={_meterEmpty}, refilled={_meterRefilled}, peer samples={_meterPeerSamples}");
+                        _evidence.Add($"Visual meter: full before firing, halfway during accepted burst, empty after, full on replacement Oil; {_meterPeerSamples} samples verified against the observer's accepted clock; maximum publication lag {_meterPublicationLag} ticks, delayed level difference {_meterPeerDifference:F3}.");
                         Check(_readyFore > .08f && _readySide > .04f && _readyVertical > .01f, "visible spring response in all three axes");
                         _evidence.Add($"Rendered spring peaks: fore/aft {_readyFore:F3} m, lateral {_readySide:F3} m, vertical {_readyVertical:F3} m; full nesting observed before replacement.");
                         Check(_arenas[0].Bodies[1].Rack.PresentedItem == HeldItem.Wrench, "replacement appears after jester/box/rack return"); Capture("replacement-ready.png");
@@ -319,8 +332,14 @@ public sealed partial class OilJackChecks : Node
     {
         _renderMs = delta * 1000;
         if (_done || _arenas.Count == 0 || !_arenas[0].Bodies.TryGetValue(_shooter, out var car)) { return; }
+        if (!ProductionBank && _stage is >= 1 and <= 5 && _arenas[0].Bodies[1].FindChildren("*", "", true, false).OfType<Items.OilJack>().FirstOrDefault() is { } meterJack)
+        {
+            var host = _arenas[0].Driver.Host!;
+            ObserveMeter(meterJack, host.Items.Patches.FirstOrDefault(p => p.Id == _id), host.World.State.Tick);
+        }
         var camera = _arenas[0].GetNode<Camera3D>("OilEvidenceCamera");
-        if (_cameraHold-- > 0) { camera.GlobalPosition = _cameraPosition; camera.LookAt(_cameraTarget); }
+        if (_meterCameraHold-- > 0) { AimMeter(camera, car); }
+        else if (_cameraHold-- > 0) { camera.GlobalPosition = _cameraPosition; camera.LookAt(_cameraTarget); }
         else
         {
             camera.GlobalPosition = car.GlobalPosition + new Vector3(7, 4, _stage == 4 ? -8 : 9);
@@ -364,7 +383,10 @@ public sealed partial class OilJackChecks : Node
             RenderingServer.ForceDraw(false);
             RenderingServer.ForceSync();
             RenderingServer.ForceDraw(false);
+            if (name.StartsWith("meter-", StringComparison.Ordinal))
+            { GD.Print($"Meter capture {name}: displayed level {_arenas[0].Bodies[1].FindChildren("*", "", true, false).OfType<Items.OilJack>().First().MeterLevel:F3}."); }
             using var image = _views[0].GetTexture().GetImage(); image.SavePng(path);
+            _completedCaptures.Add(name);
         }
         catch (Exception error) { GD.PrintErr(error); foreach (var gateway in _gateways) { gateway.Dispose(); } GetTree().Quit(1); }
     }

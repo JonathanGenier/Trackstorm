@@ -59,7 +59,16 @@ internal static class OilDeposition
                     Vector3 prior = preceding.Radius > 0 ? preceding.End : patch.Position;
                     Vector3 normal = hit.Normal;
                     if (Vector3.Distance(prior, start) < radius * 2 && Math.Abs(Vector3.Dot(prior - start, normal)) < .01f)
-                    { pieces.Add(new(prior, start, normal, radius)); }
+                    {
+                        // The native observation guarantees only the disk around
+                        // this impact. Coplanar endpoints alone cannot establish
+                        // support across a curved bank, crest or intervening gap.
+                        Vector3 along = prior - start;
+                        along -= Vector3.Dot(along, normal) * normal;
+                        float length = along.Length();
+                        if (length > 0) { along *= Math.Min(1, Math.Max(0, hit.Radius - radius) / length); }
+                        pieces.Add(new(start + along, start, normal, radius));
+                    }
                     else { pieces.Add(new(start, start, normal, radius)); }
                 }
                 // Infer the parcel's emission ordinal from its retained lifetime, not

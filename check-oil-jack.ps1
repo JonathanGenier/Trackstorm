@@ -1,14 +1,16 @@
-param([Parameter(Mandatory)][string]$GodotPath, [switch]$Visual, [switch]$Impaired, [switch]$NoBuild, [switch]$VisualOnly)
+param([Parameter(Mandatory)][string]$GodotPath, [switch]$Visual, [switch]$Impaired, [switch]$NoBuild, [switch]$VisualOnly, [switch]$ProductionBank)
 $ErrorActionPreference = 'Stop'
 if (-not $NoBuild) {
     dotnet build Trackstorm.Client.csproj -c Debug -warnaserror
     if ($LASTEXITCODE -ne 0) { throw 'Oil Jack build failed.' }
 }
-$output = Join-Path $PSScriptRoot '.godot/ts-245-round4/runtime'
+$output = Join-Path $PSScriptRoot $(if ($ProductionBank) { '.godot/ts-245-round5/bank' } else { '.godot/ts-245-round5/runtime' })
 New-Item -ItemType Directory -Path $output -Force | Out-Null
 $arguments = @('--path', $PSScriptRoot, 'res://scenes/verification/oil_jack_checks.tscn')
 if (-not $Visual) { $arguments = @('--headless') + $arguments }
-if ($Impaired -or $VisualOnly) { $arguments += '--' }; if ($Impaired) { $arguments += '--oil-impaired' }; if ($VisualOnly) { $arguments += '--oil-visual-only' }
+if ($Impaired -or $VisualOnly -or $ProductionBank) { $arguments += '--' }
+if ($Impaired) { $arguments += '--oil-impaired' }; if ($VisualOnly) { $arguments += '--oil-visual-only' }
+if ($ProductionBank) { $arguments += '--oil-production-bank' }
 $log = & $GodotPath @arguments 2>&1
 $code = $LASTEXITCODE
 $log | Set-Content (Join-Path $output 'runtime.log')

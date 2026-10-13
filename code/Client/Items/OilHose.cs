@@ -10,10 +10,11 @@ internal sealed partial class OilHose : MeshInstance3D
     private readonly ArrayMesh _mesh = new();
     private readonly Vector3[] _vertices = new Vector3[Rings * Sides * 6];
     private readonly Vector3[] _normals = new Vector3[Rings * Sides * 6];
+    private readonly Color[] _colors = new Color[Rings * Sides * 6];
     private readonly Vector3[] _ringPoints = new Vector3[(Rings + 1) * Sides];
     private readonly Vector3[] _ringNormals = new Vector3[(Rings + 1) * Sides];
     private readonly Godot.Collections.Array _arrays = new();
-    private readonly StandardMaterial3D _material = new() { AlbedoColor = new(.023f, .020f, .016f), Roughness = .52f, Metallic = .12f };
+    private readonly StandardMaterial3D _material = new() { VertexColorUseAsAlbedo = true, Roughness = .64f, Metallic = .16f };
     internal Vector3 End { get; private set; }
 
     internal OilHose()
@@ -44,7 +45,13 @@ internal sealed partial class OilHose : MeshInstance3D
         void Add(int ring, int side)
         {
             int index = ring * Sides + side % Sides;
-            _vertices[vertex] = _ringPoints[index]; _normals[vertex++] = _ringNormals[index];
+            _vertices[vertex] = _ringPoints[index]; _normals[vertex] = _ringNormals[index];
+            // Stable authored-space grime, oxidized reinforcement and rubbed rib
+            // edges move with the conduit; no texture swimming or new particles.
+            float grain = .5f + .5f * MathF.Sin(ring * 2.399f + side * 7.17f);
+            float worn = Math.Max(0, MathF.Sin(ring * .37f + side * 1.4f)) * (ring % 2 == 0 ? .65f : .12f);
+            _colors[vertex++] = new Color(.025f + .055f * grain, .022f + .044f * grain, .017f + .029f * grain)
+                .Lerp(new Color(.25f, .15f, .055f), worn);
         }
         for (int ring = 0; ring < Rings; ring++)
         {
@@ -53,6 +60,7 @@ internal sealed partial class OilHose : MeshInstance3D
         }
         _mesh.ClearSurfaces();
         _arrays[(int)Godot.Mesh.ArrayType.Vertex] = _vertices; _arrays[(int)Godot.Mesh.ArrayType.Normal] = _normals;
+        _arrays[(int)Godot.Mesh.ArrayType.Color] = _colors;
         _mesh.AddSurfaceFromArrays(Godot.Mesh.PrimitiveType.Triangles, _arrays);
     }
 

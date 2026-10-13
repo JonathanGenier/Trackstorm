@@ -13,6 +13,7 @@ internal sealed partial class OilJack : Node3D
     private Node3D _head = null!;
     private Node3D _spring = null!;
     private Node3D _jaw = null!;
+    private Node3D _meter = null!;
     private MeshInstance3D[] _lips = [];
     private OilHose _supply = null!;
     private OilHose _headHose = null!;
@@ -29,12 +30,13 @@ internal sealed partial class OilJack : Node3D
     internal float Extension => _extension;
     internal bool Nested => _extension <= .001f && _open <= .001f && _mouthOpen <= .001f;
     internal float MouthOpening => _mouthOpen;
+    internal float MeterLevel { get; private set; } = 1;
     internal float HoseEndpointError => _headHose.End.DistanceTo(HeadHoseSocket);
     internal Vector3 ModelOffset => Vector3.Zero;
     internal Vector3 HeadOffset => _presentedOffset;
     internal Vector3 SpringBase => _spring.GlobalPosition;
     internal bool FullyNestedGeometry => _head.Position.Y + .66f * _head.Scale.Y < .68f && _spring.Position.Y < .11f;
-    private Vector3 HeadHoseSocket => ToLocal(_head.ToGlobal(new Vector3(-.265f, .20f, -.015f)));
+    private Vector3 HeadHoseSocket => ToLocal(_head.ToGlobal(new Vector3(-.33f, .20f, -.015f)));
     internal Vector3 Mouth => _head.ToGlobal(new Vector3(0, .025f - .08f * _mouthOpen, .225f + .04f * _mouthOpen));
     internal void ReconstructPour() { _open = _extension = _mouthOpen = 1; }
 
@@ -46,9 +48,10 @@ internal sealed partial class OilJack : Node3D
         _head = (Node3D)model.FindChild("JesterPivot", true, false);
         _spring = (Node3D)model.FindChild("Spring", true, false);
         _jaw = (Node3D)model.FindChild("JawPivot", true, false);
+        _meter = (Node3D)model.FindChild("GaugeLiquidLevel", true, false);
         _lips = model.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>().Where(m => m.GetBlendShapeCount() > 0).ToArray();
         _supply = new OilHose(); _headHose = new OilHose(); AddChild(_supply); AddChild(_headHose);
-        _supply.Present(new(-.38f, -.10f, .06f), new(-.46f, .03f, .16f), new(-.77f, .12f, .13f), new(-.445f, .38f, .10f));
+        _supply.Present(new(-.38f, -.10f, .06f), new(-.46f, .03f, .16f), new(-.77f, .12f, .13f), new(-.50f, .38f, .10f));
         Present(false, 0, null, new(), 0);
     }
 
@@ -57,6 +60,15 @@ internal sealed partial class OilJack : Node3D
         bool firing = accepted is { Cancelled: false } && tick < accepted.StartTick + (ulong)accepted.DurationTicks;
         // Absolute accepted ticks reconstruct opening/closing on observers and resume.
         float phase = accepted is null ? 0 : (float)(tick - accepted.StartTick);
+        // A reconstructed presentation of the accepted burst clock, never an
+        // ammunition resource. A new payload starts full; a spent one stays empty.
+        if (accepted is not null)
+        {
+            MeterLevel = accepted.Cancelled ? 1 - Mathf.Clamp(accepted.Emitted / MathF.Ceiling(accepted.DurationTicks / accepted.IntervalTicks), 0, 1)
+                : 1 - Mathf.Clamp(phase / accepted.DurationTicks, 0, 1);
+        }
+        _meter.Visible = MeterLevel > .001f;
+        _meter.Scale = new Vector3(1, Math.Max(.001f, MeterLevel), 1);
         float target = firing ? Mathf.Clamp(phase / 5, 0, 1) : accepted is { Cancelled: false }
             ? Mathf.Clamp(1 - (phase - accepted.DurationTicks) / 12, 0, 1) : 0;
         _mouthOpen = Mathf.MoveToward(_mouthOpen, target, delta * 12);
@@ -92,7 +104,7 @@ internal sealed partial class OilJack : Node3D
         _spring.Scale = new Vector3(1, Math.Max(.02f, collar.Length() / 1.145f), 1);
         _headHose.Visible = _extension > .01f;
         Vector3 end = HeadHoseSocket;
-        Vector3 start = new(-.29f, .57f, .16f);
+        Vector3 start = new(-.29f, .635f, .16f);
         // The slack route stays beside the coil and forward of the painted face.
         // It follows pose only: no force, constraint or gameplay input is created.
         _headHose.Present(start, start + new Vector3(-.10f * _extension, .42f * _extension, .02f),

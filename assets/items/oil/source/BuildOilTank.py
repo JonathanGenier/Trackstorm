@@ -41,14 +41,18 @@ for x in [-.38,.40]:
 tube('Filler cap',[(.40,.30,.06),(.40,.315,.06)],.074,brass,tank)
 tube('Cap handle',[(.35,.33,.06),(.35,.36,.06),(.46,.36,.06),(.46,.33,.06)],.011,steel,tank)
 
-# A fixed decorative sight glass, not a new ammunition display.
+# Visual-only liquid level: a separate bottom pivot survives rigid mesh batching.
 cube('Gauge brass frame',(.43,-.005,.259),(.19,.37,.047),brass,tank,.025)
 cube('Gauge black gasket',(.43,-.005,.289),(.143,.316,.016),black,tank,.023)
 cube('Gauge ivory back',(.43,-.005,.300),(.119,.286,.006),cream,tank,.018)
-cube('Gauge oil sight',(.43,-.057,.306),(.109,.176,.008),black,tank,.01)
+meter=empty('GaugeLiquidLevel',(.43,-.14,.309),tank)
+cube('Gauge oil sight',(0,.136,0),(.109,.272,.008),black,meter,.003)
+glass=bpy.data.materials.new('Oil sight glass');glass.use_nodes=True;glass.surface_render_method='DITHERED'
+gp=glass.node_tree.nodes.get('Principled BSDF');gp.inputs['Base Color'].default_value=(.53,.70,.66,.16);gp.inputs['Alpha'].default_value=.16;gp.inputs['Roughness'].default_value=.13
+cube('Gauge glass pane',(.43,-.005,.322),(.119,.286,.003),glass,tank,.008)
 for i in range(7):
  y=-.12+i*.038;cube('Sight scale',(.48,y,.315),(.030 if i%3==0 else .016,.004,.003),brass,tank,.001)
-cube('Glass reflection',(.40,.005,.314),(.008,.248,.003),white,tank,.003)
+cube('Glass reflection',(.39,.005,.325),(.004,.248,.002),white,tank,.002)
 for y in [-.158,.148]:
  for x in [.362,.498]:ball('Gauge screw',(x,y,.296),(.009,.009,.005),steel,tank)
 
@@ -78,7 +82,14 @@ tube('Handwritten i',[(.19,-.10,.254),(.18,-.16,.226)],.007,red,tank)
 ball('Oil dot',(.196,-.076,.266),(.009,.009,.009),red,tank)
 tube('Handwritten l',[(.238,-.067,.269),(.22,-.16,.226),(.239,-.156,.228)],.008,red,tank)
 
-# Visible endpoints seal the passive runtime hoses into the tank, box and temple.
-tube('Box feed brass ferrule',[(-.405,.38,.10),(-.45,.38,.10)],.047,brass,box)
-tube('Spring hose gland',[(-.29,.53,.16),(-.29,.60,.16)],.039,brass,box)
-tube('Temple hose fitting',[(-.22,.20,-.015),(-.28,.20,-.015)],.041,brass,head)
+# Stepped hex nuts, dark gaskets and scored brass collars read as hose adapters.
+def coupling(name,start,end,parent):
+ a=Vector(start);b=Vector(end);axis=(b-a).normalized()
+ for t,r,length,material,sides in [(0,.070,.018,steel,24),(.22,.061,.035,brass,6),(.57,.048,.042,brass,24),(.78,.050,.009,steel,24),(.91,.043,.022,brass,24)]:
+  bpy.ops.mesh.primitive_cylinder_add(vertices=sides,radius=r,depth=length)
+  o=bpy.context.object;finish(o,name,material,parent,tuple(a.lerp(b,t)));o.rotation_mode='QUATERNION';o.rotation_quaternion=Vector(xyz(axis)).to_track_quat('Z','Y')
+  bevel=o.modifiers.new('Worn adapter edges','BEVEL');bevel.width=.003;bevel.segments=2;o.modifiers.new('Adapter normals','WEIGHTED_NORMAL')
+coupling('Tank supply adapter',(-.38,.23,.06),(-.38,.30,.06),tank)
+coupling('Box feed adapter',(-.405,.38,.10),(-.50,.38,.10),box)
+coupling('Spring hose adapter',(-.29,.53,.16),(-.29,.635,.16),box)
+coupling('Temple hose adapter',(-.22,.20,-.015),(-.33,.20,-.015),head)

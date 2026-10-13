@@ -151,7 +151,7 @@ for i in range(65):
  x=random.uniform(-.36,.36);y=random.uniform(.12,.61);cube('Paint chip',(x,y,.408),(random.uniform(.005,.025),random.uniform(.003,.012),.001),steel,box,0)
 exec(compile((root/'source/BuildOilTank.py').read_text(), 'BuildOilTank.py', 'exec'))
 bpy.ops.wm.save_as_mainfile(filepath=str(root/'source/JackInTheBox.blend'))
-for parent in [box,lid,head,spring,jaw,tank]:
+for parent in [box,lid,head,spring,jaw,tank,meter]:
  objects=[o for o in bpy.context.scene.objects if o.parent==parent and o.type in {'MESH','CURVE'} and not (o.type=='MESH' and o.data.shape_keys)]
  bpy.ops.object.select_all(action='DESELECT')
  for o in objects:o.select_set(True)
