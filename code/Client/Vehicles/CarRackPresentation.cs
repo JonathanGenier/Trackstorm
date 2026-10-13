@@ -64,6 +64,7 @@ internal sealed partial class CarRackPresentation : Node
         if (_payload is Items.ProxyMineRack arm) { arm.Observe(placement); }
         if (inventory?.Life != life) { inventory = null; }
         ItemSlot? active = inventory?.Active;
+        if (_payload is Items.WeaponAimMount { TwinFang: { } fang }) { fang.Observe(inventory, events, tick); }
         var outcome = events.LastOrDefault(e => e.Item != HeldItem.Nitro && (e.Item == HeldItem.MachineGun || !e.Impact) &&
             (e.Token == active?.Token || e.Token == _previous?.Active.Token));
         bool used = outcome is not null;
@@ -87,7 +88,7 @@ internal sealed partial class CarRackPresentation : Node
         // Authority clears depleted slots. Cooldown and trigger release do not empty them.
         _desired = active?.Item ?? HeldItem.None;
         _engaged = active?.Item != HeldItem.Nitro && inventory is { EngagedToken: > 0 };
-        if (outcome is not null || (_previous is null && _engaged))
+        if (active?.Item != HeldItem.MachineGun && outcome?.Item != HeldItem.MachineGun && (outcome is not null || (_previous is null && _engaged)))
         {
             _useItem = outcome?.Item ?? active!.Item;
             _usePending = true;
@@ -207,7 +208,7 @@ internal sealed partial class CarRackPresentation : Node
             _payload.Scale = Vector3.One * Math.Max(0.001f, reveal);
             _payload.Position = new Vector3(0, _mounted == HeldItem.Shield ? 0 : _payload is Items.WeaponAimMount ? WeaponAim.Pivot.Y - 1.34f : 0.17f, 0);
             if (_payload is Items.WeaponAimMount mount) { mount.Present(_replace || _mechanism.Progress < .999f ? null : _aim, (float)delta); }
-            if (_usePending && _mounted == _useItem && !_replace && _mechanism.Progress >= 0.999f)
+            if (_mounted != HeldItem.MachineGun && _usePending && _mounted == _useItem && !_replace && _mechanism.Progress >= 0.999f)
             {
                 _useTime = Math.Max(0, _useTime - (float)delta);
                 float pulse = MathF.Sin(_useTime * 45) * 0.025f;
