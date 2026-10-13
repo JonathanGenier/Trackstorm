@@ -310,7 +310,8 @@ function Get-FastCheckPlan {
         if ($path -match '(?i)Shield|WorldWall|world.wall|ItemAuthority|NetworkVehicleBody|NetworkVehicleArena') { Add-Runtime 'check-world-wall.ps1'; Add-Manual 'Run check-world-wall.ps1 -ProductionMap -Impaired -Visual for production oval/infield deployment, then inspect upright sliding and yaw after vehicle impacts.' }
         if ($path -match '(?i)Shield') { Add-Runtime 'check-shield.ps1'; Add-Runtime 'check-shield-presentation.ps1' }
         if ($path -match '(?i)Shield|ItemAuthority|NetworkVehicleBody|NetworkVehicleArena') { Add-Runtime 'check-rear-shield.ps1' }
-        if ($path -match '(?i)MachineGun|machine_gun|check-machine-gun') { Add-Runtime 'check-machine-gun.ps1' }
+        if ($path -match '(?i)MachineGun|machine_gun|machine-gun|TwinFang|twin_fang|check-machine-gun') { Add-Runtime 'check-machine-gun.ps1' }
+        if ($path -match '(?i)TwinFang|twin_fang|machine-gun|check-twin-fang') { Add-Runtime 'check-twin-fang.ps1' }
 
         if ($path -match '(?i)ProxyMine|proxy-mine|check-mine|mine_checks') { Add-Runtime 'check-mine.ps1' }
 

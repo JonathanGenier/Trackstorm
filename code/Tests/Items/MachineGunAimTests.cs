@@ -42,7 +42,7 @@ internal sealed class MachineGunAimTests
         var ray = _rays.Single();
         Assert.That(Vector3.Distance(ray.Start, _pose.Position + Vector3.Transform(WeaponAim.Pivot, _pose.Orientation)), Is.LessThan(.0001));
         Assert.That(Vector3.Distance(Vector3.Normalize(ray.End - ray.Start), _desired), Is.LessThan(.0001));
-        Assert.That(_host.Items.Events.Single().Origin, Is.EqualTo(ray.Start));
+        Assert.That(Vector3.Distance(_host.Items.Events.Single().Origin, ray.Start + _desired * WeaponAim.MachineGunMuzzleDistance), Is.LessThan(.0001));
     }
 
     [Test]
@@ -80,7 +80,7 @@ internal sealed class MachineGunAimTests
         var aim = _host.Items.Aims.Single();
         Assert.That(Vector3.Dot(aim.Direction, _desired), Is.LessThan(.3));
         Assert.That(Vector3.Distance(Vector3.Normalize(_rays.Single().End - _rays.Single().Start), aim.Direction), Is.LessThan(.0001));
-        Assert.That(_rays.Single().Start, Is.EqualTo(_pose.Position + WeaponAim.Pivot));
+        Assert.That(Vector3.Distance(_rays.Single().Start, _pose.Position + WeaponAim.Pivot), Is.LessThan(.0001));
     }
 
     [Test]
@@ -100,7 +100,7 @@ internal sealed class MachineGunAimTests
             {
                 blocked++;
                 Assert.That(shot.Impact, Is.True);
-                Assert.That(Vector3.Distance(shot.Origin, shot.Position), Is.EqualTo(distance.Value).Within(.0001));
+                Assert.That(Vector3.Distance(shot.Origin, shot.Position), Is.EqualTo(Math.Max(0, distance.Value - WeaponAim.MachineGunMuzzleDistance)).Within(.0001));
             }
         }
         Assert.That(blocked, Is.GreaterThan(0));
@@ -122,6 +122,27 @@ internal sealed class MachineGunAimTests
     }
 
     private void Ready() { for (int i = 0; i < 180; i++) { Step(); } }
+
+    [Test]
+    public void CoverBeforeProductionMuzzleStillStopsRoundAndNeverDrawsBackwardTracer()
+    {
+        Ready(); Engage();
+        var slot = _host.Items.Slots.Single();
+        _host.Items.RequestAim(_host.World, 1, slot.Life, slot.Token, slot.SelectionRevision, _host.World.State.Tick + 1, _desired);
+        Vector3 expected = default;
+        _host.Step(new(0, 0, 0, 0, InputButtons.UseItem, 0, 0), _ => new(_pose, Vector3.UnitY),
+            raycastWeapon: (_, start, end) =>
+            {
+                Assert.That(start, Is.EqualTo(_pose.Position + WeaponAim.Pivot));
+                expected = Vector3.Lerp(start, end, .5f / 225);
+                return new(.5f / 225, 0);
+            });
+        var shot = _host.Items.Events.Single();
+        Assert.That(shot.Impact, Is.True);
+        Assert.That(Vector3.Distance(shot.Position, expected), Is.LessThan(.0001));
+        Assert.That(Vector3.Distance(shot.Origin, shot.Position), Is.LessThan(.0001));
+        Assert.That(_host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(slot.Ammo!.Remaining - 1));
+    }
 
     [Test]
     public void ActualDefaultSpreadGroupsStatisticallyAtTwoHundredMetresWithoutTargetData()

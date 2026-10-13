@@ -1,0 +1,8 @@
+Created ts-999.md
+Added TS-999 to docs/verification/README.md
+ts-999.md already exists; leaving it unchanged.
+Verification index already links ts-999.md.
+Docs-only iteration selected; no build/test command required.
+
+Fast targeted checks passed. Run ./check.ps1 before final Story handoff.
+Workflow helper regression tests passed.

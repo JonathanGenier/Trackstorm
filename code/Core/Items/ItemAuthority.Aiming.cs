@@ -77,6 +77,8 @@ public sealed partial class ItemAuthority
                 previous.Pitch <= Configuration.Aim.UpDegrees * MathF.PI / 180) { continue; }
             var solution = WeaponAim.Solve(state, intent.Token, intent.Direction, previous, Configuration.Aim, tick,
                 observations?.Single(request => request.VehicleId == id).Observation.Physics);
+            if (slot.Active.Item == HeldItem.MachineGun)
+            { solution = solution with { Origin = solution.Origin + solution.Direction * WeaponAim.MachineGunMuzzleDistance }; }
             _aims[id] = solution with { Ready = solution.Clear && !deployment.Retracting && deployment.Progress >= 1 && (slot.Active.Item != HeldItem.Missile || tick >= slot.MissileReadyTick) };
         }
     }

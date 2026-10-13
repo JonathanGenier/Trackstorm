@@ -1,0 +1,732 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Two native UDP peers ready
+Fixture configuration accepted
+Pickup Wrench
+Two occupied slots
+Wrench visible to owner and other peer
+Captured wrench-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Wrench
+Confirmed use/fire outcome for Wrench
+Depletion retracts and closes on both peers
+Use preserves second physical slot
+Captured wrench-after-use
+Pickup Missile
+Two occupied slots
+Missile visible to owner and other peer
+Captured missile-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Missile
+Confirmed use/fire outcome for Missile
+Depletion retracts and closes on both peers
+Use preserves second physical slot
+Captured missile-after-use
+Pickup Oil
+Two occupied slots
+Oil visible to owner and other peer
+Captured oil-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Oil
+Confirmed use/fire outcome for Oil
+Depletion retracts and closes on both peers
+Use preserves second physical slot
+Captured oil-after-use
+Pickup Nitro
+Two occupied slots
+Nitro visible to owner and other peer
+Selected Nitro is ready without ignition on both peers
+Captured nitro-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Nitro
+Confirmed use/fire outcome for Nitro
+Usable item stays deployed after release on both peers
+Released Nitro stays extended without thrust effects on both peers
+Use preserves second physical slot
+Captured nitro-after-use
+Pickup Proxy Mine
+Two occupied slots
+Proxy Mine visible to owner and other peer
+Captured proxy_mine-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Proxy Mine
+Confirmed use/fire outcome for Proxy Mine
+Depletion retracts and closes on both peers
+Use preserves second physical slot
+Captured proxy_mine-after-use
+Pickup Salvo
+Two occupied slots
+Salvo visible to owner and other peer
+Captured salvo-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Salvo
+Confirmed use/fire outcome for Salvo
+Usable item stays deployed after release on both peers
+Use preserves second physical slot
+Captured salvo-after-use
+Pickup Machine Gun
+Two occupied slots
+Machine Gun visible to owner and other peer
+Captured machine_gun-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Machine Gun shared aim is ready after deployment
+Use request accepted for Machine Gun
+Confirmed use/fire outcome for Machine Gun
+Usable item stays deployed after release on both peers
+Use preserves second physical slot
+Captured machine_gun-after-use
+Pickup Shield
+Two occupied slots
+Shield visible to owner and other peer
+Captured shield-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Remote Shield deployment request
+Deployment retracts the carriage on both peers
+Use transfers the same shield and health to one world wall
+Shield use preserves the other physical slot
+Five-shot lifecycle grant
+Multi-shot rack deployed
+Select empty physical slot
+Empty selection stays stowed
+Empty slot does not reopen
+Return to usable slot
+Usable slot opens again
+Repeated shot accepted
+Confirmed remaining shots 4
+Both peers remain fully deployed between shots
+Repeated shot accepted
+Confirmed remaining shots 3
+Both peers remain fully deployed between shots
+Repeated shot accepted
+Confirmed remaining shots 2
+Both peers remain fully deployed between shots
+Repeated shot accepted
+Confirmed remaining shots 1
+Both peers remain fully deployed between shots
+Repeated shot accepted
+Confirmed remaining shots 0
+Final shot retracts both racks
+Depleted rack remains stowed
+Captured salvo-depleted
+Duplicate first grant
+Duplicate second grant
+Duplicate first selected
+Duplicate switch
+Duplicate switch retracts despite equal item type
+Duplicate second re-deployed
+Recovery reconstructs selected duplicate without use replay
+Death removes rack payload
+Respawn starts with closed empty rack
+New-life pickup
+New-life Nitro readies its rack-mounted jet
+Normal driving with deployed rack
+Captured driving-equipped
+Both UDP peers show coasting lamps
+Both UDP peers show moving brake lamps
+Captured network-braking
+Both UDP peers show reverse lamps from accepted movement
+Captured network-reversing
+Native proximity pickup fills selected slot
+Authoritative marker claim recorded
+Actual pickup deploys correct rack on both peers
+Captured proximity-pickup
+Rapid-use first slot
+Rapid-use second slot
+Rapid-use setup visible
+Immediate switch command
+Immediate switched use command
+Immediate switched use confirmed
+Consumed switched Wrench presented rather than old Salvo
+Rapid switched use closes coherently
+Rapid use preserves unselected Salvo
+Car rack integration passed: 163 checks; eight items, switching/use, duplicates, lifecycle and two UDP peers.
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Two native UDP peers ready
+Fixture configuration accepted
+First consecutive mine granted
+Second consecutive mine granted
+First mine mounted on both peers
+First consecutive mine used
+First mine placement starts
+First mine releases
+Empty arms begin returning on both peers
+Select second mine during empty return
+Second mine selected
+Previous empty return remains unfinished at second use
+Second consecutive mine used
+Second authoritative placement starts
+Both peers receive second placement
+Second placement keeps the rack requested through a publication gap
+Second placement keeps the rack requested through a publication gap
+Captured second-mine-active
+Second mine stays mounted and visible through placement on both peers
+Second mine completes its full authoritative placement (frames 59, ticks 0, car <150, 21.64568, 35>)
+Rack returns and stows after second release
+Car rack consecutive mine passed: 21 checks on two UDP peers.
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Two native UDP peers ready
+Fixture configuration accepted
+Previous rack completely closed
+Grant Missile
+Retain second Shield
+Missile ready before regression reproduction
+missile-to-shield-ready selection sent
+Captured missile-to-shield-ready-return
+Captured missile-to-shield-ready-motion-00
+Captured missile-to-shield-ready-motion-01
+Captured missile-to-shield-ready-motion-02
+Captured missile-to-shield-ready-motion-03
+Captured missile-to-shield-ready-motion-04
+Captured missile-to-shield-ready-motion-05
+Captured missile-to-shield-ready-motion-06
+Captured missile-to-shield-ready-motion-07
+Captured missile-to-shield-ready-motion-08
+Captured missile-to-shield-ready-motion-09
+Captured missile-to-shield-ready-motion-10
+Captured missile-to-shield-ready-motion-11
+Captured missile-to-shield-ready-motion-12
+Captured missile-to-shield-ready-motion-13
+Captured missile-to-shield-ready-motion-14
+Captured missile-to-shield-ready-motion-15
+missile-to-shield-ready finishes on both peers
+Captured missile-to-shield-ready-ready
+missile-to-shield-ready has exclusive mechanism ownership and full closure
+missile-to-shield-ready preserves both capabilities and selected intent
+shield-to-missile-ready selection sent
+shield-to-missile-ready rejects early Missile use without queuing
+Captured shield-to-missile-ready-return
+Captured shield-to-missile-ready-motion-00
+Captured shield-to-missile-ready-motion-01
+Captured shield-to-missile-ready-motion-02
+Captured shield-to-missile-ready-motion-03
+Captured shield-to-missile-ready-motion-04
+Captured shield-to-missile-ready-motion-05
+Captured shield-to-missile-ready-motion-06
+Captured shield-to-missile-ready-motion-07
+Captured shield-to-missile-ready-motion-08
+Captured shield-to-missile-ready-motion-09
+Captured shield-to-missile-ready-motion-10
+Captured shield-to-missile-ready-motion-11
+Captured shield-to-missile-ready-motion-12
+Captured shield-to-missile-ready-motion-13
+Captured shield-to-missile-ready-motion-14
+Captured shield-to-missile-ready-motion-15
+shield-to-missile-ready finishes on both peers
+Captured shield-to-missile-ready-ready
+shield-to-missile-ready has exclusive mechanism ownership and full closure
+shield-to-missile-ready preserves both capabilities and selected intent
+Previous rack completely closed
+Grant Wrench
+Retain second Shield
+wrench fully ready
+wrench-to-shield-ready selection sent
+wrench-to-shield-ready finishes on both peers
+wrench-to-shield-ready has exclusive mechanism ownership and full closure
+wrench-to-shield-ready preserves both capabilities and selected intent
+shield-to-wrench-ready selection sent
+shield-to-wrench-ready finishes on both peers
+shield-to-wrench-ready has exclusive mechanism ownership and full closure
+shield-to-wrench-ready preserves both capabilities and selected intent
+Previous rack completely closed
+Grant Wrench
+Retain second Shield
+wrench begins deploying
+wrench-to-shield-mid-deploy selection sent
+wrench-to-shield-mid-deploy finishes on both peers
+wrench-to-shield-mid-deploy has exclusive mechanism ownership and full closure
+wrench-to-shield-mid-deploy preserves both capabilities and selected intent
+shield-to-wrench-mid-deploy selection sent
+shield-to-wrench-mid-deploy finishes on both peers
+shield-to-wrench-mid-deploy has exclusive mechanism ownership and full closure
+shield-to-wrench-mid-deploy preserves both capabilities and selected intent
+Previous rack completely closed
+Grant Shield
+Retain second Wrench
+Shield starts unfolding before wrench
+shield-mid-unfold-to-wrench selection sent
+shield-mid-unfold-to-wrench finishes on both peers
+shield-mid-unfold-to-wrench has exclusive mechanism ownership and full closure
+shield-mid-unfold-to-wrench preserves both capabilities and selected intent
+Rapid selection 0
+Rapid selection 1
+Rapid selection 2
+Rapid selection 3
+Rapid selection 4
+Rapid selection 5
+Rapid selection 6
+wrench rapid switches settle on latest selection
+wrench rapid switches has exclusive mechanism ownership and full closure
+wrench rapid changes preserve both items
+Previous rack completely closed
+Grant Missile
+Retain second Shield
+missile fully ready
+missile-to-shield-ready selection sent
+missile-to-shield-ready finishes on both peers
+missile-to-shield-ready has exclusive mechanism ownership and full closure
+missile-to-shield-ready preserves both capabilities and selected intent
+shield-to-missile-ready selection sent
+shield-to-missile-ready rejects early Missile use without queuing
+shield-to-missile-ready finishes on both peers
+shield-to-missile-ready has exclusive mechanism ownership and full closure
+shield-to-missile-ready preserves both capabilities and selected intent
+Previous rack completely closed
+Grant Missile
+Retain second Shield
+missile begins deploying
+missile-to-shield-mid-deploy selection sent
+missile-to-shield-mid-deploy finishes on both peers
+missile-to-shield-mid-deploy has exclusive mechanism ownership and full closure
+missile-to-shield-mid-deploy preserves both capabilities and selected intent
+shield-to-missile-mid-deploy selection sent
+shield-to-missile-mid-deploy rejects early Missile use without queuing
+shield-to-missile-mid-deploy finishes on both peers
+shield-to-missile-mid-deploy has exclusive mechanism ownership and full closure
+shield-to-missile-mid-deploy preserves both capabilities and selected intent
+Previous rack completely closed
+Grant Shield
+Retain second Missile
+Shield starts unfolding before missile
+shield-mid-unfold-to-missile selection sent
+shield-mid-unfold-to-missile rejects early Missile use without queuing
+shield-mid-unfold-to-missile finishes on both peers
+shield-mid-unfold-to-missile has exclusive mechanism ownership and full closure
+shield-mid-unfold-to-missile preserves both capabilities and selected intent
+Rapid selection 0
+Rapid selection 1
+Rapid selection 2
+Rapid selection 3
+Rapid selection 4
+Rapid selection 5
+Rapid selection 6
+missile rapid switches settle on latest selection
+missile rapid switches has exclusive mechanism ownership and full closure
+missile rapid changes preserve both items
+Previous rack completely closed
+Grant Oil
+Retain second Shield
+oil fully ready
+oil-to-shield-ready selection sent
+oil-to-shield-ready finishes on both peers
+oil-to-shield-ready has exclusive mechanism ownership and full closure
+oil-to-shield-ready preserves both capabilities and selected intent
+shield-to-oil-ready selection sent
+shield-to-oil-ready finishes on both peers
+shield-to-oil-ready has exclusive mechanism ownership and full closure
+shield-to-oil-ready preserves both capabilities and selected intent
+Previous rack completely closed
+Grant Oil
+Retain second Shield
+oil begins deploying
+oil-to-shield-mid-deploy selection sent
+oil-to-shield-mid-deploy finishes on both peers
+oil-to-shield-mid-deploy has exclusive mechanism ownership and full closure
+oil-to-shield-mid-deploy preserves both capabilities and selected intent
+shield-to-oil-mid-deploy selection sent
+shield-to-oil-mid-deploy finishes on both peers
+shield-to-oil-mid-deploy has exclusive mechanism ownership and full closure
+shield-to-oil-mid-deploy preserves both capabilities and selected intent
+Previous rack completely closed
+Grant Shield
+Retain second Oil
+Shield starts unfolding before oil
+shield-mid-unfold-to-oil selection sent
+shield-mid-unfold-to-oil finishes on both peers
+shield-mid-unfold-to-oil has exclusive mechanism ownership and full closure
+shield-mid-unfold-to-oil preserves both capabilities and selected intent
+Rapid selection 0
+Rapid selection 1
+Rapid selection 2
+Rapid selection 3
+Rapid selection 4
+Rapid selection 5
+Rapid selection 6
+oil rapid switches settle on latest selection
+oil rapid switches has exclusive mechanism ownership and full closure
+oil rapid changes preserve both items
+Previous rack completely closed
+Grant Nitro
+Retain second Shield
+nitro fully ready
+nitro-to-shield-ready selection sent
+nitro-to-shield-ready finishes on both peers
+nitro-to-shield-ready has exclusive mechanism ownership and full closure
+nitro-to-shield-ready preserves both capabilities and selected intent
+shield-to-nitro-ready selection sent
+shield-to-nitro-ready finishes on both peers
+shield-to-nitro-ready has exclusive mechanism ownership and full closure
+shield-to-nitro-ready preserves both capabilities and selected intent
+Previous rack completely closed
+Grant Nitro
+Retain second Shield
+nitro begins deploying
+nitro-to-shield-mid-deploy selection sent
+nitro-to-shield-mid-deploy finishes on both peers
+nitro-to-shield-mid-deploy has exclusive mechanism ownership and full closure
+nitro-to-shield-mid-deploy preserves both capabilities and selected intent
+shield-to-nitro-mid-deploy selection sent
+shield-to-nitro-mid-deploy finishes on both peers
+shield-to-nitro-mid-deploy has exclusive mechanism ownership and full closure
+shield-to-nitro-mid-deploy preserves both capabilities and selected intent
+Previous rack completely closed
+Grant Shield
+Retain second Nitro
+Shield starts unfolding before nitro
+shield-mid-unfold-to-nitro selection sent
+shield-mid-unfold-to-nitro finishes on both peers
+shield-mid-unfold-to-nitro has exclusive mechanism ownership and full closure
+shield-mid-unfold-to-nitro preserves both capabilities and selected intent
+Rapid selection 0
+Rapid selection 1
+Rapid selection 2
+Rapid selection 3
+Rapid selection 4
+Rapid selection 5
+Rapid selection 6
+nitro rapid switches settle on latest selection
+nitro rapid switches has exclusive mechanism ownership and full closure
+nitro rapid changes preserve both items
+Previous rack completely closed
+Grant ProxyMine
+Retain second Shield
+proxy_mine fully ready
+proxy_mine-to-shield-ready selection sent
+proxy_mine-to-shield-ready finishes on both peers
+proxy_mine-to-shield-ready has exclusive mechanism ownership and full closure
+proxy_mine-to-shield-ready preserves both capabilities and selected intent
+shield-to-proxy_mine-ready selection sent
+shield-to-proxy_mine-ready finishes on both peers
+shield-to-proxy_mine-ready has exclusive mechanism ownership and full closure
+shield-to-proxy_mine-ready preserves both capabilities and selected intent
+Previous rack completely closed
+Grant ProxyMine
+Retain second Shield
+proxy_mine begins deploying
+proxy_mine-to-shield-mid-deploy selection sent
+proxy_mine-to-shield-mid-deploy finishes on both peers
+proxy_mine-to-shield-mid-deploy has exclusive mechanism ownership and full closure
+proxy_mine-to-shield-mid-deploy preserves both capabilities and selected intent
+shield-to-proxy_mine-mid-deploy selection sent
+shield-to-proxy_mine-mid-deploy finishes on both peers
+shield-to-proxy_mine-mid-deploy has exclusive mechanism ownership and full closure
+shield-to-proxy_mine-mid-deploy preserves both capabilities and selected intent
+Previous rack completely closed
+Grant Shield
+Retain second ProxyMine
+Shield starts unfolding before proxy_mine
+shield-mid-unfold-to-proxy_mine selection sent
+shield-mid-unfold-to-proxy_mine finishes on both peers
+shield-mid-unfold-to-proxy_mine has exclusive mechanism ownership and full closure
+shield-mid-unfold-to-proxy_mine preserves both capabilities and selected intent
+Rapid selection 0
+Rapid selection 1
+Rapid selection 2
+Rapid selection 3
+Rapid selection 4
+Rapid selection 5
+Rapid selection 6
+proxy_mine rapid switches settle on latest selection
+proxy_mine rapid switches has exclusive mechanism ownership and full closure
+proxy_mine rapid changes preserve both items
+Previous rack completely closed
+Grant Salvo
+Retain second Shield
+salvo fully ready
+salvo-to-shield-ready selection sent
+salvo-to-shield-ready finishes on both peers
+salvo-to-shield-ready has exclusive mechanism ownership and full closure
+salvo-to-shield-ready preserves both capabilities and selected intent
+shield-to-salvo-ready selection sent
+shield-to-salvo-ready finishes on both peers
+shield-to-salvo-ready has exclusive mechanism ownership and full closure
+shield-to-salvo-ready preserves both capabilities and selected intent
+Previous rack completely closed
+Grant Salvo
+Retain second Shield
+salvo begins deploying
+salvo-to-shield-mid-deploy selection sent
+salvo-to-shield-mid-deploy finishes on both peers
+salvo-to-shield-mid-deploy has exclusive mechanism ownership and full closure
+salvo-to-shield-mid-deploy preserves both capabilities and selected intent
+shield-to-salvo-mid-deploy selection sent
+shield-to-salvo-mid-deploy finishes on both peers
+shield-to-salvo-mid-deploy has exclusive mechanism ownership and full closure
+shield-to-salvo-mid-deploy preserves both capabilities and selected intent
+Previous rack completely closed
+Grant Shield
+Retain second Salvo
+Shield starts unfolding before salvo
+shield-mid-unfold-to-salvo selection sent
+shield-mid-unfold-to-salvo finishes on both peers
+shield-mid-unfold-to-salvo has exclusive mechanism ownership and full closure
+shield-mid-unfold-to-salvo preserves both capabilities and selected intent
+Rapid selection 0
+Rapid selection 1
+Rapid selection 2
+Rapid selection 3
+Rapid selection 4
+Rapid selection 5
+Rapid selection 6
+salvo rapid switches settle on latest selection
+salvo rapid switches has exclusive mechanism ownership and full closure
+salvo rapid changes preserve both items
+Previous rack completely closed
+Grant MachineGun
+Retain second Shield
+machine_gun fully ready
+machine_gun-to-shield-ready selection sent
+machine_gun-to-shield-ready finishes on both peers
+machine_gun-to-shield-ready has exclusive mechanism ownership and full closure
+machine_gun-to-shield-ready preserves both capabilities and selected intent
+shield-to-machine_gun-ready selection sent
+shield-to-machine_gun-ready finishes on both peers
+shield-to-machine_gun-ready has exclusive mechanism ownership and full closure
+shield-to-machine_gun-ready preserves both capabilities and selected intent
+Previous rack completely closed
+Grant MachineGun
+Retain second Shield
+machine_gun begins deploying
+machine_gun-to-shield-mid-deploy selection sent
+machine_gun-to-shield-mid-deploy finishes on both peers
+machine_gun-to-shield-mid-deploy has exclusive mechanism ownership and full closure
+machine_gun-to-shield-mid-deploy preserves both capabilities and selected intent
+shield-to-machine_gun-mid-deploy selection sent
+shield-to-machine_gun-mid-deploy finishes on both peers
+shield-to-machine_gun-mid-deploy has exclusive mechanism ownership and full closure
+shield-to-machine_gun-mid-deploy preserves both capabilities and selected intent
+Previous rack completely closed
+Grant Shield
+Retain second MachineGun
+Shield starts unfolding before machine_gun
+shield-mid-unfold-to-machine_gun selection sent
+shield-mid-unfold-to-machine_gun finishes on both peers
+shield-mid-unfold-to-machine_gun has exclusive mechanism ownership and full closure
+shield-mid-unfold-to-machine_gun preserves both capabilities and selected intent
+Rapid selection 0
+Rapid selection 1
+Rapid selection 2
+Rapid selection 3
+Rapid selection 4
+Rapid selection 5
+Rapid selection 6
+machine_gun rapid switches settle on latest selection
+machine_gun rapid switches has exclusive mechanism ownership and full closure
+machine_gun rapid changes preserve both items
+Selection-only matrix never fires or consumes a weapon
+Previous rack completely closed
+Grant Missile
+Retain second Wrench
+Post-fire Missile ready
+One Missile launch requested
+One round consumed
+Shield pickup during post-fire return
+Post-fire Shield ready
+post-fire pickup at tick 0 has exclusive mechanism ownership and full closure
+Post-fire pickup retains other slot
+Previous rack completely closed
+Grant Missile
+Retain second Wrench
+Post-fire Missile ready
+One Missile launch requested
+One round consumed
+Shield pickup during post-fire return
+Post-fire Shield ready
+post-fire pickup at tick 12 has exclusive mechanism ownership and full closure
+Post-fire pickup retains other slot
+Previous rack completely closed
+Grant Missile
+Retain second Wrench
+Post-fire Missile ready
+One Missile launch requested
+One round consumed
+Shield pickup during post-fire return
+Post-fire Shield ready
+post-fire pickup at tick 32 has exclusive mechanism ownership and full closure
+Post-fire pickup retains other slot
+Previous rack completely closed
+Grant Missile
+Retain second Wrench
+Post-fire Missile ready
+One Missile launch requested
+One round consumed
+Shield pickup during post-fire return
+Post-fire Shield ready
+post-fire pickup at tick 46 has exclusive mechanism ownership and full closure
+Post-fire pickup retains other slot
+Previous rack completely closed
+Grant Missile
+Retain second Shield
+Early-use handoff ready
+Select Shield for queued early use
+Early Shield taps coalesce
+Early use does not bypass outgoing stow
+Queued Shield deploys after readiness
+Queued Shield produces exactly one use
+Queued Shield use retains unfired Missile
+Previous rack completely closed
+Grant Missile
+Retain second Shield
+Cancellation fixture ready
+Queue Shield during return
+Cancel queued Shield by selecting Missile
+Latest Missile selection completes
+Cancelled early use consumes neither weapon and fires nothing
+Previous rack completely closed
+Grant Wrench
+Retain second Shield
+wrench ready for post-use switching
+wrench use before switch
+wrench-post-use-to-shield selection sent
+wrench-post-use-to-shield finishes on both peers
+wrench-post-use-to-shield has exclusive mechanism ownership and full closure
+wrench-post-use-to-shield preserves both capabilities and selected intent
+wrench switch stops sustained engagement
+Previous rack completely closed
+Grant Missile
+Retain second Shield
+missile ready for post-use switching
+missile use before switch
+missile-post-use-to-shield selection sent
+missile-post-use-to-shield finishes on both peers
+missile-post-use-to-shield has exclusive mechanism ownership and full closure
+missile-post-use-to-shield preserves both capabilities and selected intent
+missile switch stops sustained engagement
+Previous rack completely closed
+Grant Oil
+Retain second Shield
+oil ready for post-use switching
+oil use before switch
+oil-post-use-to-shield selection sent
+oil-post-use-to-shield finishes on both peers
+oil-post-use-to-shield has exclusive mechanism ownership and full closure
+oil-post-use-to-shield preserves both capabilities and selected intent
+oil switch stops sustained engagement
+Previous rack completely closed
+Grant Nitro
+Retain second Shield
+nitro ready for post-use switching
+nitro use before switch
+nitro-post-use-to-shield selection sent
+nitro-post-use-to-shield finishes on both peers
+nitro-post-use-to-shield has exclusive mechanism ownership and full closure
+nitro-post-use-to-shield preserves both capabilities and selected intent
+nitro switch stops sustained engagement
+Previous rack completely closed
+Grant ProxyMine
+Retain second Shield
+proxy_mine ready for post-use switching
+proxy_mine use before switch
+proxy_mine-post-use-to-shield selection sent
+proxy_mine-post-use-to-shield finishes on both peers
+proxy_mine-post-use-to-shield has exclusive mechanism ownership and full closure
+proxy_mine-post-use-to-shield preserves both capabilities and selected intent
+proxy_mine switch stops sustained engagement
+Previous rack completely closed
+Grant Salvo
+Retain second Shield
+salvo ready for post-use switching
+salvo use before switch
+salvo-post-use-to-shield selection sent
+salvo-post-use-to-shield finishes on both peers
+salvo-post-use-to-shield has exclusive mechanism ownership and full closure
+salvo-post-use-to-shield preserves both capabilities and selected intent
+salvo switch stops sustained engagement
+Previous rack completely closed
+Grant MachineGun
+Retain second Shield
+machine_gun ready for post-use switching
+machine_gun use before switch
+machine_gun-post-use-to-shield selection sent
+machine_gun-post-use-to-shield finishes on both peers
+machine_gun-post-use-to-shield has exclusive mechanism ownership and full closure
+machine_gun-post-use-to-shield preserves both capabilities and selected intent
+machine_gun switch stops sustained engagement
+Previous rack completely closed
+Grant Shield
+Retain second Missile
+Shield ready before presentation reseed
+Reseed reconstructs selected Shield
+Shield reconstruction has exclusive mechanism ownership and full closure
+reconstructed-shield-to-missile selection sent
+reconstructed-shield-to-missile rejects early Missile use without queuing
+reconstructed-shield-to-missile finishes on both peers
+reconstructed-shield-to-missile has exclusive mechanism ownership and full closure
+reconstructed-shield-to-missile preserves both capabilities and selected intent
+Slow rack tuning accepted
+Previous rack completely closed
+Grant Shield
+Retain second Nitro
+Slow Shield deployment completes
+slow-shield-to-nitro selection sent
+Captured slow-shield-to-nitro-return
+Captured slow-shield-to-nitro-motion-00
+Captured slow-shield-to-nitro-motion-01
+Captured slow-shield-to-nitro-motion-02
+Captured slow-shield-to-nitro-motion-03
+Captured slow-shield-to-nitro-motion-04
+Captured slow-shield-to-nitro-motion-05
+Captured slow-shield-to-nitro-motion-06
+Captured slow-shield-to-nitro-motion-07
+Captured slow-shield-to-nitro-motion-08
+Captured slow-shield-to-nitro-motion-09
+Captured slow-shield-to-nitro-motion-10
+Captured slow-shield-to-nitro-motion-11
+Captured slow-shield-to-nitro-motion-12
+Captured slow-shield-to-nitro-motion-13
+Captured slow-shield-to-nitro-motion-14
+Captured slow-shield-to-nitro-motion-15
+slow-shield-to-nitro finishes on both peers
+Captured slow-shield-to-nitro-ready
+slow-shield-to-nitro has exclusive mechanism ownership and full closure
+slow-shield-to-nitro preserves both capabilities and selected intent
+slow-nitro-to-shield selection sent
+slow-nitro-to-shield finishes on both peers
+slow-nitro-to-shield has exclusive mechanism ownership and full closure
+slow-nitro-to-shield preserves both capabilities and selected intent
+Previous rack completely closed
+Grant Missile
+Retain second Shield
+Impaired Missile ready
+impaired-missile-to-shield selection sent
+impaired-missile-to-shield finishes on both peers
+impaired-missile-to-shield has exclusive mechanism ownership and full closure
+impaired-missile-to-shield preserves both capabilities and selected intent
+impaired-shield-to-missile selection sent
+impaired-shield-to-missile rejects early Missile use without queuing
+impaired-shield-to-missile finishes on both peers
+impaired-shield-to-missile has exclusive mechanism ownership and full closure
+impaired-shield-to-missile preserves both capabilities and selected intent
+Select Shield before mid-stow reconstruction
+Both peers retain pending Shield selection
+Pending Shield reconstructs after outgoing stow
+Mid-stow reconstruction under impairment has exclusive mechanism ownership and full closure
+Weapon handoff integration passed: 536 checks on two UDP peers.

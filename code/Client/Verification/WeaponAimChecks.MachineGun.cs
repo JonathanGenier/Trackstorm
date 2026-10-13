@@ -28,7 +28,8 @@ public sealed partial class WeaponAimChecks
         _arenas[0].Driver.RaycastWeapon = (owner, start, end) =>
         {
             var aim = host.Items.Aims.Single(a => a.Vehicle == owner);
-            RequireShot(aim.Ready && N.Vector3.Distance(start, aim.Origin) < .001f, "Shot uses current ready accepted origin");
+            RequireShot(aim.Ready && N.Vector3.Distance(start, aim.Origin - aim.Direction * WeaponAim.MachineGunMuzzleDistance) < .001f,
+                "Shot includes the protected pivot-to-muzzle segment before current ready muzzle");
             var direction = N.Vector3.Normalize(end - start);
             RequireShot(N.Vector3.Dot(direction, aim.Direction) >= MathF.Cos(host.Items.Configuration.MachineGunSpread * MathF.PI / 180) - .0001f,
                 "Shot stays in configured cone around accepted direction");

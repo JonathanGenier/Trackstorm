@@ -8,6 +8,8 @@ public static class WeaponAim
 {
     /// <summary>Production Car's fully deployed payload pivot; rack remains fixed.</summary>
     public static Vector3 Pivot => new(0, 1.81f, 1.845f);
+    /// <summary>Twin Fang's shared muzzle plane along accepted aim; paired cosmetic barrels bracket this axis.</summary>
+    public const float MachineGunMuzzleDistance = 1.8999f;
     /// <summary>Only direct-fire identities participate; Salvo retains its separate mechanics.</summary>
     public static bool Supports(HeldItem item) => item is HeldItem.MachineGun or HeldItem.Missile;
     /// <summary>Requests must already be finite unit directions, never arbitrary magnitudes.</summary>
