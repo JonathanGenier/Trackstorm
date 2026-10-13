@@ -35,3 +35,15 @@ Thumbs.db
 /services/authority-lease/node_modules/
 /services/authority-lease/.wrangler/
 /services/authority-lease/.dev.vars*
+
+# Godot-extracted copies of embedded rock textures; keep their GLB masters tracked.
+/assets/environment/models/BoulderLow_StoneAlbedo.png
+/assets/environment/models/BoulderLow_StoneNormal.png
+/assets/environment/models/BoulderTall_StoneAlbedo.png
+/assets/environment/models/BoulderTall_StoneNormal.png
+/assets/environment/models/RockCluster_StoneAlbedo.png
+/assets/environment/models/RockCluster_StoneNormal.png
+/assets/environment/models/RockLedge_StoneAlbedo.png
+/assets/environment/models/RockLedge_StoneNormal.png
+/assets/environment/models/RockSlab_StoneAlbedo.png
+/assets/environment/models/RockSlab_StoneNormal.png
