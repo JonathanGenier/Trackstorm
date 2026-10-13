@@ -59,7 +59,7 @@ public sealed partial class OilJackChecks : Node
     private static bool ProductionBank => OS.GetCmdlineUserArgs().Contains("--oil-production-bank");
     private static bool Clearance => OS.GetCmdlineUserArgs().Contains("--oil-clearance");
     private static bool GameplayCamera => OS.GetCmdlineUserArgs().Contains("--oil-gameplay-camera");
-    private static string Output => ProjectSettings.GlobalizePath(Clearance ? "res://.godot/ts-245-round6/clearance" : GameplayCamera ? "res://.godot/ts-245-round6/gameplay" : ProductionBank ? "res://.godot/ts-245-round6/bank" : "res://.godot/ts-245-round6/runtime");
+    private static string Output => ProjectSettings.GlobalizePath(Clearance ? "res://.godot/ts-245-round7/clearance" : GameplayCamera ? "res://.godot/ts-245-round7/gameplay" : ProductionBank ? "res://.godot/ts-245-round7/bank" : "res://.godot/ts-245-round7/runtime");
 
     public override void _Ready()
     {

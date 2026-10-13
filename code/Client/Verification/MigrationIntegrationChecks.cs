@@ -11,6 +11,11 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Two or three real UDP peers and isolated Godot worlds; identity is an explicit local test seam.</summary>
 public sealed partial class MigrationIntegrationChecks : Node
 {
+    private static bool OilFiringRecovery => OS.GetCmdlineUserArgs().Contains("--oil-firing-recovery");
+    private bool _oilFireRequested;
+    private ulong _firingOilId;
+    private ulong _firingOilDeadline;
+    private bool _oilMigrationObserved;
     private bool PracticeCar => OS.GetCmdlineUserArgs().Contains("--practice-car" );
     private int VehicleCount => _players + (PracticeCar ? 2 : 0);
     private IReadOnlyList<ShieldState> _shields = [];
@@ -108,7 +113,11 @@ public sealed partial class MigrationIntegrationChecks : Node
                 {
                     if (_arenas[i] is { } arena)
                     {
+                        ulong started = Time.GetTicksMsec();
                         arena.Advance(default);
+                        ulong elapsed = Time.GetTicksMsec() - started;
+                        if (elapsed >= 500)
+                            GD.Print($"Migration slow native peer: index={i}, stage={_stage}, advanceMs={elapsed}, tick={arena.Driver.Latest?.Tick}, patches={arena.Driver.ItemState?.Patches.Count}.");
                     }
                     else
                     {
@@ -339,10 +348,35 @@ public sealed partial class MigrationIntegrationChecks : Node
         else if (_stage == 7 && _frames - _boundary > 150)
         {
             int survivor = _players == 2 ? 0 : 2;
+            if (OilFiringRecovery)
+            {
+                if (!_oilFireRequested)
+                {
+                    Require(_arenas[survivor]!.Driver.RequestItemUse(), "Successor begins Oil before host loss.");
+                    _oilFireRequested = true;
+                    return;
+                }
+                var firing = _arenas[1]!.Driver.Host!.Items.Patches.SingleOrDefault(p => p.Pour is not null);
+                if (firing is null || _arenas[1]!.Driver.Host!.World.State.Tick < firing.Pour!.StartTick + 42) { return; }
+                Require(firing.Pour!.Emitted is > 0 and < 40, "Host loss occurs inside one-second Oil burst.");
+                _firingOilId = firing.Id; _firingOilDeadline = firing.ExpiresAtTick;
+                GD.Print($"Oil host loss: token={firing.Id}, start={firing.Pour.StartTick}, emitted={firing.Pour.Emitted}, deadline={firing.ExpiresAtTick}.");
+            }
             _retainedBody = _arenas[survivor]!.Bodies[_drivers[survivor]!.LocalPlayerId];
             _arenas[survivor]!.Driver.Resynchronized += _ =>
             {
                 SalvoRecoveryFixture.Verify(_arenas[survivor]!.Driver.ItemState!, _salvoBoundaries);
+                if (OilFiringRecovery)
+                {
+                    var items = _arenas[survivor]!.Driver.ItemState!;
+                    var firing = items.Patches.Single(p => p.Id == _firingOilId);
+                    Require(firing.Pour is { Cancelled: false, Emitted: > 0 and < 40 } &&
+                        items.World.Tick < firing.Pour.StartTick + 60 && firing.ExpiresAtTick == _firingOilDeadline,
+                        "Agreed migration checkpoint retains genuinely active Oil and its original deadline.");
+                    Require(items.Patches.SequenceEqual(_salvoBoundaries[items.World.Tick].Patches), "Selected checkpoint restores exact Oil flight and deposited geometry.");
+                    _oilMigrationObserved = true;
+                    GD.Print($"Oil migration installed: tick={items.World.Tick}, emitted={firing.Pour!.Emitted}, flight={firing.Pour.Drops.Length}, deadline={firing.ExpiresAtTick}; no use replay.");
+                }
                 ShieldRecoveryFixture.Verify(_arenas[survivor]!.Driver.ItemState!.Shields, _shields, _salvoBoundaries[_arenas[survivor]!.Driver.ItemState!.World.Tick].Shields, _arenas[survivor]!.Driver.ItemState!.World.Tick);
                 Require(_arenas[survivor]!.Driver.Inputs!.Pending.Count == 0, "No old pending input.");
                 Require(_arenas[survivor]!.Driver.History!.Snapshots.Count == 1, "Interpolation reseeded at one boundary.");
@@ -378,9 +412,9 @@ public sealed partial class MigrationIntegrationChecks : Node
             Require(_arenas[0]!.Bodies.Count == VehicleCount && arena.Bodies.Count == VehicleCount && arena.Bodies[_drivers[survivor]!.LocalPlayerId] == _retainedBody, "No duplicate or replaced surviving vehicles.");
             Require(arena.Driver.LocalItem?.Item == (_players == 3 ? HeldItem.None : HeldItem.Wrench) && arena.Driver.ItemState!.Spawns.Count == 27 && arena.Driver.Match!.Players.Count == VehicleCount, "Complete gameplay continuation preserves discarded first slot with twenty-seven map pickups.");
             Require(arena.Driver.ItemState!.DiscardRevision == (_players == 3 ? 1ul : 0ul), "Native host migration retains the permanent-discard watermark.");
-            Require(arena.Driver.LocalItem is { SecondItem: HeldItem.Oil, ActiveSlot: 1, SelectionRevision: 1 }, "Both held slots and selected second slot restore through host migration.");
+            Require(arena.Driver.LocalItem is { ActiveSlot: 1, SelectionRevision: 1 } selected && selected.SecondItem == (OilFiringRecovery ? HeldItem.None : HeldItem.Oil), "Both held slots and selected second slot restore through host migration.");
             Require(arena.Driver.ItemState!.Slots.Single(slot => slot.Vehicle == _nitroOwner).Item == HeldItem.Nitro, "Nitro is retained on the disconnected former host across migration.");
-            OilRecoveryFixture.Verify(arena.Driver.ItemState!, _oil!);
+            OilRecoveryFixture.Verify(arena.Driver.ItemState!, _oil!, OilFiringRecovery ? 1 : 0);
             if (_players == 3)
             {
                 Require(!arena.Driver.Host!.World.GetVehicle(_nitroOwner).Movement.Nitro.Active && arena.Driver.Host.Items.Slots.Single(s => s.Vehicle == _nitroOwner).NitroCharge == 37.5, "Nitro charge remains intact and inactive without held input after migration.");
@@ -420,6 +454,28 @@ public sealed partial class MigrationIntegrationChecks : Node
         else if (_stage == 9)
         {
             int host = _players == 2 ? 0 : 2;
+            if (OilFiringRecovery)
+            {
+                var authority = _arenas[host]!.Driver.Host!;
+                var firing = authority.Items.Patches.SingleOrDefault(p => p.Id == _firingOilId);
+                if (authority.World.State.Tick < _firingOilDeadline)
+                {
+                    Require(firing is not null && firing.ExpiresAtTick == _firingOilDeadline, "Migrated hazard persists until its original deadline.");
+                    if (authority.World.State.Tick > firing!.Pour!.StartTick + 65)
+                        Require(_oilMigrationObserved && firing.Pour.Emitted == 40 && !firing.Pour.Cancelled,
+                            "Replacement completes exactly forty parcels without restarting the burst.");
+                    return;
+                }
+                Require(firing is null, "Replacement expires the whole hazard at the original deadline.");
+                if (authority.World.State.Tick < _firingOilDeadline + 180) { return; }
+                Require(_arenas.Where(a => a is not null).All(a =>
+                    a!.Driver.ItemState!.Patches.All(p => p.Id != _firingOilId) &&
+                    a.FindChildren("*", "", true, false).OfType<Items.OilHazardVisual>().All(v => v.HazardId != _firingOilId)),
+                    "All surviving peers finish synchronized hazard removal and cosmetic fade: " +
+                    string.Join("; ", _arenas.Select((a, i) => a is null ? $"{i}:retired" :
+                        $"{i}:active={a.Driver.IsActive},tick={a.Driver.Latest?.Tick},itemTick={a.Driver.ItemState?.World.Tick},hazard={a.Driver.ItemState?.Patches.Any(p => p.Id == _firingOilId)},visuals={string.Join(',', a.FindChildren("*", "", true, false).OfType<Items.OilHazardVisual>().Where(v => v.HazardId == _firingOilId).Select(v => $"retired={v.Retired}/fade={v.FadeProgress}"))},migration={_drivers[i]?.Migration?.Diagnostics},failure={_drivers[i]?.Failure}")));
+                GD.Print("Oil migration continuation passed: forty parcels, unchanged 30-second deadline, exact accepted geometry and synchronized hazard/fade cleanup after authority replacement.");
+            }
             if (!_arenas[host]!.Driver.AllowsParticipation)
             {
                 Require(!_arenas[host]!.Driver.RequestItemUse(), "Replacement cannot use its retained item before authoritative Active.");

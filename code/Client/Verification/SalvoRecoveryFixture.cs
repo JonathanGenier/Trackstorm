@@ -31,7 +31,7 @@ internal static class SalvoRecoveryFixture
     {
         if (!boundaries.TryGetValue(state.World.Tick, out var expected) || expected.Missiles.Count != 2 || state.Events.Count != 0 ||
             !state.Missiles.SequenceEqual(expected.Missiles) || !state.Slots.SequenceEqual(expected.Slots) || !state.Slots.Any(s => s.SecondItem == HeldItem.Salvo && s.SecondSalvoShots == 3))
-        { throw new InvalidOperationException("Salvo recovery did not install exact partial ammunition, cooldown and flying rounds."); }
+        { throw new InvalidOperationException($"Salvo recovery did not install exact partial ammunition, cooldown and flying rounds: tick={state.World.Tick}, boundary={expected is not null}, expectedRounds={expected?.Missiles.Count}, actualRounds={state.Missiles.Count}, roundsEqual={expected is not null && state.Missiles.SequenceEqual(expected.Missiles)}, slotsEqual={expected is not null && state.Slots.SequenceEqual(expected.Slots)}, events={state.Events.Count}, heldThree={state.Slots.Any(s => s.SecondItem == HeldItem.Salvo && s.SecondSalvoShots == 3)}, closestTicks={string.Join(',', boundaries.Keys.OrderBy(t => Math.Abs((long)t - (long)state.World.Tick)).Take(4))}."); }
         GDPrint(state);
     }
 

@@ -4,7 +4,7 @@ if (-not $NoBuild) {
     dotnet build Trackstorm.Client.csproj -c Debug -warnaserror
     if ($LASTEXITCODE -ne 0) { throw 'Oil Jack build failed.' }
 }
-$output = Join-Path $PSScriptRoot $(if ($Clearance) { '.godot/ts-245-round6/clearance' } elseif ($GameplayCamera) { '.godot/ts-245-round6/gameplay' } elseif ($ProductionBank) { '.godot/ts-245-round6/bank' } else { '.godot/ts-245-round6/runtime' })
+$output = Join-Path $PSScriptRoot $(if ($Clearance) { '.godot/ts-245-round7/clearance' } elseif ($GameplayCamera) { '.godot/ts-245-round7/gameplay' } elseif ($ProductionBank) { '.godot/ts-245-round7/bank' } else { '.godot/ts-245-round7/runtime' })
 New-Item -ItemType Directory -Path $output -Force | Out-Null
 $arguments = @('--path', $PSScriptRoot, 'res://scenes/verification/oil_jack_checks.tscn')
 if (-not $Visual) { $arguments = @('--headless') + $arguments }

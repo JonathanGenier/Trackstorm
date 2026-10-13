@@ -16,7 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
-| Story verification | [TS-245 verification evidence](ts-245.md) |
+| Jack-in-the-box Oil | [TS-245 presentation, deposition, timer lifecycle, native recovery and critique evidence](ts-245.md) |
 | Machine Gun camera aiming | [TS-262 accepted firing, sticky car assistance, 200 m grouping, native multiplayer and critique](ts-262.md) |
 | Standard Missile camera aiming | [TS-263 shared free aim, car assistance, launcher articulation, multiplayer/runtime verification and Astra critique](ts-263.md) |
 | Missile model and flight VFX | [Implementation and runtime verification](ts-240.md) |

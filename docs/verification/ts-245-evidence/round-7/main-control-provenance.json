@@ -1,0 +1,13 @@
+{
+  "main_commit": "2e8447e911283e8d739947d6768d30a427048909",
+  "source_zip_sha256": "0359cc9b32aefe213cccb063e1217dd932f38246d611eec229d03837e9bcf176",
+  "byte_identical_cs_files": 709,
+  "changed_files": [
+    "code/Client/Verification/MigrationIntegrationChecks.cs",
+    "code/Client/Verification/SalvoRecoveryFixture.cs"
+  ],
+  "production_code_byte_identical": true,
+  "control": "Archived main production code, independently built. Only fixture diagnostics and a three-second post-migration peer-progress assertion differ.",
+  "shared": "Assets/addons/third_party and imported resources are shared junctions. Main has its original Oil primitive and contact-quota implementation, not the TS-245 Oil code.",
+  "build_limitation": "The control restore used NuGetAudit=false because the vulnerability endpoint was unreachable; no tracked build or audit configuration was changed."
+}

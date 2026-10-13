@@ -1,0 +1,332 @@
+[
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\airborne-deposits.png",
+    "retained": "astra-native-airborne-deposits.png",
+    "source_sha256": "e12cf1eac1f71cdf0cbd0a9acc8d6522abc9326748565a53b0addf60677a0b66",
+    "retained_sha256": "e12cf1eac1f71cdf0cbd0a9acc8d6522abc9326748565a53b0addf60677a0b66"
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\closed.png",
+    "retained": "astra-native-closed.png",
+    "source_sha256": "24204741cd5f003ac98ae36f09eeaf0880b0dc4c5a641e73f4dea48227540d48",
+    "retained_sha256": "24204741cd5f003ac98ae36f09eeaf0880b0dc4c5a641e73f4dea48227540d48"
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\curved-deposits.png",
+    "retained": "astra-native-curved-deposits.png",
+    "source_sha256": "7a338a778df16760ac85d0bfeef0e1eb20fc145a596e6ad8ba2375692cc918dd",
+    "retained_sha256": "7a338a778df16760ac85d0bfeef0e1eb20fc145a596e6ad8ba2375692cc918dd"
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\evidence.txt",
+    "retained": "astra-native-evidence.txt",
+    "source_sha256": "4f03b4a5e88526cd504519cf40da356c56acd3c1bf90d69878f0a005fa12d3d0",
+    "retained_sha256": "226cae2ac462d61a60599dbf78aaeb6133afe240a3c421604ce896e43d7d23ab",
+    "retained_transform": "UTF-8 without BOM; LF line endings. Source hash records original raw bytes."
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\impact.png",
+    "retained": "astra-native-impact.png",
+    "source_sha256": "a5a0c6db0992c470073bb7caa79068896824a7af47ab48bca6ddde7b3c1524a3",
+    "retained_sha256": "a5a0c6db0992c470073bb7caa79068896824a7af47ab48bca6ddde7b3c1524a3"
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\jester-detail.png",
+    "retained": "astra-native-jester-detail.png",
+    "source_sha256": "9c91df0204a16d11299cd7147b6cd2fc718237d62156dafeb2d5b102f182f869",
+    "retained_sha256": "9c91df0204a16d11299cd7147b6cd2fc718237d62156dafeb2d5b102f182f869"
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\meter-empty.png",
+    "retained": "astra-native-meter-empty.png",
+    "source_sha256": "26a60f162999046063513bd8aa1b374ac4d8c93eb239c36c57832752dd4e4879",
+    "retained_sha256": "26a60f162999046063513bd8aa1b374ac4d8c93eb239c36c57832752dd4e4879"
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\meter-full.png",
+    "retained": "astra-native-meter-full.png",
+    "source_sha256": "6bd9f731563182813543fbfe700dbf29a02706bafc219a7c35a83736bb5462ed",
+    "retained_sha256": "6bd9f731563182813543fbfe700dbf29a02706bafc219a7c35a83736bb5462ed"
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\meter-half.png",
+    "retained": "astra-native-meter-half.png",
+    "source_sha256": "3f64dcffb379776e08fd6fac60eed6648ad86185f157548c76f8c79f3d0b51cd",
+    "retained_sha256": "3f64dcffb379776e08fd6fac60eed6648ad86185f157548c76f8c79f3d0b51cd"
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\mouth-closing.png",
+    "retained": "astra-native-mouth-closing.png",
+    "source_sha256": "8bd03747245bf34e467ffee5f0210ce23712129509d2d7b7e1020f9ef7ff9a4e",
+    "retained_sha256": "8bd03747245bf34e467ffee5f0210ce23712129509d2d7b7e1020f9ef7ff9a4e"
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\ready.png",
+    "retained": "astra-native-ready.png",
+    "source_sha256": "ade4afc3b61415f84b7181df5306fb5f409c0f33abb3b2b2367822922c31abed",
+    "retained_sha256": "ade4afc3b61415f84b7181df5306fb5f409c0f33abb3b2b2367822922c31abed"
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\runtime.log",
+    "retained": "astra-native-runtime.log",
+    "source_sha256": "4f354fbd610c0237b08a9563149a21da18cf0e81c3c6c938a13e4affa35f9a84",
+    "retained_sha256": "55a660e91be913d94f078a52636ecf995fda3863ebbc80fc69c44f9b82f70727",
+    "retained_transform": "UTF-8 without BOM; LF line endings. Source hash records original raw bytes."
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\stage-1-firing.png",
+    "retained": "astra-native-stage-1-firing.png",
+    "source_sha256": "ce887b3ee024dd4a93754856e689f4f802542f4c22de9ef525700369e3c7e34d",
+    "retained_sha256": "ce887b3ee024dd4a93754856e689f4f802542f4c22de9ef525700369e3c7e34d"
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\stage-2-firing.png",
+    "retained": "astra-native-stage-2-firing.png",
+    "source_sha256": "147a48060213ec0f0da0a446b5ee6d79875fd99d90bb542bf278573a6488590f",
+    "retained_sha256": "147a48060213ec0f0da0a446b5ee6d79875fd99d90bb542bf278573a6488590f"
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\stage-3-firing.png",
+    "retained": "astra-native-stage-3-firing.png",
+    "source_sha256": "4b070db9faaa394f5c58b82275fc9eb736561f90e670051b545d5023fbce38ff",
+    "retained_sha256": "4b070db9faaa394f5c58b82275fc9eb736561f90e670051b545d5023fbce38ff"
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\stage-4-firing.png",
+    "retained": "astra-native-stage-4-firing.png",
+    "source_sha256": "254b2343f97bc875642c8736cfbb50b78ce39e224837df96cd0c01754dd213b4",
+    "retained_sha256": "254b2343f97bc875642c8736cfbb50b78ce39e224837df96cd0c01754dd213b4"
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\straight-deposits.png",
+    "retained": "astra-native-straight-deposits.png",
+    "source_sha256": "7c47aa6f4b16e437b2e216c887a311ef732eff2179ac5cd8d006b446d48b7a8b",
+    "retained_sha256": "7c47aa6f4b16e437b2e216c887a311ef732eff2179ac5cd8d006b446d48b7a8b"
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\tank-detail.png",
+    "retained": "astra-native-tank-detail.png",
+    "source_sha256": "9c3b44781f94ef3736519c09910dc4d586cec8038196e8bf2f652a9b06b12b63",
+    "retained_sha256": "9c3b44781f94ef3736519c09910dc4d586cec8038196e8bf2f652a9b06b12b63"
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\trace.json",
+    "retained": "astra-native-trace.json",
+    "source_sha256": "54397a82019c15ecbf1b554561e3a83b0f1ef6fba0099b2e9a24a5004cd514be",
+    "retained_sha256": "54397a82019c15ecbf1b554561e3a83b0f1ef6fba0099b2e9a24a5004cd514be",
+    "retained_transform": "UTF-8 without BOM; LF line endings. Source hash records original raw bytes."
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\wall-deposits.png",
+    "retained": "astra-native-wall-deposits.png",
+    "source_sha256": "f7974cd811891cc61ed3235e14c46800553b4d8c598ddd59b6c05398404fd8a2",
+    "retained_sha256": "f7974cd811891cc61ed3235e14c46800553b4d8c598ddd59b6c05398404fd8a2"
+  },
+  {
+    "sheet": "deployment",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00318.png",
+    "source_sha256": "d59e0eb48d8585b317eb307cb6292f00563321dcdf38a1a0e983477022a13122"
+  },
+  {
+    "sheet": "deployment",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00330.png",
+    "source_sha256": "6d3650f68b31182ed4a0fc5bef3a2491e1fd2bb9477dbcb8993f432ccbc6e41c"
+  },
+  {
+    "sheet": "deployment",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00354.png",
+    "source_sha256": "a664e20f7a1617edaf8f8324f3c9c5e6bc9b8402d9e1583ab10cbf45064e2002"
+  },
+  {
+    "sheet": "deployment",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00372.png",
+    "source_sha256": "989ae69b8521381e057e24e140b3160dbeb084b1639519bde15acb06d34cd1dc"
+  },
+  {
+    "sheet": "deployment",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00390.png",
+    "source_sha256": "531eb9e3c0404d4c0374e2620bf373cf95709ecd35ef1b384c4548a43011ba93"
+  },
+  {
+    "sheet": "deployment",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00414.png",
+    "source_sha256": "7fb806367c3a6df7cc03ab1eebb380c06d496fe4c2d4b3a4cc0911b67d56a2b1"
+  },
+  {
+    "sheet": "deployment",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00444.png",
+    "source_sha256": "68bdcfc86d1655061ef1fbd09898f62b02d6cb962dbd0f0bc7f4f5db36aa0962"
+  },
+  {
+    "sheet": "deployment",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00462.png",
+    "source_sha256": "e32d54e309e1180af96f80ff601da877465cc37f24b904ef5940882827dc4c08"
+  },
+  {
+    "sheet": "deployment",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00474.png",
+    "source_sha256": "c37d3cde475f3b427f35aef28a14868b1a4d4850f8c1402ab9f5100495dfbb1b"
+  },
+  {
+    "sheet": "deployment",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00492.png",
+    "source_sha256": "784aab30ec648aeea38ebfc9dbf300a58068bdc79c1b777a3708eb0c1dcad4f8"
+  },
+  {
+    "sheet": "straight",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00534.png",
+    "source_sha256": "e68c2489f300da63b21d0e24514ef264556afe20166d02a68ea05fe65cb3dd82"
+  },
+  {
+    "sheet": "straight",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00540.png",
+    "source_sha256": "0a8673522335998bd669820a2e23ae41c28699c4c75e1e480eab564624c18f73"
+  },
+  {
+    "sheet": "straight",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00546.png",
+    "source_sha256": "f857e2346b702d0dd1bc312d1f98c343a687163696cd9c07e9dbaea0e6aae934"
+  },
+  {
+    "sheet": "straight",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00558.png",
+    "source_sha256": "bc417ee81528899a46d87eec5a51e0022fbd6671c191a9fcead4dea0dd2657e6"
+  },
+  {
+    "sheet": "straight",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00570.png",
+    "source_sha256": "06805c1c044ac46db380e9d9c2796027bcd871b4d47b083a63cc02a1399e8973"
+  },
+  {
+    "sheet": "straight",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00582.png",
+    "source_sha256": "6e720116f24ba04c5087a5e4fa2e1704f6b1acf9ae2ed20eaa5a6bdef0acbdcd"
+  },
+  {
+    "sheet": "straight",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00606.png",
+    "source_sha256": "e37253e1f34f23eb54fe72db98831f662b6b006f3fa8d1e988b5ac6fa5391fdc"
+  },
+  {
+    "sheet": "straight",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00612.png",
+    "source_sha256": "4d507df3b221770220d1654177f393a1a688a78c23fa299ca845189010ec3584"
+  },
+  {
+    "sheet": "straight",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-00618.png",
+    "source_sha256": "6753a9a4ebe3c38156e431c1f1b982cbfd56891024e9626153ebab084d803d57"
+  },
+  {
+    "sheet": "airborne",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01110.png",
+    "source_sha256": "9115e68e7686d9e0c0f735c0b7607945cf4e19541e51519f5b3df0b8309e6057"
+  },
+  {
+    "sheet": "airborne",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01134.png",
+    "source_sha256": "a9814bb82ea0c85959612dab9b58f343087559c5c5d5372c7fcad94662f7698d"
+  },
+  {
+    "sheet": "airborne",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01146.png",
+    "source_sha256": "d85491945ce527674f7738146d8ab3ebe2889a7f3021a9e22eb49fb20332cfdd"
+  },
+  {
+    "sheet": "airborne",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01164.png",
+    "source_sha256": "f0ee37a26a9f7e506de5d54426d6359850b89dfc29c239105f11d67933cb54cc"
+  },
+  {
+    "sheet": "airborne",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01182.png",
+    "source_sha256": "0b33df5013cca45be1d80369729f983fa07998d186613a7d4418bb1229154d6b"
+  },
+  {
+    "sheet": "airborne",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01194.png",
+    "source_sha256": "ee6fe1544674b0ec07b7c31d564954ccec261324fe5a10da523c29d956b009f3"
+  },
+  {
+    "sheet": "airborne",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01212.png",
+    "source_sha256": "b5b8f57e6cbebd6c8d46c9bd2a5fe901365c7e443b8ccd91834274e127a4f508"
+  },
+  {
+    "sheet": "airborne",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01230.png",
+    "source_sha256": "f3134db3cf2b598778ca2a32ced6fdc98f837b90eb1ad83a5a8ceb0478411b7c"
+  },
+  {
+    "sheet": "airborne",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01242.png",
+    "source_sha256": "9f22e6e656f8b7dcaade8d852a18be53af4c77ac6a451d46eeeecd2d11c97bab"
+  },
+  {
+    "sheet": "replacement",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01836.png",
+    "source_sha256": "50683cb983bb37d1dcd4b4757ecadcdd855ac81820b69a2634ff901204e3a4e1"
+  },
+  {
+    "sheet": "replacement",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01866.png",
+    "source_sha256": "8149bbc13fe2cabc8309f9e6f5ca9cd81a9390944a260fe02d353f80bf782467"
+  },
+  {
+    "sheet": "replacement",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01884.png",
+    "source_sha256": "146378a92494940d5bac9af005ecdb5fcd1f026b072a076a0ad3666786120e0a"
+  },
+  {
+    "sheet": "replacement",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01908.png",
+    "source_sha256": "69a9e532e412b0c3edf9071c9a41eb56d802148e812b05b400a5506212032303"
+  },
+  {
+    "sheet": "replacement",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01926.png",
+    "source_sha256": "ff1f06d77198f1f8ea99def6901b853b619b543bd82ee9bbd72350840cd847ea"
+  },
+  {
+    "sheet": "replacement",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01938.png",
+    "source_sha256": "54082785204177e3c3096cde423076aa915dd520fa710cdc8bafa6b5d1407c4d"
+  },
+  {
+    "sheet": "replacement",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01956.png",
+    "source_sha256": "d9ddcb50e7345ace32819ff93307589437c27631722f11edfd2185dd5a1f4e39"
+  },
+  {
+    "sheet": "replacement",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01974.png",
+    "source_sha256": "913f27bf0a0f31fc094f434a9c06d346bc8a3dc7663eb93ff19f12d11a5a7225"
+  },
+  {
+    "sheet": "replacement",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01986.png",
+    "source_sha256": "85a0b52637fdeca3e90fbd3e5328ece8804c8029f8543f4688fce1556b8c3832"
+  },
+  {
+    "sheet": "replacement",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-02004.png",
+    "source_sha256": "5bf3b09908d4c131671db786d683b75cb98841ce623278a7a2292340ce9d276b"
+  },
+  {
+    "sheet": "replacement",
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-02022.png",
+    "source_sha256": "625bafb4ba91f0e01ec8c7dcf1f75be316a230017d1db59cd097807a665ed1a2"
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01146.png",
+    "retained": "astra-frame-01146.png",
+    "source_sha256": "d85491945ce527674f7738146d8ab3ebe2889a7f3021a9e22eb49fb20332cfdd",
+    "retained_sha256": "d85491945ce527674f7738146d8ab3ebe2889a7f3021a9e22eb49fb20332cfdd"
+  },
+  {
+    "source": ".godot\\ts-245-round7\\runtime\\motion\\frame-01158.png",
+    "retained": "astra-frame-01158.png",
+    "source_sha256": "cb5e02a3bf927e917c745e40181972ff764a45a865d3438360873da3ba86ba95",
+    "retained_sha256": "cb5e02a3bf927e917c745e40181972ff764a45a865d3438360873da3ba86ba95"
+  }
+]

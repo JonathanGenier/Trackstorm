@@ -25,10 +25,54 @@ diamond=np.abs((u*9)%1-.5)/.5+np.abs((v*4)%1-.5)/.5 < .80
 rng=np.random.default_rng(10152);grain=rng.random((h,w));wear=grain<.014
 rgb=np.where(diamond[:,:,None],np.array((.67,.012,.018)),np.array((.87,.80,.62)))
 rgb*=.87+.13*grain[:,:,None];rgb[wear]=(.09,.07,.04)
+# Lettering is baked directly into the curved vessel's Base Color. There is no
+# plaque, backing mesh, rim or raised letter geometry between the paint and tank.
+# Original stroke alphabet avoids redistributing a font or reference pixels.
+glyphs={
+'L':[[(0,1),(0,0),(.58,0)]],
+'a':[[(.56,.60),(.40,.73),(.15,.73),(0,.55),(0,.18),(.15,0),(.40,0),(.56,.18)],[(.56,.73),(.56,0)]],
+'u':[[(0,.73),(0,.18),(.15,0),(.40,0),(.56,.18),(.56,.73)]],
+'g':[[(.56,.60),(.40,.73),(.15,.73),(0,.55),(0,.18),(.15,0),(.40,0),(.56,.18)],[(.56,.73),(.56,-.17),(.40,-.29),(.10,-.29)]],
+'h':[[(0,0),(0,1)],[(0,.52),(.16,.73),(.40,.73),(.56,.56),(.56,0)]],
+'i':[[(.12,0),(.12,.70)],[(.12,.96),(.12,1)]],
+'n':[[(0,0),(0,.73)],[(0,.52),(.16,.73),(.40,.73),(.56,.56),(.56,0)]],
+'G':[[(.62,.82),(.47,1),(.16,1),(0,.78),(0,.22),(.16,0),(.62,0),(.62,.48),(.36,.48)]],
+'s':[[(.54,.64),(.40,.73),(.13,.73),(0,.58),(.06,.43),(.48,.30),(.57,.14),(.42,0),(.12,0),(0,.10)]]}
+px=(u-.5)*1.24
+# The profile interpolates the authored barrel rings, including the tapered ends.
+profile=np.interp(u,np.linspace(0,1,9),.25*(.84+.16*np.sin(np.linspace(0,math.pi,9))**.35))
+py=profile*np.cos(v*math.tau);front=np.sin(v*math.tau)>.45
+# Rubbed enamel follows the entire front circumference, without a rectangular
+# label boundary. Diamonds remain around the shoulders and rear of the vessel.
+clean=np.clip((np.sin(v*math.tau)-.30)/.32,0,1)*np.clip((.58-np.abs(px))/.05,0,1)
+enamel=np.array((.91,.87,.76))*(.94+.06*grain[:,:,None])
+rgb=rgb*(1-clean[:,:,None])+enamel*clean[:,:,None]
+clear=clean>.5
+def painted(strokes,radius,color):
+ for stroke in strokes:
+  for a,b in zip(stroke,stroke[1:]):
+   ax,ay=a;bx,by=b;dx=bx-ax;dy=by-ay
+   t=np.clip(((px-ax)*dx+(py-ay)*dy)/max(1e-12,dx*dx+dy*dy),0,1)
+   distance=np.sqrt((px-ax-t*dx)**2+(py-ay-t*dy)**2)
+   alpha=np.clip((radius+.0008-distance)/.0016,0,1)*front
+   rgb[:]=rgb*(1-alpha[:,:,None])+np.array(color)*alpha[:,:,None]
+x=-.535;height=.112;gas_start=0
+for letter in 'Laughing Gas':
+ if letter==' ':x+=height*.34;continue
+ if letter=='G':gas_start=x
+ painted([[(x+a*height,.027+b*.145) for a,b in stroke] for stroke in glyphs[letter]],.0115,(.003,.002,.002))
+ x+=height*(.34 if letter=='i' else .72)
+# Two unmistakable red paint strokes cross only Gas, leaving its black letters readable.
+painted([[(gas_start-.01,.060),(x-.01,.129)],[(gas_start-.005,.130),(x-.015,.070)]],.0058,(.65,.004,.008))
+# Larger informal lower-case oil, with a leaning l and irregular brush strokes.
+painted([[(-.27,-.055),(-.32,-.070),(-.34,-.135),(-.32,-.172),(-.27,-.183),(-.22,-.152),(-.205,-.083),(-.23,-.054),(-.27,-.055)],
+ [(-.12,-.083),(-.143,-.178)], [(-.104,-.038),(-.102,-.026)],
+ [(.018,-.005),(-.015,-.158),(-.003,-.177),(.032,-.166)]],.012,(.67,.005,.010))
+rgb[wear&(~clear)]=(.09,.07,.04)
 rgba=np.concatenate([rgb,np.ones((h,w,1))],axis=2).astype('float32')
 im=bpy.data.images.new('Oil Tank paint',width=w,height=h);im.pixels.foreach_set(rgba.ravel());im.filepath_raw=str(root/'source/Oil Tank paint.png');im.file_format='PNG';im.save();im.pack()
 paintmat=bpy.data.materials.new('Tank circus enamel');paintmat.use_nodes=True
-p=paintmat.node_tree.nodes.get('Principled BSDF');p.inputs['Roughness'].default_value=.42;p.inputs['Metallic'].default_value=.15
+p=paintmat.node_tree.nodes.get('Principled BSDF');p.inputs['Roughness'].default_value=.58;p.inputs['Metallic'].default_value=.04
 tex=paintmat.node_tree.nodes.new('ShaderNodeTexImage');tex.image=im;paintmat.node_tree.links.new(tex.outputs['Color'],p.inputs['Base Color'])
 barrel('Horizontal oil tank',1.24,.25,paintmat)
 for x in [-.58,.58]:
@@ -57,36 +101,6 @@ for i in range(7):
 cube('Glass reflection',(.39,.005,.325),(.004,.248,.002),white,tank,.002)
 for y in [-.158,.148]:
  for x in [.362,.498]:ball('Gauge screw',(x,y,.296),(.009,.009,.005),steel,tank)
-
-# A plain enamel label field separates the joke from the busy diamond paint.
-cube('Label brass edge',(-.10,0,.272),(.92,.40,.018),brass,tank,.032)
-cube('Label ivory enamel',(-.10,0,.285),(.893,.377,.012),cream,tank,.027)
-# Bespoke painted stroke alphabet; no font or reference pixels are redistributed.
-glyphs={
-'L':[[(0,1),(0,0),(.65,0)]], 'a':[[(0,0),(.34,1),(.68,0)],[(.15,.4),(.53,.4)]],
-'u':[[(0,1),(0,.2),(.15,0),(.5,0),(.65,.2),(.65,1)]],
-'g':[[(.65,.82),(.5,1),(.16,1),(0,.78),(0,.22),(.16,0),(.65,0),(.65,.48),(.38,.48)]],
-'h':[[(0,0),(0,1)],[(.64,0),(.64,1)],[(0,.48),(.64,.48)]],
-'i':[[(.32,0),(.32,1)],[(.12,1),(.52,1)],[(.12,0),(.52,0)]],
-'n':[[(0,0),(0,1),(.66,0),(.66,1)]],
-'G':[[(.65,.82),(.5,1),(.16,1),(0,.78),(0,.22),(.16,0),(.65,0),(.65,.48),(.38,.48)]],
-'s':[[(.64,.86),(.48,1),(.14,1),(0,.82),(.05,.62),(.56,.39),(.65,.17),(.48,0),(.12,0),(0,.12)]]}
-def label(text,x,y,height):
- for letter in text:
-  if letter==' ':x+=height*.4;continue
-  for stroke in glyphs[letter]:
-   pts=[(x+px*height,y+py*height,.307) for px,py in stroke]
-   tube('Letter gold keyline',pts,.010,brass,tank);tube('Painted Laughing Gas',[(px,py,pz+.005) for px,py,pz in pts],.007,black,tank)
-  x+=height*.84
-label('Laughing',-.53,.035,.12)
-label('Gas',-.48,-.145,.125)
-# Obvious informal correction, above a red handwritten lower-case oil.
-tube('Gas crossed out',[(-.50,-.135,.328),(-.20,-.035,.328)],.010,red,tank)
-tube('Second strike',[(-.49,-.040,.330),(-.18,-.11,.330)],.009,red,tank)
-tube('Handwritten o',[(.005,-.035,.321),(-.045,-.07,.321),(-.035,-.145,.321),(.025,-.16,.321),(.07,-.08,.321),(.04,-.035,.321),(.005,-.035,.321)],.012,red,tank)
-tube('Handwritten i',[(.12,-.065,.322),(.095,-.155,.322)],.011,red,tank)
-ball('Oil dot',(.13,-.025,.322),(.015,.015,.012),red,tank)
-tube('Handwritten l',[(.21,.006,.322),(.17,-.15,.322),(.21,-.14,.322)],.012,red,tank)
 
 # Stepped hex nuts, dark gaskets and scored brass collars read as hose adapters.
 def coupling(name,start,end,parent):

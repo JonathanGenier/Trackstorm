@@ -29,9 +29,9 @@ internal static class OilRecoveryFixture
         return patch;
     }
 
-    internal static void Verify(ItemPublication state, OilPatch patch)
+    internal static void Verify(ItemPublication state, OilPatch patch, int additionalHazards = 0)
     {
-        if (state.Patches.Count != PatchCount || state.Patches.Single(p => p.Id == patch.Id) != patch || state.OilContacts.Count != 0)
+        if (state.Patches.Count != PatchCount + additionalHazards || state.Patches.Single(p => p.Id == patch.Id) != patch || state.OilContacts.Count != 0)
         { throw new InvalidOperationException("Large Oil continuation lost ownership, deadline, geometry or overlap state."); }
     }
 }

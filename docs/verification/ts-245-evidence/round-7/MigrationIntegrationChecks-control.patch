@@ -1,0 +1,10 @@
+--- origin/main/code/Client/Verification/MigrationIntegrationChecks.cs
++++ main-control/code/Client/Verification/MigrationIntegrationChecks.cs
+@@ -417,0 +418 @@
++            _boundary = _frames;
+@@ -422,0 +424,5 @@
++            if (_frames - _boundary < 180) { return; }
++            Require(_arenas.Where(a => a is not null).All(a => a!.Driver.IsActive &&
++                a.Driver.Latest!.Tick + 30 >= _arenas[host]!.Driver.Latest!.Tick),
++                "Main control sustained peer continuation: " + string.Join("; ", _arenas.Select((a,i) => a is null ? $"{i}:retired" :
++                    $"{i}:active={a.Driver.IsActive},tick={a.Driver.Latest?.Tick},migration={_drivers[i]?.Migration?.Diagnostics},failure={_drivers[i]?.Failure}")));

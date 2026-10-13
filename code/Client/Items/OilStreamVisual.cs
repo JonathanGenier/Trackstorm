@@ -13,6 +13,7 @@ internal sealed partial class OilStreamVisual : MeshInstance3D
     private readonly List<Vector2> _uvs = new(36000);
     private readonly List<(Vector3 Point, float Age)> _points = new(50);
     private readonly List<(Vector3 Point, float Age)> _curve = new(150);
+    private readonly float[] _strandRadius = new float[150];
     private const int Sides = 6;
     private readonly (Vector3 Point, Vector3 Normal, Vector2 Uv)[] _rings = new (Vector3, Vector3, Vector2)[150 * 9];
     private readonly MultiMesh _spray = new() { TransformFormat = MultiMesh.TransformFormatEnum.Transform3D };
@@ -69,9 +70,14 @@ internal sealed partial class OilStreamVisual : MeshInstance3D
                 float join = Mathf.SmoothStep(3.10f, 4.3f, Math.Min(neck.Z, accepted.Z));
                 point = frame * neck.Lerp(accepted, join);
             }
-            // Fractional cadence rounds emission ticks; a larger hole is an actual retired parcel.
+            // Adjacent emission times are not necessarily neighboring liquid: a sharp
+            // trajectory turn during a jump can fold the age-ordered tail back on
+            // itself. Separate that clump instead of drawing a pointed hairpin.
+            // Fractional cadence rounds ticks; larger holes are retired parcels.
             if (previous is not null && (previous.RemainingTicks - drop.RemainingTicks > MathF.Ceiling(pour.IntervalTicks) ||
-                (_points.Count > 0 && point.DistanceTo(_points[^1].Point) > 2)))
+                (_points.Count > 0 && point.DistanceTo(_points[^1].Point) > 2) ||
+                (_points.Count > 1 && (point - _points[^1].Point).Normalized().Dot(
+                    (_points[^1].Point - _points[^2].Point).Normalized()) < .35f)))
             { Build(width, clock); _points.Clear(); }
             _points.Add((point, flightSeconds));
             // Two to three small lobes per parcel, always inside a fixed 120-instance
@@ -81,7 +87,8 @@ internal sealed partial class OilStreamVisual : MeshInstance3D
                 float seed = drop.RemainingTicks * 2.399f + i * 17.7f;
                 float spread = width * (1 + Math.Min(flightSeconds * 4, 3));
                 Vector3 scatter = new(MathF.Sin(seed) * spread, MathF.Cos(seed * .77f) * spread * .65f, MathF.Sin(seed * .53f) * spread);
-                float size = .011f + .029f * (.5f + .5f * MathF.Sin(seed * .37f));
+                float size = (.011f + .029f * (.5f + .5f * MathF.Sin(seed * .37f))) *
+                    (i == 0 ? 2.4f : 1);
                 Vector3 velocity = VehicleBody.ToGodot(drop.Velocity);
                 if (BehindHardware(point + scatter, size * 2.8f)) { continue; }
                 var basis = new Basis(new Quaternion(Vector3.Up, velocity.Normalized())).Scaled(new(size, size * 2.8f, size));
@@ -93,8 +100,8 @@ internal sealed partial class OilStreamVisual : MeshInstance3D
         // backward connection caused the previous folded V at burst shutdown.
         Build(width, clock);
         _spray.VisibleInstanceCount = spray;
-        Visible = _vertices.Count > 0;
-        if (!Visible) { return; }
+        Visible = _vertices.Count > 0 || spray > 0;
+        if (_vertices.Count == 0) { return; }
         using var arrays = new Godot.Collections.Array(); arrays.Resize((int)Mesh.ArrayType.Max);
         arrays[(int)Mesh.ArrayType.Vertex] = _vertices.ToArray(); arrays[(int)Mesh.ArrayType.Normal] = _normals.ToArray();
         arrays[(int)Mesh.ArrayType.TexUV] = _uvs.ToArray();
@@ -140,9 +147,15 @@ internal sealed partial class OilStreamVisual : MeshInstance3D
                 // Five distinct narrow rivulets leave one dense throat. Rounded
                 // lobes, irregular necks and offset breakup avoid a dominant cord.
                 float tips = MathF.Sqrt(Math.Min(1, Math.Min(index / 1.5f, (_curve.Count - 1 - index) / 1.5f)));
-                float neck = .78f + .38f * MathF.Sin(flow) + .20f * MathF.Sin(flow * 1.71f);
-                if (age > .1f) { neck *= .18f + .82f * Mathf.SmoothStep(-.85f, .1f, MathF.Sin(flow * .43f + strand)); }
-                float radius = neckWidth * (.22f + .025f * MathF.Sin(strand * 7)) * neck * tips;
+                float pulse = MathF.Sin(age * (91 + strand * 13) - (float)clock * 18 + strand * 2.4f);
+                float neck = .76f + .34f * MathF.Sin(flow) + .24f * MathF.Sin(flow * 1.71f);
+                float breakup = Mathf.SmoothStep(.12f, .30f, age) * free;
+                // Unequal rounded ligaments separate as flight ages. Staggered
+                // strands retain a dense throat but cannot become five long ropes.
+                float ligament = Mathf.SmoothStep(-.42f, .20f, pulse);
+                float radius = neckWidth * (.25f + .045f * MathF.Sin(strand * 7)) * neck * tips *
+                    Mathf.Lerp(1, ligament, breakup);
+                _strandRadius[index] = radius;
                 float angle = side * Mathf.Tau / Sides;
                 Vector3 normal = right * Mathf.Cos(angle) + up * Mathf.Sin(angle);
                 radius *= 1 + .15f * MathF.Sin(angle * 3 + flow * .71f);
@@ -150,10 +163,28 @@ internal sealed partial class OilStreamVisual : MeshInstance3D
             }
             for (int i = 0; i < _curve.Count; i++)
             { for (int side = 0; side <= Sides; side++) { _rings[i * 9 + side] = Ring(i, side); } }
+            // A radial-only normal makes every neck and bulge reflect like a
+            // polished cable. Follow the actual curved, changing-radius surface.
+            for (int i = 0; i < _curve.Count; i++)
+            {
+                for (int side = 0; side <= Sides; side++)
+                {
+                    int previousSide = (side + Sides - 1) % Sides, nextSide = (side + 1) % Sides;
+                    Vector3 around = _rings[i * 9 + nextSide].Point - _rings[i * 9 + previousSide].Point;
+                    Vector3 along = _rings[Math.Min(i + 1, _curve.Count - 1) * 9 + side].Point -
+                        _rings[Math.Max(i - 1, 0) * 9 + side].Point;
+                    var ring = _rings[i * 9 + side];
+                    Vector3 normal = around.Cross(along).Normalized();
+                    if (normal.LengthSquared() < .5f) { normal = ring.Normal; }
+                    else if (normal.Dot(ring.Normal) < 0) { normal = -normal; }
+                    _rings[i * 9 + side] = (ring.Point, normal, ring.Uv);
+                }
+            }
             for (int i = 0; i < _curve.Count - 1; i++)
             {
                 for (int side = 0; side < Sides; side++)
                 {
+                    if (_strandRadius[i] < .0005f && _strandRadius[i + 1] < .0005f) { continue; }
                     var a = _rings[i * 9 + side]; var b = _rings[i * 9 + side + 1]; var c = _rings[(i + 1) * 9 + side]; var d = _rings[(i + 1) * 9 + side + 1];
                     // During a hard spin the vehicle can sweep through older world
                     // flight. Do not draw a bridge through the current hardware;
