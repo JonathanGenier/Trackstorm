@@ -5,7 +5,7 @@ function Get-FastCheckPlan {
         [switch]$IncludeFeatureDocHints
     )
 
-    $normalized = @($Paths | ForEach-Object { $_.Replace('\\', '/') })
+    $normalized = @($Paths | ForEach-Object { $_.Replace('\', '/') })
 
     $workflowTests = $false
     $coreTests = $false
@@ -30,30 +30,20 @@ function Get-FastCheckPlan {
         [void]$manual.Add($Scenario)
     }
 
-    $productionPaths = @($normalized | Where-Object { $_ -notmatch '\\.md$' })
-    $hasProductionChanges = [bool]($productionPaths | Where-Object {
+    $productionPaths = @($normalized | Where-Object { $_ -notmatch '\.md
         $_ -match '^code/' -or
         $_ -match '^test/' -or
         $_ -match '^services/' -or
         $_ -match '^scenes/' -or
         $_ -match '^assets/' -or
         $_ -eq 'project.godot' -or
-        $_ -match '\\.(cs|csproj|gd|tscn|tres|blend|jsonc|js)$'
+        $_ -match '\.(cs|csproj|gd|tscn|tres|blend|jsonc|js)$'
     })
 
     $hasProductionChanges = $hasProductionChanges -or $IncludeFeatureDocHints
 
     # Focused feature references retain the owning document's integration hints.
-    $normalized += @($normalized | Where-Object { $_ -match '^docs/features/(items|vehicles|developer-options)-.+\\.md$' } | ForEach-Object {
-        if ($_ -match '^docs/features/(items|vehicles|developer-options)-') { "docs/features/$($Matches[1]).md" }
-    })
-
-    foreach ($path in $normalized) {
-        # This guard must precede every feature route, including water and surfaces.
-        if ($path -match '\\.md$' -and -not $hasProductionChanges) { continue }
-        if ($path -match '^tools/.*\\.ps1$' -or $path -eq 'check.ps1' -or $path -match '^\\.github/workflows/') {
-            $workflowTests = $true
-        }
+    $normalized += @($normalized | Where-Object { $_ -match '^docs/features/(items|vehicles|developer-options)-.+\.md
         if ($path -match 'PracticeVehicleInput|PracticeCar|HostedPractice|hosted_practice|check-hosted-practice') {
             Add-Extended 'check-hosted-practice.ps1'
             Add-Manual 'Check hosted practice driving on both maps, target acquisition/fire, respawn and host migration; use check-hosted-practice.ps1 -OldMap for the smaller route.'
