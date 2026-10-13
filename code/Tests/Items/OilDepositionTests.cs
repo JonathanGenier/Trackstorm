@@ -15,7 +15,7 @@ internal sealed class OilDepositionTests
     {
         var patch = Activation();
         var pose = new VehiclePhysicsState(new(0, 10, 0), Quaternion.Identity, Vector3.Zero, Vector3.Zero);
-        for (ulong tick = 1; tick <= 120; tick++)
+        for (ulong tick = 1; tick <= 60; tick++)
         {
             patch = OilDeposition.Advance(patch, tick, pose, null);
             patch.Validate();
@@ -24,8 +24,9 @@ internal sealed class OilDepositionTests
             Assert.That(patch.Id, Is.EqualTo(1));
         }
         Assert.That(patch.Pour!.Emitted, Is.EqualTo(40));
+        Assert.That(patch.Pour.DurationTicks, Is.EqualTo(60), "Same forty parcels in one second.");
         Assert.That(patch.ExpiresAtTick, Is.EqualTo(1801));
-        for (ulong tick = 121; tick <= 360; tick++) { patch = OilDeposition.Advance(patch, tick, pose, null); }
+        for (ulong tick = 61; tick <= 360; tick++) { patch = OilDeposition.Advance(patch, tick, pose, null); }
         Assert.That(patch.Pour!.Emitted, Is.EqualTo(40));
         Assert.That(patch.Pour.Drops.Length, Is.Zero);
     }
@@ -93,5 +94,48 @@ internal sealed class OilDepositionTests
             Assert.That(offset.Length(), Is.LessThanOrEqualTo(.45001f));
             Assert.That(velocity.Length(), Is.LessThanOrEqualTo(5.0001f));
         }
+    }
+
+    [Test]
+    public void KickbackMovesHeadForwardWithoutTurningAnyParcelForward()
+    {
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+        var patch = Activation();
+        for (ulong tick = 1; tick <= 60; tick++)
+        {
+            patch = OilDeposition.Advance(patch, tick, pose, null);
+            Assert.That(patch.Pour!.Drops.Drops.All(d => d.Velocity.Z > 0), Is.True);
+            Assert.That(patch.Pour.HeadOffset.Length(), Is.LessThanOrEqualTo(.45001f));
+            if (tick == 10) { Assert.That(patch.Pour.HeadOffset.Z, Is.LessThan(-.1f)); }
+        }
+        var quiet = OilDeposition.Advance(Activation() with { Pour = new() { Life = 1, StartTick = 1, Kickback = 0 } }, 1, pose, null);
+        Assert.That(quiet.Pour!.HeadOffset, Is.EqualTo(Vector3.Zero));
+    }
+
+    [TestCase(3f, 20)]
+    [TestCase(1.5f, 40)]
+    [TestCase(1.25f, 48)]
+    public void FractionalCadenceEmitsExactBoundedQuantity(float interval, int count)
+    {
+        var patch = Activation() with { Pour = new() { Life = 1, StartTick = 1, IntervalTicks = interval } };
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+        for (ulong tick = 1; tick <= 120; tick++)
+        {
+            patch = OilDeposition.Advance(patch, tick, pose, null); patch.Validate();
+            if (tick == 60) { Assert.That(patch.Pour!.Emitted, Is.EqualTo(count)); }
+        }
+        Assert.That(patch.Pour!.Emitted, Is.EqualTo(count));
+    }
+
+    [Test]
+    public void TuningRejectsFractionalDurationThatRoundsPastTheParcelBudget()
+    {
+        var tuning = new ItemConfiguration { OilFireSeconds = .8f, OilIntervalTicks = 1.005f };
+        Assert.DoesNotThrow(tuning.Validate);
+        Assert.DoesNotThrow(() => new OilPour
+        {
+            Life = 1, DurationTicks = (int)MathF.Ceiling(tuning.OilFireSeconds * 60), IntervalTicks = tuning.OilIntervalTicks
+        }.Validate());
+        Assert.Throws<ArgumentException>(() => (tuning with { OilFireSeconds = .801f }).Validate());
     }
 }

@@ -1,0 +1,108 @@
+{
+  "manifest_files_verified": 17,
+  "baseline": "ea4b682a28d4a66a3689247822bbd36c69b8295a",
+  "unchanged_box_floor_lid_source_dimensions_and_exposed_head_anchor": true,
+  "before": {
+    "JesterPivot": {
+      "translation": [
+        0,
+        1.4199999570846558,
+        0
+      ]
+    },
+    "LidPivotGeometry": {
+      "translation": [
+        0,
+        0,
+        0.38999998569488525
+      ],
+      "local_mesh_min": [
+        -0.4300000071525574,
+        -0.029999999329447746,
+        -0.4300000071525574
+      ],
+      "local_mesh_max": [
+        0.4300000071525574,
+        0.04249997437000275,
+        0.43000003695487976
+      ]
+    },
+    "OilBoxGeometry": {
+      "translation": [
+        0,
+        0.05000000074505806,
+        0
+      ],
+      "local_mesh_min": [
+        -0.42899999022483826,
+        -0.05000000074505806,
+        -0.42899999022483826
+      ],
+      "local_mesh_max": [
+        0.42900002002716064,
+        0.6399999856948853,
+        0.4740000069141388
+      ]
+    },
+    "Spring": {
+      "translation": [
+        0,
+        0.699999988079071,
+        0
+      ]
+    },
+    "OilBox": {}
+  },
+  "after": {
+    "JesterPivot": {
+      "translation": [
+        0,
+        1.4199999570846558,
+        0
+      ]
+    },
+    "LidPivotGeometry": {
+      "translation": [
+        0,
+        0,
+        0.38999998569488525
+      ],
+      "local_mesh_min": [
+        -0.4300000071525574,
+        -0.029999999329447746,
+        -0.4300000071525574
+      ],
+      "local_mesh_max": [
+        0.4300000071525574,
+        0.0469999834895134,
+        0.43000003695487976
+      ]
+    },
+    "OilBoxGeometry": {
+      "translation": [
+        0,
+        0.05000000074505806,
+        0
+      ],
+      "local_mesh_min": [
+        -0.42899999022483826,
+        -0.05000000074505806,
+        -0.4359999895095825
+      ],
+      "local_mesh_max": [
+        0.42900002002716064,
+        0.6537764072418213,
+        0.4740000069141388
+      ]
+    },
+    "Spring": {
+      "translation": [
+        0,
+        0.10499999672174454,
+        0
+      ]
+    },
+    "OilBox": {}
+  },
+  "limitations": "Checks authored floor/lid dimensions, selected anchors and exported mesh bounds, not full swept mesh collision clearance. Hardware, hat, face, collar and spring geometry intentionally changed."
+}

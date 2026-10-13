@@ -460,7 +460,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         {
             Pour = new OilPour { Life = slot.Life, DurationTicks = (int)MathF.Ceiling(c.OilFireSeconds * 60),
                 IntervalTicks = c.OilIntervalTicks, Speed = c.OilSpeed, Gravity = c.OilGravity, Radius = c.OilRadius,
-                PreviousVelocity = pose.LinearVelocity, Stiffness = c.OilSpringStiffness, Damping = c.OilSpringDamping, Reaction = c.OilSpringReaction }
+                PreviousVelocity = pose.LinearVelocity, Stiffness = c.OilSpringStiffness, Damping = c.OilSpringDamping, Reaction = c.OilSpringReaction, Kickback = c.OilKickback }
         };
     }
 

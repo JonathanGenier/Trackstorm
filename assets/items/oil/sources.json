@@ -4,11 +4,11 @@
   "files": [
     {
       "path": "source/BuildJackInTheBox.py",
-      "sha256": "a6d49cc6531b736eb16e86d630412b1bbe2e516d1a3cb59c29bf9be772ce65d7"
+      "sha256": "04ce7175f74d17b86cd689325b3070d932185cfaf070f2514131ae612f913ced"
     },
     {
       "path": "source/JackInTheBox.blend",
-      "sha256": "e8a9d8897914aa9d582d7d82e2493d5c77d389f8ea02f2f1e6f29e40a104270c"
+      "sha256": "fbfd7b6acad0c054b724715c1d7c473ed42101ce0de6777fafe5d7512025cf24"
     },
     {
       "path": "source/Patina.png",
@@ -16,59 +16,59 @@
     },
     {
       "path": "JackInTheBox.glb",
-      "sha256": "d788a276996909ed339e569449140bb5d97b2f6b31855ac1c5f79f691945dc16"
+      "sha256": "6e8f99441b86f084b36ec593ef40526e5cd33720764ba6ceaa7c017c13f9c8c2"
     },
     {
       "path": "OilFluid.gdshader",
-      "sha256": "850cd67629c32844e4af786743b5c1e43e3b530074fc9bb7cb08a964d65e1691"
+      "sha256": "98c320861751e45cfc5699bab947fa80488cefa69695aceb4e7b7b63698d4f62"
     },
     {
       "path": "source/Oil Aged ivory.png",
-      "sha256": "a84d50819117654cd80374e295b66d8af68721eded8830aa914ee901b011cb12"
+      "sha256": "5782917f1211e239173f8ce2f93748743e4877bf926d847e1c6c9c0596948341"
     },
     {
       "path": "source/Oil Black enamel.png",
-      "sha256": "bc9364ab3bdd4306a643e5de279db0b6a9d12542a41c3ac8f0ae5d6f36a0a861"
+      "sha256": "508bc31b60704d4bf91904aa44d8a7ded0e777faa1fda8bdf6571ace512931c1"
     },
     {
       "path": "source/Oil Old brass.png",
-      "sha256": "4212e81f0167be29658f759c659f941017f63db3d45959adc4942aa07cdbf47b"
+      "sha256": "24094f800eb91a869a4c285484689e1ca9b23c07d239242cb4eec6c20bb13502"
     },
     {
       "path": "source/Oil Teeth ivory.png",
-      "sha256": "26983d3caa46806f07fa338bd3dea236f957a73144e55f2da6b27dd090c4c8bf"
+      "sha256": "606b316c87e877b082406a94824b319842dab3a14010138dee3530d273540b9e"
     },
     {
       "path": "source/Oil Weathered crimson.png",
-      "sha256": "e58250cad74828b4af25942b5cc7988055b781b46cc134d4f3cfa5cf497c2bb3"
+      "sha256": "0e30191374a50f66c9a2fdb7e5d6a6d70ab14550b9f5d53a6cc30e0f35ed1f31"
     },
     {
       "path": "source/Oil Worn iron.png",
-      "sha256": "55fd809cf36ac2ce40d0d8d25d2970df6869233ae2e7fb885ddaafc71ddea5da"
+      "sha256": "d07f6f63e4b113c011f1026a96723340bb68a81f460ddc1931f91278ef8f423a"
     },
     {
       "path": "JackInTheBox_Oil Aged ivory.png",
-      "sha256": "a84d50819117654cd80374e295b66d8af68721eded8830aa914ee901b011cb12"
+      "sha256": "5782917f1211e239173f8ce2f93748743e4877bf926d847e1c6c9c0596948341"
     },
     {
       "path": "JackInTheBox_Oil Black enamel.png",
-      "sha256": "bc9364ab3bdd4306a643e5de279db0b6a9d12542a41c3ac8f0ae5d6f36a0a861"
+      "sha256": "508bc31b60704d4bf91904aa44d8a7ded0e777faa1fda8bdf6571ace512931c1"
     },
     {
       "path": "JackInTheBox_Oil Old brass.png",
-      "sha256": "4212e81f0167be29658f759c659f941017f63db3d45959adc4942aa07cdbf47b"
+      "sha256": "24094f800eb91a869a4c285484689e1ca9b23c07d239242cb4eec6c20bb13502"
     },
     {
       "path": "JackInTheBox_Oil Teeth ivory.png",
-      "sha256": "26983d3caa46806f07fa338bd3dea236f957a73144e55f2da6b27dd090c4c8bf"
+      "sha256": "606b316c87e877b082406a94824b319842dab3a14010138dee3530d273540b9e"
     },
     {
       "path": "JackInTheBox_Oil Weathered crimson.png",
-      "sha256": "e58250cad74828b4af25942b5cc7988055b781b46cc134d4f3cfa5cf497c2bb3"
+      "sha256": "0e30191374a50f66c9a2fdb7e5d6a6d70ab14550b9f5d53a6cc30e0f35ed1f31"
     },
     {
       "path": "JackInTheBox_Oil Worn iron.png",
-      "sha256": "55fd809cf36ac2ce40d0d8d25d2970df6869233ae2e7fb885ddaafc71ddea5da"
+      "sha256": "d07f6f63e4b113c011f1026a96723340bb68a81f460ddc1931f91278ef8f423a"
     }
   ]
 }

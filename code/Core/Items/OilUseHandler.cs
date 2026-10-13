@@ -18,7 +18,7 @@ internal sealed class OilUseHandler : IItemUseHandler
         if (patch.Pour is { } pour && (pour.Life != slot.Life || pour.Speed != configuration.OilSpeed ||
             pour.Gravity != configuration.OilGravity || pour.Radius != configuration.OilRadius ||
             pour.DurationTicks != (int)MathF.Ceiling(configuration.OilFireSeconds * 60) || pour.IntervalTicks != configuration.OilIntervalTicks ||
-            pour.Stiffness != configuration.OilSpringStiffness || pour.Damping != configuration.OilSpringDamping || pour.Reaction != configuration.OilSpringReaction ||
+            pour.Stiffness != configuration.OilSpringStiffness || pour.Damping != configuration.OilSpringDamping || pour.Reaction != configuration.OilSpringReaction || pour.Kickback != configuration.OilKickback ||
             pour.Emitted != 0 || pour.Deposited || pour.Cancelled || pour.Drops.Length != 0))
         { throw new ArgumentException("Oil emission differs from the authorized configuration."); }
         if (patch.Id != slot.Token || patch.Owner != slot.Vehicle || (patch.Pour is null && patch.Radius != 3) ||

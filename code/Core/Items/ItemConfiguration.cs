@@ -89,25 +89,27 @@ public sealed record ItemConfiguration
     public float OilLifetimeSeconds { get; init; } = 30;
 
     /// <summary>Oil FireSeconds tuning, captured by an activation where applicable.</summary>
-    public float OilFireSeconds { get; init; } = 2f;
+    public float OilFireSeconds { get; init; } = 1f;
     /// <summary>Oil Speed tuning, captured by an activation where applicable.</summary>
-    public float OilSpeed { get; init; } = 12f;
+    public float OilSpeed { get; init; } = 18f;
     /// <summary>Oil Gravity tuning, captured by an activation where applicable.</summary>
     public float OilGravity { get; init; } = 9.81f;
     /// <summary>Oil Radius tuning, captured by an activation where applicable.</summary>
-    public float OilRadius { get; init; } = 1.1f;
+    public float OilRadius { get; init; } = 1.3f;
     /// <summary>Oil SpringStiffness tuning, captured by an activation where applicable.</summary>
-    public float OilSpringStiffness { get; init; } = 30f;
+    public float OilSpringStiffness { get; init; } = 26f;
     /// <summary>Oil SpringDamping tuning, captured by an activation where applicable.</summary>
-    public float OilSpringDamping { get; init; } = 7f;
+    public float OilSpringDamping { get; init; } = 4.5f;
     /// <summary>Oil SpringReaction tuning, captured by an activation where applicable.</summary>
-    public float OilSpringReaction { get; init; } = 0.18f;
+    public float OilSpringReaction { get; init; } = 0.32f;
+    /// <summary>Captured head recoil velocity at the start of Oil expulsion.</summary>
+    public float OilKickback { get; init; } = 1.6f;
     /// <summary>Oil Roughness tuning, captured by an activation where applicable.</summary>
     public float OilRoughness { get; init; } = 0.16f;
     /// <summary>Cosmetic liquid diameter at the mouth in metres; does not add projectiles.</summary>
     public float OilStreamWidth { get; init; } = .24f;
     /// <summary>Bounded fixed-step parcel emission cadence.</summary>
-    public int OilIntervalTicks { get; init; } = 3;
+    public float OilIntervalTicks { get; init; } = 1.5f;
 
     /// <summary>HP restored to a living vehicle.</summary>
     public float WrenchHeal { get; init; } = 500;
@@ -183,13 +185,14 @@ public sealed record ItemConfiguration
         { throw new ArgumentException("Invalid Proxy Mine tuning."); }
         new Vehicles.NitroState(1, NitroForwardThrust, NitroSpeedMultiplier, NitroAirborneThrustScale).Validate();
         if (!double.IsFinite(NitroConsumptionPerSecond) || NitroConsumptionPerSecond is < 2 or > 6000) { throw new ArgumentException("Nitro consumption must be 2–6000 percentage points per second."); }
-        if (!float.IsFinite(OilFireSeconds) || OilFireSeconds is < .5f or > 4 || OilIntervalTicks is < 2 or > 30 ||
-            MathF.Ceiling(OilFireSeconds * 60 / OilIntervalTicks) > 48 ||
+        if (!float.IsFinite(OilFireSeconds) || OilFireSeconds is < .5f or > 4 || !float.IsFinite(OilIntervalTicks) || OilIntervalTicks is < 1 or > 30 ||
+            MathF.Ceiling(MathF.Ceiling(OilFireSeconds * 60) / OilIntervalTicks) > 48 ||
             !float.IsFinite(OilSpeed) || OilSpeed is < 1 or > 30 || !float.IsFinite(OilGravity) || OilGravity is < 1 or > 40 ||
             !float.IsFinite(OilRadius) || OilRadius is < .1f or > 1.5f ||
             !float.IsFinite(OilSpringStiffness) || OilSpringStiffness is < 5 or > 100 ||
             !float.IsFinite(OilSpringDamping) || OilSpringDamping is < 1 or > 20 ||
             !float.IsFinite(OilSpringReaction) || OilSpringReaction is < 0 or > .5f ||
+            !float.IsFinite(OilKickback) || OilKickback is < 0 or > 3 ||
             !float.IsFinite(OilStreamWidth) || OilStreamWidth is < .08f or > .8f ||
             !float.IsFinite(OilRoughness) || OilRoughness is < .05f or > .6f)
         { throw new ArgumentException("Invalid Oil physics/presentation tuning."); }

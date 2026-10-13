@@ -46,11 +46,15 @@ public sealed partial class OilJackChecks : Node
     private int _finishFrame;
     private bool _deadlineObserved;
     private int _activeFrames;
+    private bool _nestedGeometry;
+    private float _readyFore;
+    private float _readySide;
+    private float _readyVertical;
     private static N.Vector3 Bank(float x, float z) => new N.Vector3(0,20,0) + N.Vector3.Transform(new N.Vector3(x,0,z), Rotation) + Normal * 1.4f;
     private readonly Dictionary<ulong, OilPatch[]> _publications = new();
     private static readonly N.Vector3 Normal = N.Vector3.Transform(N.Vector3.UnitY, N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, .25f));
     private static readonly N.Quaternion Rotation = N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, .25f);
-    private static string Output => ProjectSettings.GlobalizePath("res://.godot/ts-245-round2/runtime");
+    private static string Output => ProjectSettings.GlobalizePath("res://.godot/ts-245-round3/runtime");
 
     public override void _Ready()
     {
@@ -104,12 +108,18 @@ public sealed partial class OilJackChecks : Node
         {
             _frames++;
             if (_finishFrame > 0 && _frames >= _finishFrame) { Finish(); return; }
-            if (_frames - _boundary > 2600) { throw new InvalidOperationException($"Oil jack stage {_stage} timeout"); }
+            if (_frames - _boundary > 2600)
+            {
+                string peers = string.Join("; ", _arenas.Select((a, i) =>
+                    $"peer {i}: local={a.Driver.LocalVehicleId}, tick={a.Driver.Latest?.Tick}, roster={a.Driver.Latest?.Vehicles.Count}, itemTick={a.Driver.ItemState?.World.Tick}, patches={a.Driver.ItemState?.Patches.Count}, failure={a.Driver.Failure}"));
+                throw new InvalidOperationException($"Oil jack stage {_stage} timeout: {peers}");
+            }
             if (_stage == 3 && (_last?.Pour?.Emitted ?? 0) == 0) { Pose(new(0,40,-15), N.Quaternion.Identity, new(8,3,-10)); }
             foreach (var arena in _arenas)
             {
+                bool braking = _stage == 1 && _frames - _boundary is >= 145 and < 180;
                 var input = arena == _arenas[0] && _stage is 1 or 2
-                    ? new Trackstorm.Core.Input.InputFrame(0, _stage == 2 ? (short)15000 : (short)0, 40000, 0,
+                    ? new Trackstorm.Core.Input.InputFrame(0, _stage == 2 ? (short)15000 : (short)0, braking ? (ushort)0 : (ushort)40000, braking ? ushort.MaxValue : (ushort)0,
                         _stage == 2 && _frames - _boundary is > 150 and < 210 ? Trackstorm.Core.Input.InputButtons.Drift : 0, 0, 0)
                     : default;
                 arena.Advance(input); Check(arena.Driver.Failure.Length == 0, arena.Driver.Failure);
@@ -122,7 +132,7 @@ public sealed partial class OilJackChecks : Node
             if (_stage == 3 && _frames - _boundary == 100) { AddPeer(); _evidence.Add("Fresh peer joins during airborne firing and reconstructs active hardware/flight."); }
             var host = _arenas[0].Driver.Host!;
             if (host.World.State.Match?.Phase == MatchPhase.Active) { _activeFrames++; }
-            if (_hostFire && _frames - _grantFrame >= (_stage == 1 ? 130 : 0))
+            if (_hostFire && _frames - _grantFrame >= (_stage == 1 ? 230 : 0))
             { Check(_arenas[0].Driver.RequestItemUse(), "ordinary Oil use queued/sent"); _hostFire = false; }
             if (_stage == 2)
             {
@@ -153,21 +163,45 @@ public sealed partial class OilJackChecks : Node
             if (_frames % 10 == 0)
             {
                 var p = host.Items.Patches.FirstOrDefault(p => p.Id == _id);
+                var renderedJack = _arenas[0].Bodies.GetValueOrDefault(1ul)?.FindChildren("*", "", true, false).OfType<Items.OilJack>().FirstOrDefault();
                 _trace.Add(new { stage = _stage, frame = _frames, tick = host.World.State.Tick, hazards = host.Items.Patches.Count,
                     headOffset = p?.Pour is { } motion ? new[] { motion.HeadOffset.X, motion.HeadOffset.Y, motion.HeadOffset.Z } : null,
                     emitted = p?.Pour?.Emitted, flight = p?.Pour?.Drops.Length, deposited = p?.Pour?.Deposited, segments = p?.AdditionalSegments.Segments.Count,
+                    renderedHead = renderedJack is not null ? new[] { renderedJack.HeadOffset.X, renderedJack.HeadOffset.Y, renderedJack.HeadOffset.Z } : null,
+                    rearSlide = renderedJack?.RearSlide, forcedRepeatRender = _stage == 7,
                     renderMs = _renderMs, grounded = host.World.GetVehicle(1).Movement.Grounded,
                     nodes = Performance.GetMonitor(Performance.Monitor.ObjectNodeCount), resources = Performance.GetMonitor(Performance.Monitor.ObjectResourceCount),
                     memory = Performance.GetMonitor(Performance.Monitor.MemoryStatic), drawCalls = Performance.GetMonitor(Performance.Monitor.RenderTotalDrawCallsInFrame),
                     rack = _arenas[0].Bodies.GetValueOrDefault(1ul)?.Rack.Progress, presented = _arenas[0].Bodies.GetValueOrDefault(1ul)?.Rack.PresentedItem.ToString() });
             }
             var current = host.Items.Patches.FirstOrDefault(p => p.Id == _id);
+            var jack = _arenas[0].Bodies.GetValueOrDefault(1ul)?.FindChildren("*", "", true, false).OfType<Items.OilJack>().FirstOrDefault();
+            if (jack is not null)
+            {
+                Check(jack.HeadOffset.Length() <= .451f, "bounded rendered spring displacement");
+                if (jack.Extension >= .999f)
+                {
+                    Check(Math.Abs(jack.RearSlide - OilPour.RearTravel) < .001f, "raised head waits for rear carriage clearance");
+                    Vector3 localMouth = _arenas[0].Bodies[1].VisualTransform.AffineInverse() * jack.Mouth;
+                    Check(localMouth.Z > 2.70f && localMouth.Y > 2.35f, "mouth remains behind the chassis and above rear hardware at extreme sway");
+                    _readyFore = Math.Max(_readyFore, Math.Abs(jack.HeadOffset.Z)); _readySide = Math.Max(_readySide, Math.Abs(jack.HeadOffset.X)); _readyVertical = Math.Max(_readyVertical, Math.Abs(jack.HeadOffset.Y));
+                }
+                if (_stage == 5 && current is not null && jack.Nested)
+                { Check(jack.FullyNestedGeometry, "head and bottom-anchored spring fit below the closed lid"); _nestedGeometry = true; }
+            }
             if (_stage == 3 && current?.Pour is { } air && air.Emitted > _airborneEmitted)
             { _airborneFiring |= !host.World.GetVehicle(1).Movement.Grounded; _airborneEmitted = air.Emitted; }
             if (current is not null) { _last = current; _fireEnd = current.Pour!.StartTick + (ulong)current.Pour.DurationTicks; }
             if (_stage == 1 && _frames - _boundary == 35) { Capture("closed.png"); }
             if (_stage == 1 && _frames - _boundary == 125) { Capture("ready.png"); }
-            if (_stage is >= 1 and <= 5 && _frames - _boundary == (_stage == 1 ? 195 : 140)) { Capture($"stage-{_stage}-firing.png"); }
+            if (_stage == 1 && _frames - _boundary == 116)
+            {
+                Capture("jester-detail.png");
+                _cameraTarget = _arenas[0].Bodies[1].Rack.OilMouth ?? _arenas[0].Bodies[1].GlobalPosition + new Vector3(0, 2.9f, 3.15f);
+                _cameraPosition = _cameraTarget + new Vector3(1.1f, .3f, 1.9f); _cameraHold = 5;
+            }
+            if (_stage is >= 1 and <= 5 && current?.Pour is { } capturePour && host.World.State.Tick == capturePour.StartTick + 30) { Capture($"stage-{_stage}-firing.png"); }
+            if (_stage == 1 && current?.Pour is { } impactPour && host.World.State.Tick == impactPour.StartTick + 55) { Capture("impact.png"); }
             if (_stage <= 5 && DisplayServer.GetName() != "headless" && _frames % 6 == 0 && _capture is null)
             { _capture = $"motion/frame-{_frames:D5}.png"; _captureFrames = 0; }
             switch (_stage)
@@ -187,7 +221,8 @@ public sealed partial class OilJackChecks : Node
                     }
                     Pose(Bank(0,20), Rotation, new(0,0,-10)); Fire(); Next("Native banked straight firing with two real UDP peers."); break;
                 case 1 when _frames - _boundary > 400:
-                    Check(_last?.Pour is { Deposited: true, Emitted: 40 }, "two-second straight pour");
+                    Check(_last?.Pour is { Deposited: true, Emitted: 40, DurationTicks: 60 }, "one-second straight pour retains forty parcels");
+                    _evidence.Add("One-second burst: captured 60 ticks, forty emitted parcels, one logical hazard; native acceleration/braking/reacceleration before firing.");
                     Check(N.Vector3.Dot(_last!.Normal, Normal) > .99f, "banked surface impact orientation");
                     Capture("straight-deposits.png", true); Pose(Bank(15,-10), Rotation, N.Vector3.Transform(new N.Vector3(0,0,-12), Rotation)); Fire(); Next("Native steering, throttle and handbrake while firing on the bank."); break;
                 case 2 when _frames - _boundary > 330:
@@ -209,6 +244,9 @@ public sealed partial class OilJackChecks : Node
                     { Check(_arenas[0].Bodies[1].Rack.PresentedItem != HeldItem.Wrench, "replacement cannot interrupt Oil firing"); }
                     if (_frames - _boundary > 420)
                     {
+                        Check(_nestedGeometry, "fully retracted Oil geometry observed before replacement");
+                        Check(_readyFore > .08f && _readySide > .04f && _readyVertical > .01f, "visible spring response in all three axes");
+                        _evidence.Add($"Rendered spring peaks: fore/aft {_readyFore:F3} m, lateral {_readySide:F3} m, vertical {_readyVertical:F3} m; full nesting observed before replacement.");
                         Check(_arenas[0].Bodies[1].Rack.PresentedItem == HeldItem.Wrench, "replacement appears after jester/box/rack return"); Capture("replacement-ready.png");
                         _expiration = _last!.ExpiresAtTick;
                         if (OS.GetCmdlineUserArgs().Contains("--oil-visual-only"))
@@ -257,11 +295,17 @@ public sealed partial class OilJackChecks : Node
             camera.GlobalPosition = car.GlobalPosition + new Vector3(7, 4, _stage == 4 ? -8 : 9);
             camera.LookAt(car.GlobalPosition + new Vector3(0, 1.8f, _stage == 4 ? 1 : 3));
         }
+        // Repeat-use performance must include rendered work even if Windows minimizes
+        // this verification window. This is fixture instrumentation, not game behavior.
+        if (_stage == 7 && DisplayServer.GetName() != "headless") { RenderingServer.ForceDraw(false); }
         // Read only after this view has rendered the selected camera for two frames.
         if (_capture is not null && ++_captureFrames >= 2)
         {
             string path = System.IO.Path.Combine(Output, _capture);
             System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path)!);
+            // A minimized native window may suspend ordinary drawing while physics
+            // keeps running. Force this observation frame rather than saving stale pixels.
+            RenderingServer.ForceDraw(false);
             using var image = _views[0].GetTexture().GetImage(); image.SavePng(path); _capture = null;
         }
     }

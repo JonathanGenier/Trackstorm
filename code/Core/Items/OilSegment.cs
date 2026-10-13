@@ -34,5 +34,5 @@ public readonly record struct OilSegment(Vector3 Start, Vector3 End, Vector3 Nor
     }
 
     /// <summary>The same organic boundary used by the rendered surface and tire coverage.</summary>
-    public float EdgeRadius(float angle) => Radius * (.89f + .075f * MathF.Sin(3 * angle + Start.X) + .035f * MathF.Sin(7 * angle + Start.Z));
+    public float EdgeRadius(float angle) => Radius * (.80f + .12f * MathF.Sin(3 * angle + Start.X) + .05f * MathF.Sin(5 * angle + Start.Z) + .03f * MathF.Sin(11 * angle + Start.X * .7f));
 }

@@ -21,6 +21,7 @@ internal sealed partial class OilHazardVisual : Node3D
     private Vector3 _source;
     private Vector3 _sourceVelocity;
     private readonly List<(MeshInstance3D Node, Vector3 Velocity, float Age)> _splashes = new();
+    private readonly List<OilImpactVisual> _crowns = new();
     private OilFlight _flight = OilFlight.Empty;
     private float _flightAge;
     // The rack and smoothed vehicle model must finish before sampling the mouth.
@@ -47,14 +48,20 @@ internal sealed partial class OilHazardVisual : Node3D
             Vector3 position = VehicleBody.ToGodot(impact.Radius > 0 ? impact.End : patch.Position);
             Vector3 normal = VehicleBody.ToGodot(impact.Radius > 0 ? impact.Normal : patch.Normal);
             _impact = position; _impactAge = 0;
+            _crowns.RemoveAll(c => !GodotObject.IsInstanceValid(c) || c.IsQueuedForDeletion());
+            if (_crowns.Count < 6)
+            {
+                var crown = new OilImpactVisual(position, normal, impact.Radius > 0 ? impact.Radius : patch.Radius, _streamMaterial.Material);
+                AddChild(crown); _crowns.Add(crown);
+            }
             Vector3 tangent = normal.Cross(Math.Abs(normal.Z) < .9f ? Vector3.Back : Vector3.Right).Normalized();
-            for (int i = 0; i < 4 && _splashes.Count < 12; i++)
+            for (int i = 0; i < 8 && _splashes.Count < 24; i++)
             {
                 var splash = new MeshInstance3D { Position = position + normal * .02f, Mesh = _dropMesh, MaterialOverride = _material,
-                    Scale = Vector3.One * .35f, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off };
+                    Scale = new Vector3(.6f, 1.5f, .6f), CastShadow = GeometryInstance3D.ShadowCastingSetting.Off };
                 AddChild(splash);
-                float angle = i * Mathf.Tau / 4 + patch.Position.X;
-                _splashes.Add((splash, normal * 1.3f + (tangent * Mathf.Cos(angle) + normal.Cross(tangent) * Mathf.Sin(angle)) * .8f, 0));
+                float angle = i * Mathf.Tau / 8 + patch.Position.X;
+                _splashes.Add((splash, normal * (1.8f + .8f * MathF.Sin(i * 2.4f)) + (tangent * Mathf.Cos(angle) + normal.Cross(tangent) * Mathf.Sin(angle)) * 2, 0));
             }
         }
         if (_patch is null || _patch.Position != patch.Position || _patch.Normal != patch.Normal ||
@@ -123,10 +130,10 @@ internal sealed partial class OilHazardVisual : Node3D
         for (int i = _splashes.Count - 1; i >= 0; i--)
         {
             var splash = _splashes[i]; float age = splash.Age + (float)delta;
-            if (age > .25f) { splash.Node.QueueFree(); _splashes.RemoveAt(i); continue; }
+            if (age > .45f) { splash.Node.QueueFree(); _splashes.RemoveAt(i); continue; }
             Vector3 velocity = splash.Velocity - Vector3.Up * ((float)delta * 9.81f);
             splash.Node.Position += velocity * (float)delta;
-            splash.Node.Scale = Vector3.One * (.35f * (1 - age / .25f));
+            splash.Node.Scale = new Vector3(.6f, 1.5f, .6f) * (1 - age / .45f);
             _splashes[i] = (splash.Node, velocity, age);
         }
     }

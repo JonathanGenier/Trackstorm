@@ -13,14 +13,22 @@ internal static class OilDeposition
         if (!pour.Cancelled && pose is not null && tick >= pour.StartTick && tick - pour.StartTick < (ulong)pour.DurationTicks)
         {
             Vector3 acceleration = Vector3.Transform((pose.Value.LinearVelocity - pour.PreviousVelocity) * 60, Quaternion.Conjugate(pose.Value.Orientation));
-            var spring = OilPour.Spring(pour.HeadOffset, pour.HeadVelocity, acceleration, pour.Stiffness, pour.Damping, pour.Reaction);
+            Vector3 recoil = pour.Emitted == 0 ? new(0, .25f * pour.Kickback, -pour.Kickback) : Vector3.Zero;
+            var spring = OilPour.Spring(pour.HeadOffset, pour.HeadVelocity + recoil, acceleration, pour.Stiffness, pour.Damping, pour.Reaction);
             pour = pour with { PreviousVelocity = pose.Value.LinearVelocity, HeadOffset = spring.Offset, HeadVelocity = spring.Velocity };
-            if ((tick - pour.StartTick) % (ulong)pour.IntervalTicks == 0 && pour.Emitted < 48)
+            if (pour.Emitted * pour.IntervalTicks <= tick - pour.StartTick && pour.Emitted < 48)
             {
                 Vector3 origin = pose.Value.Position + Vector3.Transform(OilPour.Mouth(pour.HeadOffset), pose.Value.Orientation);
                 // Head motion moves the origin only. Pitch follows the chassis, never spring aim.
-                Vector3 direction = Vector3.Transform(Vector3.Normalize(new Vector3(0, -.22f, 1)), pose.Value.Orientation);
-                drops.Add(new(origin, pose.Value.LinearVelocity + direction * pour.Speed, 180));
+                float phase = pour.Emitted * 2.399963f;
+                float travel = Math.Min(1, pose.Value.LinearVelocity.Length() / 18);
+                float turbulence = .2f + .8f * travel;
+                Vector3 direction = Vector3.Transform(Vector3.Normalize(new Vector3(.055f * MathF.Sin(phase) * turbulence, -.45f + .035f * MathF.Cos(phase) * turbulence, 1)), pose.Value.Orientation);
+                // A moving car's shorter burst fans longitudinally: early parcels
+                // travel farther back, retaining trail extent without more liquid.
+                float progress = pour.Emitted / Math.Max(1, MathF.Ceiling(pour.DurationTicks / pour.IntervalTicks) - 1);
+                float speed = pour.Speed * (1 + travel * (.45f - .9f * progress));
+                drops.Add(new(origin, pose.Value.LinearVelocity + direction * speed, 180));
                 pour = pour with { Emitted = pour.Emitted + 1 };
             }
         }
@@ -41,7 +49,7 @@ internal static class OilDeposition
                 if (!float.IsFinite(hit.Radius) || hit.Radius < 0 || hit.Radius > pour.Radius) { throw new ArgumentException("Invalid Oil impact radius."); }
                 if (hit.Radius == 0) { continue; }
                 float radius = Math.Max(.05f, hit.Radius * (.82f + .16f * MathF.Sin(pour.Emitted * 2.399f + drop.RemainingTicks)));
-                // Each impact creates one supported piece; every third parcel reserves one satellite.
+                // Every parcel retains a main piece; satellites use only the remaining budget.
                 var pieces = patch.AdditionalSegments.Segments.ToList();
                 if (!pour.Deposited)
                 { patch = patch with { Position = hit.Position, Normal = hit.Normal, Radius = radius }; pour = pour with { Deposited = true }; }
@@ -57,8 +65,10 @@ internal static class OilDeposition
                 }
                 // Infer the parcel's emission ordinal from its retained lifetime, not
                 // the current total (which stops changing after the pour finishes).
-                ulong ordinal = (tick - pour.StartTick - (ulong)(180 - drop.RemainingTicks)) / (ulong)pour.IntervalTicks;
-                if (pieces.Count < OilFootprint.MaximumSegments && ordinal % 3 == 0 && hit.Radius >= .25f)
+                ulong ordinal = (ulong)((tick - pour.StartTick - (ulong)(180 - drop.RemainingTicks)) / pour.IntervalTicks);
+                int satelliteBudget = OilFootprint.MaximumSegments + 1 - (int)MathF.Ceiling(pour.DurationTicks / pour.IntervalTicks);
+                int satellites = pieces.Count(piece => piece.Radius <= pour.Radius * .16f);
+                if (pieces.Count < OilFootprint.MaximumSegments && satellites < satelliteBudget && ordinal % 2 == 0 && hit.Radius >= .25f)
                 {
                     Vector3 tangent = Vector3.Normalize(Vector3.Cross(hit.Normal, Math.Abs(hit.Normal.Z) < .9f ? Vector3.UnitZ : Vector3.UnitX));
                     float angle = drop.RemainingTicks * 2.399f;
