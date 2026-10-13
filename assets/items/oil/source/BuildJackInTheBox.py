@@ -13,8 +13,12 @@ random.seed(245)
 def xyz(p): return (p[0],-p[2],p[1])
 def mat(name,color,metal=0,rough=.5):
  m=bpy.data.materials.new(name);m.diffuse_color=(*color,1);m.use_nodes=True;p=m.node_tree.nodes.get('Principled BSDF');p.inputs['Base Color'].default_value=(*color,1);p.inputs['Metallic'].default_value=metal;p.inputs['Roughness'].default_value=rough
- tex=m.node_tree.nodes.new('ShaderNodeTexImage');tex.image=patina
- mix=m.node_tree.nodes.new('ShaderNodeMixRGB');mix.blend_type='MULTIPLY';mix.inputs[0].default_value=.8;mix.inputs[1].default_value=(*color,1);m.node_tree.links.new(tex.outputs['Color'],mix.inputs[2]);m.node_tree.links.new(mix.outputs[0],p.inputs['Base Color']);return m
+ # Bake the color into the original patina: glTF cannot carry Blender's partial
+ # MixRGB graph, which previously exported grayscale and discarded the tint.
+ rgba=paint.copy();rgba[:,:,:3]=np.array(color)*(0.2+0.8*noise[:,:,None])
+ image=bpy.data.images.new('Oil '+name,width=256,height=256);image.pixels.foreach_set(rgba.ravel());image.filepath_raw=str(root/'source'/('Oil '+name+'.png'));image.file_format='PNG';image.save();image.pack()
+ tex=m.node_tree.nodes.new('ShaderNodeTexImage');tex.image=image
+ m.node_tree.links.new(tex.outputs['Color'],p.inputs['Base Color']);return m
 red=mat('Weathered crimson',(.32,.018,.012),.25,.5);cream=mat('Aged ivory',(.58,.49,.32),.1,.62);black=mat('Black enamel',(.018,.012,.009),.2,.38);steel=mat('Worn iron',(.08,.065,.048),.8,.3);brass=mat('Old brass',(.33,.17,.035),.8,.3);white=mat('Teeth ivory',(.72,.63,.42),.1,.3)
 def empty(name,pos,parent=None):
  o=bpy.data.objects.new(name,None);bpy.context.collection.objects.link(o);o.location=xyz(pos);o.parent=parent;return o

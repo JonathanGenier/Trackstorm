@@ -85,19 +85,17 @@ public sealed record ItemConfiguration
     /// <summary>Fraction of rocket thrust available without driveable wheel support; zero disables airborne thrust.</summary>
     public float NitroAirborneThrustScale { get; init; } = 1;
 
-    /// <summary>Number of successful vehicle passes before removal, including repeated and owner passes.</summary>
-    public int OilPasses { get; init; } = 2;
     /// <summary>Maximum lifetime of new patches in seconds at the authoritative 60 Hz clock.</summary>
     public float OilLifetimeSeconds { get; init; } = 30;
 
     /// <summary>Oil FireSeconds tuning, captured by an activation where applicable.</summary>
     public float OilFireSeconds { get; init; } = 2f;
     /// <summary>Oil Speed tuning, captured by an activation where applicable.</summary>
-    public float OilSpeed { get; init; } = 8f;
+    public float OilSpeed { get; init; } = 12f;
     /// <summary>Oil Gravity tuning, captured by an activation where applicable.</summary>
     public float OilGravity { get; init; } = 9.81f;
     /// <summary>Oil Radius tuning, captured by an activation where applicable.</summary>
-    public float OilRadius { get; init; } = 0.65f;
+    public float OilRadius { get; init; } = 1.1f;
     /// <summary>Oil SpringStiffness tuning, captured by an activation where applicable.</summary>
     public float OilSpringStiffness { get; init; } = 30f;
     /// <summary>Oil SpringDamping tuning, captured by an activation where applicable.</summary>
@@ -106,6 +104,8 @@ public sealed record ItemConfiguration
     public float OilSpringReaction { get; init; } = 0.18f;
     /// <summary>Oil Roughness tuning, captured by an activation where applicable.</summary>
     public float OilRoughness { get; init; } = 0.16f;
+    /// <summary>Cosmetic liquid diameter at the mouth in metres; does not add projectiles.</summary>
+    public float OilStreamWidth { get; init; } = .24f;
     /// <summary>Bounded fixed-step parcel emission cadence.</summary>
     public int OilIntervalTicks { get; init; } = 3;
 
@@ -190,9 +190,10 @@ public sealed record ItemConfiguration
             !float.IsFinite(OilSpringStiffness) || OilSpringStiffness is < 5 or > 100 ||
             !float.IsFinite(OilSpringDamping) || OilSpringDamping is < 1 or > 20 ||
             !float.IsFinite(OilSpringReaction) || OilSpringReaction is < 0 or > .5f ||
+            !float.IsFinite(OilStreamWidth) || OilStreamWidth is < .08f or > .8f ||
             !float.IsFinite(OilRoughness) || OilRoughness is < .05f or > .6f)
         { throw new ArgumentException("Invalid Oil physics/presentation tuning."); }
-        if (OilPasses is < 1 or > 7 || !float.IsFinite(OilLifetimeSeconds) || OilLifetimeSeconds is < 1 or > 600 ||
+        if (!float.IsFinite(OilLifetimeSeconds) || OilLifetimeSeconds is < 1 or > 600 ||
             !float.IsFinite(WrenchHeal) || WrenchHeal < 0 || WrenchHeal > 10000 ||
             !float.IsFinite(MissileSpeed) || MissileSpeed <= 0 || MissileSpeed > 300 ||
             MissileLifetimeTicks is < 1 or > 3600 || !float.IsFinite(ExplosionRadius) || ExplosionRadius <= 0 || ExplosionRadius > 100 ||

@@ -3,7 +3,7 @@ using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>One firing activation's logical surface hazard. All geometry shares its grant identity and quota.</summary>
+/// <summary>One firing activation's logical surface hazard. All geometry shares its grant identity and deadline.</summary>
 public sealed record OilPatch(ulong Id, ulong Owner, Vector3 Position, Vector3 Normal, float Radius)
 {
     /// <summary>Optional authoritative ballistic continuation; absent on legacy/recovery fixture puddles.</summary>
@@ -12,15 +12,11 @@ public sealed record OilPatch(ulong Id, ulong Owner, Vector3 Position, Vector3 N
     public ulong ExpiresAtTick { get; init; } = 1800;
     /// <summary>Optional irregular or elongated footprint pieces; they never become independent hazards.</summary>
     public OilFootprint AdditionalSegments { get; init; } = OilFootprint.Empty;
-    /// <summary>Pass budget captured from tuning at deployment, including owner passes.</summary>
-    public int PassLimit { get; init; } = 2;
-    /// <summary>Successful entry passes already consumed; leaving does not refund them.</summary>
-    public int PassesUsed { get; init; }
     /// <summary>Rejects invalid portable placement data.</summary>
     public void Validate()
     {
         Pour?.Validate();
-        if (AdditionalSegments is null || ExpiresAtTick == 0 || PassLimit is < 1 or > 7 || PassesUsed < 0 || PassesUsed >= PassLimit ||
+        if (AdditionalSegments is null || ExpiresAtTick == 0 ||
             Id == 0 || Owner == 0 || !VehiclePhysicsState.IsFinite(Position) ||
             !VehiclePhysicsState.IsFinite(Normal) || Math.Abs(Normal.LengthSquared() - 1) > 0.001f ||
             !float.IsFinite(Radius) || Radius is < 0.05f or > 5)

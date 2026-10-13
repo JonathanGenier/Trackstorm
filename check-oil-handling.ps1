@@ -62,8 +62,9 @@ try {
     $cases = @(
         @('front-left', @(-$track, 0, -$axle, 0.25), 1), @('front-right', @($track, 0, -$axle, 0.25), 2),
         @('rear-left', @(-$track, 0, $axle, 0.25), 4), @('rear-right', @($track, 0, $axle, 0.25), 8),
-        @('front-only', @(0, 0, -$axle, 0.95), 3), @('rear-only', @(0, 0, $axle, 0.95), 12),
-        @('left-only', @(-$track, 0, 0, 1.6), 5), @('right-only', @($track, 0, 0, 1.6), 10),
+        # Keep the intended tires inside the smallest organic edge, with the opposite axle/side outside.
+        @('front-only', @(0, 0, -$axle, 1.1), 3), @('rear-only', @(0, 0, $axle, 1.1), 12),
+        @('left-only', @(-$track, 0, 0, 1.8), 5), @('right-only', @($track, 0, 0, 1.8), 10),
         @('all-wheels', @(0, 0, 0, 3), 15))
     foreach ($case in $cases) {
         $null = Invoke-Trial $case[0] @{ frames = 45; steer = 0; throttle = 0; brake = 0; spawn = @(0, 1.145, 0); yaw = 0; speed = 0; surface = 'Asphalt'; grade = 0; oilPatch = $case[1] } $case[2]

@@ -24,7 +24,7 @@ internal sealed class OilDepositionTests
             Assert.That(patch.Id, Is.EqualTo(1));
         }
         Assert.That(patch.Pour!.Emitted, Is.EqualTo(40));
-        Assert.That(patch.PassesUsed, Is.Zero);
+        Assert.That(patch.ExpiresAtTick, Is.EqualTo(1801));
         for (ulong tick = 121; tick <= 360; tick++) { patch = OilDeposition.Advance(patch, tick, pose, null); }
         Assert.That(patch.Pour!.Emitted, Is.EqualTo(40));
         Assert.That(patch.Pour.Drops.Length, Is.Zero);

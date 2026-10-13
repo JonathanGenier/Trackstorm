@@ -232,7 +232,7 @@ No editable drift boost, collision recoil or missile falloff setting exists beca
 
 The read-only [Event Log](event-log.md) records accepted tuning keys with old/new values, configuration revisions/rejections, Give Item and Force Start results, and practice reset/blast actions. F3 provides history and no mutation controls.
 
-Item spawn weights are generated from the shared item registry (spawns.wrench_weight, spawns.missile_weight, spawns.oil_weight, spawns.nitro_weight, spawns.proxy_mine_weight, spawns.salvo_weight, spawns.machine_gun_weight). Zero excludes an item; the complete pool must retain positive total weight. All seven default to one. Oil uses the normal deployment path; Nitro uses the normal activation path and retains its slot while already boosted. Oil grip, recovery duration, vehicle-pass budget and cleanup lifetime are editable in the Oil category; deployment has no global active-patch gate. The version-forty-eight gameplay configuration payload includes the complete distribution in resume and migration checkpoints.
+Item spawn weights are generated from the shared item registry (spawns.wrench_weight, spawns.missile_weight, spawns.oil_weight, spawns.nitro_weight, spawns.proxy_mine_weight, spawns.salvo_weight, spawns.machine_gun_weight). Zero excludes an item; the complete pool must retain positive total weight. All seven default to one. Oil uses the normal deployment path; Nitro uses the normal activation path and retains its slot while already boosted. Oil grip, recovery duration and cleanup lifetime are editable in the Oil category; deployment has no global active-patch gate. The version-forty-eight gameplay configuration payload includes the complete distribution in resume and migration checkpoints.
 
 Nitro exposes `items.nitro_consumption_per_second`, `items.nitro_forward_thrust`, `items.nitro_speed_multiplier`, `items.nitro_airborne_thrust_scale`, `vehicle.overspeed_deceleration`, and `match.nitro_points_per_second` through the existing catalog. Live edits affect subsequent authoritative intervals without refilling charge. Ordinary validation, persistence, version-forty-eight configuration replication and recovery apply. See [Nitro](items.md#sustained-nitro-resource).
 
@@ -347,30 +347,30 @@ The Oil accordion contains seventeen host-authoritative keys using staged Apply/
 
 | Key | Default | Range / meaning |
 | --- | ---: | --- |
-| `vehicle.oil_grip_reduction` | 0.85 | 0–0.95 front tire lateral grip reduction |
-| `vehicle.oil_rear_drive_reduction` | 0.85 | 0–0.95 rear tire longitudinal grip reduction |
-| `vehicle.oil_rear_lateral_reduction` | 0.65 | 0–0.95 rear tire lateral grip reduction |
-| `vehicle.oil_impairment_seconds` | 5 | 0.1–20 seconds at full impairment after an entry |
-| `vehicle.oil_recovery_seconds` | 2 | 0.1–10 seconds of progressive recovery |
-| `vehicle.oil_recovery_curve` | 1 | 0.5–3 exponent applied to progress before smoothstep easing |
-| `items.oil_enemy_contacts` | 2 | 1–7 successful vehicle contacts per firing activation, including owner |
-| `items.oil_lifetime_seconds` | 30 | 1–600 seconds per firing activation |
-| `items.oil_fire_seconds` | 2 | 0.5–4 seconds; captured firing duration |
-| `items.oil_interval_ticks` | 3 | 2–30 fixed ticks between parcels; duration/cadence must emit at most 48 |
-| `items.oil_speed` | 8 | 1–30 m/s chassis-rearward relative launch speed |
-| `items.oil_gravity` | 9.81 | 1–40 m/s² parcel gravity |
-| `items.oil_radius` | 0.65 | 0.1–1.5 m maximum supported deposition radius |
-| `items.oil_spring_stiffness` | 30 | 5–100 fixed-step head spring stiffness |
-| `items.oil_spring_damping` | 7 | 1–20 head spring damping |
-| `items.oil_spring_reaction` | 0.18 | 0–0.5 acceleration-to-head reaction |
-| `items.oil_roughness` | 0.16 | 0.05–0.6 wet fluid PBR roughness |
+| `vehicle.oil_grip_reduction` | 0.85 | 0â€“0.95 front tire lateral grip reduction |
+| `vehicle.oil_rear_drive_reduction` | 0.85 | 0â€“0.95 rear tire longitudinal grip reduction |
+| `vehicle.oil_rear_lateral_reduction` | 0.65 | 0â€“0.95 rear tire lateral grip reduction |
+| `vehicle.oil_impairment_seconds` | 5 | 0.1â€“20 seconds at full impairment after an entry |
+| `vehicle.oil_recovery_seconds` | 2 | 0.1â€“10 seconds of progressive recovery |
+| `vehicle.oil_recovery_curve` | 1 | 0.5â€“3 exponent applied to progress before smoothstep easing |
+| `items.oil_stream_width` | 0.24 | 0.08â€“0.8 m cosmetic stream diameter at the mouth |
+| `items.oil_lifetime_seconds` | 30 | 1â€“600 seconds per firing activation |
+| `items.oil_fire_seconds` | 2 | 0.5â€“4 seconds; captured firing duration |
+| `items.oil_interval_ticks` | 3 | 2â€“30 fixed ticks between parcels; duration/cadence must emit at most 48 |
+| `items.oil_speed` | 12 | 1â€“30 m/s chassis-rearward relative launch speed |
+| `items.oil_gravity` | 9.81 | 1â€“40 m/sÂ² parcel gravity |
+| `items.oil_radius` | 1.1 | 0.1â€“1.5 m maximum supported deposition radius |
+| `items.oil_spring_stiffness` | 30 | 5â€“100 fixed-step head spring stiffness |
+| `items.oil_spring_damping` | 7 | 1â€“20 head spring damping |
+| `items.oil_spring_reaction` | 0.18 | 0â€“0.5 acceleration-to-head reaction |
+| `items.oil_roughness` | 0.16 | 0.05â€“0.6 wet fluid PBR roughness |
 
 
-The existing grip and quota persistence keys are retained with precise labels. Older saved overrides remain explicit overrides; Reset selects the current defaults. Grip/curve edits affect subsequent steps. Duration edits preserve each tire's current hold/recovery phase, with fixed-step rounding. Continuous overlap never refreshes a tire or consumes another vehicle contact, even after recovery reaches zero. Each wheel's exit/re-entry refreshes that tire; only exit from the complete footprint followed by vehicle re-entry consumes another quota use. These identity rules are fixed rather than exposed as ambiguous tuning switches. New deployments capture quota and expiry; existing deadlines and consumed counts remain unchanged.
+Existing relevant grip/physics/presentation keys are retained. The obsolete `items.oil_enemy_contacts` key has no runtime effect or control; saved unknown records are retained by normal settings persistence. Older relevant overrides remain explicit overrides; Reset selects current defaults. Grip/curve edits affect subsequent steps. Duration edits preserve each tire's current hold/recovery phase, with fixed-step rounding. Continuous overlap never refreshes a tire, even after recovery reaches zero. Each wheel's exit/re-entry refreshes that tire; complete vehicle exit/re-entry permits another scoring event. Contacts never alter the hazard deadline. New activations capture expiration; current hazards keep their original deadlines.
 
-The configuration catalog has 258 keys in protocol 50 (2085 bytes). Emission physics and spring values are captured on activation; later edits cannot change in-flight parcels. Ready animation uses accepted live spring settings, and roughness updates current visual owners. The 0.45 m head displacement, 48-parcel activation budget, 63 additional surface pieces, three-second parcel lifetime and 4096 m world bounds remain safety invariants. Stats exposes remaining FL/FR/RL/RR contamination independently. Front and rear reductions leave a minimum five percent configured grip at maximum severity; no setting disables player controls or requests scripted yaw.
+The configuration catalog has 258 keys in protocol 51 (2085 bytes). Emission physics and spring values are captured on activation; later edits cannot change in-flight parcels. Ready animation uses accepted live spring settings, and roughness and stream width update current visual owners. The 0.45 m head displacement, 48-parcel activation budget, 63 additional surface pieces, three-second parcel lifetime and 4096 m world bounds remain safety invariants. Stats exposes remaining FL/FR/RL/RR contamination independently. Front and rear reductions leave a minimum five percent configured grip at maximum severity; no setting disables player controls or requests scripted yaw.
 
-**Arena boundary** exposes `vehicle.oob.damage` (default 100, 0–10000 HP/s) through the same transaction and persistence path. See [out-of-bounds damage](out-of-bounds.md).
+**Arena boundary** exposes `vehicle.oob.damage` (default 100, 0â€“10000 HP/s) through the same transaction and persistence path. See [out-of-bounds damage](out-of-bounds.md).
 
 ## Car deployment
 

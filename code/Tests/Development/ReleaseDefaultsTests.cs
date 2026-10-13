@@ -127,7 +127,6 @@ internal sealed class ReleaseDefaultsTests
     {
         var defaults = GameplayConfiguration.HostedDefaults;
         Assert.That(GameplayOptions.All.Count, Is.EqualTo(258));
-        Assert.That(defaults.Items.OilPasses, Is.EqualTo(2));
         Assert.DoesNotThrow(defaults.Validate);
         var file = DeveloperSettingsFile.Read(string.Empty, defaults);
         var restored = DeveloperSettingsFile.Read(file.Write(defaults), defaults);
@@ -167,7 +166,7 @@ internal sealed class ReleaseDefaultsTests
         Assert.That(DeveloperSettingsFile.Read(file.Write(file.Configuration)).Configuration, Is.EqualTo(file.Configuration));
         byte[] wire = GameplayConfigurationCodec.Encode(1, new(0, file.Configuration));
         Assert.That(wire.Length, Is.EqualTo(2085));
-        Assert.That(wire[2], Is.EqualTo(50));
+        Assert.That(wire[2], Is.EqualTo(51));
         Assert.That(GameplayConfigurationCodec.Decode(wire).State.Configuration, Is.EqualTo(file.Configuration));
     }
 

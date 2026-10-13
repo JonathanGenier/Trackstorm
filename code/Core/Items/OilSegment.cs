@@ -6,7 +6,7 @@ namespace Trackstorm.Core.Items;
 /// <summary>A planar capsule in one logical hazard; equal endpoints describe a circular puddle.</summary>
 public readonly record struct OilSegment(Vector3 Start, Vector3 End, Vector3 Normal, float Radius)
 {
-    /// <summary>Validates portable geometry without introducing another lifetime or contact quota.</summary>
+    /// <summary>Validates portable geometry without introducing another lifetime.</summary>
     public void Validate()
     {
         if (!VehiclePhysicsState.IsFinite(Start) || !VehiclePhysicsState.IsFinite(End) ||
@@ -34,5 +34,5 @@ public readonly record struct OilSegment(Vector3 Start, Vector3 End, Vector3 Nor
     }
 
     /// <summary>The same organic boundary used by the rendered surface and tire coverage.</summary>
-    public float EdgeRadius(float angle) => Radius * (.92f + .045f * MathF.Sin(3 * angle + Start.X) + .035f * MathF.Sin(7 * angle + Start.Z));
+    public float EdgeRadius(float angle) => Radius * (.89f + .075f * MathF.Sin(3 * angle + Start.X) + .035f * MathF.Sin(7 * angle + Start.Z));
 }

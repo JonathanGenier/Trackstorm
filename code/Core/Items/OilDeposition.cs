@@ -40,7 +40,7 @@ internal static class OilDeposition
                 { throw new ArgumentException("Invalid host Oil collision observation."); }
                 if (!float.IsFinite(hit.Radius) || hit.Radius < 0 || hit.Radius > pour.Radius) { throw new ArgumentException("Invalid Oil impact radius."); }
                 if (hit.Radius == 0) { continue; }
-                float radius = Math.Max(.05f, hit.Radius * (.68f + .22f * MathF.Sin(pour.Emitted * 2.399f + drop.RemainingTicks)));
+                float radius = Math.Max(.05f, hit.Radius * (.82f + .16f * MathF.Sin(pour.Emitted * 2.399f + drop.RemainingTicks)));
                 // Each impact creates one supported piece; every third parcel reserves one satellite.
                 var pieces = patch.AdditionalSegments.Segments.ToList();
                 if (!pour.Deposited)
@@ -48,7 +48,8 @@ internal static class OilDeposition
                 else if (pieces.Count < OilFootprint.MaximumSegments)
                 {
                     Vector3 start = hit.Position;
-                    Vector3 prior = pieces.Count == 0 ? patch.Position : pieces[^1].End;
+                    var preceding = pieces.LastOrDefault(piece => piece.Radius >= radius * .45f);
+                    Vector3 prior = preceding.Radius > 0 ? preceding.End : patch.Position;
                     Vector3 normal = hit.Normal;
                     if (Vector3.Distance(prior, start) < radius * 2 && Math.Abs(Vector3.Dot(prior - start, normal)) < .01f)
                     { pieces.Add(new(prior, start, normal, radius)); }

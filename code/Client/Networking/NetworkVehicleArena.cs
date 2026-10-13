@@ -99,6 +99,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
             prop.Freeze = ApplicationEntry || _driver.Host is null;
         }
 
+        _items.OilMouth = owner => _bodies.TryGetValue(owner, out var body) ? body.Rack.OilMouth : null;
         AddChild(_items);
         AddChild(Walls);
         Walls.MountedPose = owner => _bodies.TryGetValue(owner, out var body)
@@ -137,6 +138,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver.ItemsReceived += publication =>
         {
             _items.OilRoughness = _driver.Configuration.Configuration.Items.OilRoughness;
+            _items.OilStreamWidth = _driver.Configuration.Configuration.Items.OilStreamWidth;
             _items.Apply(publication, _driver.Configuration.Configuration.Items.ExplosionRadius);
             Walls.Apply(publication, _driver.Host is not null);
             foreach (var vehicle in publication.World.Vehicles)
@@ -313,6 +315,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver.ConfigurationChanged += accepted =>
         {
             _items.OilRoughness = accepted.Items.OilRoughness;
+            _items.OilStreamWidth = accepted.Items.OilStreamWidth;
             foreach (var body in _bodies.Values)
             {
                 body.ApplyConfiguration(accepted.Vehicle);

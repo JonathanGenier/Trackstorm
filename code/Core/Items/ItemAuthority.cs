@@ -248,7 +248,6 @@ public sealed partial class ItemAuthority
         var mines = new List<ProxyMineState>(_mines);
         var contacts = new List<OilContact>();
         var priorContacts = _contacts.ToDictionary(contact => (contact.Patch, contact.Vehicle, contact.Life));
-        var contactCounts = patches.ToDictionary(patch => patch.Id, patch => patch.PassesUsed);
         var oilTriggers = new List<OilTrigger>();
         var oilEntries = new Dictionary<ulong, WheelMask>();
         var journal = new List<RuntimeEvent>();
@@ -460,12 +459,10 @@ public sealed partial class ItemAuthority
                     if (wheels == WheelMask.None) { continue; }
                     var contact = new OilContact(patch.Id, vehicle.VehicleId, vehicle.LifeId, wheels);
                     priorContacts.TryGetValue((contact.Patch, contact.Vehicle, contact.Life), out var previousContact);
-                    if (previousContact is null && contactCounts.GetValueOrDefault(patch.Id) >= patch.PassLimit) { continue; }
                     oilEntries[vehicle.VehicleId] = oilEntries.GetValueOrDefault(vehicle.VehicleId) | (wheels & ~(previousContact?.Wheels ?? WheelMask.None));
                     contacts.Add(contact);
                     if (previousContact is null)
                     {
-                        contactCounts[patch.Id] = contactCounts.GetValueOrDefault(patch.Id) + 1;
                         oilTriggers.Add(new(patch.Id, patch.Owner, vehicle.VehicleId, vehicle.LifeId));
                     }
                 }
@@ -601,16 +598,13 @@ public sealed partial class ItemAuthority
             }
         }
 
-        // Commit only successful effects. Expired overlaps release their latch, never their consumed pass.
+        // Commit only successful effects. Ended overlaps release their latch; contact never changes the hazard deadline.
         contacts.RemoveAll(contact => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == contact.Vehicle && vehicle.LifeId == contact.Life && vehicle.CanInteract));
         var patchOwners = patches.ToDictionary(patch => patch.Id, patch => patch.Owner);
         foreach (var contact in contacts.Where(contact => !priorContacts.ContainsKey((contact.Patch, contact.Vehicle, contact.Life))))
         {
             world.Events.Record(EventCategory.Item, "Oil triggered", actor: patchOwners[contact.Patch], target: contact.Vehicle, cause: "Oil", tick: input.Tick);
         }
-        contactCounts = contacts.Where(contact => !priorContacts.ContainsKey((contact.Patch, contact.Vehicle, contact.Life))).GroupBy(contact => contact.Patch).ToDictionary(group => group.Key, group => group.Count());
-        for (int i = 0; i < patches.Count; i++) { patches[i] = patches[i] with { PassesUsed = patches[i].PassesUsed + contactCounts.GetValueOrDefault(patches[i].Id) }; }
-        patches.RemoveAll(patch => patch.PassesUsed >= patch.PassLimit);
         var activePatchIds = patches.Select(patch => patch.Id).ToHashSet();
         contacts.RemoveAll(contact => !activePatchIds.Contains(contact.Patch));
         if (world.State.Match?.Phase == Matches.MatchPhase.Finished)
@@ -628,7 +622,7 @@ public sealed partial class ItemAuthority
         _shields.AddRange(shields.States);
         shieldsChanged |= ReconcileShields(world, slots);
         bool reliableChanged = shieldsChanged || !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) ||
-            !patches.Select(p => (p.Id, p.PassesUsed, p.Pour?.Cancelled)).SequenceEqual(_patches.Select(p => (p.Id, p.PassesUsed, p.Pour?.Cancelled))) ||
+            !patches.Select(p => (p.Id, p.Pour?.Cancelled)).SequenceEqual(_patches.Select(p => (p.Id, p.Pour?.Cancelled))) ||
             (input.Tick % 6 == 0 && patches.Any(p => p.Pour is { } pour && input.Tick < pour.StartTick + (ulong)pour.DurationTicks + 180)) ||
             !contacts.SequenceEqual(_contacts) || journal.Count > 0 ||
             !movingMines.SequenceEqual(_mines) || events.Count > 0 ||

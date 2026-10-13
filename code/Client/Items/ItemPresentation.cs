@@ -7,6 +7,8 @@ namespace Trackstorm.Client.Items;
 /// <summary>Reconstructable Kenney projectile and particle effects; no collision or gameplay mutation.</summary>
 internal sealed partial class ItemPresentation : Node3D
 {
+    internal Func<ulong, Vector3?>? OilMouth { get; set; }
+    internal float OilStreamWidth { get; set; } = .24f;
     private float _oilRoughness = .16f;
     internal float OilRoughness
     {
@@ -111,11 +113,13 @@ internal sealed partial class ItemPresentation : Node3D
         {
             if (!_oil.TryGetValue(patch.Id, out var node))
             {
-                node = new OilHazardVisual();
+                node = new OilHazardVisual { Mouth = () => OilMouth?.Invoke(patch.Owner) };
                 AddChild(node);
                 _oil.Add(patch.Id, node);
             }
-            ((OilHazardVisual)node).Apply(patch, OilRoughness);
+            ((OilHazardVisual)node).StreamWidth = OilStreamWidth;
+            var owner = state.World.Vehicles.FirstOrDefault(v => v.State.VehicleId == patch.Owner)?.State;
+            ((OilHazardVisual)node).Apply(patch, OilRoughness, state.World.Tick, owner?.Movement.Physics);
         }
 
         foreach (ulong id in _missiles.Keys.Except(state.Missiles.Where(missile => missile.Launched).Select(missile => missile.Id)).ToArray())

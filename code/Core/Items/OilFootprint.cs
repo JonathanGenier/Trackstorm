@@ -18,7 +18,7 @@ public sealed class OilFootprint : IEquatable<OilFootprint>
         Segments = Array.AsReadOnly(copy);
     }
 
-    /// <summary>Pieces sharing the owning patch's identity, quota, owner and deadline.</summary>
+    /// <summary>Pieces sharing the owning patch's identity, owner and deadline.</summary>
     public IReadOnlyList<OilSegment> Segments { get; }
     public bool Equals(OilFootprint? other) => other is not null && Segments.SequenceEqual(other.Segments);
     public override bool Equals(object? obj) => obj is OilFootprint other && Equals(other);

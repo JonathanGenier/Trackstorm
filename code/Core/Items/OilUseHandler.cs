@@ -27,7 +27,7 @@ internal sealed class OilUseHandler : IItemUseHandler
             throw new ArgumentException("Oil placement differs from the authorized use.");
         }
 
-        patches.Add(patch with { PassLimit = configuration.OilPasses, PassesUsed = 0 });
+        patches.Add(patch);
         return true;
     }
 }

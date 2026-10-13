@@ -22,6 +22,7 @@ internal sealed partial class OilJack : Node3D
     private double _accumulator;
     internal float Extension => _extension;
     internal bool Nested => _extension <= .001f && _open <= .001f;
+    internal Vector3 Mouth => _head.ToGlobal(new Vector3(0, .025f, .225f));
     internal void ReconstructPour() { _open = _extension = 1; }
 
     public override void _Ready()

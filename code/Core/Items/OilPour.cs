@@ -3,16 +3,16 @@ using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Portable emission and flight continuation; all parcels share the parent hazard quota.</summary>
+/// <summary>Portable emission and flight continuation; all parcels share the parent hazard deadline.</summary>
 public sealed record OilPour
 {
     public ulong Life { get; init; }
     public ulong StartTick { get; init; }
     public int DurationTicks { get; init; } = 120;
     public int IntervalTicks { get; init; } = 3;
-    public float Speed { get; init; } = 8;
+    public float Speed { get; init; } = 12;
     public float Gravity { get; init; } = 9.81f;
-    public float Radius { get; init; } = .65f;
+    public float Radius { get; init; } = 1.1f;
     public int Emitted { get; init; }
     public bool Deposited { get; init; }
     public bool Cancelled { get; init; }
@@ -50,5 +50,6 @@ public sealed record OilPour
     }
 
     /// <summary>The raised rack mouth socket in vehicle coordinates, facing rearward (+Z).</summary>
-    public static Vector3 Mouth(Vector3 offset) => new Vector3(0, 2.875f, 1.782f) + offset;
+    public static Vector3 Mouth(Vector3 offset) => new Vector3(0, 2.85f, 1.845f) + offset +
+        Vector3.Transform(new Vector3(0, .025f, .225f), Quaternion.CreateFromYawPitchRoll(0, offset.Z * .8f, -offset.X * .8f));
 }

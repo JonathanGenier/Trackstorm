@@ -8,6 +8,7 @@ internal sealed partial class CarRackPresentation
     private OilPour? _oilPour;
     private double _oilClock;
     private bool _oilFired;
+    internal Vector3? OilMouth => _payload is Items.OilJack { Extension: > .95f } jack ? jack.Mouth : null;
     internal bool IsOilReady(ItemSlot inventory) => _payload is Items.OilJack { Extension: >= .999f } &&
         !_replace && !_oilFired && _previous?.Active.Token == inventory.Active.Token && _previous.SelectionRevision == inventory.SelectionRevision && _life == inventory.Life;
     internal ItemConfiguration OilConfiguration { get; set; } = new();
