@@ -1,14 +1,17 @@
 param (
     [Parameter(Mandatory)]
     [string]$GodotPath,
-    [switch]$Visual
+    [switch]$Visual,
+    [switch]$NoBuild
 )
 
 $ErrorActionPreference = 'Stop'
 $checkDirectory = Join-Path $PSScriptRoot ('.godot/developer-options-checks/' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $checkDirectory -Force | Out-Null
-dotnet build Trackstorm.sln -c Debug -warnaserror
-if ($LASTEXITCODE -ne 0) { throw 'Developer Options verification build failed.' }
+if (-not $NoBuild) {
+    dotnet build Trackstorm.sln -c Debug -warnaserror
+    if ($LASTEXITCODE -ne 0) { throw 'Developer Options verification build failed.' }
+}
 foreach ($phase in @('write', 'read')) {
     $arguments = @('--path', $PSScriptRoot, 'res://scenes/verification/developer_options_checks.tscn', '--quit-after', '4800')
     if (-not $Visual) { $arguments = @('--headless') + $arguments }
