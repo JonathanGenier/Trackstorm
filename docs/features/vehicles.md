@@ -1,5 +1,8 @@
 # Arcade Trophy-Truck Vehicles and Damage
 
+> Focused implementation references: [Air control](vehicles-air-control.md), [Collisions](vehicles-collision.md), [Ground handling](vehicles-ground-handling.md), and [Presentation](vehicles-presentation.md). Read only the affected reference and shared context when practical.
+
+
 ## Behavior and Local Arena
 
 The local practice arena (`-- --local-practice`) uses the [banked oval](oval-map.md), with eight vehicles placed at its eight authored starting-grid transforms. The old yard and props remain in explicit content fixtures. The first vehicle accepts local input; the other seven are physical targets. The two-car/crate layout remains only in the focused `LegacyTestLayout` regression fixture. Default controls are W to accelerate, S to brake/reverse, A/D to steer and Space for the physical handbrake; saved bindings, steering inversion and dead zone continue to apply. The chase camera follows the player. The combat HUD shows current/max HP and preferred-unit speed. **Reset practice arena** and **Detonate nearby** are on the unified [Developer Options](developer-options.md) page; the separate Arena Tools UI is retired. Reset starts fresh vehicle lives at the active map's stable spawn slots; only legacy fixtures have props to reset. Detonate exercises the generic explosion path beside the player, independently of inventory acquisition.
