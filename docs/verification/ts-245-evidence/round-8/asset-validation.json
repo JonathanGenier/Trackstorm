@@ -1,0 +1,15 @@
+{
+  "baseline": "c991face08a7bd4cd5e9e1c4383667b46ae4a106",
+  "manifest_files_verified": 20,
+  "exact_position_morph_and_topology_meshes": 9,
+  "maximum_export_attribute_deltas": {
+    "POSITION": 0,
+    "NORMAL": 9.624660015106201e-05,
+    "TEXCOORD_0": 5.960464477539063e-08,
+    "TEXCOORD_1": 5.960464477539063e-08
+  },
+  "unchanged_asset_pivots_and_scales": true,
+  "unchanged_material_bindings_and_pbr_parameters": true,
+  "unchanged_box_jester_spring_generator": true,
+  "change": "Original baked tank paint only; no geometry, texture dimensions, runtime mesh count or material count added."
+}

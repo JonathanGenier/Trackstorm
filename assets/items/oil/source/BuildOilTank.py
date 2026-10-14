@@ -21,10 +21,11 @@ def barrel(name,length,radius,material,parent=tank):
 
 # Painted diamonds and chipped enamel are baked, avoiding unsupported Blender graphs.
 w,h=1024,512;yy,xx=np.mgrid[0:h,0:w];u=xx/w;v=yy/h
-diamond=np.abs((u*9)%1-.5)/.5+np.abs((v*4)%1-.5)/.5 < .80
+diamond=np.abs((u*8)%1-.5)/.5+np.abs((v*5)%1-.5)/.5 < .96
 rng=np.random.default_rng(10152);grain=rng.random((h,w));wear=grain<.014
-rgb=np.where(diamond[:,:,None],np.array((.67,.012,.018)),np.array((.87,.80,.62)))
-rgb*=.87+.13*grain[:,:,None];rgb[wear]=(.09,.07,.04)
+rgb=np.where(diamond[:,:,None],np.array((.53,.009,.014)),np.array((.76,.67,.49)))
+cloud=.93+.035*np.sin(u*39+np.sin(v*23))+.025*np.sin(u*137-v*61)
+rgb*=cloud[:,:,None]*(.91+.09*grain[:,:,None]);rgb[wear]=(.09,.07,.04)
 # Lettering is baked directly into the curved vessel's Base Color. There is no
 # plaque, backing mesh, rim or raised letter geometry between the paint and tank.
 # Original stroke alphabet avoids redistributing a font or reference pixels.
@@ -42,10 +43,16 @@ px=(u-.5)*1.24
 # The profile interpolates the authored barrel rings, including the tapered ends.
 profile=np.interp(u,np.linspace(0,1,9),.25*(.84+.16*np.sin(np.linspace(0,math.pi,9))**.35))
 py=profile*np.cos(v*math.tau);front=np.sin(v*math.tau)>.45
-# Rubbed enamel follows the entire front circumference, without a rectangular
-# label boundary. Diamonds remain around the shoulders and rear of the vessel.
-clean=np.clip((np.sin(v*math.tau)-.30)/.32,0,1)*np.clip((.58-np.abs(px))/.05,0,1)
-enamel=np.array((.91,.87,.76))*(.94+.06*grain[:,:,None])
+# A scalloped painted cartouche follows the curved skin, not a rectangular sign.
+# Leave substantial harlequin diamonds above, below and around the wordmark.
+outline=.136+.020*np.cos((px+.13)*22)+.010*np.cos(px*49)
+center=.040+.024*np.cos((px+.13)*4)
+clean=np.clip((outline-np.abs(py-center))/.009,0,1)*np.clip((.55-np.abs(px+.075))/.035,0,1)*front
+# A rubbed ivory brush area under the red correction keeps it distinct from
+# nearby crimson diamonds at the rear chase angle; it joins the painted field.
+correction=np.sqrt(((px-.145)/.202)**2+((py+.095)/.116)**2)
+clean=np.maximum(clean,np.clip((1.04+.035*np.cos(px*81)-correction)/.10,0,1)*front)
+enamel=np.array((.84,.76,.59))*(cloud[:,:,None])*(.96+.04*grain[:,:,None])
 rgb=rgb*(1-clean[:,:,None])+enamel*clean[:,:,None]
 clear=clean>.5
 def painted(strokes,radius,color):
@@ -56,18 +63,51 @@ def painted(strokes,radius,color):
    distance=np.sqrt((px-ax-t*dx)**2+(py-ay-t*dy)**2)
    alpha=np.clip((radius+.0008-distance)/.0016,0,1)*front
    rgb[:]=rgb*(1-alpha[:,:,None])+np.array(color)*alpha[:,:,None]
-x=-.535;height=.112;gas_start=0
+# Original circus lettering: bowed baseline, restrained serifs, warm pinstripe
+# and a black face. All layers are paint in one texture, with no extra geometry.
+x=-.525;height=.111;gas_start=0;word=[]
 for letter in 'Laughing Gas':
  if letter==' ':x+=height*.34;continue
  if letter=='G':gas_start=x
- painted([[(x+a*height,.027+b*.145) for a,b in stroke] for stroke in glyphs[letter]],.0115,(.003,.002,.002))
+ baseline=.014+.027*math.cos((x+.13)*4)
+ word.extend([[(x+(a+.075*b)*height,baseline+b*.146) for a,b in stroke] for stroke in glyphs[letter]])
+ if letter in 'Lhni':
+  # Short wedge-like feet give the hand-drawn alphabet a signwriter's character.
+  stem=.12 if letter=='i' else 0
+  word.append([(x+(stem-.105)*height,baseline-.002),(x+(stem+.16)*height,baseline-.002)])
+ if letter in 'Lh':
+  word.append([(x-.012+height*.075,baseline+.146),(x+.025+height*.075,baseline+.146)])
  x+=height*(.34 if letter=='i' else .72)
+ink=(.008,.003,.002);ochre=(.46,.22,.045);ivory=(.91,.84,.68)
+painted(word,.0185,ivory)
+painted(word,.0150,ochre)
+painted(word,.0105,ink)
+# A swept underline and split-end flourishes make the branding a single painted
+# circus wordmark. They stop before the gauge and leave the correction legible.
+flourish=[[(-.52,-.029),(-.44,-.053),(-.31,-.057),(-.17,-.033),(-.025,-.006)],
+ [(-.49,-.025),(-.47,-.009),(-.445,-.015)],
+ [(-.17,-.033),(-.075,-.045),(-.010,-.025)]]
+painted(flourish,.0085,ochre);painted(flourish,.0035,ink)
 # Two unmistakable red paint strokes cross only Gas, leaving its black letters readable.
-painted([[(gas_start-.01,.060),(x-.01,.129)],[(gas_start-.005,.130),(x-.015,.070)]],.0058,(.65,.004,.008))
+painted([[(gas_start-.015,.039),(x-.013,.148)],[(gas_start-.008,.147),(x-.010,.049)]],.0078,(.62,.003,.008))
 # Larger informal lower-case oil, with a leaning l and irregular brush strokes.
-painted([[(-.27,-.055),(-.32,-.070),(-.34,-.135),(-.32,-.172),(-.27,-.183),(-.22,-.152),(-.205,-.083),(-.23,-.054),(-.27,-.055)],
- [(-.12,-.083),(-.143,-.178)], [(-.104,-.038),(-.102,-.026)],
- [(.018,-.005),(-.015,-.158),(-.003,-.177),(.032,-.166)]],.012,(.67,.005,.010))
+oil=[[(.055,-.076),(.020,-.086),(.003,-.146),(.015,-.184),(.054,-.192),(.091,-.165),(.107,-.098),(.088,-.074),(.055,-.076)],
+ [(.166,-.097),(.141,-.188)],[(.175,-.061),(.178,-.046)],
+ [(.285,-.035),(.247,-.166),(.257,-.185),(.282,-.174)]]
+oil=[[(x,y+.030) for x,y in stroke] for stroke in oil]
+painted(oil,.019,ivory);painted(oil,.0135,(.59,.002,.007))
+# Worn double pinstripes circle both shoulders; small stencil stars and rivet
+# witnesses reinforce the prop's circus-industrial body without a new plaque.
+for sx in [-.535,.535]:
+ for offset in [-.011,.011]:
+  stripe=np.clip((.003-np.abs(px-sx-offset))/.0015,0,1)
+  rgb[:]=rgb*(1-stripe[:,:,None])+np.array(ochre)*stripe[:,:,None]
+for cx,cy,size in [(-.405,-.14,.026),(-.22,-.155,.022),(.32,.205,.017)]:
+ points=[]
+ for j in range(11):
+  a=math.pi/2+j*math.pi/5;r=size if j%2==0 else size*.43
+  points.append((cx+r*math.cos(a),cy+r*math.sin(a)))
+ painted([points],.0035,ochre)
 rgb[wear&(~clear)]=(.09,.07,.04)
 rgba=np.concatenate([rgb,np.ones((h,w,1))],axis=2).astype('float32')
 im=bpy.data.images.new('Oil Tank paint',width=w,height=h);im.pixels.foreach_set(rgba.ravel());im.filepath_raw=str(root/'source/Oil Tank paint.png');im.file_format='PNG';im.save();im.pack()

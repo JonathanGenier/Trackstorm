@@ -1,0 +1,8 @@
+Native car proxy roof query returned no impact; no retained deposit is permitted.
+Native support eligibility passed: static terrain, ledge shrink, missing/water, cars, moving static/animated/rigid geometry and destructible rock proxies.
+Production oval, two native UDP peers: approach from authored grass, cross onto bank asphalt, full-lock held drift and repeated/airborne Oil.
+Bank cycle 0: forty emitted; native accepted impacts 40, vehicle proxy hits 18, unsupported deposited pieces 0.
+Bank cycle 1: forty emitted; native accepted impacts 74, vehicle proxy hits 21, unsupported deposited pieces 0.
+Bank cycle 2: forty emitted; native accepted impacts 114, vehicle proxy hits 21, unsupported deposited pieces 0.
+Bank motion: speed 32.683 m/s, lateral slip 14.633 m/s, rise 11.039 m, heading change 179.72 degrees; grass 120, asphalt 786, supported 1016, airborne 86 frames; 168 pieces checked.
+Moving presentation clearance: 27 rendered flight frames, 0 liquid vertices inside the box.

@@ -1,0 +1,376 @@
+[
+  {
+    "source": ".godot\\ts-245-round8\\gameplay\\runtime.log",
+    "raw_source_sha256": "e9e716d1fa358ecb9134cde700124cf4f54baec0e203c488d0134fe405481645",
+    "retained": "astra-native-runtime.log",
+    "retained_sha256": "fb27f0900ccca900c3cd19bbd2274265eff317ffc466c97190ae9c75d529d135"
+  },
+  {
+    "source": ".godot\\ts-245-round8\\gameplay\\evidence.txt",
+    "raw_source_sha256": "264a5b1119d15268c20c26bbbd754062ff7ecefeb58404d6e5df903175b6accc",
+    "retained": "astra-native-evidence.txt",
+    "retained_sha256": "8bce7096e4ffc77a69f4932df048cb3463f3feee73d812c2a2225bbed6dc3696"
+  },
+  {
+    "source": ".godot\\ts-245-round8\\gameplay\\trace.json",
+    "raw_source_sha256": "e774942c5c2a0e721a90bc5775fe203a8f4defda2638718842a6282b54299b22",
+    "retained": "astra-native-trace.json",
+    "retained_sha256": "e502c24d27e32969a79abf7b084f36e8ec3cd782db638af607c63ecf11532bb0"
+  },
+  {
+    "source": ".godot\\ts-245-round8\\gameplay\\meter-full.png",
+    "raw_source_sha256": "2c5aaf7de59812b583ebd5ee99eec4e31083c5950b074f1ef298d67c79f11f98",
+    "retained": "astra-native-meter-full.png",
+    "retained_sha256": "2c5aaf7de59812b583ebd5ee99eec4e31083c5950b074f1ef298d67c79f11f98"
+  },
+  {
+    "source": ".godot\\ts-245-round8\\gameplay\\meter-half.png",
+    "raw_source_sha256": "dda41299bcd44518302f751ee441cb6ab3a3db750dabb468b99ae7f78d5611bf",
+    "retained": "astra-native-meter-half.png",
+    "retained_sha256": "dda41299bcd44518302f751ee441cb6ab3a3db750dabb468b99ae7f78d5611bf"
+  },
+  {
+    "source": ".godot\\ts-245-round8\\gameplay\\meter-empty.png",
+    "raw_source_sha256": "fb23f81d00b2d621c757b3ba757fc3e71c6b01cfdb750af6fef0607a5d9dd972",
+    "retained": "astra-native-meter-empty.png",
+    "retained_sha256": "fb23f81d00b2d621c757b3ba757fc3e71c6b01cfdb750af6fef0607a5d9dd972"
+  },
+  {
+    "source": ".godot\\ts-245-round8\\gameplay\\tank-detail.png",
+    "raw_source_sha256": "d4bdea80145d07d6716da80dde6159cf918f3b066e4deefaf650c6295b1dad62",
+    "retained": "astra-native-tank-detail.png",
+    "retained_sha256": "d4bdea80145d07d6716da80dde6159cf918f3b066e4deefaf650c6295b1dad62"
+  },
+  {
+    "source": ".godot\\ts-245-round8\\gameplay\\stage-1-firing.png",
+    "raw_source_sha256": "59e4b185264e96aa4eacdd5dc2b0af3d3c1c08b3650eeddb1c2af3165d5ca487",
+    "retained": "astra-native-stage-1-firing.png",
+    "retained_sha256": "59e4b185264e96aa4eacdd5dc2b0af3d3c1c08b3650eeddb1c2af3165d5ca487"
+  },
+  {
+    "source": ".godot\\ts-245-round8\\gameplay\\stage-3-firing.png",
+    "raw_source_sha256": "5a0222c8a3cb2c7c6842ea133ba12cd8e97a255c5030672d61436bc47518a8c5",
+    "retained": "astra-native-stage-3-firing.png",
+    "retained_sha256": "5a0222c8a3cb2c7c6842ea133ba12cd8e97a255c5030672d61436bc47518a8c5"
+  },
+  {
+    "source": ".godot\\ts-245-round8\\gameplay\\mouth-closing.png",
+    "raw_source_sha256": "4091f64c90c06baaec71895280221b8725524e2dba6ee6b4fe480d98e897cd38",
+    "retained": "astra-native-mouth-closing.png",
+    "retained_sha256": "4091f64c90c06baaec71895280221b8725524e2dba6ee6b4fe480d98e897cd38"
+  },
+  {
+    "retained": "astra-sequence-driving.png",
+    "retained_sha256": "6aea149be1b695d4b3b121f0b7429f37f9b59255c723dfcf2b9d67eed60d5643",
+    "derivation": "12 genuine frames resized to 320x180, chronological; 60Hz simulation frame numbers, not wall-clock video",
+    "sources": [
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00180.png",
+        "raw_source_sha256": "9446428998c12230c615b2aa80c832834df75760a45bba56f75cef4183efa1b7"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00222.png",
+        "raw_source_sha256": "caf3b517e474284ec50988224b6f601fcd5c79213cce5b7b2bfbbdd794cf9e8c"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00258.png",
+        "raw_source_sha256": "5996746598a061aade113901ee3af65b22f07023ae54a047fa9375026f4f31d4"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00300.png",
+        "raw_source_sha256": "a5512f9ea7c8b71eec8b79af8f5e184d57af16b462fbedbcc9b39acc0c42dde1"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00348.png",
+        "raw_source_sha256": "f6b4394b38584a9c31283c02f62031edb9e69537be14158c425ff3229c0eff64"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00390.png",
+        "raw_source_sha256": "abff6bb21657a605f3129fd7c23c5c659481b859fcfbe79a62a13ed0cde0c4ab"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00450.png",
+        "raw_source_sha256": "bf3fa08a04630dd394bf6c4dabccdb30376aa66af7700a16f69c452bb7bfc6cb"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00492.png",
+        "raw_source_sha256": "8f9486a960674bb41c2b403b1dcd5b7fc221c0545dfa6ff062e5c3e02e50b986"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00534.png",
+        "raw_source_sha256": "56eaa58c9bf389f2b9db56acb1a74d6ac025e666cbd127b74f2b43c201e9405f"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00582.png",
+        "raw_source_sha256": "19ee2dbbfca1ef5cc1dee9490eb9034a62fd966795ccedfcd219f0430d7ce5b7"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00636.png",
+        "raw_source_sha256": "1361a3290d7ea0df2d08e2b9e4b561c0ebf7b659a64208ee941650052c5206d9"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00678.png",
+        "raw_source_sha256": "cd23eea7860da5aa648d7f97b99d2c58032cd11dfb5370a8286b52569bb1a676"
+      }
+    ]
+  },
+  {
+    "retained": "astra-sequence-turning.png",
+    "retained_sha256": "62e245978942765b24139dbb681c96eb9bec7f3ce71fe6a5d02173e254ab094f",
+    "derivation": "12 genuine frames resized to 320x180, chronological; 60Hz simulation frame numbers, not wall-clock video",
+    "sources": [
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00714.png",
+        "raw_source_sha256": "ba193515887414f5580534e593317fa33e34bc2725187a77fb503b2084224581"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00738.png",
+        "raw_source_sha256": "456a32c1ec3c42caef7e16ed82a7ac929609f2adaf96cfd5bfaefd7d1c89d61e"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00774.png",
+        "raw_source_sha256": "82971e1e378b0b31d763b37595baa0658afc26172ef0991bc54ee94e17d48b65"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00798.png",
+        "raw_source_sha256": "dd379e479e3ccb7c994a8c35a868013d7169881dabd47083db00867c1da49376"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00828.png",
+        "raw_source_sha256": "2d3f7ed55dafb7170dadc24567c7059e8e0ee6694cb7c4c5dca100fbf3e285c7"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00858.png",
+        "raw_source_sha256": "044cdb4a82a4908c2abee73553702c089a9fa63cc0e235dfa9f71b361b6b4a94"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00882.png",
+        "raw_source_sha256": "0dd203b3921a1adec4bddbca1c33e8b996e93140978e5437ffd421d6cfd29683"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00918.png",
+        "raw_source_sha256": "b381f87bccd911b047f9b464867abb0aa18cb9d95a60271f5126330a82d212ca"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00942.png",
+        "raw_source_sha256": "c62fc32667ec6ca9342042c35bb89c42d54a2c07fc7ac5f8589ab8e938be36b1"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00966.png",
+        "raw_source_sha256": "76b84a53cb1a8b5f7131a75d0f7387cb7ce4d548890420e6f70c681afa8c490e"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-00996.png",
+        "raw_source_sha256": "2d121a37032817901b532c1531d401744ff3b401956afba6db877d45ae79fdfc"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01020.png",
+        "raw_source_sha256": "adf826679391351d00b9ca930b05cce60fa4430c7fd9a6000f0fce3792f1a880"
+      }
+    ]
+  },
+  {
+    "retained": "astra-sequence-airborne.png",
+    "retained_sha256": "a76f3a290c3632796320fdd508ac2ee729bef7e1093b8efac63b590949d3732b",
+    "derivation": "12 genuine frames resized to 320x180, chronological; 60Hz simulation frame numbers, not wall-clock video",
+    "sources": [
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01092.png",
+        "raw_source_sha256": "07927dfff63b63c3ce972b6ca73f707f6aed38f534b7a4c0f30d2c1c0abd14e9"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01110.png",
+        "raw_source_sha256": "1e34c7399751528bbf4a126e41aefdfb1cddc9d38bee6e57e35cc5c63765bdf8"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01116.png",
+        "raw_source_sha256": "cc1f3f97e09e748210d53fcf0f32e0ab7da69f381aff1ed1488d2f9a26f9f07e"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01140.png",
+        "raw_source_sha256": "50f5cd301026311f5deefea88bc9228cd497edd72cafcb6574ac8bc67519c3b0"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01158.png",
+        "raw_source_sha256": "3d2c53adc043fdc31b64651a93d848816244752adcffe5835a21f06f2dc1a18f"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01164.png",
+        "raw_source_sha256": "70e7731dca25d3f460db2b4921681ffb4e0f7da76f1e57f46b27cd2328e6dd3a"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01182.png",
+        "raw_source_sha256": "25b428e2027a95209bc2ba6e60eb03bd5c79bda810a07f9415dcca0eb47110fd"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01188.png",
+        "raw_source_sha256": "18bb5d3aee76dfd6e94e4fce49d05cc2845752107d38f01ccc927ab70af8421d"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01206.png",
+        "raw_source_sha256": "d0ba673a00805989e6abb7213f7ffe47a1432a5715139ab081b9f795b0ed9d74"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01218.png",
+        "raw_source_sha256": "f977c153da627e56150e65be039dbd285b43654caf0d4fc1b00d6beda1379d8e"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01230.png",
+        "raw_source_sha256": "ac782462b1198afef73ea2c91d81b8daed56068149e7b24bafa4fecfc8111177"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01242.png",
+        "raw_source_sha256": "b0bf1c875c18c4ca2ef99243755790c7909237ad3f51fd178fbb743c67a71e2b"
+      }
+    ]
+  },
+  {
+    "retained": "astra-sequence-replacement.png",
+    "retained_sha256": "92424a24be5813d3ea05c19aa453dfbbade2173a73ebe296eecd76a42fbc74d7",
+    "derivation": "12 genuine frames resized to 320x180, chronological; 60Hz simulation frame numbers, not wall-clock video",
+    "sources": [
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01812.png",
+        "raw_source_sha256": "00da392b69907ac53604bfca43ebf4702e63c4b27bfee17a51523e7b5efd314a"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01854.png",
+        "raw_source_sha256": "5fc9b873f7507a05e2ebf340f391f94c1878e01beef2c76266f3df6a8de2f7a8"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01914.png",
+        "raw_source_sha256": "5306d521fd47be4e670666fad96ab5e1f5ae6ebbf539c63f6c74ef1aec991cba"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01938.png",
+        "raw_source_sha256": "7ffbd999f3e00a228e44f0b5c542c8f4eff96137097f4edfd259af626807e3e4"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01962.png",
+        "raw_source_sha256": "535fcd679e4840c40597e96690959baf5417299b8d7e8f2783018af5d67378c1"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01986.png",
+        "raw_source_sha256": "fa21793fd2baf494f26fa975072608425f87fc0add240d5f1ac7f1bec0e9f6fd"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-02022.png",
+        "raw_source_sha256": "f4fc2db8eaa03e336347176e0b62e5a6875911da81cfccf20a8448c7d7081aac"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-02046.png",
+        "raw_source_sha256": "6a7c3a826076404ce20433e7894fb2b8c4390ea7961524a413e4662d84b50e2c"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-02070.png",
+        "raw_source_sha256": "c92ae068f1134825820120a17230e3f8d6dd1aeed813a95aa7d891f0d8c2e03c"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-02094.png",
+        "raw_source_sha256": "5ae88919daefc522fa9b8608ad63cd8ae76915c8d8e49554baf22056b421b0ca"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-02124.png",
+        "raw_source_sha256": "f4c6ce54f2de7acdd2cae96d23aba877fd4281fb480923095240bed72bbc0edc"
+      },
+      {
+        "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-02148.png",
+        "raw_source_sha256": "f4f2bb321ad1be8e897a0e6e07a12789194f4cd0c0fa016e1609724beaeb48cf"
+      }
+    ]
+  },
+  {
+    "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01146.png",
+    "raw_source_sha256": "1cd89081fa18e2053b5a1f1fd22b1761891b459c1addfad8f0677dc775cce88a",
+    "retained": "astra-frame-01146.png",
+    "retained_sha256": "1cd89081fa18e2053b5a1f1fd22b1761891b459c1addfad8f0677dc775cce88a"
+  },
+  {
+    "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01158.png",
+    "raw_source_sha256": "3d2c53adc043fdc31b64651a93d848816244752adcffe5835a21f06f2dc1a18f",
+    "retained": "astra-frame-01158.png",
+    "retained_sha256": "3d2c53adc043fdc31b64651a93d848816244752adcffe5835a21f06f2dc1a18f"
+  },
+  {
+    "source": ".godot\\ts-245-round8\\gameplay\\motion\\frame-01170.png",
+    "raw_source_sha256": "33fd2cdd20abe303822b901fafcb235aa8a9682cc48cac693a34b3a59b1cb8c3",
+    "retained": "astra-frame-01170.png",
+    "retained_sha256": "33fd2cdd20abe303822b901fafcb235aa8a9682cc48cac693a34b3a59b1cb8c3"
+  },
+  {
+    "inspected_existing_source": ".godot\\ts-245\\concept-closed.png",
+    "sha256_at_review": "4859e276e7bac8ce2d717ea993a300efc8d08510333c840a75cef64c39bfe129"
+  },
+  {
+    "inspected_existing_source": ".godot\\ts-245\\concept-deployed.png",
+    "sha256_at_review": "610c48f0a6ee6733a6f5c255651d3fa04c8a2b7d83ee3570c12729d1de2dcf22"
+  },
+  {
+    "inspected_existing_source": ".godot\\ts-245\\concept-firing.png",
+    "sha256_at_review": "ad625c38896c56304a2696650ba4db76e521be615d7917422b600d04fb1b5979"
+  },
+  {
+    "inspected_existing_source": ".godot\\ts-245-round4\\concept-tank.png",
+    "sha256_at_review": "ed5e5c1f80538cebb10096fdb6a65761b3179d66fb4903978c8dbda5890b5895"
+  },
+  {
+    "inspected_existing_source": "docs\\verification\\ts-245-evidence\\round-8\\stage-3-firing.png",
+    "sha256_at_review": "949cf26bc9b0afe9cbb392af3e691f63e4eb9c4c22d5fe178226f25e9cc6674a"
+  },
+  {
+    "inspected_existing_source": "docs\\verification\\ts-245-evidence\\round-8\\meter-full.png",
+    "sha256_at_review": "204324bd8e59a71d274af707047999f1fed0d525352baa3f880598c987b2cef1"
+  },
+  {
+    "inspected_existing_source": "docs\\verification\\ts-245-evidence\\round-8\\meter-half.png",
+    "sha256_at_review": "0da19ab107b47178a386b40371427f4c34374866f059317e8a6c0e8226c94a72"
+  },
+  {
+    "inspected_existing_source": "docs\\verification\\ts-245-evidence\\round-8\\meter-empty.png",
+    "sha256_at_review": "33c47045e6a1be2b2448d7fc11638f3941059cda4fd452923883037729644195"
+  },
+  {
+    "inspected_existing_source": "docs\\verification\\ts-245-evidence\\round-8\\gameplay-meter-full.png",
+    "sha256_at_review": "1a78585e259a03526d25f9cc68f3eec085973fa4936933c43628a35ee367de67"
+  },
+  {
+    "inspected_existing_source": "docs\\verification\\ts-245-evidence\\round-8\\airborne-sequence.png",
+    "sha256_at_review": "d02e3c20003577b5293f9904a5e49d1a77dacd60fcd6f974e200877a2f16fd2f"
+  },
+  {
+    "inspected_existing_source": "docs\\verification\\ts-245-evidence\\round-8\\bank-1-sequence.png",
+    "sha256_at_review": "b1a6392b3a113a03f33c2e6949be1b969fa3ebd138be07acb7e2010b72b8c882"
+  },
+  {
+    "inspected_existing_source": "docs\\verification\\ts-245-evidence\\round-8\\evidence.txt",
+    "sha256_at_review": "5a9d582a50de6c1b80edbf4caca8efd001e9a2e2406cc8cec1ec01bf3e607e2a"
+  },
+  {
+    "inspected_existing_source": "docs\\verification\\ts-245-evidence\\round-8\\bank-evidence.txt",
+    "sha256_at_review": "bd35a018d2527f73b2c66ea2184ba9f00f51970f8bab4371f0868aa8ed002f83"
+  },
+  {
+    "inspected_existing_source": "docs\\verification\\ts-245-evidence\\round-8\\oil-reconnect-final.log",
+    "sha256_at_review": "f70fb06c02b0fc1bda96b65af8e76cc172a699db398b8e77ea453d6293717973"
+  },
+  {
+    "inspected_existing_source": "docs\\verification\\ts-245-evidence\\round-8\\rack-final.log",
+    "sha256_at_review": "863c8f277f9f9c1872bb48c2d9100f9b38a415436678297281fc3e38853c8631"
+  },
+  {
+    "inspected_existing_source": "docs\\verification\\ts-245-evidence\\round-8\\runtime-summary.json",
+    "sha256_at_review": "63c0817ba8b2da424f8b1d6d4cc2f8bbb22b6ecb4ee9d6eda046a2522a38ac1e"
+  },
+  {
+    "inspected_existing_source": "docs\\verification\\ts-245-evidence\\round-7\\oil-migration-final.log",
+    "sha256_at_review": "0e0d74da7fe2133afaee674932bdc1559dea2c57cdb4009e9fa1de53a701eddd"
+  },
+  {
+    "inspected_existing_source": "docs\\verification\\ts-245-evidence\\round-7\\main-continuation.log",
+    "sha256_at_review": "dcda1de6562b90ea0ca09731aac9cfcdd67cb5b0461b68a2432a9497cc97cd49"
+  },
+  {
+    "inspected_existing_source": "docs\\verification\\ts-245-evidence\\round-7\\main-control-provenance.json",
+    "sha256_at_review": "606fde58bacf86ec80de94117529c76d5f978c0833af511cea4f8d84823dc675"
+  }
+]

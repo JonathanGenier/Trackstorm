@@ -8,7 +8,7 @@
     },
     {
       "path": "source/JackInTheBox.blend",
-      "sha256": "abb591f12a1a29eee58ebc19f31c11b5dc444c37275b8c6b637e42b85d85b998"
+      "sha256": "ecff8afd5257c23bc9e953e4b288daa3a8cef1af47e597bdcaf300195c9b5447"
     },
     {
       "path": "source/Patina.png",
@@ -16,7 +16,7 @@
     },
     {
       "path": "JackInTheBox.glb",
-      "sha256": "c87cdaae311fe528b732bcfcdceddbec39007e29739d80fde34c93673515a6ad"
+      "sha256": "7f490c2650e6b57d3d6ed2cd0831926bd57e8f1093a2586591e7c8e0c7e599f9"
     },
     {
       "path": "OilFluid.gdshader",
@@ -72,15 +72,15 @@
     },
     {
       "path": "source/BuildOilTank.py",
-      "sha256": "52fd03f5c83d1f768248d0243c5f91a02541b47fe544f4f12a41dbcd01db2f57"
+      "sha256": "3499c4d7e49f5dc46fec06969ce8afcf069b6f7e4fdcd41a4da3b60e9fbfd0f2"
     },
     {
       "path": "source/Oil Tank paint.png",
-      "sha256": "1500898a9772a9a9cb4e810541921154ed51e9a8e22933c3588465e6d7770a75"
+      "sha256": "4f90d7db0a7825ffb25601bfd1eaae9393e15eafeabfd6dc19811dc726e8951e"
     },
     {
       "path": "JackInTheBox_Oil Tank paint.png",
-      "sha256": "1500898a9772a9a9cb4e810541921154ed51e9a8e22933c3588465e6d7770a75"
+      "sha256": "4f90d7db0a7825ffb25601bfd1eaae9393e15eafeabfd6dc19811dc726e8951e"
     }
   ]
 }
