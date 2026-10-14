@@ -1,5 +1,8 @@
 # Implemented feature index
 
+The item, vehicle, and Developer Options systems each have smaller topic references linked from their parent documents. For narrow changes, follow those links instead of loading the entire parent document.
+
+
 Start with the system being changed. Read its document and only the integration documents needed for the assignment; this index is not a requirement to load every feature. Documents describe the current implementation and durable design context. Source code supplies low-level implementation details. [Workflow](../workflow.md#feature-documentation) owns feature-document maintenance and authoring requirements.
 
 | System | Read for | Related systems |
