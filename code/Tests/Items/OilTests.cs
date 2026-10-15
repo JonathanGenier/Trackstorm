@@ -22,7 +22,7 @@ internal sealed class OilTests
         {
             Step(host); Assert.That(host.Items.OilContacts, Is.Empty); Step(host, vehicle);
             Assert.That(host.Items.Patches.Single(), Is.EqualTo(patch));
-            Assert.That(host.World.GetVehicle(vehicle).Movement.OilTicks, Is.EqualTo(420));
+            Assert.That(host.World.GetVehicle(vehicle).Movement.OilTicks, Is.EqualTo(120));
         }
         Assert.That(host.World.Events.Entries.Count(e => e.Kind == "Oil triggered"), Is.EqualTo(9));
         while (host.World.State.Tick < patch.ExpiresAtTick - 1) { Step(host, vehicle); }
@@ -39,7 +39,7 @@ internal sealed class OilTests
         Assert.That(host.Items.OilContacts.Count, Is.EqualTo(8));
         var publication = new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], [], patches: host.Items.Patches, oilContacts: host.Items.OilContacts);
         Assert.That(ItemCodec.DecodeState(ItemCodec.EncodeState(publication)).OilContacts, Is.EqualTo(publication.OilContacts));
-        Assert.That(host.World.State.Vehicles.All(v => v.Movement.OilTicks == 420), Is.True);
+        Assert.That(host.World.State.Vehicles.All(v => v.Movement.OilTicks == 120), Is.True);
     }
 
     [TestCase(1ul, false)]
@@ -55,7 +55,7 @@ internal sealed class OilTests
         Assert.That(restored.Items.Patches, Is.EqualTo(host.Items.Patches));
         Assert.That(restored.Items.OilContacts, Is.EqualTo(host.Items.OilContacts));
         Step(restored, vehicle);
-        Assert.That(restored.World.GetVehicle(vehicle).Movement.OilTicks, Is.EqualTo(419));
+        Assert.That(restored.World.GetVehicle(vehicle).Movement.OilTicks, Is.EqualTo(119));
         if (newLife)
         {
             var input = new InputFrame(restored.World.State.Tick + 1, 0, 0, 0, 0, 0, 0);
@@ -65,7 +65,7 @@ internal sealed class OilTests
         else { Step(restored); }
         Step(restored, vehicle);
         Assert.That(restored.Items.Patches, Is.EqualTo(host.Items.Patches));
-        Assert.That(restored.World.GetVehicle(vehicle).Movement.OilTicks, Is.EqualTo(420));
+        Assert.That(restored.World.GetVehicle(vehicle).Movement.OilTicks, Is.EqualTo(120));
     }
 
     [Test]

@@ -53,6 +53,7 @@ foreach ($path in @('assets/environment/ImportAsset.gd', 'code/Client/Verificati
     Assert-True ($rockPlan.ExtendedScripts -contains 'check-rock-collision-network.ps1') 'Rock changes require impaired UDP prediction verification.'
 }
 Assert-True ((Get-FastCheckPlan -Paths @("code/Client/Vehicles/TireFeedback.cs")).RuntimeScripts -contains "check-terrain-effects.ps1") "Surface feedback routes bounded native effects verification."
+Assert-True ((Get-FastCheckPlan -Paths @("code/Client/Vehicles/TireFeedback.Oil.cs")).RuntimeScripts -contains "check-oil-tires.ps1") "Oil feedback routes native per-wheel/UDP/cleanup verification."
 Assert-True ((Get-FastCheckPlan -Paths @("code/Core/Development/EnvironmentPreset.cs")).RuntimeScripts -contains "check-developer-options.ps1") "Environment selection routes authoritative Configs verification."
 Assert-True ((Get-FastCheckPlan -Paths @("scenes/maps/infield_dressing.tscn")).RuntimeScripts -contains "check-dressing.ps1") "Production dressing routes native clearance verification."
 Assert-True ((Get-FastCheckPlan -Paths @("assets/environment/models/BoulderTall.glb")).RuntimeScripts -contains "check-environment.ps1") "Environment assets route their native library verification."

@@ -86,7 +86,7 @@ No editable drift boost, collision recoil or missile falloff setting exists beca
 
 The read-only [Event Log](event-log.md) records accepted tuning keys with old/new values, configuration revisions/rejections, Give Item and Force Start results, and practice reset/blast actions. F3 provides history and no mutation controls.
 
-Item spawn weights are generated from the shared item registry (spawns.wrench_weight, spawns.missile_weight, spawns.oil_weight, spawns.nitro_weight, spawns.proxy_mine_weight, spawns.salvo_weight, spawns.machine_gun_weight). Zero excludes an item; the complete pool must retain positive total weight. All seven default to one. Oil uses the normal deployment path; Nitro uses the normal activation path and retains its slot while already boosted. Oil grip, recovery duration, vehicle-pass budget and cleanup lifetime are editable in the Oil category; deployment has no global active-patch gate. The version-forty-two gameplay configuration payload includes the complete distribution in resume and migration checkpoints.
+Item spawn weights are generated from the shared item registry (spawns.wrench_weight, spawns.missile_weight, spawns.oil_weight, spawns.nitro_weight, spawns.proxy_mine_weight, spawns.salvo_weight, spawns.machine_gun_weight). Zero excludes an item; the complete pool must retain positive total weight. All seven default to one. Oil uses the normal deployment path; Nitro uses the normal activation path and retains its slot while already boosted. Oil grip, total effect/recovery duration and cleanup lifetime are editable in the Oil category; deployment has no global active-patch gate. The version-forty-two gameplay configuration payload includes the complete distribution in resume and migration checkpoints.
 
 Nitro exposes `items.nitro_consumption_per_second`, `items.nitro_forward_thrust`, `items.nitro_speed_multiplier`, `items.nitro_airborne_thrust_scale`, `vehicle.overspeed_deceleration`, and `match.nitro_points_per_second` through the existing catalog. Live edits affect subsequent authoritative intervals without refilling charge. Ordinary validation, persistence, version-forty-two configuration replication and recovery apply. See [Nitro](items.md#sustained-nitro-resource).
 
@@ -200,11 +200,11 @@ The Oil accordion contains eighteen host-authoritative keys using staged Apply/C
 
 | Key | Default | Range / meaning |
 | --- | ---: | --- |
-| `vehicle.oil_grip_reduction` | 0.85 | 0–0.95 front tire lateral grip reduction |
-| `vehicle.oil_rear_drive_reduction` | 0.85 | 0–0.95 rear tire longitudinal grip reduction |
-| `vehicle.oil_rear_lateral_reduction` | 0.65 | 0–0.95 rear tire lateral grip reduction |
-| `vehicle.oil_impairment_seconds` | 5 | 0.1–20 seconds at full impairment after an entry |
-| `vehicle.oil_recovery_seconds` | 2 | 0.1–10 seconds of progressive recovery |
+| `vehicle.oil_grip_reduction` | 0.95 | 0–0.95 front tire lateral grip reduction |
+| `vehicle.oil_rear_drive_reduction` | 0.95 | 0–0.95 rear tire longitudinal grip reduction |
+| `vehicle.oil_rear_lateral_reduction` | 0.95 | 0–0.95 rear tire lateral grip reduction |
+| `vehicle.oil_impairment_seconds` | 2 | 0.1–20 seconds total per entry, including recovery |
+| `vehicle.oil_recovery_seconds` | 0.35 | 0.1–10 seconds of progressive recovery inside the total effect; capped to that duration |
 | `vehicle.oil_recovery_curve` | 1 | 0.5–3 exponent applied to progress before smoothstep easing |
 | `items.oil_stream_width` | 0.24 | 0.08–0.8 m nominal free-stream width; the ejection neck stays narrow beside the mechanism |
 | `items.oil_lifetime_seconds` | 30 | 1–600 seconds per firing activation |

@@ -9,15 +9,15 @@ public sealed record VehicleConfiguration
     /// <summary>Rack mechanism speed relative to its original 0.88-second travel; independently tunable.</summary>
     public float RackDeploymentSpeed { get; init; } = 3;
     /// <summary>Front tire lateral grip reduction during contamination.</summary>
-    public float OilGripReduction { get; init; } = 0.85f;
+    public float OilGripReduction { get; init; } = 0.95f;
     /// <summary>Rear tire longitudinal grip reduction, including drive and braking.</summary>
-    public float OilRearDriveReduction { get; init; } = 0.85f;
+    public float OilRearDriveReduction { get; init; } = 0.95f;
     /// <summary>Rear tire lateral grip reduction during contamination.</summary>
-    public float OilRearLateralReduction { get; init; } = 0.65f;
-    /// <summary>Full-strength impairment following a distinct tire entry.</summary>
-    public float OilImpairmentSeconds { get; init; } = 5;
-    /// <summary>Progressive recovery after the full impairment interval.</summary>
-    public float OilRecoverySeconds { get; init; } = 2;
+    public float OilRearLateralReduction { get; init; } = 0.95f;
+    /// <summary>Total handling disturbance following a distinct tire entry, including recovery.</summary>
+    public float OilImpairmentSeconds { get; init; } = 2;
+    /// <summary>Progressive recovery within the end of the impairment interval, capped to that interval.</summary>
+    public float OilRecoverySeconds { get; init; } = 0.35f;
     /// <summary>Recovery progression exponent before smoothstep easing.</summary>
     public float OilRecoveryCurve { get; init; } = 1;
     /// <summary>Asphalt tire capacity; neutral drag/drive retain approved power and coasting.</summary>

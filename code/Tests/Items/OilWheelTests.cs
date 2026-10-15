@@ -25,7 +25,7 @@ internal sealed class OilWheelTests
         var patch = new OilPatch(1, 2, point, Vector3.UnitY, 0.1f);
         Assert.That(patch.ContactWheels(observation, Tuning), Is.EqualTo(mask));
         var state = Drive(mask);
-        for (int i = 0; i < 4; i++) { Assert.That(state.Oil[i], Is.EqualTo(i == index ? 420 : 0)); }
+        for (int i = 0; i < 4; i++) { Assert.That(state.Oil[i], Is.EqualTo(i == index ? 120 : 0)); }
         Assert.That(patch.ContactWheels(new(Pose, Vector3.Zero, wheels: new(default, contacts: default(WheelContactPoints))), Tuning), Is.EqualTo(WheelMask.None));
     }
 
@@ -82,14 +82,14 @@ internal sealed class OilWheelTests
     }
 
     [Test]
-    public void FiveSecondHoldThenSmoothRecoverySurvivesCodecAndAirborneContinuation()
+    public void TwoSecondEffectIncludingSmoothRecoverySurvivesCodecAndAirborneContinuation()
     {
         var movement = new VehicleMovement(Tuning, Pose);
         var first = movement.Step(new(1, 0, 0, 0, 0, 0, 0), Pose, Vector3.UnitY, oilContact: WheelMask.FrontLeft);
         var replay = new VehicleMovement(Tuning, Pose);
         replay.Restore(VehicleStateCodec.Decode(VehicleStateCodec.Encode(first)));
         float previous = 1;
-        for (ulong tick = 2; tick <= 421; tick++)
+        for (ulong tick = 2; tick <= 121; tick++)
         {
             var input = new InputFrame(tick, 0, 0, 0, 0, 0, 0);
             Vector3 support = tick < 100 ? Vector3.Zero : Vector3.UnitY;
@@ -97,11 +97,22 @@ internal sealed class OilWheelTests
             Assert.That(replay.Step(input, Pose, support), Is.EqualTo(next));
             float strength = next.Oil.Strength(0, Tuning);
             Assert.That(strength, Is.LessThanOrEqualTo(previous));
-            Assert.That(previous - strength, Is.LessThan(0.013f), "No recovery step can snap grip.");
-            if (tick <= 301) { Assert.That(strength, Is.EqualTo(1)); }
+            Assert.That(previous - strength, Is.LessThan(0.08f), "No recovery step can snap grip.");
+            if (tick <= 100) { Assert.That(strength, Is.EqualTo(1)); }
             previous = strength;
         }
         Assert.That(movement.State.Oil, Is.EqualTo(default(OilTractionState)));
+    }
+
+    [Test]
+    public void RecoveryLongerThanConfiguredEffectCannotExtendTotalDuration()
+    {
+        var tuning = Tuning with { OilImpairmentSeconds = .1f, OilRecoverySeconds = 10 };
+        var movement = new VehicleMovement(tuning, Pose);
+        var state = movement.Step(new(1, 0, 0, 0, 0, 0, 0), Pose, Vector3.UnitY, oilContact: WheelMask.All);
+        Assert.That(state.Oil.RemainingTicks, Is.EqualTo(6));
+        for (ulong tick = 2; tick <= 7; tick++) { state = movement.Step(new(tick, 0, 0, 0, 0, 0, 0), Pose, Vector3.UnitY); }
+        Assert.That(state.Oil.RemainingTicks, Is.Zero);
     }
 
     [Test]
@@ -119,13 +130,13 @@ internal sealed class OilWheelTests
         for (int i = 0; i < 10; i++) { Step(host, WheelMask.FrontLeft); }
         Step(host, WheelMask.All);
         var oil = host.World.GetVehicle(2).Movement.Oil;
-        Assert.That(oil.FrontLeft, Is.EqualTo(409));
-        Assert.That(oil.FrontRight, Is.EqualTo(420));
+        Assert.That(oil.FrontLeft, Is.EqualTo(109));
+        Assert.That(oil.FrontRight, Is.EqualTo(120));
         Assert.That(host.Items.Patches.Count, Is.EqualTo(1));
         Assert.That(Score(host), Is.EqualTo(50));
         Step(host, WheelMask.All & ~WheelMask.FrontLeft);
         Step(host, WheelMask.All);
-        Assert.That(host.World.GetVehicle(2).Movement.Oil.FrontLeft, Is.EqualTo(420));
+        Assert.That(host.World.GetVehicle(2).Movement.Oil.FrontLeft, Is.EqualTo(120));
         Assert.That(host.Items.Patches.Count, Is.EqualTo(1));
 
         var restored = Restore(host);
@@ -138,7 +149,7 @@ internal sealed class OilWheelTests
         Assert.That(Score(restored), Is.EqualTo(100));
         Assert.That(restored.Items.Patches.Single(), Is.EqualTo(patch), "Every piece survives repeated contacts unchanged.");
         Assert.That(restored.Items.OilContacts.Count, Is.EqualTo(1));
-        Assert.That(restored.World.GetVehicle(2).Movement.Oil.RemainingTicks, Is.EqualTo(420));
+        Assert.That(restored.World.GetVehicle(2).Movement.Oil.RemainingTicks, Is.EqualTo(120));
     }
 
     [Test]
@@ -168,14 +179,14 @@ internal sealed class OilWheelTests
     {
         var host = Create();
         var state = host.World.GetVehicle(2);
-        var movement = new VehicleState(state.Movement.Tick, state.Movement.Physics, true, false, 0, 0, oil: new(360, 60, 0, 420));
+        var movement = new VehicleState(state.Movement.Tick, state.Movement.Physics, true, false, 0, 0, oil: new(120, 21, 0, 0));
         host.World.Restore(new(host.World.State.Tick, host.World.State.LastInput, host.World.State.Vehicles.Select(v => v.VehicleId == 2 ? new VehicleSnapshot(v.VehicleId, v.LifeId, movement, v.Damage, v.ObservedPhysics) : v), host.World.State.Match));
         Assert.That(host.TryConfigure(0, new Dictionary<string, double> {
             ["vehicle.oil_grip_reduction"] = 0.9, ["vehicle.oil_rear_drive_reduction"] = 0.8,
             ["vehicle.oil_rear_lateral_reduction"] = 0.6, ["vehicle.oil_impairment_seconds"] = 10,
             ["vehicle.oil_recovery_seconds"] = 4, ["vehicle.oil_recovery_curve"] = 2,
             ["items.oil_stream_width"] = .3, ["items.oil_lifetime_seconds"] = 45 }, out _), Is.True);
-        Assert.That(host.World.GetVehicle(2).Movement.Oil, Is.EqualTo(new OilTractionState(720, 120, 0, 840)));
+        Assert.That(host.World.GetVehicle(2).Movement.Oil, Is.EqualTo(new OilTractionState(600, 240, 0, 0)));
         Assert.That(GameplayConfigurationCodec.Decode(GameplayConfigurationCodec.Encode(99, host.Configuration)).State, Is.EqualTo(host.Configuration));
         Assert.Throws<ArgumentException>(() => new OilTractionState(-1, 0, 0, 0).Validate());
         Assert.Throws<ArgumentException>(() => new OilFootprint([new(Vector3.Zero, Vector3.UnitY, Vector3.UnitY, 1)]));
@@ -188,7 +199,7 @@ internal sealed class OilWheelTests
         var world = new Core.Simulation.Simulation(new(60));
         world.AddVehicle(1, Tuning, new(), Pose);
         world.Step(new(1, 0, 0, 0, 0, 0, 0), [new(1, new(1, 0, 0, 0, 0, 0, 0), Observe(Pose), oilContact: WheelMask.All)]);
-        Assert.That(world.GetVehicle(1).Movement.OilTicks, Is.EqualTo(420));
+        Assert.That(world.GetVehicle(1).Movement.OilTicks, Is.EqualTo(120));
         world.Step(new(2, 0, 0, 0, 0, 0, 0), [new(1, new(2, 0, 0, 0, 0, 0, 0), Observe(Pose),
             reset ? [] : [new(new DamageEffect(10000, Vector3.Zero, Vector3.Zero), new DamageContext("test", 0, "death"))],
             reset: reset ? Pose : null, oilContact: WheelMask.All)]);

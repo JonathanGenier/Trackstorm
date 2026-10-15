@@ -82,10 +82,12 @@ internal sealed partial class TireFeedback : Node3D
             _spray[i].Emitting = false;
             AddChild(_spray[i]);
         }
+        InitializeOil();
     }
 
     public override void _PhysicsProcess(double delta)
     {
+        ObserveOil((float)delta);
         _elapsed += (float)delta;
         if (_elapsed >= 3600)
         {
@@ -136,11 +138,13 @@ internal sealed partial class TireFeedback : Node3D
             {
                 _previous[wheel] = null;
                 _spray[wheel].Emitting = false;
+                BreakOilTrail(wheel);
                 continue;
             }
             var identity = waterPoint.HasValue ? SurfaceIdentity.Water : SurfaceIdentityResolver.Resolve(hit["collider"].AsGodotObject(), hit["position"].AsVector3());
             Vector3 point = waterPoint ?? hit["position"].AsVector3();
             Vector3 normal = waterPoint.HasValue ? Vector3.Up : hit["normal"].AsVector3();
+            PresentOil(wheel, source.State, source.Pose, point, normal, tireWidth, waterPoint is null && source.State.Movement.Grounded);
             bool soft = identity is SurfaceIdentity.Dirt or SurfaceIdentity.Grass or SurfaceIdentity.Mud or SurfaceIdentity.DeepMud;
             bool water = identity == SurfaceIdentity.Water;
             var profile = Profile(identity);
@@ -233,10 +237,12 @@ internal sealed partial class TireFeedback : Node3D
         Array.Clear(_previous);
         Array.Clear(_surfaces);
         foreach (var emitter in _spray) { emitter.Emitting = false; }
+        for (int i = 0; i < 4; i++) { BreakOilTrail(i); }
     }
 
     public override void _ExitTree()
     {
+        DisposeOil();
         _ray.Dispose();
 
         _wakes.Dispose();

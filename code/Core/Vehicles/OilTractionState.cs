@@ -46,12 +46,12 @@ public readonly record struct OilTractionState(int FrontLeft, int FrontRight, in
         {
             int ticks = state[index];
             return ticks > RecoveryTicks(previous)
-                ? RecoveryTicks(next) + (int)MathF.Ceiling((ticks - RecoveryTicks(previous)) * (float)HoldTicks(next) / HoldTicks(previous))
+                ? RecoveryTicks(next) + (int)MathF.Ceiling((ticks - RecoveryTicks(previous)) * (float)HoldTicks(next) / Math.Max(1, HoldTicks(previous)))
                 : (int)MathF.Ceiling(ticks * (float)RecoveryTicks(next) / RecoveryTicks(previous));
         }
         return new(Scale(0), Scale(1), Scale(2), Scale(3));
     }
 
-    private static int HoldTicks(VehicleConfiguration c) => (int)MathF.Ceiling(c.OilImpairmentSeconds * c.TicksPerSecond);
-    private static int RecoveryTicks(VehicleConfiguration c) => (int)MathF.Ceiling(c.OilRecoverySeconds * c.TicksPerSecond);
+    private static int HoldTicks(VehicleConfiguration c) => (int)MathF.Ceiling(c.OilImpairmentSeconds * c.TicksPerSecond) - RecoveryTicks(c);
+    private static int RecoveryTicks(VehicleConfiguration c) => (int)MathF.Ceiling(Math.Min(c.OilRecoverySeconds, c.OilImpairmentSeconds) * c.TicksPerSecond);
 }

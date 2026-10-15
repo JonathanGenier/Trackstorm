@@ -339,6 +339,10 @@ function Get-FastCheckPlan {
         }
 
         # Items and lifecycle.
+        if ($path -match '(?i)TireFeedback|OilTireChecks|oil_tire_checks|check-oil-tires|OilTractionState' -or $path -eq 'docs/features/items-oil.md') {
+            Add-Runtime 'check-oil-tires.ps1'
+            Add-Manual 'Observe independent glossy tire contamination, oil spray, curved/drifting wet trails, airborne breaks and recovery across cars and peers.'
+        }
         if ($path -match '(?i)PickupDrive|MovingPickup|pickup_drive|check-pickup-drive|ItemSpawnAuthority|HostVehicleSession|NetworkVehicleArena|VehicleNetworkDriver') {
             Add-Runtime 'check-pickup-drive.ps1'
         }
