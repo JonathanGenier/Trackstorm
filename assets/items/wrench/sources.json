@@ -1,0 +1,69 @@
+{
+  "asset": "Trackstorm Wrench robotic repair arm",
+  "authoring": "Original project geometry, UVs and deterministic patina, authored with Blender 5.2.2",
+  "references": [
+    {
+      "jira": "TS-292",
+      "filename": "Arm 7.png",
+      "attachment": "10154",
+      "usage": "Approved concept direction only; pixels not redistributed"
+    },
+    {
+      "jira": "TS-292",
+      "filename": "back red mount.png",
+      "attachment": "10153",
+      "usage": "Approved low mounting and mechanical appearance direction; no replacement lift or under-rack dressing"
+    }
+  ],
+  "thirdPartyAcquisitions": [],
+  "units": "metres",
+  "rig": "Rigid Shoulder -> Elbow -> Wrist -> Chuck hierarchy; 0.70 m and 1.25 m links",
+  "export": {
+    "uvs": "Every exported primitive has TEXCOORD_0",
+    "meshes": 28,
+    "triangles": 65480,
+    "materials": 7
+  },
+  "files": [
+    {
+      "sha256": "9e9581ccd27fa3c04e3eb8c4a3f9c94cbb31d72135678932295441fe1aac23cf",
+      "path": "assets/items/wrench/RepairArm_Repair aged brass.png"
+    },
+    {
+      "sha256": "5a1fe21337a4f00fb8dfca42fdab3dd16ed7d8098f9707a01be4d4b46060f56e",
+      "path": "assets/items/wrench/RepairArm_Repair crimson enamel.png"
+    },
+    {
+      "sha256": "f1aabef76270dbd3f56b9872f21f244a2cd00fceac2d1bf859c380d935b22038",
+      "path": "assets/items/wrench/RepairArm_Repair dark steel.png"
+    },
+    {
+      "sha256": "bf8d146631cc1a2bedacde4859c0f7ac52e8fd4e652e65c28bbc78ff019ebe8f",
+      "path": "assets/items/wrench/RepairArm_Repair hose rubber.png"
+    },
+    {
+      "sha256": "4e2f43e216492a36bed759fe273a586f038c72f65961afdbb4ebb9c900e0b617",
+      "path": "assets/items/wrench/RepairArm_Repair warm ivory.png"
+    },
+    {
+      "sha256": "ba356eb8944bdaf71e200504e475b20e770e5d317bdd0bc09b3983535e9864e4",
+      "path": "assets/items/wrench/RepairArm_Repair worn edges.png"
+    },
+    {
+      "sha256": "9b937bb04216fb76c74b595ccf5eee1c98282c35cfb148a0675e85c656dabf30",
+      "path": "assets/items/wrench/RepairArm_Repair yellow stars.png"
+    },
+    {
+      "sha256": "332aa30d7685bd48f79fb66fa2481b6583c60f3627d31b8f9c5c8b9656a6823a",
+      "path": "assets/items/wrench/RepairArm.glb"
+    },
+    {
+      "sha256": "862313702ab332b15d3127aad504ef37477c5c6daf9c117e8d72281a0785eb3c",
+      "path": "assets/items/wrench/source/BuildRepairArm.py"
+    },
+    {
+      "sha256": "8eabc68c382dd6ae80bb1d03a642a06953489b69197682a978e36c22febe34e8",
+      "path": "assets/items/wrench/source/RepairArm.blend"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Held-Item Combat
 
-> Focused implementation references: [Machine Gun](items-machine-gun.md), [Nitro](items-nitro.md), [Oil](items-oil.md), [Proxy Mine](items-proxy-mine.md), [Rack](items-rack.md), [Salvo](items-salvo.md), and [Shield](items-shield.md). Read the relevant reference for detailed contracts instead of loading this entire document when working on only one subsystem.
+> Focused implementation references: [Machine Gun](items-machine-gun.md), [Nitro](items-nitro.md), [Oil](items-oil.md), [Proxy Mine](items-proxy-mine.md), [Rack](items-rack.md), [Wrench](items-wrench.md), [Salvo](items-salvo.md), and [Shield](items-shield.md). Read the relevant reference for detailed contracts instead of loading this entire document when working on only one subsystem.
 
 
 [Shared weapon aiming](weapon-aiming.md) supplies life/token-scoped desired-direction validation, accepted articulation, car-only sticky assistance and the centered cursor and shared ground-ring/overhead-chevron presentation for direct-fire identities. Its replaceable item message kinds are separate from reliable ownership/outcomes; Salvo stays on its existing path.

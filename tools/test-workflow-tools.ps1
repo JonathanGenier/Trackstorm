@@ -14,6 +14,9 @@ function Assert-True {
 . "$PSScriptRoot/fast-check-routes.ps1"
 
 # Route-selection regression coverage.
+foreach ($path in @('assets/items/wrench/RepairArm.glb', 'code/Client/Items/WrenchArm.cs', 'check-wrench-arm.ps1')) {
+    Assert-True ((Get-FastCheckPlan -Paths @($path)).RuntimeScripts -contains 'check-wrench-arm.ps1') 'Wrench art and rig changes require native rack/roof/lifecycle verification.'
+}
 foreach ($path in @('code/Core/Vehicles/VehicleCollisionDamage.cs', 'code/Client/Verification/CombatCollisionChecks.cs', 'scenes/verification/combat_collision_checks.tscn')) {
     $combatPlan = Get-FastCheckPlan -Paths @($path)
     Assert-True ($combatPlan.RuntimeScripts -contains 'check-combat-collisions.ps1') 'Combat changes require paired damage, geometry and loaded-drive coverage.'

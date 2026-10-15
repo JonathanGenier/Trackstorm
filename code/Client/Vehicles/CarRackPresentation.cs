@@ -22,6 +22,7 @@ internal sealed partial class CarRackPresentation : Node
     private ProxyMineState? _placement;
     private bool _mineReturning;
     private WeaponAimSolution? _aim;
+    private bool _wrenchStarted;
 
     internal required BoostExhaust Boost { get; init; }
 
@@ -79,6 +80,7 @@ internal sealed partial class CarRackPresentation : Node
             (_previous is null || active.Item != _previous.Active.Item || (active.Token != _previous.Active.Token && !used));
         if (selection || acquired)
         {
+            _wrenchStarted = false;
             _aim = null;
             _replace = _mounted != HeldItem.None;
             _usePending = false;
@@ -89,6 +91,7 @@ internal sealed partial class CarRackPresentation : Node
         _engaged = active?.Item != HeldItem.Nitro && inventory is { EngagedToken: > 0 };
         if (outcome is not null || (_previous is null && _engaged))
         {
+            _wrenchStarted = false;
             _useItem = outcome?.Item ?? active!.Item;
             _usePending = true;
             _useTime = 0.32f;
@@ -126,6 +129,7 @@ internal sealed partial class CarRackPresentation : Node
         _placement = null;
         _mineReturning = false;
         _aim = null;
+        _wrenchStarted = false;
     }
 
     public override void _Process(double delta)
@@ -153,7 +157,8 @@ internal sealed partial class CarRackPresentation : Node
         if (_replace || (_desired != _mounted && _mounted != HeldItem.None))
         {
             // Nest the barrel before lowering the rack through the open deck.
-            _mechanism.Deployed = (_mounted == HeldItem.Nitro && Boost.Deployment > 0) || ShieldReturning?.Invoke() == true;
+            _mechanism.Deployed = (_mounted == HeldItem.Nitro && Boost.Deployment > 0) || ShieldReturning?.Invoke() == true ||
+                (_payload is Items.WrenchArm returningArm && !returningArm.Nested);
             if (_mechanism.Progress <= 0)
             {
                 ClearPayload();
@@ -174,6 +179,26 @@ internal sealed partial class CarRackPresentation : Node
 
         if (_payload is not null)
         {
+            if (_payload is Items.WrenchArm repairArm)
+            {
+                _payload.Visible = true;
+                _payload.Scale = Vector3.One;
+                _payload.Position = Vector3.Zero;
+                bool deploy = !_replace && _desired == HeldItem.Wrench && _mechanism.Progress >= .999f;
+                if (deploy && _usePending && !_wrenchStarted && repairArm.IsReady)
+                {
+                    repairArm.BeginRepair();
+                    _wrenchStarted = true;
+                }
+                repairArm.Present(deploy, (float)delta);
+                if (_wrenchStarted && !repairArm.Repairing)
+                {
+                    _usePending = false;
+                    _wrenchStarted = false;
+                    _desired = _previous?.Active.Item ?? HeldItem.None;
+                }
+                return;
+            }
             if (_payload is Items.ShieldRack)
             {
                 _payload.Visible = _mechanism.Progress >= .45f;
