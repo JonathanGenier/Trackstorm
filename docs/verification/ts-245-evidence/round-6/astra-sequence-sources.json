@@ -1,0 +1,230 @@
+[
+  {
+    "sheet": "astra-sequence-deployment.png",
+    "sourceDirectory": "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\ts-245-round6\\astra-native-runtime\\motion",
+    "treatment": "Resize and arrange native frames, chronological filename labels only",
+    "frames": [
+      {
+        "name": "frame-00300.png",
+        "sha256": "D9F79A334314DA8117D9ED8692EC9128F333B6753E2A0B9116B7260828C26D4A"
+      },
+      {
+        "name": "frame-00318.png",
+        "sha256": "93BF857427F76059611A8897F8748892FD20831576F7C9D440A4B9A2ADE3CBFA"
+      },
+      {
+        "name": "frame-00330.png",
+        "sha256": "52746F7339A807566BF122E8411EB8508ADBE0D4376F042C6F1CBD21B3C737C6"
+      },
+      {
+        "name": "frame-00366.png",
+        "sha256": "78ACEEE93A62F2952D99BE760FB7E312F23FB1007BBBCC1C3E800E6C95803975"
+      },
+      {
+        "name": "frame-00378.png",
+        "sha256": "6FE3242176D3537FF77F66BD2EE69F2FEF1582FBF144A67B6F289C7FEEF13163"
+      },
+      {
+        "name": "frame-00396.png",
+        "sha256": "B5B71255127CB319C841A93BC9BC399E77CD8B2398BACE13F7E378E8232B5715"
+      },
+      {
+        "name": "frame-00438.png",
+        "sha256": "5B9F086446921E08EB00A4A6E83722FD8104B247138D043F5E846AA298A1C2F4"
+      },
+      {
+        "name": "frame-00450.png",
+        "sha256": "678B452AD86C1FB7BDC73444EDF2A56E973136DBF447334F59B030E174E28B24"
+      },
+      {
+        "name": "frame-00468.png",
+        "sha256": "74C7CD3AF73734CA402177D1FF0F096177470400E0908C092760E1BAF4DAD529"
+      },
+      {
+        "name": "frame-00492.png",
+        "sha256": "04B7196F95802BE657047EF5E0BB9DB28EEA300CE85CA78ECC14BC9F504164B5"
+      },
+      {
+        "name": "frame-00510.png",
+        "sha256": "083B5CF4E6464008CAF6948088F1A6DDCC51919A6AA9F183063890A6235B62F6"
+      },
+      {
+        "name": "frame-00522.png",
+        "sha256": "353AC89F3A71FE0D637985A68B33E817CD7C8975B156AA26B58FAB4E9C7FB2DF"
+      }
+    ]
+  },
+  {
+    "sheet": "astra-sequence-straight.png",
+    "sourceDirectory": "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\ts-245-round6\\astra-native-runtime\\motion",
+    "treatment": "Resize and arrange native frames, chronological filename labels only",
+    "frames": [
+      {
+        "name": "frame-00534.png",
+        "sha256": "B4333ABA4601D50FC1EDBAE883E5EFAACA0A764A876848D854B458C126B1CE1A"
+      },
+      {
+        "name": "frame-00540.png",
+        "sha256": "5C825A738AFFC36E2157E4E7CAD92E8597DD577F1031CA034068358D52F06912"
+      },
+      {
+        "name": "frame-00546.png",
+        "sha256": "4B670C523DA5AEE096B8936FA1C7934C32B43A4A2BCB3B22F169B4F3F4CC7195"
+      },
+      {
+        "name": "frame-00558.png",
+        "sha256": "C4F0CF8988CB31E742EF8A89056BE1B3F36DF4DA16F137F1A351262E21F6C2A7"
+      },
+      {
+        "name": "frame-00570.png",
+        "sha256": "2B34638F7694B66BF8540AC3A1601E7092A59D4871DD3EFB842D296AC519BE9C"
+      },
+      {
+        "name": "frame-00582.png",
+        "sha256": "5311C3A419F169854576BAD3D7EA2635EDCC64E4915DC912C85DB04C8D43524A"
+      },
+      {
+        "name": "frame-00606.png",
+        "sha256": "96D5E66C014FBD74B33342777E38EB4165521F52BB6A2A19386AFA457D403BAA"
+      },
+      {
+        "name": "frame-00612.png",
+        "sha256": "097EC0BD37C34165E100B02D9F47A0051E9CCCF84BCDAA4C2F4D6FC4B0A69EDC"
+      },
+      {
+        "name": "frame-00618.png",
+        "sha256": "4C0798427A44CA038D684AE2B4A8360E76708B5D19A922D6DC6EA034E8383834"
+      },
+      {
+        "name": "frame-00630.png",
+        "sha256": "CA36301CBD4761014DA85A585C3176ED4F8AE567F955B2BF306914084AAE0369"
+      }
+    ]
+  },
+  {
+    "sheet": "astra-sequence-airborne.png",
+    "sourceDirectory": "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\ts-245-round6\\astra-native-runtime\\motion",
+    "treatment": "Resize and arrange native frames, chronological filename labels only",
+    "frames": [
+      {
+        "name": "frame-01092.png",
+        "sha256": "D471A615465A407586C37A432B4AE777E67A706647B85CA11FAAD4CDCD7E7493"
+      },
+      {
+        "name": "frame-01098.png",
+        "sha256": "836CBD6D918B8D67F8BC2D32E17C21CC74045EBB797AF6DEEF4E9586238D8FE5"
+      },
+      {
+        "name": "frame-01116.png",
+        "sha256": "19D5BBC52DCA0538F73DC500771210C92E6850671728133CB25AE28ABAC05900"
+      },
+      {
+        "name": "frame-01134.png",
+        "sha256": "2B8E6DE9441368CDEB49E3C118C270F39194C149B09CB6EE9E9005B84E67B7D6"
+      },
+      {
+        "name": "frame-01140.png",
+        "sha256": "5944F0A9E01921BD3F4A4F9A1A6892C9FE67D16C59763CD654FB776933C05F8B"
+      },
+      {
+        "name": "frame-01158.png",
+        "sha256": "C6D2DEF6EEAA65145385E6BDEF883E08DA8D1BE8221B36A67A46F38D27B80A95"
+      },
+      {
+        "name": "frame-01164.png",
+        "sha256": "7BA31C1F57CAE355D0212DD3CCC654B0AD5B4D2BFAD2DAD189BC69DA0105B79C"
+      },
+      {
+        "name": "frame-01182.png",
+        "sha256": "0824B6DC70FC33C261F77826134244956045DBA6D60F0942589989C08C40F2F6"
+      },
+      {
+        "name": "frame-01188.png",
+        "sha256": "52465476FBE7D198B8FA9AA5DEFD9A2112A396716E4BAF431B72A83D9A04DBDA"
+      },
+      {
+        "name": "frame-01194.png",
+        "sha256": "E20D21ABE94BA34AFDD30FC763F7D94963F8DE9866A40AC9861F6931AD140172"
+      },
+      {
+        "name": "frame-01212.png",
+        "sha256": "843EE756E5AF1BAFDB095C608406FC3495315E8DD4D6BA652C6C497E4325586F"
+      },
+      {
+        "name": "frame-01218.png",
+        "sha256": "AF328E20D2DA850BB8475045E5FEAB9D4ACF6B3CBCAA7E8F992458D247B6A48E"
+      }
+    ]
+  },
+  {
+    "sheet": "astra-sequence-replacement.png",
+    "sourceDirectory": "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\ts-245-round6\\astra-native-runtime\\motion",
+    "treatment": "Resize and arrange native frames, chronological filename labels only",
+    "frames": [
+      {
+        "name": "frame-01806.png",
+        "sha256": "3E1131131D7D09DDAC07797C6502973A003B99896B3F7B54C72A02E7707E0BCE"
+      },
+      {
+        "name": "frame-01842.png",
+        "sha256": "67B9F9BCAB1411A6D4E10C3B0EC7E5EC94B70E867621A07A66CB7205AE757D24"
+      },
+      {
+        "name": "frame-01878.png",
+        "sha256": "D9821B83E956F0CFF2079BC8F9F07423B537D8E0D7B043A271A6A8E5D3217266"
+      },
+      {
+        "name": "frame-01908.png",
+        "sha256": "40AC4B8BE98F3C6300645DE3787AEEB15B47DBEDA087EA104869FC2DBC4D96EC"
+      },
+      {
+        "name": "frame-01932.png",
+        "sha256": "7BCBEB96A4AC13252183BA3F9ECD7D94A161AB4605CBB313BF820FABF966A1EA"
+      },
+      {
+        "name": "frame-01950.png",
+        "sha256": "B40627E8B68695A42FBDA4A35CD452402F531B50BCC900C9D96887B93C020114"
+      },
+      {
+        "name": "frame-01974.png",
+        "sha256": "C2516CDB9400BAA8A6B5226A80733AB058C5228E1FB46E77BCEBF8945310063A"
+      },
+      {
+        "name": "frame-01998.png",
+        "sha256": "27151C960CF6A15D317471E3EC8673BC1008FF0A8F50A4DB9B15C3920055928D"
+      },
+      {
+        "name": "frame-02010.png",
+        "sha256": "EF334FA6A9910D3C3D33B6A906F487A1C41C95B5B1D6BB5FA89B76F0D3E5C46B"
+      },
+      {
+        "name": "frame-02034.png",
+        "sha256": "1509D9AABEDE238714423873F6A9ED9B3569ADB6F5E622B4290097ADC6ABC0A0"
+      },
+      {
+        "name": "frame-02058.png",
+        "sha256": "B4BE02AD4C80FDA5D7B8BDBCE4F2A43C7A561A5AAE009AD669813EC78EE0671B"
+      },
+      {
+        "name": "frame-02076.png",
+        "sha256": "CD3344D94B637462361B97D467907814A1B0EF02E06321D59478A8EC58272E5A"
+      },
+      {
+        "name": "frame-02100.png",
+        "sha256": "2116822C3810108D379801D6F4907DD80F7C9E224BB084094A9BB0D22153F084"
+      },
+      {
+        "name": "frame-02124.png",
+        "sha256": "BA9D1622207B36E83DB8E81E2286E0982A7671227942AED4EEA341FBDCC5CE88"
+      },
+      {
+        "name": "frame-02142.png",
+        "sha256": "2CD55C987C5D4889EE44D5434DBFEA067398FCF146374F17A4407E3B901A2A5A"
+      },
+      {
+        "name": "frame-02166.png",
+        "sha256": "6FE77FF6F767785B32B1BF424E6E1749319089B31885E9D1F8D9617D85A432F6"
+      }
+    ]
+  }
+]

@@ -151,6 +151,7 @@ public sealed partial class CarRackChecks
     }
 
     private bool HandoffReady(HeldItem item) => AllPresent(item) &&
+        (item != HeldItem.Oil || _arenas.All(a => a.Bodies[Shooter].Rack.IsOilReady(a.Driver.ItemState!.Slots.Single(s => s.Vehicle == Shooter)))) &&
         (item != HeldItem.Shield || _arenas.All(a => a.Bodies[Shooter].ShieldMountProgress == 1));
 
     private async Task SwitchHandoff(HeldItem incoming, string scenario, bool capture = false, bool allowConsumption = false)

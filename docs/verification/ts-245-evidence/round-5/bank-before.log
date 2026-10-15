@@ -1,0 +1,26 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Oil connection peer 0: Connecting.
+Oil connection peer 1: Connecting.
+Oil connection peer 1: Connected.
+Oil connection peer 0: Connected.
+Oil admission peer 1: Welcome received with connection=Connected, local=0, rejected=0.
+Bank start surface (-196.36028, 4.0150666, 0.17076667), normal (0.5735623, 0.8191619, -0).
+Native vehicle-roof query: accepted radius=0.5, position=<0, 2.101323, 96>.
+Capture bank-0-firing.png: source=(-194.85541, 8.341403, 10.798142), mouth=(-194.85541, 8.341403, 10.798142), emitted=23, tick=284, start=250
+UNSUPPORTED Oil piece #1: OilSegment { Start = <-197.03316, 8.848766, 22.151646>, End = <-197.03316, 8.848766, 22.151646>, Normal = <0.55305225, -0.4535832, -0.6988531>, Radius = 0.10886054 }
+UNSUPPORTED Oil piece #2: OilSegment { Start = <-195.66217, 6.3219776, -17.458689>, End = <-195.66217, 6.3219776, -17.458689>, Normal = <0.0060444633, 0.0083101215, -0.9999472>, Radius = 0.11770147 }
+Capture bank-1-firing.png: source=(-194.82057, 9.267526, -5.910781), mouth=(-194.82057, 9.267526, -5.910781), emitted=23, tick=597, start=563
+UNSUPPORTED Oil piece #3: OilSegment { Start = <-195.98367, 6.744651, 8.975271>, End = <-195.98367, 6.744651, 8.975271>, Normal = <0.3362973, -0.21119435, -0.9177697>, Radius = 0.11249186 }
+Capture bank-2-firing.png: source=(-198.12407, 18.733063, 12.506935), mouth=(-198.12407, 18.733063, 12.506935), emitted=23, tick=910, start=876
+UNSUPPORTED Oil piece #4: OilSegment { Start = <-200.94771, 17.87985, 16.255354>, End = <-200.94771, 17.87985, 16.255354>, Normal = <-0.005666791, -0.00031083074, -0.9999839>, Radius = 0.10948062 }
+UNSUPPORTED Oil piece #5: OilSegment { Start = <-200.98431, 18.118008, 16.535929>, End = <-200.98431, 18.118008, 16.535929>, Normal = <0.5747389, 0.81832933, -0.0035113438>, Radius = 0.11154123 }
+Oil jack integration passed: Native car proxy roof query returned radius 0.5; zero is required for safe rejection.
+Production oval, two native UDP peers: high-speed uphill drift, bank transition and airborne/repeated Oil.
+Bank cycle 0: forty emitted; native accepted impacts 9, vehicle proxy hits 32, unsupported deposited pieces 1.
+Bank cycle 1: forty emitted; native accepted impacts 22, vehicle proxy hits 61, unsupported deposited pieces 3.
+Bank cycle 2: forty emitted; native accepted impacts 43, vehicle proxy hits 76, unsupported deposited pieces 5.
+Bank motion: speed 31.086 m/s, lateral slip 12.868 m/s, rise 5.328 m; supported 685, airborne 255 frames; 58 pieces checked.
+REPLICATION_TRAFFIC {"seconds":33.4858967,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":2093,"messages":1,"peak":2093},{"peer":1,"protocol":"TD","delivery":"Unreliable","bytes":125191,"messages":19,"peak":6589},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":379422,"messages":135,"peak":4586},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":21252,"messages":76,"peak":325},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":513,"messages":2,"peak":493},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":200237,"messages":373,"peak":554}]}
+REPLICATION_TRAFFIC {"seconds":31.5539833,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":127339,"messages":1120,"peak":145}]}

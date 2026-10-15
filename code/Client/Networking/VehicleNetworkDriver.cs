@@ -191,6 +191,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
     internal Func<MissileState, System.Numerics.Vector3, float?>? CollideMissile { get; set; }
     internal Func<System.Numerics.Vector3, System.Numerics.Vector3, MissileTerrainSample?>? QueryMissileTerrain { get; set; }
     /// <summary>Host-only ground projection for persistent oil deployment.</summary>
+    internal Func<System.Numerics.Vector3, System.Numerics.Vector3, float, OilImpact?>? OilCollision { get; set; }
     internal Func<ItemSlot, VehiclePhysicsState, OilPatch?>? PlaceOil { get; set; }
     internal Func<System.Numerics.Vector3, System.Numerics.Vector3?>? ProjectSalvoGround { get; set; }
     internal Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? PlaceShield { get; set; }
@@ -338,7 +339,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
             FlushShieldUse();
 
             var previousVehicles = Host.World.State.Vehicles;
-            Host.Step(input, observe, CollideMissile, PlaceOil, PlaceMine, MoveMine, ProjectSalvoGround, RaycastWeapon, PlaceShield, ObserveShield, QueryMissileTerrain);
+            Host.Step(input, observe, CollideMissile, PlaceOil, PlaceMine, MoveMine, ProjectSalvoGround, RaycastWeapon, PlaceShield, ObserveShield, QueryMissileTerrain, OilCollision);
             Host.CollectPickups();
             if (Host.Environment is { } environment)
             {
@@ -562,7 +563,8 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         }
 
         if (slot.Item == HeldItem.Missile && MissileReady?.Invoke(inventory!) == false) { return false; }
-        if (slot.Item == HeldItem.Shield && ShieldReady?.Invoke(inventory!) == false)
+        if ((slot.Item == HeldItem.Shield && ShieldReady?.Invoke(inventory!) == false) ||
+            (slot.Item == HeldItem.Oil && OilReady?.Invoke(inventory!) == false))
         {
             _pendingShieldUse = (slot.Life, slot.Token, inventory!.SelectionRevision);
             return true;
@@ -739,6 +741,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         ItemState = null;
         _pendingShieldUse = null;
         ShieldReady = null;
+        OilReady = null;
         MissileReady = null;
         ResetAiming();
         PropSnapshot = null;
@@ -752,6 +755,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         QueryMissileTerrain = null;
         RaycastWeapon = null;
         PlaceOil = null;
+        OilCollision = null;
         ProjectSalvoGround = null;
         RosterChanged = null;
         LocalCorrected = null;

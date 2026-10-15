@@ -1,0 +1,35 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Native banked straight firing with two real UDP peers.
+Capture stage-1-firing.png: source=(-1.6905892, 24.228306, -41.471397), mouth=(-1.6905892, 24.228306, -41.471397), emitted=21, tick=564, start=534
+Native steering, throttle and handbrake while firing on the bank.
+Capture stage-2-firing.png: source=(26.557838, 31.470922, -20.753162), mouth=(26.557838, 31.470922, -20.753162), emitted=21, tick=822, start=792
+Airborne activation with native gravity and landing.
+Capture stage-3-firing.png: source=(3.2069006, 43.40265, -15.770591), mouth=(3.2069006, 43.40265, -15.770591), emitted=21, tick=1158, start=1128
+Native first-hit deposition on a vertical world wall.
+Capture stage-4-firing.png: source=(-0.95965064, 24.081074, 34.23833), mouth=(-0.95965064, 24.081074, 34.23833), emitted=21, tick=1512, start=1482
+Replacement pickup while Oil owns the shared rack.
+Capture stage-5-firing.png: source=(-20.900269, 19.387535, -16.720903), mouth=(-20.900269, 19.387535, -16.720903), emitted=21, tick=1874, start=1844
+Late admission, retained deadlines and 30-second cleanup.
+Twelve repeated production activations and bounded cleanup.
+Repeated use completed; wait for the final deadline.
+Oil jack integration passed: Native 23-degree asphalt ramp sweep returns the supported impact radius and surface normal.
+Native banked straight firing with two real UDP peers.
+One-second burst: captured 60 ticks, forty emitted parcels, one logical hazard; native acceleration/braking/reacceleration before firing.
+Native steering, throttle and handbrake while firing on the bank.
+Native turning: 331 supported ticks, peak slip 4.509.
+Airborne activation with native gravity and landing.
+Fresh peer joins during airborne firing and reconstructs active hardware/flight.
+Native first-hit deposition on a vertical world wall.
+Replacement pickup while Oil owns the shared rack.
+Rendered spring peaks: fore/aft 0.446 m, lateral 0.444 m, vertical 0.373 m; full nesting observed before replacement.
+Late admission, retained deadlines and 30-second cleanup.
+Timer: activation 1844, deadline 3644, first absent tick 3644 (30 seconds at 60 Hz).
+Twelve repeated production activations and bounded cleanup.
+Repeated use completed; wait for the final deadline.
+All hazards and owned visual/flight representations expire on four peers; no runtime exception was accepted.
+REPLICATION_TRAFFIC {"seconds":202.9458576,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":6279,"messages":3,"peak":2093},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":3750755,"messages":723,"peak":16643},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":23701,"messages":73,"peak":447},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":2317,"messages":4,"peak":1018},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":3644092,"messages":6554,"peak":1018},{"peer":2,"protocol":"TC","delivery":"Reliable","bytes":4186,"messages":2,"peak":2093},{"peer":2,"protocol":"TI","delivery":"Reliable","bytes":3561118,"messages":636,"peak":16643},{"peer":2,"protocol":"TM","delivery":"Reliable","bytes":15645,"messages":44,"peak":447},{"peer":2,"protocol":"TS","delivery":"Reliable","bytes":1824,"messages":3,"peak":1018},{"peer":2,"protocol":"TS","delivery":"Unreliable","bytes":3378282,"messages":5794,"peak":1018},{"peer":3,"protocol":"TC","delivery":"Reliable","bytes":2093,"messages":1,"peak":2093},{"peer":3,"protocol":"TI","delivery":"Reliable","bytes":3001232,"messages":514,"peak":16643},{"peer":3,"protocol":"TM","delivery":"Reliable","bytes":2638,"messages":7,"peak":403},{"peer":3,"protocol":"TS","delivery":"Reliable","bytes":1038,"messages":2,"peak":1018},{"peer":3,"protocol":"TS","delivery":"Unreliable","bytes":3043506,"messages":5098,"peak":1018}]}
+REPLICATION_TRAFFIC {"seconds":202.3296304,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":198,"messages":6,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":1424988,"messages":9829,"peak":145}]}
+REPLICATION_TRAFFIC {"seconds":159.0500992,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":1259139,"messages":8685,"peak":145}]}
+REPLICATION_TRAFFIC {"seconds":128.0175565,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":1107873,"messages":7642,"peak":145}]}

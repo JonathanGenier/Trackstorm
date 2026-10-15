@@ -1,0 +1,1 @@
+Spring boundary at .08/.24/.8 m stream widths: 780 rendered poses, 0 stream vertices inside box bounds, 2275 quads occluded by hardware.

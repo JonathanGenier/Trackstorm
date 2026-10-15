@@ -96,7 +96,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             // Allow the native audio mixer to release stopped arena voices before engine shutdown.
             if (++_cleanup == 30)
             {
-                GD.Print("Reconnect integration passed: immediate lobby removal/fresh admission, three arena resyncs including 125 seconds offline, native body reuse, prediction/interpolation reset, held-item/spawn/match continuity, dimmed retained standings, final results and new-generation reset over real UDP. EOS identity and initial scores are test seams.");
+                GD.Print(OilFiringRecovery ? "Reconnect integration passed: two Oil firing recovery cases over real UDP; exact continuation, native meter and timer cleanup. Identity is a trusted test seam." : "Reconnect integration passed: immediate lobby removal/fresh admission, three arena resyncs including 125 seconds offline, native body reuse, prediction/interpolation reset, held-item/spawn/match continuity, dimmed retained standings, final results and new-generation reset over real UDP. EOS identity and initial scores are test seams.");
                 GetTree().Quit();
             }
 
@@ -117,6 +117,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
                 foreach (var arena in _arenas)
                 {
                     arena.Advance(default);
+                    if (OilFiringRecovery && arena.Driver.Host is not null) { CaptureOilBoundary(); }
                 }
             }
 
@@ -141,6 +142,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
 
     private void AdvanceScenario()
     {
+        if (OilFiringRecovery && _stage >= 500) { AdvanceOilRecovery(); return; }
         if (_stage == 0 && _client.State?.Players.Count == 2 && TransportDiagnostics.Capture(_gateways[1], _client).Statistics.PingMilliseconds is >= 0)
         {
             _player = _client.LocalPlayerId;
@@ -186,6 +188,8 @@ public sealed partial class ReconnectIntegrationChecks : Node
                     return;
                 }
 
+                if (OilFiringRecovery) { VerifyOilResume(); return; }
+
                 _resyncs++;
                 SalvoRecoveryFixture.Verify(_arenas[1].Driver.ItemState!, _salvoBoundaries);
                 ShieldRecoveryFixture.Verify(_arenas[1].Driver.ItemState!.Shields, _shields, _salvoBoundaries[world.Tick].Shields, world.Tick);
@@ -227,6 +231,12 @@ public sealed partial class ReconnectIntegrationChecks : Node
         }
         else if (_stage == 40 && _arenas[1].Driver.Match?.Phase == Trackstorm.Core.Matches.MatchPhase.Active)
         {
+            if (OilFiringRecovery)
+            {
+                _originalBody = _arenas[1].Bodies[_player];
+                _stage = 500;
+                return;
+            }
             Require(_client.RequestConfiguration(new Dictionary<string, double> { ["items.wrench_heal"] = 123 }, out _), "Client requests shared tuning before reconnect.");
             _stage = 400;
         }
@@ -460,7 +470,8 @@ public sealed partial class ReconnectIntegrationChecks : Node
     private ulong Reconnect()
     {
         if (_elapsed < _resumeAt) { throw new InvalidOperationException("Simulated interrupted route"); }
-        if (_arenas.Count > 0) { SalvoRecoveryFixture.Seed(_arenas[0]); }
+        if (OilFiringRecovery) { StartOilAtReconnect(); }
+        else if (_arenas.Count > 0) { SalvoRecoveryFixture.Seed(_arenas[0]); }
         return _gateways[1].Connect(TransportEndpoint.DirectIp(_endpoint));
     }
 

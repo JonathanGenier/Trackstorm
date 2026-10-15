@@ -1,0 +1,46 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Epic.OnlineServices -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Trackstorm.Client -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+  Trackstorm.Core.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Debug\net10.0\Trackstorm.Core.Tests.dll
+  Trackstorm.Transport.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Debug\net10.0\Trackstorm.Transport.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:17.85
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Transport peer 1: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connected; None;
+Host at verification timeout: Trackstorm 0.2.44
+Transport: Direct-IP; connection: Unavailable
+Local PlayerId: 1; CurrentHostId: 1; role: HOST
+Session: 233415835601113505; match generation: 233415835601113505; phase: Lobby
+Failure: none; RTT: P1: N/A, P2: N/A, P3: N/A, P4: 0 ms
+Trackstorm roster: P1 connected=True ready=False generation=1, P2 connected=True ready=True generation=1, P3 connected=True ready=True generation=1, P4 connected=True ready=False generation=1
+Quality in/out: N/A / N/A
+Reconnect: False; policy: FreshJoin; resume checkpoint pending: False
+Connection generation: 1; configuration revision: 1
+AuthorityEpoch: 1; migration: unavailable
+Arena prediction: unavailable.
+System.InvalidOperationException: real UDP client admission
+   at Trackstorm.Client.Verification.DeveloperOptionsIntegrationChecks.Check(Boolean condition, String description) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\DeveloperOptionsIntegrationChecks.cs:line 563
+   at Trackstorm.Client.Verification.DeveloperOptionsIntegrationChecks.Until(Func`1 predicate, String message) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\DeveloperOptionsIntegrationChecks.cs:line 538
+   at Trackstorm.Client.Verification.DeveloperOptionsIntegrationChecks.Run() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\DeveloperOptionsIntegrationChecks.cs:line 83
+Client at verification timeout: Trackstorm 0.2.44
+Transport: Direct-IP; connection: Connected
+Local PlayerId: 4; CurrentHostId: 1; role: CLIENT
+Session: 233415835601113505; match generation: 233415835601113505; phase: Lobby
+Failure: none; RTT: P1: N/A, P2: N/A, P3: N/A, P4: 0 ms
+Trackstorm roster: P1 connected=True ready=False generation=1, P2 connected=True ready=True generation=1, P3 connected=True ready=True generation=1, P4 connected=True ready=False generation=1
+Quality in/out: 100.0% / 100.0%
+Reconnect: False; policy: FreshJoin; resume checkpoint pending: False
+Connection generation: 1; configuration revision: 0
+AuthorityEpoch: 1; migration: unavailable
+Arena prediction: unavailable.
+Transport peer 1: Disconnected; RemoteRequest; Transport stopped

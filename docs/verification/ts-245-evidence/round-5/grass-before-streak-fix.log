@@ -1,0 +1,21 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Oil connection peer 0: Connecting.
+Oil connection peer 1: Connecting.
+Oil connection peer 1: Connected.
+Oil connection peer 0: Connected.
+Oil admission peer 1: Welcome received with connection=Connected, local=0, rejected=0.
+Bank start surface (-196.36028, 4.0150666, 0.17076667), normal (0.5735623, 0.8191619, -0).
+Grass approach (-185, -1.6610355, 9), normal (0.11600983, 0.99316084, -0.0131623885).
+Native vehicle-roof query: accepted radius=, position=.
+Capture bank-0-firing.png: source=(-189.57448, 7.467391, 27.960176), mouth=(-189.57448, 7.467391, 27.960176), emitted=20, tick=303, start=274
+Readback bank-0-firing.png: mouth=(800.1767, 297.67087), stream=(-189.33226, 8.18849, 31.712831), vertex=(800.22784, 297.59753), distance=0.007
+Capture bank-1-firing.png: source=(-190.4553, 12.253227, 43.15079), mouth=(-190.4553, 12.253227, 43.15079), emitted=20, tick=702, start=673
+UNSUPPORTED Oil piece #1: OilSegment { Start = <-189.98965, 10.228639, 52.561165>, End = <-188.83707, 9.567828, 52.613586>, Normal = <0.4815749, 0.8191421, -0.31159568>, Radius = 0.9239369 }
+Capture bank-2-firing.png: source=(-184.28554, 10.091806, 48.283092), mouth=(-184.28554, 10.091806, 48.283092), emitted=20, tick=1105, start=1076
+System.InvalidOperationException: all deposited pieces retain real world support after cars move away
+   at Trackstorm.Client.Verification.OilJackChecks.Check(Boolean value, String text) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\OilJackChecks.cs:line 423
+   at Trackstorm.Client.Verification.OilJackChecks.AdvanceBank() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\OilJackChecks.Bank.cs:line 104
+REPLICATION_TRAFFIC {"seconds":49.1340573,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":2093,"messages":1,"peak":2093},{"peer":1,"protocol":"TD","delivery":"Unreliable","bytes":144958,"messages":22,"peak":6589},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":641305,"messages":170,"peak":9103},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":29243,"messages":103,"peak":325},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":513,"messages":2,"peak":493},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":217348,"messages":428,"peak":554}]}
+REPLICATION_TRAFFIC {"seconds":47.1758485,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":185704,"messages":1282,"peak":145}]}

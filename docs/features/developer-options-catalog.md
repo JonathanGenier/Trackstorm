@@ -196,17 +196,37 @@ Item damage contributes to Circus through `match.item_points_per_damage` (defaul
 
 ## Oil tuning
 
-The Oil accordion contains four host-authoritative keys, using the ordinary staged Apply/Cancel, per-category Reset, session configuration and complete configuration/recovery paths:
+The Oil accordion contains eighteen host-authoritative keys using staged Apply/Cancel, category Reset, persistence, session replication and complete recovery:
 
-| Key | Default | Range |
+| Key | Default | Range / meaning |
 | --- | ---: | --- |
-| `vehicle.oil_grip_reduction` | 0.1 | 0–0.8 fraction of lateral force removed |
-| `vehicle.oil_recovery_seconds` | 0.5 | 0.1–10 seconds after supported overlap ends |
-| `items.oil_enemy_contacts` | 2 | 1–7 vehicle passes, including the owner |
-| `items.oil_lifetime_seconds` | 60 | 1–600 seconds |
+| `vehicle.oil_grip_reduction` | 0.85 | 0–0.95 front tire lateral grip reduction |
+| `vehicle.oil_rear_drive_reduction` | 0.85 | 0–0.95 rear tire longitudinal grip reduction |
+| `vehicle.oil_rear_lateral_reduction` | 0.65 | 0–0.95 rear tire lateral grip reduction |
+| `vehicle.oil_impairment_seconds` | 5 | 0.1–20 seconds at full impairment after an entry |
+| `vehicle.oil_recovery_seconds` | 2 | 0.1–10 seconds of progressive recovery |
+| `vehicle.oil_recovery_curve` | 1 | 0.5–3 exponent applied to progress before smoothstep easing |
+| `items.oil_stream_width` | 0.24 | 0.08–0.8 m nominal free-stream width; the ejection neck stays narrow beside the mechanism |
+| `items.oil_lifetime_seconds` | 30 | 1–600 seconds per firing activation |
+| `items.oil_fire_seconds` | 1 | 0.5–4 seconds; captured firing duration |
+| `items.oil_interval_ticks` | 1.5 | 1–30 fractional 60 Hz ticks between parcels; duration/cadence must emit at most 48 |
+| `items.oil_speed` | 18 | 1–30 m/s nominal chassis-rearward launch speed; ballistic elevation/rearward clearance floors keep the jet clear of its hardware |
+| `items.oil_gravity` | 9.81 | 1–40 m/s² parcel gravity |
+| `items.oil_radius` | 1.3 | 0.1–1.5 m maximum supported deposition radius |
+| `items.oil_spring_stiffness` | 12 | 5–100 fixed-step head spring stiffness |
+| `items.oil_spring_damping` | 1.8 | 1–20 head spring damping |
+| `items.oil_spring_reaction` | 0.44 | 0–0.5 acceleration-to-head reaction |
+| `items.oil_kickback` | 1.6 | 0–3 m/s captured initial recoil, with one-quarter upward component |
+| `items.oil_roughness` | 0.16 | 0.05–0.6 wet fluid PBR roughness |
 
-Grip edits affect subsequent movement; recovery-duration edits preserve the current recovery fraction with fixed-step rounding. New deployments capture pass budget and lifetime; changing settings never refreshes deadlines or refunds consumed passes. Every new supported entry counts, including the owner and the same vehicle after exit. Continuous overlap counts once; owner entry scores zero. The existing `items.oil_enemy_contacts` persistence key is retained to preserve saved tuning, but the UI now labels it "Vehicle passes before removal" and its meaning includes all vehicles. The obsolete `items.maximum_oil_patches` key has no gameplay effect; unknown persisted keys follow the existing preservation policy. The catalog has 222 keys in configuration protocol version 42.
-**Arena boundary** exposes `vehicle.oob.damage` (default 100, 0–10000 HP/s) through the same host-only transaction and persistence path. See [out-of-bounds damage](out-of-bounds.md).
+
+Existing relevant grip/physics/presentation keys are retained. The obsolete `items.oil_enemy_contacts` key has no runtime effect or control; saved unknown records are retained by normal settings persistence. Older relevant overrides remain explicit overrides; Reset selects current defaults. Grip/curve edits affect subsequent steps. Duration edits preserve each tire's current hold/recovery phase, with fixed-step rounding. Continuous overlap never refreshes a tire, even after recovery reaches zero. Each wheel's exit/re-entry refreshes that tire; complete vehicle exit/re-entry permits another scoring event. Contacts never alter the hazard deadline. New activations capture expiration; current hazards keep their original deadlines.
+
+Lifetime controls the gameplay hazard. After accepted expiry, remaining deposited surfaces dissipate for two seconds without contact or scoring; at most 32 visual remnants are retained. The tank gauge is decorative fixed fill and does not introduce a capacity or ammunition control.
+
+The configuration catalog has 259 keys in protocol 52 (2093 bytes). Emission physics, spring and kickback values are captured on activation; later edits cannot change in-flight parcels. Fractional cadence uses an accumulated emission deadline, retaining forty parcels over the default one second. Existing explicit duration/cadence overrides retain their values; Reset selects the new defaults. Ready animation uses accepted live spring settings, and roughness and stream width update current visual owners. The 0.45 m head displacement, 48-parcel activation budget, 63 additional surface pieces, three-second parcel lifetime and 4096 m world bounds remain safety invariants. Stats exposes remaining FL/FR/RL/RR contamination independently. Front and rear reductions leave a minimum five percent configured grip at maximum severity; no setting disables player controls or requests scripted yaw.
+
+**Arena boundary** exposes `vehicle.oob.damage` (default 100, 0–10000 HP/s) through the same transaction and persistence path. See [out-of-bounds damage](out-of-bounds.md).
 
 ## Car deployment
 

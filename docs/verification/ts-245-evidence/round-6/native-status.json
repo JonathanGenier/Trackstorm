@@ -1,0 +1,50 @@
+[
+  {
+    "name": "contacts-final",
+    "status": "PASS",
+    "seconds": 30.96,
+    "error": ""
+  },
+  {
+    "name": "handling-final",
+    "status": "PASS",
+    "seconds": 17.03,
+    "error": ""
+  },
+  {
+    "name": "rack-final",
+    "status": "PASS",
+    "seconds": 255.83,
+    "error": ""
+  },
+  {
+    "name": "reconnect-final",
+    "status": "FAIL",
+    "seconds": 299.11,
+    "error": "Reconnect integration failed; inspect .godot/reconnect-checks/runtime.log."
+  },
+  {
+    "name": "migration-final",
+    "status": "FAIL",
+    "seconds": 64.4,
+    "error": "Migration integration failed; inspect .godot/migration-checks/runtime.log."
+  },
+  {
+    "name": "migration-two-peer",
+    "status": "FAIL",
+    "seconds": 67.74,
+    "error": "Migration integration failed; inspect .godot/migration-checks/runtime.log."
+  },
+  {
+    "name": "developer-options-final",
+    "status": "PASS",
+    "seconds": 103.2,
+    "error": ""
+  },
+  {
+    "name": "startup-final",
+    "status": "PASS",
+    "seconds": 3.91,
+    "error": ""
+  }
+]

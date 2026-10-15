@@ -1,0 +1,86 @@
+{
+  "provenance": "Original Trackstorm Blender geometry, procedural paint and bespoke lettering; approved Jira references 10150, 10151, 10149 and 10152 used only as art direction. No third-party font, acquisition or reference pixels distributed.",
+  "tool": "Blender 5.2.2 LTS",
+  "files": [
+    {
+      "path": "source/BuildJackInTheBox.py",
+      "sha256": "5bdd3693e9295102d27c28af2825fece78deed406469ed4e8d7595a226d0d29d"
+    },
+    {
+      "path": "source/JackInTheBox.blend",
+      "sha256": "5db15d86846a47089aa8a82ec5b69b48b138f21716dc94df0b24535af372c6cd"
+    },
+    {
+      "path": "source/Patina.png",
+      "sha256": "8413dfe02ae86ada6deb459f6d40be2cf36efbfafbc2c3d1bc6d80b690a5e20d"
+    },
+    {
+      "path": "JackInTheBox.glb",
+      "sha256": "a31e0d904683d00a595aef867962835b543634eb6fa632607bb7b9167ce29ba7"
+    },
+    {
+      "path": "OilFluid.gdshader",
+      "sha256": "8d6859bac385f5c03deafb5965502bb257dba8f25ae5fc6f6fd9da0a53478476"
+    },
+    {
+      "path": "source/Oil Aged ivory.png",
+      "sha256": "5782917f1211e239173f8ce2f93748743e4877bf926d847e1c6c9c0596948341"
+    },
+    {
+      "path": "source/Oil Black enamel.png",
+      "sha256": "508bc31b60704d4bf91904aa44d8a7ded0e777faa1fda8bdf6571ace512931c1"
+    },
+    {
+      "path": "source/Oil Old brass.png",
+      "sha256": "24094f800eb91a869a4c285484689e1ca9b23c07d239242cb4eec6c20bb13502"
+    },
+    {
+      "path": "source/Oil Teeth ivory.png",
+      "sha256": "606b316c87e877b082406a94824b319842dab3a14010138dee3530d273540b9e"
+    },
+    {
+      "path": "source/Oil Weathered crimson.png",
+      "sha256": "0e30191374a50f66c9a2fdb7e5d6a6d70ab14550b9f5d53a6cc30e0f35ed1f31"
+    },
+    {
+      "path": "source/Oil Worn iron.png",
+      "sha256": "d07f6f63e4b113c011f1026a96723340bb68a81f460ddc1931f91278ef8f423a"
+    },
+    {
+      "path": "JackInTheBox_Oil Aged ivory.png",
+      "sha256": "5782917f1211e239173f8ce2f93748743e4877bf926d847e1c6c9c0596948341"
+    },
+    {
+      "path": "JackInTheBox_Oil Black enamel.png",
+      "sha256": "508bc31b60704d4bf91904aa44d8a7ded0e777faa1fda8bdf6571ace512931c1"
+    },
+    {
+      "path": "JackInTheBox_Oil Old brass.png",
+      "sha256": "24094f800eb91a869a4c285484689e1ca9b23c07d239242cb4eec6c20bb13502"
+    },
+    {
+      "path": "JackInTheBox_Oil Teeth ivory.png",
+      "sha256": "606b316c87e877b082406a94824b319842dab3a14010138dee3530d273540b9e"
+    },
+    {
+      "path": "JackInTheBox_Oil Weathered crimson.png",
+      "sha256": "0e30191374a50f66c9a2fdb7e5d6a6d70ab14550b9f5d53a6cc30e0f35ed1f31"
+    },
+    {
+      "path": "JackInTheBox_Oil Worn iron.png",
+      "sha256": "d07f6f63e4b113c011f1026a96723340bb68a81f460ddc1931f91278ef8f423a"
+    },
+    {
+      "path": "source/BuildOilTank.py",
+      "sha256": "3499c4d7e49f5dc46fec06969ce8afcf069b6f7e4fdcd41a4da3b60e9fbfd0f2"
+    },
+    {
+      "path": "source/Oil Tank paint.png",
+      "sha256": "4f90d7db0a7825ffb25601bfd1eaae9393e15eafeabfd6dc19811dc726e8951e"
+    },
+    {
+      "path": "JackInTheBox_Oil Tank paint.png",
+      "sha256": "4f90d7db0a7825ffb25601bfd1eaae9393e15eafeabfd6dc19811dc726e8951e"
+    }
+  ]
+}

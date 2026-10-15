@@ -1,0 +1,19 @@
+{
+  "baseline": "97ae4047ef6df0148c78ada78b551e9e4b6679be",
+  "manifest_files_verified": 20,
+  "unchanged_box_lid_head_spring_jaw_and_meter_local_anchors": true,
+  "unchanged_box_jester_spring_source": true,
+  "tank": {
+    "translation": [
+      0,
+      -0.4000000059604645,
+      0.3799999952316284
+    ],
+    "scale": [
+      1.149999976158142,
+      1.25,
+      1.25
+    ]
+  },
+  "limitations": "Authored pivots and source comparison; native pose evidence separately checks clearances, not an exhaustive mesh intersection proof."
+}

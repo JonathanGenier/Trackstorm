@@ -1,0 +1,8 @@
+{
+  "baseline": "ee9fd2718beaafdb6b06870a66685198792ccfa2",
+  "manifest_files_verified": 20,
+  "unchanged_box_lid_head_spring_tank_anchors": true,
+  "unchanged_jester_box_spring_source_except_meter_batch_parent": true,
+  "separate_liquid_pivot": true,
+  "limitations": "Anchor/source comparison, not exhaustive swept mesh clearance. Fittings and sight glass intentionally changed."
+}

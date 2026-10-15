@@ -7,8 +7,23 @@ namespace Trackstorm.Client.Items;
 /// <summary>Reconstructable Kenney projectile and particle effects; no collision or gameplay mutation.</summary>
 internal sealed partial class ItemPresentation : Node3D
 {
+    internal Func<ulong, Vector3?>? OilMouth { get; set; }
+    internal Func<ulong, Transform3D?>? OilFrame { get; set; }
+    internal float OilStreamWidth { get; set; } = .24f;
+    private float _oilRoughness = .16f;
+    internal float OilRoughness
+    {
+        get => _oilRoughness;
+        set
+        {
+            _oilRoughness = value;
+            foreach (var visual in _oil.Values.OfType<OilHazardVisual>()) { visual.Roughness = value; }
+        }
+    }
     private readonly Dictionary<ulong, Node3D> _mines = new();
     private readonly Dictionary<ulong, Node3D> _oil = new();
+    private readonly List<OilHazardVisual> _oilResidues = new();
+    internal const int MaximumOilResidues = 32;
     private readonly Dictionary<ulong, Node3D> _missiles = new();
     private readonly List<(Node3D Node, float Age, float Lifetime)> _bursts = new();
     private readonly List<ProxyMineExplosion> _mineExplosions = new();
@@ -22,6 +37,7 @@ internal sealed partial class ItemPresentation : Node3D
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        _oilResidues.RemoveAll(oil => !GodotObject.IsInstanceValid(oil) || oil.IsQueuedForDeletion());
         _missileSmoke.RemoveAll(smoke => !GodotObject.IsInstanceValid(smoke) || smoke.IsQueuedForDeletion());
         _missileExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());
         _mineExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());
@@ -94,18 +110,28 @@ internal sealed partial class ItemPresentation : Node3D
         }
         foreach (ulong id in _oil.Keys.Except(state.Patches.Select(patch => patch.Id)).ToArray())
         {
-            _oil[id].QueueFree();
+            var visual = (OilHazardVisual)_oil[id];
+            if (visual.Retire(state.World.Tick))
+            {
+                _oilResidues.RemoveAll(oil => !GodotObject.IsInstanceValid(oil) || oil.IsQueuedForDeletion());
+                if (_oilResidues.Count == MaximumOilResidues) { _oilResidues[0].QueueFree(); _oilResidues.RemoveAt(0); }
+                _oilResidues.Add(visual);
+            }
+            else { visual.QueueFree(); }
             _oil.Remove(id);
         }
+        foreach (var residue in _oilResidues) { residue.ObserveTick(state.World.Tick); }
         foreach (var patch in state.Patches)
         {
             if (!_oil.TryGetValue(patch.Id, out var node))
             {
-                node = new OilHazardVisual();
+                node = new OilHazardVisual { Mouth = () => OilMouth?.Invoke(patch.Owner), OwnerFrame = () => OilFrame?.Invoke(patch.Owner) };
                 AddChild(node);
                 _oil.Add(patch.Id, node);
             }
-            ((OilHazardVisual)node).Apply(patch);
+            ((OilHazardVisual)node).StreamWidth = OilStreamWidth;
+            var owner = state.World.Vehicles.FirstOrDefault(v => v.State.VehicleId == patch.Owner)?.State;
+            ((OilHazardVisual)node).Apply(patch, OilRoughness, state.World.Tick, owner?.Movement.Physics);
         }
 
         foreach (ulong id in _missiles.Keys.Except(state.Missiles.Where(missile => missile.Launched).Select(missile => missile.Id)).ToArray())

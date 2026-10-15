@@ -1,0 +1,20 @@
+Test run for C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll
+   NUnit3TestExecutor discovered 3 of 3 NUnit test cases using Current Discovery mode, Non-Explicit run
+0 m/s: previous=2.92 m2, one-second=3.94 m2, ratio=1.349; forty parcels.
+
+10 m/s: previous=35.53 m2, one-second=31.17 m2, ratio=0.877; forty parcels.
+
+20 m/s: previous=67.26 m2, one-second=63.65 m2, ratio=0.946; forty parcels.
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Passed OneSecondDoseRetainsComparableStraightRoadCoverage(0.0f) [54 ms]
+  Passed OneSecondDoseRetainsComparableStraightRoadCoverage(10.0f) [158 ms]
+  Passed OneSecondDoseRetainsComparableStraightRoadCoverage(20.0f) [215 ms]
+
+Test Run Successful.
+Total tests: 3
+     Passed: 3
+ Total time: 1.3874 Seconds

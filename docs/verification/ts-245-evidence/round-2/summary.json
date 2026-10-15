@@ -1,0 +1,49 @@
+{
+  "capture_and_three_peer_stages": {
+    "samples": 217,
+    "render_ms_median": 43.854,
+    "render_ms_p95": 140.557,
+    "render_ms_max": 146.25166666666667,
+    "peak_hazards": 5,
+    "peak_flight": 38,
+    "peak_additional_segments": 53,
+    "peak_nodes": 3849,
+    "peak_resources": 583,
+    "peak_static_memory_bytes": 143813666,
+    "last_nodes": 3792,
+    "last_resources": 553,
+    "last_static_memory_bytes": 142371486
+  },
+  "four_peer_repeated_use_without_motion_capture": {
+    "samples": 386,
+    "render_ms_median": 16.666,
+    "render_ms_p95": 33.332,
+    "render_ms_max": 43.037,
+    "peak_hazards": 6,
+    "peak_flight": 14,
+    "peak_additional_segments": 53,
+    "peak_nodes": 6455,
+    "peak_resources": 577,
+    "peak_static_memory_bytes": 180156958,
+    "last_nodes": 6355,
+    "last_resources": 553,
+    "last_static_memory_bytes": 176225806
+  },
+  "final_cleanup": {
+    "samples": 190,
+    "render_ms_median": 16.666,
+    "render_ms_p95": 16.666,
+    "render_ms_max": 33.332,
+    "peak_hazards": 5,
+    "peak_flight": 0,
+    "peak_additional_segments": 53,
+    "peak_nodes": 6355,
+    "peak_resources": 554,
+    "peak_static_memory_bytes": 180898697,
+    "last_nodes": 6295,
+    "last_resources": 551,
+    "last_static_memory_bytes": 179745903
+  },
+  "max_head_offset_m": 0.4096858780446107,
+  "note": "Host viewport rendered at 1280x720; other peer viewports disabled but production nodes and physics run. PNG readback/encoding affects capture stages. Concurrent local editor/game and some verification processes were present; not a controlled hardware benchmark."
+}

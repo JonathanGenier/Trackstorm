@@ -9,6 +9,7 @@ internal static class RackItemVisual
     internal static Node3D Create(HeldItem item)
     {
         if (item == HeldItem.Nitro) { throw new ArgumentException("Nitro uses the rack's persistent Boost jet.", nameof(item)); }
+        if (item == HeldItem.Oil) { return new OilJack(); }
         if (item == HeldItem.ProxyMine) { return new ProxyMineRack { Name = "RackItem_ProxyMine" }; }
         if (item == HeldItem.Shield)
         {

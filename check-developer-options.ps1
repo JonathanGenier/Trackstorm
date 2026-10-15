@@ -2,6 +2,7 @@ param (
     [Parameter(Mandatory)]
     [string]$GodotPath,
     [switch]$Visual,
+    [switch]$OilOnly,
     [switch]$NoBuild
 )
 
@@ -15,7 +16,9 @@ if (-not $NoBuild) {
 foreach ($phase in @('write', 'read')) {
     $arguments = @('--path', $PSScriptRoot, 'res://scenes/verification/developer_options_checks.tscn', '--quit-after', '4800')
     if (-not $Visual) { $arguments = @('--headless') + $arguments }
-    $output = & $GodotPath @arguments -- "--dev-output=$checkDirectory" "--phase=$phase" 2>&1
+    $checkOptions = @("--dev-output=$checkDirectory", "--phase=$phase")
+    if ($OilOnly) { $checkOptions += '--oil-options-only' }
+    $output = & $GodotPath @arguments -- @checkOptions 2>&1
     $exitCode = $LASTEXITCODE
     $output | Set-Content (Join-Path $checkDirectory "$phase.log")
     $output | ForEach-Object { Write-Host $_ }

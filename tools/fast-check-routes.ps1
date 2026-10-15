@@ -345,6 +345,7 @@ function Get-FastCheckPlan {
         if ($path -match '^code/(Core|Client)/Items/' -or $path -eq 'docs/features/items.md') {
             Add-Runtime 'check-items.ps1'
             Add-Runtime 'check-oil.ps1'
+            Add-Runtime 'check-oil-jack.ps1'
             Add-Runtime 'check-oil-handling.ps1'
             Add-Runtime 'check-nitro.ps1'
         }

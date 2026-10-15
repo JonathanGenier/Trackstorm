@@ -1,0 +1,53 @@
+{
+  "fixture": "Godot 4.7.2 Compatibility, GTX 1070, 1280x720 host, four local UDP scenes, 30ms delay/5ms jitter/2% loss",
+  "performance_limitations": "Sampled _Process intervals, not GPU frame timings. Stage 7 forces rendering even when Windows minimizes the verification window; may draw twice when visible. Other applications remain open. No controlled benchmark or 60 FPS guarantee.",
+  "repeated_use": {
+    "samples": 386,
+    "median_render_interval_ms": 42.063500000000005,
+    "p95_render_interval_ms": 87.409,
+    "max_render_interval_ms": 134.92499999999998,
+    "peak_hazards": 6,
+    "peak_nodes": 6580,
+    "peak_resources": 589,
+    "peak_static_memory_bytes": 186695397
+  },
+  "capture_stages": {
+    "samples": 187,
+    "median_render_interval_ms": 132.94033333333334,
+    "p95_render_interval_ms": 145.2073333333333,
+    "max_render_interval_ms": 149.51399999999998,
+    "peak_hazards": 5,
+    "peak_nodes": 3939,
+    "peak_resources": 597,
+    "peak_static_memory_bytes": 145653719
+  },
+  "final_cleanup": {
+    "stage": 8,
+    "frame": 9830,
+    "tick": 9830,
+    "hazards": 0,
+    "headOffset": null,
+    "emitted": null,
+    "flight": null,
+    "deposited": null,
+    "segments": null,
+    "renderedHead": null,
+    "mouthOpening": null,
+    "hoseError": null,
+    "extension": null,
+    "residues": 0,
+    "forcedRepeatRender": false,
+    "renderMs": 18.181,
+    "grounded": true,
+    "nodes": 6295,
+    "resources": 550,
+    "memory": 176003879,
+    "drawCalls": 552,
+    "rack": 0,
+    "presented": "None"
+  },
+  "peak_flight": 40,
+  "peak_additional_segments": 59,
+  "peak_accepted_head_offset_m": 0.45000004059499127,
+  "peak_rendered_head_offset_m": 0.44997719467561265
+}

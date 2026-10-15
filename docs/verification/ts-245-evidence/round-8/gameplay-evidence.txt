@@ -1,0 +1,12 @@
+Native 23-degree asphalt ramp sweep returns the supported impact radius and surface normal.
+Native banked straight firing with two real UDP peers.
+One-second burst: captured 60 ticks, forty emitted parcels, one logical hazard; native acceleration/braking/reacceleration before firing.
+Native steering, throttle and handbrake while firing on the bank.
+Native turning: 331 supported ticks, peak slip 4.509.
+Airborne activation with native gravity and landing.
+Fresh peer joins during airborne firing and reconstructs active hardware/flight.
+Native first-hit deposition on a vertical world wall.
+Replacement pickup while Oil owns the shared rack.
+Visual meter: full before firing, halfway during accepted burst, empty after, full on replacement Oil; 86 samples verified against the observer's accepted clock; maximum publication lag 12 ticks, delayed level difference 0.200.
+Rendered spring peaks: fore/aft 0.447 m, lateral 0.428 m, vertical 0.450 m; full nesting observed before replacement.
+Moving presentation clearance: 40 rendered flight frames, 0 liquid vertices inside the box.

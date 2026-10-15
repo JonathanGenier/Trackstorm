@@ -109,24 +109,24 @@ internal sealed class OilWheelTests
     {
         var host = Create();
         var segments = new OilFootprint([
-            new(new(-2, 0, -3), new(-2, 0, 3), Vector3.UnitY, 1.3f),
-            new(new(2, 0, -3), new(2, 0, 3), Vector3.UnitY, 1.3f)]);
+            new(new(-1, 0, -3), new(-1, 0, 3), Vector3.UnitY, 1.5f),
+            new(new(1, 0, -3), new(1, 0, 3), Vector3.UnitY, 1.5f)]);
         var patch = new OilPatch(1, 1, Vector3.Zero, Vector3.UnitY, 0.1f) { AdditionalSegments = segments, ExpiresAtTick = host.World.State.Tick + 1800 };
         host.Items.Restore(new(1, host.Snapshot(), [], [], [], patches: [patch]), 1, 1);
         Step(host, WheelMask.FrontLeft);
-        Assert.That(host.Items.Patches.Single().PassesUsed, Is.EqualTo(1));
+        Assert.That(host.Items.Patches.Count, Is.EqualTo(1));
         Assert.That(Score(host), Is.EqualTo(50));
         for (int i = 0; i < 10; i++) { Step(host, WheelMask.FrontLeft); }
         Step(host, WheelMask.All);
         var oil = host.World.GetVehicle(2).Movement.Oil;
         Assert.That(oil.FrontLeft, Is.EqualTo(409));
         Assert.That(oil.FrontRight, Is.EqualTo(420));
-        Assert.That(host.Items.Patches.Single().PassesUsed, Is.EqualTo(1));
+        Assert.That(host.Items.Patches.Count, Is.EqualTo(1));
         Assert.That(Score(host), Is.EqualTo(50));
         Step(host, WheelMask.All & ~WheelMask.FrontLeft);
         Step(host, WheelMask.All);
         Assert.That(host.World.GetVehicle(2).Movement.Oil.FrontLeft, Is.EqualTo(420));
-        Assert.That(host.Items.Patches.Single().PassesUsed, Is.EqualTo(1));
+        Assert.That(host.Items.Patches.Count, Is.EqualTo(1));
 
         var restored = Restore(host);
         Assert.That(restored.Items.Patches, Is.EqualTo(host.Items.Patches));
@@ -136,8 +136,8 @@ internal sealed class OilWheelTests
         Step(restored, WheelMask.None);
         Step(restored, WheelMask.All);
         Assert.That(Score(restored), Is.EqualTo(100));
-        Assert.That(restored.Items.Patches, Is.Empty, "Every piece disappears with the shared second contact.");
-        Assert.That(restored.Items.OilContacts, Is.Empty);
+        Assert.That(restored.Items.Patches.Single(), Is.EqualTo(patch), "Every piece survives repeated contacts unchanged.");
+        Assert.That(restored.Items.OilContacts.Count, Is.EqualTo(1));
         Assert.That(restored.World.GetVehicle(2).Movement.Oil.RemainingTicks, Is.EqualTo(420));
     }
 
@@ -154,7 +154,7 @@ internal sealed class OilWheelTests
         Step(host, WheelMask.All);
         host = Restore(host);
         while (host.World.State.Tick < expires - 1) { Step(host, WheelMask.All); }
-        Assert.That(host.Items.Patches.Single().PassesUsed, Is.EqualTo(1));
+        Assert.That(host.Items.Patches.Count, Is.EqualTo(1));
         Assert.That(host.Items.OilContacts.Count, Is.EqualTo(1), "Recovery does not unlatch an overlapping vehicle.");
         Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.Zero);
         Step(host, WheelMask.All);
@@ -174,7 +174,7 @@ internal sealed class OilWheelTests
             ["vehicle.oil_grip_reduction"] = 0.9, ["vehicle.oil_rear_drive_reduction"] = 0.8,
             ["vehicle.oil_rear_lateral_reduction"] = 0.6, ["vehicle.oil_impairment_seconds"] = 10,
             ["vehicle.oil_recovery_seconds"] = 4, ["vehicle.oil_recovery_curve"] = 2,
-            ["items.oil_enemy_contacts"] = 3, ["items.oil_lifetime_seconds"] = 45 }, out _), Is.True);
+            ["items.oil_stream_width"] = .3, ["items.oil_lifetime_seconds"] = 45 }, out _), Is.True);
         Assert.That(host.World.GetVehicle(2).Movement.Oil, Is.EqualTo(new OilTractionState(720, 120, 0, 840)));
         Assert.That(GameplayConfigurationCodec.Decode(GameplayConfigurationCodec.Encode(99, host.Configuration)).State, Is.EqualTo(host.Configuration));
         Assert.Throws<ArgumentException>(() => new OilTractionState(-1, 0, 0, 0).Validate());

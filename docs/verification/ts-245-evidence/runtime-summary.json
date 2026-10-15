@@ -1,0 +1,20 @@
+{
+  "samples": 970,
+  "max_hazards": 6,
+  "max_flight_per_observed_hazard": 38,
+  "max_additional_segments": 53,
+  "max_head_offset_m": 0.23516618718186516,
+  "last": {
+    "stage": 8,
+    "frame": 9700,
+    "tick": 9700,
+    "hazards": 0,
+    "headOffset": null,
+    "emitted": null,
+    "flight": null,
+    "deposited": null,
+    "segments": null,
+    "rack": 0,
+    "presented": "None"
+  }
+}
