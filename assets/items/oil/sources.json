@@ -4,11 +4,11 @@
   "files": [
     {
       "path": "source/BuildJackInTheBox.py",
-      "sha256": "8f6b16adc9dfec5ef1d6bb68aa8c70f6e13f94378e197d8e2aca0b22ae8dc6cd"
+      "sha256": "5bdd3693e9295102d27c28af2825fece78deed406469ed4e8d7595a226d0d29d"
     },
     {
       "path": "source/JackInTheBox.blend",
-      "sha256": "ecff8afd5257c23bc9e953e4b288daa3a8cef1af47e597bdcaf300195c9b5447"
+      "sha256": "5db15d86846a47089aa8a82ec5b69b48b138f21716dc94df0b24535af372c6cd"
     },
     {
       "path": "source/Patina.png",
@@ -16,7 +16,7 @@
     },
     {
       "path": "JackInTheBox.glb",
-      "sha256": "7f490c2650e6b57d3d6ed2cd0831926bd57e8f1093a2586591e7c8e0c7e599f9"
+      "sha256": "a31e0d904683d00a595aef867962835b543634eb6fa632607bb7b9167ce29ba7"
     },
     {
       "path": "OilFluid.gdshader",

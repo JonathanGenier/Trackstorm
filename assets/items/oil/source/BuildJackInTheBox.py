@@ -94,6 +94,12 @@ def grin(name,material,yshift,z,scale=1):
   for y in [top,bottom]:vertices.append(xyz((x*scale,(y+yshift)*scale,z-.085*u*u)))
  faces=[(i*2,i*2+1,i*2+3,i*2+2) for i in range(32)]
  mesh=bpy.data.meshes.new(name);mesh.from_pydata(vertices,[],faces);mesh.update()
+ # Shape-key meshes bypass rigid batching, so they must own their UVs before
+ # export. Map the two-row strip consistently in both mouth poses; Godot's
+ # default tangent generation requires TEXCOORD_0 on each separate surface.
+ uv=mesh.uv_layers.new(name='UVMap')
+ for loop in mesh.loops:
+  vi=loop.vertex_index;uv.data[loop.index].uv=(vi//2/32,vi%2)
  o=bpy.data.objects.new(name,mesh);bpy.context.collection.objects.link(o);o.parent=head;mesh.materials.append(material)
  o.shape_key_add(name='Smile');opened=o.shape_key_add(name='Open')
  for i in range(33):
