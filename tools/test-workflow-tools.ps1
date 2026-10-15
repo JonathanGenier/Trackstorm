@@ -172,6 +172,7 @@ try {
     Copy-Item "$PSScriptRoot/new-verification-report.ps1" (Join-Path $toolsDir "new-verification-report.ps1")
     Copy-Item "$PSScriptRoot/check-fast.ps1" (Join-Path $toolsDir "check-fast.ps1")
     Copy-Item "$PSScriptRoot/fast-check-routes.ps1" (Join-Path $toolsDir "fast-check-routes.ps1")
+    Copy-Item "$PSScriptRoot/agent-checks.ps1" (Join-Path $toolsDir "agent-checks.ps1")
 
     @"
 # Historical verification evidence
@@ -233,3 +234,5 @@ Assert-True ($shieldPlan.RuntimeScripts -contains 'check-world-wall.ps1') 'Shiel
 
 $missilePlan = Get-FastCheckPlan -Paths @('code/Core/Items/MissileFlight.cs')
 Assert-True ($missilePlan.RuntimeScripts -contains 'check-missile-terrain.ps1') 'Missile changes require native terrain and impaired-peer verification.'
+
+& "$PSScriptRoot/test-agent-tools.ps1"
