@@ -16,6 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Oil wheel contamination, spray and trails | [TS-246 implementation, native/UDP verification and Astra critique](ts-246.md) |
 | Jack-in-the-box Oil | [TS-245 tank artwork, presentation, deposition, timer lifecycle, native recovery and critique evidence](ts-245.md) |
 | Agent tooling and context routing | [TS-287 verification evidence](ts-287.md) |
 | Machine Gun camera aiming | [TS-262 accepted firing, sticky car assistance, 200 m grouping, native multiplayer and critique](ts-262.md) |

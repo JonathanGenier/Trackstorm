@@ -160,3 +160,6 @@ The rendered `check-integrated-driving.ps1` additionally exercises default persi
 marks with eight moving cars and repeated rock/plant changes on the production map.
 It reports actual frame intervals and bounded submissions; these are machine-specific
 observations, not a hardware-wide performance guarantee.
+
+
+Oil contamination overlays, wet spray and independent grounded trails reuse these wheel samples and the shared mark budget. Their accepted per-wheel trigger, shorter cosmetic lifetimes and cleanup are described in [Oil](items-oil.md#tire-contamination-spray-and-trails).
