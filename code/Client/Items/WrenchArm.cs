@@ -10,6 +10,7 @@ internal sealed partial class WrenchArm : Node3D
     private static readonly Vector3 Stored = new(-.56f, .23f, 0);
     private static readonly Vector3 Raised = new(0, 1.60f, -.65f);
     private static readonly Vector3 Rest = new(0, .85f, -3.595f);
+    private Node3D _services = null!;
     private Node3D _shoulder = null!;
     private Node3D _elbow = null!;
     private Node3D _slide = null!;
@@ -21,6 +22,12 @@ internal sealed partial class WrenchArm : Node3D
     private float _lateral;
     private int? _requestedContact;
     private Vector3 _tip;
+
+    internal bool ServicesVisible => _services.Visible;
+
+    // Existing Oil/Nitro presentation policy: full-size underslung hardware is
+    // revealed only after the original rack clears the bay. No second lift.
+    internal void PresentServices(float rackHeight) => _services.Visible = rackHeight >= .75f;
 
     internal bool Nested => _deployment == 0;
     internal bool IsReady => _deployment == 1 && !Repairing;
@@ -52,6 +59,8 @@ internal sealed partial class WrenchArm : Node3D
         Name = "RackItem_Wrench";
         var model = Networking.MatchResourceLoader.LoadResource<PackedScene>(AssetPath).Instantiate<Node3D>();
         AddChild(model);
+        _services = (Node3D)model.FindChild("Services", true, false);
+        _services.Visible = false;
         _shoulder = (Node3D)model.FindChild("Shoulder", true, false);
         _elbow = (Node3D)model.FindChild("Elbow", true, false);
         _slide = (Node3D)model.FindChild("Slide", true, false);

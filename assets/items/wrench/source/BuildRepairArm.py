@@ -9,6 +9,7 @@ import bpy
 import bmesh
 import numpy as np
 from mathutils import Vector, Matrix
+from mathutils.geometry import interpolate_bezier
 
 ROOT = Path(__file__).resolve().parents[1]
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -55,6 +56,7 @@ def pivot(name,parent=None,loc=(0,0,0)):
 
 root=pivot('RepairArm')
 mount=pivot('Mount',root)
+services=pivot('Services',root)
 shoulder=pivot('Shoulder',root,(0,0,.23))
 elbow=pivot('Elbow',shoulder,(0,0,.7))
 slide=pivot('Slide',elbow,(0,0,.05))
@@ -151,6 +153,8 @@ def link(parent,length):
             cyl('Cheek retaining bolt',(side*.124,0,z),.021,.016,brass,parent,'X',6)
     # Parallel hose runs and brass clamps retain service access around both pivots.
     hose('Black feed hose',[(0,-.135,.02),(0,-.155,.18),(0,-.155,length-.18),(0,-.135,length-.02)],parent)
+    for z in [.02,length-.02]:
+        cyl('Link feed elbow',(0,-.135,z),.033,.065,brass,parent,'Y',24)
     for k in range(16):
         z=.13+(length-.26)*k/15
         cyl('Red hose wrap',(0,-.155,z),.029,.021,red,parent,verts=16)
@@ -177,7 +181,9 @@ for owner,width in [(elbow,.27),(slide,.21),(reach,.15)]:
         box('Machined slide rail',(0,side*.105,.57),(width*.65,.018,1.07),steel,owner,.004)
     # Fixed hydraulic line terminates in sealed sliding manifolds, no stretched hose.
     hose('Section hydraulic feed',[(0,-.15,.07),(0,-.16,.25),(0,-.16,.95),(0,-.15,1.07)],owner,.022)
-    for z in [.07,1.07]:cyl('Sealed slide union',(0,-.15,z),.035,.055,brass,owner,verts=24)
+    for z in [.07,1.07]:
+        cyl('Sealed slide union',(0,-.15,z),.035,.055,brass,owner,verts=24)
+        cyl('Slide manifold inlet',(0,-.12,z),.026,.075,brass,owner,'Y',24)
     for k in range(12):cyl('Red spiral hose wrap',(0,-.16,.18+k*.07),.024,.022,red,owner,verts=12)
 joint(wrist)
 # Thick clevis shoulders, bearing collars and inset keyed hubs.
@@ -195,32 +201,63 @@ for owner in [shoulder,elbow,wrist]:
     cyl('Hydraulic rotary union',(.185,0,0),.037,.025,brass,owner,'X')
     hose('Joint service elbow',[(.16,0,0),(.16,-.12,0),(0,-.16,.18)],owner,.022)
 
-# Rack-top power pack and reservoir: no replacement lift or under-rack dressing.
-box('Power unit casing',(-.36,-.52,.245),(.64,.30,.29),red,mount,.025)
+# Full-size underslung services use the existing Oil-style rack reveal policy.
+power_parts=set(bpy.data.objects)
+box('Power unit casing',(-.36,-.52,.245),(.64,.30,.29),red,services,.025)
 for x in [-.66,-.06]:
-    box('Power unit corner rail',(x,-.52,.245),(.038,.32,.31),iron,mount,.008)
-    for z in [.12,.37]:cyl('Power case fastener',(x,-.686,z),.015,.016,brass,mount,'Y',6)
+    box('Power unit corner rail',(x,-.52,.245),(.038,.32,.31),iron,services,.008)
+    for z in [.12,.37]:cyl('Power case fastener',(x,-.686,z),.015,.016,brass,services,'Y',6)
 for x in [-.56,-.36,-.16]:
-    box('Recessed ventilation panel',(x,-.677,.245),(.16,.015,.21),iron,mount,.009)
-    for z in [.17,.21,.25,.29,.33]:box('Vent louvre',(x,-.691,z),(.135,.018,.012),steel,mount,.003)
-mesh('Power lightning emblem',[(-.37,-.705,.34),(-.43,-.705,.24),(-.37,-.705,.24),(-.40,-.705,.15),(-.29,-.705,.27),(-.35,-.705,.27),(-.31,-.705,.34)],[(0,1,2,3,4,5,6)],gold,mount)
+    box('Recessed ventilation panel',(x,-.677,.245),(.16,.015,.21),iron,services,.009)
+    for z in [.17,.21,.25,.29,.33]:box('Vent louvre',(x,-.691,z),(.135,.018,.012),steel,services,.003)
+mesh('Power lightning emblem',[(-.37,-.705,.34),(-.43,-.705,.24),(-.37,-.705,.24),(-.40,-.705,.15),(-.29,-.705,.27),(-.35,-.705,.27),(-.31,-.705,.34)],[(0,1,2,3,4,5,6)],gold,services)
 for x in [-.58,-.13]:
-    box('Power mounting foot',(x,-.52,.10),(.11,.36,.04),brass,mount)
-    cyl('Power terminal',(x,-.52,.405),.025,.035,brass,mount,verts=12)
-# Horizontal pressure vessel at the rear-right of the rack, clear of the folded arm.
-cyl('Reservoir enamel shell',(.39,-.52,.26),.135,.56,ivory,mount,'X')
+    box('Power mounting foot',(x,-.52,.10),(.11,.36,.04),brass,services)
+    cyl('Power terminal',(x,-.52,.405),.025,.035,brass,services,verts=12)
+power_parts=set(bpy.data.objects)-power_parts
+tank_parts=set(bpy.data.objects)
+# Horizontal pressure vessel above the shallow battery, as in the rear reference.
+cyl('Reservoir enamel shell',(.39,-.52,.26),.135,.56,ivory,services,'X')
 for x in [.11,.67]:
-    cyl('Reservoir dished end',(x,-.52,.26),.126,.04,red,mount,'X')
-    cyl('Reservoir brass shoulder',(x,-.52,.26),.139,.035,brass,mount,'X')
-    box('Reservoir saddle',(x,-.52,.12),(.07,.29,.07),iron,mount)
+    cyl('Reservoir dished end',(x,-.52,.26),.126,.04,red,services,'X')
+    cyl('Reservoir brass shoulder',(x,-.52,.26),.139,.035,brass,services,'X')
+    box('Reservoir saddle',(x,-.52,.12),(.07,.29,.07),iron,services)
     for k in range(8):
         a=k*2*pi/8
-        cyl('Tank ring bolt',(x+.021,-.52+.108*cos(a),.26+.108*sin(a)),.009,.012,steel,mount,'X',6)
+        cyl('Tank ring bolt',(x+.021,-.52+.108*cos(a),.26+.108*sin(a)),.009,.012,steel,services,'X',6)
 for x in [.19,.39,.59]:
-    cyl('Tank red stripe',(x,-.52,.26),.137,.09,red,mount,'X')
-cyl('Pressure regulator',(.72,-.52,.26),.035,.07,brass,mount,'X')
-hose('Reservoir supply',[(.75,-.52,.26),(.78,-.32,.22),(.25,-.21,.17),(.21,0,.19)],mount,.024)
-hose('Power loom',[(-.58,-.52,.41),(-.70,-.36,.34),(-.33,-.20,.18),(-.18,0,.20)],mount,.024)
+    cyl('Tank red stripe',(x,-.52,.26),.137,.09,red,services,'X')
+cyl('Pressure regulator',(.72,-.52,.26),.035,.07,brass,services,'X')
+tank_parts=set(bpy.data.objects)-tank_parts
+# Preserve the existing details and proportions at a substantial deployed size.
+# Like Oil, runtime hides this fixed assembly below the rack-clearance height.
+def package(parts, origin, target, scale):
+    transform=Matrix.Translation(Vector(target)) @ Matrix.Diagonal((*scale,1)) @ Matrix.Translation(-Vector(origin))
+    bpy.context.view_layer.update()
+    for o in parts:o.matrix_local=transform @ o.matrix_local
+package(power_parts,(-.36,-.52,.245),(0,-.38,-.69),(1.4,1.4,1.4))
+package(tank_parts,(.39,-.52,.26),(0,-.38,-.24),(1.5,1.5,1.5))
+for x in [-.52,.52]:
+    box('Under-rack hanger',(x,-.60,-.455),(.035,.035,.96),iron,services,.005)
+    box('Hanger rack tab',(x,-.47,.025),(.075,.30,.025),red,services,.005)
+    cyl('Hanger retaining bolt',(x,-.625,-.69),.018,.025,brass,services,'Y',6)
+box('Battery support shelf',(0,-.38,-.93),(1.08,.50,.024),brass,services,.004)
+# Fixed lines enter the turntable manifold; the internal rotary joint feeds
+# the moving arm without an exposed fixed-to-moving hose bridge.
+supply=hose('Reservoir supply',[(.54,-.38,-.24),(.60,-.42,-.24),(.60,-.55,.04),(.32,-.23,.16),(.18,0,.16)],services,.024)
+power=hose('Power loom',[(-.308,-.38,-.466),(-.60,-.50,-.46),(-.60,-.55,.04),(-.32,-.23,.16),(-.18,0,.16)],services,.024)
+bpy.context.view_layer.update()
+for line in [supply,power]:
+    a,b=line.data.splines[0].bezier_points[1:3]
+    points=interpolate_bezier(a.co,a.handle_right,b.handle_left,b.co,17)
+    for i in [4,7,10,13]:
+        sleeve=cyl('Service red sleeve',points[i],.027,.022,red,services,verts=16)
+        sleeve.rotation_euler=(points[i+1]-points[i-1]).to_track_quat('Z','Y').to_euler()
+for x in [-.60,.60]:
+    box('Supply line clip',(x,-.55,.04),(.070,.060,.025),brass,services,.004)
+for x in [-.18,.18]:cyl('Turntable supply union',(x,0,.16),.032,.04,brass,services,'X',24)
+cyl('Reservoir outlet union',(.55,-.38,-.24),.032,.05,brass,services,'X',24)
+cyl('Battery cable gland',(-.308,-.38,-.466),.026,.03,brass,services,verts=24)
 
 # Recognisable vertical impact tool: motor can, toothed cooling collar and drive socket.
 cyl('Drill motor housing',(0,0,-.13),.115,.24,red,wrist)
@@ -238,6 +275,8 @@ for k in range(12):
 cyl('Socket coupling',(0,0,-.31),.067,.04,brass,chuck)
 cyl('Impact socket',(0,0,-.40),.052,.16,iron,chuck,verts=12)
 cyl('Contact drive',(0,0,-.489),.028,.018,steel,chuck,verts=6)
+cyl('Motor cable inlet',(0,.125,-.13),.03,.055,brass,wrist,'Y',24)
+cyl('Wrist cable inlet',(0,.125,0),.03,.055,brass,wrist,'Y',24)
 hose('Motor power loop',[(0,.145,0),(0,.18,.12),(0,.19,-.07),(0,.11,-.13)],wrist,.022)
 
 # Motor ribs, service panels and a substantial impact gearbox distinguish the tool.
@@ -271,7 +310,7 @@ for o in list(bpy.data.objects):
     if o.type!='MESH':continue
     bpy.context.view_layer.objects.active=o
     for mod in list(o.modifiers):bpy.ops.object.modifier_apply(modifier=mod.name)
-for parent in [mount,shoulder,elbow,slide,reach,wrist,chuck]:
+for parent in [mount,services,shoulder,elbow,slide,reach,wrist,chuck]:
     for mat in [red,ivory,brass,gold,iron,steel,rubber]:
         objects=[o for o in list(bpy.data.objects) if o.type=='MESH' and o.parent==parent and o.data.materials[0]==mat]
         if not objects:continue

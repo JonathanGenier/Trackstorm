@@ -12,7 +12,7 @@
       "jira": "TS-292",
       "filename": "back red mount.png",
       "attachment": "10153",
-      "usage": "Approved low mounting and mechanical appearance direction; no replacement lift or under-rack dressing"
+      "usage": "Approved under-rack tank-over-battery placement; substantial proportions with user-directed Oil-style stow visibility; unchanged rack; no redistributed pixels"
     }
   ],
   "thirdPartyAcquisitions": [],
@@ -20,8 +20,8 @@
   "rig": "Rigid Shoulder -> Elbow -> Slide -> Reach -> Wrist -> Chuck; 0.70 m upper, 1.25-3.25 m telescopic forearm; independent hood poses",
   "export": {
     "uvs": "Every exported primitive has TEXCOORD_0",
-    "meshes": 45,
-    "triangles": 137393,
+    "meshes": 49,
+    "triangles": 147125,
     "materials": 7
   },
   "files": [
@@ -54,15 +54,15 @@
       "path": "assets/items/wrench/RepairArm_Repair yellow stars.png"
     },
     {
-      "sha256": "0e6f6b2f71d51f67d20f2682819b0d8bc9a8ab173145d206d0f143927dd483b0",
+      "sha256": "59126f7fbb58346d80900f6107846559da83e9a10d58bad3eeba0157010afb23",
       "path": "assets/items/wrench/RepairArm.glb"
     },
     {
-      "sha256": "f3f61842ea74cc0d265f50c4ca211c7726c51faef9eb3bdac597687d0d1ba7a7",
+      "sha256": "4a0551a90a8aeeb66bdad2f3e57129a9dd9db63f80fd10425b78bef09ec4a04a",
       "path": "assets/items/wrench/source/BuildRepairArm.py"
     },
     {
-      "sha256": "0805295ecc16c912a554d3ea79cffde6841bc2cad892f2ce5552a0c0adcf8acf",
+      "sha256": "1cfe1a15b0972db0e9051ade34ea244050d8397e40a30db47bd930aecff7fc3b",
       "path": "assets/items/wrench/source/RepairArm.blend"
     }
   ]

@@ -11,7 +11,7 @@ public sealed partial class CarRackChecks
 
     private async Task CheckWrenchArm()
     {
-        System.IO.Directory.CreateDirectory(ProjectSettings.GlobalizePath("res://.godot/ts292/round2"));
+        System.IO.Directory.CreateDirectory(ProjectSettings.GlobalizePath("res://.godot/ts292/round3"));
         var host = _arenas[0].Driver.Host!;
         if (OS.GetCmdlineUserArgs().Contains("--wrench-impaired"))
         {
@@ -31,14 +31,16 @@ public sealed partial class CarRackChecks
                 foreach (int peer in new[] { 0, 1 })
                 {
                     var arm = Arm(peer)!;
+                    Check(!arm.ServicesVisible, "Underslung services are hidden while the rack is stowed, matching Oil presentation");
                     Check(arm.Nested, "Starts at the folded pose before rack clearance");
                     foreach (var mesh in arm.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>())
                     {
+                        if (!mesh.IsVisibleInTree()) { continue; }
                         var bounds = mesh.GetAabb();
                         for (int i = 0; i < 8; i++)
                         {
                             Vector3 point = arm.ToLocal(mesh.ToGlobal(bounds.GetEndpoint(i)));
-                            Check(point.Y < .445f && point.X > -.98f && point.X < .98f && point.Z > -.425f && point.Z < .79f,
+                            Check(point.Y > -.185f && point.Y < .445f && point.X > -.98f && point.X < .98f && point.Z > -.425f && point.Z < .79f,
                                 "Folded mesh stays inside production trunk: " + mesh.Name + " " + point);
                         }
                     }
@@ -51,6 +53,7 @@ public sealed partial class CarRackChecks
                 for (int frame = 0; frame < 420 && !(Arm(0)?.IsReady == true && Arm(1)?.IsReady == true); frame++)
                 {
                     await Frames(1);
+                    foreach (int peer in new[] { 0, 1 }) { if (Arm(peer) is { } active) { CheckWrenchServices(active); } }
                     foreach (int peer in new[] { 0, 1 })
                         if (Arm(peer) is { Nested: false } deploying)
                         {
@@ -65,9 +68,11 @@ public sealed partial class CarRackChecks
                 await Until(() => Arm(0)?.ContactIndex == 0 && Arm(1)?.ContactIndex == 0, "Early pose request waits for deployment then reaches left hood");
                 foreach (int peer in new[] { 0, 1 }) { Arm(peer)!.RequestHoodPose(null); }
                 await Frames(100);
+                Check(Arm(0)!.ServicesVisible && Arm(1)!.ServicesVisible, "Full-size tank and battery visible beneath raised racks on both peers");
                 CheckWrenchClearance(Arm(1)!);
                 await WrenchCapture("ready-side", new Vector3(-6.8f, 3.0f, 0));
                 await WrenchCapture("rear-power", new Vector3(-2.8f, 2.4f, 4));
+                await WrenchCapture("under-rack", new Vector3(0, 1.5f, 4.7f), new Vector3(0, .95f, 2.2f));
                 // Explicit pose requests test the rig contract; production activation does not sequence them.
                 foreach (int contact in new[] { 0, 1, 2 })
                 {
@@ -200,8 +205,26 @@ public sealed partial class CarRackChecks
         Check(_arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Respawn starts stowed");
     }
 
+    private void CheckWrenchServices(WrenchArm arm)
+    {
+        if (!arm.ServicesVisible) { return; }
+        var services = (Node3D)arm.FindChild("Services", true, false);
+        foreach (var mesh in services.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>())
+        {
+            var bounds = mesh.GetAabb();
+            for (int i = 0; i < 8; i++)
+            {
+                Vector3 p = arm.ToLocal(mesh.ToGlobal(bounds.GetEndpoint(i))) + arm.GetParent<Node3D>().Position;
+                if (p.Y < -.255f || Math.Abs(p.X) > .98f || p.Z < 1.42f || p.Z > 2.64f)
+                    throw new InvalidOperationException($"Visible under-rack service leaves the open bay envelope: {mesh.Name} {p}");
+            }
+        }
+        Check(true, "Visible full-size services clear the measured bay floor and perimeter");
+    }
+
     private void CheckWrenchClearance(WrenchArm arm)
     {
+        CheckWrenchServices(arm);
         foreach (var mesh in arm.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>())
         {
             for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
@@ -223,18 +246,18 @@ public sealed partial class CarRackChecks
         Check(true, "Imported arm vertices clear roof, lamps, windshield and hood");
     }
 
-    private async Task WrenchCapture(string name, Vector3 offset)
+    private async Task WrenchCapture(string name, Vector3 offset, Vector3? focus = null)
     {
         if (DisplayServer.GetName() == "headless") { return; }
         var body = _arenas[1].Bodies[Shooter];
         var camera = new Camera3D { Fov = 42, PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off };
         _arenas[1].AddChild(camera);
         camera.GlobalPosition = body.VisualPosition + body.VisualTransform.Basis * offset;
-        camera.LookAt(body.VisualPosition + body.VisualTransform.Basis * new Vector3(0, .9f, .65f));
+        camera.LookAt(body.VisualPosition + body.VisualTransform.Basis * (focus ?? new Vector3(0, .9f, .65f)));
         camera.MakeCurrent();
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
         using var image = _views[1].GetTexture().GetImage();
-        Check(image.SavePng(ProjectSettings.GlobalizePath("res://.godot/ts292/round2/" + name + ".png")) == Error.Ok, "Captured Wrench " + name);
+        Check(image.SavePng(ProjectSettings.GlobalizePath("res://.godot/ts292/round3/" + name + ".png")) == Error.Ok, "Captured Wrench " + name);
         camera.QueueFree();
     }
 }
