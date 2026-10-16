@@ -61,6 +61,18 @@ public sealed partial class CarRackChecks : Node
             Position(1000, false);
             _arenas[1].Driver.ItemsReceived += p => _events.AddRange(p.Events.Where(e => e.Owner == Shooter));
             await Frames(90);
+            if (OS.GetCmdlineUserArgs().Contains("--wrench-arm"))
+            {
+                await CheckWrenchArm();
+                System.IO.File.WriteAllLines(ProjectSettings.GlobalizePath("res://.godot/ts292/wrench-evidence.txt"), _evidence);
+                GD.Print($"Wrench arm integration passed: {_checks} checks on two UDP peers.");
+                foreach (var arena in _arenas) { arena.QueueFree(); }
+                foreach (var view in _views) { view.QueueFree(); }
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                GetTree().Quit();
+                return;
+            }
             if (OS.GetCmdlineUserArgs().Contains("--weapon-handoffs"))
             {
                 await CheckWeaponHandoffs();
