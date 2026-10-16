@@ -8,11 +8,16 @@ public sealed partial class ItemAuthority
     private sealed record AimIntent(ulong Life, ulong Token, ulong Selection, ulong Sequence, ulong Received, Vector3 Direction);
     private readonly Dictionary<ulong, AimIntent> _aimIntents = new();
     private readonly Dictionary<ulong, WeaponAimSolution> _aims = new();
-    private sealed record AimDeployment(ulong Life, ulong Token, ulong Selection, HeldItem Item, float Progress, bool Retracting, ulong Tick, float Nesting);
+    private sealed record AimDeployment(ulong Life, ulong Token, ulong Selection, HeldItem Item, float Progress, bool Retracting, ulong Tick, float Nesting, float Arm = 0);
     private readonly Dictionary<ulong, AimDeployment> _aimDeployment = new();
 
     /// <summary>Detached accepted articulation; transient input is deliberately reset on recovery.</summary>
     public IReadOnlyList<WeaponAimSolution> Aims => _aims.Values.OrderBy(value => value.Vehicle).ToArray();
+
+    /// <summary>Host readiness for the selected repair capability; recovery redeploys before use.</summary>
+    public bool WrenchReady(ItemSlot slot) => _aimDeployment.TryGetValue(slot.Vehicle, out var deployment) &&
+        deployment.Life == slot.Life && deployment.Token == slot.Active.Token && deployment.Selection == slot.SelectionRevision &&
+        deployment.Item == HeldItem.Wrench && !deployment.Retracting && deployment.Progress >= 1 && deployment.Arm >= 1;
 
     /// <summary>Validates direction against actual sender inventory, life, selection and ordered input.</summary>
     public bool RequestAim(Simulation.Simulation world, ulong vehicle, ulong life, ulong token, ulong selection, ulong sequence, Vector3 direction)
@@ -48,12 +53,14 @@ public sealed partial class ItemAuthority
             {
                 // Keep capability history through depletion and switches. A replacement
                 // takes over a complete retract/deploy path, even without a slot switch.
-                bool replacing = deployment is not null;
+                // Repair requires at least a complete fresh rack/arm deployment. The
+                // local presentation additionally waits for the outgoing payload's return.
+                bool replacing = deployment is not null && slot.Active.Item != HeldItem.Wrench;
                 deployment = new(state.LifeId, slot.Active.Token, slot.SelectionRevision, slot.Active.Item,
-                    replacing ? 1 : 0, replacing, tick, deployment?.Item == HeldItem.Nitro ? .24f : 0);
+                    replacing ? 1 : 0, replacing, tick, replacing && deployment?.Item == HeldItem.Nitro ? .24f : 0);
                 _aims.Remove(id);
             }
-            if (!WeaponAim.Supports(slot.Active.Item))
+            if (!WeaponAim.Supports(slot.Active.Item) && slot.Active.Item != HeldItem.Wrench)
             { _aimDeployment[id] = deployment; ResetAim(id); continue; }
             // An accepted mine arm owns the rack until placement and its return finish,
             // even if the selected inventory has already become a direct-fire weapon.
@@ -63,10 +70,13 @@ public sealed partial class ItemAuthority
             {
                 float elapsed = Math.Max(0, 1f / 60 - deployment.Nesting);
                 float progress = RackDeploymentPath.Advance(deployment.Progress, !deployment.Retracting, elapsed, vehicleConfiguration);
-                deployment = deployment with { Progress = progress, Retracting = deployment.Retracting && progress > 0,
+                float arm = slot.Active.Item == HeldItem.Wrench && !deployment.Retracting && deployment.Progress >= 1
+                    ? Math.Min(1, deployment.Arm + 1f / (60 * ItemSlot.WrenchDeploymentSeconds)) : 0;
+                deployment = deployment with { Progress = progress, Arm = arm, Retracting = deployment.Retracting && progress > 0,
                     Tick = tick, Nesting = Math.Max(0, deployment.Nesting - 1f / 60) };
             }
             _aimDeployment[id] = deployment;
+            if (slot.Active.Item == HeldItem.Wrench) { ResetAim(id); continue; }
             if (!_aimIntents.TryGetValue(id, out var intent) || intent.Life != state.LifeId || intent.Token != slot.Active.Token || intent.Selection != slot.SelectionRevision)
             { _aims.Remove(id); continue; }
             if (tick - intent.Received > 15) { _aims.Remove(id); continue; }

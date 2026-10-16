@@ -31,6 +31,7 @@ internal sealed class ItemAuthorityTests
         Assert.That(host.SwitchItem(0, 99, 1, 1), Is.True);
         Assert.That(host.SwitchItem(0, 99, 1, 1), Is.False);
         Assert.That(host.UseItem(0, 99, 1, before.Token), Is.False);
+        WrenchTestPreparation.Wait(host);
         Assert.That(host.UseItem(0, 99, 1, before.SecondToken), Is.True);
         Assert.That(host.SwitchItem(0, 99, 1, 2), Is.True, "Later switching does not retarget an accepted use.");
         host.Step(default, Observe);
@@ -82,6 +83,7 @@ internal sealed class ItemAuthorityTests
         var host = Host(hp);
         Assert.That(host.Items.Grant(host.World, 1, HeldItem.Wrench), Is.True);
         var slot = host.Items.Slots.Single();
+        WrenchTestPreparation.Wait(host);
         Assert.That(host.UseItem(0, 99, 1, slot.Token), Is.True);
         host.Step(default, Observe);
         Assert.That(host.World.GetVehicle(1).Damage.CurrentHP, Is.EqualTo(expected));
@@ -97,6 +99,7 @@ internal sealed class ItemAuthorityTests
         var state = host.World.GetVehicle(1);
         host.World.Restore(new SimulationState(0, default, new[] { new VehicleSnapshot(1, 1, state.Movement, new VehicleDamageState(100, 50, null, null), state.ObservedPhysics) }, host.World.State.Match));
         host.Items.Grant(host.World, 1, HeldItem.Wrench);
+        WrenchTestPreparation.Wait(host);
         host.UseItem(0, 99, 1, host.Items.Slots.Single().Token);
         host.Step(default, Observe);
         Assert.That(host.World.GetVehicle(1).Damage.CurrentHP, Is.EqualTo(57));

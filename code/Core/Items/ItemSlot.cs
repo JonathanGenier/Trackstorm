@@ -3,6 +3,8 @@ namespace Trackstorm.Core.Items;
 /// <summary>One player's two fixed held slots and selection in one vehicle life. Each grant token is match-unique.</summary>
 public sealed record ItemSlot(ulong Vehicle, ulong Life, ulong Token, HeldItem Item)
 {
+    /// <summary>Repair arm unfold/fold time after the shared rack reaches clearance.</summary>
+    public const float WrenchDeploymentSeconds = 1.8f;
     /// <summary>Complete selected thruster deployment, including replacement, at 60 Hz (0.6 seconds).</summary>
     public const int NitroDeploymentDurationTicks = 36;
     /// <summary>Remaining authoritative deployment time for the selected Nitro; zero means ready.</summary>

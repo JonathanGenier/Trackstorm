@@ -563,6 +563,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         }
 
         if (slot.Item == HeldItem.Missile && MissileReady?.Invoke(inventory!) == false) { return false; }
+        if (slot.Item == HeldItem.Wrench && WrenchReady?.Invoke(inventory!) == false) { return false; }
         if ((slot.Item == HeldItem.Shield && ShieldReady?.Invoke(inventory!) == false) ||
             (slot.Item == HeldItem.Oil && OilReady?.Invoke(inventory!) == false))
         {
@@ -741,6 +742,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         ItemState = null;
         _pendingShieldUse = null;
         ShieldReady = null;
+        WrenchReady = null;
         OilReady = null;
         MissileReady = null;
         ResetAiming();

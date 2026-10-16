@@ -201,6 +201,8 @@ internal sealed partial class ItemPresentation : Node3D
                 if (outcome.Impact) { BulletImpact(outcome); }
                 continue;
             }
+            // Repair sparks belong to the moving drill contact, not the vehicle's world origin.
+            if (outcome.Item == HeldItem.Wrench) { continue; }
             var definition = ItemRegistry.Find(outcome.Item)!;
             string? texture = outcome.Impact ? definition.ImpactVfx : definition.UseVfx;
             if (texture is null)

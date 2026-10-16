@@ -23,6 +23,7 @@ internal sealed partial class CarRackPresentation : Node
     private bool _mineReturning;
     private WeaponAimSolution? _aim;
     private bool _wrenchStarted;
+    private ulong _wrenchUseToken;
 
     internal required BoostExhaust Boost { get; init; }
 
@@ -36,6 +37,10 @@ internal sealed partial class CarRackPresentation : Node
         _previous?.SelectionRevision == inventory.SelectionRevision && _previous.Active.Token == inventory.Active.Token &&
         _previous.Life == inventory.Life;
     internal Items.ShieldRack? ShieldCarrier => _payload as Items.ShieldRack;
+    internal bool IsWrenchReady(ItemSlot inventory) => _desired == HeldItem.Wrench && !_replace && !_usePending &&
+        Progress >= .999f && _payload is Items.WrenchArm { IsReady: true } &&
+        _previous?.SelectionRevision == inventory.SelectionRevision && _previous.Active.Token == inventory.Active.Token &&
+        _previous.Life == inventory.Life;
     internal void ObserveAim(WeaponAimSolution? aim)
     {
         _aim = aim is not null && aim.Life == _life && aim.Token == _previous?.Active.Token ? aim : null;
@@ -66,6 +71,7 @@ internal sealed partial class CarRackPresentation : Node
         if (inventory?.Life != life) { inventory = null; }
         ItemSlot? active = inventory?.Active;
         var outcome = events.LastOrDefault(e => e.Item != HeldItem.Nitro && (e.Item == HeldItem.MachineGun || !e.Impact) &&
+            (e.Item != HeldItem.Wrench || e.Token != _wrenchUseToken) &&
             (e.Token == active?.Token || e.Token == _previous?.Active.Token));
         bool used = outcome is not null;
         bool selection = inventory is not null && (_previous is null || inventory.ActiveSlot != _previous.ActiveSlot || inventory.SelectionRevision != _previous.SelectionRevision);
@@ -91,6 +97,7 @@ internal sealed partial class CarRackPresentation : Node
         _engaged = active?.Item != HeldItem.Nitro && inventory is { EngagedToken: > 0 };
         if (outcome is not null || (_previous is null && _engaged))
         {
+            if (outcome?.Item == HeldItem.Wrench) { _wrenchUseToken = outcome.Token; }
             _wrenchStarted = false;
             _useItem = outcome?.Item ?? active!.Item;
             _usePending = true;
@@ -130,6 +137,7 @@ internal sealed partial class CarRackPresentation : Node
         _mineReturning = false;
         _aim = null;
         _wrenchStarted = false;
+        _wrenchUseToken = 0;
     }
 
     public override void _Process(double delta)

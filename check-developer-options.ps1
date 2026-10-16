@@ -3,6 +3,7 @@ param (
     [string]$GodotPath,
     [switch]$Visual,
     [switch]$OilOnly,
+    [switch]$WrenchOnly,
     [switch]$NoBuild
 )
 
@@ -18,6 +19,7 @@ foreach ($phase in @('write', 'read')) {
     if (-not $Visual) { $arguments = @('--headless') + $arguments }
     $checkOptions = @("--dev-output=$checkDirectory", "--phase=$phase")
     if ($OilOnly) { $checkOptions += '--oil-options-only' }
+    if ($WrenchOnly) { $checkOptions += '--wrench-options-only' }
     $output = & $GodotPath @arguments -- @checkOptions 2>&1
     $exitCode = $LASTEXITCODE
     $output | Set-Content (Join-Path $checkDirectory "$phase.log")

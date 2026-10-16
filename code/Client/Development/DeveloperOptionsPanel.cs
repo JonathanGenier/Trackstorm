@@ -191,6 +191,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         }
 
         AddMissileVfxControls(settings);
+        AddWrenchControls(settings);
         _resetButton = Button(Footer, "Reset to Defaults", Reset);
         DevToolsButtonPresentation.Configure(_resetButton, "reset", DevToolsButtonPresentation.Treatment.Reset);
         Footer.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
@@ -435,6 +436,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     private void Reset()
     {
         ResetMissileVfx();
+        ResetWrench();
         if (LocalSettings is not null) { RenderTireValues(TireEffectSettings.Defaults); UpdateFeedback(); }
         if (Session()?.CanConfigureDeveloperOptions != true)
         {

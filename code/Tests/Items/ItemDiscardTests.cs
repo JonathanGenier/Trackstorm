@@ -148,6 +148,7 @@ internal sealed class ItemDiscardTests
         host.Items.Grant(host.World, 1, HeldItem.Wrench);
         host.Items.Grant(host.World, 1, HeldItem.Oil);
         var first = host.Items.Slots.Single();
+        WrenchTestPreparation.Wait(host);
         host.UseItem(0, 99, 1, first.Token);
         host.SwitchItem(0, 99, 1, 1);
         Assert.That(host.DiscardItem(0, 99, 1, first.SecondToken, 1), Is.True);

@@ -29,17 +29,40 @@ vehicle z=-1.75 m, on the production bonnet's sloping surface ahead of its scoop
 changes lift before traversing. Retraction lifts clear, centers, telescopes and
 folds. All targets are vehicle-local and remain attached while driving.
 
-The rig does not run an automatic three-contact activation sequence, drill
-vibration, spin, repair particles or audio. A short accepted-use cue preserves
-existing presentation/lifecycle integration pending the separate animation work.
-Pose requests never heal, consume items or send network events. Both owner and
-observers reconstruct selection and accepted use through the existing item
-publications. Reseeding does not replay old use; death clears the payload.
+Use is rejected during deployment, without queuing the early press. Core requires
+a fresh shared-rack deployment plus the 1.8-second arm deployment for the exact
+life, capability and selection. This transient readiness is reset on recovery.
+Local input additionally waits for the actual outgoing payload to return and the
+selected arm to finish unfolding. No new packet or inventory field is added.
+
+One accepted use immediately applies the existing authoritative heal and consumes
+one Wrench. Its existing reliable outcome starts a 0.96-second cosmetic sequence
+on owner and observers: lift, left contact, lift, center contact, lift, right
+contact, lift. Lateral travel happens clear of the bonnet. Each contact holds for
+about 0.106 seconds with chuck rotation, at most 1 mm of upward vibration and one
+brief spark burst. The raised tool then follows the original centering, folding,
+rack lowering and trunk closing path. The deployment and final stow are separate
+from the repair duration. A contact never applies another heal.
+
+The bounded spark effect uses ten small emissive flecks by default, at most sixteen,
+with a 0.16-second lifetime. Its origin is the actual vehicle-local tip contact;
+upward flight makes the small streaks visible beyond the hood from behind. It
+adds no textures, external assets or sound. The former vehicle-origin Wrench VFX
+is suppressed. Existing generic audio behavior is unchanged.
+
+DevTools exposes session-local duration (0.8–1 seconds), contact hold fraction
+(0.25–0.40 per beat), and spark intensity (0–2). Settings are captured for the next
+repair; healing and deployment balance are not duplicated. Each accepted token
+plays at most once. Switching interrupts and safely lifts the tool before stow;
+discarding does not repair. Reseed and life changes discard animation memory.
+Sparks are owned by the arm, cleared on interruption/completion, and their meshes
+and materials are disposed when the arm leaves the tree.
 
 `check-wrench-arm.ps1 -GodotPath <editor> [-Visual] [-Impaired]` exercises two
-native UDP peers. The fixture requests the three poses independently to verify
-hood reach and geometry; these fixture requests are not production activation.
-It also checks trunk fit, articulation, lifecycle, healing, driving and collisions.
-Rendered evidence goes to `.godot/ts292/round3`. Surrounding item handoffs are
+native UDP peers. Independent pose requests retain the approved geometry regression;
+real activations additionally verify ordered contacts, timing, sparks, one-use
+healing, early rejection, moving cars, uneven terrain, collision, switching,
+discard, recovery, and death with active effects. Rendered evidence and the text
+record go to `.godot/ts293`. Surrounding item handoffs are
 covered by `check-car-rack.ps1`. Neither fixture establishes physical-PC/EOS
 or Internet behavior.

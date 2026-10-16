@@ -44,7 +44,8 @@ internal sealed class MovingPickupTests
         Assert.That(host.Spawns.Balances, Is.Empty);
         Assert.That(host.Spawns.States[0].Available, Is.True);
         Assert.That(host.Items.Slots.Single(), Is.EqualTo(full));
-        host.UseItem(0, host.SessionId, full.Life, full.Token);
+        WrenchTestPreparation.Wait(host);
+        Assert.That(host.UseItem(0, host.SessionId, full.Life, full.Token), Is.True);
         Move(host, new(-4, 0, 0));
         host.CollectPickups();
         Assert.That(host.Items.Slots.Single().Full, Is.True);

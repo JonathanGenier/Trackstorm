@@ -85,6 +85,7 @@ internal sealed class EventStreamTests
         var state = world.GetVehicle(1);
         world.Step(input, [new VehicleStepRequest(1, input, Observe(state), [new VehicleEffectRequest(new DamageEffect(10, Vector3.Zero, Vector3.Zero), new DamageContext("explosion", 0, "test"))])]);
         Assert.That(host.GiveItem(0, HeldItem.Wrench), Is.True);
+        WrenchTestPreparation.Wait(host);
         var slot = host.Items.Slots.Single();
         Assert.That(host.UseItem(0, 10, slot.Life, slot.Token), Is.True);
         Assert.That(host.UseItem(0, 10, slot.Life, slot.Token), Is.False);

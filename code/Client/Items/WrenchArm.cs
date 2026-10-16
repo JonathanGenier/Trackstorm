@@ -2,7 +2,7 @@ using Godot;
 
 namespace Trackstorm.Client.Items;
 
-/// <summary>Vehicle-local telescopic rig. Hood poses are independent controls for the later activation sequence.</summary>
+/// <summary>Vehicle-local telescopic rig and accepted three-contact repair presentation.</summary>
 internal sealed partial class WrenchArm : Node3D
 {
     internal const string AssetPath = "res://assets/items/wrench/RepairArm.glb";
@@ -17,7 +17,12 @@ internal sealed partial class WrenchArm : Node3D
     private Node3D _reach = null!;
     private Node3D _wrist = null!;
     private float _deployment;
-    private float _cueTime;
+    private float _repairTime = -1;
+    private WrenchRepairSettings _repairSettings = new();
+    private WrenchSparks _sparks = null!;
+    private Node3D _chuck = null!;
+    private int _lastBurst = -1;
+    private int _repairContact = -1;
     private float _contact;
     private float _lateral;
     private int? _requestedContact;
@@ -30,11 +35,13 @@ internal sealed partial class WrenchArm : Node3D
     internal void PresentServices(float rackHeight) => _services.Visible = rackHeight >= .75f;
 
     internal bool Nested => _deployment == 0;
-    internal bool IsReady => _deployment == 1 && !Repairing;
-    internal bool Repairing => _cueTime > 0;
+    internal bool IsReady => _deployment == 1 && !Repairing && _contact == 0 && _lateral == 0;
+    internal bool Repairing => _repairTime >= 0;
+    internal bool SparksActive => _sparks.Active;
+    internal float SparkAge => _sparks.Age;
     internal float Deployment => _deployment;
     internal Vector3 Tip => _tip;
-    internal int ContactIndex => _contact >= .999f && _requestedContact is int index &&
+    internal int ContactIndex => Repairing ? _repairContact : _contact >= .999f && _requestedContact is int index &&
         Math.Abs(_lateral - HoodContact(index).X) < .001f ? index : -1;
     internal float JointError { get; private set; }
     internal double AnimationSeconds { get; private set; }
@@ -66,25 +73,41 @@ internal sealed partial class WrenchArm : Node3D
         _slide = (Node3D)model.FindChild("Slide", true, false);
         _reach = (Node3D)model.FindChild("Reach", true, false);
         _wrist = (Node3D)model.FindChild("Wrist", true, false);
+        _chuck = (Node3D)model.FindChild("Chuck", true, false);
+        _sparks = new WrenchSparks();
+        AddChild(_sparks);
         Pose(Stored, 0, 0);
     }
 
-    // Retain a short accepted-use cue until TS-293 supplies the actual hood sequence.
-    internal void BeginRepair() => _cueTime = .32f;
+    internal void BeginRepair()
+    {
+        if (!IsReady) { return; }
+        _repairSettings = WrenchRepairSettings.Current;
+        _repairTime = 0;
+        _lastBurst = _repairContact = -1;
+        _requestedContact = null;
+    }
 
     /// <summary>Lift away from the hood, telescope above the roof, then fold before shared rack descent.</summary>
     internal void Present(bool deploy, float delta)
     {
         delta = Math.Max(0, delta);
         AnimationSeconds += delta;
-        _cueTime = Math.Max(0, _cueTime - delta);
+        _sparks.Advance(delta);
+        if (Repairing && deploy) { PresentRepair(delta); return; }
+        if (Repairing)
+        {
+            _repairTime = -1;
+            _repairContact = -1;
+            _sparks.Clear();
+        }
         float wantedX = deploy && _deployment == 1 && _requestedContact is int index ? HoodContact(index).X : 0;
         bool aligned = Math.Abs(_lateral - wantedX) < .001f;
         bool touching = deploy && _deployment == 1 && _requestedContact is not null && aligned;
         _contact = Mathf.MoveToward(_contact, touching ? 1 : 0, delta / .6f);
         if (_contact == 0) { _lateral = Mathf.MoveToward(_lateral, wantedX, delta); }
         if (_contact == 0 && _lateral == 0)
-            _deployment = Mathf.MoveToward(_deployment, deploy ? 1 : 0, delta / 1.8f);
+            _deployment = Mathf.MoveToward(_deployment, deploy ? 1 : 0, delta / Core.Items.ItemSlot.WrenchDeploymentSeconds);
         float unfold = Ease(_deployment / .45f);
         float extension = Ease((_deployment - .45f) / .55f);
         Vector3 target = _deployment <= .45f
@@ -93,6 +116,45 @@ internal sealed partial class WrenchArm : Node3D
         target.X += _lateral;
         target.Y = Mathf.Lerp(target.Y, HoodContact(1).Y + .498f, Ease(_contact));
         Pose(target, unfold, extension);
+    }
+
+    private void PresentRepair(float delta)
+    {
+        _repairTime = Math.Min(_repairSettings.Duration, _repairTime + delta);
+        float beat = _repairTime / _repairSettings.Duration * 3;
+        int index = Math.Min(2, (int)beat);
+        float phase = beat - index;
+        Vector3 contact = HoodContact(index);
+        float hover = contact.Y + .498f + .20f;
+        float previousX = index == 0 ? 0 : HoodContact(index - 1).X;
+        float startY = index == 0 ? Rest.Y : hover;
+        float holdEnd = .42f + _repairSettings.ContactFraction;
+        float x = Mathf.Lerp(previousX, contact.X, Ease((phase - .04f) / .14f));
+        float y;
+        if (phase < .18f) { y = startY + (index == 0 ? .08f * Ease(phase / .04f) : 0); }
+        else if (phase < .42f) { y = Mathf.Lerp(index == 0 ? Rest.Y + .08f : hover, contact.Y + .498f, Ease((phase - .18f) / .24f)); }
+        else if (phase < holdEnd) { y = contact.Y + .498f; }
+        else { y = Mathf.Lerp(contact.Y + .498f, index == 2 ? Rest.Y : hover, Ease((phase - holdEnd) / (1 - holdEnd))); }
+        _repairContact = phase >= .42f && phase < holdEnd ? index : -1;
+        // A vibration rises off contact by only 1 mm; never drills through the bonnet.
+        if (_repairContact >= 0) { y += .001f * MathF.Abs(MathF.Sin(_repairTime * 180)); _chuck.RotateY(delta * 85); }
+        Pose(new Vector3(x, y, Rest.Z), 1, 1);
+        if (_repairContact >= 0 && _lastBurst != index)
+        {
+            _lastBurst = index;
+            _sparks.Burst(_tip, _repairSettings.SparkIntensity);
+        }
+        _lateral = x;
+        // Preserve the existing lift-before-center return when interrupted at any contact.
+        float fraction = Mathf.Clamp((Rest.Y - y) / (Rest.Y - contact.Y - .498f), 0, 1);
+        _contact = .5f - MathF.Sin(MathF.Asin(1 - 2 * fraction) / 3);
+        if (_repairTime >= _repairSettings.Duration)
+        {
+            _repairTime = -1;
+            _repairContact = -1;
+            _contact = 0;
+            _sparks.Clear();
+        }
     }
 
     private void Pose(Vector3 target, float unfolded, float extension)

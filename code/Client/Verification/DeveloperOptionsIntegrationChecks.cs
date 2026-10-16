@@ -63,6 +63,27 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 return;
             }
             await CheckInitialAccordionState();
+            if (args.Contains("--wrench-options-only"))
+            {
+                var before = _host.DeveloperConfiguration;
+                Check(Items.WrenchRepairSettings.Current == new Items.WrenchRepairSettings(), "fresh process starts with Wrench cosmetic defaults");
+                var duration = (SpinBox)_devTools.Configs.FindChild("WrenchDuration", true, false);
+                var contact = (SpinBox)_devTools.Configs.FindChild("WrenchContact", true, false);
+                var sparks = (SpinBox)_devTools.Configs.FindChild("WrenchSparks", true, false);
+                duration.Value = .8; contact.Value = .4; sparks.Value = 2;
+                Check(Math.Abs(Items.WrenchRepairSettings.Current.Duration - .8f) < .001f &&
+                    Math.Abs(Items.WrenchRepairSettings.Current.ContactFraction - .4f) < .001f &&
+                    Items.WrenchRepairSettings.Current.SparkIntensity == 2, "native Wrench editor signals change local visual tuning");
+                Check(_host.DeveloperConfiguration == before, "Wrench cosmetic edits do not change authoritative repair or configuration");
+                duration.GetParent().GetParent().GetChildren().OfType<Button>().Single().EmitSignal(BaseButton.SignalName.Pressed);
+                Check(Items.WrenchRepairSettings.Current == new Items.WrenchRepairSettings() && Math.Abs(duration.Value - .96) < .001,
+                    "Wrench category reset restores settings and editor values");
+                _bootstrap.QueueFree();
+                await Frames(3);
+                GD.Print($"Developer Options integration passed: {phase}; Wrench local controls; {_assertions} assertions.");
+                GetTree().Quit();
+                return;
+            }
             if (phase == "read")
             {
                 Check(_host.DeveloperConfiguration.Environment == GameplayConfiguration.HostedDefaults.Environment, "process restart does not retain session environment");
