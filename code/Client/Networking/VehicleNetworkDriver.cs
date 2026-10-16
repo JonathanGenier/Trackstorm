@@ -527,6 +527,9 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
     internal bool RequestItemDiscard()
     {
         _pendingShieldUse = null;
+        // The visible slot still belongs to the installed spent Wrench; do not
+        // delete an incoming capability that is waiting behind its handoff.
+        if (WrenchReturning?.Invoke() == true) { return false; }
         var inventory = RequestedInventory();
         var slot = inventory?.Active;
         if (!AllowsParticipation || LocalState?.CanInteract != true || slot is null || slot.Item == HeldItem.None) { return false; }
@@ -562,6 +565,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
             return false;
         }
 
+        if (WrenchReturning?.Invoke() == true) { return false; }
         if (slot.Item == HeldItem.Missile && MissileReady?.Invoke(inventory!) == false) { return false; }
         if (slot.Item == HeldItem.Wrench && WrenchReady?.Invoke(inventory!) == false) { return false; }
         if ((slot.Item == HeldItem.Shield && ShieldReady?.Invoke(inventory!) == false) ||
@@ -743,6 +747,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         _pendingShieldUse = null;
         ShieldReady = null;
         WrenchReady = null;
+        WrenchReturning = null;
         OilReady = null;
         MissileReady = null;
         ResetAiming();

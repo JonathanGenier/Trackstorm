@@ -4,7 +4,7 @@ if (-not $NoBuild) {
     dotnet build Trackstorm.Client.csproj -c Debug -warnaserror
     if ($LASTEXITCODE -ne 0) { throw 'Wrench arm build failed.' }
 }
-$arguments = @('--path', $PSScriptRoot, 'res://scenes/verification/car_rack_checks.tscn', '--quit-after', '12000', '--', '--wrench-arm')
+$arguments = @('--path', $PSScriptRoot, 'res://scenes/verification/car_rack_checks.tscn', '--quit-after', '24000', '--', '--wrench-arm')
 if (-not $Visual) { $arguments = @('--headless') + $arguments }
 if ($Impaired) { $arguments += '--wrench-impaired' }
 $output = & $GodotPath @arguments 2>&1

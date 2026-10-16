@@ -64,6 +64,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
     internal IReadOnlyDictionary<ulong, NetworkVehicleBody> Bodies => _bodies;
     /// <summary>Current local gameplay snapshot for settings telemetry.</summary>
     internal VehicleSnapshot? LocalState => _driver.LocalState;
+    internal ItemSlot? PresentedLocalItem => LocalState is { } state && _bodies.TryGetValue(state.VehicleId, out var body)
+        ? body.Rack.PresentedInventory(_driver.LocalItem) : _driver.LocalItem;
     /// <summary>Measured render-buffer delay for diagnostics and runtime checks.</summary>
     internal double InterpolationDelay => _interpolation.DelayMilliseconds;
     internal double InterpolationTimelineDelay => _interpolation.TimelineDelayMilliseconds;
@@ -109,6 +111,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver.OilReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.Rack.IsOilReady(inventory);
         _driver.ShieldReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.CanDeployShield(inventory);
         _driver.WrenchReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.Rack.IsWrenchReady(inventory);
+        _driver.WrenchReturning = () => LocalState is { } state && _bodies.TryGetValue(state.VehicleId, out var body) && body.Rack.WrenchOwnsRack;
         _driver.MissileReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.Rack.IsMissileReady(inventory);
         _driver.ObserveShield = Walls.Observe;
         AddChild(_salvoMarker);

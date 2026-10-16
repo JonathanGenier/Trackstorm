@@ -9,7 +9,8 @@ capability, accepted-use and life ownership. Existing `CarDeployment` opens the
 split trunk and raises the rack; the arm folds before that rack can descend.
 
 The editable Blender assembly has a rigid shoulder, 0.70 m upper link and a
-1.25–3.25 m telescopic forearm. Nested Slide and Reach transforms translate rigid
+1.25–3.25 m telescopic forearm during deployment, extending to 3.45 m for the
+forward repair reach. Nested Slide and Reach transforms translate rigid
 sections without stretching the meshes. Rotary unions and fixed section lines
 avoid hoses bridging moving joints. The full-size power pack and horizontal reservoir mount beneath
 the existing rack, with the tank above the battery. Following the Oil/Nitro
@@ -24,7 +25,9 @@ dressing is absent.
 Deployment first raises the collapsed arm, then extends above the roof. The
 ready tool hovers ahead of the windshield over the hood. `HoodContact(index)`
 exposes rack-local left/center/right tip positions at x=-0.50/0/+0.50 m,
-vehicle z=-1.75 m, on the production bonnet's sloping surface ahead of its scoop.
+vehicle z=-1.98 m, on the production bonnet's sloping surface 14 cm behind its
+front edge. Each existing telescopic section travels another 10 cm during this
+forward reach to clear the roof lamps, then returns before the original stow path.
 `RequestHoodPose(index)` requests one contact; null returns to hover. Lateral
 changes lift before traversing. Retraction lifts clear, centers, telescopes and
 folds. All targets are vehicle-local and remain attached while driving.
@@ -53,8 +56,16 @@ is suppressed. Existing generic audio behavior is unchanged.
 DevTools exposes session-local duration (0.8–1 seconds), contact hold fraction
 (0.25–0.40 per beat), and spark intensity (0–2). Settings are captured for the next
 repair; healing and deployment balance are not duplicated. Each accepted token
-plays at most once. Switching interrupts and safely lifts the tool before stow;
-discarding does not repair. Reseed and life changes discard animation memory.
+plays at most once. An accepted repair owns the rack through all contacts, arm
+nesting, rack descent and complete trunk closure. Pickups and selection changes
+update the pending accepted inventory without interrupting this lifecycle. The
+incoming capability remains valid, but local use and discard wait for the mechanism
+to close. Selection changes remain accepted as pending intent.
+The HUD projects the installed spent Wrench in its physical slot until that same
+handoff completes; it has no independent delay or predicted inventory mutation.
+Core still heals and consumes immediately, leaving capacity available for pickups.
+An unused Wrench can be switched/discarded normally without repair. Reseed and
+life changes discard animation memory.
 Sparks are owned by the arm, cleared on interruption/completion, and their meshes
 and materials are disposed when the arm leaves the tree.
 
@@ -62,7 +73,10 @@ and materials are disposed when the arm leaves the tree.
 native UDP peers. Independent pose requests retain the approved geometry regression;
 real activations additionally verify ordered contacts, timing, sparks, one-use
 healing, early rejection, moving cars, uneven terrain, collision, switching,
-discard, recovery, and death with active effects. Rendered evidence and the text
+discard, recovery, and death with active effects. Its repeated pickup matrix uses
+the real pickup authority before use, immediately after use, during drilling and
+during retraction, stopped and moving, with actual HUD and both-peer checks.
+Rendered evidence and the text
 record go to `.godot/ts293`. Surrounding item handoffs are
 covered by `check-car-rack.ps1`. Neither fixture establishes physical-PC/EOS
 or Internet behavior.

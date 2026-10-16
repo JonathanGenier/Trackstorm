@@ -10,6 +10,7 @@ internal sealed partial class VehicleNetworkDriver
     internal Func<ItemSlot, bool>? ShieldReady { get; set; }
     internal Func<ItemSlot, bool>? OilReady { get; set; }
     internal Func<ItemSlot, bool>? WrenchReady { get; set; }
+    internal Func<bool>? WrenchReturning { get; set; }
 
     private void FlushShieldUse(uint? inputSequence = null)
     {

@@ -25,6 +25,7 @@ internal sealed partial class WrenchArm : Node3D
     private int _repairContact = -1;
     private float _contact;
     private float _lateral;
+    private float _forward;
     private int? _requestedContact;
     private Vector3 _tip;
 
@@ -35,7 +36,7 @@ internal sealed partial class WrenchArm : Node3D
     internal void PresentServices(float rackHeight) => _services.Visible = rackHeight >= .75f;
 
     internal bool Nested => _deployment == 0;
-    internal bool IsReady => _deployment == 1 && !Repairing && _contact == 0 && _lateral == 0;
+    internal bool IsReady => _deployment == 1 && !Repairing && _contact == 0 && _lateral == 0 && _forward == 0;
     internal bool Repairing => _repairTime >= 0;
     internal bool SparksActive => _sparks.Active;
     internal float SparkAge => _sparks.Age;
@@ -47,11 +48,12 @@ internal sealed partial class WrenchArm : Node3D
     internal double AnimationSeconds { get; private set; }
 
     // Bonnet slopes from y=.40 at z=-.94 to y=.27 at z=-2.12.
-    // z=-1.75 clears the scoop for all three positions. Coordinates are rack-local.
+    // z=-1.98 is 14 cm behind the bonnet's front edge, within the rigid arm's reach.
+    // Coordinates are rack-local; the approved deployment/rest target stays unchanged.
     internal static Vector3 HoodContact(int index)
     {
         if (index is < 0 or > 2) { throw new ArgumentOutOfRangeException(nameof(index)); }
-        return new Vector3((index - 1) * .50f, .40f - (.81f / 1.18f * .13f) - 1.34f, -3.595f);
+        return new Vector3((index - 1) * .50f, .40f - (1.04f / 1.18f * .13f) - 1.34f, -3.825f);
     }
 
     /// <summary>Requests one pose, without repair, consumption, effects or an automatic three-contact sequence.</summary>
@@ -102,11 +104,16 @@ internal sealed partial class WrenchArm : Node3D
             _sparks.Clear();
         }
         float wantedX = deploy && _deployment == 1 && _requestedContact is int index ? HoodContact(index).X : 0;
-        bool aligned = Math.Abs(_lateral - wantedX) < .001f;
+        float wantedForward = deploy && _deployment == 1 && _requestedContact is not null ? HoodContact(1).Z - Rest.Z : 0;
+        bool aligned = Math.Abs(_lateral - wantedX) < .001f && Math.Abs(_forward - wantedForward) < .001f;
         bool touching = deploy && _deployment == 1 && _requestedContact is not null && aligned;
         _contact = Mathf.MoveToward(_contact, touching ? 1 : 0, delta / .6f);
-        if (_contact == 0) { _lateral = Mathf.MoveToward(_lateral, wantedX, delta); }
-        if (_contact == 0 && _lateral == 0)
+        if (_contact == 0)
+        {
+            _lateral = Mathf.MoveToward(_lateral, wantedX, delta);
+            _forward = Mathf.MoveToward(_forward, wantedForward, delta);
+        }
+        if (_contact == 0 && _lateral == 0 && _forward == 0)
             _deployment = Mathf.MoveToward(_deployment, deploy ? 1 : 0, delta / Core.Items.ItemSlot.WrenchDeploymentSeconds);
         float unfold = Ease(_deployment / .45f);
         float extension = Ease((_deployment - .45f) / .55f);
@@ -114,6 +121,7 @@ internal sealed partial class WrenchArm : Node3D
             ? Stored.Lerp(Raised, unfold) + Vector3.Forward * (.60f * MathF.Sin(Mathf.Pi * unfold))
             : Raised.Lerp(Rest, extension);
         target.X += _lateral;
+        target.Z += _forward;
         target.Y = Mathf.Lerp(target.Y, HoodContact(1).Y + .498f, Ease(_contact));
         Pose(target, unfold, extension);
     }
@@ -130,6 +138,7 @@ internal sealed partial class WrenchArm : Node3D
         float startY = index == 0 ? Rest.Y : hover;
         float holdEnd = .42f + _repairSettings.ContactFraction;
         float x = Mathf.Lerp(previousX, contact.X, Ease((phase - .04f) / .14f));
+        float z = index == 0 ? Mathf.Lerp(Rest.Z, contact.Z, Ease((phase - .04f) / .14f)) : contact.Z;
         float y;
         if (phase < .18f) { y = startY + (index == 0 ? .08f * Ease(phase / .04f) : 0); }
         else if (phase < .42f) { y = Mathf.Lerp(index == 0 ? Rest.Y + .08f : hover, contact.Y + .498f, Ease((phase - .18f) / .24f)); }
@@ -138,13 +147,14 @@ internal sealed partial class WrenchArm : Node3D
         _repairContact = phase >= .42f && phase < holdEnd ? index : -1;
         // A vibration rises off contact by only 1 mm; never drills through the bonnet.
         if (_repairContact >= 0) { y += .001f * MathF.Abs(MathF.Sin(_repairTime * 180)); _chuck.RotateY(delta * 85); }
-        Pose(new Vector3(x, y, Rest.Z), 1, 1);
+        Pose(new Vector3(x, y, z), 1, 1);
         if (_repairContact >= 0 && _lastBurst != index)
         {
             _lastBurst = index;
             _sparks.Burst(_tip, _repairSettings.SparkIntensity);
         }
         _lateral = x;
+        _forward = z - Rest.Z;
         // Preserve the existing lift-before-center return when interrupted at any contact.
         float fraction = Mathf.Clamp((Rest.Y - y) / (Rest.Y - contact.Y - .498f), 0, 1);
         _contact = .5f - MathF.Sin(MathF.Asin(1 - 2 * fraction) / 3);
@@ -159,7 +169,11 @@ internal sealed partial class WrenchArm : Node3D
 
     private void Pose(Vector3 target, float unfolded, float extension)
     {
-        float lowerLength = 1.25f + 2 * extension;
+        // The front-edge contact needs another 10 cm of travel in each existing
+        // telescopic section to keep the elbow/forearm above the roof lamps.
+        // Blend it only beyond the approved rest reach; deploy/stow are unchanged.
+        float reach = extension + .10f * Mathf.Clamp((Rest.Z - target.Z) / .23f, 0, 1);
+        float lowerLength = 1.25f + 2 * reach;
         Vector3 offset = target - ShoulderPoint;
         float distance = Mathf.Clamp(offset.Length(), lowerLength - .6999f, lowerLength + .6999f);
         Vector3 direction = offset.Normalized();
@@ -174,7 +188,7 @@ internal sealed partial class WrenchArm : Node3D
         Basis lower = new(hinge, lowerAxis, hinge.Cross(lowerAxis));
         _shoulder.Transform = new Transform3D(upper, ShoulderPoint);
         _elbow.Transform = new Transform3D(upper.Inverse() * lower, new Vector3(0, .7f, 0));
-        _slide.Position = _reach.Position = new Vector3(0, .05f + extension, 0);
+        _slide.Position = _reach.Position = new Vector3(0, .05f + reach, 0);
         Basis tool = new(Vector3.Right, -Mathf.Pi / 2 * (1 - unfolded));
         _wrist.Transform = new Transform3D(lower.Inverse() * tool, new Vector3(0, 1.15f, 0));
         Vector3 actualWrist = ToLocal(_wrist.GlobalPosition);

@@ -4,6 +4,14 @@
 
 ## Behavior and Layout
 
+After an accepted Wrench use, its physical slot continues to represent the spent
+arm installed on the vehicle until the actual repair/rack/trunk lifecycle closes.
+This projection comes from the rack handoff state, not a HUD timer. Incoming
+pickups remain accepted inventory and become visible in that slot when the
+mechanism releases it. Empty is shown only after full stow when no replacement
+exists. Death, life change and reseed clear the presentation normally; use input
+always targets authoritative inventory. See [Wrench](items-wrench.md).
+
 Network starts add a temporary center-screen **5 → 4 → 3 → 2 → 1 → GO** overlay above the existing HUD. Outlined cream numerals, an amber ring/start lights and a mint GO provide contrast over the arena; each value settles with a brief scale animation. The accepted authoritative phase and world tick select the value. Animation time never authorizes gameplay. GO fades and clears within 0.75 seconds, leaving the permanent HUD in place. See [Game Loop](game-loop.md) for the full-roster synchronization gate and timing ownership.
 
 During a production practice or network arena, the HUD shows a bottom-left standing badge and current/max HP, a bottom-right speedometer and two held-item slots, and a top-center timer. Standing uses the same authoritative [match standings](standings.md) rank as the leaderboard during network matches; practice displays `--`. Network Circus matches add a compact upper-left banked total and current K/D multiplier below the arena status strip. The existing top-center timer displays Circus authoritative remaining time as MM:SS: `10:00` by default, through `00:00` at expiry. It rounds remaining ticks up to seconds and reads the accepted Game Loop time boundary plus the latest accepted host world tick, never prediction or a HUD clock. Initialization/countdown show the full configured Active duration. Join/reconnect immediately project the installed checkpoint; migration uses the restored time and recovery debit. Host duration edits update this same display. Untimed FirstToTarget and practice retain `--:--`. The HUD disappears when the local vehicle is unavailable or the arena closes.

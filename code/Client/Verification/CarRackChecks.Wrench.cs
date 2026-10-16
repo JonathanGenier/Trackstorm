@@ -20,6 +20,7 @@ public sealed partial class CarRackChecks
         }
         for (int round = 0; round < 3; round++)
         {
+            var collisionWalls = new List<StaticBody3D>();
             host.Items.RemovePlayer(Shooter);
             await Frames(150);
             Position(round == 2 ? 1000 : 500, false);
@@ -150,6 +151,7 @@ public sealed partial class CarRackChecks
                     wall.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(16, 3, 1) } });
                     wall.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new Vector3(16, 3, 1) } });
                     arena.AddChild(wall);
+                    collisionWalls.Add(wall);
                 }
             }
             var contacts = new List<int>[] { [], [] };
@@ -168,6 +170,12 @@ public sealed partial class CarRackChecks
                 for (int peer = 0; peer < 2; peer++)
                 {
                     if (Arm(peer) is not { } arm) { continue; }
+                    var rack = _arenas[peer].Bodies[Shooter].Rack;
+                    if (rack.WrenchOwnsRack)
+                    {
+                        Check(rack.PresentedInventory(_arenas[peer].Driver.ItemState!.Slots.Single(s => s.Vehicle == Shooter))!.Item == HeldItem.Wrench,
+                            "Normal repair retains spent slot until actual full stow");
+                    }
                     double stepLimit = .03 + 35 * (arm.AnimationSeconds - sampleTimes[peer]);
                     Check(arm.JointError < .001f, "Fixed link IK endpoint remains attached");
                     Check(arm.Scale.IsEqualApprox(Vector3.One), "Arm keeps full physical scale");
@@ -189,7 +197,7 @@ public sealed partial class CarRackChecks
                         if (frame % 12 == 0) { CheckWrenchClearance(arm); }
                     }
                 }
-                if (round < 2 && DisplayServer.GetName() != "headless" && Arm(1) is { SparkAge: >= .11f, SparksActive: true } contactArm &&
+                if (round < 2 && DisplayServer.GetName() != "headless" && Arm(1) is { SparkAge: >= .06f, SparksActive: true } contactArm &&
                     contacts[1].Count > 0 && captured.Add(contacts[1][^1]))
                 {
                     pictures.Add(($"{(round == 0 ? "chase" : "side")}-repair-{contacts[1][^1]}", _views[1].GetTexture().GetImage()));
@@ -203,6 +211,7 @@ public sealed partial class CarRackChecks
                 using var image = picture.Image;
                 Check(image.SavePng(ProjectSettings.GlobalizePath("res://.godot/ts293/" + picture.Name + ".png")) == Error.Ok, "Rendered repair " + picture.Name);
             }
+            if (round < 2 && DisplayServer.GetName() != "headless") { Check(captured.Count == 3, "Fresh rendered evidence for all three contacts"); }
             repairCamera?.QueueFree();
             Check(contacts.All(c => c.SequenceEqual(new[] { 0, 1, 2 })), $"Both peers perform exactly left, center, right contacts ({string.Join(',', contacts[0])}; {string.Join(',', contacts[1])})");
             Check(sparkContacts.All(c => c.SetEquals(new[] { 0, 1, 2 })), "Each hood contact emits its own localized spark burst on both peers");
@@ -214,6 +223,7 @@ public sealed partial class CarRackChecks
                 Check(peakSpeed > 3, $"Repair exercised during native driving and turning (peak {peakSpeed})");
                 Check(host.World.GetVehicle(Shooter).Damage.CurrentHP < 1000, $"Native collision occurred during repair/return (position {host.World.GetVehicle(Shooter).ObservedPhysics.Position}, HP {host.World.GetVehicle(Shooter).Damage.CurrentHP})");
             }
+            foreach (var wall in collisionWalls) { wall.QueueFree(); }
         }
         host.Items.RemovePlayer(Shooter); Position(500, false); await Frames(30);
         Check(host.Items.Grant(host.World, Shooter, HeldItem.Wrench), "Interrupt fixture Wrench");
@@ -252,6 +262,7 @@ public sealed partial class CarRackChecks
         Check(Arm(0) is null && Arm(1) is null, "Death removes active sparks with their owning arms");
         Position(1000, true); await Frames(90);
         Check(_arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Respawn starts stowed");
+        await CheckWrenchPickupRaces();
     }
 
     private void CheckWrenchServices(WrenchArm arm)

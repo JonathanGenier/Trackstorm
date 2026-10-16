@@ -72,7 +72,23 @@ internal sealed partial class CarRackPresentation : Node
         ItemSlot? active = inventory?.Active;
         var outcome = events.LastOrDefault(e => e.Item != HeldItem.Nitro && (e.Item == HeldItem.MachineGun || !e.Impact) &&
             (e.Item != HeldItem.Wrench || e.Token != _wrenchUseToken) &&
-            (e.Token == active?.Token || e.Token == _previous?.Active.Token));
+            (e.Token == active?.Token || e.Token == _previous?.Active.Token ||
+                (e.Item == HeldItem.Wrench && e.Token == _wrenchCapability)));
+        if (outcome is { Item: HeldItem.Wrench } && _payload is Items.WrenchArm)
+        {
+            _wrenchUseToken = outcome.Token;
+            _wrenchOwnsRack = true;
+            _wrenchReturning = false;
+            _wrenchStarted = false;
+        }
+        // Accepted repair owns the mechanism through trunk closure. Acquisitions and
+        // selection still update authoritative inventory, but cannot cancel this handoff.
+        if (_wrenchOwnsRack)
+        {
+            _previous = inventory;
+            _aim = null;
+            return;
+        }
         bool used = outcome is not null;
         bool selection = inventory is not null && (_previous is null || inventory.ActiveSlot != _previous.ActiveSlot || inventory.SelectionRevision != _previous.SelectionRevision);
         // The same selected capability becoming empty is confirmed depletion. A missing
@@ -138,10 +154,13 @@ internal sealed partial class CarRackPresentation : Node
         _aim = null;
         _wrenchStarted = false;
         _wrenchUseToken = 0;
+        _wrenchCapability = 0;
+        _wrenchOwnsRack = _wrenchReturning = false;
     }
 
     public override void _Process(double delta)
     {
+        if (AnimateWrenchUse(Math.Max(0, (float)delta))) { return; }
         if (AnimateOil(Math.Max(0, (float)delta))) { return; }
         if (AnimateMissile(Math.Max(0, (float)delta))) { return; }
         if (_desired == HeldItem.Nitro && (_mounted == HeldItem.None || (_mounted == HeldItem.Nitro && !_replace)))
@@ -180,6 +199,11 @@ internal sealed partial class CarRackPresentation : Node
             _payload = _mounted == HeldItem.Nitro ? Boost : WeaponAim.Supports(_mounted) ? new Items.WeaponAimMount(_mounted) : Items.RackItemVisual.Create(_mounted);
             _payload.Visible = false;
             if (_mounted != HeldItem.Nitro) { _rack.AddChild(_payload); }
+            if (_payload is Items.WrenchArm)
+            {
+                _wrenchCapability = _previous?.Active.Token ?? 0;
+                _wrenchSlot = _previous?.ActiveSlot ?? 0;
+            }
             if (_payload is Items.ProxyMineRack arm) { arm.Observe(_placement); }
             _mechanism.Deployed = true;
         }
