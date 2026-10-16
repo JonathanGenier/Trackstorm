@@ -28,7 +28,8 @@ def material(name, rgb, metal, rough):
     y,x = np.mgrid[:n,:n]/n
     rng = np.random.default_rng(292)
     noise = rng.random((n,n))
-    shade = .85+.10*np.sin(x*29+np.cos(y*37))+.05*noise
+    shade = .80+.10*np.sin(x*29+np.cos(y*37))+.10*noise
+    shade[(np.sin(x*175+y*31)>.995)&(noise>.70)] = .43
     shade[(noise>.992)&(np.sin(y*90)>0)] = .33
     pixels = np.ones((n,n,4),dtype=np.float32)
     pixels[:,:,:3] = shade[:,:,None]*np.array(rgb)
@@ -56,7 +57,9 @@ root=pivot('RepairArm')
 mount=pivot('Mount',root)
 shoulder=pivot('Shoulder',root,(0,0,.23))
 elbow=pivot('Elbow',shoulder,(0,0,.7))
-wrist=pivot('Wrist',elbow,(0,0,1.25))
+slide=pivot('Slide',elbow,(0,0,.05))
+reach=pivot('Reach',slide,(0,0,.05))
+wrist=pivot('Wrist',reach,(0,0,1.15))
 chuck=pivot('Chuck',wrist)
 
 def finish(o,name,mat,parent,bevel=0):
@@ -156,7 +159,69 @@ def link(parent,length):
     for side in [-1,1]:
         box('Edge reinforcement',(0,side*.094,length/2),(.19,.015,length-.24),brass,parent,.004)
 
-link(shoulder,.7);link(elbow,1.25);joint(wrist)
+link(shoulder,.7)
+joint(elbow)
+# Three nested sliding box sections; solid rims and smaller insets explain extension.
+for owner,width in [(elbow,.27),(slide,.21),(reach,.15)]:
+    box('Telescopic steel channel',(0,0,.57),(width,.20,1.10),iron,owner,.015)
+    for side in [-1,1]:
+        box('Bevelled enamel panel',(side*(width/2+.008),0,.57),(.022,.175,1.03),red,owner,.012)
+        for k in range(3):
+            z=.15+k*.30
+            mesh('Broad ivory diagonal',[(side*(width/2+.021),-.085,z),(side*(width/2+.021),.085,z+.08),(side*(width/2+.021),.085,z+.20),(side*(width/2+.021),-.085,z+.12)],[(0,1,2,3)],ivory,owner)
+            star('Raised gold circus star',side*(width/2+.023),z+.245,.065,owner)
+        for z in [.075,1.06]:
+            box('Bolted brass guide shoe',(side*(width/2+.025),0,z),(.045,.23,.065),brass,owner,.006)
+            for y in [-.065,.065]:cyl('Guide shoe bolt',(side*(width/2+.051),y,z),.013,.014,steel,owner,'X',6)
+    for side in [-1,1]:
+        box('Machined slide rail',(0,side*.105,.57),(width*.65,.018,1.07),steel,owner,.004)
+    # Fixed hydraulic line terminates in sealed sliding manifolds, no stretched hose.
+    hose('Section hydraulic feed',[(0,-.15,.07),(0,-.16,.25),(0,-.16,.95),(0,-.15,1.07)],owner,.022)
+    for z in [.07,1.07]:cyl('Sealed slide union',(0,-.15,z),.035,.055,brass,owner,verts=24)
+    for k in range(12):cyl('Red spiral hose wrap',(0,-.16,.18+k*.07),.024,.022,red,owner,verts=12)
+joint(wrist)
+# Thick clevis shoulders, bearing collars and inset keyed hubs.
+for owner in [shoulder,elbow,wrist]:
+    for side in [-1,1]:
+        box('Sculpted pivot cheek',(side*.13,0,.055),(.045,.27,.24),red,owner,.045)
+        cyl('Outer stepped brass bearing',(side*.174,0,0),.121,.025,brass,owner,'X')
+        cyl('Bearing seal',(side*.191,0,0),.089,.014,iron,owner,'X')
+        cyl('Keyed bearing hub',(side*.185,0,0),.063,.020,brass,owner,'X',12)
+        cyl('Axle lock',(side*.197,0,0),.025,.010,steel,owner,'X',6)
+        for k in range(8):
+            a=k*2*pi/8
+            cyl('Bearing perimeter stud',(side*.192,.103*cos(a),.103*sin(a)),.010,.013,steel,owner,'X',6)
+    # Rotary unions carry hoses through the joint axis without bridging moving links.
+    cyl('Hydraulic rotary union',(.185,0,0),.037,.025,brass,owner,'X')
+    hose('Joint service elbow',[(.16,0,0),(.16,-.12,0),(0,-.16,.18)],owner,.022)
+
+# Rack-top power pack and reservoir: no replacement lift or under-rack dressing.
+box('Power unit casing',(-.36,-.52,.245),(.64,.30,.29),red,mount,.025)
+for x in [-.66,-.06]:
+    box('Power unit corner rail',(x,-.52,.245),(.038,.32,.31),iron,mount,.008)
+    for z in [.12,.37]:cyl('Power case fastener',(x,-.686,z),.015,.016,brass,mount,'Y',6)
+for x in [-.56,-.36,-.16]:
+    box('Recessed ventilation panel',(x,-.677,.245),(.16,.015,.21),iron,mount,.009)
+    for z in [.17,.21,.25,.29,.33]:box('Vent louvre',(x,-.691,z),(.135,.018,.012),steel,mount,.003)
+mesh('Power lightning emblem',[(-.37,-.705,.34),(-.43,-.705,.24),(-.37,-.705,.24),(-.40,-.705,.15),(-.29,-.705,.27),(-.35,-.705,.27),(-.31,-.705,.34)],[(0,1,2,3,4,5,6)],gold,mount)
+for x in [-.58,-.13]:
+    box('Power mounting foot',(x,-.52,.10),(.11,.36,.04),brass,mount)
+    cyl('Power terminal',(x,-.52,.405),.025,.035,brass,mount,verts=12)
+# Horizontal pressure vessel at the rear-right of the rack, clear of the folded arm.
+cyl('Reservoir enamel shell',(.39,-.52,.26),.135,.56,ivory,mount,'X')
+for x in [.11,.67]:
+    cyl('Reservoir dished end',(x,-.52,.26),.126,.04,red,mount,'X')
+    cyl('Reservoir brass shoulder',(x,-.52,.26),.139,.035,brass,mount,'X')
+    box('Reservoir saddle',(x,-.52,.12),(.07,.29,.07),iron,mount)
+    for k in range(8):
+        a=k*2*pi/8
+        cyl('Tank ring bolt',(x+.021,-.52+.108*cos(a),.26+.108*sin(a)),.009,.012,steel,mount,'X',6)
+for x in [.19,.39,.59]:
+    cyl('Tank red stripe',(x,-.52,.26),.137,.09,red,mount,'X')
+cyl('Pressure regulator',(.72,-.52,.26),.035,.07,brass,mount,'X')
+hose('Reservoir supply',[(.75,-.52,.26),(.78,-.32,.22),(.25,-.21,.17),(.21,0,.19)],mount,.024)
+hose('Power loom',[(-.58,-.52,.41),(-.70,-.36,.34),(-.33,-.20,.18),(-.18,0,.20)],mount,.024)
+
 # Recognisable vertical impact tool: motor can, toothed cooling collar and drive socket.
 cyl('Drill motor housing',(0,0,-.13),.115,.24,red,wrist)
 for z in [-.035,-.22]:cyl('Drill brass collar',(0,0,z),.127,.032,brass,wrist)
@@ -171,9 +236,19 @@ for k in range(12):
     a=k*2*pi/12
     box('Gearbox cooling fin',(.093*cos(a),.093*sin(a),-.265),(.012,.012,.052),steel,wrist,.002)
 cyl('Socket coupling',(0,0,-.31),.067,.04,brass,chuck)
-cyl('Impact socket',(0,0,-.35),.052,.06,iron,chuck,verts=12)
-cyl('Contact drive',(0,0,-.389),.028,.018,steel,chuck,verts=6)
+cyl('Impact socket',(0,0,-.40),.052,.16,iron,chuck,verts=12)
+cyl('Contact drive',(0,0,-.489),.028,.018,steel,chuck,verts=6)
 hose('Motor power loop',[(0,.145,0),(0,.18,.12),(0,.19,-.07),(0,.11,-.13)],wrist,.022)
+
+# Motor ribs, service panels and a substantial impact gearbox distinguish the tool.
+for side in [-1,1]:
+    box('Tool service armor',(side*.107,0,-.13),(.035,.15,.18),red,wrist,.02)
+    for z in [-.07,-.19]:
+        for y in [-.052,.052]:cyl('Tool service screw',(side*.132,y,z),.011,.012,brass,wrist,'X',6)
+for k in range(16):
+    a=k*2*pi/16
+    box('Motor cooling flute',(.107*cos(a),.107*sin(a),-.14),(.014,.014,.10),iron,wrist,.003)
+cyl('Impact drive shoulder',(0,0,-.295),.079,.025,steel,wrist)
 
 # UV unwrap all source geometry, including converted hose curves.
 for o in list(bpy.data.objects):
@@ -188,7 +263,7 @@ elbow.rotation_euler[1]=pi
 wrist.rotation_euler[1]=-pi/2
 wrist.rotation_euler[0]=pi/2
 root['Design reference']='TS-292 attachments 10154 Arm 7.png and 10153 back red mount.png; direction only, no redistributed pixels'
-root['Rig']='Rigid shoulder/elbow/wrist hierarchy; fixed .7m/1.25m links; no scale animation; Client solves local-space IK'
+root['Rig']='Rigid shoulder/elbow/wrist hierarchy; fixed .7m upper and 1.25-3.25m telescopic forearm; no scale animation; Client solves local-space IK'
 bpy.context.view_layer.update()
 bpy.ops.wm.save_as_mainfile(filepath=str(ROOT/'source/RepairArm.blend'))
 # Bake modifiers and batch only within each articulated owner/material.
@@ -196,7 +271,7 @@ for o in list(bpy.data.objects):
     if o.type!='MESH':continue
     bpy.context.view_layer.objects.active=o
     for mod in list(o.modifiers):bpy.ops.object.modifier_apply(modifier=mod.name)
-for parent in [mount,shoulder,elbow,wrist,chuck]:
+for parent in [mount,shoulder,elbow,slide,reach,wrist,chuck]:
     for mat in [red,ivory,brass,gold,iron,steel,rubber]:
         objects=[o for o in list(bpy.data.objects) if o.type=='MESH' and o.parent==parent and o.data.materials[0]==mat]
         if not objects:continue
