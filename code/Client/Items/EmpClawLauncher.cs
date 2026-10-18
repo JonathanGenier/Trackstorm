@@ -80,9 +80,9 @@ internal sealed partial class EmpClawLauncher : Node3D
         // Trunk/rack precedes a straight lift, short seating drop, then bore extension.
         float rise = Ease(progress, .44f, .62f);
         float seat = Ease(progress, .62f, .76f);
-        _lift.Position = new(0, .45f * rise - .21f * seat, 0);
-        _extension.Position = new(0, 0, -.68f * Ease(progress, .76f, 1));
-        _middle.Position = new(0, 0, -.34f * Ease(progress, .76f, 1));
+        _lift.Position = new(0, .45f * rise - .18f * seat, 0);
+        _extension.Position = new(0, 0, -.99f * Ease(progress, .76f, 1));
+        _middle.Position = new(0, 0, -.50f * Ease(progress, .76f, 1));
         _recoil.Position = new(0, 0, .065f * MathF.Sin(Math.Min(1, _shotAge / .20f) * MathF.PI));
         float blend = 1 - MathF.Exp(-22 * Math.Max(0, delta));
         float yaw = progress >= .999f ? aim?.Yaw ?? 0 : 0;

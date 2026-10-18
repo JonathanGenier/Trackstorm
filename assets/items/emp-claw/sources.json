@@ -9,9 +9,9 @@
   "reference_policy": "User-supplied Jira design direction; no reference pixels redistributed",
   "car_source_sha256": "be3c808a8d32fd995e2eab1cce24f5bf7139e3b686108b3b2a1d786985c0fbee",
   "sha256": {
-    "source/BuildEmpClaw.py": "073c10e12a1c7ea62dec990f50f3fbb57fc25052525b1b39b24263a5bb6beb3e",
-    "source/EmpClaw.blend": "64d50db32fd2b6dd105ee8326fafeb71cd4c72a9d18fdf230cb74d22dfb6bb4e",
-    "EmpClaw.glb": "a261db47ac079f0ee2853815d852c7b12614ff20235b6bac6def1e00e0cc9cda",
-    "EmpClawLauncher.glb": "0b23ad573e429c1944bd3230294924aaf627bd4f407fd4202d5311287e0f4e1b"
+    "source/BuildEmpClaw.py": "fc3bbeeb0073be537a6b50de74d2fdfbd586624679b4e941b5b06e51038e2eca",
+    "source/EmpClaw.blend": "52eb10744f90fa3e548de28e7696cf163706a9f89d66a8c22f3f13d3b182f685",
+    "EmpClaw.glb": "56c2406ead0d69deeb6127d918cfc731a3195be83c8ace761d2c95aeed43dead",
+    "EmpClawLauncher.glb": "e86e850f086eb94b14d35e12000646f2289c2ef1945349c5af6630807fc2d8c7"
   }
 }

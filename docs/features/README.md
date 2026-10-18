@@ -53,8 +53,8 @@ Start with the system being changed. Read its document and only the integration 
 
 ## Specialized routes
 
-- [EMP Claw presentation](items-emp-claw.md): authored cannon/claw assets, accepted
-  visual-state interfaces, rack handoffs and the presentation verification scene.
+- [EMP Claw presentation](items-emp-claw.md): normal pickup/Developer Options access,
+  three-shot presentation loads, authored cannon/claw assets, rack handoffs and preview.
 
 - EOS configuration, native prerequisites, portal setup, authenticated checks and export procedures: [EOS development setup](../eos-development.md).
 - Dependency and asset provenance, license records and redistribution: [canonical third-party registry](../../THIRD_PARTY.md).

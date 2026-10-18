@@ -550,6 +550,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
 
     /// <summary>Local Missile readiness rejects early input without queuing it.</summary>
     internal Func<ItemSlot, bool>? MissileReady { get; set; }
+    internal Func<ItemSlot, bool>? EmpClawReady { get; set; }
 
     /// <summary>Submits the local slot capability reliably; never creates a predicted item effect.</summary>
     /// <returns>Whether queued locally or sent to the host.</returns>
@@ -567,6 +568,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
 
         if (WrenchReturning?.Invoke() == true) { return false; }
         if (slot.Item == HeldItem.Missile && MissileReady?.Invoke(inventory!) == false) { return false; }
+        if (slot.Item == HeldItem.EmpClaw && EmpClawReady?.Invoke(inventory!) == false) { return false; }
         if (slot.Item == HeldItem.Wrench && WrenchReady?.Invoke(inventory!) == false) { return false; }
         if ((slot.Item == HeldItem.Shield && ShieldReady?.Invoke(inventory!) == false) ||
             (slot.Item == HeldItem.Oil && OilReady?.Invoke(inventory!) == false))
@@ -750,6 +752,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         WrenchReturning = null;
         OilReady = null;
         MissileReady = null;
+        EmpClawReady = null;
         ResetAiming();
         PropSnapshot = null;
         _inputs = null;

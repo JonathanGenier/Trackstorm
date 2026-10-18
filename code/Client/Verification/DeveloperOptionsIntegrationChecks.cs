@@ -100,7 +100,11 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 GetTree().Quit();
                 return;
             }
-            if (phase == "read")
+            if (args.Contains("--emp-claw-options-only"))
+            {
+                await CheckEmpClawOptions(phase);
+            }
+            else if (phase == "read")
             {
                 Check(_host.DeveloperConfiguration.Environment == GameplayConfiguration.HostedDefaults.Environment, "process restart does not retain session environment");
                 Check(_host.DeveloperConfiguration.Vehicle.Acceleration == GameplayConfiguration.HostedDefaults.Vehicle.Acceleration, "full process restart does not retain session tuning");

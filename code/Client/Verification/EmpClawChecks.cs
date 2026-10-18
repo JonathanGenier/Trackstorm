@@ -12,7 +12,7 @@ namespace Trackstorm.Client.Verification;
 /// poses are explicitly fixture data, not proof of future EMP combat or replication.</summary>
 public sealed partial class EmpClawChecks : Node3D
 {
-    private const string Output = "res://.godot/ts296";
+    private const string Output = "res://.godot/ts296-round2";
     private readonly List<string> _evidence = [];
     private readonly HostVehicleSession _host = new(296);
     private readonly EmpClawPresentation _claws = new();
@@ -37,9 +37,11 @@ public sealed partial class EmpClawChecks : Node3D
         {
             Engine.MaxFps = 60;
             System.IO.Directory.CreateDirectory(ProjectSettings.GlobalizePath(Output));
-            AddChild(new WorldEnvironment { Environment = new Godot.Environment { BackgroundMode = Godot.Environment.BGMode.Color,
-                BackgroundColor = new(.12f, .17f, .22f), AmbientLightSource = Godot.Environment.AmbientSource.Color,
-                AmbientLightColor = new(.72f, .80f, 1), AmbientLightEnergy = .70f, TonemapMode = Godot.Environment.ToneMapper.Filmic } });
+            if (!OS.GetCmdlineUserArgs().Contains("--art-only") && !OS.GetCmdlineUserArgs().Contains("--preview")) { await CheckPickupAccess(); }
+            AddChild(new WorldEnvironment { Environment = new Godot.Environment { BackgroundMode = Godot.Environment.BGMode.Sky,
+                Sky = new Sky { SkyMaterial = new ProceduralSkyMaterial { SkyTopColor = new(.13f, .29f, .48f), SkyHorizonColor = new(.65f, .75f, .81f), GroundBottomColor = new(.16f, .13f, .10f), GroundHorizonColor = new(.60f, .57f, .49f) } },
+                AmbientLightSource = Godot.Environment.AmbientSource.Sky, ReflectedLightSource = Godot.Environment.ReflectionSource.Sky,
+                AmbientLightEnergy = .70f, TonemapMode = Godot.Environment.ToneMapper.Filmic } });
             AddChild(new DirectionalLight3D { RotationDegrees = new(-38, -30, 0), LightEnergy = 1.7f, ShadowEnabled = true });
             AddChild(new DirectionalLight3D { RotationDegrees = new(-30, 130, 0), LightEnergy = .6f });
             AddChild(new MeshInstance3D { Position = new(0, -1.3f, 0), Mesh = new PlaneMesh { Size = new(80, 80) },
@@ -154,7 +156,7 @@ public sealed partial class EmpClawChecks : Node3D
             await Frames(3);
             Check(_claws.Views.Count == 0 && _rack.EmpLauncher is null, "Reset/teardown clears every owned view and mechanism.");
             System.IO.File.WriteAllLines(ProjectSettings.GlobalizePath(Output + "/evidence.txt"), _evidence);
-            GD.Print($"EMP Claw presentation passed: {_checks} checks. Fixture states; no EMP gameplay/replication claim.");
+            GD.Print($"EMP Claw presentation passed: {_checks} checks. Native pickup/use replication plus fixture-only impact states; no EMP combat claim.");
             GetTree().Quit();
         }
         catch (Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }
@@ -166,10 +168,12 @@ public sealed partial class EmpClawChecks : Node3D
         _claws.Observe([new(20, pose, EmpClawVisualState.Landed), new(21, new(Basis.Identity, new(4, 1.4f, -4)), EmpClawVisualState.Activated)]);
         await Frames(20);
         await Capture("13-landed", new(6.6f, .7f, -2.6f), new(5.2f, .25f, -4));
+        await Capture("13b-face-detail", new(6.16f, .45f, -3.56f), new(5.39f, .25f, -4));
         _claws.Observe([new(20, pose, EmpClawVisualState.Activated), new(21, new(Basis.Identity, new(4, 1.4f, -4)), EmpClawVisualState.Activated)]);
         await Frames(30);
         Check(_claws.Views[20].Inflation > 2.5f, "Activated balloon inflates independently.");
         await Capture("14-activated", new(6.5f, .65f, -2.7f), new(5.2f, .25f, -4));
+        await Capture("14b-activated-detail", new(6.20f, .45f, -3.56f), new(5.39f, .25f, -4));
         _claws.Observe([new(20, pose, EmpClawVisualState.Expired), new(21, new(Basis.Identity, new(4, 1.4f, -4)), EmpClawVisualState.Activated)]);
         await Frames(10);
         await Capture("15-expiring", new(6.5f, .65f, -2.7f), new(5.2f, .25f, -4));

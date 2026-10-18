@@ -142,6 +142,9 @@ public sealed partial class ItemAuthority
         {
             _slots[vehicle] = _slots[vehicle] with { NitroDeploymentTicks = ItemSlot.NitroDeploymentDurationTicks };
         }
+        _slots[vehicle] = inventory.Item == HeldItem.None
+            ? _slots[vehicle] with { EmpClaw = item == HeldItem.EmpClaw ? new(token, 3) : null }
+            : _slots[vehicle] with { SecondEmpClaw = item == HeldItem.EmpClaw ? new(token, 3) : null };
         if (_slots[vehicle].Active is { Item: HeldItem.Missile, Token: var missileToken } && missileToken == token)
         { _slots[vehicle] = SelectMissile(_slots[vehicle], world.State.Tick); }
         SynchronizeShieldSelection(_slots[vehicle]);
@@ -169,6 +172,7 @@ public sealed partial class ItemAuthority
             _slots.TryGetValue(vehicle, out var slot) && slot.Life == life && slot.Active.Token == token && ItemRegistry.Find(slot.Active.Item)?.CanUse == true &&
             (slot.Active.Item != HeldItem.Missile || (slot.MissileReadyTick > 0 && world.State.Tick >= slot.MissileReadyTick)) &&
             (slot.Active.Item != HeldItem.Wrench || WrenchReady(slot)) &&
+            (slot.Active.Item != HeldItem.EmpClaw || (EmpClawReady(slot) && world.State.Tick >= slot.Active.EmpClaw!.ReadyTick)) &&
             _pending.TryAdd(vehicle, (token, checked(world.State.Tick + 15), inputSequence));
     }
 
@@ -186,6 +190,7 @@ public sealed partial class ItemAuthority
         _slots[vehicle] = inventory.ActiveSlot == 0
             ? inventory with { Item = HeldItem.None, NitroCharge = 0, Ammo = null, SalvoShots = 0, SalvoReadyTick = 0, EngagedToken = inventory.EngagedToken == token ? 0 : inventory.EngagedToken, NitroDeploymentTicks = 0 }
             : inventory with { SecondItem = HeldItem.None, SecondNitroCharge = 0, SecondAmmo = null, SecondSalvoShots = 0, SecondSalvoReadyTick = 0, EngagedToken = inventory.EngagedToken == token ? 0 : inventory.EngagedToken, NitroDeploymentTicks = 0 };
+        _slots[vehicle] = inventory.ActiveSlot == 0 ? _slots[vehicle] with { EmpClaw = null } : _slots[vehicle] with { SecondEmpClaw = null };
         if (selected.Item == HeldItem.Missile)
         { _slots[vehicle] = StowMissile(_slots[vehicle], world.State.Tick); }
         // Retain the retired grant token and match high-water mark, as on consumption.
@@ -283,6 +288,23 @@ public sealed partial class ItemAuthority
             ItemSlot slot = (inventory with { ActiveSlot = usedIndex }).Active;
             if (slot.Token != pair.Value.Token || slot.Item == HeldItem.None) { continue; }
             VehicleStepRequest request = requests.Single(value => value.VehicleId == pair.Key);
+            if (slot.Item == HeldItem.EmpClaw)
+            {
+                var aim = AcceptedAim(slot.Vehicle, slot.Life, slot.Token);
+                if (request.Reset.HasValue || inventory.Active.Token != slot.Token || !EmpClawReady(inventory) ||
+                    slot.EmpClaw is not { Remaining: > 0 } load || input.Tick < load.ReadyTick || aim is null || aim.Tick != world.State.Tick ||
+                    world.State.Match is { Phase: not Matches.MatchPhase.Active }) { continue; }
+                byte remaining = (byte)(load.Remaining - 1);
+                ulong next = remaining > 0 ? NextToken() : slot.Token;
+                var updated = load with { Remaining = remaining, ReadyTick = remaining > 0 ? checked(input.Tick + (ulong)Configuration.EmpClawIntervalTicks) : 0 };
+                slots[pair.Key] = usedIndex == 0
+                    ? inventory with { Item = remaining > 0 ? HeldItem.EmpClaw : HeldItem.None, Token = next, EmpClaw = updated }
+                    : inventory with { SecondItem = remaining > 0 ? HeldItem.EmpClaw : HeldItem.None, SecondToken = next, SecondEmpClaw = updated };
+                // Cosmetic discharge only. No projectile, homing, collision or combat effect is created.
+                Vector3 muzzle = aim.Origin + aim.Direction * 1.62f;
+                events.Add(new(slot.Token, slot.Vehicle, HeldItem.EmpClaw, muzzle + aim.Direction * 50, false) { Origin = muzzle });
+                continue;
+            }
             if (slot.Item == HeldItem.Shield)
             {
                 if (!request.Reset.HasValue && inventory.Active.Token == slot.Token &&

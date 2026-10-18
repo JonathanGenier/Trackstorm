@@ -21,4 +21,6 @@ public enum HeldItem : byte
     MachineGun = 7,
     /// <summary>Persistent independently damageable shield/wall identity.</summary>
     Shield = 8,
+    /// <summary>Three-round EMP launcher presentation; combat behavior belongs to later Stories.</summary>
+    EmpClaw = 9,
 }

@@ -147,6 +147,7 @@ public static partial class ItemCodec
             writer.Write(slot.SecondSalvoShots);
             writer.Write(slot.SalvoReadyTick);
             writer.Write(slot.SecondSalvoReadyTick);
+            EmpClaw(writer, slot.EmpClaw); EmpClaw(writer, slot.SecondEmpClaw);
             Ammo(writer, slot.Ammo);
             Ammo(writer, slot.SecondAmmo);
         }
@@ -298,7 +299,7 @@ public static partial class ItemCodec
             { SecondToken = reader.ReadUInt64(), SecondItem = (HeldItem)reader.ReadByte(), ActiveSlot = reader.ReadByte(), SelectionRevision = reader.ReadUInt64(), NitroCharge = reader.ReadDouble(), SecondNitroCharge = reader.ReadDouble(), EngagedToken = reader.ReadUInt64(), NitroDeploymentTicks = reader.ReadByte(),
                 MissileDeployStartTick = reader.ReadUInt64(), MissileReadyTick = reader.ReadUInt64(),
                 MissileStowStartTick = reader.ReadUInt64(), MissileStowEndTick = reader.ReadUInt64(),
-                SalvoShots = reader.ReadInt32(), SecondSalvoShots = reader.ReadInt32(), SalvoReadyTick = reader.ReadUInt64(), SecondSalvoReadyTick = reader.ReadUInt64(), Ammo = Ammo(reader), SecondAmmo = Ammo(reader) };
+                SalvoShots = reader.ReadInt32(), SecondSalvoShots = reader.ReadInt32(), SalvoReadyTick = reader.ReadUInt64(), SecondSalvoReadyTick = reader.ReadUInt64(), EmpClaw = EmpClaw(reader), SecondEmpClaw = EmpClaw(reader), Ammo = Ammo(reader), SecondAmmo = Ammo(reader) };
         }
 
         var missiles = new MissileState[Count(reader, ItemAuthority.MaximumProjectiles)];
@@ -383,7 +384,7 @@ public static partial class ItemCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 27, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 28, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {
@@ -395,7 +396,7 @@ public static partial class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 27 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 28 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }
@@ -427,6 +428,20 @@ public static partial class ItemCodec
         writer.Write(ammo.Capacity);
         writer.Write(ammo.Phase);
     }
+
+    private static void EmpClaw(BinaryWriter writer, EmpClawLoad? load)
+    {
+        writer.Write(load is not null);
+        if (load is null) { return; }
+        writer.Write(load.Magazine); writer.Write(load.Remaining); writer.Write(load.ReadyTick);
+    }
+
+    private static EmpClawLoad? EmpClaw(BinaryReader reader) => reader.ReadByte() switch
+    {
+        0 => null,
+        1 => new(reader.ReadUInt64(), reader.ReadByte(), reader.ReadUInt64()),
+        _ => throw new ArgumentException("Invalid EMP presentation load flag."),
+    };
 
     private static MachineGunAmmo? Ammo(BinaryReader reader) => reader.ReadByte() switch
     {

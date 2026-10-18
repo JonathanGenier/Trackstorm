@@ -11,12 +11,26 @@ internal sealed partial class CarRackPresentation
     private bool _empReturning;
     private ulong _empMountedToken;
     private float _empShotHold;
+    private float _empDeploySeconds = 1.2f;
+    private float _empStowSeconds = .82f;
+    internal ItemConfiguration EmpConfiguration { get; set; } = new();
 
     internal EmpClawLauncher? EmpLauncher => _payload as EmpClawLauncher;
 
-    /// <summary>Integration hook for the future accepted EMP inventory adapter. Call after
-    /// Observe for the same life. Null means EMP deselection/removal, not a reload. This seam
-    /// deliberately registers no pickup, use handler, damage rule or wire protocol.</summary>
+    internal bool IsEmpClawReady(ItemSlot inventory) => !_empReturning && EmpLauncher is { IsReady: true } &&
+        _empState?.Life == inventory.Life && _empMountedToken == inventory.Active.EmpClaw?.Magazine &&
+        _previous?.SelectionRevision == inventory.SelectionRevision;
+
+    private void ObserveEmpInventory(ItemSlot? inventory, ulong tick)
+    {
+        var load = inventory?.Active.EmpClaw;
+        EmpClawRackState? state = load is null ? null : new(inventory!.Life, load.Magazine, tick, true,
+            (byte)((7 << (3 - load.Remaining)) & 7), (ulong)(3 - load.Remaining), load.Remaining < 3 ? 2 - load.Remaining : -1);
+        ObserveEmpClaw(state, _empAim);
+        if (inventory?.Active.Item == HeldItem.EmpClaw) { _desired = HeldItem.None; _usePending = false; }
+    }
+
+    /// <summary>Applies accepted presentation state. Null means deselection/removal, not a reload.</summary>
     internal void ObserveEmpClaw(EmpClawRackState? state, WeaponAimSolution? aim = null, bool restore = false)
     {
         state?.Validate();
@@ -52,7 +66,10 @@ internal sealed partial class CarRackPresentation
             var created = new EmpClawLauncher();
             _rack.AddChild(created);
             _payload = created;
+            _mounted = HeldItem.EmpClaw;
             _empMountedToken = _empState!.Token;
+            _empDeploySeconds = EmpConfiguration.EmpClawDeploySeconds;
+            _empStowSeconds = EmpConfiguration.EmpClawStowSeconds;
             created.Observe(_empState, restore: true);
             _empProgress = 0;
             _empReturning = false;
@@ -67,12 +84,12 @@ internal sealed partial class CarRackPresentation
         {
             // Center at full height first; never yaw through the open deck on return.
             launcher.Present(_empProgress, null, delta);
-            if (_empShotHold <= 0 && launcher.Centered) { _empProgress = Math.Max(0, _empProgress - delta / .82f); }
+            if (_empShotHold <= 0 && launcher.Centered) { _empProgress = Math.Max(0, _empProgress - delta / _empStowSeconds); }
             launcher.Present(_empProgress, null, 0);
         }
         else
         {
-            _empProgress = Math.Min(1, _empProgress + delta / 1.20f);
+            _empProgress = Math.Min(1, _empProgress + delta / _empDeploySeconds);
             launcher.Present(_empProgress, _empAim, delta);
         }
         _mechanism.SetTimelineProgress(Math.Min(1, _empProgress / .44f));

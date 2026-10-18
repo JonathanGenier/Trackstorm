@@ -3,6 +3,12 @@ namespace Trackstorm.Core.Items;
 /// <summary>Host-owned bounded tuning. Linear falloff reaches zero at the edge.</summary>
 public sealed record ItemConfiguration
 {
+    /// <summary>Complete EMP presentation deployment (seconds).</summary>
+    public float EmpClawDeploySeconds { get; init; } = 1.2f;
+    /// <summary>Complete EMP presentation return (seconds).</summary>
+    public float EmpClawStowSeconds { get; init; } = .82f;
+    /// <summary>Accepted presentation-shot spacing; default three shots within 1.67 seconds.</summary>
+    public int EmpClawIntervalTicks { get; init; } = 50;
     /// <summary>Expanded wall width, captured at deployment (m).</summary>
     public float ShieldWidth { get; init; } = 6.6f;
     /// <summary>Expanded wall height (m).</summary>
@@ -137,6 +143,9 @@ public sealed record ItemConfiguration
     /// <summary>Rejects nonfinite or excessive host configuration before simulation.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(EmpClawDeploySeconds) || EmpClawDeploySeconds is < .8f or > 4 ||
+            !float.IsFinite(EmpClawStowSeconds) || EmpClawStowSeconds is < .5f or > 3 || EmpClawIntervalTicks is < 15 or > 60)
+        { throw new ArgumentException("Invalid EMP Claw presentation timing."); }
         if (!float.IsFinite(ShieldWidth) || ShieldWidth is < 3 or > 12 ||
             !float.IsFinite(ShieldHeight) || ShieldHeight is < 2 or > 6 ||
             !float.IsFinite(ShieldDepth) || ShieldDepth is < 0.3f or > 2 ||

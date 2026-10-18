@@ -113,6 +113,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver.WrenchReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.Rack.IsWrenchReady(inventory);
         _driver.WrenchReturning = () => LocalState is { } state && _bodies.TryGetValue(state.VehicleId, out var body) && body.Rack.WrenchOwnsRack;
         _driver.MissileReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.Rack.IsMissileReady(inventory);
+        _driver.EmpClawReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.Rack.IsEmpClawReady(inventory);
         _driver.ObserveShield = Walls.Observe;
         AddChild(_salvoMarker);
         InitializeAiming();
@@ -155,6 +156,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
                 {
                     body.ObserveShields(state, publication.Shields);
                     body.Rack.OilConfiguration = _driver.Configuration.Configuration.Items;
+                    body.Rack.EmpConfiguration = _driver.Configuration.Configuration.Items;
                     body.Rack.Observe(state.LifeId, state.CanInteract,
                         publication.Slots.FirstOrDefault(slot => slot.Vehicle == state.VehicleId),
                         publication.Events.Where(outcome => outcome.Owner == state.VehicleId),
@@ -543,6 +545,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
             if (created)
             {
                 body.Rack.OilConfiguration = _driver.Configuration.Configuration.Items;
+                body.Rack.EmpConfiguration = _driver.Configuration.Configuration.Items;
                 body.Rack.Observe(vehicle.State.LifeId, vehicle.State.CanInteract,
                     _driver.ItemState?.Slots.FirstOrDefault(slot => slot.Vehicle == id), [],
                     _driver.ItemState?.Mines.FirstOrDefault(mine => mine.Owner == id && mine.IsPlacing),

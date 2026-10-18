@@ -314,6 +314,7 @@ public sealed partial class CarRackChecks : Node
         (item == HeldItem.Shield ? body.HasRearShield && body.Rack.PresentedItem == item && body.Rack.Progress >= .999f :
         body.Rack.PresentedItem == item && body.Rack.Progress >= 0.999f && !body.HasRearShield &&
         (item != HeldItem.Nitro || body.Rack.Boost.Deployment >= .999f) &&
+        (item != HeldItem.EmpClaw || a.Driver.ItemState?.Slots.SingleOrDefault(s => s.Vehicle == Shooter) is { } emp && body.Rack.IsEmpClawReady(emp)) &&
         (item != HeldItem.Wrench || a.Driver.ItemState?.Slots.SingleOrDefault(s => s.Vehicle == Shooter) is { } wrench && body.Rack.IsWrenchReady(wrench)) &&
         (item != HeldItem.Missile || a.Driver.ItemState?.Slots.SingleOrDefault(s => s.Vehicle == Shooter) is { } inventory && body.Rack.IsMissileReady(inventory))));
     private IEnumerable<CarLighting> Lamps() => _arenas.Select(a => a.Bodies[Shooter].Rack.GetParent<Node3D>().GetChildren().OfType<CarLighting>().Single());

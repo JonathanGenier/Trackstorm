@@ -32,6 +32,7 @@ internal sealed partial class ItemPresentation : Node3D
     internal const int MaximumMissileSmokeResidues = 32;
     internal const int MaximumMissileExplosions = 32;
     private readonly List<ProxyMineScar> _mineScars = new();
+    private readonly List<EmpClawShotVisual> _empShots = new();
     private const int MaximumMineScars = 64;
 
     /// <inheritdoc/>
@@ -162,6 +163,16 @@ internal sealed partial class ItemPresentation : Node3D
 
         foreach (var outcome in state.Events)
         {
+            if (outcome.Item == HeldItem.EmpClaw)
+            {
+                _empShots.RemoveAll(shot => !GodotObject.IsInstanceValid(shot) || shot.IsQueuedForDeletion());
+                if (_empShots.Count >= 24) { _empShots[0].QueueFree(); _empShots.RemoveAt(0); }
+                var shot = new EmpClawShotVisual { Position = VehicleBody.ToGodot(outcome.Origin),
+                    Direction = VehicleBody.ToGodot(outcome.Position - outcome.Origin).Normalized() };
+                AddChild(shot);
+                _empShots.Add(shot);
+                continue;
+            }
             if (outcome.Item == HeldItem.Missile && outcome.Impact)
             {
                 _missileExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());

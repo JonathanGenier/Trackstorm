@@ -9,7 +9,7 @@ public static class WeaponAim
     /// <summary>Production Car's fully deployed payload pivot; rack remains fixed.</summary>
     public static Vector3 Pivot => new(0, 1.81f, 1.845f);
     /// <summary>Only direct-fire identities participate; Salvo retains its separate mechanics.</summary>
-    public static bool Supports(HeldItem item) => item is HeldItem.MachineGun or HeldItem.Missile;
+    public static bool Supports(HeldItem item) => item is HeldItem.MachineGun or HeldItem.Missile or HeldItem.EmpClaw;
     /// <summary>Requests must already be finite unit directions, never arbitrary magnitudes.</summary>
     public static bool IsDirection(Vector3 direction) => VehiclePhysicsState.IsFinite(direction) && Math.Abs(direction.LengthSquared() - 1) <= .002f;
 

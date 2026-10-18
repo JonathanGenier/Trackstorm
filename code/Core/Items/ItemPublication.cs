@@ -24,6 +24,9 @@ public sealed class ItemPublication
         var inventory = slots.ToArray();
         var projectiles = missiles.ToArray();
         var outcomes = events.ToArray();
+        if (outcomes.Any(outcome => outcome.Item == HeldItem.EmpClaw && (outcome.Impact || outcome.Tracer ||
+            Vector3Distance(outcome.Position, outcome.Origin) is < 1 or > 50.01f)))
+        { throw new ArgumentException("Invalid EMP presentation discharge."); }
         foreach (var missile in projectiles)
         {
             if (missile.Arc is not { } arc) { continue; }
@@ -43,6 +46,7 @@ public sealed class ItemPublication
                 !ValidAmmo(slot.Item, slot.Ammo) || !ValidAmmo(slot.SecondItem, slot.SecondAmmo) || !ValidCharge(slot.Item, slot.NitroCharge) || !ValidCharge(slot.SecondItem, slot.SecondNitroCharge) ||
                 !ValidSalvo(slot.Item, slot.SalvoShots, slot.SalvoReadyTick, world.Tick) ||
                 !ValidSalvo(slot.SecondItem, slot.SecondSalvoShots, slot.SecondSalvoReadyTick, world.Tick) ||
+                !ValidEmpClaw(slot.Item, slot.Token, slot.EmpClaw, world.Tick) || !ValidEmpClaw(slot.SecondItem, slot.SecondToken, slot.SecondEmpClaw, world.Tick) ||
                 (slot.EngagedToken != 0 && (ItemRegistry.Find(slot.Active.Item)?.Sustained != true || slot.EngagedToken != slot.Active.Token)) ||
                 (slot.Token == 0 && slot.Item != HeldItem.None) || (slot.SecondToken == 0 && slot.SecondItem != HeldItem.None) ||
                 (slot.Item != HeldItem.None && ItemRegistry.Find(slot.Item) is null) || (slot.SecondItem != HeldItem.None && ItemRegistry.Find(slot.SecondItem) is null) ||
@@ -50,7 +54,7 @@ public sealed class ItemPublication
             inventory.SelectMany(slot => new[] { slot.Token, slot.SecondToken }).Where(token => token != 0).GroupBy(token => token).Any(group => group.Count() > 1) ||
             projectiles.Length > ItemAuthority.MaximumProjectiles || projectiles.Select(missile => missile.Id).Distinct().Count() != projectiles.Length ||
             projectiles.Any(missile => missile.Id == 0 || missile.Owner == 0 || !VehiclePhysicsState.IsFinite(missile.Position) || !VehiclePhysicsState.IsFinite(missile.Velocity) || missile.Velocity.Length() <= 0 || missile.Velocity.Length() > (missile.Arc is null ? 301 : 1000) || missile.RemainingTicks is < 1 or > 3600) ||
-            outcomes.Length > ItemAuthority.MaximumProjectiles * 2 + ItemAuthority.MaximumMines + 16 || outcomes.Any(outcome => outcome.Token == 0 || outcome.Owner == 0 || ItemRegistry.Find(outcome.Item)?.CanUse != true || !VehiclePhysicsState.IsFinite(outcome.Position) || !VehiclePhysicsState.IsFinite(outcome.Origin) || (outcome.Item != HeldItem.MachineGun && (outcome.Origin != System.Numerics.Vector3.Zero || outcome.Tracer)) || (outcome.Item == HeldItem.MachineGun && System.Numerics.Vector3.Distance(outcome.Origin, outcome.Position) > 300.01f) || (outcome.Impact && outcome.Item is not (HeldItem.Missile or HeldItem.Salvo or HeldItem.ProxyMine or HeldItem.MachineGun))))
+            outcomes.Length > ItemAuthority.MaximumProjectiles * 2 + ItemAuthority.MaximumMines + 16 || outcomes.Any(outcome => outcome.Token == 0 || outcome.Owner == 0 || ItemRegistry.Find(outcome.Item)?.CanUse != true || !VehiclePhysicsState.IsFinite(outcome.Position) || !VehiclePhysicsState.IsFinite(outcome.Origin) || (outcome.Item is not (HeldItem.MachineGun or HeldItem.EmpClaw) && (outcome.Origin != System.Numerics.Vector3.Zero || outcome.Tracer)) || (outcome.Item == HeldItem.MachineGun && System.Numerics.Vector3.Distance(outcome.Origin, outcome.Position) > 300.01f) || (outcome.Impact && outcome.Item is not (HeldItem.Missile or HeldItem.Salvo or HeldItem.ProxyMine or HeldItem.MachineGun))))
         {
             throw new ArgumentException("Invalid item publication.");
         }
@@ -127,6 +131,9 @@ public sealed class ItemPublication
         ammo.Validate();
         return true;
     }
+
+    private static bool ValidEmpClaw(HeldItem item, ulong token, EmpClawLoad? load, ulong tick) =>
+        load is null ? item != HeldItem.EmpClaw : load.Valid(item, token, tick);
 
     private static bool ValidCharge(HeldItem item, double charge) => double.IsFinite(charge) &&
         (item == HeldItem.Nitro ? charge is > 0 and <= 100 : charge == 0);
