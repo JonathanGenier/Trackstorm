@@ -136,6 +136,7 @@ internal sealed partial class CarRackPresentation : Node
 
     internal void Reset()
     {
+        ResetEmpClaw();
         _oilPour = null; _oilFired = false; _oilClock = 0;
         _missileProgress = _missileReturn = 0;
         _missileStowing = false;
@@ -160,6 +161,7 @@ internal sealed partial class CarRackPresentation : Node
 
     public override void _Process(double delta)
     {
+        if (AnimateEmpClaw(Math.Max(0, (float)delta))) { return; }
         if (AnimateWrenchUse(Math.Max(0, (float)delta))) { return; }
         if (AnimateOil(Math.Max(0, (float)delta))) { return; }
         if (AnimateMissile(Math.Max(0, (float)delta))) { return; }

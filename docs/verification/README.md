@@ -16,6 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| EMP Claw launcher, assets and presentation | [TS-296 verification evidence](ts-296.md) |
 | Wrench three-point hood repair and sparks | [TS-293 verification evidence](ts-293.md) |
 | Wrench robotic repair arm | [TS-292 verification evidence](ts-292.md) |
 | Oil wheel contamination, spray and trails | [TS-246 implementation, native/UDP verification and Astra critique](ts-246.md) |

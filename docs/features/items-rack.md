@@ -4,6 +4,11 @@ Read the [shared system contract](items.md) first. This reference contains only 
 
 ## Vehicle rack presentation
 
+The [EMP Claw presentation interface](items-emp-claw.md) uses this same mechanism
+for accepted visual-state fixtures and future authority integration. Its full-size
+cannon centers and nests before handing the rack to another payload. EMP is not
+yet a usable production pickup; this interface introduces no ammunition authority.
+
 An accepted Wrench repair retains exclusive mechanism ownership until the arm,
 rack and trunk are fully stowed. Concurrent pickup/selection changes are pending
 handoffs and cannot clear its repair state. The slot presentation follows that
