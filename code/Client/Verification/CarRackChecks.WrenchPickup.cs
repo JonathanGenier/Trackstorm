@@ -16,6 +16,7 @@ public sealed partial class CarRackChecks
         // pickup authority at a controlled marker, not a direct inventory overwrite.
         for (int round = 0; round < 8; round++)
         {
+            Items.WrenchRepairSettings.Current = new() { DeploymentDuration = round % 2 == 0 ? .85f : .95f, RetractionDuration = round % 2 == 0 ? .85f : .95f };
             host.Items.RemovePlayer(Shooter);
             Position(500, true);
             await Frames(150);

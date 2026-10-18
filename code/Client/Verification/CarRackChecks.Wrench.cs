@@ -20,6 +20,14 @@ public sealed partial class CarRackChecks
         }
         for (int round = 0; round < 3; round++)
         {
+            WrenchRepairSettings.Current = round switch
+            {
+                1 => new() { DeploymentDuration = .95f, RetractionDuration = .95f, Duration = 1,
+                    ContactSpacing = .55f, ContactForward = .02f, HoverHeight = .24f, Vibration = .002f },
+                2 => new() { DeploymentDuration = .85f, RetractionDuration = .85f, Duration = .8f,
+                    ContactSpacing = .45f, ContactForward = -.02f, HoverHeight = .18f, Vibration = 0 },
+                _ => new()
+            };
             var collisionWalls = new List<StaticBody3D>();
             host.Items.RemovePlayer(Shooter);
             await Frames(150);
@@ -68,6 +76,8 @@ public sealed partial class CarRackChecks
                         }
                 }
                 Check(Arm(0)?.IsReady == true && Arm(1)?.IsReady == true, "Both arms unfolded to rest");
+                foreach (int peer in new[] { 0, 1 })
+                    Check(Arm(peer)!.ReadySeconds <= 1, $"Full Wrench deployment to ready: {Arm(peer)!.ReadySeconds:F3}s (round {round}, peer {peer})");
             }
             if (round == 0)
             {
@@ -128,6 +138,7 @@ public sealed partial class CarRackChecks
                 Position(1000, false); await Frames(30);
             }
             int before = _events.Count;
+            var measuredArms = new[] { Arm(0)!, Arm(1)! };
             Camera3D? repairCamera = null;
             if (round == 1 && DisplayServer.GetName() != "headless")
             {
@@ -188,7 +199,11 @@ public sealed partial class CarRackChecks
                     if (arm.ContactIndex >= 0)
                     {
                         if (contacts[peer].Count == 0 || contacts[peer][^1] != arm.ContactIndex) { contacts[peer].Add(arm.ContactIndex); }
-                        Check(arm.Tip.DistanceTo(WrenchArm.HoodContact(arm.ContactIndex)) < .003f, "Actual repair meets hood with bounded vibration");
+                        Vector3 expected = WrenchArm.HoodContact(arm.ContactIndex);
+                        expected.X = (arm.ContactIndex - 1) * WrenchRepairSettings.Current.ContactSpacing;
+                        expected.Z -= WrenchRepairSettings.Current.ContactForward;
+                        expected.Y -= WrenchRepairSettings.Current.ContactForward * .13f / 1.18f;
+                        Check(arm.Tip.DistanceTo(expected) < .003f, "Actual tuned repair meets hood with bounded vibration");
                         if (arm.SparksActive) { sparkContacts[peer].Add(arm.ContactIndex); }
                     }
                     if (!arm.Nested)
@@ -218,6 +233,13 @@ public sealed partial class CarRackChecks
             Check(Enumerable.Range(0, 2).All(p => repairEnd[p] - repairStart[p] <= 1.05), $"Three-contact sequence completes within one second plus frame tolerance ({repairEnd[0] - repairStart[0]:F3}s; {repairEnd[1] - repairStart[1]:F3}s)");
             Check(_events.Count(e => e.Item == HeldItem.Wrench) == round + 1, "Exactly one confirmed use per fresh pickup");
             await Until(() => _arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Repair returns, folds and closes trunk");
+            foreach (var measuredArm in measuredArms)
+            {
+                Check(measuredArm.RepairCompletedSeconds - measuredArm.RepairStartedSeconds <= 1.01,
+                    $"Complete repair clock: {measuredArm.RepairCompletedSeconds - measuredArm.RepairStartedSeconds:F3}s (round {round})");
+                Check(measuredArm.ThirdContactCompletedSeconds > 0 && measuredArm.AnimationSeconds - measuredArm.ThirdContactCompletedSeconds <= 1,
+                    $"Third contact end (including final lift) to full rack/trunk closure: {measuredArm.AnimationSeconds - measuredArm.ThirdContactCompletedSeconds:F3}s (round {round})");
+            }
             if (round == 2)
             {
                 Check(peakSpeed > 3, $"Repair exercised during native driving and turning (peak {peakSpeed})");
@@ -225,6 +247,7 @@ public sealed partial class CarRackChecks
             }
             foreach (var wall in collisionWalls) { wall.QueueFree(); }
         }
+        WrenchRepairSettings.Current = new();
         host.Items.RemovePlayer(Shooter); Position(500, false); await Frames(30);
         Check(host.Items.Grant(host.World, Shooter, HeldItem.Wrench), "Interrupt fixture Wrench");
         Check(host.Items.Grant(host.World, Shooter, HeldItem.Salvo), "Interrupt fixture second payload");

@@ -222,8 +222,7 @@ internal sealed partial class CarRackPresentation : Node
                     repairArm.BeginRepair();
                     _wrenchStarted = true;
                 }
-                repairArm.PresentServices(_rack.Position.Y);
-                repairArm.Present(deploy, (float)delta);
+                AnimateWrenchMechanism(repairArm, !_replace && _desired == HeldItem.Wrench, Math.Max(0, (float)delta));
                 if (_wrenchStarted && !repairArm.Repairing)
                 {
                     _usePending = false;

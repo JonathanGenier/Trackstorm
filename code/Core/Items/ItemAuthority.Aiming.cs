@@ -69,9 +69,12 @@ public sealed partial class ItemAuthority
             if (deployment.Tick < tick)
             {
                 float elapsed = Math.Max(0, 1f / 60 - deployment.Nesting);
-                float progress = RackDeploymentPath.Advance(deployment.Progress, !deployment.Retracting, elapsed, vehicleConfiguration);
-                float arm = slot.Active.Item == HeldItem.Wrench && !deployment.Retracting && deployment.Progress >= 1
-                    ? Math.Min(1, deployment.Arm + 1f / (60 * ItemSlot.WrenchDeploymentSeconds)) : 0;
+                // Wrench has a bounded complete deployment, independent of generic
+                // rack tuning. The local mechanical gate may wait longer, never less.
+                float progress = slot.Active.Item == HeldItem.Wrench && !deployment.Retracting
+                    ? Math.Min(1, deployment.Progress + elapsed / ItemSlot.WrenchDeploymentSeconds)
+                    : RackDeploymentPath.Advance(deployment.Progress, !deployment.Retracting, elapsed, vehicleConfiguration);
+                float arm = slot.Active.Item == HeldItem.Wrench ? progress : 0;
                 deployment = deployment with { Progress = progress, Arm = arm, Retracting = deployment.Retracting && progress > 0,
                     Tick = tick, Nesting = Math.Max(0, deployment.Nesting - 1f / 60) };
             }

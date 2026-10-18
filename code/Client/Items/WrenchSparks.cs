@@ -8,9 +8,10 @@ internal sealed partial class WrenchSparks : Node3D
     private readonly List<MeshInstance3D> _flecks = [];
     private float _age = 1;
     private float _intensity;
+    private WrenchRepairSettings _settings = new();
     private StandardMaterial3D _material = null!;
     private BoxMesh _mesh = null!;
-    internal bool Active => _age < .16f && _intensity > 0;
+    internal bool Active => _age < _settings.SparkLifetime && _intensity > 0;
     internal float Age => _age;
 
     public override void _Ready()
@@ -27,11 +28,12 @@ internal sealed partial class WrenchSparks : Node3D
         }
     }
 
-    internal void Burst(Vector3 contact, float intensity)
+    internal void Burst(Vector3 contact, WrenchRepairSettings settings)
     {
         Position = contact;
         _age = 0;
-        _intensity = Mathf.Clamp(intensity, 0, 2);
+        _settings = settings;
+        _intensity = Mathf.Clamp(settings.SparkIntensity, 0, 2);
         Advance(0);
     }
 
@@ -55,9 +57,9 @@ internal sealed partial class WrenchSparks : Node3D
             if (!fleck.Visible) { continue; }
             float angle = i * 2.39996f;
             Vector3 velocity = new(MathF.Cos(angle) * (3 + i % 3 * .35f), 7 + i % 4, MathF.Sin(angle) * 1.1f);
-            fleck.Position = Vector3.Up * .03f + velocity * _age + Vector3.Down * (4 * _age * _age);
+            fleck.Position = Vector3.Up * .03f + velocity * (_age * _settings.SparkSpeed) + Vector3.Down * (4 * _age * _age);
             fleck.Rotation = new Vector3(angle, 0, -angle);
-            fleck.Scale = Vector3.One * Math.Min(1, (.16f - _age) / .04f);
+            fleck.Scale = Vector3.One * (_settings.SparkSize * Math.Min(1, (_settings.SparkLifetime - _age) / .04f));
         }
     }
 }

@@ -371,3 +371,13 @@ existing walls retain their captured physical values. Configuration protocol 41 
 these controls in complete replication and recovery.
 
 The Shield category also exposes `items.shield_lifetime` (120 seconds, range 1–600) and `items.shield_tip_speed` (20 m/s of impact impulse per wall mass, range 1–100). Lifetime is captured as an absolute simulation deadline at deployment; edits affect future deployments. The knock-over threshold applies to subsequent vehicle impacts. Both use the existing host validation, persistence, replication and recovery paths.
+
+### Wrench local animation
+
+The Wrench accordion exposes fourteen session-local travel, contact, drill and
+spark controls using the existing searchable numeric rows and category reset.
+[Wrench](items-wrench.md) owns their ranges and capture boundaries. They apply
+locally without an authoritative Apply transaction, export or persistence.
+The existing `items.wrench_heal` and spawn weight remain separate shared controls.
+`check-developer-options.ps1 -WrenchOnly` exercises every editor, actual rig/VFX
+effects, reset and a second process with fresh defaults.

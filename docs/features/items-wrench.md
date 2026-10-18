@@ -33,8 +33,9 @@ changes lift before traversing. Retraction lifts clear, centers, telescopes and
 folds. All targets are vehicle-local and remain attached while driving.
 
 Use is rejected during deployment, without queuing the early press. Core requires
-a fresh shared-rack deployment plus the 1.8-second arm deployment for the exact
+a fresh 0.8-second minimum complete deployment for the exact
 life, capability and selection. This transient readiness is reset on recovery.
+Generic trunk/rack tuning does not change this Wrench-specific minimum.
 Local input additionally waits for the actual outgoing payload to return and the
 selected arm to finish unfolding. No new packet or inventory field is added.
 
@@ -53,9 +54,27 @@ upward flight makes the small streaks visible beyond the hood from behind. It
 adds no textures, external assets or sound. The former vehicle-origin Wrench VFX
 is suppressed. Existing generic audio behavior is unchanged.
 
-DevTools exposes session-local duration (0.8â€“1 seconds), contact hold fraction
-(0.25â€“0.40 per beat), and spark intensity (0â€“2). Settings are captured for the next
-repair; healing and deployment balance are not duplicated. Each accepted token
+DevTools exposes fourteen bounded session-local cosmetic controls: full deployment
+and retraction (0.85–0.95 s, default 0.9), repair duration (0.8–1 s), contact hold
+fraction (0.25–0.40), lateral spacing (0.45–0.55 m), forward offset (±0.02 m),
+between-contact lift (0.18–0.24 m), upward vibration (0–2 mm), vibration frequency
+(120–240 rad/s), drill rotation (60–100 rad/s), and spark intensity (0–2), lifetime
+(0.10–0.20 s), size (0.5–1.5) and velocity (0.75–1.25). Forward offsets follow the
+bonnet slope; vertical penetration is not exposed. Travel settings are captured
+on equip, repair/VFX settings on accepted use. These controls do not change heal,
+consumption or network configuration; the existing authoritative heal control
+remains in the shared item catalog.
+
+Wrench owns a bounded mechanical clock through the existing rack mechanism,
+using small time steps at phase boundaries. Deployment allocates 25% to ordered
+trunk/rack travel and 75% to unfolding/extension. Return first reserves time for the last contact’s final lift, so its budget
+starts at the end of drilling. Of the remaining time, 20% is reserved for centering,
+55% for folding and 25% for rack descent/trunk closure. The rack never descends
+before the arm nests. Generic rack tuning continues to govern other payloads.
+The hydraulic hoses and matching wraps/clamps have 12% larger radii with their
+original routes, endpoints, service assembly and link proportions preserved.
+
+Each accepted token
 plays at most once. An accepted repair owns the rack through all contacts, arm
 nesting, rack descent and complete trunk closure. Pickups and selection changes
 update the pending accepted inventory without interrupting this lifecycle. The

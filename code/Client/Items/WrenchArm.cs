@@ -17,6 +17,8 @@ internal sealed partial class WrenchArm : Node3D
     private Node3D _reach = null!;
     private Node3D _wrist = null!;
     private float _deployment;
+    private WrenchRepairSettings _movementSettings = new();
+    private float _stowDuration;
     private float _repairTime = -1;
     private WrenchRepairSettings _repairSettings = new();
     private WrenchSparks _sparks = null!;
@@ -30,6 +32,7 @@ internal sealed partial class WrenchArm : Node3D
     private Vector3 _tip;
 
     internal bool ServicesVisible => _services.Visible;
+    internal float RackDuration(bool deploy) => (deploy ? _movementSettings.DeploymentDuration : _stowDuration) * .25f;
 
     // Existing Oil/Nitro presentation policy: full-size underslung hardware is
     // revealed only after the original rack clears the bay. No second lift.
@@ -46,6 +49,10 @@ internal sealed partial class WrenchArm : Node3D
         Math.Abs(_lateral - HoodContact(index).X) < .001f ? index : -1;
     internal float JointError { get; private set; }
     internal double AnimationSeconds { get; private set; }
+    internal double ReadySeconds { get; private set; }
+    internal double RepairStartedSeconds { get; private set; }
+    internal double RepairCompletedSeconds { get; private set; }
+    internal double ThirdContactCompletedSeconds { get; private set; }
 
     // Bonnet slopes from y=.40 at z=-.94 to y=.27 at z=-2.12.
     // z=-1.98 is 14 cm behind the bonnet's front edge, within the rigid arm's reach.
@@ -65,6 +72,8 @@ internal sealed partial class WrenchArm : Node3D
 
     public override void _Ready()
     {
+        _movementSettings = WrenchRepairSettings.Current;
+        _stowDuration = _movementSettings.RetractionDuration;
         Name = "RackItem_Wrench";
         var model = Networking.MatchResourceLoader.LoadResource<PackedScene>(AssetPath).Instantiate<Node3D>();
         AddChild(model);
@@ -85,7 +94,12 @@ internal sealed partial class WrenchArm : Node3D
     {
         if (!IsReady) { return; }
         _repairSettings = WrenchRepairSettings.Current;
+        // The final lift is part of the full retraction budget, even though it
+        // remains in the approved three-beat repair trajectory.
+        float finalLift = _repairSettings.Duration / 3 * (.58f - _repairSettings.ContactFraction);
+        _stowDuration = _movementSettings.RetractionDuration - finalLift;
         _repairTime = 0;
+        RepairStartedSeconds = AnimationSeconds;
         _lastBurst = _repairContact = -1;
         _requestedContact = null;
     }
@@ -110,11 +124,13 @@ internal sealed partial class WrenchArm : Node3D
         _contact = Mathf.MoveToward(_contact, touching ? 1 : 0, delta / .6f);
         if (_contact == 0)
         {
-            _lateral = Mathf.MoveToward(_lateral, wantedX, delta);
-            _forward = Mathf.MoveToward(_forward, wantedForward, delta);
+            float travel = deploy ? delta : delta * .55f / (_stowDuration * .20f);
+            _lateral = Mathf.MoveToward(_lateral, wantedX, travel);
+            _forward = Mathf.MoveToward(_forward, wantedForward, travel);
         }
         if (_contact == 0 && _lateral == 0 && _forward == 0)
-            _deployment = Mathf.MoveToward(_deployment, deploy ? 1 : 0, delta / Core.Items.ItemSlot.WrenchDeploymentSeconds);
+            _deployment = Mathf.MoveToward(_deployment, deploy ? 1 : 0, delta /
+                (deploy ? _movementSettings.DeploymentDuration * .75f : _stowDuration * .55f));
         float unfold = Ease(_deployment / .45f);
         float extension = Ease((_deployment - .45f) / .55f);
         Vector3 target = _deployment <= .45f
@@ -124,6 +140,7 @@ internal sealed partial class WrenchArm : Node3D
         target.Z += _forward;
         target.Y = Mathf.Lerp(target.Y, HoodContact(1).Y + .498f, Ease(_contact));
         Pose(target, unfold, extension);
+        if (IsReady && ReadySeconds == 0) { ReadySeconds = AnimationSeconds; }
     }
 
     private void PresentRepair(float delta)
@@ -132,9 +149,9 @@ internal sealed partial class WrenchArm : Node3D
         float beat = _repairTime / _repairSettings.Duration * 3;
         int index = Math.Min(2, (int)beat);
         float phase = beat - index;
-        Vector3 contact = HoodContact(index);
-        float hover = contact.Y + .498f + .20f;
-        float previousX = index == 0 ? 0 : HoodContact(index - 1).X;
+        Vector3 contact = RepairContact(index);
+        float hover = contact.Y + .498f + _repairSettings.HoverHeight;
+        float previousX = index == 0 ? 0 : RepairContact(index - 1).X;
         float startY = index == 0 ? Rest.Y : hover;
         float holdEnd = .42f + _repairSettings.ContactFraction;
         float x = Mathf.Lerp(previousX, contact.X, Ease((phase - .04f) / .14f));
@@ -144,14 +161,15 @@ internal sealed partial class WrenchArm : Node3D
         else if (phase < .42f) { y = Mathf.Lerp(index == 0 ? Rest.Y + .08f : hover, contact.Y + .498f, Ease((phase - .18f) / .24f)); }
         else if (phase < holdEnd) { y = contact.Y + .498f; }
         else { y = Mathf.Lerp(contact.Y + .498f, index == 2 ? Rest.Y : hover, Ease((phase - holdEnd) / (1 - holdEnd))); }
+        if (_repairContact == 2 && phase >= holdEnd) { ThirdContactCompletedSeconds = AnimationSeconds; }
         _repairContact = phase >= .42f && phase < holdEnd ? index : -1;
-        // A vibration rises off contact by only 1 mm; never drills through the bonnet.
-        if (_repairContact >= 0) { y += .001f * MathF.Abs(MathF.Sin(_repairTime * 180)); _chuck.RotateY(delta * 85); }
+        // Vibration rises off contact by at most 2 mm; never drills through the bonnet.
+        if (_repairContact >= 0) { y += _repairSettings.Vibration * MathF.Abs(MathF.Sin(_repairTime * _repairSettings.VibrationFrequency)); _chuck.RotateY(delta * _repairSettings.DrillSpeed); }
         Pose(new Vector3(x, y, z), 1, 1);
         if (_repairContact >= 0 && _lastBurst != index)
         {
             _lastBurst = index;
-            _sparks.Burst(_tip, _repairSettings.SparkIntensity);
+            _sparks.Burst(_tip, _repairSettings);
         }
         _lateral = x;
         _forward = z - Rest.Z;
@@ -160,11 +178,21 @@ internal sealed partial class WrenchArm : Node3D
         _contact = .5f - MathF.Sin(MathF.Asin(1 - 2 * fraction) / 3);
         if (_repairTime >= _repairSettings.Duration)
         {
+            RepairCompletedSeconds = AnimationSeconds;
             _repairTime = -1;
             _repairContact = -1;
             _contact = 0;
             _sparks.Clear();
         }
+    }
+
+    private Vector3 RepairContact(int index)
+    {
+        Vector3 contact = HoodContact(index);
+        contact.X = (index - 1) * _repairSettings.ContactSpacing;
+        contact.Z -= _repairSettings.ContactForward;
+        contact.Y -= _repairSettings.ContactForward * .13f / 1.18f;
+        return contact;
     }
 
     private void Pose(Vector3 target, float unfolded, float extension)

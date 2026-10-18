@@ -12,6 +12,22 @@ internal sealed partial class CarRackPresentation
 
     internal bool WrenchOwnsRack => _wrenchOwnsRack;
 
+    // One clock owns both mechanisms. Small steps consume phase boundaries without
+    // accelerating the shared rack independently or skipping the safe folded pose.
+    private void AnimateWrenchMechanism(Items.WrenchArm arm, bool deploy, float delta)
+    {
+        while (delta > 0)
+        {
+            float step = Math.Min(delta, 1f / 120);
+            delta -= step;
+            bool moveRack = deploy ? Progress < 1 : arm.Nested;
+            _mechanism.SetTimelineProgress(moveRack
+                ? Mathf.MoveToward(Progress, deploy ? 1 : 0, step / arm.RackDuration(deploy)) : Progress);
+            arm.PresentServices(_rack.Position.Y);
+            arm.Present(deploy && Progress >= 1, step);
+        }
+    }
+
     /// <summary>The installed spent capability remains represented until its actual
     /// mechanism closes. Pending pickups remain authoritative and are never overwritten.</summary>
     internal ItemSlot? PresentedInventory(ItemSlot? inventory)
@@ -25,7 +41,6 @@ internal sealed partial class CarRackPresentation
     private bool AnimateWrenchUse(float delta)
     {
         if (!_wrenchOwnsRack || _payload is not Items.WrenchArm arm) { return false; }
-        _mechanism.SetTimelineProgress(null);
         Boost.Deploy = false;
         Boost.DeploymentTimeline = null;
         _replace = _usePending = false;
@@ -38,8 +53,7 @@ internal sealed partial class CarRackPresentation
             arm.BeginRepair();
             _wrenchStarted = true;
         }
-        arm.PresentServices(_rack.Position.Y);
-        arm.Present(!_wrenchReturning && Progress >= .999f, delta);
+        AnimateWrenchMechanism(arm, !_wrenchReturning, delta);
         if (_wrenchStarted && !arm.Repairing) { _wrenchReturning = true; }
         if (_wrenchReturning && arm.Nested && Progress == 0)
         {

@@ -103,7 +103,7 @@ def star(name,x,z,r,parent):
     mod=o.modifiers.new('Raised enamel emblem','SOLIDIFY');mod.thickness=.002
 
 def hose(name,points,parent,r=.027):
-    d=bpy.data.curves.new(name,'CURVE');d.dimensions='3D';d.bevel_depth=r;d.bevel_resolution=2;d.resolution_u=16
+    d=bpy.data.curves.new(name,'CURVE');d.dimensions='3D';d.bevel_depth=r*1.12;d.bevel_resolution=2;d.resolution_u=16
     s=d.splines.new('BEZIER');s.bezier_points.add(len(points)-1)
     for p,v in zip(s.bezier_points,points):p.co=v;p.handle_left_type='AUTO';p.handle_right_type='AUTO'
     o=bpy.data.objects.new(name,d);bpy.context.collection.objects.link(o);o.parent=parent;d.materials.append(rubber)
@@ -157,9 +157,9 @@ def link(parent,length):
         cyl('Link feed elbow',(0,-.135,z),.033,.065,brass,parent,'Y',24)
     for k in range(16):
         z=.13+(length-.26)*k/15
-        cyl('Red hose wrap',(0,-.155,z),.029,.021,red,parent,verts=16)
+        cyl('Red hose wrap',(0,-.155,z),.029*1.12,.021,red,parent,verts=16)
     for z in [.19,length*.53,length-.19]:
-        cyl('Hose brass clamp',(0,-.155,z),.035,.028,brass,parent,verts=24)
+        cyl('Hose brass clamp',(0,-.155,z),.035*1.12,.028,brass,parent,verts=24)
     for side in [-1,1]:
         box('Edge reinforcement',(0,side*.094,length/2),(.19,.015,length-.24),brass,parent,.004)
 
@@ -184,7 +184,7 @@ for owner,width in [(elbow,.27),(slide,.21),(reach,.15)]:
     for z in [.07,1.07]:
         cyl('Sealed slide union',(0,-.15,z),.035,.055,brass,owner,verts=24)
         cyl('Slide manifold inlet',(0,-.12,z),.026,.075,brass,owner,'Y',24)
-    for k in range(12):cyl('Red spiral hose wrap',(0,-.16,.18+k*.07),.024,.022,red,owner,verts=12)
+    for k in range(12):cyl('Red spiral hose wrap',(0,-.16,.18+k*.07),.024*1.12,.022,red,owner,verts=12)
 joint(wrist)
 # Thick clevis shoulders, bearing collars and inset keyed hubs.
 for owner in [shoulder,elbow,wrist]:

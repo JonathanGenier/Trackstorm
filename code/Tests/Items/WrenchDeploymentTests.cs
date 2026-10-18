@@ -47,15 +47,15 @@ internal sealed class WrenchDeploymentTests
     }
 
     [Test]
-    public void SlowRackTuningStillBlocksUseUntilRackAndArmHaveFinished()
+    public void WrenchHasBoundedDeploymentIndependentOfGenericRackTuning()
     {
         var host = new HostVehicleSession(99);
         Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["vehicle.trunk_deployment_speed"] = 1, ["vehicle.rack_deployment_speed"] = 1 }, out _), Is.True);
         host.Items.Grant(host.World, 1, HeldItem.Wrench);
         var slot = host.Items.Slots.Single();
-        for (int tick = 0; tick < 180; tick++) { host.Step(default, Observe); }
+        for (int tick = 0; tick < 45; tick++) { host.Step(default, Observe); }
         Assert.That(host.UseItem(0, 99, 1, slot.Token), Is.False);
-        WrenchTestPreparation.Wait(host);
+        for (int tick = 0; tick < 12; tick++) { host.Step(default, Observe); }
         Assert.That(host.UseItem(0, 99, 1, slot.Token), Is.True);
     }
 
