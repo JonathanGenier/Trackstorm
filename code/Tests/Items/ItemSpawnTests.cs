@@ -208,6 +208,7 @@ internal sealed class ItemSpawnTests
             host.Step(default, Observe);
         }
 
+        WrenchTestPreparation.Wait(host);
         Assert.That(host.UseItem(0, 99, previous.Life, previous.Token), Is.True);
         host.Step(default, Observe);
         Assert.That(host.Spawns.TryPickup(host.World, "item-01", 1), Is.True);

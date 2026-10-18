@@ -16,6 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Wrench three-point hood repair and sparks | [TS-293 verification evidence](ts-293.md) |
 | Wrench robotic repair arm | [TS-292 verification evidence](ts-292.md) |
 | Oil wheel contamination, spray and trails | [TS-246 implementation, native/UDP verification and Astra critique](ts-246.md) |
 | Jack-in-the-box Oil | [TS-245 tank artwork, presentation, deposition, timer lifecycle, native recovery and critique evidence](ts-245.md) |

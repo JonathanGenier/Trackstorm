@@ -64,7 +64,7 @@ public sealed partial class CarRackChecks : Node
             if (OS.GetCmdlineUserArgs().Contains("--wrench-arm"))
             {
                 await CheckWrenchArm();
-                System.IO.File.WriteAllLines(ProjectSettings.GlobalizePath("res://.godot/ts292/wrench-evidence.txt"), _evidence);
+                System.IO.File.WriteAllLines(ProjectSettings.GlobalizePath("res://.godot/ts293/wrench-evidence.txt"), _evidence);
                 GD.Print($"Wrench arm integration passed: {_checks} checks on two UDP peers.");
                 foreach (var arena in _arenas) { arena.QueueFree(); }
                 foreach (var view in _views) { view.QueueFree(); }
@@ -172,8 +172,10 @@ public sealed partial class CarRackChecks : Node
                 }
                 await Capture(item.Key + "-equipped");
                 Check(_arenas[1].Driver.RequestItemSwitch(), "Switch away");
+                await Until(() => _arenas.All(a => a.Driver.ItemState!.Slots.Single(s => s.Vehicle == Shooter).ActiveSlot == 1), "Second physical slot confirmed");
                 await Until(() => AllPresent(HeldItem.Wrench), "Wrench selected on both peers");
                 Check(_arenas[1].Driver.RequestItemSwitch(), "Switch back");
+                await Until(() => _arenas.All(a => a.Driver.ItemState!.Slots.Single(s => s.Vehicle == Shooter).ActiveSlot == 0), "First physical slot confirmed");
                 await Until(() => AllPresent(item.Identity), "Selected item re-deployed");
                 int before = _events.Count;
                 if (item.Identity == HeldItem.Shield)
@@ -291,9 +293,10 @@ public sealed partial class CarRackChecks : Node
             await Until(() => AllPresent(HeldItem.Salvo), "Rapid-use setup visible");
             int rapidBefore = _events.Count;
             Check(_arenas[1].Driver.RequestItemSwitch(), "Immediate switch command");
-            Check(_arenas[1].Driver.RequestItemUse(), "Immediate switched use command");
-            await Until(() => _events.Count > rapidBefore, "Immediate switched use confirmed");
-            await Until(() => AllPresent(HeldItem.Wrench), "Consumed switched Wrench presented rather than old Salvo");
+            Check(!_arenas[1].Driver.RequestItemUse(), "Immediate switched Wrench use waits for deployment");
+            await Until(() => AllPresent(HeldItem.Wrench), "Switched Wrench fully deployed");
+            Check(_arenas[1].Driver.RequestItemUse(), "Deployed switched Wrench use command");
+            await Until(() => _events.Count > rapidBefore, "Deployed switched use confirmed");
             await Until(() => _arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Rapid switched use closes coherently");
             Check(_arenas[1].Driver.LocalItem?.Item == HeldItem.Salvo, "Rapid use preserves unselected Salvo");
             System.IO.File.WriteAllLines(ProjectSettings.GlobalizePath(_output + "/rack-evidence.txt"), _evidence);
@@ -311,6 +314,7 @@ public sealed partial class CarRackChecks : Node
         (item == HeldItem.Shield ? body.HasRearShield && body.Rack.PresentedItem == item && body.Rack.Progress >= .999f :
         body.Rack.PresentedItem == item && body.Rack.Progress >= 0.999f && !body.HasRearShield &&
         (item != HeldItem.Nitro || body.Rack.Boost.Deployment >= .999f) &&
+        (item != HeldItem.Wrench || a.Driver.ItemState?.Slots.SingleOrDefault(s => s.Vehicle == Shooter) is { } wrench && body.Rack.IsWrenchReady(wrench)) &&
         (item != HeldItem.Missile || a.Driver.ItemState?.Slots.SingleOrDefault(s => s.Vehicle == Shooter) is { } inventory && body.Rack.IsMissileReady(inventory))));
     private IEnumerable<CarLighting> Lamps() => _arenas.Select(a => a.Bodies[Shooter].Rack.GetParent<Node3D>().GetChildren().OfType<CarLighting>().Single());
     private async Task Frames(int count, InputButtons held = 0, InputButtons released = 0, ushort throttle = 0, short steer = 0, ushort brake = 0)

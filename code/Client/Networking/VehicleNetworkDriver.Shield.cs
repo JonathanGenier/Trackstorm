@@ -9,6 +9,8 @@ internal sealed partial class VehicleNetworkDriver
     /// <summary>Local presentation readiness; delays sending intent, never decides an authoritative outcome.</summary>
     internal Func<ItemSlot, bool>? ShieldReady { get; set; }
     internal Func<ItemSlot, bool>? OilReady { get; set; }
+    internal Func<ItemSlot, bool>? WrenchReady { get; set; }
+    internal Func<bool>? WrenchReturning { get; set; }
 
     private void FlushShieldUse(uint? inputSequence = null)
     {

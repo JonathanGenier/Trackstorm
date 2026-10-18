@@ -227,9 +227,14 @@ public sealed partial class ItemIntegrationChecks : Node
                     Require((frame.Pressed & InputButtons.SwitchItem) != 0, "Keyboard/controller switch tap survives between ticks.");
                     arena.Advance(frame);
                     Require((_input.Adapter.Capture(0).Pressed & InputButtons.SwitchItem) == 0, "A switch tap sends one edge.");
-                    Require(arena.Driver.RequestItemUse(), "Immediate use after switch targets the requested second-slot capability.");
+                    Require(!arena.Driver.RequestItemUse(), "Immediate Wrench use after switch is rejected before deployment.");
                 }
-                Next("E and controller X switch all eight players; immediate use selects Wrench in slot two.");
+                Next("E and controller X switch all eight players; Wrench waits for deployment in slot two.");
+                _stage = 12;
+                break;
+            case 12 when WrenchesReady():
+                foreach (var arena in _arenas) { Require(arena.Driver.RequestItemUse(), "Deployed second-slot Wrench use."); }
+                _stage = 11;
                 break;
             case 11 when _arenas.All(arena => arena.Driver.LocalItem is { Item: HeldItem.Missile, SecondItem: HeldItem.None, ActiveSlot: 1 }):
                 if (_selectionSeen == 0) { _selectionSeen = _elapsed; return; }
@@ -244,7 +249,7 @@ public sealed partial class ItemIntegrationChecks : Node
                 _stage = 1;
                 _started = _elapsed;
                 break;
-            case 1 when AllHeld(HeldItem.Wrench):
+            case 1 when AllHeld(HeldItem.Wrench) && WrenchesReady():
                 UseAll();
                 Next("All eight use Wrench at full HP, including repeated requests.");
                 break;
@@ -255,12 +260,20 @@ public sealed partial class ItemIntegrationChecks : Node
                 _arenas[0].GrantItems(HeldItem.Wrench);
                 Next("Every full-health use consumed once and replicated; preparing damaged Wrench use.");
                 break;
-            case 3 when AllHeld(HeldItem.Wrench):
+            case 3 when AllHeld(HeldItem.Wrench) && WrenchesReady():
                 UseAll();
                 Next("All eight damaged players use Wrench.");
                 break;
             case 4 when AllHeld(HeldItem.None):
                 Require(_arenas.All(arena => arena.Driver.ItemState!.World.Vehicles.All(vehicle => vehicle.State.Damage.CurrentHP == 540)), "500 HP healing replicates to every peer.");
+                if (OS.GetCmdlineUserArgs().Contains("--wrench-only"))
+                {
+                    _evidence.Add("Eight peers agree on deployment-gated Wrench use, full-health consumption, exact 500 HP healing, single-use outcomes and both selected slots.");
+                    System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
+                    GD.Print("Item integration passed: " + string.Join("\n", _evidence));
+                    Cleanup();
+                    break;
+                }
                 PrepareMissile();
                 Next("Damaged Wrench outcomes match on all eight peers.");
                 break;
@@ -346,6 +359,10 @@ public sealed partial class ItemIntegrationChecks : Node
     }
 
     private bool AllHeld(HeldItem item) => _arenas.All(arena => arena.Driver.ItemState?.Slots.Count == 8 && arena.Driver.ItemState.Slots.All(slot => slot.Item == item));
+
+    private bool WrenchesReady() => _arenas.All(arena => arena.Driver.LocalItem is { } slot &&
+        slot.Active.Item == HeldItem.Wrench && arena.Bodies[slot.Vehicle].Rack.IsWrenchReady(slot)) &&
+        _arenas[0].Driver.Host!.Items.Slots.All(_arenas[0].Driver.Host!.Items.WrenchReady);
 
     private void ItemInput(bool pressed)
     {

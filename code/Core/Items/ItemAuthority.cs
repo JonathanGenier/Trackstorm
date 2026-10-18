@@ -168,6 +168,7 @@ public sealed partial class ItemAuthority
         return state is not null && state.CanInteract && state.LifeId == life &&
             _slots.TryGetValue(vehicle, out var slot) && slot.Life == life && slot.Active.Token == token && ItemRegistry.Find(slot.Active.Item)?.CanUse == true &&
             (slot.Active.Item != HeldItem.Missile || (slot.MissileReadyTick > 0 && world.State.Tick >= slot.MissileReadyTick)) &&
+            (slot.Active.Item != HeldItem.Wrench || WrenchReady(slot)) &&
             _pending.TryAdd(vehicle, (token, checked(world.State.Tick + 15), inputSequence));
     }
 

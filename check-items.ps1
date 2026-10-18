@@ -3,6 +3,7 @@ param (
     [string]$GodotPath,
     [switch]$Visual,
     [switch]$Impaired,
+    [switch]$WrenchOnly,
     [switch]$NoBuild
 )
 
@@ -16,6 +17,7 @@ New-Item -ItemType Directory -Path $itemOutput -Force | Out-Null
 $arguments = @('--path', $PSScriptRoot, 'res://scenes/verification/item_checks.tscn', '--', "--item-output=$itemOutput")
 if (-not $Visual) { $arguments = @('--headless') + $arguments }
 if ($Impaired) { $arguments += '--item-impaired' }
+if ($WrenchOnly) { $arguments += '--wrench-only' }
 $log = & $GodotPath @arguments 2>&1
 $exitCode = $LASTEXITCODE
 $log | Set-Content -LiteralPath (Join-Path $itemOutput 'runtime.log')

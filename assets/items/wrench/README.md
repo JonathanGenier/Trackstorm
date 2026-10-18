@@ -25,3 +25,7 @@ These full-size components do not physically fit below the lowered rack.
 Their transforms and hose endpoints remain fixed throughout visible deployment;
 no second lift or runtime scale animation is used. Additional decorative
 under-rack dressing is deferred.
+
+Hydraulic hose radii and matching wraps/clamps are 12% thicker than the original
+assembly. Routes, endpoints, fittings, battery, reservoir and arm dimensions are
+unchanged. Rebuild both the editable master and runtime GLB from the same script.

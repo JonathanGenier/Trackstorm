@@ -54,15 +54,15 @@
       "path": "assets/items/wrench/RepairArm_Repair yellow stars.png"
     },
     {
-      "sha256": "59126f7fbb58346d80900f6107846559da83e9a10d58bad3eeba0157010afb23",
+      "sha256": "5d21bbb601756840ba0a6dc734d6e5aaf14cdad8ecb5a181b9e8487d0728b714",
       "path": "assets/items/wrench/RepairArm.glb"
     },
     {
-      "sha256": "4a0551a90a8aeeb66bdad2f3e57129a9dd9db63f80fd10425b78bef09ec4a04a",
+      "sha256": "7d52ca0987ce0c188b0baa491160519c646be4022087ff2a5295d6be9695fa60",
       "path": "assets/items/wrench/source/BuildRepairArm.py"
     },
     {
-      "sha256": "1cfe1a15b0972db0e9051ade34ea244050d8397e40a30db47bd930aecff7fc3b",
+      "sha256": "2ca3003fbe26c1999ca5a7826927add08926d41a2ecbe3947bb127e7da4392de",
       "path": "assets/items/wrench/source/RepairArm.blend"
     }
   ]

@@ -222,6 +222,7 @@ internal sealed class EosP2pTransportTests
         Assert.That(pair.ClientVehicles!.Configuration, Is.EqualTo(expected));
         Assert.That(pair.ClientVehicles.Host!.Spawns!.RandomState, Is.EqualTo(rng));
         Assert.That(pair.ClientVehicles.ForceDeveloperStart(), Is.True);
+        pair.Step(180, host: false);
         Assert.That(pair.ClientVehicles.RequestItemUse(), Is.True);
         pair.Step(2, host: false);
         Assert.That(pair.ClientVehicles.GiveDeveloperItem(Trackstorm.Core.Items.HeldItem.Missile), Is.True);
