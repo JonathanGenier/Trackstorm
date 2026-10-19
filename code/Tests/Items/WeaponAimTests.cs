@@ -114,7 +114,7 @@ internal sealed class WeaponAimTests
     public void AimWireIsBoundedAndRejectsCorruptionAndTrailingBytes()
     {
         byte[] request = ItemCodec.EncodeAim(99, 1, 1, 0, 1, -Vector3.UnitZ);
-        Assert.That(request.Length, Is.EqualTo(56));
+        Assert.That(request.Length, Is.EqualTo(72));
         Assert.That(ItemCodec.DecodeAim(request).Direction, Is.EqualTo(-Vector3.UnitZ));
         Assert.Throws<ArgumentException>(() => ItemCodec.DecodeAim(request.AsSpan(0, request.Length - 1)));
         Assert.Throws<ArgumentException>(() => ItemCodec.DecodeAim([.. request, 0]));

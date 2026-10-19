@@ -1,12 +1,12 @@
-# EMP Claw presentation
+# EMP Claw flight and presentation
 
 The EMP cannon and four-jawed clown device are Blender-authored production
 presentation assets. Their [editable source, pivots and provenance](../../assets/items/emp-claw/README.md)
 are separate from combat authority. EMP Claw is a registered Weapon-category pickup
 in the existing nine-item roster. The host grants a minimal three-shot presentation
-load through the ordinary item authority. Homing, damaging projectiles, vulnerable
-noses, EMP impairment, shield interactions and destructible stored ammunition
-remain outside this module.
+load through the ordinary item authority. Guided flight and contact handoff are
+server-authoritative. Persistent attachment, EMP impairment, vulnerable noses,
+shield counterplay and destructible stored ammunition remain future consumers.
 
 ## Normal pickup and testing
 
@@ -29,13 +29,70 @@ each physical inventory slot. A successful presentation shot retires its use tok
 old/repeated requests cannot spend the next round. The same magazine stays mounted.
 Both the host deployment/accepted aim and local mechanical readiness gate use.
 Three default shots fit within two seconds; an empty slot can receive a fresh pickup.
-Switching preserves its load. Inventory TI28, configuration TC53 (263 values,
-2125 bytes), and discovery bucket `trackstorm-lobby-20` exclude older layouts.
+Switching preserves its load. Inventory TI29, configuration TC54 (280 values,
+2261 bytes), and discovery bucket `trackstorm-lobby-21` exclude older layouts.
 
-Accepted use produces a bounded 0.75-second straight cosmetic flight at 65 m/s.
-It performs no hit queries and has no combat effect. Landed/activated/expired/pop
-states are inspectable in the preview below; actual target attachment and gameplay
-transitions still require the later EMP Stories.
+## Guided flight
+
+Core captures one validated aim-assisted rival and its life at fire time. The
+shared aim request carries a candidate ID/life, never an accepted hit: Core
+checks eligibility, the accepted forward cone, a 300 m lock bound and native
+visibility. Once captured, camera motion, occlusion and nearby rivals cannot
+switch that identity. A removed/dead/new-life victim leaves the claw on its
+committed direction with terrain response; it never rebinds to a respawn.
+
+Without a valid lock, the first segment follows the accepted firing direction.
+Subsequent ticks search living rivals within the forward cone/range and native
+visibility. First detection commits identity permanently; simultaneous candidates
+use nearest distance then stable vehicle ID. Homing is bounded, with rapid launch
+deceleration. Ground support, cliffs and banks reuse `MissileFlight` with separate
+EMP tuning. Standard Missile remains non-homing.
+
+Every segment, including pivot-to-muzzle travel, is swept against native scenery
+and cars. The original owner is excluded throughout flight, including returning
+shots. Another car can physically intercept regardless of the intended victim.
+One committed `ItemEvent.EmpClawContact` carries the actual vehicle/life and local
+hit position/normal for the subsequent attachment consumer. There is no damage,
+impairment, attached timer or balloon counterplay yet. World and shield collisions
+retire flight without explosion. Contact sparks are cosmetic. Flight has no
+shootable native shape and never participates in weapon damage queries.
+
+Each shot captures an absolute deadline of at most 3,600 ticks. Retuning, recovery
+and delayed publication cannot restart it. Owner death/life reset/departure and
+match finish remove flights. Weapon switching and empty stow preserve independent
+live shots. The existing shared set allows sixteen Missile/Salvo/EMP projectiles;
+full capacity rejects use without spending ammo.
+
+Launch, target acquisition, contact and retirement publish reliably. Continuing
+motion uses the existing replaceable projectile stream. Complete checkpoints
+preserve target/owner lives, velocity and deadline. Client flight interpolation
+extrapolates at most 100 ms; missing membership removes the model and electric
+trail. The launcher retains its compressed-air discharge and original mechanism.
+
+## Flight tuning
+
+Existing host-validated Configs categories **EMP Claw flight** and **EMP Claw
+terrain** use staged Apply, replication and export. Keys have the
+`items.emp_claw_` prefix. Lifetime affects new shots. Speed controls (including the launch-phase ceiling)
+and guidance controls affect current flight. Standard Missile speed controls never retune an EMP.
+
+| Key suffix | Default | Valid range |
+| --- | --- | --- |
+| `launch_speed` | 65 m/s (234 km/h) | Above 200 km/h, at most 150 m/s |
+| `cruise_speed` | 27.7778 m/s (100 km/h) | 10 to 50 m/s, below launch speed |
+| `deceleration` | 75 m/s^2 | 10 to 200 |
+| `turn_rate` | 100 deg/s | 1 to 180 |
+| `response` | 5/s | 0.1 to 20 |
+| `acquisition_degrees` | 18-degree half cone | 1 to 60 |
+| `acquisition_range` | 120 m | 5 to 300 |
+| `lifetime` | 60 s | 0.1 to 60 |
+
+`terrain_` controls expose clearance 1 m, look-ahead 12 m, vertical detection
+range 10 m, reacquisition height 3 m, pitch limit 42 degrees, pitch rate 150 deg/s,
+response 16/s, slope limit 40 degrees and cliff tolerance 1 m. Validation is shared
+with the Missile terrain envelope, including clearance < reacquisition height <=
+detection range. Homing rate and terrain pitch rate are separately bounded
+contributions, allowing support correction while pursuing a low car.
 
 ## Rack integration
 
@@ -89,8 +146,8 @@ Duplicate publications never restart the loader or discharge.
 ## Claw and effects
 
 `EmpClawPresentation` is an arena-owned collection accepting complete `EmpClawView`
-snapshots (ID, resolved pose and cosmetic state). The future adapter resolves
-authoritative flight and target-local attachment transforms before submission.
+snapshots (ID, resolved pose and cosmetic state). Fixture adapters can resolve target-local attachment transforms before submission.
+Production flight uses accepted samples through `EmpClawFlightVisual`.
 This snapshot adapter makes no trajectory, raycast, attachment decision or timer-authority claim.
 Unique finite snapshots are limited to 64 views. Missing IDs remove their owned
 models/effects; reconstruction replaces the set without entry bursts.
@@ -119,7 +176,7 @@ fixture measures imported stowed vertices and folded-cartridge fit, checks an un
 exercises ordered deployment, full yaw and vertical/shared-clearance aim, three
 accepted shot cues at 0/1/2 seconds, exact depletion, duplicate suppression,
 multiple independent claws, terminal cleanup, reconstruction, repeated reversal,
-Wrench handoffs and life reset. Captures/logs are under `.godot/ts296-round3/`.
+Wrench handoffs and life reset. Captures/logs are under `.godot/ts296-round4/`.
 
 Add `-Preview` for interactive visual inspection: RMB/mouse orbit and shared aim,
 wheel zoom, Space accepted shot fixture, E deploy/stow, R fresh capability fixture,
@@ -140,3 +197,15 @@ the barrel. Fixed services follow the existing in-car storage convention.
 Three primary launcher hoses remain: tank feed, left cannon and right cannon.
 They terminate on their own fixed or cannon assembly without bridging yaw/lift
 joints; cartridge induction cables and metal tank straps are separate details.
+
+`check-emp-claw-flight.ps1 -GodotPath <editor> [-Visual]` exercises three native UDP
+arenas under 100 ms delay, 15 ms jitter and 3% loss: target persistence, forward
+acquisition, native interception, owner exclusion, weapon-ray immunity, thin walls,
+simultaneous players, recovery, expiry and climb/descent/bank fixtures. Car paths
+are controlled fixtures, not human driving. The same scene with
+`-- --emp-long-flight` checks returning owner immunity and exact 60-second expiry;
+`-- --emp-production` drives the real car onto both tabletop approaches and the
+outer bank before firing. Evidence goes under `.godot/emp-flight-checks`.
+The original presentation harness retains isolated pickup, three-shot cadence and
+rack lifecycle coverage. These checks do not establish remote Internet behavior or
+physical-controller usability.

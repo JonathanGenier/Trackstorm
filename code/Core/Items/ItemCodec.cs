@@ -4,7 +4,7 @@ using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-twenty-five item protocol. Reliable outcomes and replaceable aim share existing item ownership.</summary>
+/// <summary>Bounded version-twenty-nine item protocol. Reliable outcomes and replaceable aim share existing item ownership.</summary>
 public static partial class ItemCodec
 {
     /// <summary>Accommodates the maximum lifetime-derived Oil set and its pass counts and overlap latches.</summary>
@@ -170,6 +170,9 @@ public static partial class ItemCodec
                 writer.Write(arc.ElapsedTicks);
                 writer.Write(arc.Life);
             }
+            writer.Write(missile.EmpClaw is not null);
+            if (missile.EmpClaw is { } emp)
+            { writer.Write(emp.OwnerLife); writer.Write(emp.Target); writer.Write(emp.TargetLife); writer.Write(emp.ExpiresAtTick); }
         }
 
         writer.Write((byte)state.Shields.Count);
@@ -265,6 +268,9 @@ public static partial class ItemCodec
             writer.Write(outcome.Impact);
             Vector(writer, outcome.Origin);
             writer.Write(outcome.Tracer);
+            writer.Write(outcome.EmpClawContact is not null);
+            if (outcome.EmpClawContact is { } contact)
+            { writer.Write(contact.Vehicle); writer.Write(contact.Life); Vector(writer, contact.LocalPosition); Vector(writer, contact.LocalNormal); }
         }
     });
 
@@ -308,6 +314,7 @@ public static partial class ItemCodec
             missiles[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader), reader.ReadInt32());
             bool arcing = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid arc flag.") };
             if (arcing) { missiles[i] = missiles[i] with { Arc = new(Vector(reader), Vector(reader), reader.ReadSingle(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadUInt64()) }; }
+            if (Flag(reader)) { missiles[i] = missiles[i] with { EmpClaw = new(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64()) }; }
         }
 
         var shields = new ShieldState[Count(reader, ItemAuthority.MaximumShields)];
@@ -375,6 +382,7 @@ public static partial class ItemCodec
             Vector3 position = Vector(reader);
             bool impact = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid impact flag.") };
             events[i] = new(token, owner, item, position, impact) { Origin = Vector(reader), Tracer = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid tracer flag.") } };
+            if (Flag(reader)) { events[i] = events[i] with { EmpClawContact = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader)) }; }
         }
 
         return new ItemPublication(revision, world, slots, missiles, events, spawns, patches, contacts, balances, mines, shields, discardRevision);
@@ -384,7 +392,7 @@ public static partial class ItemCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 28, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 29, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {
@@ -396,7 +404,7 @@ public static partial class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 28 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 29 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }

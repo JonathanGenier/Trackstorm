@@ -123,7 +123,7 @@ public sealed partial class EmpClawChecks
                 await Until(() => host.Items.Slots.Single(s => s.Vehicle == 1).ActiveSlot == 0 && Ready(), "EMP redeploys after repeated normal weapon switches.");
                 Check(host.Items.Slots.Single(s => s.Vehicle == 1).Active.EmpClaw!.Remaining == 3, "Switching never refills or spends stored rounds.");
             }
-            Check(host.Items.Missiles.Count == 0, "EMP test shots create no authoritative projectile or future combat behavior.");
+            Check(host.Items.Missiles.All(p => p.EmpClaw is not null), "EMP test shots use authoritative EMP flight without introducing another weapon.");
         }
         finally
         {

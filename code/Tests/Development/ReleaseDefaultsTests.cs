@@ -130,7 +130,7 @@ internal sealed class ReleaseDefaultsTests
     public void ReleaseDefaultsValidateAndRoundTrip()
     {
         var defaults = GameplayConfiguration.HostedDefaults;
-        Assert.That(GameplayOptions.All.Count, Is.EqualTo(263));
+        Assert.That(GameplayOptions.All.Count, Is.EqualTo(280));
         Assert.DoesNotThrow(defaults.Validate);
         var file = DeveloperSettingsFile.Read(string.Empty, defaults);
         var restored = DeveloperSettingsFile.Read(file.Write(defaults), defaults);
@@ -169,8 +169,8 @@ internal sealed class ReleaseDefaultsTests
         Assert.That(GameplayOptions.All.Any(option => option.Key.StartsWith("vehicle.air_stabilization", StringComparison.Ordinal)), Is.False);
         Assert.That(DeveloperSettingsFile.Read(file.Write(file.Configuration)).Configuration, Is.EqualTo(file.Configuration));
         byte[] wire = GameplayConfigurationCodec.Encode(1, new(0, file.Configuration));
-        Assert.That(wire.Length, Is.EqualTo(2125));
-        Assert.That(wire[2], Is.EqualTo(53));
+        Assert.That(wire.Length, Is.EqualTo(2261));
+        Assert.That(wire[2], Is.EqualTo(54));
         Assert.That(GameplayConfigurationCodec.Decode(wire).State.Configuration, Is.EqualTo(file.Configuration));
     }
 

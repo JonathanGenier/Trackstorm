@@ -24,11 +24,22 @@ public sealed class ItemPublication
         var inventory = slots.ToArray();
         var projectiles = missiles.ToArray();
         var outcomes = events.ToArray();
-        if (outcomes.Any(outcome => outcome.Item == HeldItem.EmpClaw && (outcome.Impact || outcome.Tracer ||
-            Vector3Distance(outcome.Position, outcome.Origin) is < 1 or > 50.01f)))
+        if (outcomes.Any(outcome => outcome.Item == HeldItem.EmpClaw && (outcome.Tracer ||
+            (!outcome.Impact && Vector3Distance(outcome.Position, outcome.Origin) is < 1 or > 50.01f))))
         { throw new ArgumentException("Invalid EMP presentation discharge."); }
+        foreach (var outcome in outcomes.Where(e => e.EmpClawContact is not null))
+        {
+            var contact = outcome.EmpClawContact!;
+            if (outcome.Item != HeldItem.EmpClaw || !outcome.Impact || contact.Vehicle == 0 || contact.Life == 0 || contact.Vehicle == outcome.Owner ||
+                !VehiclePhysicsState.IsFinite(contact.LocalPosition) || contact.LocalPosition.Length() > 10 || !WeaponAim.IsDirection(contact.LocalNormal))
+            { throw new ArgumentException("Invalid EMP contact handoff."); }
+        }
         foreach (var missile in projectiles)
         {
+            if (missile.EmpClaw is { } emp && (missile.Arc is not null || emp.OwnerLife == 0 || emp.Target == missile.Owner ||
+                (emp.Target == 0) != (emp.TargetLife == 0) || emp.ExpiresAtTick <= world.Tick || emp.ExpiresAtTick - world.Tick != (ulong)missile.RemainingTicks ||
+                missile.Velocity.Length() > 150.01f || !world.Vehicles.Any(v => v.State.VehicleId == missile.Owner && v.State.LifeId == emp.OwnerLife && v.State.CanInteract)))
+            { throw new ArgumentException("Invalid EMP flight continuation."); }
             if (missile.Arc is not { } arc) { continue; }
             arc.Validate();
             if (missile.RemainingTicks != arc.DurationTicks - arc.ElapsedTicks || Vector3Distance(missile.Position, arc.At(arc.ElapsedTicks)) > 0.01f ||
@@ -54,7 +65,7 @@ public sealed class ItemPublication
             inventory.SelectMany(slot => new[] { slot.Token, slot.SecondToken }).Where(token => token != 0).GroupBy(token => token).Any(group => group.Count() > 1) ||
             projectiles.Length > ItemAuthority.MaximumProjectiles || projectiles.Select(missile => missile.Id).Distinct().Count() != projectiles.Length ||
             projectiles.Any(missile => missile.Id == 0 || missile.Owner == 0 || !VehiclePhysicsState.IsFinite(missile.Position) || !VehiclePhysicsState.IsFinite(missile.Velocity) || missile.Velocity.Length() <= 0 || missile.Velocity.Length() > (missile.Arc is null ? 301 : 1000) || missile.RemainingTicks is < 1 or > 3600) ||
-            outcomes.Length > ItemAuthority.MaximumProjectiles * 2 + ItemAuthority.MaximumMines + 16 || outcomes.Any(outcome => outcome.Token == 0 || outcome.Owner == 0 || ItemRegistry.Find(outcome.Item)?.CanUse != true || !VehiclePhysicsState.IsFinite(outcome.Position) || !VehiclePhysicsState.IsFinite(outcome.Origin) || (outcome.Item is not (HeldItem.MachineGun or HeldItem.EmpClaw) && (outcome.Origin != System.Numerics.Vector3.Zero || outcome.Tracer)) || (outcome.Item == HeldItem.MachineGun && System.Numerics.Vector3.Distance(outcome.Origin, outcome.Position) > 300.01f) || (outcome.Impact && outcome.Item is not (HeldItem.Missile or HeldItem.Salvo or HeldItem.ProxyMine or HeldItem.MachineGun))))
+            outcomes.Length > ItemAuthority.MaximumProjectiles * 2 + ItemAuthority.MaximumMines + 16 || outcomes.Any(outcome => outcome.Token == 0 || outcome.Owner == 0 || ItemRegistry.Find(outcome.Item)?.CanUse != true || !VehiclePhysicsState.IsFinite(outcome.Position) || !VehiclePhysicsState.IsFinite(outcome.Origin) || (outcome.Item is not (HeldItem.MachineGun or HeldItem.EmpClaw) && (outcome.Origin != System.Numerics.Vector3.Zero || outcome.Tracer)) || (outcome.Item == HeldItem.MachineGun && System.Numerics.Vector3.Distance(outcome.Origin, outcome.Position) > 300.01f) || (outcome.Impact && outcome.Item is not (HeldItem.Missile or HeldItem.Salvo or HeldItem.ProxyMine or HeldItem.MachineGun or HeldItem.EmpClaw))))
         {
             throw new ArgumentException("Invalid item publication.");
         }

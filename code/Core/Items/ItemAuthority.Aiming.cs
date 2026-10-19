@@ -5,7 +5,7 @@ namespace Trackstorm.Core.Items;
 
 public sealed partial class ItemAuthority
 {
-    private sealed record AimIntent(ulong Life, ulong Token, ulong Selection, ulong Sequence, ulong Received, Vector3 Direction);
+    private sealed record AimIntent(ulong Life, ulong Token, ulong Selection, ulong Sequence, ulong Received, Vector3 Direction, ulong Target, ulong TargetLife);
     private readonly Dictionary<ulong, AimIntent> _aimIntents = new();
     private readonly Dictionary<ulong, WeaponAimSolution> _aims = new();
     private sealed record AimDeployment(ulong Life, ulong Token, ulong Selection, HeldItem Item, float Progress, bool Retracting, ulong Tick, float Nesting, float Arm = 0)
@@ -29,14 +29,15 @@ public sealed partial class ItemAuthority
         deployment.Item == HeldItem.EmpClaw && !deployment.Retracting && deployment.Progress >= 1;
 
     /// <summary>Validates direction against actual sender inventory, life, selection and ordered input.</summary>
-    public bool RequestAim(Simulation.Simulation world, ulong vehicle, ulong life, ulong token, ulong selection, ulong sequence, Vector3 direction)
+    public bool RequestAim(Simulation.Simulation world, ulong vehicle, ulong life, ulong token, ulong selection, ulong sequence, Vector3 direction, ulong target = 0, ulong targetLife = 0)
     {
         var state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == vehicle);
         if (state is not { CanInteract: true } || state.LifeId != life || sequence == 0 || !WeaponAim.IsDirection(direction) ||
+            (target == 0) != (targetLife == 0) || target == vehicle ||
             !_slots.TryGetValue(vehicle, out var slot) || slot.Life != life || slot.Active.Token != token ||
             slot.SelectionRevision != selection || !WeaponAim.Supports(slot.Active.Item) ||
             (_aimIntents.TryGetValue(vehicle, out var previous) && previous.Life == life && previous.Sequence >= sequence)) { return false; }
-        _aimIntents[vehicle] = new(life, token, selection, sequence, world.State.Tick, direction);
+        _aimIntents[vehicle] = new(life, token, selection, sequence, world.State.Tick, direction, target, targetLife);
         return true;
     }
 

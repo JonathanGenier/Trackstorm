@@ -15,6 +15,8 @@ internal sealed partial class VehicleNetworkDriver
 
     /// <summary>Latest local camera intent, sampled through the existing fixed item/input path.</summary>
     internal Vector3? DesiredAim { get; set; }
+    internal ulong DesiredAimTarget { get; set; }
+    internal ulong DesiredAimTargetLife { get; set; }
     /// <summary>Current trusted solutions only; late/stalled samples cannot retain a firing marker.</summary>
     internal IReadOnlyList<WeaponAimSolution> AcceptedAims => _seconds() - _aimReceivedAt <= .3 ? _acceptedAims : Array.Empty<WeaponAimSolution>();
 
@@ -24,11 +26,11 @@ internal sealed partial class VehicleNetworkDriver
         ulong sequence = checked(++_aimSequence);
         if (Host is not null)
         {
-            Host.AimItem(0, _session, inventory.Life, inventory.Active.Token, inventory.SelectionRevision, sequence, direction);
+            Host.AimItem(0, _session, inventory.Life, inventory.Active.Token, inventory.SelectionRevision, sequence, direction, DesiredAimTarget, DesiredAimTargetLife);
         }
         else if (sequence % HostVehicleSession.SnapshotInterval == 0)
         {
-            Send(new(ServerPeer, ItemCodec.EncodeAim(_session, inventory.Life, inventory.Active.Token, inventory.SelectionRevision, sequence, direction), TransportDelivery.Unreliable));
+            Send(new(ServerPeer, ItemCodec.EncodeAim(_session, inventory.Life, inventory.Active.Token, inventory.SelectionRevision, sequence, direction, DesiredAimTarget, DesiredAimTargetLife), TransportDelivery.Unreliable));
         }
     }
 
@@ -49,7 +51,7 @@ internal sealed partial class VehicleNetworkDriver
         if (Host is not null)
         {
             var request = ItemCodec.DecodeAim(message.Payload.Span);
-            if (!Host.AimItem(message.RemotePeerId, request.Session, request.Life, request.Token, request.Selection, request.Sequence, request.Direction)) { RejectedPackets++; }
+            if (!Host.AimItem(message.RemotePeerId, request.Session, request.Life, request.Token, request.Selection, request.Sequence, request.Direction, request.Target, request.TargetLife)) { RejectedPackets++; }
             return;
         }
         if (message.RemotePeerId != ServerPeer || !_receivedConfiguration || History is null || _awaitingCheckpoint) { throw new ArgumentException("Aim requires synchronized host authority."); }
@@ -63,6 +65,7 @@ internal sealed partial class VehicleNetworkDriver
     private void ResetAiming()
     {
         DesiredAim = null;
+        DesiredAimTarget = DesiredAimTargetLife = 0;
         _acceptedAims = Array.Empty<WeaponAimSolution>();
         _aimSequence = _aimPublicationTick = 0;
         _aimReceivedAt = double.NegativeInfinity;
