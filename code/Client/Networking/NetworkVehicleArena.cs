@@ -482,7 +482,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
         var hit = QueryWithoutRearShields(ray);
         if (hit.Count == 0) { return null; }
         float fraction = Math.Clamp(start.DistanceTo(hit["position"].AsVector3()) / start.DistanceTo(finish), 0, 1);
-        return new(fraction, (hit["collider"].AsGodotObject() as NetworkVehicleBody)?.VehicleId ?? 0);
+        return new(fraction, (hit["collider"].AsGodotObject() as NetworkVehicleBody)?.VehicleId ?? 0)
+        { Normal = VehicleBody.ToCore(hit["normal"].AsVector3()) };
     }
 
     private float? CollideMissile(MissileState missile, System.Numerics.Vector3 end)

@@ -293,14 +293,17 @@ public sealed partial class ItemAuthority
                 var aim = AcceptedAim(slot.Vehicle, slot.Life, slot.Token);
                 if (request.Reset.HasValue || inventory.Active.Token != slot.Token || !EmpClawReady(inventory) ||
                     slot.EmpClaw is not { Remaining: > 0 } load || input.Tick < load.ReadyTick || aim is null || aim.Tick != world.State.Tick ||
-                    world.State.Match is { Phase: not Matches.MatchPhase.Active }) { continue; }
+                    world.State.Match is { Phase: not Matches.MatchPhase.Active } || missiles.Count >= MaximumProjectiles) { continue; }
                 byte remaining = (byte)(load.Remaining - 1);
                 ulong next = remaining > 0 ? NextToken() : slot.Token;
                 var updated = load with { Remaining = remaining, ReadyTick = remaining > 0 ? checked(input.Tick + (ulong)Configuration.EmpClawIntervalTicks) : 0 };
                 slots[pair.Key] = usedIndex == 0
                     ? inventory with { Item = remaining > 0 ? HeldItem.EmpClaw : HeldItem.None, Token = next, EmpClaw = updated }
                     : inventory with { SecondItem = remaining > 0 ? HeldItem.EmpClaw : HeldItem.None, SecondToken = next, SecondEmpClaw = updated };
-                // Cosmetic discharge only. No projectile, homing, collision or combat effect is created.
+                int budget = (int)MathF.Ceiling(Configuration.EmpClaw.LifetimeSeconds * 60);
+                var flight = CaptureEmpTarget(world, slot, aim, requests, raycastWeapon, checked(world.State.Tick + (ulong)budget));
+                // Start at the accepted pivot so the first sweep also covers the barrel-to-muzzle interval.
+                missiles.Add(new(slot.Token, slot.Vehicle, aim.Origin, aim.Direction * Configuration.EmpClaw.LaunchSpeed, budget) { EmpClaw = flight });
                 Vector3 muzzle = aim.Origin + aim.Direction * 1.62f;
                 events.Add(new(slot.Token, slot.Vehicle, HeldItem.EmpClaw, muzzle + aim.Direction * 50, false) { Origin = muzzle });
                 continue;
@@ -559,14 +562,30 @@ public sealed partial class ItemAuthority
                 }
             }
 
-            if (missile.Arc is null)
+            if (missile.EmpClaw is { } emp)
+            {
+                if (world.State.Match?.Phase == Matches.MatchPhase.Finished || input.Tick > emp.ExpiresAtTick ||
+                    world.GetVehicle(missile.Owner).LifeId != emp.OwnerLife || requests.Any(r => r.VehicleId == missile.Owner && r.Reset.HasValue)) { continue; }
+                // An unlocked shot flies its initial accepted segment before it searches.
+                if (_missiles.Any(p => p.Id == missile.Id)) { missile = GuideEmp(world, missile, requests, raycastWeapon, missileTerrain); }
+            }
+            else if (missile.Arc is null)
             {
                 Vector3 position = missile.Position;
                 if (Math.Max(Math.Abs(position.X), Math.Max(Math.Abs(position.Y), Math.Abs(position.Z))) > Configuration.MissileWorldLimit) { continue; }
                 missile = missile with { Velocity = MissileFlight.Correct(missile, Configuration.MissileTerrain, missileTerrain) };
             }
             Vector3 end = missile.Arc is { } flight ? flight.At(flight.ElapsedTicks + 1) : missile.Position + (missile.Velocity / 60);
+            WeaponRayHit? empHit = missile.EmpClaw is not null ? raycastWeapon?.Invoke(missile.Owner, missile.Position, end) : null;
+            // Retain the native projectile mask (including scenery) and enrich its closest hit
+            // with vehicle identity. Both native queries exclude the owner for the entire flight.
             float? hit = collide(missile, end);
+            if (empHit is not null)
+            {
+                if (!float.IsFinite(empHit.Fraction) || empHit.Fraction is < 0 or > 1) { throw new ArgumentException("Invalid EMP contact fraction."); }
+                if (hit is null || empHit.Fraction <= hit) { hit = empHit.Fraction; }
+                else { empHit = null; }
+            }
             if (hit is float nativeFraction && (!float.IsFinite(nativeFraction) || nativeFraction is < 0 or > 1)) { throw new ArgumentException("Invalid projectile collision fraction."); }
             var directShield = shields.Intersect(missile.Position, end, missile.Owner);
             if (directShield is { } direct && (hit is null || direct.Fraction <= hit)) { hit = direct.Fraction; }
@@ -580,6 +599,15 @@ public sealed partial class ItemAuthority
                 }
 
                 Vector3 center = Vector3.Lerp(missile.Position, end, fraction);
+                if (missile.EmpClaw is not null)
+                {
+                    events.Add(new(missile.Id, missile.Owner, HeldItem.EmpClaw, center, true)
+                    {
+                        Origin = missile.Position,
+                        EmpClawContact = directShield is null ? EmpContact(world, missile, center, empHit, requests) : null
+                    });
+                    continue;
+                }
                 events.Add(new ItemEvent(missile.Id, missile.Owner, missile.Item, center, true));
                 shields.BlastWalls(this, center, missile);
                 foreach (VehicleStepRequest request in requests)
@@ -637,9 +665,10 @@ public sealed partial class ItemAuthority
             contacts.Clear();
         }
 
-        advanced.RemoveAll(missile => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == missile.Owner && vehicle.CanInteract));
+        advanced.RemoveAll(missile => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == missile.Owner && vehicle.CanInteract &&
+            (missile.EmpClaw is null || missile.EmpClaw.OwnerLife == vehicle.LifeId)));
         movingMines.RemoveAll(mine => mine.IsPlacing && !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == mine.Owner && vehicle.LifeId == mine.PlacementLife && vehicle.CanInteract));
-        if (world.State.Match?.Phase == Matches.MatchPhase.Finished) { advanced.RemoveAll(missile => missile.Arc is not null); }
+        if (world.State.Match?.Phase == Matches.MatchPhase.Finished) { advanced.RemoveAll(missile => missile.Arc is not null || missile.EmpClaw is not null); }
         bool shieldsChanged = !_shields.SequenceEqual(shields.States);
         _shields.Clear();
         _shields.AddRange(shields.States);
@@ -649,7 +678,7 @@ public sealed partial class ItemAuthority
             (input.Tick % 6 == 0 && patches.Any(p => p.Pour is { } pour && input.Tick < pour.StartTick + (ulong)pour.DurationTicks + 180)) ||
             !contacts.SequenceEqual(_contacts) || journal.Count > 0 ||
             !movingMines.SequenceEqual(_mines) || events.Count > 0 ||
-            !_missiles.Select(missile => missile.Id).SequenceEqual(advanced.Select(missile => missile.Id));
+            !_missiles.Select(missile => (missile.Id, missile.EmpClaw)).SequenceEqual(advanced.Select(missile => (missile.Id, missile.EmpClaw)));
         bool changed = reliableChanged || missiles.Count > 0;
         foreach (var removed in _slots.Values.Where(slot => !slots.ContainsKey(slot.Vehicle)).SelectMany(slot => new[] { slot, slot with { Token = slot.SecondToken, Item = slot.SecondItem } }).Where(slot => slot.Item != HeldItem.None))
         {
@@ -715,7 +744,7 @@ public sealed partial class ItemAuthority
             for (int i = 0; i < _missiles.Count; i++)
             {
                 var missile = _missiles[i];
-                if (missile.Arc is not null) { continue; }
+                if (missile.Arc is not null || missile.EmpClaw is not null) { continue; }
                 _missiles[i] = missile with { Velocity = Vector3.Normalize(missile.Velocity) * configuration.MissileSpeed };
             }
 

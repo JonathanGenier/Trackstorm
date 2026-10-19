@@ -32,7 +32,6 @@ internal sealed partial class ItemPresentation : Node3D
     internal const int MaximumMissileSmokeResidues = 32;
     internal const int MaximumMissileExplosions = 32;
     private readonly List<ProxyMineScar> _mineScars = new();
-    private readonly List<EmpClawShotVisual> _empShots = new();
     private const int MaximumMineScars = 64;
 
     /// <inheritdoc/>
@@ -152,9 +151,9 @@ internal sealed partial class ItemPresentation : Node3D
         {
             if (!_missiles.TryGetValue(missile.Id, out var node))
             {
-                node = missile.Item == HeldItem.Missile ? new MissileFlightVisual() : Rocket();
+                node = missile.Item == HeldItem.EmpClaw ? new EmpClawFlightVisual() : missile.Item == HeldItem.Missile ? new MissileFlightVisual() : Rocket();
                 AddChild(node);
-                if (node is not MissileFlightVisual) { node.AddChild(Particles("smoke_01", false, 0.5f)); }
+                if (missile.Item == HeldItem.Salvo) { node.AddChild(Particles("smoke_01", false, 0.5f)); }
                 _missiles.Add(missile.Id, node);
             }
 
@@ -165,12 +164,15 @@ internal sealed partial class ItemPresentation : Node3D
         {
             if (outcome.Item == HeldItem.EmpClaw)
             {
-                _empShots.RemoveAll(shot => !GodotObject.IsInstanceValid(shot) || shot.IsQueuedForDeletion());
-                if (_empShots.Count >= 24) { _empShots[0].QueueFree(); _empShots.RemoveAt(0); }
-                var shot = new EmpClawShotVisual { Position = VehicleBody.ToGodot(outcome.Origin),
-                    Direction = VehicleBody.ToGodot(outcome.Position - outcome.Origin).Normalized() };
-                AddChild(shot);
-                _empShots.Add(shot);
+                // Launcher owns the compressed-air discharge. Flight is complete-state membership;
+                // only the committed contact creates sparks, with no explosion or future EMP effect.
+                if (outcome.Impact && _bursts.Count < 128)
+                {
+                    var spark = new Node3D { Position = VehicleBody.ToGodot(outcome.Position) };
+                    AddChild(spark);
+                    spark.AddChild(Particles("spark_01", true, .22f));
+                    _bursts.Add((spark, 0, .3f));
+                }
                 continue;
             }
             if (outcome.Item == HeldItem.Missile && outcome.Impact)
@@ -273,6 +275,8 @@ internal sealed partial class ItemPresentation : Node3D
     {
         if (node is MissileFlightVisual flight)
         { flight.Observe(VehicleBody.ToGodot(missile.Position), VehicleBody.ToGodot(missile.Velocity)); }
+        else if (node is EmpClawFlightVisual emp)
+        { emp.Observe(VehicleBody.ToGodot(missile.Position), VehicleBody.ToGodot(missile.Velocity)); }
         else
         {
             node.Position = VehicleBody.ToGodot(missile.Position);

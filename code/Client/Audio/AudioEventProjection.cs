@@ -157,7 +157,7 @@ internal sealed class AudioEventProjection
             {
                 Emit(Enum.Parse<AudioCue>(hook), outcome.Item == HeldItem.EmpClaw ? outcome.Origin : outcome.Position);
             }
-            if (outcome.Impact)
+            if (outcome.Impact && outcome.Item != HeldItem.EmpClaw)
             {
                 Emit(AudioCue.Explosion, outcome.Position);
             }

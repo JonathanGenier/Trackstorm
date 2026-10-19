@@ -49,9 +49,9 @@ The version-one `TD` session configuration channel carries bounded catalog-index
 
 Complete session publications reach lobby clients and late arrivals even before an arena exists. Arena gameplay retains the existing configuration-before-world boundary below; the session replica is only a projection for lobby presentation and next-arena continuity. Recovery/migration uses the existing complete checkpoint and epoch reset, with no successor-local defaults reload.
 
-The reliable version-fifty-three `TC` message carries arena generation, configuration revision and all 263 values (2125 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
+The reliable version-fifty-four `TC` message carries arena generation, configuration revision and all 280 values (2261 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
 
-The host sends configuration before its reliable world boundary on admission or edits. Version-fourteen `TS` world snapshots include the configuration revision; clients reject world/item boundaries for a different revision, preventing mismatched simulation. Subsequent unreliable snapshots recover normal movement after an ordered tuning change. EOS lobby metadata does not store gameplay tuning. Discovery compatibility is `trackstorm-lobby-19`.
+The host sends configuration before its reliable world boundary on admission or edits. Version-fourteen `TS` world snapshots include the configuration revision; clients reject world/item boundaries for a different revision, preventing mismatched simulation. Subsequent unreliable snapshots recover normal movement after an ordered tuning change. EOS lobby metadata does not store gameplay tuning. Discovery compatibility is `trackstorm-lobby-21`.
 
 Version-three `TR` resume checkpoints include and cross-validate the entire configuration and revision against vehicles and match target. Resume installs tuning before reconstructing prediction, resets history, and updates native bodies. Joining clients never inject their own host-local file into this path. See [reconnection](reconnection.md).
 
@@ -578,7 +578,7 @@ reject the whole transaction. The eleven Missile keys share the complete TC48 la
 245 values in 1981 bytes; old layouts are rejected. Game/build version ownership
 is separate from this internal schema.
 
-The shared aiming upward limit (items.aim_up) defaults to 90 degrees and validates 0â90. Existing explicit host overrides remain effective; select 90 (or Reset/Apply defaults) to permit vertical fire. TC48 and item protocol 23 extend validated elevation to the pole; catalog count and payload size remain unchanged, and discovery requires trackstorm-lobby-19.
+The shared aiming upward limit (items.aim_up) defaults to 90 degrees and validates 0â90. Existing explicit host overrides remain effective; select 90 (or Reset/Apply defaults) to permit vertical fire. TC48 and item protocol 23 extend validated elevation to the pole; catalog count and payload size remain unchanged, and discovery requires trackstorm-lobby-21.
 
 ## Missile presentation
 
@@ -601,3 +601,5 @@ TC53 carries 263 values / 2125 bytes. These fields use the same staged transacti
 host validation, explicit config export/import and replication as existing settings.
 Shared tuning is session-only; restarting restores canonical defaults.
 See [EMP presentation](items-emp-claw.md) for the playable and fixture boundaries.
+
+EMP Claw exposes independent authoritative [flight and terrain controls](items-emp-claw.md#flight-tuning) alongside its presentation controls.

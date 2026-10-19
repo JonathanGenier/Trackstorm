@@ -2,7 +2,7 @@
 
 The assisted indicator exposes its current projected top edge, including glow, to the [remote name/HP layout](hud.md#remote-vehicle-tags). The arena updates that stack after camera and marker presentation so it clears the chevron at the current distance, FOV and resolution. Marker dimensions retain no targeting or accuracy meaning.
 
-The shared direct-fire foundation serves Machine Gun, standard Missile and the EMP Claw presentation launcher. EMP uses a 0.37 m conservative clearance radius for its enlarged cannon; the existing weapons retain their zero-radius aiming test. Salvo keeps its separate mechanics. The production Car's deployed rack stays fixed: its child mount yaws and the child payload pitches. Missile uses its production Blender turret and telescoping payload; Machine Gun retains its existing placeholder artwork.
+The shared direct-fire foundation serves Machine Gun, standard Missile and the EMP Claw launcher. EMP uses a 0.37 m conservative clearance radius for its enlarged cannon; the existing weapons retain their zero-radius aiming test. Salvo keeps its separate mechanics. The production Car's deployed rack stays fixed: its child mount yaws and the child payload pitches. Missile uses its production Blender turret and telescoping payload; Machine Gun retains its existing placeholder artwork.
 
 Machine Gun and standard Missile consume the ready accepted direction and production rack pivot for authoritative fire. Machine Gun adds deterministic spread calibrated for approximately 80% grouping inside a production car's frame at 200 m. Missile launches one round along the accepted direction without spread; its later terrain correction never consumes an aim target or vehicle position. Missile driving fire without camera-aim intent requests chassis-forward direction, while held mouse aim or the existing controller camera intent uses shared free aim and car assistance. The centered cursor represents camera intent, not a guarantee of impact or an accepted-ray reticle.
 
@@ -17,6 +17,15 @@ Readiness starts on accepted ownership/selection, independently of first camera 
 Aim preparation uses the exact current native observation batch passed to the item step, matching the existing weapon handlers' pre-command pose phase. If that item/world transaction throws, the host restores transient aim and readiness state before retry. Presentation remains downstream of a successful host step.
 
 An accepted Proxy Mine placement retains ownership of the existing rack until placement and its 0.23-second arm return finish. Selecting or acquiring a direct-fire capability during that placement holds its readiness gate before the replacement path; it does not interrupt or redesign mine placement.
+
+## EMP Claw firing consumer
+
+EMP forwards the shared assisted car ID and life with the ordinary desired aim
+request. The host validates eligibility, accepted cone/range and native visibility
+before committing one identity in flight. Camera changes cannot replace it after
+launch. An unlocked flight may acquire once through its limited forward search.
+The 72-byte aim request retains sender/life/token/selection/sequence guards.
+Standard Missile never consumes the candidate identity. See [EMP flight](items-emp-claw.md).
 
 ## Machine Gun firing consumer
 

@@ -82,6 +82,7 @@ internal sealed partial class NetworkVehicleArena
     private void ResetAiming(string reason)
     {
         _driver.DesiredAim = null;
+        _driver.DesiredAimTarget = _driver.DesiredAimTargetLife = 0;
         _camera.WeaponAiming = false;
         _aimCapability = default;
         ResetAssistance(reason);
@@ -135,6 +136,8 @@ internal sealed partial class NetworkVehicleArena
             }
         }
         NetworkVehicleBody? framed = StickyAiming ? (_aimTarget != 0 ? _bodies[_aimTarget] : null) : hit.Car;
+        _driver.DesiredAimTarget = slot.Active.Item == HeldItem.EmpClaw && CameraInput?.CameraAimActive == true ? framed?.VehicleId ?? 0 : 0;
+        _driver.DesiredAimTargetLife = _driver.Latest?.Vehicles.FirstOrDefault(v => v.State.VehicleId == _driver.DesiredAimTarget)?.State.LifeId ?? 0;
         Vector3 desiredPoint = hit.Point;
         if (StickyAiming && framed is not null)
         {

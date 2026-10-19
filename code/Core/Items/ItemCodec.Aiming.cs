@@ -6,17 +6,20 @@ public static partial class ItemCodec
 {
     /// <summary>Recognizes replaceable item aim messages; exact decode remains mandatory.</summary>
     public static bool IsAim(ReadOnlySpan<byte> bytes) => IsItem(bytes) && bytes.Length >= 4 && bytes[3] is 4 or 5;
-    /// <summary>Encodes only scope, order and desired direction, never a player ID or accepted firing result.</summary>
-    public static byte[] EncodeAim(ulong session, ulong life, ulong token, ulong selection, ulong sequence, Vector3 direction) => Write(4, writer =>
+    /// <summary>Encodes scope, order, desired direction and an optional untrusted target; sender identity and accepted results remain authoritative.</summary>
+    public static byte[] EncodeAim(ulong session, ulong life, ulong token, ulong selection, ulong sequence, Vector3 direction, ulong target = 0, ulong targetLife = 0) => Write(4, writer =>
     {
         ValidateAimRequest(session, life, token, sequence, direction);
         writer.Write(session); writer.Write(life); writer.Write(token); writer.Write(selection); writer.Write(sequence); Vector(writer, direction);
+        if ((target == 0) != (targetLife == 0)) { throw new ArgumentException("Incomplete aim target identity."); }
+        writer.Write(target); writer.Write(targetLife);
     });
 
     /// <summary>Decodes one strictly bounded desired aim request.</summary>
-    public static (ulong Session, ulong Life, ulong Token, ulong Selection, ulong Sequence, Vector3 Direction) DecodeAim(ReadOnlySpan<byte> bytes) => bytes.Length != 56 ? throw new ArgumentException("Invalid aim request length.") : Read(bytes, 4, reader =>
+    public static (ulong Session, ulong Life, ulong Token, ulong Selection, ulong Sequence, Vector3 Direction, ulong Target, ulong TargetLife) DecodeAim(ReadOnlySpan<byte> bytes) => bytes.Length != 72 ? throw new ArgumentException("Invalid aim request length.") : Read(bytes, 4, reader =>
     {
-        var value = (Session: reader.ReadUInt64(), Life: reader.ReadUInt64(), Token: reader.ReadUInt64(), Selection: reader.ReadUInt64(), Sequence: reader.ReadUInt64(), Direction: Vector(reader));
+        var value = (Session: reader.ReadUInt64(), Life: reader.ReadUInt64(), Token: reader.ReadUInt64(), Selection: reader.ReadUInt64(), Sequence: reader.ReadUInt64(), Direction: Vector(reader), Target: reader.ReadUInt64(), TargetLife: reader.ReadUInt64());
+        if ((value.Target == 0) != (value.TargetLife == 0)) { throw new ArgumentException("Incomplete aim target identity."); }
         ValidateAimRequest(value.Session, value.Life, value.Token, value.Sequence, value.Direction);
         return value;
     });

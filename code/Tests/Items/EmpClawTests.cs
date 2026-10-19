@@ -33,7 +33,7 @@ internal sealed class EmpClawTests
     }
 
     [Test]
-    public void ThreeAcceptedVisualShotsRetireCapabilitiesRespectCadenceAndNeverCreateCombat()
+    public void ThreeAcceptedShotsRetireCapabilitiesRespectCadenceAndCreateIndependentFlights()
     {
         var host = new HostVehicleSession(99, matchConfiguration: new() { MinimumPlayers = 1, CountdownTicks = 1 });
         host.Step(default, state => new VehicleObservation(state.Movement.Physics, Vector3.UnitY));
@@ -53,7 +53,7 @@ internal sealed class EmpClawTests
             Assert.That(after.EmpClaw!.Remaining, Is.EqualTo(2 - round));
             Assert.That(after.EmpClaw.Magazine, Is.EqualTo(initial.Token));
             Assert.That(host.Items.Events.Single().Item, Is.EqualTo(HeldItem.EmpClaw));
-            Assert.That(host.Items.Missiles, Is.Empty);
+            Assert.That(host.Items.Missiles.Count, Is.EqualTo(round + 1));
             Assert.That(host.Items.RequestUse(host.World, 1, slot.Life, slot.Token), Is.False, "Spent capability cannot replay.");
             var publication = new ItemPublication(host.Items.Revision, host.Snapshot(), host.Items.Slots, [], host.Items.Events);
             Assert.That(ItemCodec.DecodeState(ItemCodec.EncodeState(publication)).Slots, Is.EqualTo(publication.Slots));

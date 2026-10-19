@@ -254,10 +254,10 @@ public sealed class HostVehicleSession
     }
 
     /// <summary>Accepts camera direction through the existing item ownership and sender boundary.</summary>
-    public bool AimItem(ulong peer, ulong session, ulong life, ulong token, ulong selection, ulong sequence, System.Numerics.Vector3 direction)
+    public bool AimItem(ulong peer, ulong session, ulong life, ulong token, ulong selection, ulong sequence, System.Numerics.Vector3 direction, ulong target = 0, ulong targetLife = 0)
     {
         ulong vehicle = peer == 0 ? HostPlayerId : _peers.TryGetValue(peer, out var entry) ? entry.Vehicle : 0;
-        return AllowsParticipation && session == SessionId && vehicle != 0 && Items.RequestAim(World, vehicle, life, token, selection, sequence, direction);
+        return AllowsParticipation && session == SessionId && vehicle != 0 && Items.RequestAim(World, vehicle, life, token, selection, sequence, direction, target, targetLife);
     }
 
     /// <summary>Resolves a use request using actual sender ownership.</summary>

@@ -50,7 +50,7 @@ public static class ProjectileMotionCodec
             int remaining = reader.ReadInt32(), arcTick = reader.ReadInt32();
             if (id != original.Id || elapsed >= (ulong)original.RemainingTicks || remaining != original.RemainingTicks - (int)elapsed ||
                 !VehiclePhysicsState.IsFinite(position) || !VehiclePhysicsState.IsFinite(velocity) ||
-                velocity.Length() <= 0 || velocity.Length() > (original.Arc is null ? 301 : 1000) ||
+                velocity.Length() <= 0 || velocity.Length() > (original.EmpClaw is not null ? 150.01f : original.Arc is null ? 301 : 1000) ||
                 (original.Arc is null ? arcTick != -1 : arcTick != original.Arc.ElapsedTicks + (int)elapsed))
             { throw new ArgumentException("Invalid projectile motion sample."); }
             var arc = original.Arc is { } flight ? flight with { ElapsedTicks = arcTick } : null;

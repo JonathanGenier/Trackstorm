@@ -3,6 +3,8 @@ namespace Trackstorm.Core.Items;
 /// <summary>Host-owned bounded tuning. Linear falloff reaches zero at the edge.</summary>
 public sealed record ItemConfiguration
 {
+    /// <summary>Guided EMP projectile parameters.</summary>
+    public EmpClawConfiguration EmpClaw { get; init; } = new();
     /// <summary>Complete EMP presentation deployment (seconds).</summary>
     public float EmpClawDeploySeconds { get; init; } = 1.2f;
     /// <summary>Complete EMP presentation return (seconds).</summary>
@@ -160,6 +162,8 @@ public sealed record ItemConfiguration
             !float.IsFinite(MissileStowSeconds) || MissileStowSeconds is < .5f or > 3)
         { throw new ArgumentException("Invalid Missile deployment timing."); }
         ArgumentNullException.ThrowIfNull(MissileTerrain);
+        ArgumentNullException.ThrowIfNull(EmpClaw);
+        EmpClaw.Validate();
         MissileTerrain.Validate();
         if (!float.IsFinite(MissileLifetimeSeconds) || MissileLifetimeSeconds is < 0.05f or > 60 ||
             !float.IsFinite(MissileWorldLimit) || MissileWorldLimit is < 256 or > 16384)

@@ -1,6 +1,6 @@
 namespace Trackstorm.Core.Items;
 
-/// <summary>Minimal three-shot presentation capability, without projectile, damage or destructible-ammunition rules.</summary>
+/// <summary>Three-shot launcher capability; flight and later destructible-ammunition rules have separate owners.</summary>
 public sealed record EmpClawLoad(ulong Magazine, byte Remaining, ulong ReadyTick = 0)
 {
     /// <summary>Validates the retained empty magazine as well as a selected live load.</summary>
