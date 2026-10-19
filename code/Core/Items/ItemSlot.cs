@@ -29,6 +29,10 @@ public sealed record ItemSlot(ulong Vehicle, ulong Life, ulong Token, HeldItem I
     public MachineGunAmmo? Ammo { get; init; }
     /// <summary>Discrete resource in the second physical slot.</summary>
     public MachineGunAmmo? SecondAmmo { get; init; }
+    /// <summary>Accepted EMP presentation load in the first physical slot.</summary>
+    public EmpClawLoad? EmpClaw { get; init; }
+    /// <summary>Accepted EMP presentation load in the second physical slot.</summary>
+    public EmpClawLoad? SecondEmpClaw { get; init; }
     /// <summary>Generic percentage projection for the HUD.</summary>
     public double ResourcePercentage => Ammo?.Percentage ?? NitroCharge;
     /// <summary>Generic second-slot percentage projection.</summary>
@@ -50,6 +54,7 @@ public sealed record ItemSlot(ulong Vehicle, ulong Life, ulong Token, HeldItem I
     /// <summary>Capability for the currently selected slot, for existing item handlers.</summary>
     public ItemSlot Active => new(Vehicle, Life, ActiveSlot == 0 ? Token : SecondToken, ActiveSlot == 0 ? Item : SecondItem)
     { NitroCharge = ActiveSlot == 0 ? NitroCharge : SecondNitroCharge, NitroDeploymentTicks = NitroDeploymentTicks, Ammo = ActiveSlot == 0 ? Ammo : SecondAmmo,
+        EmpClaw = ActiveSlot == 0 ? EmpClaw : SecondEmpClaw,
         SalvoShots = ActiveSlot == 0 ? SalvoShots : SecondSalvoShots,
         SalvoReadyTick = ActiveSlot == 0 ? SalvoReadyTick : SecondSalvoReadyTick };
     /// <summary>Whether acquisition must leave both held items untouched.</summary>

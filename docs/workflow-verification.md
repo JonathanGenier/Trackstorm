@@ -65,3 +65,7 @@ Execution writes complete per-command stdout/stderr logs and `results.json` belo
 For a runtime batch the router builds the current Debug solution once, then passes each supported build-skip switch. The mixed Debug/Release network-soak harness retains its own setup; GdUnit regression also retains its independent import behavior. Standalone harnesses still build by default. Source changes during execution invalidate the batch; do not edit the checkout or change SDK/native configuration while checks run. No build or verification success is reused from a previous invocation.
 
 Use the structured records to summarize actual execution in the Story report. Human observations, authenticated/remote multiplayer, physical devices, experiential judgments and Astra results remain separately attributed; no script infers them from a passing build.
+
+## Human-testable items and weapons
+
+Every new weapon or item must be obtainable through the existing normal pickup system and integrated with Developer Options spawning/weight controls before handoff. Verify isolated selection with its weight positive, every other item weight zero, and its category enabled. Verify that pickup equips the actual implementation, its available behavior can be exercised in gameplay, and repeated pickup/use cycles work without code modifications. Record the exact human playtest settings and any unavailable future behavior. Presentation-only scope does not exempt an item from this access requirement; do not add a separate spawning architecture to satisfy it.

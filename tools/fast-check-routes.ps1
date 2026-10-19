@@ -110,6 +110,10 @@ function Get-FastCheckPlan {
             Add-Manual 'Inspect aiming while driving, close/airborne/crossing targets, mouse and physical controller feel, and impaired remote articulation with check-weapon-aim.ps1 -Visual -Impaired.'
             Add-Manual 'Measure actual 200 m grouping with check-weapon-aim.ps1 -Accuracy -Impaired; inspect retention/breakaway with -Sticky -Visual -Impaired and driving/placement freedom with -Freedom -Visual -Impaired -Oval.'
         }
+        if ($path -match 'EmpClaw|emp-claw|emp_claw') {
+            Add-Runtime 'check-emp-claw.ps1'
+            Add-Manual 'Inspect EMP cannon deployment, full yaw/pitch, three distinct noses, accepted depletion and claw effects in the rendered fixture; future EMP combat authority is outside this presentation harness.'
+        }
         if ($path -match 'CarRack|RackItemVisual|car_rack|check-car-rack') {
             Add-Runtime 'check-car-rack.ps1'
             Add-Manual 'Inspect selected rack payloads, two-slot switching, sustained use and remote visibility.'

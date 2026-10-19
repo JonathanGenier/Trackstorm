@@ -49,3 +49,8 @@ The [Event Log](event-log.md) records successful pickup claims and marker spawn/
 Fresh active admission copies every marker, claim/token and absolute cooldown deadline into the shared checkpoint. Preparation and cancellation neither consume nor reset pickup state. See [session activation](sessions.md#fresh-admission-during-an-arena).
 
 Native moving-pickup regression: `check-pickup-drive.ps1 -GodotPath <exe>` enters two production application sessions and drives through authored boxes. It exercises all eight registered items through runtime pool weights, two-slot capacity/use/retry, and 180 phase-varied crossings with 8/40/65 m/s initial speeds and 0/1.5/2.8 m lateral offsets. The motion trials use the normal unmodified item distribution. `-Impaired` adds 30 ms delay, 5 ms jitter and 2% loss; `-Visual` renders chase-camera/HUD evidence; `-OldMap` selects the retained map. Initial placement and velocity are fixture setup; acquisition always uses the production authority path. No pickup motion cache is serialized: resume/migration begins its next sweep at the restored authoritative boundary.
+
+EMP Claw participates as a normal Weapon-category item. An EMP-only weight pool
+uses the same selection, sweep, claim, cooldown and two-slot capacity rules. Its
+three-shot presentation load can be reacquired after depletion or discard; see
+[EMP Claw presentation](items-emp-claw.md) for the test-access controls.

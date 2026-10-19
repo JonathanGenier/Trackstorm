@@ -8,7 +8,11 @@ public sealed partial class ItemAuthority
     private sealed record AimIntent(ulong Life, ulong Token, ulong Selection, ulong Sequence, ulong Received, Vector3 Direction);
     private readonly Dictionary<ulong, AimIntent> _aimIntents = new();
     private readonly Dictionary<ulong, WeaponAimSolution> _aims = new();
-    private sealed record AimDeployment(ulong Life, ulong Token, ulong Selection, HeldItem Item, float Progress, bool Retracting, ulong Tick, float Nesting, float Arm = 0);
+    private sealed record AimDeployment(ulong Life, ulong Token, ulong Selection, HeldItem Item, float Progress, bool Retracting, ulong Tick, float Nesting, float Arm = 0)
+    {
+        internal float EmpDeploySeconds { get; init; }
+        internal float EmpStowSeconds { get; init; }
+    }
     private readonly Dictionary<ulong, AimDeployment> _aimDeployment = new();
 
     /// <summary>Detached accepted articulation; transient input is deliberately reset on recovery.</summary>
@@ -18,6 +22,11 @@ public sealed partial class ItemAuthority
     public bool WrenchReady(ItemSlot slot) => _aimDeployment.TryGetValue(slot.Vehicle, out var deployment) &&
         deployment.Life == slot.Life && deployment.Token == slot.Active.Token && deployment.Selection == slot.SelectionRevision &&
         deployment.Item == HeldItem.Wrench && !deployment.Retracting && deployment.Progress >= 1 && deployment.Arm >= 1;
+
+    /// <summary>Normal pickup test access waits for complete EMP deployment.</summary>
+    public bool EmpClawReady(ItemSlot slot) => _aimDeployment.TryGetValue(slot.Vehicle, out var deployment) &&
+        deployment.Life == slot.Life && deployment.Token == slot.Active.Token && deployment.Selection == slot.SelectionRevision &&
+        deployment.Item == HeldItem.EmpClaw && !deployment.Retracting && deployment.Progress >= 1;
 
     /// <summary>Validates direction against actual sender inventory, life, selection and ordered input.</summary>
     public bool RequestAim(Simulation.Simulation world, ulong vehicle, ulong life, ulong token, ulong selection, ulong sequence, Vector3 direction)
@@ -49,6 +58,10 @@ public sealed partial class ItemAuthority
             _aimDeployment.TryGetValue(id, out var deployment);
             if (deployment?.Life != state.LifeId) { deployment = null; }
             if (slot.Active.Item == HeldItem.None) { ResetAim(id); continue; }
+            // A consumed presentation round retires its use token, but keeps this magazine mounted.
+            if (deployment is not null && deployment.Item == HeldItem.EmpClaw && slot.Active.Item == HeldItem.EmpClaw &&
+                deployment.Selection == slot.SelectionRevision && slot.Active.EmpClaw is { } load && load.Magazine <= deployment.Token)
+            { deployment = deployment with { Token = slot.Active.Token }; }
             if (deployment is null || deployment.Token != slot.Active.Token || deployment.Selection != slot.SelectionRevision)
             {
                 // Keep capability history through depletion and switches. A replacement
@@ -57,7 +70,8 @@ public sealed partial class ItemAuthority
                 // local presentation additionally waits for the outgoing payload's return.
                 bool replacing = deployment is not null && slot.Active.Item != HeldItem.Wrench;
                 deployment = new(state.LifeId, slot.Active.Token, slot.SelectionRevision, slot.Active.Item,
-                    replacing ? 1 : 0, replacing, tick, replacing && deployment?.Item == HeldItem.Nitro ? .24f : 0);
+                    replacing ? 1 : 0, replacing, tick, replacing && deployment?.Item == HeldItem.Nitro ? .24f : 0)
+                { EmpDeploySeconds = Configuration.EmpClawDeploySeconds, EmpStowSeconds = Configuration.EmpClawStowSeconds };
                 _aims.Remove(id);
             }
             if (!WeaponAim.Supports(slot.Active.Item) && slot.Active.Item != HeldItem.Wrench)
@@ -71,7 +85,9 @@ public sealed partial class ItemAuthority
                 float elapsed = Math.Max(0, 1f / 60 - deployment.Nesting);
                 // Wrench has a bounded complete deployment, independent of generic
                 // rack tuning. The local mechanical gate may wait longer, never less.
-                float progress = slot.Active.Item == HeldItem.Wrench && !deployment.Retracting
+                float progress = slot.Active.Item == HeldItem.EmpClaw
+                    ? Math.Clamp(deployment.Progress + (deployment.Retracting ? -elapsed / deployment.EmpStowSeconds : elapsed / deployment.EmpDeploySeconds), 0, 1)
+                    : slot.Active.Item == HeldItem.Wrench && !deployment.Retracting
                     ? Math.Min(1, deployment.Progress + elapsed / ItemSlot.WrenchDeploymentSeconds)
                     : RackDeploymentPath.Advance(deployment.Progress, !deployment.Retracting, elapsed, vehicleConfiguration);
                 float arm = slot.Active.Item == HeldItem.Wrench ? progress : 0;
@@ -89,7 +105,7 @@ public sealed partial class ItemAuthority
             if (previous?.Tick == tick && previous.Pitch >= -Configuration.Aim.DownDegrees * MathF.PI / 180 &&
                 previous.Pitch <= Configuration.Aim.UpDegrees * MathF.PI / 180) { continue; }
             var solution = WeaponAim.Solve(state, intent.Token, intent.Direction, previous, Configuration.Aim, tick,
-                observations?.Single(request => request.VehicleId == id).Observation.Physics);
+                observations?.Single(request => request.VehicleId == id).Observation.Physics, slot.Active.Item == HeldItem.EmpClaw ? .37f : 0);
             _aims[id] = solution with { Ready = solution.Clear && !deployment.Retracting && deployment.Progress >= 1 && (slot.Active.Item != HeldItem.Missile || tick >= slot.MissileReadyTick) };
         }
     }

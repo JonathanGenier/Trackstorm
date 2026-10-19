@@ -21,6 +21,7 @@ public static class ItemRegistry
         new(HeldItem.Salvo, "salvo", "Salvo", 1, "Salvo", "WeaponPickup", "MissileFire", "MissileImpact") { Category = ItemCategory.Weapon, DamageSource = "salvo", Handler = new SalvoUseHandler(), UseVfx = "spark_01", ImpactVfx = "fire_01" },
         new(HeldItem.MachineGun, "machine_gun", "Machine Gun", 1, "MachineGun", "WeaponPickup", null, null) { Category = ItemCategory.Weapon, DamageSource = "machine-gun", Sustained = true },
         new(HeldItem.Shield, "shield", "Shield", 1, "Shield", "WeaponPickup", null, null) { Category = ItemCategory.Droppable },
+        new(HeldItem.EmpClaw, "emp_claw", "EMP Claw", 1, "EmpClaw", "WeaponPickup", "MissileFire", null) { Category = ItemCategory.Weapon },
     ]);
 
     /// <summary>Returns a registered definition, or null for empty/unknown wire identities.</summary>

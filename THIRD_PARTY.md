@@ -97,6 +97,16 @@ The [Boost jet](assets/vehicles/boost/README.md), editable Blender source, flame
 
 [Terrain/environment shaders](assets/effects) and infield shader additions are original project-authored runtime code. Tire dust/mud/splash emitters reuse the existing CC0 Kenney smoke_01 particle texture from the item asset manifest. No new third-party acquisition or authored mesh is introduced.
 
+## EMP Claw presentation
+
+The [EMP Claw launcher/device](assets/items/emp-claw/README.md) uses original
+Blender geometry, rigid animation and packed procedural UV patina. Its
+[manifest](assets/items/emp-claw/sources.json) records editable source, runtime
+exports and the unchanged production Car source hash. User-supplied TS-296 Jira
+attachments 10155–10158 supply design direction; their pixels are not redistributed.
+The electrical, pressure-ripple and balloon-fragment effects are original Client
+presentation. No new third-party assets, dependencies or audio are introduced.
+
 ## Missile presentation
 
 The [production Missile and launcher](assets/items/missile/README.md) are original Blender-authored Trackstorm geometry/materials. The [manifest](assets/items/missile/sources.json) records editable source, GLBs, unchanged production Car reference hash and the three user-supplied Jira TS-240 concept attachments (10146, 10148, 10147). Those images are retained as design references, not runtime textures; no separate third-party license is asserted for user-supplied concepts. Flight smoke reuses the already recorded CC0 Kenney `smoke_01`; flame surfaces, radial exhaust/ember gradients and burning confetti shaders are original project-authored presentation. No new dependency or third-party acquisition is introduced.

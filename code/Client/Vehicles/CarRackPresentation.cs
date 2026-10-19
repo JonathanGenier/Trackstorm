@@ -44,6 +44,7 @@ internal sealed partial class CarRackPresentation : Node
     internal void ObserveAim(WeaponAimSolution? aim)
     {
         _aim = aim is not null && aim.Life == _life && aim.Token == _previous?.Active.Token ? aim : null;
+        _empAim = _aim is not null && _previous?.Active.EmpClaw is { } load ? _aim with { Token = load.Magazine } : null;
     }
 
     public override void _Ready()
@@ -70,7 +71,7 @@ internal sealed partial class CarRackPresentation : Node
         if (_payload is Items.ProxyMineRack arm) { arm.Observe(placement); }
         if (inventory?.Life != life) { inventory = null; }
         ItemSlot? active = inventory?.Active;
-        var outcome = events.LastOrDefault(e => e.Item != HeldItem.Nitro && (e.Item == HeldItem.MachineGun || !e.Impact) &&
+        var outcome = events.LastOrDefault(e => e.Item is not (HeldItem.Nitro or HeldItem.EmpClaw) && (e.Item == HeldItem.MachineGun || !e.Impact) &&
             (e.Item != HeldItem.Wrench || e.Token != _wrenchUseToken) &&
             (e.Token == active?.Token || e.Token == _previous?.Active.Token ||
                 (e.Item == HeldItem.Wrench && e.Token == _wrenchCapability)));
@@ -125,6 +126,7 @@ internal sealed partial class CarRackPresentation : Node
         if (_usePending) { _desired = _useItem; }
         if (_useItem == HeldItem.Shield) { _usePending = false; _desired = active?.Item ?? HeldItem.None; }
         ObserveMissile(inventory, tick);
+        ObserveEmpInventory(inventory, tick);
         _previous = inventory;
         if (_placement is not null || _mineReturning)
         {
@@ -136,6 +138,7 @@ internal sealed partial class CarRackPresentation : Node
 
     internal void Reset()
     {
+        ResetEmpClaw();
         _oilPour = null; _oilFired = false; _oilClock = 0;
         _missileProgress = _missileReturn = 0;
         _missileStowing = false;
@@ -160,6 +163,7 @@ internal sealed partial class CarRackPresentation : Node
 
     public override void _Process(double delta)
     {
+        if (AnimateEmpClaw(Math.Max(0, (float)delta))) { return; }
         if (AnimateWrenchUse(Math.Max(0, (float)delta))) { return; }
         if (AnimateOil(Math.Max(0, (float)delta))) { return; }
         if (AnimateMissile(Math.Max(0, (float)delta))) { return; }

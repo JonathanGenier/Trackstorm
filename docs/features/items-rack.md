@@ -4,6 +4,13 @@ Read the [shared system contract](items.md) first. This reference contains only 
 
 ## Vehicle rack presentation
 
+The [EMP Claw presentation](items-emp-claw.md) uses this same mechanism for ordinary
+pickups and accepted three-shot inventory loads, as well as isolated visual-state
+fixtures. Its full-size cannon centers and nests before handing the rack to another
+payload. Three stored rounds remain beneath the fixed rack; only the round being
+loaded follows the feed path. The host owns the minimal presentation load and
+cooldown; homing, damaging EMP projectiles and destructible ammunition remain separate.
+
 An accepted Wrench repair retains exclusive mechanism ownership until the arm,
 rack and trunk are fully stowed. Concurrent pickup/selection changes are pending
 handoffs and cannot clear its repair state. The slot presentation follows that

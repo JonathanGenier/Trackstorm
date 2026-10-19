@@ -158,11 +158,15 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 PositionPlayers(false, true);
                 Next("Authoritative cooldown reactivates on every peer; all eight vehicles approach separate pickups.");
                 break;
-            case 3 when _arenas.All(arena => arena.Pickups.ActiveCount == PickupCount - 8):
+            // Nitro's deployment countdown changes each host tick. Compare complete snapshots
+            // once that bounded transition has settled on every peer, not across different ticks.
+            case 3 when host.Items.Slots.All(slot => slot.NitroDeploymentTicks == 0) &&
+                _arenas.All(arena => arena.Pickups.ActiveCount == PickupCount - 8 && arena.Driver.ItemState!.Slots.All(slot => slot.NitroDeploymentTicks == 0)):
                 var expected = host.Items.Slots;
                 _distributed = expected.ToArray();
                 Require(expected.Count == 8 && expected.All(slot => ItemRegistry.Find(slot.Item) is not null), "Normal weighted pickups award registered items to all eight players; random draws do not guarantee roster coverage in eight slots.");
-                Require(_arenas.All(arena => arena.Driver.ItemState!.Slots.SequenceEqual(expected) && arena.Driver.ItemState.Spawns.SequenceEqual(host.Spawns!.States)), "All inventory and spawn outcomes agree across eight peers.");
+                Require(_arenas.All(arena => arena.Driver.ItemState!.Slots.SequenceEqual(expected) && arena.Driver.ItemState.Spawns.SequenceEqual(host.Spawns!.States)),
+                    "All inventory and spawn outcomes agree across eight peers after deployment settles.");
                 foreach (var arena in _arenas.Where(arena => ItemRegistry.Find(arena.Driver.LocalItem!.Item)?.CanUse == false))
                 {
                     var slot = arena.Driver.LocalItem!;
@@ -214,7 +218,7 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                     Require(CategoryBalanceRecoveryFixture.Signature(host.Spawns.Balances) == signature, "Live item weights preserve all player histories.");
                     Require(host.Items.Slots.SequenceEqual(slots) && host.Spawns.States.SequenceEqual(spawns), "Live item weights preserve held grants and committed claims.");
                     Require(host.ItemSelectionRandom.State == random, "Live item weights preserve RNG continuation.");
-                    _evidence.Add("After round 16, host changed each category to its last registered item (Machine Gun, Nitro, Proxy Mine); subsequent rounds verify the new pool for all eight players without resetting history or RNG.");
+                    _evidence.Add("After round 16, host changed each category to its last registered item; subsequent rounds verify the current registry's pool for all eight players without resetting history or RNG.");
                 }
                 if (_balanceRounds < 32)
                 {

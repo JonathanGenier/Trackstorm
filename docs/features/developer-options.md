@@ -33,7 +33,7 @@ Every accordion contains **Reset to Defaults** inside its body. Search matches l
 
 ## Authority and runtime application
 
-Core `GameplayConfiguration` composes the existing vehicle, digital-input shaping, damage, item, spawn, respawn and match records plus destruction tuning and the shared environment identity. `GameplayOptions` is the explicit 249-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
+Core `GameplayConfiguration` composes the existing vehicle, digital-input shaping, damage, item, spawn, respawn and match records plus destruction tuning and the shared environment identity. `GameplayOptions` is the explicit 263-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
 
 Live scalar tuning additionally rejects positive values below 0.0001: subnormal mass/axle lengths can overflow fixed-step divisions despite passing older positive-only checks. Zero remains allowed where the owning rule explicitly supports it. Collision/respawn timers are bounded to one hour and the simulation clock remains fixed at 60 Hz.
 
@@ -49,7 +49,7 @@ The version-one `TD` session configuration channel carries bounded catalog-index
 
 Complete session publications reach lobby clients and late arrivals even before an arena exists. Arena gameplay retains the existing configuration-before-world boundary below; the session replica is only a projection for lobby presentation and next-arena continuity. Recovery/migration uses the existing complete checkpoint and epoch reset, with no successor-local defaults reload.
 
-The reliable version-forty-nine `TC` message carries arena generation, configuration revision and all 249 values (2013 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
+The reliable version-fifty-three `TC` message carries arena generation, configuration revision and all 263 values (2125 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
 
 The host sends configuration before its reliable world boundary on admission or edits. Version-fourteen `TS` world snapshots include the configuration revision; clients reject world/item boundaries for a different revision, preventing mismatched simulation. Subsequent unreliable snapshots recover normal movement after an ordered tuning change. EOS lobby metadata does not store gameplay tuning. Discovery compatibility is `trackstorm-lobby-19`.
 
@@ -587,3 +587,17 @@ The existing shared **Missile** category also exposes `items.missile_deploy_seco
 The separate **Missile Â· Local flight VFX** accordion is explicitly device-local, immediate and session-only. It controls orange flame length/width, smoke residue lifetime (1â6 s, default 4.5), dense wake length (6â9.2 m, default 7.6), smoke size/opacity, trail density, confetti lifetime/size and red-ember lifetime. Density zero disables smoke/confetti/embers while retaining the flame; bounded controls cap particle allocation. Changes rebuild the production flight emitters on the next render update. Its reset restores local defaults. These values never enter gameplay Apply/Cancel, persistence, authority, configuration messages or migration. The shared TS-239 traversal/damage settings retain their existing semantics.
 
 **Missile Â· Local explosion VFX** provides intensity (0.2â2, default 1), central fire scale (0.5â1.5, default 1), cosmetic radial reach in Car lengths (1â3, default 2.25), firework density (0â2, default 1; zero disables fragments), firework duration (0.8â2.4 s, default 1.6), impact smoke duration (0.8â5 s, default 3.2) and impact smoke opacity (0â0.6, default 0.44). Native editor changes apply to the next confirmed impact on this device; active effects retain captured values. Central fire is bounded by the shared blast envelope even when enlarged. Density allocates 0â448 fragments in one batch per effect. Category reset restores these local defaults without a gameplay transaction. The distant red/gold/white fragments never change actual damage, knockback, collision, or the server-wide `items.explosion_radius`. Existing saved gameplay radius overrides are preserved; Reset or an authoritative edit selects the new production default.
+
+## EMP Claw presentation
+
+The existing Item spawns category includes `spawns.emp_claw_weight`. Set it positive
+and the other item weights to zero, retaining a positive Weapon category weight,
+to receive EMP from normal markers. The EMP Claw presentation category adds
+`items.emp_claw_deploy_seconds` (1.2 s, 0.8–4),
+`items.emp_claw_stow_seconds` (0.82 s, 0.5–3), and
+`items.emp_claw_interval_ticks` (50 ticks, 15–60). Timings support deployment and
+repeated three-shot tests; no homing or EMP damage controls are exposed.
+TC53 carries 263 values / 2125 bytes. These fields use the same staged transaction,
+host validation, explicit config export/import and replication as existing settings.
+Shared tuning is session-only; restarting restores canonical defaults.
+See [EMP presentation](items-emp-claw.md) for the playable and fixture boundaries.
