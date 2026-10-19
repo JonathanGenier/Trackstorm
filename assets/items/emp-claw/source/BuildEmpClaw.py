@@ -10,7 +10,7 @@ import hashlib
 import bpy
 import bmesh
 import numpy as np
-from mathutils import Vector
+from mathutils import Vector, Matrix
 
 ROOT = Path(__file__).resolve().parents[1]
 REPO = ROOT.parents[2]
@@ -203,17 +203,29 @@ for i in range(40):
     a=i*math.tau/40
     obj=box('Slew gear tooth',(.245*math.cos(a),.115,.245*math.sin(a)),(.027,.03,.024),iron,yaw,.001)
     obj.rotation_euler[2]=a
-for x in [-.20,.20]:
+for x in [-.40,.40]:
     pin('Vertical lift guide',(x,.08,0),(x,.23,0),.045,iron,yaw)
 lift=node('CannonLift',yaw)
-for x in [-.20,.20]:
+for x in [-.40,.40]:
     pin('Polished lift piston',(x,-.06,0),(x,.20,0),.028,steel,lift)
     box('Cradle trunnion',(x,.18,0),(.08,.18,.19),red,lift)
     pin('Pitch bearing',(x-.055,.23,0),(x+.055,.23,0),.068,steel,lift)
-pitch=node('CannonPitch',lift,(0,.20,0))
+# Keep the physical trunnions concentric with the lowered cannon pivot.
+for obj in list(lift.children):
+    obj.location.z -= .20
+pitch=node('CannonPitch',lift,(0,0,0))
 recoil=node('BarrelRecoil',pitch)
-pin('Pressure breech',(0,0,-.08),(0,0,.19),.20,red,recoil,64)
-ball('Breech cap',(0,0,.19),(.20,.20,.065),iron,recoil)
+tube('Open pressure chamber',-.08,.22,.210,.014,red,recoil)
+breech=node('BreechHinge',recoil,(-.225,0,.25))
+pin('Breech door',(.225,0,-.018),(.225,0,.018),.215,iron,breech,64)
+pin('Breech pressure plate',(.225,0,.019),(.225,0,.035),.16,red,breech,48)
+for i in range(8):
+    a=i*math.tau/8
+    pin('Breech captive bolt',(.225+.178*math.cos(a),.178*math.sin(a),.020),(.225+.178*math.cos(a),.178*math.sin(a),.036),.012,gold,breech,6)
+tube('Breech seal',-.023,-.018,.202,.012,gold,breech,x=.225)
+for y in [-.15,.15]:
+    pin('Breech hinge knuckle',(0,y-.04,0),(0,y+.04,0),.035,steel,breech)
+box('Breech latch',(.43,0,.035),(.04,.12,.03),gold,breech)
 tube('Fixed receiver',-.43,.05,.210,.014,red,recoil)
 for z in [-.27,-.02,.15]:
     tube('Receiver steel band',z-.023,z+.023,.222,.018,steel,recoil)
@@ -271,44 +283,65 @@ pin('Pressure regulator',(.29,-.07,.075),(.29,-.07,.13),.029,gold,pitch,6)
 hose('Breech supply hose',[(.29,-.07,.13),(.34,-.04,.20),(.30,.10,.23),(.13,.13,.19)],.014,pitch)
 for z in [-.37,-.29,-.21,-.13,-.05,.03]:
     box('Lower longitudinal rail',(0,-.205,z),(.29,.018,.045),iron,pitch,.004)
-# Air reservoir rides the fixed saddle. Its metal body remains full size in the bay.
-pin('Air tank',( -.43,-.075,-.20),(.43,-.075,-.20),.095,red,launcher,40)
+# Enlarge the pressure vessel radially for the larger folded cartridge.
+for obj in list(pitch.children_recursive):
+    if obj.type == 'CURVE':
+        bpy.ops.object.select_all(action='DESELECT'); obj.select_set(True)
+        bpy.context.view_layer.objects.active=obj
+        bpy.ops.object.convert(target='MESH')
+# Bake each mesh around its rigid parent's origin, then enlarge parent translations.
+for obj in list(pitch.children_recursive):
+    if obj.type != 'MESH': continue
+    matrix=obj.matrix_local.copy()
+    for vertex in obj.data.vertices:
+        v=matrix @ vertex.co
+        v.x *= 1.65; v.z *= 1.65
+        vertex.co=v
+    obj.matrix_local=Matrix.Identity(4)
+for obj in list(pitch.children_recursive):
+    if obj.type == 'EMPTY':
+        obj.location.x *= 1.65; obj.location.z *= 1.65
+# Larger transverse air reservoir beneath the fixed rack, ahead of the magazine.
+pin('Air tank',(-.43,-.19,-.23),(.43,-.19,-.23),.16,red,launcher,48)
 for x in [-.43,.43]:
-    ball('Tank dished end',(x,-.075,-.20),(.06,.095,.095),red,launcher)
+    ball('Tank dished end',(x,-.19,-.23),(.07,.16,.16),red,launcher)
 for x in [-.32,.32]:
-    box('Tank retaining strap',(x,-.07,-.20),(.035,.205,.205),steel,launcher,.025)
-pin('Valve stem',(.49,-.075,-.20),(.55,-.075,-.20),.022,gold,launcher)
-pin('Valve wheel',(.54,-.075,-.22),(.54,-.075,-.18),.052,red,launcher)
-hose('Fixed pneumatic line',[(.52,-.075,-.20),(.52,.07,-.12),(.30,.07,.14),(.23,.11,.06)],.016,launcher)
-pin('Pressure gauge housing',(-.30,.08,-.27),(-.30,.08,-.31),.055,gold,launcher)
-pin('Pressure gauge face',(-.30,.08,-.311),(-.30,.08,-.315),.046,ivory,launcher)
-pin('Gauge needle',(-.30,.08,-.317),(-.32,.105,-.317),.003,iron,launcher,8)
-for i in range(9):
-    a=math.pi*.2+i*math.pi*1.6/8
-    pin('Gauge graduation',(-.30+math.cos(a)*.033,.08+math.sin(a)*.033,-.318),(-.30+math.cos(a)*.039,.08+math.sin(a)*.039,-.318),.0015,iron,launcher,6)
-for x in [-.48,.48]:
-    pin('Tank drain fitting',(x,-.12,-.20),(x,-.15,-.20),.022,gold,launcher,6)
-# Suspended magazine belongs to the fixed rack, below its crossmembers. Only the
-# cartridge being fed leaves this position; cannon yaw never carries the magazine.
-for index,x in enumerate([-.37,0,.37]):
-    box('Feed rail',(x,-.260,.28),(.29,.016,.24),iron,launcher)
-    for sx in [-.115,.115]:
-        pin('Feed slide',(x+sx,-.245,.16),(x+sx,-.245,.40),.010,steel,launcher,12)
-        pin('Magazine hanger',(x+sx,.015,.20),(x+sx,-.245,.20),.010,iron,launcher,12)
-    socket=node('RoundSocket_'+str(index),launcher,(x,-.125,.28))
-    box('Feed saddle',(0,-.125,0),(.21,.020,.16),red,socket)
-    for side in [-1,1]:
-        box('Round retaining cheek',(side*.13,-.065,0),(.025,.10,.11),steel,socket)
-    rod=node('FeedRod_'+str(index),launcher,(x,-.245,.28))
-    pin('Feeder piston',(0,0,0),(0,1,0),.018,steel,rod,16)
-    rod.scale=(1,1,.020)
-    pin('Feeder cylinder',(x,-.257,.28),(x,-.240,.28),.032,iron,launcher,20)
-    box('Magazine bracket',(x,-.240,.40),(.26,.035,.025),red,launcher)
-    for sx in [-.10,.10]:
-        ball('Magazine bolt',(x+sx,-.240,.419),(.013,.013,.008),gold,launcher)
+    hose('Tank retaining strap',[(x,-.02,-.23),(x,-.08,-.09),(x,-.30,-.11),(x,-.36,-.23),(x,-.30,-.35),(x,-.08,-.37),(x,-.02,-.23)],.018,launcher,steel)
+    box('Tank mounting bracket',(x,-.025,-.23),(.09,.055,.12),iron,launcher)
+pin('Valve stem',(.49,-.19,-.23),(.56,-.19,-.23),.026,gold,launcher)
+pin('Valve wheel',(.55,-.19,-.25),(.55,-.19,-.21),.060,red,launcher)
+hose('Fixed pneumatic line',[(.55,-.19,-.23),(.55,.05,-.12),(.30,.07,.14),(.23,.11,.06)],.019,launcher)
+pin('Pressure gauge housing',(-.46,-.13,-.30),(-.46,-.13,-.36),.065,gold,launcher)
+pin('Pressure gauge face',(-.46,-.13,-.361),(-.46,-.13,-.365),.055,ivory,launcher)
+pin('Gauge needle',(-.46,-.13,-.367),(-.48,-.10,-.367),.004,iron,launcher,8)
+node('RoundSocket_0',launcher)
+for index,x in enumerate([-.34,.34],1):
+    node('RoundSocket_'+str(index),launcher,(x,-.27,.40))
+    box('Magazine saddle',(x,-.51,.40),(.31,.025,.23),red,launcher)
+    for sx in [-.20,.20]:
+        pin('Magazine hanger',(x+sx,.015,.20),(x+sx,-.48,.20),.014,iron,launcher)
+        box('Retaining cheek',(x+sx,-.40,.40),(.025,.14,.15),steel,launcher)
+box('Loader base bracket',(0,-.215,.30),(.12,.43,.10),iron,launcher)
+pin('Loader base shaft',(0,-.43,.30),(0,-.43,.38),.045,steel,launcher)
+# One two-link retrieval arm and a wrist with opening gripper fingers.
+for name in ['LoaderUpper','LoaderLower']:
+    link=node(name,launcher)
+    box('Arm boxed link',(0,.4,0),(.075,.8,.065),red,link)
+    pin('Arm hydraulic rod',(.05,.08,0),(.05,.72,0),.012,steel,link)
+    for y in [0,.8]:
+        pin('Articulated joint',(-.055,y,0),(.055,y,0),.065,iron,link)
+        pin('Joint pin',(-.059,y,0),(.059,y,0),.030,gold,link)
+gripper=node('LoaderGripper',launcher)
+box('Gripper palm',(0,0,.09),(.75,.065,.06),iron,gripper)
+pin('Gripper screw drive',(-.35,0,.09),(.35,0,.09),.018,gold,gripper)
+for side in [-1,1]:
+    finger=node('LoaderFinger_'+str(side),gripper)
+    box('Gripper finger',(0,0,-.055),(.028,.07,.23),steel,finger)
+    box('Rubber grip pad',(-side*.014,0,-.12),(.014,.07,.05),rubber,finger)
 
 # Clown device faces -Z; its Attachment is the rear metal-contact plane.
 claw=node('EmpClaw')
+claw.scale=(1.5,)*3
 pin('Device drum',(0,0,.045),(0,0,-.025),.135,iron,claw,48)
 tube('Armored rim',-.045,.04,.143,.018,steel,claw)
 ball('Clown porcelain face',(0,0,-.045),(.123,.125,.045),ivory,claw)
@@ -394,7 +427,7 @@ scene.frame_start=1
 scene.frame_end=180
 scene['Reference attachments']='TS-296 10155/10156/10157/10158; original geometry, reference pixels not redistributed'
 scene['Runtime axes']='Godot metres; CannonPitch deployed at rack + (0,.47,0), matching WeaponAim.Pivot'
-for frame, height, lift_height, extent in [(1,-.08,0,0),(32,1.34,0,0),(44,1.34,.45,0),(54,1.34,.27,0),(72,1.34,.27,1)]:
+for frame, height, lift_height, extent in [(1,-.08,0,0),(32,1.34,0,0),(44,1.34,.62,0),(54,1.34,.47,0),(72,1.34,.47,1)]:
     launcher.location=point((0,height,1.845)); launcher.keyframe_insert(data_path='location',frame=frame)
     lift.location=point((0,lift_height,0)); lift.keyframe_insert(data_path='location',frame=frame)
     extension.location=point((0,0,-.99*extent)); extension.keyframe_insert(data_path='location',frame=frame)

@@ -65,6 +65,8 @@ internal sealed class EmpClawTests
         }
         Assert.That(ticks[2] - ticks[0], Is.LessThanOrEqualTo(120));
         Assert.That(host.Items.Slots.Single().Item, Is.EqualTo(HeldItem.None));
+        var empty = host.Items.Slots.Single();
+        Assert.That(host.Items.RequestUse(host.World, 1, empty.Life, empty.Token), Is.False, "No fourth shot from the exhausted magazine.");
         Assert.That(host.Items.Patches.Concat<object>(host.Items.Mines).Concat(host.Items.Shields), Is.Empty);
         Assert.That(host.Items.Grant(host.World, 1, HeldItem.EmpClaw), Is.True);
         Assert.That(host.Items.RequestUse(host.World, 1, initial.Life, initial.Token), Is.False);
@@ -119,6 +121,22 @@ internal sealed class EmpClawTests
         Assert.That(host.Items.EmpClawReady(host.Items.Slots.Single()), Is.False, "Replacement captures the new four-second duration.");
         for (int i = 0; i < 160; i++) { Step(host); }
         Assert.That(host.Items.EmpClawReady(host.Items.Slots.Single()), Is.True);
+    }
+
+    [Test]
+    public void EnlargedCannonClearanceClampsDownwardAimWithoutChangingOtherWeapons()
+    {
+        var host = new HostVehicleSession(99);
+        WeaponAimSolution? narrow = null, wide = null;
+        for (ulong tick = 1; tick < 100; tick++)
+        {
+            Vector3 desired = Vector3.Normalize(new Vector3(0, -.3f, -1));
+            narrow = WeaponAim.Solve(host.World.GetVehicle(1), 1, desired, narrow, new(), tick);
+            wide = WeaponAim.Solve(host.World.GetVehicle(1), 1, desired, wide, new(), tick, clearanceRadius: .37f);
+        }
+        Assert.That(wide!.Clear, Is.False);
+        Assert.That(wide.Pitch, Is.GreaterThan(narrow!.Pitch));
+        Assert.That(WeaponAim.BodyDistance(WeaponAim.Pivot, WeaponAim.Direction(wide.Yaw, wide.Pitch), .37f), Is.Null);
     }
 
     private static void Step(HostVehicleSession host)

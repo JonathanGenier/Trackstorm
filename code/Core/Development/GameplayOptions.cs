@@ -260,7 +260,7 @@ public static class GameplayOptions
         new("items.missile_drop_tolerance", "Missile", "Cliff discontinuity tolerance (m)", false, c => c.Items.MissileTerrain.DropTolerance, (c, v) => c with { Items = c.Items with { MissileTerrain = c.Items.MissileTerrain with { DropTolerance = checked((float)v) } } }),
         new("items.emp_claw_deploy_seconds", "EMP Claw presentation", "Deployment (s; next cycle)", false, c => c.Items.EmpClawDeploySeconds, (c, v) => c with { Items = c.Items with { EmpClawDeploySeconds = checked((float)v) } }),
         new("items.emp_claw_stow_seconds", "EMP Claw presentation", "Retraction (s; next cycle)", false, c => c.Items.EmpClawStowSeconds, (c, v) => c with { Items = c.Items with { EmpClawStowSeconds = checked((float)v) } }),
-        new("items.emp_claw_interval_ticks", "EMP Claw presentation", "Shot spacing (ticks; 60 = 1 second)", true, c => c.Items.EmpClawIntervalTicks, (c, v) => c with { Items = c.Items with { EmpClawIntervalTicks = checked((int)v) } }),
+        new("items.emp_claw_interval_ticks", "EMP Claw presentation", "Reload cycle (ticks; 60 = 1 second)", true, c => c.Items.EmpClawIntervalTicks, (c, v) => c with { Items = c.Items with { EmpClawIntervalTicks = checked((int)v) } }),
     ]);
 
     /// <summary>Applies a complete edit transaction through the existing owning validation rules.</summary>

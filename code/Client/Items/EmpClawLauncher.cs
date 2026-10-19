@@ -15,15 +15,26 @@ internal sealed partial class EmpClawLauncher : Node3D
     private readonly Node3D _middle;
     private readonly Node3D _recoil;
     private readonly Node3D[] _sockets;
-    private readonly Node3D[] _feedRods;
+    private readonly Node3D _breech;
+    private readonly Node3D _upper;
+    private readonly Node3D _lower;
+    private readonly Node3D _gripper;
+    private readonly Node3D[] _fingers;
     private readonly EmpClawVisual[] _rounds;
     private readonly EmpClawDischarge _discharge = new();
     private EmpClawRackState? _state;
     private float _shotAge = 1;
-    private float _feed;
+    private float _reloadAge = 1;
+    private float _reloadDuration = 50f / 60;
     private int _feedIndex = -1;
 
     internal Node3D Muzzle { get; }
+    internal bool Reloading => _feedIndex >= 0 && _reloadAge < _reloadDuration;
+    internal float ReloadPhase => Math.Min(1, _reloadAge / _reloadDuration);
+    internal bool BreechOpen => Math.Abs(_breech.Rotation.Y) > .01f;
+    internal int StoredRounds => _rounds.Where((round, i) => round.Visible && (i > ChamberIndex || (i == ChamberIndex && Reloading && ReloadPhase <= .20f))).Count();
+    internal int LoadedRounds => ChamberIndex < 3 && (!Reloading || ReloadPhase >= .74f) ? 1 : 0;
+    internal int ChamberIndex => _state is null ? 0 : Enumerable.Range(0, 3).FirstOrDefault(i => (_state.RoundMask & (1 << i)) != 0, 3);
     internal IReadOnlyList<Node3D> RoundSockets => _sockets;
     internal IReadOnlyList<Node3D> NoseAnchors => _rounds.Select(round => round.NoseAnchor).ToArray();
     internal int VisibleRounds => _rounds.Count(round => round.Visible);
@@ -46,10 +57,14 @@ internal sealed partial class EmpClawLauncher : Node3D
         _recoil = (Node3D)model.FindChild("BarrelRecoil", true, false);
         Muzzle = (Node3D)model.FindChild("Muzzle", true, false);
         _sockets = Enumerable.Range(0, 3).Select(i => (Node3D)model.FindChild("RoundSocket_" + i, true, false)).ToArray();
-        _feedRods = Enumerable.Range(0, 3).Select(i => (Node3D)model.FindChild("FeedRod_" + i, true, false)).ToArray();
+        _breech = (Node3D)model.FindChild("BreechHinge", true, false);
+        _upper = (Node3D)model.FindChild("LoaderUpper", true, false);
+        _lower = (Node3D)model.FindChild("LoaderLower", true, false);
+        _gripper = (Node3D)model.FindChild("LoaderGripper", true, false);
+        _fingers = new[] { -1, 1 }.Select(i => (Node3D)model.FindChild("LoaderFinger_" + i, true, false)).ToArray();
         _rounds = _sockets.Select((socket, index) =>
         {
-            var round = new EmpClawVisual { Name = "Round_" + index, Rotation = new(0, MathF.PI, 0) };
+            var round = new EmpClawVisual { Name = "Round_" + index };
             socket.AddChild(round);
             return round;
         }).ToArray();
@@ -65,9 +80,16 @@ internal sealed partial class EmpClawLauncher : Node3D
         bool shot = !restore && _state is not null && state.ShotSequence > _state.ShotSequence && state.FiredRound >= 0;
         _state = state;
         for (int i = 0; i < 3; i++) { _rounds[i].Visible = (state.RoundMask & (1 << i)) != 0; }
+        if (restore && state.ReloadRemaining > 0)
+        {
+            _reloadDuration = state.ReloadDuration;
+            _reloadAge = 0; // A reconstructed mount completes deployment before a visible reload.
+            _feedIndex = ChamberIndex;
+        }
         if (!shot) { return; }
         _shotAge = 0;
-        _feed = 0;
+        _reloadAge = 0;
+        _reloadDuration = state.ReloadDuration;
         _feedIndex = Enumerable.Range(0, 3).FirstOrDefault(i => (state.RoundMask & (1 << i)) != 0, -1);
         _discharge.Fire(Muzzle.GlobalTransform);
         DischargeCount++;
@@ -76,44 +98,80 @@ internal sealed partial class EmpClawLauncher : Node3D
     internal void Present(float progress, WeaponAimSolution? aim, float delta)
     {
         _shotAge += delta;
+        if (progress >= .999f) { _reloadAge += Math.Max(0, delta); }
         _discharge.Advance(delta);
         // Trunk/rack precedes a straight lift, short seating drop, then bore extension.
         float rise = Ease(progress, .44f, .62f);
         float seat = Ease(progress, .62f, .76f);
-        _lift.Position = new(0, .45f * rise - .18f * seat, 0);
+        _lift.Position = new(0, .62f * rise - .15f * seat, 0);
         _extension.Position = new(0, 0, -.99f * Ease(progress, .76f, 1));
         _middle.Position = new(0, 0, -.50f * Ease(progress, .76f, 1));
         _recoil.Position = new(0, 0, .065f * MathF.Sin(Math.Min(1, _shotAge / .20f) * MathF.PI));
-        float blend = 1 - MathF.Exp(-22 * Math.Max(0, delta));
-        float yaw = progress >= .999f ? aim?.Yaw ?? 0 : 0;
-        float pitch = progress >= .999f ? aim?.Pitch ?? 0 : 0;
+        float blend = 1 - MathF.Exp(-60 * Math.Max(0, delta));
+        bool loadingAxis = Reloading && ReloadPhase < .94f;
+        float yaw = progress >= .999f && !loadingAxis ? aim?.Yaw ?? 0 : 0;
+        float pitch = progress >= .999f && !loadingAxis ? aim?.Pitch ?? 0 : 0;
         _yaw.Rotation = new(0, Mathf.LerpAngle(_yaw.Rotation.Y, yaw, blend), 0);
         _pitch.Rotation = new(Mathf.LerpAngle(_pitch.Rotation.X, pitch, blend), 0, 0);
-        IsReady = progress >= .999f && (aim?.Ready ?? false) && _shotAge >= .22f;
-        _feed = Mathf.MoveToward(_feed, _feedIndex >= 0 && progress >= .999f ? 1 : 0, delta / .22f);
+        PresentLoader();
+        IsReady = progress >= .999f && (aim?.Ready ?? false) && _shotAge >= .22f &&
+            !Reloading && !BreechOpen && ChamberIndex < 3 &&
+            Math.Abs(Mathf.AngleDifference(_yaw.Rotation.Y, yaw)) < .015f && Math.Abs(_pitch.Rotation.X - pitch) < .015f;
+    }
+
+    private void PresentLoader()
+    {
+        float t = ReloadPhase;
+        Transform3D chamber = _yaw.Transform * _lift.Transform * _pitch.Transform * _recoil.Transform;
+        Vector3 rest = new(0, -.43f, -.25f);
+        Vector3 reserve = new(_feedIndex == 1 ? -.34f : .34f, -.27f, .40f);
+        Vector3 withdrawn = new(reserve.X, -.27f, .82f);
+        Vector3 raised = new(reserve.X, .47f, .82f);
+        Vector3 aligned = new(0, .47f, .82f);
+        Vector3 seated = new(0, .47f, -.10f);
+        Vector3 carried = t < .34f ? reserve.Lerp(withdrawn, Ease(t, .20f, .34f))
+            : t < .47f ? withdrawn.Lerp(raised, Ease(t, .34f, .47f))
+            : t < .58f ? raised.Lerp(aligned, Ease(t, .50f, .58f))
+            : aligned.Lerp(seated, Ease(t, .58f, .74f));
+        Basis facing = Basis.FromEuler(new(0, MathF.PI * (1 - Ease(t, .34f, .47f)), 0));
         for (int i = 0; i < 3; i++)
         {
-            // Stored rounds stay beneath the fixed rack. Only the selected loading sled
-            // transfers to the breech; the other magazine positions never inherit aim.
-            Vector3 stored = new((i - 1) * .37f, -.125f, .28f);
-            Transform3D breechPose = _yaw.Transform * _lift.Transform * _pitch.Transform;
-            Vector3 breech = breechPose * new Vector3(0, 0, .30f);
-            float feed = i == _feedIndex ? Ease(_feed, 0, 1) : 0;
-            // Lift behind the rack's rear crossmember before traversing to the gun.
-            Vector3 withdrawn = new(stored.X, stored.Y, .64f);
-            Vector3 clearance = new(stored.X, .55f, .64f);
-            Vector3 position = feed < .25f ? stored.Lerp(withdrawn, Ease(feed, 0, .25f))
-                : feed < .65f ? withdrawn.Lerp(clearance, Ease(feed, .25f, .65f))
-                : clearance.Lerp(breech, Ease(feed, .65f, 1));
-            Basis orientation = Basis.Identity.Slerp(breechPose.Basis * Basis.FromEuler(new(0, MathF.PI, 0)), feed);
-            _sockets[i].Transform = new Transform3D(orientation, position);
-            Vector3 anchor = new(stored.X, -.245f, stored.Z);
-            Vector3 piston = _sockets[i].Position + Vector3.Down * .10f - anchor;
-            var bearing = new Basis(new Quaternion(Vector3.Up, piston.Normalized()));
-            _feedRods[i].Transform = new Transform3D(new Basis(bearing.X, bearing.Y * piston.Length(), bearing.Z), anchor);
+            bool chambered = i == ChamberIndex;
+            Transform3D pose = chambered && (!Reloading || t >= .74f)
+                ? chamber * new Transform3D(Basis.Identity, new(0, 0, -.10f))
+                : chambered && i == _feedIndex ? new(facing, carried)
+                : new(Basis.FromEuler(new(0, MathF.PI, 0)), new(i == 1 ? -.34f : .34f, -.27f, .40f));
+            _sockets[i].Transform = pose;
             _rounds[i].Visible = _state is not null && (_state.RoundMask & (1 << i)) != 0;
         }
+        _breech.Rotation = new(0, -2.65f * Ease(t, .40f, .50f) * (1 - Ease(t, .87f, .94f)), 0);
+        Vector3 gripOffset = facing * new Vector3(0, 0, .32f);
+        Vector3 grip = carried + gripOffset;
+        Vector3 approach = new(reserve.X, rest.Y, reserve.Z - .32f);
+        Vector3 wrist = !Reloading ? rest : t < .08f ? rest.Lerp(approach, Ease(t, 0, .08f))
+            : t < .20f ? approach.Lerp(reserve + gripOffset, Ease(t, .08f, .12f))
+            : t < .80f ? grip
+            : t < .87f ? grip.Lerp(new(0, .47f, .90f), Ease(t, .80f, .87f))
+            : new Vector3(0, .47f, .90f).Lerp(rest, Ease(t, .87f, 1));
+        _gripper.Transform = new(Basis.Identity.Slerp(facing, Ease(t, 0, .08f)), wrist);
+        float opening = Reloading && t >= .12f && t < .80f
+            ? .27f + .08f * (1 - Ease(t, .12f, .20f) + Ease(t, .74f, .80f)) : .35f;
+        for (int i = 0; i < 2; i++) { _fingers[i].Position = new((i == 0 ? -1 : 1) * opening, 0, 0); }
+        // Equal fixed-length links solve the wrist position without stretching their meshes.
+        Vector3 anchor = new(0, -.43f, .38f);
+        Vector3 line = wrist - anchor;
+        float distance = Math.Clamp(line.Length(), .001f, 1.599f);
+        Vector3 direction = line.Normalized();
+        Vector3 side = (Vector3.Right - direction * direction.Dot(Vector3.Right)).Normalized();
+        float unfold = Reloading ? Ease(t, 0, .12f) * (1 - Ease(t, .87f, 1)) : 0;
+        Vector3 bend = side.Lerp(direction.Cross(Vector3.Left).Normalized(), unfold).Normalized();
+        Vector3 elbow = anchor + direction * (distance / 2) + bend * MathF.Sqrt(.64f - distance * distance / 4);
+        SetLink(_upper, anchor, elbow);
+        SetLink(_lower, elbow, wrist);
     }
+
+    private static void SetLink(Node3D link, Vector3 start, Vector3 end) =>
+        link.Transform = new(new Basis(new Quaternion(Vector3.Up, (end - start).Normalized())), start);
 
     internal static float Ease(float value, float start, float end) => Mathf.SmoothStep(0, 1, Mathf.Clamp((value - start) / (end - start), 0, 1));
 }

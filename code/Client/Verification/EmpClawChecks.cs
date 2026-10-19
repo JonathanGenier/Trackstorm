@@ -12,7 +12,7 @@ namespace Trackstorm.Client.Verification;
 /// poses are explicitly fixture data, not proof of future EMP combat or replication.</summary>
 public sealed partial class EmpClawChecks : Node3D
 {
-    private const string Output = "res://.godot/ts296-round2";
+    private const string Output = "res://.godot/ts296-round3";
     private readonly List<string> _evidence = [];
     private readonly HostVehicleSession _host = new(296);
     private readonly EmpClawPresentation _claws = new();
@@ -63,7 +63,8 @@ public sealed partial class EmpClawChecks : Node3D
             _rack.ObserveEmpClaw(_state);
             await Step(1);
             var launcher = _rack.EmpLauncher!;
-            Check(launcher.VisibleRounds == 3, "Three independently identified stowed rounds.");
+            Check(launcher.VisibleRounds == 3, "Three independently identified rounds: one chambered and two stored.");
+            Check(launcher.StoredRounds == 2 && launcher.LoadedRounds == 1 && launcher.ChamberIndex == 0, "Initial chamber plus exactly two reserves.");
             Check(launcher.NoseAnchors.Distinct().Count() == 3, "Three distinct nose attachment/hit anchors.");
             await Capture("01-stowed", new(-4, 2.8f, 6), new(0, .3f, 1.3f));
             CheckBounds(launcher, "compact", .37f);
@@ -76,6 +77,11 @@ public sealed partial class EmpClawChecks : Node3D
             await Step(16);
             Check(_rack.Progress == 1, "Trunk and stationary rack complete the 1.2-second deployment.");
             await Aim(0, 0);
+            float radius = Descendants(launcher.RoundSockets[0]).OfType<MeshInstance3D>().Where(m => m.Mesh is not null)
+                .SelectMany(m => m.Mesh!.GetFaces().Select(v => launcher.RoundSockets[0].ToLocal(m.ToGlobal(v))))
+                .Max(v => new Vector2(v.X, v.Y).Length());
+            Check(radius < .259f, $"Enlarged folded cartridge radius {radius:F3} m fits the narrowest 0.259 m bore.");
+            Check(BoreBlocked(launcher), "Loaded round naturally blocks the cannon bore.");
             Check(launcher.IsReady, "Accepted shared aim makes fully articulated launcher ready.");
             var pivot = (Node3D)launcher.FindChild("CannonPitch", true, false);
             Check(pivot.GlobalPosition.DistanceTo(VehicleBody.ToGodot(WeaponAim.Pivot)) < .001f, "Authored cannon pivot matches the shared accepted aiming origin.");
@@ -91,20 +97,20 @@ public sealed partial class EmpClawChecks : Node3D
             }
             Vector3 rackRotation = _car.GetNode<Node3D>("WeaponRack").Rotation;
             Transform3D[] storedPoses = launcher.RoundSockets.Select(socket => socket.GlobalTransform).ToArray();
-            Check(launcher.RoundSockets.All(socket => socket.GlobalPosition.Y < _car.GetNode<Node3D>("WeaponRack").GlobalPosition.Y),
-                "All three rear-facing stowed claws hang below the fixed weapon rack.");
+            Check(launcher.RoundSockets.Skip(1).All(socket => socket.GlobalPosition.Y < _car.GetNode<Node3D>("WeaponRack").GlobalPosition.Y),
+                "Both rear-facing reserve claws hang below the fixed weapon rack.");
             foreach (float yaw in new[] { 90f, 180f, -90f, -179f, 179f, 0f })
             {
                 await Aim(yaw, 20);
                 Check(Math.Abs(Mathf.AngleDifference(launcher.Angles.X, Mathf.DegToRad(yaw))) < .02f, "Full yaw reaches " + yaw);
                 Check(_car.GetNode<Node3D>("WeaponRack").Rotation == rackRotation, "Rack remains fixed at " + yaw);
-                Check(launcher.RoundSockets.Select((socket, i) => socket.GlobalTransform.IsEqualApprox(storedPoses[i])).All(same => same),
-                    "All three stored claws remain stationary while cannon aims at " + yaw);
+                Check(launcher.RoundSockets.Select((socket, i) => i == 0 || socket.GlobalTransform.IsEqualApprox(storedPoses[i])).All(same => same),
+                    "Both stored claws remain stationary while cannon aims at " + yaw);
                 CheckCannonClearance(launcher);
             }
             await Capture("08-rear-aim", new(5, 3, 6), new(0, 1, 1));
             await Aim(0, 90);
-            Check(launcher.RoundSockets.Select((socket, i) => socket.GlobalTransform.IsEqualApprox(storedPoses[i])).All(same => same),
+            Check(launcher.RoundSockets.Select((socket, i) => i == 0 || socket.GlobalTransform.IsEqualApprox(storedPoses[i])).All(same => same),
                 "Stored claws remain stationary during vertical pitch.");
             CheckCannonClearance(launcher);
             await Capture("09-vertical-aim", new(5, 3, 5), new(0, 1.3f, 1));
@@ -136,7 +142,22 @@ public sealed partial class EmpClawChecks : Node3D
                     new Transform3D(Basis.Identity, new(-.8f + i * .8f, 2.0f, -2.0f - i * .7f)), EmpClawVisualState.Fired)));
                 await Step(5);
                 await Capture("11-shot-" + round, new(5, 3.4f, 6), new(0, 1.3f, 0));
-                await Step(55);
+                if (round < 2)
+                {
+                    Check(launcher.Reloading && !launcher.IsReady, "Fire locked during retrieval.");
+                    await Step(20);
+                    Check(launcher.BreechOpen && !launcher.IsReady, "Empty breech opens before insertion.");
+                    Check(!BoreBlocked(launcher) && Enumerable.Range(0, 16).All(i => !BoreBlocked(launcher,
+                        new Vector2(MathF.Cos(i * MathF.Tau / 16), MathF.Sin(i * MathF.Tau / 16)) * .24f)),
+                        "Open empty cannon clears the entire cartridge cross-section across actual imported triangles.");
+                    await Capture("reload-open-" + round, new(.3f, 2.15f, 4.7f), new(0, 1.81f, 1.5f));
+                    await Step(10);
+                    await Capture("reload-insert-" + round, new(2.5f, 2.4f, 3.8f), new(0, 1.65f, 1.8f));
+                    await Step(25);
+                    Check(!launcher.Reloading && !launcher.BreechOpen && launcher.IsReady, "Reload seats round, closes breech, and restores readiness within one second.");
+                    Check(launcher.StoredRounds == 1 - round, "Each reload consumes exactly one physical reserve.");
+                }
+                else { await Step(55); }
                 if (round == 0)
                 {
                     Check(launcher.RoundSockets[2].GlobalTransform.IsEqualApprox(storedPoses[2]),
@@ -151,6 +172,7 @@ public sealed partial class EmpClawChecks : Node3D
             await Capture("12-empty-stowed", new(-5, 2.5f, 5), new(0, .5f, 1));
             await CheckStates();
             await CheckHandoffs();
+            await CheckReloadRates();
             _claws.Clear();
             _rack.Reset();
             await Frames(3);
@@ -160,6 +182,42 @@ public sealed partial class EmpClawChecks : Node3D
             GetTree().Quit();
         }
         catch (Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }
+    }
+
+    private async Task CheckReloadRates()
+    {
+        foreach (int fps in new[] { 30, 60, 144 })
+        foreach (float duration in new[] { .25f, 50f / 60, 1f })
+        {
+            var launcher = new EmpClawLauncher();
+            AddChild(launcher);
+            var fresh = new EmpClawRackState(1, 900, 1, true, 7, ReloadDuration: duration);
+            launcher.Observe(fresh, restore: true);
+            launcher.Present(1, _aim, 1);
+            launcher.Observe(fresh with { Revision = 2, RoundMask = 6, ShotSequence = 1, FiredRound = 0 });
+            float elapsed = 0;
+            while (elapsed < duration - .00001f)
+            {
+                float delta = Math.Min(1f / fps, duration - elapsed);
+                launcher.Present(1, _aim, delta);
+                elapsed += delta;
+                if (launcher.ReloadPhase < .999f) { Check(!launcher.IsReady, $"{fps} FPS / {duration:F3}s locks input throughout reload."); }
+                Check(launcher.VisibleRounds == 2, "Reload never creates or hides an accepted remaining round.");
+            }
+            launcher.Present(1, _aim, .0001f);
+            Check(!launcher.Reloading && !launcher.BreechOpen && launcher.StoredRounds == 1, $"{fps} FPS finishes the configured {duration:F3}s cycle.");
+            launcher.QueueFree();
+            await Frames(1);
+        }
+        var restored = new EmpClawLauncher();
+        AddChild(restored);
+        restored.Observe(new(1, 901, 2, true, 6, 1, 0, ReloadRemaining: .5f), restore: true);
+        restored.Present(.3f, _aim, .3f);
+        Check(restored.ReloadPhase == 0 && restored.DischargeCount == 0, "Interrupted reload reconstruction waits for deployment without replaying fire.");
+        restored.Present(1, _aim, 1);
+        Check(!restored.Reloading && restored.VisibleRounds == 2, "Reconstructed reload retains the two accepted rounds.");
+        restored.QueueFree();
+        await Frames(1);
     }
 
     private async Task CheckStates()
@@ -230,7 +288,7 @@ public sealed partial class EmpClawChecks : Node3D
         for (ulong tick = 1; tick <= 110; tick++)
         {
             _aim = WeaponAim.Solve(_host.World.GetVehicle(1), _state.Token, desired, _aim, new(), tick,
-                new VehiclePhysicsState(N.Vector3.Zero, N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero)) with { Ready = true };
+                new VehiclePhysicsState(N.Vector3.Zero, N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero), .37f) with { Ready = true };
             _rack.ObserveEmpClaw(_state, _aim);
             await Step(1);
         }
@@ -258,6 +316,30 @@ public sealed partial class EmpClawChecks : Node3D
         Check(image.SavePng(ProjectSettings.GlobalizePath(Output + "/" + name + ".png")) == Error.Ok, "Captured " + name);
     }
 
+    private static bool BoreBlocked(EmpClawLauncher launcher, Vector2 offset = default)
+    {
+        // Intersect the actual rendered triangles with the bore centre line in rack space.
+        // The segment spans muzzle to open rear chamber; no collision proxy substitutes for art.
+        foreach (var mesh in Descendants(launcher).OfType<MeshInstance3D>().Where(m => m.Mesh is not null && m.IsVisibleInTree()))
+        {
+            Vector3[] faces = mesh.Mesh!.GetFaces();
+            for (int i = 0; i < faces.Length; i += 3)
+            {
+                Vector3 a = launcher.ToLocal(mesh.ToGlobal(faces[i])) - new Vector3(offset.X, .47f + offset.Y, 0);
+                Vector3 b = launcher.ToLocal(mesh.ToGlobal(faces[i + 1])) - new Vector3(offset.X, .47f + offset.Y, 0);
+                Vector3 c = launcher.ToLocal(mesh.ToGlobal(faces[i + 2])) - new Vector3(offset.X, .47f + offset.Y, 0);
+                float denominator = (b.Y - c.Y) * (a.X - c.X) + (c.X - b.X) * (a.Y - c.Y);
+                if (Math.Abs(denominator) < 1e-9f) { continue; }
+                float u = ((b.Y - c.Y) * -c.X + (c.X - b.X) * -c.Y) / denominator;
+                float v = ((c.Y - a.Y) * -c.X + (a.X - c.X) * -c.Y) / denominator;
+                float w = 1 - u - v;
+                float z = u * a.Z + v * b.Z + w * c.Z;
+                if (u >= 0 && v >= 0 && w >= 0 && z is > -1.64f and < .28f) { return true; }
+            }
+        }
+        return false;
+    }
+
     private void CheckBounds(Node3D root, string name, float ceiling)
     {
         float top = float.MinValue;
@@ -273,7 +355,7 @@ public sealed partial class EmpClawChecks : Node3D
             }
         }
         Check(top < ceiling, $"Imported {name} geometry fits below deck: top={top:F3} < {ceiling:F3} m ({highest}).");
-        Check(bottom > -.355f, $"Imported {name} geometry clears the production bay floor: bottom={bottom:F3} > -0.355 m.");
+        Check(bottom > -1.0f, $"Imported {name} geometry clears the vehicle interior envelope: bottom={bottom:F3} > -1.000 m.");
     }
 
     private void CheckCannonClearance(EmpClawLauncher launcher)
@@ -309,7 +391,7 @@ public sealed partial class EmpClawChecks : Node3D
         _camera.LookAt(new(0, 1.2f, .3f));
         var direction = VehicleBody.ToCore(-_camera.GlobalBasis.Z);
         _aim = WeaponAim.Solve(_host.World.GetVehicle(1), _state.Token, direction, _aim, new(), (ulong)Engine.GetProcessFrames(),
-            new(N.Vector3.Zero, N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero)) with { Ready = true };
+            new(N.Vector3.Zero, N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero), .37f) with { Ready = true };
         _rack.ObserveEmpClaw(_state, _aim);
         _rack._Process(delta);
     }

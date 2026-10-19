@@ -25,7 +25,8 @@ internal sealed partial class CarRackPresentation
     {
         var load = inventory?.Active.EmpClaw;
         EmpClawRackState? state = load is null ? null : new(inventory!.Life, load.Magazine, tick, true,
-            (byte)((7 << (3 - load.Remaining)) & 7), (ulong)(3 - load.Remaining), load.Remaining < 3 ? 2 - load.Remaining : -1);
+            (byte)((7 << (3 - load.Remaining)) & 7), (ulong)(3 - load.Remaining), load.Remaining < 3 ? 2 - load.Remaining : -1,
+            EmpConfiguration.EmpClawIntervalTicks / 60f, load.ReadyTick > tick ? (load.ReadyTick - tick) / 60f : 0);
         ObserveEmpClaw(state, _empAim);
         if (inventory?.Active.Item == HeldItem.EmpClaw) { _desired = HeldItem.None; _usePending = false; }
     }
@@ -84,7 +85,7 @@ internal sealed partial class CarRackPresentation
         {
             // Center at full height first; never yaw through the open deck on return.
             launcher.Present(_empProgress, null, delta);
-            if (_empShotHold <= 0 && launcher.Centered) { _empProgress = Math.Max(0, _empProgress - delta / _empStowSeconds); }
+            if (_empShotHold <= 0 && launcher.Centered && !launcher.Reloading) { _empProgress = Math.Max(0, _empProgress - delta / _empStowSeconds); }
             launcher.Present(_empProgress, null, 0);
         }
         else

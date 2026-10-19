@@ -105,8 +105,9 @@ public sealed partial class EmpClawChecks
                 await Until(() => host.Items.Slots.Single(s => s.Vehicle == 1).Active.EmpClaw?.Remaining == remaining, "Accepted shot consumes exactly one visible round.");
                 shotTicks.Add(host.World.State.Tick);
             }
-            Check(shotTicks[2] - shotTicks[0] <= 120, "All three normal input shots accepted within two seconds.");
+            Check(shotTicks[2] - shotTicks[0] <= 120, $"Three normal input shots span {shotTicks[2] - shotTicks[0]} ticks ({(shotTicks[2] - shotTicks[0]) / 60f:F3}s); second shot after {shotTicks[1] - shotTicks[0]} ticks.");
             await Until(() => arenas.All(a => a.Bodies[1].Rack.EmpLauncher is null && a.Bodies[1].Rack.Progress == 0), "Final shot retracts cannon and closes trunk on both peers.");
+            Check(!arenas[0].Driver.RequestItemUse(), "Normal input cannot fire a fourth shot from an empty magazine.");
             MoveToMarker();
             await Until(() => host.Items.Slots.Single(s => s.Vehicle == 1).Active.EmpClaw is { Remaining: 3 } load && load.Magazine != magazine, "Respawned existing marker supplies a fresh three-round magazine.");
             await Until(Ready, "Repeated normal pickup deploys reliably.");

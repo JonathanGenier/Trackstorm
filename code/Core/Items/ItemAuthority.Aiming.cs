@@ -105,7 +105,7 @@ public sealed partial class ItemAuthority
             if (previous?.Tick == tick && previous.Pitch >= -Configuration.Aim.DownDegrees * MathF.PI / 180 &&
                 previous.Pitch <= Configuration.Aim.UpDegrees * MathF.PI / 180) { continue; }
             var solution = WeaponAim.Solve(state, intent.Token, intent.Direction, previous, Configuration.Aim, tick,
-                observations?.Single(request => request.VehicleId == id).Observation.Physics);
+                observations?.Single(request => request.VehicleId == id).Observation.Physics, slot.Active.Item == HeldItem.EmpClaw ? .37f : 0);
             _aims[id] = solution with { Ready = solution.Clear && !deployment.Retracting && deployment.Progress >= 1 && (slot.Active.Item != HeldItem.Missile || tick >= slot.MissileReadyTick) };
         }
     }

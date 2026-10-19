@@ -55,8 +55,7 @@ the old instance and seeds the accepted round/shot state without historical firi
 
 Deployment takes 1.20 seconds: the existing split deck/rack path occupies the first
 44%, then the cannon emerges vertically, seats down, and extends its barrel.
-All hardware remains full size. The three stored claws hang beneath the rack,
-facing rearward as in the approved rear reference. The magazine, saddle and
+All hardware remains full size. One round starts inside the chamber; two 50%-larger rear-facing reserves hang beneath the rack. The approved Round 3 layout overrides the reference image’s three stored units. The loader may nest inside the vehicle interior. The magazine, saddle and
 vehicle rack never inherit cannon yaw or pitch. Return
 centers yaw/pitch above the deck, reverses articulation and closes over 0.82 seconds
 plus any centering/final-discharge hold. Mid-deploy cancellation reverses its actual
@@ -68,12 +67,24 @@ deployed pivot, accepted yaw/pitch and reticle. Its ready state participates in 
 ordinary local use gate, alongside the independent authoritative readiness gate.
 
 Accepted shot-sequence changes produce one 0.20-second barrel response and a
-0.34-second three-ring compressed-air discharge with a brief pressure-mist puff. A 0.22-second feed sled withdraws
-the next surviving round behind the rack, lifts it and transfers it to the breech.
-Only that loading round leaves storage; other rounds remain fixed beneath the rack.
-This presentation can follow shots one
-second apart without serializing world claw views. Duplicate publications and
-reconstruction do not replay a shot.
+0.34-second three-ring compressed-air discharge with a brief pressure-mist puff.
+A single two-link arm retrieves the next identified reserve, turns it forward,
+opens the hinged rear breech, inserts the actual round, releases its gripper,
+withdraws clear, closes the breech and folds into rest. The cannon briefly centers
+on the fixed loading axis and reacquires camera aim after closure. Other reserves
+stay fixed. The receiver and telescopic sleeves are genuinely hollow; the loaded
+round naturally blocks the bore. An enlarged tank with straps and plumbing sits
+beneath the fixed rack, ahead of the reserves.
+
+Local readiness remains false until the entire configured cycle completes, the
+breech closes and camera aim is reacquired. Core independently gates the captured
+cooldown and three-round capability. A switch waits for the active loader to finish
+before lowering the rack. Reconstruction with a pending cooldown redeploys first,
+then completes a visible reload without replaying discharge; elapsed reloads seed
+the chamber directly. No ammo is created. Default normal-use cadence remains under
+two seconds for three shots. EMP alone uses a 0.37 m conservative cannon clearance
+radius in the shared aiming solver; other weapons retain their existing limits.
+Duplicate publications never restart the loader or discharge.
 
 ## Claw and effects
 
@@ -104,11 +115,11 @@ ownership follows the claw/launcher rather than persistent global effects.
 with two real UDP peers first: actual EMP-only marker pickup, configuration replication,
 normal use, three-shot cadence, repeated pickup, switching and final trunk closure.
 It also instantiates the production Developer Options controls. The subsequent
-fixture measures imported stowed vertices,
+fixture measures imported stowed vertices and folded-cartridge fit, checks an unobstructed empty bore against actual rendered triangles, and verifies reload timing at 30/60/144 FPS across the supported duration range. It
 exercises ordered deployment, full yaw and vertical/shared-clearance aim, three
 accepted shot cues at 0/1/2 seconds, exact depletion, duplicate suppression,
 multiple independent claws, terminal cleanup, reconstruction, repeated reversal,
-Wrench handoffs and life reset. Captures/logs are under `.godot/ts296-round2/`.
+Wrench handoffs and life reset. Captures/logs are under `.godot/ts296-round3/`.
 
 Add `-Preview` for interactive visual inspection: RMB/mouse orbit and shared aim,
 wheel zoom, Space accepted shot fixture, E deploy/stow, R fresh capability fixture,

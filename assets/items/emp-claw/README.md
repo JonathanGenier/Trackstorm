@@ -2,7 +2,7 @@
 
 Original Blender geometry, packed albedo/roughness/metallic/normal maps, rigid pivots and animation
 storyboard follow the four user-supplied Jira concept attachments: launcher
-10155, three stowed rounds 10156, activated claw 10157 and landed claw 10158.
+10155, rear storage 10156 (Round 3 overrides this to two reserves plus one chambered round), activated claw 10157 and landed claw 10158.
 Reference pixels are design input and are not redistributed. No new external
 asset, dependency or audio is used. See [sources.json](sources.json).
 
@@ -25,7 +25,7 @@ following the Wrench asset convention. Source files are excluded from runtime
 import with `.gdignore`.
 
 The saddle is fixed to `WeaponRack`. `TurretYaw` owns full horizontal rotation,
-`CannonLift` rises 0.45 m and seats down 0.18 m, `CannonPitch` owns elevation,
+`CannonLift` rises 0.62 m and seats down 0.15 m, `CannonPitch` owns elevation,
 `BarrelExtension` travels 0.99 m forward, its middle sleeve travels 0.50 m,
 and `BarrelRecoil` moves 65 mm at discharge.
 The fully deployed pitch pivot is rack + `(0, .47, 0)`, exactly the existing shared
@@ -40,9 +40,14 @@ custom armor uses per-part unwraps. The 512-pixel packed maps contain original
 irregular enamel chips, fine scratches, roughness variation and micro-normal detail.
 
 `RoundSocket_0..2` preserve original individual identity through visual depletion.
-Their storage positions are rack-local `(x, -.125, .28)`, with x = -.37, 0, .37 m.
-The rear-facing magazine is suspended beneath the fixed rack, independent of yaw
-and pitch. Only the next round's loading sled transfers out of storage after a shot.
+Socket 0 starts in the chamber; sockets 1 and 2 start at rack-local
+`(±.34, -.27, .40)` m, rear-facing. All claws are 50% larger, including the fired
+model. The two reserves remain independent of cannon aim. `LoaderUpper` and
+`LoaderLower` are fixed-length 0.8 m articulated links; `LoaderGripper` has two
+sliding fingers on a connected crossbar. Only the selected reserve moves.
+`BreechHinge` opens the rear pressure door, exposing the hollow receiver and
+sleeves; there is no permanent cap inside the bore. Runtime owns the reload phases.
+The larger 0.16 m radius transverse air tank is strapped under the fixed saddle.
 Each claw exposes `BalloonNose/NoseHitAnchor`, `Attachment`, `TrailSocket`, and four
 `JawHinge_*` / `GripContact_*` pairs. Those are presentation/attachment points, not
 hitboxes or a new collision system. The nose membrane is independently named.

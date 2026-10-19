@@ -70,6 +70,10 @@ public sealed partial class CarRackChecks : Node
                 foreach (var view in _views) { view.QueueFree(); }
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                // Settle unreachable managed Resource wrappers before native engine teardown.
+                GC.Collect(); GC.WaitForPendingFinalizers();
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 GetTree().Quit();
                 return;
             }
@@ -80,6 +84,10 @@ public sealed partial class CarRackChecks : Node
                 GD.Print($"Weapon handoff integration passed: {_checks} checks on two UDP peers.");
                 foreach (var arena in _arenas) { arena.QueueFree(); }
                 foreach (var view in _views) { view.QueueFree(); }
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                // Settle unreachable managed Resource wrappers before native engine teardown.
+                GC.Collect(); GC.WaitForPendingFinalizers();
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 GetTree().Quit();
@@ -154,6 +162,10 @@ public sealed partial class CarRackChecks : Node
                 GD.Print($"Car rack consecutive mine passed: {_checks} checks on two UDP peers.");
                 foreach (var arena in _arenas) { arena.QueueFree(); }
                 foreach (var view in _views) { view.QueueFree(); }
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                // Settle unreachable managed Resource wrappers before native engine teardown.
+                GC.Collect(); GC.WaitForPendingFinalizers();
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 GetTree().Quit();
@@ -303,6 +315,11 @@ public sealed partial class CarRackChecks : Node
             GD.Print($"Car rack integration passed: {_checks} checks; eight items, switching/use, duplicates, lifecycle and two UDP peers.");
             foreach (var arena in _arenas) { arena.QueueFree(); }
             foreach (var view in _views) { view.QueueFree(); }
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            // Match the native surface/collision fixtures: queued scene teardown precedes
+            // managed wrapper finalization, which can otherwise remain deferred headlessly.
+            GC.Collect(); GC.WaitForPendingFinalizers();
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             GetTree().Quit();
