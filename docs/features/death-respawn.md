@@ -51,3 +51,9 @@ Fresh active admission preserves existing HP, life generations and absolute resp
 [Circus pending stunts](matches.md#circus-stunt-detection-and-banking) are cancelled in the lethal candidate before landing/threshold completion can bank. Reset/respawn life changes also cancel pending events; all previously banked Circus points remain permanent for the match.
 
 [Out-of-bounds damage](out-of-bounds.md) uses the authored oval perimeter, existing health/lifecycle authority and confirmed HUD feedback. Its life-scoped state survives tuning and checkpoint recovery; prediction never originates it.
+
+Target death/new life, explicit reset and final departure remove all
+[EMP attachments](items-emp-claw.md#attachment-authority-and-vehicle-power) and clear
+the movement power deadline. Attached hazards on other living vehicles survive the
+original shooter's death/departure. Transient suspension retains the current target
+life and keeps each attachment countdown advancing rather than granting a reset.

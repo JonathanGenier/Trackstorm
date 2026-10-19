@@ -60,7 +60,7 @@ public sealed partial class ItemAuthority
     /// <param name="token">Highest ever issued token in this match.</param>
     public void Restore(ItemPublication publication, ulong revision, ulong token)
     {
-        if (publication.DiscardRevision < DiscardRevision || publication.DiscardRevision > token || publication.DiscardRevision > revision || publication.Events.Count != 0 || publication.Shields.Any(state => state.Id > token || state.Token > token) || publication.Mines.Any(mine => mine.Id > token) || publication.Patches.Any(patch => patch.Id > token) || publication.Slots.Any(slot => slot.Token > token || slot.SecondToken > token) ||
+        if (publication.EmpAttachments.Any(claw => claw.Id > token) || publication.DiscardRevision < DiscardRevision || publication.DiscardRevision > token || publication.DiscardRevision > revision || publication.Events.Count != 0 || publication.Shields.Any(state => state.Id > token || state.Token > token) || publication.Mines.Any(mine => mine.Id > token) || publication.Patches.Any(patch => patch.Id > token) || publication.Slots.Any(slot => slot.Token > token || slot.SecondToken > token) ||
             publication.Spawns.Any(spawn => spawn.Token > token) || publication.Missiles.Any(missile => missile.Id > token ||
                 !publication.World.Vehicles.Any(vehicle => vehicle.State.VehicleId == missile.Owner && vehicle.State.CanInteract)))
         {
@@ -76,6 +76,9 @@ public sealed partial class ItemAuthority
 
         _missiles.Clear();
         _missiles.AddRange(publication.Missiles);
+        _empAttachments.Clear();
+        _empAttachments.AddRange(publication.EmpAttachments);
+        _empRemovals.Clear();
         _patches.Clear();
         _patches.AddRange(publication.Patches);
         _mines.Clear();
@@ -104,6 +107,8 @@ public sealed partial class ItemAuthority
         ResetAim(vehicle);
         _aimDeployment.Remove(vehicle);
         bool changed = _slots.Remove(vehicle);
+        changed |= _empAttachments.RemoveAll(claw => claw.Vehicle == vehicle) > 0;
+        _empRemovals.RemoveWhere(id => !_empAttachments.Any(claw => claw.Id == id));
         changed |= _contacts.RemoveAll(contact => contact.Vehicle == vehicle) > 0;
         changed |= _missiles.RemoveAll(missile => missile.Owner == vehicle) > 0;
         changed |= _mines.RemoveAll(mine => mine.Owner == vehicle && mine.IsPlacing) > 0;
@@ -250,6 +255,7 @@ public sealed partial class ItemAuthority
         var slots = new Dictionary<ulong, ItemSlot>(_slots);
         var missiles = new List<MissileState>(_missiles);
         var events = new List<ItemEvent>();
+        var attachments = StageEmpAttachments(world, input.Tick, requests);
         var patches = _patches.Where(patch => patch.ExpiresAtTick > input.Tick).ToList();
         var mines = new List<ProxyMineState>(_mines);
         var contacts = new List<OilContact>();
@@ -293,7 +299,8 @@ public sealed partial class ItemAuthority
                 var aim = AcceptedAim(slot.Vehicle, slot.Life, slot.Token);
                 if (request.Reset.HasValue || inventory.Active.Token != slot.Token || !EmpClawReady(inventory) ||
                     slot.EmpClaw is not { Remaining: > 0 } load || input.Tick < load.ReadyTick || aim is null || aim.Tick != world.State.Tick ||
-                    world.State.Match is { Phase: not Matches.MatchPhase.Active } || missiles.Count >= MaximumProjectiles) { continue; }
+                    world.State.Match is { Phase: not Matches.MatchPhase.Active } || missiles.Count >= MaximumProjectiles ||
+                    attachments.Count + missiles.Count(p => p.EmpClaw is not null) >= MaximumEmpAttachments) { continue; }
                 byte remaining = (byte)(load.Remaining - 1);
                 ulong next = remaining > 0 ? NextToken() : slot.Token;
                 var updated = load with { Remaining = remaining, ReadyTick = remaining > 0 ? checked(input.Tick + (ulong)Configuration.EmpClawIntervalTicks) : 0 };
@@ -601,11 +608,16 @@ public sealed partial class ItemAuthority
                 Vector3 center = Vector3.Lerp(missile.Position, end, fraction);
                 if (missile.EmpClaw is not null)
                 {
-                    events.Add(new(missile.Id, missile.Owner, HeldItem.EmpClaw, center, true)
+                    var contact = directShield is null ? EmpContact(world, missile, center, empHit, requests) : null;
+                    if (contact is not null)
                     {
-                        Origin = missile.Position,
-                        EmpClawContact = directShield is null ? EmpContact(world, missile, center, empHit, requests) : null
-                    });
+                        var attachment = new EmpClawAttachment(missile.Id, missile.Owner, contact.Vehicle, contact.Life,
+                            contact.LocalPosition, contact.LocalNormal, input.Tick, checked(input.Tick + EmpClawAttachment.LifetimeTicks));
+                        attachment.Validate(input.Tick);
+                        attachments.Add(attachment);
+                    }
+                    events.Add(new(missile.Id, missile.Owner, HeldItem.EmpClaw, center, true)
+                    { Origin = missile.Position, EmpClawContact = contact });
                     continue;
                 }
                 events.Add(new ItemEvent(missile.Id, missile.Owner, missile.Item, center, true));
@@ -632,7 +644,8 @@ public sealed partial class ItemAuthority
         }
 
         var observations = shields.Collisions();
-        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, observations[request.VehicleId], effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause, oilEntries.GetValueOrDefault(request.VehicleId), boosts.GetValueOrDefault(request.VehicleId), request.ClearNitro || !boosts.ContainsKey(request.VehicleId))).ToArray(), journal.Concat(events.Where(outcome => outcome.Item != HeldItem.MachineGun).Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick })).ToArray(), oilTriggers, shields.ProtectedVehicleImpacts);
+        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, observations[request.VehicleId], effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause, oilEntries.GetValueOrDefault(request.VehicleId), boosts.GetValueOrDefault(request.VehicleId), request.ClearNitro || !boosts.ContainsKey(request.VehicleId),
+            attachments.Where(claw => claw.Vehicle == request.VehicleId).Select(claw => claw.ExpiresAtTick).DefaultIfEmpty(0UL).Max())).ToArray(), journal.Concat(events.Where(outcome => outcome.Item != HeldItem.MachineGun).Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick })).ToArray(), oilTriggers, shields.ProtectedVehicleImpacts);
         foreach (var pair in slots.ToArray())
         {
             VehicleSnapshot state = world.GetVehicle(pair.Key);
@@ -673,7 +686,8 @@ public sealed partial class ItemAuthority
         _shields.Clear();
         _shields.AddRange(shields.States);
         shieldsChanged |= ReconcileShields(world, slots);
-        bool reliableChanged = shieldsChanged || !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) ||
+        attachments.RemoveAll(claw => !EmpTargetLives(claw, world));
+        bool reliableChanged = !_empAttachments.SequenceEqual(attachments) || shieldsChanged || !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) ||
             !patches.Select(p => (p.Id, p.Pour?.Cancelled)).SequenceEqual(_patches.Select(p => (p.Id, p.Pour?.Cancelled))) ||
             (input.Tick % 6 == 0 && patches.Any(p => p.Pour is { } pour && input.Tick < pour.StartTick + (ulong)pour.DurationTicks + 180)) ||
             !contacts.SequenceEqual(_contacts) || journal.Count > 0 ||
@@ -704,6 +718,9 @@ public sealed partial class ItemAuthority
 
         _missiles.Clear();
         _missiles.AddRange(advanced);
+        _empAttachments.Clear();
+        _empAttachments.AddRange(attachments);
+        _empRemovals.Clear();
         _token = token;
         _mines.Clear();
         _mines.AddRange(movingMines);

@@ -47,8 +47,9 @@ public sealed class VehicleMovement
     /// <param name="oilContact">Host-confirmed wheel entry edges; prediction only continues restored contamination.</param>
     /// <param name="contacts">Raw chassis contacts, preserved independently of movement damping.</param>
     /// <param name="waterDepth">Immersion from the shared native observation.</param>
+    /// <param name="empUntilTick">Host deadline override; null continues the restored prediction deadline.</param>
     /// <returns>Next movement snapshot and commanded velocities.</returns>
-    public VehicleState Step(InputFrame input, VehiclePhysicsState observed, Vector3 groundNormal, bool driveEnabled = true, SurfaceType surface = SurfaceType.Concrete, WheelSupport? wheels = null, WheelMask oilContact = WheelMask.None, NitroState nitro = default, bool clearNitro = false, float waterDepth = 0, IReadOnlyList<VehicleContact>? contacts = null)
+    public VehicleState Step(InputFrame input, VehiclePhysicsState observed, Vector3 groundNormal, bool driveEnabled = true, SurfaceType surface = SurfaceType.Concrete, WheelSupport? wheels = null, WheelMask oilContact = WheelMask.None, NitroState nitro = default, bool clearNitro = false, float waterDepth = 0, IReadOnlyList<VehicleContact>? contacts = null, ulong? empUntilTick = null)
     {
         if (input.Tick != checked(State.Tick + 1))
         {
@@ -61,6 +62,10 @@ public sealed class VehicleMovement
             throw new ArgumentException("Ground support must be a unit normal or zero.", nameof(groundNormal));
         }
 
+        ulong empDeadline = driveEnabled ? empUntilTick ?? State.EmpUntilTick : 0;
+        if (empDeadline <= input.Tick) { empDeadline = 0; }
+        if (empDeadline > input.Tick && empDeadline - input.Tick > 1800) { throw new ArgumentOutOfRangeException(nameof(empUntilTick)); }
+        float enginePower = empDeadline == 0 ? 1 : .2f;
         OilTractionState oil = !driveEnabled ? default : State.Oil.Advance(oilContact, Configuration);
         int wheelCount = wheels.HasValue ? VehicleCrash.WheelCount(wheels) :
             groundNormal.Y >= Configuration.SupportNormalMinimum && VehicleLanding.Landable(observed.Orientation, groundNormal) ? 4 : 0;
@@ -225,7 +230,7 @@ public sealed class VehicleMovement
             // Additional low gearing fades smoothly with road speed; it cannot enlarge
             // tire capacity, change throttle continuation, or bypass blocking rock faces.
             float lowSpeed = Math.Clamp(1 - steeringSpeed / c.LowSpeedDriveFadeSpeed, 0, 1);
-            drive *= 1 + (c.LowSpeedDriveMultiplier - 1) * lowSpeed * lowSpeed;
+            drive *= (1 + (c.LowSpeedDriveMultiplier - 1) * lowSpeed * lowSpeed) * enginePower;
             stopping = Math.Min(stopping * forceScale, Math.Abs(longitudinal) / dt);
             // One progressive application controls rear braking, engine interruption and grip on hold/release.
             float brakeApplication = holding ? 1 : handbrake;
@@ -380,7 +385,7 @@ public sealed class VehicleMovement
         // Only its added forward velocity is bounded; existing momentum is never clamped to the drive cap.
         if (boost.Active)
         {
-            float thrust = boost.ForwardThrust / c.Mass * (grounded ? 1 : boost.AirborneThrustScale);
+            float thrust = boost.ForwardThrust * enginePower / c.Mass * (grounded ? 1 : boost.AirborneThrustScale);
             float addition = Math.Min(thrust * dt, Math.Max(0, forwardSpeed - Vector3.Dot(velocity, rocketForward)));
             velocity += rocketForward * addition;
         }
@@ -514,7 +519,7 @@ public sealed class VehicleMovement
         }
         bool sliding = grounded && Math.Abs(lateral) > 1 && rearSlip > 0.35f;
         var physics = new VehiclePhysicsState(observed.Position, observed.Orientation, Limit(velocity, c.MaximumPhysicsSpeed), Limit(angular, c.MaximumAngularSpeed));
-        State = new VehicleState(input.Tick, physics, grounded, sliding, wheel, handbrake, currentSurface, frontSlip, rearSlip, longAcceleration, sideAcceleration, landing, wheels ?? default, oil, boost, powerSlip, air, crashSeconds, throttle, brakeMode);
+        State = new VehicleState(input.Tick, physics, grounded, sliding, wheel, handbrake, currentSurface, frontSlip, rearSlip, longAcceleration, sideAcceleration, landing, wheels ?? default, oil, boost, powerSlip, air, crashSeconds, throttle, brakeMode, empDeadline);
         return State;
     }
 

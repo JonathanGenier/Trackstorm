@@ -432,13 +432,14 @@ mouse/controller feel or multi-machine Internet behavior.
 
 The missile harness also drives the actual production vehicle onto the tabletop and bank approach, then fires in both tabletop directions at 60/120/180 m/s and at offset lanes. It records native collider/material samples, launch poses, clearances and impact locations. `-ProductionOnly [-Case bank]` isolates these scenarios; `-Diagnose` records failures without accepting them as a regression pass.
 
-## EMP Claw presentation access
+## EMP Claw access and attachment
 
 EMP Claw is the ninth registered item, in the Weapon category. Its existing pickup
 and developer grant install a three-round `EmpClawLoad` in either physical slot.
 The normal host use transaction validates selected capability, deployment, aim and
 cooldown, retires each fired capability, publishes the remaining count and a
 discharge and guided flight, and empties the slot after three uses. Flight
-produces a non-damaging contact handoff; persistent attachment and EMP impairment
-remain separate consumers. See [EMP Claw presentation](items-emp-claw.md) for
-configuration, animation, effects and the explicit future-gameplay boundary.
+produces a non-damaging physical attachment on an eligible unshielded vehicle.
+Each claw expires independently after 30 seconds; any number of active claws caps
+engine/reverse/Nitro power at 20% until the last ends. See [EMP Claw](items-emp-claw.md)
+for authority, recovery, effects and the remaining nose/shield combat boundary.

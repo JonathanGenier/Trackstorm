@@ -7,6 +7,9 @@ namespace Trackstorm.Client.Items;
 /// <summary>Reconstructable Kenney projectile and particle effects; no collision or gameplay mutation.</summary>
 internal sealed partial class ItemPresentation : Node3D
 {
+    internal EmpClawAttachments EmpAttachments { get; } = new();
+    public override void _Ready() => AddChild(EmpAttachments);
+
     internal Func<ulong, Vector3?>? OilMouth { get; set; }
     internal Func<ulong, Transform3D?>? OilFrame { get; set; }
     internal float OilStreamWidth { get; set; } = .24f;
@@ -92,6 +95,7 @@ internal sealed partial class ItemPresentation : Node3D
     /// <param name="missileBlastRadius">Current shared authoritative radius, used only to bound the central fire.</param>
     internal void Apply(ItemPublication state, float missileBlastRadius = Trackstorm.Core.Vehicles.VehicleDimensions.Length)
     {
+        EmpAttachments.Observe(state);
         foreach (ulong id in _mines.Keys.Except(state.Mines.Where(mine => !mine.IsPlacing).Select(mine => mine.Id)).ToArray())
         {
             _mines[id].QueueFree();
@@ -165,8 +169,8 @@ internal sealed partial class ItemPresentation : Node3D
             if (outcome.Item == HeldItem.EmpClaw)
             {
                 // Launcher owns the compressed-air discharge. Flight is complete-state membership;
-                // only the committed contact creates sparks, with no explosion or future EMP effect.
-                if (outcome.Impact && _bursts.Count < 128)
+                // attachment grip owns vehicle-hit sparks; world contacts retain their small impact cue.
+                if (outcome.Impact && outcome.EmpClawContact is null && _bursts.Count < 128)
                 {
                     var spark = new Node3D { Position = VehicleBody.ToGodot(outcome.Position) };
                     AddChild(spark);

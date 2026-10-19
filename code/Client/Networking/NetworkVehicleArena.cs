@@ -103,6 +103,11 @@ internal sealed partial class NetworkVehicleArena : Node3D
 
         _items.OilMouth = owner => _bodies.TryGetValue(owner, out var body) ? body.Rack.OilMouth : null;
         _items.OilFrame = owner => _bodies.TryGetValue(owner, out var body) ? body.VisualTransform : null;
+        _items.EmpAttachments.TargetFrame = (vehicle, life) =>
+            _bodies.TryGetValue(vehicle, out var body) && _driver.Latest?.Vehicles.Any(v =>
+                v.State.VehicleId == vehicle && v.State.LifeId == life && v.State.CanInteract) == true ? body.VisualTransform : null;
+        _items.EmpAttachments.AcceptedTick = () => _driver.Latest?.Tick ?? 0;
+        _driver.Resynchronized += _ => _items.EmpAttachments.Restore();
         AddChild(_items);
         AddChild(Walls);
         Walls.MountedPose = owner => _bodies.TryGetValue(owner, out var body)

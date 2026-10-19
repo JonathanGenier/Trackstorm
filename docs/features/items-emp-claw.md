@@ -1,12 +1,12 @@
-# EMP Claw flight and presentation
+# EMP Claw flight, attachment and EMP effect
 
 The EMP cannon and four-jawed clown device are Blender-authored production
 presentation assets. Their [editable source, pivots and provenance](../../assets/items/emp-claw/README.md)
 are separate from combat authority. EMP Claw is a registered Weapon-category pickup
-in the existing nine-item roster. The host grants a minimal three-shot presentation
-load through the ordinary item authority. Guided flight and contact handoff are
-server-authoritative. Persistent attachment, EMP impairment, vulnerable noses,
-shield counterplay and destructible stored ammunition remain future consumers.
+in the existing nine-item roster. The host grants a three-shot load through the
+ordinary item authority. Guided flight, physical attachment and EMP impairment are
+server-authoritative. Vulnerable noses, shield counterplay and destructible stored
+ammunition remain future combat integrations.
 
 ## Normal pickup and testing
 
@@ -29,8 +29,8 @@ each physical inventory slot. A successful presentation shot retires its use tok
 old/repeated requests cannot spend the next round. The same magazine stays mounted.
 Both the host deployment/accepted aim and local mechanical readiness gate use.
 Three default shots fit within two seconds; an empty slot can receive a fresh pickup.
-Switching preserves its load. Inventory TI29, configuration TC54 (280 values,
-2261 bytes), and discovery bucket `trackstorm-lobby-21` exclude older layouts.
+Switching preserves its load. Inventory TI30, movement version 14, configuration TC54 (280 values,
+2261 bytes), and discovery bucket `trackstorm-lobby-22` exclude older layouts.
 
 ## Guided flight
 
@@ -52,9 +52,9 @@ Every segment, including pivot-to-muzzle travel, is swept against native scenery
 and cars. The original owner is excluded throughout flight, including returning
 shots. Another car can physically intercept regardless of the intended victim.
 One committed `ItemEvent.EmpClawContact` carries the actual vehicle/life and local
-hit position/normal for the subsequent attachment consumer. There is no damage,
-impairment, attached timer or balloon counterplay yet. World and shield collisions
-retire flight without explosion. Contact sparks are cosmetic. Flight has no
+hit position/normal to the attachment owner in the same atomic item step. Eligible
+unshielded contact creates an independently identified attachment without damage.
+World and shield collisions retire flight without explosion. Contact sparks are cosmetic. Flight has no
 shootable native shape and never participates in weapon damage queries.
 
 Each shot captures an absolute deadline of at most 3,600 ticks. Retuning, recovery
@@ -68,6 +68,50 @@ motion uses the existing replaceable projectile stream. Complete checkpoints
 preserve target/owner lives, velocity and deadline. Client flight interpolation
 extrapolates at most 100 ms; missing membership removes the model and electric
 trail. The launcher retains its compressed-air discharge and original mechanism.
+
+## Attachment authority and vehicle power
+
+`ItemAuthority` owns `EmpClawAttachment`: fired identity, original owner, target
+vehicle/life, unchanged target-local collision position/normal, attachment tick and
+absolute expiry tick. Side, front, rear, roof and underside use the same handoff;
+there is no relocation to a preferred face. Each attachment lasts exactly 1,800
+fixed ticks (30 seconds). A subsequent hit never changes any older deadline.
+
+One, two or three claws apply the same 80% engine-power suppression. The item step
+passes the latest surviving deadline to the existing `VehicleMovement`; engine and
+reverse drive and Nitro rocket thrust receive a 0.2 multiplier. Steering, brake
+forces, health, external impulses and existing momentum retain their ordinary
+rules. Available tire traction still bounds realized acceleration. Nitro charge
+consumption and its speed ceiling are unchanged, but its acceleration cannot bypass
+the power multiplier. This is a force limitation, not an instant speed clamp.
+
+Expiry and queued removal are staged before movement at the same atomic boundary.
+Full power returns on the exact tick when the final identity ends. The host-only
+`RemoveEmpAttachment(id)` seam removes just that identity on the next fixed step;
+duplicate requests are harmless. It creates no client command, shootable nose,
+environmental nose collision, shield counterplay or stowed-ammunition damage.
+
+The match allows at most 64 attached plus in-flight EMP identities; firing reserves
+capacity before spending ammunition. Final target departure, target death/new life,
+explicit reset and match finish remove the affected anchors. Attached hazards
+survive their shooter's later death or departure. Transient transport suspension
+keeps the target's existing life and the original deadlines continue advancing;
+resume does not refresh them. Arena destruction releases all owned presentation.
+
+Reliable item boundaries carry complete membership; late join, reconnect and host
+recovery preserve every original anchor and deadline. Movement carries the latest
+active expiry for prediction/replay between boundaries, clearing it at its deadline
+or an authoritative zero. Recovery seeds current models without replaying impact
+sparks. A missing/dead/new-life target hides stale presentation immediately.
+
+`EmpClawAttachments` resolves the authored metal attachment anchor against the same
+rendered vehicle transform used by the car, including interpolation, roll and flip.
+New contact closes all four jaws, emits grip sparks and inflates the red nose. One
+shared vehicle effect contains eight short branching blue arcs, with 96 core and
+96 halo segments regardless of claw count. It follows side panels, roof/hood and
+underside; each claw retains its local electricity. Natural expiry independently
+deflates the nose, fizzles, releases and falls away without damage or explosion.
+Released models are bounded and reclaimed after their 1.3-second cosmetic tail.
 
 ## Flight tuning
 
@@ -209,3 +253,12 @@ outer bank before firing. Evidence goes under `.godot/emp-flight-checks`.
 The original presentation harness retains isolated pickup, three-shot cadence and
 rack lifecycle coverage. These checks do not establish remote Internet behavior or
 physical-controller usability.
+
+`check-emp-claw-attachments.ps1 -GodotPath <editor> [-Visual]` uses the same three
+impaired native UDP peers for six rotated contact faces, one/two/three independent
+anchors, exact staggered deadlines, checkpoint reconstruction and repeated cleanup.
+It measures rendered-anchor error through controlled moving/rolling poses, then
+runs real throttle/turn/Nitro input and an initial angular-velocity tumble fixture
+through production movement and native collision queries. Captures and JSON go to
+`.godot/emp-attachment-checks`. These automated fixtures are not human playtesting
+or a multi-machine reconnect/latency acceptance claim.

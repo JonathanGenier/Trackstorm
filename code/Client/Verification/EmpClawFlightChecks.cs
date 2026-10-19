@@ -40,6 +40,7 @@ public sealed partial class EmpClawFlightChecks : Node3D
         {
             Engine.MaxFps = 60;
             _output = ProjectSettings.GlobalizePath("res://.godot/emp-flight-checks");
+            if (OS.GetCmdlineUserArgs().Contains("--emp-attachments")) { _output = ProjectSettings.GlobalizePath("res://.godot/emp-attachment-checks"); }
             if (OS.GetCmdlineUserArgs().Contains("--emp-production")) { _output += "/production"; }
             if (OS.GetCmdlineUserArgs().Contains("--emp-long-flight")) { _output += "/long-flight"; }
             System.IO.Directory.CreateDirectory(_output);
@@ -51,7 +52,8 @@ public sealed partial class EmpClawFlightChecks : Node3D
             else
             {
                 await Connect();
-                if (OS.GetCmdlineUserArgs().Contains("--emp-long-flight"))
+                if (OS.GetCmdlineUserArgs().Contains("--emp-attachments")) { await AttachmentLifecycle(); }
+                else if (OS.GetCmdlineUserArgs().Contains("--emp-long-flight"))
                 {
                     await LongFlight();
                     GD.Print($"EMP long flight passed: {_checks} checks.");
@@ -82,6 +84,8 @@ public sealed partial class EmpClawFlightChecks : Node3D
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         }
+        // Give native audio playback teardown real mixer time, including headless runs.
+        await ToSignal(GetTree().CreateTimer(.25), SceneTreeTimer.SignalName.Timeout);
         GetTree().Quit(_failed ? 1 : 0);
     }
 
@@ -126,7 +130,7 @@ public sealed partial class EmpClawFlightChecks : Node3D
                 Host.World.Restore(new SimulationState(state.Tick, state.LastInput, state.Vehicles.Select(v =>
                 {
                     if (!_positions.TryGetValue(v.VehicleId, out var position)) { return v; }
-                    var pose = new VehiclePhysicsState(position, v.VehicleId == 1 ? _shooterOrientation : N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero);
+                    var pose = new VehiclePhysicsState(position, v.VehicleId == 1 ? _shooterOrientation : v.VehicleId == 2 ? _victimOrientation : N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero);
                     return new VehicleSnapshot(v.VehicleId, v.LifeId, new VehicleState(state.Tick, pose, false, false, 0, 0), v.Damage, pose);
                 }), state.Match));
             }
@@ -136,7 +140,7 @@ public sealed partial class EmpClawFlightChecks : Node3D
                 driver.DesiredAim = _directions[i];
                 driver.DesiredAimTarget = _targets[i];
                 driver.DesiredAimTargetLife = _targets[i] == 0 ? 0 : Host.World.GetVehicle(_targets[i]).LifeId;
-                _arenas[i].Advance(default);
+                _arenas[i].Advance(i == 1 ? _victimInput : default);
                 if (driver.Failure.Length > 0) { throw new InvalidOperationException(driver.Failure); }
             }
         }
