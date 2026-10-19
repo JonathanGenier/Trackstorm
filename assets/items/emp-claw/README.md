@@ -43,7 +43,7 @@ irregular enamel chips, fine scratches, roughness variation and micro-normal det
 Socket 0 starts in the chamber; sockets 1 and 2 start at rack-local
 `(±.34, -.27, .40)` m, rear-facing. All claws are 50% larger, including the fired
 model. The two reserves remain independent of cannon aim. `LoaderUpper` and
-`LoaderLower` are fixed-length 0.8 m articulated links; `LoaderGripper` has two
+`LoaderLower` are articulated telescoping links with rigid nested sections; `LoaderGripper` has two
 sliding fingers on a connected crossbar. Only the selected reserve moves.
 `BreechHinge` opens the rear pressure door, exposing the hollow receiver and
 sleeves; there is no permanent cap inside the bore. Runtime owns the reload phases.
@@ -54,3 +54,11 @@ hitboxes or a new collision system. The nose membrane is independently named.
 
 See [EMP presentation](../../../docs/features/items-emp-claw.md) for the integration
 contract, verification fixture and current gameplay boundaries.
+
+The loader's editable idle pose is beneath the two reserve cradles at rack-local
+Y=-0.68 m. LoaderUpperSlide and LoaderLowerSlide translate nested 0.42 m rigid
+sections; their Tip children retain connected joints. Runtime solves the rear
+retrieval/insertion path and folds beneath the magazine before returning the rack.
+PrimaryHoseTank, PrimaryHoseLeft and PrimaryHoseRight own the three primary
+rubber runs and their fittings. No fourth breech hose remains. Claw induction
+cables and steel tank straps preserve their separate reference details.

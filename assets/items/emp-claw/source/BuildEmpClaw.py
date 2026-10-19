@@ -272,7 +272,10 @@ for side in [-1,1]:
         for z in [-.04,.13]:
             pin('Cradle hex bolt',(x+side*.026,y,z),(x+side*.038,y,z),.014,gold,pitch,6)
     pin('Pitch axle cap',(x+side*.028,-.08,.04),(x+side*.045,-.08,.04),.047,steel,pitch,32)
-    hose('Braided pressure return',[(x,-.13,.19),(side*.30,-.14,.23),(side*.30,.06,.17),(side*.18,.07,.19)],.013,pitch)
+    plumbing=node('PrimaryHoseLeft' if side < 0 else 'PrimaryHoseRight',pitch)
+    hose('Cannon pressure hose',[(x,-.13,-.20),(side*.30,-.15,-.13),(side*.30,-.08,.06),(x,-.045,.09)],.011,plumbing)
+    for y,z in [(-.13,-.20),(-.045,.09)]:
+        pin('Hose compression fitting',(x-side*.015,y,z),(x+side*.015,y,z),.019,gold,plumbing,6)
     for z in [.12,.16,.20]:
         tube('Rear breech heat fins',z,z+.011,.205,.025,iron,recoil)
 pin('Pneumatic accumulator',(.29,-.07,-.32),(.29,-.07,.03),.070,red,pitch,40)
@@ -280,7 +283,6 @@ for z in [-.32,.03]:
     ball('Accumulator dome',(.29,-.07,z),(.07,.07,.045),red,pitch)
     tube('Accumulator clamp',z-.006,z+.012,.078,.011,steel,pitch,x=.29,y=-.07)
 pin('Pressure regulator',(.29,-.07,.075),(.29,-.07,.13),.029,gold,pitch,6)
-hose('Breech supply hose',[(.29,-.07,.13),(.34,-.04,.20),(.30,.10,.23),(.13,.13,.19)],.014,pitch)
 for z in [-.37,-.29,-.21,-.13,-.05,.03]:
     box('Lower longitudinal rail',(0,-.205,z),(.29,.018,.045),iron,pitch,.004)
 # Enlarge the pressure vessel radially for the larger folded cartridge.
@@ -310,7 +312,9 @@ for x in [-.32,.32]:
     box('Tank mounting bracket',(x,-.025,-.23),(.09,.055,.12),iron,launcher)
 pin('Valve stem',(.49,-.19,-.23),(.56,-.19,-.23),.026,gold,launcher)
 pin('Valve wheel',(.55,-.19,-.25),(.55,-.19,-.21),.060,red,launcher)
-hose('Fixed pneumatic line',[(.55,-.19,-.23),(.55,.05,-.12),(.30,.07,.14),(.23,.11,.06)],.019,launcher)
+plumbing=node('PrimaryHoseTank',launcher)
+hose('Tank feed hose',[(.55,-.19,-.23),(.56,-.08,-.18),(.43,.035,-.14),(.23,.045,-.10)],.016,plumbing)
+pin('Fixed rotary union',(.20,.045,-.10),(.25,.045,-.10),.028,gold,launcher,6)
 pin('Pressure gauge housing',(-.46,-.13,-.30),(-.46,-.13,-.36),.065,gold,launcher)
 pin('Pressure gauge face',(-.46,-.13,-.361),(-.46,-.13,-.365),.055,ivory,launcher)
 pin('Gauge needle',(-.46,-.13,-.367),(-.48,-.10,-.367),.004,iron,launcher,8)
@@ -321,23 +325,38 @@ for index,x in enumerate([-.34,.34],1):
     for sx in [-.20,.20]:
         pin('Magazine hanger',(x+sx,.015,.20),(x+sx,-.48,.20),.014,iron,launcher)
         box('Retaining cheek',(x+sx,-.40,.40),(.025,.14,.15),steel,launcher)
-box('Loader base bracket',(0,-.215,.30),(.12,.43,.10),iron,launcher)
-pin('Loader base shaft',(0,-.43,.30),(0,-.43,.38),.045,steel,launcher)
-# One two-link retrieval arm and a wrist with opening gripper fingers.
+box('Loader storage crossmember',(0,-.64,.30),(.95,.07,.10),iron,launcher)
+for x in [-.45,.45]:
+    pin('Loader mounting drop',(x,-.50,.30),(x,-.64,.30),.025,steel,launcher)
+pin('Loader base shaft',(0,-.68,.30),(0,-.68,.38),.045,steel,launcher)
+# Nested rigid sections compact beneath the magazine, extending only for retrieval.
 for name in ['LoaderUpper','LoaderLower']:
     link=node(name,launcher)
-    box('Arm boxed link',(0,.4,0),(.075,.8,.065),red,link)
-    pin('Arm hydraulic rod',(.05,.08,0),(.05,.72,0),.012,steel,link)
-    for y in [0,.8]:
-        pin('Articulated joint',(-.055,y,0),(.055,y,0),.065,iron,link)
-        pin('Joint pin',(-.059,y,0),(.059,y,0),.030,gold,link)
+    box('Arm boxed sleeve',(0,.21,0),(.075,.42,.075),red,link)
+    slide=node(name+'Slide',link)
+    box('Arm sliding rail',(0,.21,0),(.045,.42,.045),steel,slide)
+    tip=node(name+'Tip',slide,(0,.42,0))
+    for joint in [link,tip]:
+        pin('Articulated joint',(-.045,0,0),(.045,0,0),.045,iron,joint)
+        pin('Joint pin',(-.049,0,0),(.049,0,0),.022,gold,joint)
 gripper=node('LoaderGripper',launcher)
-box('Gripper palm',(0,0,.09),(.75,.065,.06),iron,gripper)
-pin('Gripper screw drive',(-.35,0,.09),(.35,0,.09),.018,gold,gripper)
+box('Gripper palm',(0,0,.09),(.62,.065,.06),iron,gripper)
+pin('Gripper screw drive',(-.29,0,.09),(.29,0,.09),.018,gold,gripper)
 for side in [-1,1]:
     finger=node('LoaderFinger_'+str(side),gripper)
     box('Gripper finger',(0,0,-.055),(.028,.07,.23),steel,finger)
     box('Rubber grip pad',(-side*.014,0,-.12),(.014,.07,.05),rubber,finger)
+
+# Retain the actual compact idle pose in the editable master and static export.
+anchor=Vector((0,-.68,.38)); wrist=Vector((0,-.68,.50))
+elbow=(anchor+wrist)/2+Vector((math.sqrt(.42**2-.06**2),0,0))
+for name,start,end in [('LoaderUpper',anchor,elbow),('LoaderLower',elbow,wrist)]:
+    obj=bpy.data.objects[name]
+    obj.location=point(start)
+    obj.rotation_mode='QUATERNION'
+    obj.rotation_quaternion=Vector((0,0,1)).rotation_difference(point(end-start).normalized())
+gripper.location=point(wrist)
+for side in [-1,1]: bpy.data.objects['LoaderFinger_'+str(side)].location=point((side*.29,0,0))
 
 # Clown device faces -Z; its Attachment is the rear metal-contact plane.
 claw=node('EmpClaw')

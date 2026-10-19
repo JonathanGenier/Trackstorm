@@ -130,3 +130,13 @@ acceptance. The normal rack harness remains the native two-peer regression check
 `check-developer-options.ps1 -GodotPath <Godot .NET editor> -Visual -EmpClawOnly`
 exercises the actual EMP search/edit/Apply/invalid/Cancel/category-reset controls,
 EMP-only weights, and canonical defaults after a separate-process restart.
+
+The loader parks wholly beneath the two reserve cradles. Its two rigid telescoping
+links use translated inner rails, with a lower-rear mounting crossmember; they do
+not stretch their meshes. Retrieval clears the magazine before lifting and turning.
+After insertion the wrist withdraws behind the breech, lowers behind the magazine,
+then folds forward beneath it. The chamber seat keeps the gripper crossbar outside
+the barrel. Fixed services follow the existing in-car storage convention.
+Three primary launcher hoses remain: tank feed, left cannon and right cannon.
+They terminate on their own fixed or cannon assembly without bridging yaw/lift
+joints; cartridge induction cables and metal tank straps are separate details.

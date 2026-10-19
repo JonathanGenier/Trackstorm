@@ -18,6 +18,8 @@ internal sealed partial class EmpClawLauncher : Node3D
     private readonly Node3D _breech;
     private readonly Node3D _upper;
     private readonly Node3D _lower;
+    private readonly Node3D _upperSlide;
+    private readonly Node3D _lowerSlide;
     private readonly Node3D _gripper;
     private readonly Node3D[] _fingers;
     private readonly EmpClawVisual[] _rounds;
@@ -60,6 +62,8 @@ internal sealed partial class EmpClawLauncher : Node3D
         _breech = (Node3D)model.FindChild("BreechHinge", true, false);
         _upper = (Node3D)model.FindChild("LoaderUpper", true, false);
         _lower = (Node3D)model.FindChild("LoaderLower", true, false);
+        _upperSlide = (Node3D)model.FindChild("LoaderUpperSlide", true, false);
+        _lowerSlide = (Node3D)model.FindChild("LoaderLowerSlide", true, false);
         _gripper = (Node3D)model.FindChild("LoaderGripper", true, false);
         _fingers = new[] { -1, 1 }.Select(i => (Node3D)model.FindChild("LoaderFinger_" + i, true, false)).ToArray();
         _rounds = _sockets.Select((socket, index) =>
@@ -123,12 +127,12 @@ internal sealed partial class EmpClawLauncher : Node3D
     {
         float t = ReloadPhase;
         Transform3D chamber = _yaw.Transform * _lift.Transform * _pitch.Transform * _recoil.Transform;
-        Vector3 rest = new(0, -.43f, -.25f);
+        Vector3 rest = new(0, -.68f, .50f);
         Vector3 reserve = new(_feedIndex == 1 ? -.34f : .34f, -.27f, .40f);
-        Vector3 withdrawn = new(reserve.X, -.27f, .82f);
-        Vector3 raised = new(reserve.X, .47f, .82f);
-        Vector3 aligned = new(0, .47f, .82f);
-        Vector3 seated = new(0, .47f, -.10f);
+        Vector3 withdrawn = new(reserve.X, -.27f, 1.00f);
+        Vector3 raised = new(reserve.X, .47f, 1.00f);
+        Vector3 aligned = new(0, .47f, 1.00f);
+        Vector3 seated = new(0, .47f, .12f);
         Vector3 carried = t < .34f ? reserve.Lerp(withdrawn, Ease(t, .20f, .34f))
             : t < .47f ? withdrawn.Lerp(raised, Ease(t, .34f, .47f))
             : t < .58f ? raised.Lerp(aligned, Ease(t, .50f, .58f))
@@ -138,7 +142,7 @@ internal sealed partial class EmpClawLauncher : Node3D
         {
             bool chambered = i == ChamberIndex;
             Transform3D pose = chambered && (!Reloading || t >= .74f)
-                ? chamber * new Transform3D(Basis.Identity, new(0, 0, -.10f))
+                ? chamber * new Transform3D(Basis.Identity, new(0, 0, .12f))
                 : chambered && i == _feedIndex ? new(facing, carried)
                 : new(Basis.FromEuler(new(0, MathF.PI, 0)), new(i == 1 ? -.34f : .34f, -.27f, .40f));
             _sockets[i].Transform = pose;
@@ -152,20 +156,25 @@ internal sealed partial class EmpClawLauncher : Node3D
             : t < .20f ? approach.Lerp(reserve + gripOffset, Ease(t, .08f, .12f))
             : t < .80f ? grip
             : t < .87f ? grip.Lerp(new(0, .47f, .90f), Ease(t, .80f, .87f))
-            : new Vector3(0, .47f, .90f).Lerp(rest, Ease(t, .87f, 1));
-        _gripper.Transform = new(Basis.Identity.Slerp(facing, Ease(t, 0, .08f)), wrist);
+            : t < .95f ? new Vector3(0, .47f, .90f).Lerp(new(0, rest.Y, .90f), Ease(t, .87f, .95f))
+            : new Vector3(0, rest.Y, .90f).Lerp(rest, Ease(t, .95f, 1));
+        _gripper.Transform = new(Reloading ? Basis.Identity.Slerp(facing, Ease(t, 0, .08f)) : Basis.Identity, wrist);
         float opening = Reloading && t >= .12f && t < .80f
-            ? .27f + .08f * (1 - Ease(t, .12f, .20f) + Ease(t, .74f, .80f)) : .35f;
+            ? .24f + .05f * (1 - Ease(t, .12f, .20f) + Ease(t, .74f, .80f)) : .29f;
         for (int i = 0; i < 2; i++) { _fingers[i].Position = new((i == 0 ? -1 : 1) * opening, 0, 0); }
-        // Equal fixed-length links solve the wrist position without stretching their meshes.
-        Vector3 anchor = new(0, -.43f, .38f);
+        // Compact rigid sleeves extend through translated rails, as on the Wrench arm.
+        // The elbow stays below retrieval, then behind the reserves during the lift.
+        Vector3 anchor = new(0, -.68f, .38f);
         Vector3 line = wrist - anchor;
-        float distance = Math.Clamp(line.Length(), .001f, 1.599f);
+        float distance = Math.Max(line.Length(), .001f);
+        float length = Math.Max(.42f, distance * .52f);
         Vector3 direction = line.Normalized();
-        Vector3 side = (Vector3.Right - direction * direction.Dot(Vector3.Right)).Normalized();
-        float unfold = Reloading ? Ease(t, 0, .12f) * (1 - Ease(t, .87f, 1)) : 0;
-        Vector3 bend = side.Lerp(direction.Cross(Vector3.Left).Normalized(), unfold).Normalized();
-        Vector3 elbow = anchor + direction * (distance / 2) + bend * MathF.Sqrt(.64f - distance * distance / 4);
+        Vector3 preferred = Vector3.Down.Lerp(Vector3.Back, Ease(t, .20f, .34f));
+        float unfold = Reloading ? Ease(t, 0, .08f) * (1 - Ease(t, .95f, 1)) : 0;
+        preferred = Vector3.Right.Lerp(preferred, unfold);
+        Vector3 bend = (preferred - direction * direction.Dot(preferred)).Normalized();
+        Vector3 elbow = anchor + direction * (distance / 2) + bend * MathF.Sqrt(length * length - distance * distance / 4);
+        _upperSlide.Position = _lowerSlide.Position = new(0, length - .42f, 0);
         SetLink(_upper, anchor, elbow);
         SetLink(_lower, elbow, wrist);
     }

@@ -12,7 +12,7 @@ namespace Trackstorm.Client.Verification;
 /// poses are explicitly fixture data, not proof of future EMP combat or replication.</summary>
 public sealed partial class EmpClawChecks : Node3D
 {
-    private const string Output = "res://.godot/ts296-round3";
+    private const string Output = "res://.godot/ts296-round4";
     private readonly List<string> _evidence = [];
     private readonly HostVehicleSession _host = new(296);
     private readonly EmpClawPresentation _claws = new();
@@ -83,10 +83,16 @@ public sealed partial class EmpClawChecks : Node3D
             Check(radius < .259f, $"Enlarged folded cartridge radius {radius:F3} m fits the narrowest 0.259 m bore.");
             Check(BoreBlocked(launcher), "Loaded round naturally blocks the cannon bore.");
             Check(launcher.IsReady, "Accepted shared aim makes fully articulated launcher ready.");
+            Check(Descendants(launcher).Count(n => n.Name.ToString() is "PrimaryHoseLeft" or "PrimaryHoseRight" or "PrimaryHoseTank") == 3,
+                "Exactly three primary launcher hose assemblies: left, right and tank.");
+            CheckLoader(launcher, parked: true);
             var pivot = (Node3D)launcher.FindChild("CannonPitch", true, false);
             Check(pivot.GlobalPosition.DistanceTo(VehicleBody.ToGodot(WeaponAim.Pivot)) < .001f, "Authored cannon pivot matches the shared accepted aiming origin.");
             await Capture("05-ready-side", new(6, 2.5f, .4f), new(0, 1.0f, .3f));
             await Capture("06-ready-rear", new(0, 2.6f, 6), new(0, 1.2f, 1.5f));
+            await Capture("06b-loader-parked", new(1.8f, 1.1f, 4.4f), new(0, 1.0f, 2.1f));
+            await Capture("06c-hoses-right", new(2.2f, 2.1f, 2.8f), new(0, 1.65f, 1.7f));
+            await Capture("06d-hoses-left", new(-2.2f, 2.1f, 2.8f), new(0, 1.65f, 1.7f));
             await Capture("07-gameplay-distance", new(0, 3.5f, 9), new(0, 1.3f, -.4f));
             if (OS.GetCmdlineUserArgs().Contains("--art-only"))
             {
@@ -141,19 +147,24 @@ public sealed partial class EmpClawChecks : Node3D
                 _claws.Observe(Enumerable.Range(0, round + 1).Select(i => new EmpClawView((ulong)i + 1,
                     new Transform3D(Basis.Identity, new(-.8f + i * .8f, 2.0f, -2.0f - i * .7f)), EmpClawVisualState.Fired)));
                 await Step(5);
+                CheckLoader(launcher);
                 await Capture("11-shot-" + round, new(5, 3.4f, 6), new(0, 1.3f, 0));
                 if (round < 2)
                 {
                     Check(launcher.Reloading && !launcher.IsReady, "Fire locked during retrieval.");
-                    await Step(20);
+                    await Capture("reload-grip-" + round, new(2.5f, 1.5f, 4.2f), new(0, 1.2f, 2.1f));
+                    for (int frame = 0; frame < 20; frame++) { await Step(1); CheckLoader(launcher); }
                     Check(launcher.BreechOpen && !launcher.IsReady, "Empty breech opens before insertion.");
                     Check(!BoreBlocked(launcher) && Enumerable.Range(0, 16).All(i => !BoreBlocked(launcher,
                         new Vector2(MathF.Cos(i * MathF.Tau / 16), MathF.Sin(i * MathF.Tau / 16)) * .24f)),
                         "Open empty cannon clears the entire cartridge cross-section across actual imported triangles.");
                     await Capture("reload-open-" + round, new(.3f, 2.15f, 4.7f), new(0, 1.81f, 1.5f));
-                    await Step(10);
+                    for (int frame = 0; frame < 10; frame++) { await Step(1); CheckLoader(launcher); }
                     await Capture("reload-insert-" + round, new(2.5f, 2.4f, 3.8f), new(0, 1.65f, 1.8f));
-                    await Step(25);
+                    for (int frame = 0; frame < 5; frame++) { await Step(1); CheckLoader(launcher); }
+                    await Capture("reload-release-" + round, new(2.5f, 2.4f, 3.8f), new(0, 1.65f, 1.8f));
+                    for (int frame = 0; frame < 20; frame++) { await Step(1); CheckLoader(launcher); }
+                    CheckLoader(launcher, parked: true);
                     Check(!launcher.Reloading && !launcher.BreechOpen && launcher.IsReady, "Reload seats round, closes breech, and restores readiness within one second.");
                     Check(launcher.StoredRounds == 1 - round, "Each reload consumes exactly one physical reserve.");
                 }
@@ -200,6 +211,7 @@ public sealed partial class EmpClawChecks : Node3D
             {
                 float delta = Math.Min(1f / fps, duration - elapsed);
                 launcher.Present(1, _aim, delta);
+                CheckLoader(launcher);
                 elapsed += delta;
                 if (launcher.ReloadPhase < .999f) { Check(!launcher.IsReady, $"{fps} FPS / {duration:F3}s locks input throughout reload."); }
                 Check(launcher.VisibleRounds == 2, "Reload never creates or hides an accepted remaining round.");
@@ -314,6 +326,39 @@ public sealed partial class EmpClawChecks : Node3D
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
         using var image = GetViewport().GetTexture().GetImage();
         Check(image.SavePng(ProjectSettings.GlobalizePath(Output + "/" + name + ".png")) == Error.Ok, "Captured " + name);
+    }
+
+    private void CheckLoader(EmpClawLauncher launcher, bool parked = false)
+    {
+        var upper = (Node3D)launcher.FindChild("LoaderUpper", true, false);
+        var lower = (Node3D)launcher.FindChild("LoaderLower", true, false);
+        var grip = (Node3D)launcher.FindChild("LoaderGripper", true, false);
+        var elbow = (Node3D)launcher.FindChild("LoaderUpperTip", true, false);
+        var wrist = (Node3D)launcher.FindChild("LoaderLowerTip", true, false);
+        Check(elbow.GlobalPosition.DistanceTo(lower.GlobalPosition) < .001f && wrist.GlobalPosition.DistanceTo(grip.GlobalPosition) < .001f,
+            "Telescoping sections retain connected elbow and wrist joints.");
+        foreach (var root in new[] { upper, lower, grip })
+        foreach (var mesh in Descendants(root).OfType<MeshInstance3D>().Where(m => m.Mesh is not null))
+        foreach (var vertex in mesh.Mesh!.GetFaces())
+        {
+            Vector3 p = launcher.ToLocal(mesh.ToGlobal(vertex));
+            foreach (float x in new[] { -.34f, .34f })
+            {
+                if (Math.Abs(p.X - x) < .155f && Math.Abs(p.Y + .51f) < .0125f && Math.Abs(p.Z - .40f) < .115f)
+                { throw new InvalidOperationException($"Loader intersects magazine saddle at {p}, phase {launcher.ReloadPhase}."); }
+            }
+            if (parked && !(p.Y < -.55f && p.Y > -.80f && Math.Abs(p.X) < .55f && p.Z is > .15f and < .75f))
+            { throw new InvalidOperationException($"Loader must park beneath both reserves, inside the storage envelope: {p}."); }
+            // Unselected ammunition is fixed throughout the cycle; a conservative body
+            // envelope detects arm intrusion without treating intended gripper contact as a failure.
+            for (int round = launcher.ChamberIndex + 1; round < 3; round++)
+            {
+                Vector3 q = launcher.RoundSockets[round].ToLocal(mesh.ToGlobal(vertex));
+                if (Math.Abs(q.Z) < .08f && new Vector2(q.X, q.Y).Length() < .225f)
+                { throw new InvalidOperationException($"Loader intersects untouched reserve {round} at {q}, phase {launcher.ReloadPhase}."); }
+            }
+        }
+        Check(true, parked ? "Loader parks wholly below the two-round magazine, clear of the tank." : "Moving loader clears the untouched reserve.");
     }
 
     private static bool BoreBlocked(EmpClawLauncher launcher, Vector2 offset = default)
