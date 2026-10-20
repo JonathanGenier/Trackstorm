@@ -188,6 +188,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
     internal Trackstorm.Core.Arenas.ArenaPropSnapshot? PropSnapshot { get; private set; }
     /// <summary>Native swept collision query, host only.</summary>
     internal Func<ulong, System.Numerics.Vector3, System.Numerics.Vector3, WeaponRayHit?>? RaycastWeapon { get; set; }
+    internal Func<ulong, System.Numerics.Vector3, System.Numerics.Vector3, IReadOnlyList<VehicleStepRequest>, WeaponRayHit?>? RaycastEmpClaw { get; set; }
     internal Func<MissileState, System.Numerics.Vector3, float?>? CollideMissile { get; set; }
     internal Func<System.Numerics.Vector3, System.Numerics.Vector3, MissileTerrainSample?>? QueryMissileTerrain { get; set; }
     /// <summary>Host-only ground projection for persistent oil deployment.</summary>
@@ -339,7 +340,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
             FlushShieldUse();
 
             var previousVehicles = Host.World.State.Vehicles;
-            Host.Step(input, observe, CollideMissile, PlaceOil, PlaceMine, MoveMine, ProjectSalvoGround, RaycastWeapon, PlaceShield, ObserveShield, QueryMissileTerrain, OilCollision);
+            Host.Step(input, observe, CollideMissile, PlaceOil, PlaceMine, MoveMine, ProjectSalvoGround, RaycastWeapon, PlaceShield, ObserveShield, QueryMissileTerrain, OilCollision, RaycastEmpClaw);
             Host.CollectPickups();
             if (Host.Environment is { } environment)
             {
@@ -764,6 +765,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         CollideMissile = null;
         QueryMissileTerrain = null;
         RaycastWeapon = null;
+        RaycastEmpClaw = null;
         PlaceOil = null;
         OilCollision = null;
         ProjectSalvoGround = null;

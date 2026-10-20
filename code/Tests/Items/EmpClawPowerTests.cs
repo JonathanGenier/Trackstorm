@@ -7,6 +7,30 @@ namespace Trackstorm.Core.Tests.Items;
 [TestFixture]
 internal sealed class EmpClawPowerTests
 {
+    [TestCase(0f, false)]
+    [TestCase(5f, false)]
+    [TestCase(14f, false)]
+    [TestCase(25f, false)]
+    [TestCase(0f, true)]
+    [TestCase(-5f, true)]
+    public void ProductionTiresDeliverTwentyPercentPropulsion(float speed, bool reverse)
+    {
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(0, 0, -speed), Vector3.Zero);
+        VehicleState Sample(bool emp)
+        {
+            var movement = new VehicleMovement(new(), pose);
+            movement.Restore(new(0, pose, true, false, 0, 0, throttle: 1));
+            return movement.Step(new(1, 0, reverse ? (ushort)0 : ushort.MaxValue,
+                reverse ? ushort.MaxValue : (ushort)0, 0, 0, 0), pose, Vector3.UnitY, empUntilTick: emp ? 1800UL : 0);
+        }
+        var plain = Sample(false); var emp = Sample(true);
+        float normal = plain.LongitudinalAcceleration, affected = emp.LongitudinalAcceleration;
+        TestContext.Out.WriteLine($"Production propulsion at {speed} m/s, reverse={reverse}: normal={normal}, EMP={affected}, ratio={affected / normal}");
+        Assert.That(affected, Is.EqualTo(normal * .2f).Within(.0002));
+        Assert.That(emp.Physics.LinearVelocity.Z - pose.LinearVelocity.Z,
+            Is.EqualTo((plain.Physics.LinearVelocity.Z - pose.LinearVelocity.Z) * .2f).Within(.00001));
+    }
+
     private static VehicleState Drive(bool emp, ushort throttle, ushort brake, NitroState nitro, float speed = 0, bool grounded = true)
     {
         var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(0, 0, -speed), Vector3.Zero);
@@ -34,13 +58,17 @@ internal sealed class EmpClawPowerTests
         var emp = Drive(true, 0, 0, nitro, grounded: grounded);
         Assert.That(emp.Physics.LinearVelocity.Z, Is.EqualTo(plain.Physics.LinearVelocity.Z * .2f).Within(.00001));
         Assert.That(emp.Nitro, Is.EqualTo(plain.Nitro));
+        TestContext.Out.WriteLine($"NOS grounded={grounded}: normal={-plain.Physics.LinearVelocity.Z * 60} m/s^2, EMP={-emp.Physics.LinearVelocity.Z * 60} m/s^2");
     }
 
-    [Test]
-    public void BrakingAndCoastingAreUnchangedAndPredictionExpiresAtTheExactTick()
+    [TestCase(false, 10f)]
+    [TestCase(true, 10f)]
+    [TestCase(false, 50f)]
+    [TestCase(true, 50f)]
+    public void BrakingAndCoastingAreUnchangedAndPredictionExpiresAtTheExactTick(bool braking, float speed)
     {
-        var plain = Drive(false, 0, ushort.MaxValue, default, 10);
-        var emp = Drive(true, 0, ushort.MaxValue, default, 10);
+        var plain = Drive(false, 0, braking ? ushort.MaxValue : (ushort)0, default, speed);
+        var emp = Drive(true, 0, braking ? ushort.MaxValue : (ushort)0, default, speed);
         Assert.That(emp.Physics, Is.EqualTo(plain.Physics));
         var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
         var movement = new VehicleMovement(new(), pose);

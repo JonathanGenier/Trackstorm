@@ -58,7 +58,7 @@ internal sealed partial class EmpClawElectric : Node3D
                 Vector3 next = Point(bolt, step, sample, angle, flight);
                 Vector3 direction = next - last;
                 var basis = Basis.LookingAt(direction.Normalized(), Math.Abs(direction.Normalized().Dot(Vector3.Up)) > .98f ? Vector3.Right : Vector3.Up);
-                float width = (flight ? .0030f : .0050f) * (1.2f - step / 24f);
+                float width = (flight ? .0030f : active ? .012f : .0050f) * (1.2f - step / 24f);
                 var segmentBasis = new Basis(basis.X * width, basis.Y * width, basis.Z * direction.Length());
                 int index = bolt * 20 + step - 1;
                 _segments.SetInstanceTransform(index, new Transform3D(segmentBasis, (last + next) * .5f));

@@ -486,8 +486,9 @@ public sealed class HostVehicleSession
     /// <param name="placeShield">Host-only native rear placement and clearance query.</param>
     /// <param name="observeShield">Host-only native wall motion observation.</param>
     /// <param name="oilCollision">Host-only swept Oil surface collision.</param>
+    /// <param name="raycastEmpClaw">Host closest EMP surface/scenery hit; separate from coarse weapon hull queries.</param>
     /// <param name="missileTerrain">Bounded host-only suitable terrain ray; never vehicle queries.</param>
-    public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe, Func<MissileState, Vector3, float?>? collide = null, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeShield = null, Func<ShieldState, ShieldObservation?>? observeShield = null, Func<Vector3, Vector3, MissileTerrainSample?>? missileTerrain = null, Func<Vector3, Vector3, float, OilImpact?>? oilCollision = null)
+    public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe, Func<MissileState, Vector3, float?>? collide = null, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeShield = null, Func<ShieldState, ShieldObservation?>? observeShield = null, Func<Vector3, Vector3, MissileTerrainSample?>? missileTerrain = null, Func<Vector3, Vector3, float, OilImpact?>? oilCollision = null, Func<ulong, Vector3, Vector3, IReadOnlyList<VehicleStepRequest>, WeaponRayHit?>? raycastEmpClaw = null)
     {
         _pickupStart = null;
         _pickupEnd = null;
@@ -523,7 +524,7 @@ public sealed class HostVehicleSession
         try
         {
             Items.AdvanceAim(World, Configuration.Configuration.Vehicle, AllowsParticipation, observations);
-            Items.Step(World, hostInput, observations, collide ?? ((_, _) => null), placeOil, placeMine, moveMine, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged), ground, raycastWeapon, placeShield, observeShield, missileTerrain, oilCollision);
+            Items.Step(World, hostInput, observations, collide ?? ((_, _) => null), placeOil, placeMine, moveMine, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged), ground, raycastWeapon, placeShield, observeShield, missileTerrain, oilCollision, raycastEmpClaw);
         }
         catch
         {

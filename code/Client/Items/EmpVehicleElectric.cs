@@ -10,7 +10,7 @@ internal sealed partial class EmpVehicleElectric : Node3D
     private readonly MultiMesh _lines = new() { TransformFormat = MultiMesh.TransformFormatEnum.Transform3D, InstanceCount = Count };
     private readonly MultiMesh _halos = new() { TransformFormat = MultiMesh.TransformFormatEnum.Transform3D, InstanceCount = Count };
     private readonly StandardMaterial3D _material = new() { ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
-        AlbedoColor = new(.12f, .48f, 1), EmissionEnabled = true, Emission = new(.08f, .32f, 1), EmissionEnergyMultiplier = 2 };
+        AlbedoColor = new(.25f, .65f, 1), EmissionEnabled = true, Emission = new(.08f, .32f, 1), EmissionEnergyMultiplier = 2 };
     private readonly StandardMaterial3D _glow = new() { ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
         Transparency = BaseMaterial3D.TransparencyEnum.Alpha, BlendMode = BaseMaterial3D.BlendModeEnum.Add,
         AlbedoColor = new(.04f, .22f, 1, .32f) };
@@ -35,7 +35,7 @@ internal sealed partial class EmpVehicleElectric : Node3D
         for (int path = 0; path < 8; path++)
         {
             float pulse = .5f + .5f * MathF.Sin(_time * 19 + path * 2.7f);
-            float width = .004f + pulse * .009f;
+            float width = .014f + pulse * .016f;
             Vector3 last = Point(path, 0, sample);
             for (int step = 1; step <= 8; step++)
             {
@@ -72,7 +72,8 @@ internal sealed partial class EmpVehicleElectric : Node3D
         {
             < 4 => new((path < 2 ? -1 : 1) * (1.36f + Math.Abs(jitter) * .3f), .25f + jitter, z),
             < 6 => new(seed * .65f + jitter, .55f + cabin * .63f, z),
-            _ => new(seed * .65f + jitter, -.72f, z)
+            6 => new(seed * .65f + jitter, -.72f, z),
+            _ => new((step / 8f - .5f) * 1.9f, .05f + jitter, 2.85f)
         };
     }
 

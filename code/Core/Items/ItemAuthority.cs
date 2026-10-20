@@ -247,8 +247,9 @@ public sealed partial class ItemAuthority
     /// <param name="placeShield">Host-only native rear placement and clearance query.</param>
     /// <param name="observeShield">Host-only native wall motion observation.</param>
     /// <param name="oilCollision">Host-only swept Oil surface collision.</param>
+    /// <param name="raycastEmpClaw">Host closest EMP surface/scenery hit; separate from coarse weapon hull queries.</param>
     /// <param name="missileTerrain">Bounded host-only suitable terrain ray; never vehicle queries.</param>
-    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeShield = null, Func<ShieldState, ShieldObservation?>? observeShield = null, Func<Vector3, Vector3, MissileTerrainSample?>? missileTerrain = null, Func<Vector3, Vector3, float, OilImpact?>? oilCollision = null)
+    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeShield = null, Func<ShieldState, ShieldObservation?>? observeShield = null, Func<Vector3, Vector3, MissileTerrainSample?>? missileTerrain = null, Func<Vector3, Vector3, float, OilImpact?>? oilCollision = null, Func<ulong, Vector3, Vector3, IReadOnlyList<VehicleStepRequest>, WeaponRayHit?>? raycastEmpClaw = null)
     {
         ulong token = _token;
         ulong NextToken() => checked(++token);
@@ -583,10 +584,11 @@ public sealed partial class ItemAuthority
                 missile = missile with { Velocity = MissileFlight.Correct(missile, Configuration.MissileTerrain, missileTerrain) };
             }
             Vector3 end = missile.Arc is { } flight ? flight.At(flight.ElapsedTicks + 1) : missile.Position + (missile.Velocity / 60);
-            WeaponRayHit? empHit = missile.EmpClaw is not null ? raycastWeapon?.Invoke(missile.Owner, missile.Position, end) : null;
-            // Retain the native projectile mask (including scenery) and enrich its closest hit
-            // with vehicle identity. Both native queries exclude the owner for the entire flight.
-            float? hit = collide(missile, end);
+            WeaponRayHit? empHit = missile.EmpClaw is not null ? (raycastEmpClaw is not null ? raycastEmpClaw(missile.Owner, missile.Position, end, requests) :
+                raycastWeapon?.Invoke(missile.Owner, missile.Position, end)) : null;
+            // A dedicated EMP sweep includes scenery and exact bodywork. Never let the
+            // coarse movement hull terminate that flight above an uncontacted hood.
+            float? hit = missile.EmpClaw is not null && raycastEmpClaw is not null ? empHit?.Fraction : collide(missile, end);
             if (empHit is not null)
             {
                 if (!float.IsFinite(empHit.Fraction) || empHit.Fraction is < 0 or > 1) { throw new ArgumentException("Invalid EMP contact fraction."); }

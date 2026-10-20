@@ -102,6 +102,27 @@ internal sealed class EmpClawAttachmentTests
         Assert.That(_host.Items.Events, Is.Empty, "Expiry never produces an explosion or damage event.");
     }
 
+    [TestCase(0UL)]
+    [TestCase(2UL)]
+    public void ExactEmpSweepSupersedesTheCoarseHullAndPreservesWorldOcclusion(ulong struck)
+    {
+        Assert.That(_host.Items.Grant(_host.World, 1, HeldItem.EmpClaw), Is.True);
+        Step(100);
+        var slot = _host.Items.Slots.Single(s => s.Vehicle == 1).Active;
+        Assert.That(_host.Items.RequestUse(_host.World, 1, slot.Life, slot.Token), Is.True);
+        Step();
+        var shot = _host.Items.Missiles.Single();
+        _victim = new(shot.Position - Vector3.UnitZ * 3, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+        VehicleObservation Observe(VehicleSnapshot v) => new(v.VehicleId == 2 ? _victim : v.Movement.Physics, Vector3.UnitY);
+        _host.Step(default, Observe, collide: (_, _) => .1f, raycastWeapon: (_, _, _) => new(.1f, 2), raycastEmpClaw: (_, _, _, _) => null);
+        Assert.That(_host.Items.Missiles.Single().Id, Is.EqualTo(shot.Id), "Empty hull space cannot terminate the flight.");
+        _host.Step(default, Observe, collide: (_, _) => .1f, raycastWeapon: (_, _, _) => new(.1f, 2),
+            raycastEmpClaw: (_, _, _, _) => new(.5f, struck) { Normal = Vector3.UnitZ });
+        Assert.That(_host.Items.Missiles, Is.Empty);
+        Assert.That(_host.Items.EmpAttachments.Count, Is.EqualTo(struck == 0 ? 0 : 1));
+        Assert.That(_host.Items.Events.Single(e => e.Impact).EmpClawContact?.Vehicle ?? 0, Is.EqualTo(struck));
+    }
+
     [Test]
     public void RemovingOneSpecificClawAndExpiryRaceLeaveOthersIntact()
     {

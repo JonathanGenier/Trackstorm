@@ -77,12 +77,25 @@ absolute expiry tick. Side, front, rear, roof and underside use the same handoff
 there is no relocation to a preferred face. Each attachment lasts exactly 1,800
 fixed ticks (30 seconds). A subsequent hit never changes any older deadline.
 
+EMP sweeps query a cached native triangle BVH of the authored rigid bodywork,
+including hood, glass, armor and underbody. The convex movement hull is intentionally
+coarse and is not an attachment surface. Wheel/suspension rigs, moving trunk lids
+and the weapon rack remain presentation and are excluded; a ray can continue to
+bodywork behind them. World/prop obstruction and owner exclusion still apply.
+The query receives the same solved vehicle observations that Core uses to convert
+the impact to local coordinates, avoiding a one-tick offset on moving/rotating cars.
+The native surface supplies the actual point and face normal; presentation never
+relocates the anchor. Standard weapon and movement collision queries are unchanged.
+
 One, two or three claws apply the same 80% engine-power suppression. The item step
 passes the latest surviving deadline to the existing `VehicleMovement`; engine and
-reverse drive and Nitro rocket thrust receive a 0.2 multiplier. Steering, brake
-forces, health, external impulses and existing momentum retain their ordinary
-rules. Available tire traction still bounds realized acceleration. Nitro charge
-consumption and its speed ceiling are unchanged, but its acceleration cannot bypass
+reverse propulsion receive a 0.2 multiplier **after** tire-force saturation, with
+lateral steering and brake-only force retained. Nitro rocket thrust receives the
+same multiplier on ground and in air. Steering, brake forces, health, external
+impulses and existing momentum retain their ordinary
+rules. Available tire traction bounds normal propulsion before suppression; net
+speed change also depends on drag, slope, load transfer and current speed. Nitro
+charge consumption and its speed ceiling are unchanged, but its acceleration cannot bypass
 the power multiplier. This is a force limitation, not an instant speed clamp.
 
 Expiry and queued removal are staged before movement at the same atomic boundary.
@@ -108,8 +121,9 @@ sparks. A missing/dead/new-life target hides stale presentation immediately.
 rendered vehicle transform used by the car, including interpolation, roll and flip.
 New contact closes all four jaws, emits grip sparks and inflates the red nose. One
 shared vehicle effect contains eight short branching blue arcs, with 96 core and
-96 halo segments regardless of claw count. It follows side panels, roof/hood and
-underside; each claw retains its local electricity. Natural expiry independently
+96 halo segments regardless of claw count. It follows side panels, roof/hood,
+underside and the rear panel for chase-camera visibility; each claw retains its
+local electricity. Natural expiry independently
 deflates the nose, fizzles, releases and falls away without damage or explosion.
 Released models are bounded and reclaimed after their 1.3-second cosmetic tail.
 
@@ -260,5 +274,18 @@ anchors, exact staggered deadlines, checkpoint reconstruction and repeated clean
 It measures rendered-anchor error through controlled moving/rolling poses, then
 runs real throttle/turn/Nitro input and an initial angular-velocity tumble fixture
 through production movement and native collision queries. Captures and JSON go to
-`.godot/emp-attachment-checks`. These automated fixtures are not human playtesting
-or a multi-machine reconnect/latency acceptance claim.
+`.godot/emp-attachment-checks/round2`. Additional cases compare the coarse hull with
+authored bodywork, fire short segments into hood/window/moving surfaces, compare
+native host/client/practice-driver launches with zero through three claws, and
+exercise death/respawn from a seeded lethal combat effect. The scene's
+`-- --emp-power` mode runs the focused launch/readability cases without the longer
+flight sequence. Initial flight segments, power-test membership and lethal effects
+are fixtures; production authority, movement, replication and presentation process
+their consequences.
+
+`check-reconnect.ps1 -GodotPath <editor> -EmpClaw` exercises real interrupted
+Direct-IP resume over impaired UDP with six seeded staggered attachments. It checks
+unchanged anchors/deadlines and active presentation after a short interruption,
+then full power and cleanup after expiry while offline. Trusted identity and initial
+membership are fixtures. These automated scenarios are not human playtesting,
+authenticated EOS verification or a multi-machine reconnect/latency acceptance claim.

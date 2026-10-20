@@ -362,8 +362,11 @@ The terrain harness compares normal driving, service braking, deliberate handbra
 
 [Attached EMP Claws](items-emp-claw.md#attachment-authority-and-vehicle-power) reduce
 engine/reverse drive and Nitro thrust to 20% inside the existing movement force
-calculation. Multiple claws share this cap while retaining separate item-owned
-deadlines. Movement keeps the latest active deadline for prediction, accepts an
+calculation. Propulsion is scaled after tire saturation, retaining lateral steering
+and brake-only forces; reducing engine demand before saturation would leave more
+than 20% acceleration under high torque. Multiple claws share this cap while
+retaining separate item-owned deadlines. Movement keeps the latest active deadline
+for prediction, accepts an
 explicit host clear when the final claw ends, and clears on death/reset. Steering,
 braking, external impulses and existing momentum are unchanged; this does not
 clamp speed or overwrite handling configuration.

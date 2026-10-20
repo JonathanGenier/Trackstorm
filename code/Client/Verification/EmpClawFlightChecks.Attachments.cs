@@ -71,6 +71,7 @@ public sealed partial class EmpClawFlightChecks
 
     private async Task AttachmentLifecycle()
     {
+        await SurfaceContacts();
         var faces = new (string Name, N.Quaternion Pose)[]
         {
             ("rear", N.Quaternion.Identity), ("front", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitY, MathF.PI)),
@@ -151,6 +152,7 @@ public sealed partial class EmpClawFlightChecks
         Check(Enumerable.Range(0, 3).All(p => Attachments(p).Views.Count == 0 && Attachments(p).ReleasedCount == 0), "Natural deflation/fizzle/release leaves no instances on any peer.");
         Record(new { scenario = "independent-natural-expiry", deadlines = stable.Select(c => c.ExpiresAtTick).ToArray(), fullPower = Host.World.GetVehicle(2).Movement.EnginePowerScale });
         await NativeDriving();
+        await NativePowerComparison();
         GD.Print($"EMP attachment integration passed: {_checks} checks; native contacts, three impaired peers, independent expiry, rotating anchors and reconstruction.");
     }
 }

@@ -230,7 +230,7 @@ public sealed class VehicleMovement
             // Additional low gearing fades smoothly with road speed; it cannot enlarge
             // tire capacity, change throttle continuation, or bypass blocking rock faces.
             float lowSpeed = Math.Clamp(1 - steeringSpeed / c.LowSpeedDriveFadeSpeed, 0, 1);
-            drive *= (1 + (c.LowSpeedDriveMultiplier - 1) * lowSpeed * lowSpeed) * enginePower;
+            drive *= (1 + (c.LowSpeedDriveMultiplier - 1) * lowSpeed * lowSpeed);
             stopping = Math.Min(stopping * forceScale, Math.Abs(longitudinal) / dt);
             // One progressive application controls rear braking, engine interruption and grip on hold/release.
             float brakeApplication = holding ? 1 : handbrake;
@@ -322,6 +322,24 @@ public sealed class VehicleMovement
             }
             var rl = Tire(rearDemand * rearLeftShare, rearLong * rearLeftShare * rlBrake, rearCapacity * rearLeftShare * tireGrip[2], LateralGrip(2, true) * OilSide(2), driveReserve, rearLongGrip * rlBrake * OilDrive(2));
             var rr = Tire(rearDemand * (1 - rearLeftShare), rearLong * (1 - rearLeftShare) * rrBrake, rearCapacity * (1 - rearLeftShare) * tireGrip[3], LateralGrip(3, true) * OilSide(3), driveReserve, rearLongGrip * rrBrake * OilDrive(3));
+            // EMP scales delivered propulsion after tire saturation. Scaling demand before
+            // tanh saturation left more than 20% acceleration at production torque.
+            // Preserve lateral steering forces and the tire's brake-only contribution.
+            (float Side, float Drive, float Slip) Suppress((float Side, float Drive, float Slip) tire,
+                float side, float braking, float capacity, float lateralGrip, float longitudinalGrip)
+            {
+                float retained = braking == 0 ? 0 : Tire(side, braking, capacity, lateralGrip, longitudinalGrip: longitudinalGrip).Drive;
+                return (tire.Side, retained + (tire.Drive - retained) * enginePower, tire.Slip);
+            }
+            if (enginePower < 1 && engine != 0)
+            {
+                float frontBrake = -Math.Sign(longitudinal) * stopping * c.FrontBrakeShare;
+                float rearBrake = -Math.Sign(longitudinal) * (stopping * (1 - c.FrontBrakeShare) + handbrakeStop);
+                fl = Suppress(fl, frontDemand * frontLeftShare, frontBrake * frontLeftShare * flBrake, frontCapacity * frontLeftShare * tireGrip[0], LateralGrip(0, false) * OilSide(0), brakeGrip * flBrake);
+                fr = Suppress(fr, frontDemand * (1 - frontLeftShare), frontBrake * (1 - frontLeftShare) * frBrake, frontCapacity * (1 - frontLeftShare) * tireGrip[1], LateralGrip(1, false) * OilSide(1), brakeGrip * frBrake);
+                rl = Suppress(rl, rearDemand * rearLeftShare, rearBrake * rearLeftShare * rlBrake, rearCapacity * rearLeftShare * tireGrip[2], LateralGrip(2, true) * OilSide(2), brakeGrip * rlBrake * OilDrive(2));
+                rr = Suppress(rr, rearDemand * (1 - rearLeftShare), rearBrake * (1 - rearLeftShare) * rrBrake, rearCapacity * (1 - rearLeftShare) * tireGrip[3], LateralGrip(3, true) * OilSide(3), brakeGrip * rrBrake * OilDrive(3));
+            }
             // Static friction acts in the support plane after gravity. Its impulse is bounded
             // by supported tire load, surface purchase and the ordinary mechanical brake.
             holdCapacity = Math.Min(c.HandbrakeBraking * forceScale,
