@@ -114,6 +114,7 @@ function Get-FastCheckPlan {
             Add-Runtime 'check-emp-claw.ps1'
             Add-Runtime 'check-emp-claw-flight.ps1'
             Add-Runtime 'check-emp-claw-attachments.ps1'
+            Add-Runtime 'check-emp-claw-counterplay.ps1'
             Add-Manual 'Run check-reconnect.ps1 -EmpClaw for active attachment recovery and offline expiry over impaired UDP.'
             Add-Manual 'Inspect EMP cannon deployment, actual attachment faces, three independent noses, electricity while driving/rolling, reduced acceleration and Nitro, and staggered deflation/release in rendered gameplay.'
         }

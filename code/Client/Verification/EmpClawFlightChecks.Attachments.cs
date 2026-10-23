@@ -89,8 +89,10 @@ public sealed partial class EmpClawFlightChecks
             Check(Attachments(0).Views.Single().Inflation > 2.5f, "Attached nose inflates.");
             await Capture("attachment-" + face.Name, new(7, 111, -7), VehicleBody.ToGodot(_positions[2]));
             Record(new { scenario = "native-attachment", face = face.Name, claw.Id, claw.LocalPosition, claw.LocalNormal });
+            var views = Enumerable.Range(0, 3).Select(p => Attachments(p).Views.ToArray()).ToArray();
             Check(Host.Items.RemoveEmpAttachment(claw.Id), "Specific host removal accepted.");
             await Until(() => _arenas.All(a => a.Driver.ItemState!.EmpAttachments.Count == 0), "Removal synchronized.");
+            await ObserveRetirement(views, face.Name, moving: true);
             // Reliable delivery/retransmission and the cosmetic tail run on different clocks.
             // Bound cleanup after delivery instead of assuming it arrived in the first 0.5 seconds.
             await Until(() => Enumerable.Range(0, 3).All(p => Attachments(p).Views.Count == 0 && Attachments(p).ReleasedCount == 0),

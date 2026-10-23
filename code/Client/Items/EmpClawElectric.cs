@@ -88,7 +88,7 @@ internal sealed partial class EmpClawElectric : Node3D
             float a = i * 2.39996f;
             float speed = pop ? 1.3f : 1.8f + i % 5 * .4f;
             Vector3 velocity = new(MathF.Cos(a) * speed, MathF.Sin(a) * speed, -.5f - i % 3 * .25f);
-            float size = pop ? .020f : .004f;
+            float size = pop ? .020f * Math.Max(0, 1 - StateAge / .4f) : .004f;
             var basis = new Basis(new Quaternion(Vector3.Up, velocity.Normalized()));
             _flecks.SetInstanceTransform(i, new Transform3D(basis.Scaled(new(size, size * (pop ? 1 : 8), .004f)),
                 new Vector3(0, 0, pop ? -.16f : .04f) + velocity * StateAge + Vector3.Down * StateAge * StateAge * 3));

@@ -170,7 +170,14 @@ internal sealed partial class ItemPresentation : Node3D
             {
                 // Launcher owns the compressed-air discharge. Flight is complete-state membership;
                 // attachment grip owns vehicle-hit sparks; world contacts retain their small impact cue.
-                if (outcome.Impact && outcome.EmpClawContact is null && _bursts.Count < 128)
+                if (outcome.EmpPop && _bursts.Count < 128)
+                {
+                    var popped = new EmpClawVisual { Position = VehicleBody.ToGodot(outcome.Position) };
+                    AddChild(popped);
+                    popped.Observe(EmpClawVisualState.NoseDestroyed);
+                    _bursts.Add((popped, 0, 1.3f));
+                }
+                else if (outcome.Impact && outcome.EmpClawContact is null && _bursts.Count < 128)
                 {
                     var spark = new Node3D { Position = VehicleBody.ToGodot(outcome.Position) };
                     AddChild(spark);

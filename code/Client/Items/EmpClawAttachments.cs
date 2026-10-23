@@ -21,9 +21,9 @@ internal sealed partial class EmpClawAttachments : Node3D
 
     internal void Restore()
     {
-        foreach (var entry in _active.Values) { entry.View.QueueFree(); }
-        foreach (var view in _released) { view.QueueFree(); }
-        foreach (var effect in _electric.Values) { effect.QueueFree(); }
+        foreach (var entry in _active.Values) { Retire(entry.View); }
+        foreach (var view in _released) { Retire(view); }
+        foreach (var effect in _electric.Values) { Retire(effect); }
         _electric.Clear();
         _active.Clear(); _released.Clear(); _revision = 0; _restoring = true;
     }
@@ -40,7 +40,7 @@ internal sealed partial class EmpClawAttachments : Node3D
             var entry = _active[id];
             if (TargetFrame?.Invoke(entry.State.Vehicle, entry.State.Life) is not null)
             { Release(entry.View, entry.State.ExpiresAtTick <= tick); }
-            else { entry.View.QueueFree(); }
+            else { Retire(entry.View); }
             _active.Remove(id);
         }
         foreach (var claw in publication.EmpAttachments)
@@ -72,6 +72,9 @@ internal sealed partial class EmpClawAttachments : Node3D
                 // Place the authored metal contact anchor on the actual collision point.
                 // The local hit is never moved to a different face or accessible location.
                 Transform3D anchor = view.GlobalTransform.AffineInverse() * view.Attachment.GlobalTransform;
+                // Preserve authored claw scale; only the anchor frame rotation/translation
+                // is inverted. Inverting its scale shrinks the attached model and hit region.
+                anchor = new(anchor.Basis.Orthonormalized(), anchor.Origin);
                 view.GlobalTransform = target * new Transform3D(basis, VehicleBody.ToGodot(state.LocalPosition)) * anchor.AffineInverse();
                 if (age >= .14f) { view.Observe(EmpClawVisualState.Activated); }
             }
@@ -79,7 +82,7 @@ internal sealed partial class EmpClawAttachments : Node3D
         }
         var affected = _active.Values.Select(e => (e.State.Vehicle, e.State.Life)).ToHashSet();
         foreach (var key in _electric.Keys.Where(k => !affected.Contains(k)).ToArray())
-        { _electric[key].QueueFree(); _electric.Remove(key); }
+        { Retire(_electric[key]); _electric.Remove(key); }
         foreach (var key in affected)
         {
             if (!_electric.TryGetValue(key, out var effect))
@@ -91,15 +94,17 @@ internal sealed partial class EmpClawAttachments : Node3D
         for (int i = _released.Count - 1; i >= 0; i--)
         {
             if (!_released[i].Finished) { continue; }
-            _released[i].QueueFree(); _released.RemoveAt(i);
+            Retire(_released[i]); _released.RemoveAt(i);
         }
     }
 
     private void Release(EmpClawVisual view, bool expired)
     {
         if (_released.Count == ItemAuthority.MaximumEmpAttachments)
-        { _released[0].QueueFree(); _released.RemoveAt(0); }
+        { Retire(_released[0]); _released.RemoveAt(0); }
         view.Observe(expired ? EmpClawVisualState.Expired : EmpClawVisualState.NoseDestroyed);
         _released.Add(view);
     }
+
+    private static void Retire(Node3D node) { node.Hide(); node.QueueFree(); }
 }

@@ -139,6 +139,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver.QueryMissileTerrain = (from, to) => Items.MissileTerrainQuery.Cast(GetWorld3D().DirectSpaceState, from, to);
         _driver.RaycastWeapon = RaycastWeapon;
         _driver.RaycastEmpClaw = RaycastEmpClaw;
+        _driver.ContactEmpNose = ContactEmpNose;
         if (_driver.Host is not null) { _empSurface = new(); }
         _driver.PlaceOil = PlaceOil;
         _driver.OilCollision = (from, to, radius) => Items.OilSurfaceQuery.Cast(GetWorld3D().DirectSpaceState, from, to, radius);

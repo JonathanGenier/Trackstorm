@@ -5,8 +5,8 @@ presentation assets. Their [editable source, pivots and provenance](../../assets
 are separate from combat authority. EMP Claw is a registered Weapon-category pickup
 in the existing nine-item roster. The host grants a three-shot load through the
 ordinary item authority. Guided flight, physical attachment and EMP impairment are
-server-authoritative. Vulnerable noses, shield counterplay and destructible stored
-ammunition remain future combat integrations.
+server-authoritative. Inflated attached noses and all three exposed stored rounds are independently
+destructible. Shield contacts pop a claw without applying EMP or pop damage.
 
 ## Normal pickup and testing
 
@@ -26,11 +26,13 @@ gameplay tuning is session-only and returns to canonical defaults on restart.
 
 `EmpClawLoad` retains a stable magazine identity, remaining count and cooldown in
 each physical inventory slot. A successful presentation shot retires its use token;
-old/repeated requests cannot spend the next round. The same magazine stays mounted.
+old/repeated requests cannot spend the next round. A three-bit live socket mask
+preserves each round through shooting, destruction and recovery. Shot count and
+last-fired socket are separate from depletion, so destruction never replays firing. The same magazine stays mounted.
 Both the host deployment/accepted aim and local mechanical readiness gate use.
 Three default shots fit within two seconds; an empty slot can receive a fresh pickup.
-Switching preserves its load. Inventory TI30, movement version 14, configuration TC54 (280 values,
-2261 bytes), and discovery bucket `trackstorm-lobby-22` exclude older layouts.
+Switching preserves its load. Inventory TI31, movement version 14, configuration TC54 (280 values,
+2261 bytes), and discovery bucket `trackstorm-lobby-23` exclude older layouts.
 
 ## Guided flight
 
@@ -101,8 +103,16 @@ the power multiplier. This is a force limitation, not an instant speed clamp.
 Expiry and queued removal are staged before movement at the same atomic boundary.
 Full power returns on the exact tick when the final identity ends. The host-only
 `RemoveEmpAttachment(id)` seam removes just that identity on the next fixed step;
-duplicate requests are harmless. It creates no client command, shootable nose,
-environmental nose collision, shield counterplay or stowed-ammunition damage.
+duplicate requests are harmless. Production counterplay uses the same atomic
+attachment membership: only the inflated membrane is intersected by gunfire and
+swept against native world, prop and other-vehicle shapes. Metal/jaw contact
+never pops a nose. The attached vehicle is excluded from its own nose sweep.
+Roof, underside and rotated anchors retain the original local point and normal.
+The authored 1.5-scale claw is preserved when aligning its contact anchor; the
+inflated membrane has a 0.195 m radius and lies 0.33 m outward from that anchor.
+A pop deals zero damage, removes only that identity and deadline, and releases
+its model. Other claws retain their deadlines and the same capped suppression.
+New attachments already touching scenery pop before any EMP is applied.
 
 The match allows at most 64 attached plus in-flight EMP identities; firing reserves
 capacity before spending ammunition. Final target departure, target death/new life,
@@ -125,7 +135,11 @@ shared vehicle effect contains eight short branching blue arcs, with 96 core and
 underside and the rear panel for chase-camera visibility; each claw retains its
 local electricity. Natural expiry independently
 deflates the nose, fizzles, releases and falls away without damage or explosion.
-Released models are bounded and reclaimed after their 1.3-second cosmetic tail.
+Natural-expiry models are bounded and reclaimed after their 1.3-second cosmetic tail.
+A destroyed nose immediately hides the whole rigid model and local electricity,
+leaving only a shrinking 0.4-second fragment burst at the membrane. No opaque
+claw falls through the car after a pop. Reconstruction hides the old set before
+deferred freeing, so it cannot draw a duplicate during the handoff.
 
 ## Flight tuning
 
@@ -170,7 +184,9 @@ the old instance and seeds the accepted round/shot state without historical firi
 
 Deployment takes 1.20 seconds: the existing split deck/rack path occupies the first
 44%, then the cannon emerges vertically, seats down, and extends its barrel.
-All hardware remains full size. One round starts inside the chamber; two 50%-larger rear-facing reserves hang beneath the rack. The approved Round 3 layout overrides the reference image’s three stored units. The loader may nest inside the vehicle interior. The magazine, saddle and
+All hardware remains full size. Three fixed rear-facing rounds remain exposed
+behind the cannon; no live round is hidden in the chamber. The parked loader may
+nest inside the vehicle interior. The magazine, saddle and
 vehicle rack never inherit cannon yaw or pitch. Return
 centers yaw/pitch above the deck, reverses articulation and closes over 0.82 seconds
 plus any centering/final-discharge hold. Mid-deploy cancellation reverses its actual
@@ -183,20 +199,18 @@ ordinary local use gate, alongside the independent authoritative readiness gate.
 
 Accepted shot-sequence changes produce one 0.20-second barrel response and a
 0.34-second three-ring compressed-air discharge with a brief pressure-mist puff.
-A single two-link arm retrieves the next identified reserve, turns it forward,
-opens the hinged rear breech, inserts the actual round, releases its gripper,
-withdraws clear, closes the breech and folds into rest. The cannon briefly centers
-on the fixed loading axis and reacquires camera aim after closure. Other reserves
-stay fixed. The receiver and telescopic sleeves are genuinely hollow; the loaded
-round naturally blocks the bore. An enlarged tank with straps and plumbing sits
-beneath the fixed rack, ahead of the reserves.
+The authored two-link loader stays parked below the magazine so every live nose
+remains exposed throughout the pressure cycle. The cannon briefly centers
+on its fixed axis and reacquires camera aim after the captured cooldown. Other reserves
+stay fixed. The receiver and telescopic sleeves remain hollow. The rear pressure
+door closes the receiver; no live ammunition is hidden in the bore. An enlarged
+tank with straps and plumbing sits beneath the fixed rack, ahead of the reserves.
 
-Local readiness remains false until the entire configured cycle completes, the
-breech closes and camera aim is reacquired. Core independently gates the captured
-cooldown and three-round capability. A switch waits for the active loader to finish
+Local readiness remains false until the configured pressure cycle completes and
+camera aim is reacquired. Core independently gates the captured
+cooldown and three-round capability. A switch waits for the active pressure cycle to finish
 before lowering the rack. Reconstruction with a pending cooldown redeploys first,
-then completes a visible reload without replaying discharge; elapsed reloads seed
-the chamber directly. No ammo is created. Default normal-use cadence remains under
+then retains the remaining pressure cooldown without replaying discharge. No ammo is created. Default normal-use cadence remains under
 two seconds for three shots. EMP alone uses a 0.37 m conservative cannon clearance
 radius in the shared aiming solver; other weapons retain their existing limits.
 Duplicate publications never restart the loader or discharge.
@@ -215,8 +229,8 @@ activated nose inflation, natural deflation/fizzle, or distinct balloon pop/rele
 Flight owns six short blue lightning ribbons. Activated ribbons spread from the
 claw toward its contact plane; landed entry produces small gold sparks. Expiry
 deflates over 0.38 seconds before a cosmetic world-space fall. Pop hides the
-membrane immediately and emits red fragments. Both terminal presentations finish
-within 1.3 seconds. They neither explode nor damage anything. Independent instances
+entire rigid model immediately and emits shrinking red fragments for 0.4 seconds.
+Natural expiry finishes within 1.3 seconds. They neither explode nor damage anything. Independent instances
 allow simultaneous flight/attachments and independent terminal cues.
 
 Each claw has 120 fine white-blue segments, a separate 120-segment blue halo,
@@ -246,12 +260,9 @@ acceptance. The normal rack harness remains the native two-peer regression check
 exercises the actual EMP search/edit/Apply/invalid/Cancel/category-reset controls,
 EMP-only weights, and canonical defaults after a separate-process restart.
 
-The loader parks wholly beneath the two reserve cradles. Its two rigid telescoping
-links use translated inner rails, with a lower-rear mounting crossmember; they do
-not stretch their meshes. Retrieval clears the magazine before lifting and turning.
-After insertion the wrist withdraws behind the breech, lowers behind the magazine,
-then folds forward beneath it. The chamber seat keeps the gripper crossbar outside
-the barrel. Fixed services follow the existing in-car storage convention.
+The original rigid loader and its telescoping sections stay parked beneath the
+exposed socket bank. Shot cadence and discharge remain independent of resource
+destruction; an empty mask returns the cannon and requires another ordinary pickup.
 Three primary launcher hoses remain: tank feed, left cannon and right cannon.
 They terminate on their own fixed or cannon assembly without bridging yaw/lift
 joints; cartridge induction cables and metal tank straps are separate details.
@@ -289,3 +300,49 @@ unchanged anchors/deadlines and active presentation after a short interruption,
 then full power and cleanup after expiry while offline. Trusted identity and initial
 membership are fixtures. These automated scenarios are not human playtesting,
 authenticated EOS verification or a multi-machine reconnect/latency acceptance claim.
+
+## Nose, shield and stored-ammunition counterplay
+
+The host intersects Machine Gun rays against inflated attached membranes and the
+three live exposed stored membranes, choosing the closest hit before native cover
+and shield interception. Only the first membrane is consumed by a bullet. Neither
+metal claw bodies nor in-flight projectiles participate. A stored nose has a
+0.075 m radius; fixed rear-facing sockets share `EmpClawGeometry` between Core
+hit tests and Client presentation. Selection and deployment gate stored exposure.
+Fired and destroyed rounds clear their original bits. Destroying the final round
+clears the held item, retracts its cannon and cannot reload without a new pickup.
+
+The existing damaging Missile blast can destroy each stored round inside its
+actual radius, subject to existing shield interception. It uses the original
+radial damage calculation; cosmetic pops create no secondary blast, projectile,
+vehicle damage or impulse. Stored ammunition retains its Missile-only blast rule.
+
+Attached inflated membranes additionally participate in the shared damaging
+projectile sweep and `Explosion` evaluator, including Missile and Salvo. The
+nearest point of the membrane must receive positive damage; a blast reaching
+only metal or zero-damage tuning cannot destroy a nose. Existing shield geometry
+blocks the damage path. These queries never include flying EMP projectiles and
+never refresh surviving attachments. Proxy Mine damage remains chassis contact-only:
+its cinematic dust has no radial damage volume to extend to noses. Non-damaging
+items likewise do not gain a nose-damage path.
+
+Active rear armor and deployed world walls intercept EMP segments through the
+existing staged shield geometry. A shield contact produces a cosmetic pop/drop,
+no attachment, no EMP and no damage to either HP pool. Shield destruction and
+multiple impacts use the same ordered authority batch as other weapons; a shield
+already destroyed in that batch cannot protect a later impact. Complete sparse
+magazines, independent attachment membership and pop outcomes replicate reliably.
+Recovery restores live state without replaying historical pops or firing.
+
+`check-emp-claw-counterplay.ps1 -GodotPath <editor> [-Visual]` exercises rendered
+production arenas over three impaired UDP peers: membrane/art alignment, metal-only
+contact rejection, selective and simultaneous pops on rotated cars, per-frame
+rigid-model removal through moving pop transitions and reconstruction, attached
+Machine Gun/Missile/Salvo counterplay, repeated cleanup,
+normal Machine Gun destruction of three individually aimed stored sockets, empty
+retraction, simultaneous shield impacts, a native Missile/wall blast, and returning
+owner/weapon-ray immunity. Saved attachment/projectile states and fixed car poses
+are explicit fixtures; authority, native shape/ray queries, inventory, effects,
+replication and presentation are production paths. Evidence is written under
+`.godot/emp-counterplay-checks`. This is local UDP automation, not human driving,
+authenticated EOS, Internet latency or multi-PC acceptance.
