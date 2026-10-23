@@ -291,7 +291,7 @@ public sealed partial class ItemAuthority
                 var current = requests.Single(r => r.VehicleId == claw.Vehicle).Observation.Physics;
                 var previous = world.GetVehicle(claw.Vehicle).Movement.Physics;
                 return contactEmpNose(claw.Vehicle, EmpClawGeometry.Nose(claw, previous),
-                    EmpClawGeometry.Nose(claw, current), EmpClawGeometry.InflatedRadius);
+                    EmpClawGeometry.Nose(claw, current), Configuration.EmpClaw.AttachedNoseRadius);
             });
         }
 
@@ -644,11 +644,11 @@ public sealed partial class ItemAuthority
                     if (contact is not null)
                     {
                         var attachment = new EmpClawAttachment(missile.Id, missile.Owner, contact.Vehicle, contact.Life,
-                            contact.LocalPosition, contact.LocalNormal, input.Tick, checked(input.Tick + EmpClawAttachment.LifetimeTicks));
+                            contact.LocalPosition, contact.LocalNormal, input.Tick, checked(input.Tick + (ulong)MathF.Ceiling(Configuration.EmpClaw.AttachmentSeconds * 60)));
                         attachment.Validate(input.Tick);
                         var pose = requests.Single(r => r.VehicleId == contact.Vehicle).Observation.Physics;
                         Vector3 nose = EmpClawGeometry.Nose(attachment, pose);
-                        popped = contactEmpNose?.Invoke(contact.Vehicle, nose, nose, EmpClawGeometry.InflatedRadius) ?? false;
+                        popped = contactEmpNose?.Invoke(contact.Vehicle, nose, nose, Configuration.EmpClaw.AttachedNoseRadius) ?? false;
                         if (popped) { contact = null; }
                         else { attachments.Add(attachment); }
                     }

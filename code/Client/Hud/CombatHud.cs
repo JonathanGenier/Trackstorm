@@ -9,6 +9,10 @@ namespace Trackstorm.Client.Hud;
 /// <summary>Resolution-safe component artwork with native live labels and read-only snapshot binding.</summary>
 internal sealed partial class CombatHud : CanvasLayer
 {
+    private readonly EmpHudFeedback _empFeedback = new();
+    private Label _empStatus = null!;
+    private Panel _empPanel = null!;
+
     private readonly Control _root = new() { MouseFilter = Control.MouseFilterEnum.Ignore };
     private readonly List<Control> _components = new();
     private readonly CircusScoreFeedback _scoreFeedback = new();
@@ -39,6 +43,12 @@ internal sealed partial class CombatHud : CanvasLayer
     internal Func<ItemSlot?> Slot { get; set; } = () => null;
     /// <summary>Complete accepted persistent item state, shared with confirmed inventory.</summary>
     internal Func<IReadOnlyList<ShieldState>> Shields { get; set; } = () => Array.Empty<ShieldState>();
+    /// <summary>Accepted attachment membership for the local vehicle life.</summary>
+    internal Func<IReadOnlyList<EmpClawAttachment>> EmpAttachments { get; set; } = () => Array.Empty<EmpClawAttachment>();
+    /// <summary>Accepted session identity prevents feedback leaking across arenas.</summary>
+    internal Func<ulong> Session { get; set; } = () => 0;
+    internal string EmpText => _empStatus.Text;
+
     /// <summary>Local preference service supplies presentation units.</summary>
     internal Func<SpeedUnit> Units { get; set; } = () => SpeedUnit.KilometresPerHour;
     /// <summary>Shared match standings position; practice has no match ranking.</summary>
@@ -99,6 +109,15 @@ internal sealed partial class CombatHud : CanvasLayer
         _outOfBounds.Text = "OUT OF BOUNDS\nARENA HAZARD • LOSING HEALTH";
         _outOfBounds.AddThemeColorOverride("font_color", new Color("ff6255"));
         _outOfBounds.Visible = false;
+        _empPanel = new Panel { Name = "EmpPanel", Size = new(430, 104), MouseFilter = Control.MouseFilterEnum.Ignore };
+        var empStyle = new StyleBoxFlat { BgColor = new Color(.025f, .045f, .065f, .88f), BorderColor = new Color("527c98") };
+        empStyle.SetBorderWidthAll(1);
+        empStyle.SetCornerRadiusAll(4);
+        _empPanel.AddThemeStyleboxOverride("panel", empStyle);
+        _root.AddChild(_empPanel);
+        _empStatus = Text(_empPanel, "EmpStatus", new Rect2(10, 6, 410, 92), 20);
+        _empStatus.AddThemeColorOverride("font_color", new Color("94d8ff"));
+        _empPanel.Visible = false;
         BuildCircusScore();
         _root.Resized += Layout;
         Layout();
@@ -117,6 +136,8 @@ internal sealed partial class CombatHud : CanvasLayer
     {
         VehicleSnapshot? state = Vehicle();
         Visible = state is not null;
+        _empStatus.Text = _empFeedback.Project(state, EmpAttachments(), AuthoritativeTick(), Session(), _milliseconds);
+        _empPanel.Visible = _empStatus.Text.Length > 0;
         if (state is null)
         {
             _displayed = null;
@@ -242,6 +263,9 @@ internal sealed partial class CombatHud : CanvasLayer
         Vector2 viewport = _root.Size;
         float scale = 0.85f * Math.Min(viewport.X / 1280, viewport.Y / 720);
         float margin = 16 * scale;
+        float empScale = Math.Max(.65f, scale);
+        _empPanel.Scale = Vector2.One * empScale;
+        _empPanel.Position = new Vector2((viewport.X - 430 * empScale) / 2, viewport.Y - 144.24f * scale - 10 - 104 * empScale);
         _outOfBounds.Scale = Vector2.One * scale;
         _outOfBounds.Position = new Vector2((viewport.X - 500 * scale) / 2, 106 * scale);
         foreach (Control component in _components)

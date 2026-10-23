@@ -24,8 +24,9 @@ public readonly record struct VehicleState
     /// <param name="throttle">Progressive engine demand, zero through one.</param>
     /// <param name="brakeMode">Brake/reverse press continuation, retained through prediction.</param>
     /// <param name="empUntilTick">Absolute authoritative EMP deadline for deterministic prediction.</param>
+    /// <param name="empSuppression">Nonstacking impairment, bounded to eighty percent.</param>
     /// <param name="oil">Independent tire contamination continuation.</param>
-    public VehicleState(ulong tick, VehiclePhysicsState physics, bool grounded, bool drifting, float steeringAngle, float handbrake, SurfaceType currentSurface = SurfaceType.Concrete, float frontSlip = 0, float rearSlip = 0, float longitudinalAcceleration = 0, float lateralAcceleration = 0, float landingIntensity = 0, WheelSupport wheels = default, OilTractionState oil = default, NitroState nitro = default, float powerSlip = 0, AirControlState air = default, float crashSeconds = 0, float throttle = 0, BrakeMode brakeMode = BrakeMode.Ready, ulong empUntilTick = 0)
+    public VehicleState(ulong tick, VehiclePhysicsState physics, bool grounded, bool drifting, float steeringAngle, float handbrake, SurfaceType currentSurface = SurfaceType.Concrete, float frontSlip = 0, float rearSlip = 0, float longitudinalAcceleration = 0, float lateralAcceleration = 0, float landingIntensity = 0, WheelSupport wheels = default, OilTractionState oil = default, NitroState nitro = default, float powerSlip = 0, AirControlState air = default, float crashSeconds = 0, float throttle = 0, BrakeMode brakeMode = BrakeMode.Ready, ulong empUntilTick = 0, float empSuppression = .8f)
     {
         _ = new VehiclePhysicsState(physics.Position, physics.Orientation, physics.LinearVelocity, physics.AngularVelocity);
         if (new[] { steeringAngle, handbrake, frontSlip, rearSlip, longitudinalAcceleration, lateralAcceleration, landingIntensity }.Any(value => !float.IsFinite(value)) || Math.Abs(steeringAngle) > 1 || handbrake is < 0 or > 1 || frontSlip is < 0 or > 1 || rearSlip is < 0 or > 1 || landingIntensity is < 0 or > 1 || Math.Abs(longitudinalAcceleration) > 1000 || Math.Abs(lateralAcceleration) > 1000)
@@ -40,6 +41,8 @@ public readonly record struct VehicleState
         if (!Enum.IsDefined(brakeMode)) { throw new ArgumentOutOfRangeException(nameof(brakeMode)); }
         if (empUntilTick != 0 && (empUntilTick <= tick || empUntilTick - tick > 1800))
         { throw new ArgumentOutOfRangeException(nameof(empUntilTick)); }
+        if (!float.IsFinite(empSuppression) || empSuppression is < 0 or > .8f) { throw new ArgumentOutOfRangeException(nameof(empSuppression)); }
+        EmpSuppression = empSuppression;
         EmpUntilTick = empUntilTick;
         BrakeMode = brakeMode;
         Throttle = throttle;
@@ -89,7 +92,9 @@ public readonly record struct VehicleState
     /// <summary>Latest active EMP deadline. Multiple claws never multiply the power penalty.</summary>
     public ulong EmpUntilTick { get; }
     /// <summary>Authoritative remaining propulsion fraction, shared by engine and Nitro.</summary>
-    public float EnginePowerScale => EmpUntilTick > Tick ? .2f : 1;
+    public float EnginePowerScale => EmpUntilTick > Tick ? (100 - EmpSuppression * 100) / 100 : 1;
+    /// <summary>Accepted nonstacking impairment retained for diagnostics and recovery.</summary>
+    public float EmpSuppression { get; }
     /// <summary>Last supported surface; airborne movement applies no surface effects.</summary>
     public SurfaceType CurrentSurface { get; }
     /// <summary>Movement decision tick.</summary>
@@ -119,6 +124,6 @@ public readonly record struct VehicleState
     /// <summary>Total commanded velocity magnitude for physics diagnostics, not player travel telemetry.</summary>
     public float CommandSpeed => Physics.LinearVelocity.Length();
     /// <summary>Revalidates all portable state fields at aggregate boundaries.</summary>
-    public void Validate() => _ = new VehicleState(Tick, Physics, Grounded, Drifting, SteeringAngle, Handbrake, CurrentSurface, FrontSlip, RearSlip, LongitudinalAcceleration, LateralAcceleration, LandingIntensity, Wheels, Oil, Nitro, PowerSlip, Air, CrashSeconds, Throttle, BrakeMode, EmpUntilTick);
+    public void Validate() => _ = new VehicleState(Tick, Physics, Grounded, Drifting, SteeringAngle, Handbrake, CurrentSurface, FrontSlip, RearSlip, LongitudinalAcceleration, LateralAcceleration, LandingIntensity, Wheels, Oil, Nitro, PowerSlip, Air, CrashSeconds, Throttle, BrakeMode, EmpUntilTick, EmpSuppression);
 
 }

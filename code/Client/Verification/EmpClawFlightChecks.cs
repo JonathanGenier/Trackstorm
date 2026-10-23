@@ -54,6 +54,15 @@ public sealed partial class EmpClawFlightChecks : Node3D
             else
             {
                 await Connect();
+                var baseline = Host.Configuration.Configuration;
+                Configure(new() { ["items.emp_claw_attachment_seconds"] = 12, ["items.emp_claw_suppression"] = .5,
+                    ["items.emp_claw_attached_nose_radius"] = .25, ["items.emp_claw_stored_nose_radius"] = .1 });
+                await Until(() => _arenas.All(a => a.Driver.Configuration == Host.Configuration), "EMP effect and counterplay tuning replicates over impaired UDP.");
+                Configure(new() { ["items.emp_claw_attachment_seconds"] = baseline.Items.EmpClaw.AttachmentSeconds,
+                    ["items.emp_claw_suppression"] = baseline.Vehicle.EmpSuppression,
+                    ["items.emp_claw_attached_nose_radius"] = baseline.Items.EmpClaw.AttachedNoseRadius,
+                    ["items.emp_claw_stored_nose_radius"] = baseline.Items.EmpClaw.StoredNoseRadius });
+                await Until(() => _arenas.All(a => a.Driver.Configuration == Host.Configuration), "EMP tuning reset replicates over impaired UDP.");
                 if (OS.GetCmdlineUserArgs().Contains("--emp-counterplay")) { await Counterplay(); }
                 else if (OS.GetCmdlineUserArgs().Contains("--emp-power")) { await NativePowerComparison(); }
                 else if (OS.GetCmdlineUserArgs().Contains("--emp-attachments")) { await AttachmentLifecycle(); }

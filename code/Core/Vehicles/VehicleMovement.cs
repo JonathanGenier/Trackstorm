@@ -65,7 +65,7 @@ public sealed class VehicleMovement
         ulong empDeadline = driveEnabled ? empUntilTick ?? State.EmpUntilTick : 0;
         if (empDeadline <= input.Tick) { empDeadline = 0; }
         if (empDeadline > input.Tick && empDeadline - input.Tick > 1800) { throw new ArgumentOutOfRangeException(nameof(empUntilTick)); }
-        float enginePower = empDeadline == 0 ? 1 : .2f;
+        float enginePower = empDeadline == 0 ? 1 : (100 - Configuration.EmpSuppression * 100) / 100;
         OilTractionState oil = !driveEnabled ? default : State.Oil.Advance(oilContact, Configuration);
         int wheelCount = wheels.HasValue ? VehicleCrash.WheelCount(wheels) :
             groundNormal.Y >= Configuration.SupportNormalMinimum && VehicleLanding.Landable(observed.Orientation, groundNormal) ? 4 : 0;
@@ -537,7 +537,7 @@ public sealed class VehicleMovement
         }
         bool sliding = grounded && Math.Abs(lateral) > 1 && rearSlip > 0.35f;
         var physics = new VehiclePhysicsState(observed.Position, observed.Orientation, Limit(velocity, c.MaximumPhysicsSpeed), Limit(angular, c.MaximumAngularSpeed));
-        State = new VehicleState(input.Tick, physics, grounded, sliding, wheel, handbrake, currentSurface, frontSlip, rearSlip, longAcceleration, sideAcceleration, landing, wheels ?? default, oil, boost, powerSlip, air, crashSeconds, throttle, brakeMode, empDeadline);
+        State = new VehicleState(input.Tick, physics, grounded, sliding, wheel, handbrake, currentSurface, frontSlip, rearSlip, longAcceleration, sideAcceleration, landing, wheels ?? default, oil, boost, powerSlip, air, crashSeconds, throttle, brakeMode, empDeadline, Configuration.EmpSuppression);
         return State;
     }
 

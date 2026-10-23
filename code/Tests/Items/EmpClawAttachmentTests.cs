@@ -61,6 +61,42 @@ internal sealed class EmpClawAttachmentTests
         return _host.Items.EmpAttachments.Single(c => c.Id == shot.Id);
     }
 
+    [Test]
+    public void TuningCapturesNewDeadlineWithoutRefreshingOlderClawsAndReplicates()
+    {
+        var first = Attach();
+        Assert.That(_host.TryConfigure(0, new Dictionary<string, double>
+        {
+            ["items.emp_claw_attachment_seconds"] = 5,
+            ["items.emp_claw_suppression"] = .5,
+            ["items.emp_claw_attached_nose_radius"] = .25,
+            ["items.emp_claw_stored_nose_radius"] = .1,
+        }, out var error), Is.True, error);
+        var second = Attach();
+        Assert.That(second.ExpiresAtTick - second.AttachedAtTick, Is.EqualTo(300));
+        Assert.That(_host.Items.EmpAttachments.Single(c => c.Id == first.Id), Is.EqualTo(first));
+        Assert.That(_host.World.GetVehicle(2).Movement.EnginePowerScale, Is.EqualTo(.5f));
+        var wire = Trackstorm.Core.Development.GameplayConfigurationCodec.Encode(298, _host.Configuration);
+        Assert.That(Trackstorm.Core.Development.GameplayConfigurationCodec.Decode(wire).State, Is.EqualTo(_host.Configuration));
+        var publication = new ItemPublication(_host.Items.Revision, _host.Snapshot(), _host.Items.Slots, [], [], empAttachments: _host.Items.EmpAttachments);
+        Assert.That(ItemCodec.DecodeState(ItemCodec.EncodeState(publication)).EmpAttachments, Is.EqualTo(_host.Items.EmpAttachments));
+        Step((int)(second.ExpiresAtTick - _host.World.State.Tick));
+        Assert.That(_host.Items.EmpAttachments, Is.EqualTo(new[] { first }));
+        Assert.That(_host.World.GetVehicle(2).Movement.EnginePowerScale, Is.EqualTo(.5f));
+    }
+
+    [TestCase("items.emp_claw_attachment_seconds", 31)]
+    [TestCase("items.emp_claw_attachment_seconds", 0)]
+    [TestCase("items.emp_claw_suppression", .81)]
+    [TestCase("items.emp_claw_attached_nose_radius", .31)]
+    [TestCase("items.emp_claw_stored_nose_radius", .13)]
+    public void UnsafeEmpTuningRejectsWholeTransaction(string key, double value)
+    {
+        var original = _host.Configuration;
+        Assert.That(_host.TryConfigure(0, new Dictionary<string, double> { [key] = value }, out _), Is.False);
+        Assert.That(_host.Configuration, Is.EqualTo(original));
+    }
+
     [TestCase(0, 0, 2)]
     [TestCase(0, 0, -2)]
     [TestCase(1, 0, 0)]

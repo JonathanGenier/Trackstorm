@@ -59,6 +59,41 @@ public sealed partial class HudIntegrationChecks : Node
             Require(!hud.Displayed!.OutOfBounds && hud.FindChild("OutOfBounds",true,false) is Label { Visible:false }, "Death clears OOB warning");
             state = Sample(state,1000,0); hud.Refresh();
 
+            IReadOnlyList<EmpClawAttachment> empClaws = Enumerable.Range(1, 3).Select(i => new EmpClawAttachment((ulong)i, 99,
+                state.VehicleId, state.LifeId, Numerics.Vector3.Zero, Numerics.Vector3.UnitY, (ulong)i * 60, (ulong)i * 60 + 1800)).ToArray();
+            hud.EmpAttachments = () => empClaws;
+            timerTick = 180;
+            slot = new ItemSlot(state.VehicleId, state.LifeId, 10, HeldItem.EmpClaw) { EmpClaw = new(10, 3) };
+            foreach (var size in new[] { new Vector2I(640, 360), new Vector2I(1280, 720), new Vector2I(1920, 1080) })
+            {
+                viewport.Size = size;
+                hud.Refresh();
+                Require(hud.EmpText.Contains("1: 28s", StringComparison.Ordinal) && hud.EmpText.Contains("3: 30s", StringComparison.Ordinal), "Native EMP labels preserve independent clocks.");
+                Require(hud.Displayed!.FirstSlot.Resource!.Text == "3", "EMP native ammo count is three.");
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                using var empImage = viewport.GetTexture().GetImage();
+                Require(empImage.SavePng(System.IO.Path.Combine(output, $"emp-three-{size.X}.png")) == Error.Ok, "EMP readability capture");
+            }
+            viewport.Size = new(1280, 720);
+            empClaws = [empClaws[0], empClaws[2]];
+            hud.Refresh();
+            Require(hud.EmpText.Contains("2 ACTIVE", StringComparison.Ordinal) && hud.EmpText.Contains("3: 30s", StringComparison.Ordinal), "One removal leaves other native timers visible.");
+            await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            using (var empImage = viewport.GetTexture().GetImage()) empImage.SavePng(System.IO.Path.Combine(output, "emp-removal.png"));
+            empClaws = [];
+            hud.Refresh();
+            Require(hud.EmpText == "EMP CLEARED · POWER RESTORED", "Final native removal feedback");
+            for (byte count = 2; count > 0; count--)
+            {
+                slot = slot with { EmpClaw = new(10, count) };
+                hud.Refresh();
+                Require(hud.Displayed!.FirstSlot.Resource!.Text == count.ToString(), "Native EMP ammo decrements from accepted slot.");
+            }
+            slot = slot with { Item = HeldItem.None, EmpClaw = new(10, 0) };
+            hud.Refresh();
+            Require(hud.Displayed!.FirstSlot == ItemHudSlotView.Empty, "Native depleted EMP slot clears.");
+            hud.EmpAttachments = () => [];
+
             var preferences = new Settings.SettingsPanel();
             preferences.Initialize(settings, input.Adapter);
             viewport.AddChild(preferences);

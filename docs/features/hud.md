@@ -63,3 +63,18 @@ Each held Machine Gun slot projects its authoritative remaining rounds as a perc
 [Out-of-bounds damage](out-of-bounds.md) uses the authored oval perimeter, existing health/lifecycle authority and confirmed HUD feedback. Its life-scoped state survives tuning and checkpoint recovery; prediction never originates it.
 
 Shield uses the same physical-slot adapter and native controls, with a skull-crested armored plate silhouette, whole remaining HP (rounded upward) and a small HP legend. Three pointed armor plates drain continuously; missing portions show fractures. At or below 25% durability, the plates and value turn hot orange. Selection remains the existing yellow perimeter. The projection matches the accepted persistent pool by vehicle, life and the exact physical-slot grant token, whether stored or rear-mounted. It uses `ShieldState.DefaultHP` for the meter capacity and never vehicle HP. World walls, destroyed/missing pools and retired capabilities supply no slot resource; cleared or replaced inventory clears icon, value, HP legend and plates. Fresh HUD reconstruction reads the accepted damaged pool without animation history or refill. No global Shield bar or gameplay authority is added.
+
+## EMP Claw status
+
+EMP Claw uses the existing two physical item slots and confirmed magazine counts:
+3, 2, 1 and Empty on depletion. Selection, replacement and life validation retain
+ordinary item semantics. The launcher independently completes its existing empty return.
+
+A blue status centered above the bottom instruments shows active claw count and up to
+three independent remaining times (rounded up to seconds), with stable per-claw labels
+and an overflow count. It reads accepted attachment membership, target life and host tick,
+never predicted ownership or a local gameplay clock. Removing one claw retains surviving
+labels/deadlines. Brief removal feedback lasts 1.8 seconds; final removal reports
+`EMP CLEARED · POWER RESTORED`. New attachments clear obsolete removal feedback.
+Session/life changes, death or unavailable vehicle clear the projection. See
+[EMP Claw](items-emp-claw.md#effect-controls-and-hud).

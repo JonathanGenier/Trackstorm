@@ -59,6 +59,7 @@ public sealed partial class EmpClawChecks : Node3D
             _camera = new Camera3D { Current = true, Fov = 52, Position = new(6, 3.2f, 7) };
             AddChild(_camera);
             _camera.LookAt(new(0, .7f, .6f));
+            CheckLocalVfx();
             _rack.Observe(1, true, null, []);
             _rack.ObserveEmpClaw(_state);
             await Step(1);

@@ -31,8 +31,8 @@ preserves each round through shooting, destruction and recovery. Shot count and
 last-fired socket are separate from depletion, so destruction never replays firing. The same magazine stays mounted.
 Both the host deployment/accepted aim and local mechanical readiness gate use.
 Three default shots fit within two seconds; an empty slot can receive a fresh pickup.
-Switching preserves its load. Inventory TI31, movement version 14, configuration TC54 (280 values,
-2261 bytes), and discovery bucket `trackstorm-lobby-23` exclude older layouts.
+Switching preserves its load. Inventory TI32, movement version 15, configuration TC55 (284 values,
+2293 bytes), and discovery bucket `trackstorm-lobby-24` exclude older layouts.
 
 ## Guided flight
 
@@ -76,8 +76,8 @@ trail. The launcher retains its compressed-air discharge and original mechanism.
 `ItemAuthority` owns `EmpClawAttachment`: fired identity, original owner, target
 vehicle/life, unchanged target-local collision position/normal, attachment tick and
 absolute expiry tick. Side, front, rear, roof and underside use the same handoff;
-there is no relocation to a preferred face. Each attachment lasts exactly 1,800
-fixed ticks (30 seconds). A subsequent hit never changes any older deadline.
+there is no relocation to a preferred face. Each attachment captures its configured duration, default 1,800
+fixed ticks (30 seconds), bounded to 0.1–30 seconds. A subsequent hit never changes any older deadline.
 
 EMP sweeps query a cached native triangle BVH of the authored rigid bodywork,
 including hood, glass, armor and underbody. The convex movement hull is intentionally
@@ -89,9 +89,9 @@ the impact to local coordinates, avoiding a one-tick offset on moving/rotating c
 The native surface supplies the actual point and face normal; presentation never
 relocates the anchor. Standard weapon and movement collision queries are unchanged.
 
-One, two or three claws apply the same 80% engine-power suppression. The item step
+One, two or three claws apply the same configured engine-power suppression (80% by default, bounded to 0–80%). The item step
 passes the latest surviving deadline to the existing `VehicleMovement`; engine and
-reverse propulsion receive a 0.2 multiplier **after** tire-force saturation, with
+reverse propulsion receive the configured remaining-power multiplier (0.2 by default) **after** tire-force saturation, with
 lateral steering and brake-only force retained. Nitro rocket thrust receives the
 same multiplier on ground and in air. Steering, brake forces, health, external
 impulses and existing momentum retain their ordinary
@@ -109,7 +109,7 @@ swept against native world, prop and other-vehicle shapes. Metal/jaw contact
 never pops a nose. The attached vehicle is excluded from its own nose sweep.
 Roof, underside and rotated anchors retain the original local point and normal.
 The authored 1.5-scale claw is preserved when aligning its contact anchor; the
-inflated membrane has a 0.195 m radius and lies 0.33 m outward from that anchor.
+inflated membrane defaults to a 0.195 m radius and lies 0.33 m outward from that anchor.
 A pop deals zero damage, removes only that identity and deadline, and releases
 its model. Other claws retain their deadlines and the same capped suppression.
 New attachments already touching scenery pop before any EMP is applied.
@@ -135,7 +135,7 @@ shared vehicle effect contains eight short branching blue arcs, with 96 core and
 underside and the rear panel for chase-camera visibility; each claw retains its
 local electricity. Natural expiry independently
 deflates the nose, fizzles, releases and falls away without damage or explosion.
-Natural-expiry models are bounded and reclaimed after their 1.3-second cosmetic tail.
+Natural-expiry models are bounded and reclaimed after their configured cosmetic tail (1.3 seconds by default).
 A destroyed nose immediately hides the whole rigid model and local electricity,
 leaving only a shrinking 0.4-second fragment burst at the membrane. No opaque
 claw falls through the car after a pop. Reconstruction hides the old set before
@@ -346,3 +346,36 @@ are explicit fixtures; authority, native shape/ray queries, inventory, effects,
 replication and presentation are production paths. Evidence is written under
 `.godot/emp-counterplay-checks`. This is local UDP automation, not human driving,
 authenticated EOS, Internet latency or multi-PC acceptance.
+
+## Effect controls and HUD
+
+The **EMP Claw effect and counterplay** category uses the same staged host transaction,
+export/import and replication as flight tuning:
+
+| Key (`items.emp_claw_` prefix) | Default | Bounds and effect |
+| --- | --- | --- |
+| `attachment_seconds` | 30 s | 0.1–30; captured independently at contact, never refreshes older claws |
+| `suppression` | 0.8 | 0–0.8; live engine/reverse/Nitro suppression, one shared penalty regardless of count |
+| `attached_nose_radius` | 0.195 m | 0.05–0.3; live gun, blast and native-contact membrane queries |
+| `stored_nose_radius` | 0.075 m | 0.025–0.12; live gun queries for exposed stored sockets |
+
+The radii are explicit gameplay query tuning; authored mesh dimensions remain fixed.
+Nose destruction stays one confirmed hit with zero pop damage. Three rounds per pickup,
+permanent captured target identity and nonstacking impairment remain invariants, explained
+in the controls rather than exposed as ineffective toggles.
+
+**EMP Claw · Local VFX** controls shockwave scale (0.25–2), flight trail length
+(0.5–5 m), electric intensity (0–2), impact/pop dispersion intensity (0–2), deflation
+(0.1–0.8 s) and expired-claw cleanup (0.8–2 s). Local edits apply immediately; terminal
+animation timings are captured at removal. Zero electric/impact intensity hides the
+corresponding effect without changing gameplay. These bounded settings use fixed
+render budgets, remain device-local and session-only, and have their own reset.
+
+The shared weapon slots display confirmed remaining rounds (3, 2, 1, then Empty),
+independently of selection. The inherited exposed-socket launcher presentation remains
+unchanged; the HUD reports total ammunition rather than claiming a hidden chamber.
+A compact blue status above the bottom HUD shows up to three independent accepted
+countdowns with stable labels, plus overflow count if needed. Removal preserves other
+clocks and briefly reports the removal; final removal reports restored power. Session,
+life, death and missing-vehicle boundaries clear feedback. Timers use accepted host
+world ticks; a disconnected stream does not invent progress. No HUD timer changes EMP.
