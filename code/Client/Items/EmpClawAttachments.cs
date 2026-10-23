@@ -72,6 +72,9 @@ internal sealed partial class EmpClawAttachments : Node3D
                 // Place the authored metal contact anchor on the actual collision point.
                 // The local hit is never moved to a different face or accessible location.
                 Transform3D anchor = view.GlobalTransform.AffineInverse() * view.Attachment.GlobalTransform;
+                // Preserve authored claw scale; only the anchor frame rotation/translation
+                // is inverted. Inverting its scale shrinks the attached model and hit region.
+                anchor = new(anchor.Basis.Orthonormalized(), anchor.Origin);
                 view.GlobalTransform = target * new Transform3D(basis, VehicleBody.ToGodot(state.LocalPosition)) * anchor.AffineInverse();
                 if (age >= .14f) { view.Observe(EmpClawVisualState.Activated); }
             }

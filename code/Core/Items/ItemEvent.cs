@@ -9,6 +9,8 @@ public sealed record ItemEvent(ulong Token, ulong Owner, HeldItem Item, Vector3 
     public Vector3 Origin { get; init; }
     /// <summary>Whether this confirmed round is selected for a visible tracer.</summary>
     public bool Tracer { get; init; }
+    /// <summary>Cosmetic zero-damage shield/stowed membrane pop.</summary>
+    public bool EmpPop { get; init; }
     /// <summary>EMP-only authoritative vehicle contact for the subsequent attachment consumer.</summary>
     public EmpClawContact? EmpClawContact { get; init; }
 }

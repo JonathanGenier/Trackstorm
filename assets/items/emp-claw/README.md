@@ -40,17 +40,19 @@ custom armor uses per-part unwraps. The 512-pixel packed maps contain original
 irregular enamel chips, fine scratches, roughness variation and micro-normal detail.
 
 `RoundSocket_0..2` preserve original individual identity through visual depletion.
-Socket 0 starts in the chamber; sockets 1 and 2 start at rack-local
-`(±.34, -.27, .40)` m, rear-facing. All claws are 50% larger, including the fired
+The editable/exported source retains its original one-chamber/two-reserve layout.
+Runtime places all three sockets in the fixed exposed rear-facing positions from
+`EmpClawGeometry.StoredRoot`, preserving their individual identities. All claws are 50% larger, including the fired
 model. The two reserves remain independent of cannon aim. `LoaderUpper` and
 `LoaderLower` are articulated telescoping links with rigid nested sections; `LoaderGripper` has two
-sliding fingers on a connected crossbar. Only the selected reserve moves.
+sliding fingers on a connected crossbar. Runtime counterplay keeps this assembly
+parked beneath the exposed rounds.
 `BreechHinge` opens the rear pressure door, exposing the hollow receiver and
-sleeves; there is no permanent cap inside the bore. Runtime owns the reload phases.
+sleeves; there is no permanent cap inside the bore. Runtime retains the pressure cooldown without concealing a live round.
 The larger 0.16 m radius transverse air tank is strapped under the fixed saddle.
 Each claw exposes `BalloonNose/NoseHitAnchor`, `Attachment`, `TrailSocket`, and four
-`JawHinge_*` / `GripContact_*` pairs. Those are presentation/attachment points, not
-hitboxes or a new collision system. The nose membrane is independently named.
+`JawHinge_*` / `GripContact_*` pairs. Core counterplay geometry follows the named membrane dimensions and these
+attachment points; presentation does not decide hits or damage. The nose membrane is independently named.
 
 See [EMP presentation](../../../docs/features/items-emp-claw.md) for the integration
 contract, verification fixture and current gameplay boundaries.

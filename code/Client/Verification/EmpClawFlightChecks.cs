@@ -44,6 +44,7 @@ public sealed partial class EmpClawFlightChecks : Node3D
             if (OS.GetCmdlineUserArgs().Contains("--emp-power")) { _output = ProjectSettings.GlobalizePath("res://.godot/emp-attachment-checks/round2/readability"); }
             if (OS.GetCmdlineUserArgs().Contains("--emp-production")) { _output += "/production"; }
             if (OS.GetCmdlineUserArgs().Contains("--emp-long-flight")) { _output += "/long-flight"; }
+            if (OS.GetCmdlineUserArgs().Contains("--emp-counterplay")) { _output = ProjectSettings.GlobalizePath("res://.godot/emp-counterplay-checks"); }
             System.IO.Directory.CreateDirectory(_output);
             if (OS.GetCmdlineUserArgs().Contains("--emp-production"))
             {
@@ -53,7 +54,8 @@ public sealed partial class EmpClawFlightChecks : Node3D
             else
             {
                 await Connect();
-                if (OS.GetCmdlineUserArgs().Contains("--emp-power")) { await NativePowerComparison(); }
+                if (OS.GetCmdlineUserArgs().Contains("--emp-counterplay")) { await Counterplay(); }
+                else if (OS.GetCmdlineUserArgs().Contains("--emp-power")) { await NativePowerComparison(); }
                 else if (OS.GetCmdlineUserArgs().Contains("--emp-attachments")) { await AttachmentLifecycle(); }
                 else if (OS.GetCmdlineUserArgs().Contains("--emp-long-flight"))
                 {
@@ -351,7 +353,7 @@ public sealed partial class EmpClawFlightChecks : Node3D
         _arenas[0].AddChild(camera); camera.LookAt(target);
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
         _views[0].GetTexture().GetImage().SavePng(System.IO.Path.Combine(_output, name + ".png"));
-        camera.Position = target + new Vector3(4, 2, 4); camera.LookAt(target);
+        camera.Position = target + (position - target).Normalized() * 4.9f; camera.LookAt(target);
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
         _views[0].GetTexture().GetImage().SavePng(System.IO.Path.Combine(_output, name + "-close.png"));
         camera.QueueFree();

@@ -64,7 +64,7 @@ public sealed partial class EmpClawChecks : Node3D
             await Step(1);
             var launcher = _rack.EmpLauncher!;
             Check(launcher.VisibleRounds == 3, "Three independently identified rounds: one chambered and two stored.");
-            Check(launcher.StoredRounds == 2 && launcher.LoadedRounds == 1 && launcher.ChamberIndex == 0, "Initial chamber plus exactly two reserves.");
+            Check(launcher.StoredRounds == 3 && launcher.LoadedRounds == 0 && launcher.ChamberIndex == 0, "Three exposed rear sockets; no live round hidden in the chamber.");
             Check(launcher.NoseAnchors.Distinct().Count() == 3, "Three distinct nose attachment/hit anchors.");
             await Capture("01-stowed", new(-4, 2.8f, 6), new(0, .3f, 1.3f));
             CheckBounds(launcher, "compact", .37f);
@@ -154,10 +154,8 @@ public sealed partial class EmpClawChecks : Node3D
                     Check(launcher.Reloading && !launcher.IsReady, "Fire locked during retrieval.");
                     await Capture("reload-grip-" + round, new(2.5f, 1.5f, 4.2f), new(0, 1.2f, 2.1f));
                     for (int frame = 0; frame < 20; frame++) { await Step(1); CheckLoader(launcher); }
-                    Check(launcher.BreechOpen && !launcher.IsReady, "Empty breech opens before insertion.");
-                    Check(!BoreBlocked(launcher) && Enumerable.Range(0, 16).All(i => !BoreBlocked(launcher,
-                        new Vector2(MathF.Cos(i * MathF.Tau / 16), MathF.Sin(i * MathF.Tau / 16)) * .24f)),
-                        "Open empty cannon clears the entire cartridge cross-section across actual imported triangles.");
+                    Check(!launcher.BreechOpen && !launcher.IsReady && launcher.StoredRounds == 2 - round,
+                        "Pressure cycle retains exposed ammunition without hiding or reloading a live round.");
                     await Capture("reload-open-" + round, new(.3f, 2.15f, 4.7f), new(0, 1.81f, 1.5f));
                     for (int frame = 0; frame < 10; frame++) { await Step(1); CheckLoader(launcher); }
                     await Capture("reload-insert-" + round, new(2.5f, 2.4f, 3.8f), new(0, 1.65f, 1.8f));
@@ -166,7 +164,7 @@ public sealed partial class EmpClawChecks : Node3D
                     for (int frame = 0; frame < 20; frame++) { await Step(1); CheckLoader(launcher); }
                     CheckLoader(launcher, parked: true);
                     Check(!launcher.Reloading && !launcher.BreechOpen && launcher.IsReady, "Reload seats round, closes breech, and restores readiness within one second.");
-                    Check(launcher.StoredRounds == 1 - round, "Each reload consumes exactly one physical reserve.");
+                    Check(launcher.StoredRounds == 2 - round, "Each reload consumes exactly one physical reserve.");
                 }
                 else { await Step(55); }
                 if (round == 0)
@@ -217,7 +215,7 @@ public sealed partial class EmpClawChecks : Node3D
                 Check(launcher.VisibleRounds == 2, "Reload never creates or hides an accepted remaining round.");
             }
             launcher.Present(1, _aim, .0001f);
-            Check(!launcher.Reloading && !launcher.BreechOpen && launcher.StoredRounds == 1, $"{fps} FPS finishes the configured {duration:F3}s cycle.");
+            Check(!launcher.Reloading && !launcher.BreechOpen && launcher.StoredRounds == 2, $"{fps} FPS finishes the configured {duration:F3}s cycle.");
             launcher.QueueFree();
             await Frames(1);
         }

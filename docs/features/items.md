@@ -443,3 +443,4 @@ produces a non-damaging physical attachment on an eligible unshielded vehicle.
 Each claw expires independently after 30 seconds; any number of active claws caps
 engine/reverse/Nitro power at 20% until the last ends. See [EMP Claw](items-emp-claw.md)
 for authority, recovery, effects and the remaining nose/shield combat boundary.
+EMP Claw counterplay uses [independent nose membranes and exposed stored ammunition](items-emp-claw.md#nose-shield-and-stored-ammunition-counterplay). Machine Gun and existing Missile blast observations consume only the hit live sockets; cosmetic pops never add vehicle damage or secondary explosions.

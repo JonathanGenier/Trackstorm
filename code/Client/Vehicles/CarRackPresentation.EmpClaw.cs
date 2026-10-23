@@ -25,7 +25,7 @@ internal sealed partial class CarRackPresentation
     {
         var load = inventory?.Active.EmpClaw;
         EmpClawRackState? state = load is null ? null : new(inventory!.Life, load.Magazine, tick, true,
-            (byte)((7 << (3 - load.Remaining)) & 7), (ulong)(3 - load.Remaining), load.Remaining < 3 ? 2 - load.Remaining : -1,
+            load.RoundMask, load.ShotsFired, load.FiredRound,
             EmpConfiguration.EmpClawIntervalTicks / 60f, load.ReadyTick > tick ? (load.ReadyTick - tick) / 60f : 0);
         ObserveEmpClaw(state, _empAim);
         if (inventory?.Active.Item == HeldItem.EmpClaw) { _desired = HeldItem.None; _usePending = false; }

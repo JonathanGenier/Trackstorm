@@ -4,7 +4,7 @@ using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-thirty item protocol. Reliable outcomes and replaceable aim share existing item ownership.</summary>
+/// <summary>Bounded version-thirty-one item protocol. Reliable outcomes and replaceable aim share existing item ownership.</summary>
 public static partial class ItemCodec
 {
     /// <summary>Accommodates the maximum lifetime-derived Oil set and its pass counts and overlap latches.</summary>
@@ -274,7 +274,7 @@ public static partial class ItemCodec
             Vector(writer, outcome.Position);
             writer.Write(outcome.Impact);
             Vector(writer, outcome.Origin);
-            writer.Write(outcome.Tracer);
+            writer.Write(outcome.Tracer); writer.Write(outcome.EmpPop);
             writer.Write(outcome.EmpClawContact is not null);
             if (outcome.EmpClawContact is { } contact)
             { writer.Write(contact.Vehicle); writer.Write(contact.Life); Vector(writer, contact.LocalPosition); Vector(writer, contact.LocalNormal); }
@@ -384,7 +384,7 @@ public static partial class ItemCodec
             }
             balances[i] = new() { Player = player, Total = total, SelectedItem = selected, Credits = credits.ToImmutable(), Counts = counts.ToImmutable() };
         }
-        var events = new ItemEvent[Count(reader, ItemAuthority.MaximumProjectiles * 2 + ItemAuthority.MaximumMines + 16)];
+        var events = new ItemEvent[Count(reader, ItemAuthority.MaximumProjectiles * 2 + ItemAuthority.MaximumMines + 16 + ItemAuthority.MaximumEmpAttachments + 24)];
         for (int i = 0; i < events.Length; i++)
         {
             ulong token = reader.ReadUInt64();
@@ -393,6 +393,7 @@ public static partial class ItemCodec
             Vector3 position = Vector(reader);
             bool impact = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid impact flag.") };
             events[i] = new(token, owner, item, position, impact) { Origin = Vector(reader), Tracer = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid tracer flag.") } };
+            events[i] = events[i] with { EmpPop = Flag(reader) };
             if (Flag(reader)) { events[i] = events[i] with { EmpClawContact = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader)) }; }
         }
 
@@ -403,7 +404,7 @@ public static partial class ItemCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 30, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 31, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {
@@ -415,7 +416,7 @@ public static partial class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 30 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 31 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }
@@ -452,13 +453,13 @@ public static partial class ItemCodec
     {
         writer.Write(load is not null);
         if (load is null) { return; }
-        writer.Write(load.Magazine); writer.Write(load.Remaining); writer.Write(load.ReadyTick);
+        writer.Write(load.Magazine); writer.Write(load.Remaining); writer.Write(load.ReadyTick); writer.Write(load.RoundMask); writer.Write(load.ShotsFired); writer.Write((sbyte)load.FiredRound);
     }
 
     private static EmpClawLoad? EmpClaw(BinaryReader reader) => reader.ReadByte() switch
     {
         0 => null,
-        1 => new(reader.ReadUInt64(), reader.ReadByte(), reader.ReadUInt64()),
+        1 => new(reader.ReadUInt64(), reader.ReadByte(), reader.ReadUInt64()) { RoundMask = reader.ReadByte(), ShotsFired = reader.ReadByte(), FiredRound = reader.ReadSByte() },
         _ => throw new ArgumentException("Invalid EMP presentation load flag."),
     };
 

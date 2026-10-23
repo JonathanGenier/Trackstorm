@@ -34,8 +34,8 @@ internal sealed partial class EmpClawLauncher : Node3D
     internal bool Reloading => _feedIndex >= 0 && _reloadAge < _reloadDuration;
     internal float ReloadPhase => Math.Min(1, _reloadAge / _reloadDuration);
     internal bool BreechOpen => Math.Abs(_breech.Rotation.Y) > .01f;
-    internal int StoredRounds => _rounds.Where((round, i) => round.Visible && (i > ChamberIndex || (i == ChamberIndex && Reloading && ReloadPhase <= .20f))).Count();
-    internal int LoadedRounds => ChamberIndex < 3 && (!Reloading || ReloadPhase >= .74f) ? 1 : 0;
+    internal int StoredRounds => VisibleRounds;
+    internal int LoadedRounds => 0;
     internal int ChamberIndex => _state is null ? 0 : Enumerable.Range(0, 3).FirstOrDefault(i => (_state.RoundMask & (1 << i)) != 0, 3);
     internal IReadOnlyList<Node3D> RoundSockets => _sockets;
     internal IReadOnlyList<Node3D> NoseAnchors => _rounds.Select(round => round.NoseAnchor).ToArray();
@@ -125,43 +125,19 @@ internal sealed partial class EmpClawLauncher : Node3D
 
     private void PresentLoader()
     {
-        float t = ReloadPhase;
-        Transform3D chamber = _yaw.Transform * _lift.Transform * _pitch.Transform * _recoil.Transform;
         Vector3 rest = new(0, -.68f, .50f);
-        Vector3 reserve = new(_feedIndex == 1 ? -.34f : .34f, -.27f, .40f);
-        Vector3 withdrawn = new(reserve.X, -.27f, 1.00f);
-        Vector3 raised = new(reserve.X, .47f, 1.00f);
-        Vector3 aligned = new(0, .47f, 1.00f);
-        Vector3 seated = new(0, .47f, .12f);
-        Vector3 carried = t < .34f ? reserve.Lerp(withdrawn, Ease(t, .20f, .34f))
-            : t < .47f ? withdrawn.Lerp(raised, Ease(t, .34f, .47f))
-            : t < .58f ? raised.Lerp(aligned, Ease(t, .50f, .58f))
-            : aligned.Lerp(seated, Ease(t, .58f, .74f));
-        Basis facing = Basis.FromEuler(new(0, MathF.PI * (1 - Ease(t, .34f, .47f)), 0));
         for (int i = 0; i < 3; i++)
         {
-            bool chambered = i == ChamberIndex;
-            Transform3D pose = chambered && (!Reloading || t >= .74f)
-                ? chamber * new Transform3D(Basis.Identity, new(0, 0, .12f))
-                : chambered && i == _feedIndex ? new(facing, carried)
-                : new(Basis.FromEuler(new(0, MathF.PI, 0)), new(i == 1 ? -.34f : .34f, -.27f, .40f));
-            _sockets[i].Transform = pose;
+            // TS-299 exposes all three original sockets behind the cannon. They remain
+            // fixed hit regions rather than hiding one live round inside the barrel.
+            _sockets[i].Transform = new(Basis.FromEuler(new(0, MathF.PI, 0)),
+                Vehicles.VehicleBody.ToGodot(EmpClawGeometry.StoredRoot(i)));
             _rounds[i].Visible = _state is not null && (_state.RoundMask & (1 << i)) != 0;
         }
-        _breech.Rotation = new(0, -2.65f * Ease(t, .40f, .50f) * (1 - Ease(t, .87f, .94f)), 0);
-        Vector3 gripOffset = facing * new Vector3(0, 0, .32f);
-        Vector3 grip = carried + gripOffset;
-        Vector3 approach = new(reserve.X, rest.Y, reserve.Z - .32f);
-        Vector3 wrist = !Reloading ? rest : t < .08f ? rest.Lerp(approach, Ease(t, 0, .08f))
-            : t < .20f ? approach.Lerp(reserve + gripOffset, Ease(t, .08f, .12f))
-            : t < .80f ? grip
-            : t < .87f ? grip.Lerp(new(0, .47f, .90f), Ease(t, .80f, .87f))
-            : t < .95f ? new Vector3(0, .47f, .90f).Lerp(new(0, rest.Y, .90f), Ease(t, .87f, .95f))
-            : new Vector3(0, rest.Y, .90f).Lerp(rest, Ease(t, .95f, 1));
-        _gripper.Transform = new(Reloading ? Basis.Identity.Slerp(facing, Ease(t, 0, .08f)) : Basis.Identity, wrist);
-        float opening = Reloading && t >= .12f && t < .80f
-            ? .24f + .05f * (1 - Ease(t, .12f, .20f) + Ease(t, .74f, .80f)) : .29f;
-        for (int i = 0; i < 2; i++) { _fingers[i].Position = new((i == 0 ? -1 : 1) * opening, 0, 0); }
+        _breech.Rotation = Vector3.Zero;
+        Vector3 wrist = rest;
+        _gripper.Transform = new(Basis.Identity, wrist);
+        for (int i = 0; i < 2; i++) { _fingers[i].Position = new((i == 0 ? -1 : 1) * .29f, 0, 0); }
         // Compact rigid sleeves extend through translated rails, as on the Wrench arm.
         // The elbow stays below retrieval, then behind the reserves during the lift.
         Vector3 anchor = new(0, -.68f, .38f);
@@ -169,8 +145,8 @@ internal sealed partial class EmpClawLauncher : Node3D
         float distance = Math.Max(line.Length(), .001f);
         float length = Math.Max(.42f, distance * .52f);
         Vector3 direction = line.Normalized();
-        Vector3 preferred = Vector3.Down.Lerp(Vector3.Back, Ease(t, .20f, .34f));
-        float unfold = Reloading ? Ease(t, 0, .08f) * (1 - Ease(t, .95f, 1)) : 0;
+        Vector3 preferred = Vector3.Down;
+        float unfold = 0;
         preferred = Vector3.Right.Lerp(preferred, unfold);
         Vector3 bend = (preferred - direction * direction.Dot(preferred)).Normalized();
         Vector3 elbow = anchor + direction * (distance / 2) + bend * MathF.Sqrt(length * length - distance * distance / 4);
