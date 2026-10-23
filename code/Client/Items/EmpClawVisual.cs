@@ -8,6 +8,7 @@ internal sealed partial class EmpClawVisual : Node3D
 {
     internal const string AssetPath = "res://assets/items/emp-claw/EmpClaw.glb";
     private readonly Node3D[] _jaws;
+    private readonly Node3D _model;
     private readonly Node3D _nose;
     private readonly EmpClawElectric _electric = new();
     private float _age;
@@ -18,7 +19,8 @@ internal sealed partial class EmpClawVisual : Node3D
     private float _noseAtTransition = 1;
 
     internal EmpClawVisualState State { get; private set; }
-    internal bool Finished => State is EmpClawVisualState.Expired or EmpClawVisualState.NoseDestroyed && _age >= 1.3f;
+    internal bool Finished => State == EmpClawVisualState.NoseDestroyed ? _age >= .4f : State == EmpClawVisualState.Expired && _age >= 1.3f;
+    internal bool BodyVisible => _model.IsVisibleInTree();
     internal Node3D NoseAnchor { get; }
     internal Node3D Attachment { get; }
     internal IReadOnlyList<Node3D> GripContacts { get; }
@@ -28,6 +30,7 @@ internal sealed partial class EmpClawVisual : Node3D
     {
         Name = "EmpClaw";
         var model = Networking.MatchResourceLoader.LoadResource<PackedScene>(AssetPath).Instantiate<Node3D>();
+        _model = model;
         AddChild(model);
         _jaws = Enumerable.Range(0, 4).Select(i => (Node3D)model.FindChild("JawHinge_" + i, true, false)).ToArray();
         _nose = (Node3D)model.FindChild("BalloonNose", true, false);
@@ -53,6 +56,15 @@ internal sealed partial class EmpClawVisual : Node3D
             _inflation = state == EmpClawVisualState.Activated ? 2.6f : 1;
         }
         _electric.Burst = !restore && state == EmpClawVisualState.Landed;
+        // Retire the whole rigid model at the authoritative pop boundary. An opaque
+        // gravity-only cosmetic drop can pass through any face of a moving/rolled car.
+        // Keep only a short, shrinking membrane-fragment burst at the actual nose.
+        _electric.Position = Vector3.Zero;
+        if (state == EmpClawVisualState.NoseDestroyed)
+        { _electric.Position = GlobalTransform.AffineInverse() * NoseAnchor.GlobalPosition + Vector3.Back * .16f; }
+        _electric.Mode = State;
+        _electric.StateAge = _age;
+        _electric.Advance(0);
         ApplyPose();
     }
 
@@ -71,7 +83,7 @@ internal sealed partial class EmpClawVisual : Node3D
         if (terminal && IsInsideTree())
         {
             if (!_releaseCaptured) { _releasePose = GlobalTransform; TopLevel = true; GlobalTransform = _releasePose; _releaseCaptured = true; }
-            float fall = Math.Max(0, _age - (State == EmpClawVisualState.Expired ? .38f : .08f));
+            float fall = State == EmpClawVisualState.NoseDestroyed ? 0 : Math.Max(0, _age - .38f);
             GlobalTransform = new Transform3D(_releasePose.Basis.Rotated(Vector3.Right, fall * 2.8f),
                 _releasePose.Origin + Vector3.Down * (3 * fall * fall));
         }
@@ -84,6 +96,7 @@ internal sealed partial class EmpClawVisual : Node3D
 
     private void ApplyPose()
     {
+        _model.Visible = State != EmpClawVisualState.NoseDestroyed;
         foreach (Node3D jaw in _jaws) { jaw.Rotation = new(0, (1 - _spread) * Mathf.DegToRad(-78), 0); }
         _nose.Scale = Vector3.One * Math.Max(.01f, _inflation);
         _nose.Visible = State != EmpClawVisualState.NoseDestroyed;

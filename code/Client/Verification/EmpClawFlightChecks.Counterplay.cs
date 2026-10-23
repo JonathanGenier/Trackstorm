@@ -34,14 +34,16 @@ public sealed partial class EmpClawFlightChecks
             foreach (var obstacle in _obstacles) { obstacle.QueueFree(); } _obstacles.Clear();
             await Frames(2);
             await Capture($"counterplay-{cycle}-three-noses", VehicleBody.ToGodot(pose.Position) + new Vector3(5, 3, 6), VehicleBody.ToGodot(pose.Position));
+            var oldViews = Enumerable.Range(0, 3).Select(p => Attachments(p).Views.ToArray()).ToArray();
             _obstacles.Add(AddBox(_arenas[0], VehicleBody.ToGodot(center), new(.04f, .04f, .04f)));
             await Until(() => Host.Items.EmpAttachments.Count == 2, "Only the contacted membrane pops.");
             Check(Host.Items.EmpAttachments.All(c => c.Id != claw.Id), "Correct claw identity was removed.");
             Check(Host.World.GetVehicle(2).Movement.EnginePowerScale == .2f, "Other independent claws retain capped suppression.");
             Check(Host.Items.EmpAttachments.All(c => claws.Contains(c)), "Surviving anchors and deadlines are unchanged.");
+            foreach (var obstacle in _obstacles) { obstacle.QueueFree(); } _obstacles.Clear();
             await Frames(3);
             await Capture($"counterplay-{cycle}-selective-pop", VehicleBody.ToGodot(pose.Position) + new Vector3(5, 3, 6), VehicleBody.ToGodot(pose.Position));
-            await Frames(67);
+            await ObserveRetirement(oldViews, $"contact-{cycle}", moving: true);
             Check(_arenas.All(a => a.Driver.ItemState!.EmpAttachments.Count == 2), "Reliable pop membership reaches both delayed peers.");
             foreach (var remaining in Host.Items.EmpAttachments)
             {
@@ -58,10 +60,46 @@ public sealed partial class EmpClawFlightChecks
         }
         await Reset();
         await VehicleAndGroundNoses();
+        await AttachedWeaponCounterplay();
         await StoredRoundGunfire();
         await ShieldAndBlast();
         await OwnerAndWeapons();
         GD.Print($"EMP counterplay integration passed: {_checks} checks.");
+    }
+
+    private async Task ObserveRetirement(Items.EmpClawVisual[][] before, string name, bool moving = false)
+    {
+        for (int frame = 0; frame < 60; frame++)
+        {
+            if (moving) { _positions[2] += new N.Vector3(.025f, 0, 0); }
+            await Frames(1);
+            for (int peer = 0; peer < 3; peer++)
+            foreach (var view in before[peer])
+            {
+                if (!GodotObject.IsInstanceValid(view) || Attachments(peer).Views.Contains(view)) { continue; }
+                Check(!view.BodyVisible, "Retired claw has no visible rigid geometry on the exact removal frame or its cosmetic tail.");
+            }
+            if (frame is 0 or 5 or 15 or 35)
+            {
+                Vector3 target = _arenas[0].Bodies[2].GlobalPosition;
+                await Capture($"cleanup-{name}-{frame:00}", target + new Vector3(5, 3, 6), target);
+            }
+        }
+        Check(Enumerable.Range(0, 3).All(p => Attachments(p).ReleasedCount == 0), "Only a bounded 0.4-second fragment effect survives removal.");
+        // Reconstruction and an older duplicate publication must not leave a one-frame
+        // copy or replay a destroyed model after reliable membership has converged.
+        for (int peer = 0; peer < 3; peer++)
+        {
+            var presentation = Attachments(peer);
+            var previous = presentation.Views.ToArray();
+            var state = _arenas[peer].Driver.ItemState!;
+            presentation.Restore();
+            Check(previous.All(v => !v.BodyVisible), "Restore hides old rigid models synchronously before deferred freeing.");
+            presentation.Observe(state);
+            presentation.Observe(state);
+            Check(presentation.Views.Count == state.EmpAttachments.Count, "Checkpoint/duplicate membership reconstructs only live identities.");
+        }
+        Record(new { scenario = "rendered-pop-cleanup", name, moving, sampledFrames = 60, peers = 3 });
     }
 
     private async Task VehicleAndGroundNoses()

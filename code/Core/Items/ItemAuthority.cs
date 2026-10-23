@@ -440,7 +440,8 @@ public sealed partial class ItemAuthority
                         (shieldHit is null || noseHit.Fraction < shieldHit.Value.Fraction))
                     {
                         end = Vector3.Lerp(aim.Origin, end, noseHit.Fraction);
-                        PopEmpNose(noseHit, end, slots, attachments, events);
+                        if (Configuration.MachineGunDamage * MachineGunShot.Falloff(noseHit.Fraction * Configuration.MachineGunRange, Configuration) > 0)
+                        { PopEmpNose(noseHit, end, slots, attachments, events); }
                         events.Add(new(slot.Token, slot.Vehicle, HeldItem.MachineGun, end, true)
                         { Origin = aim.Origin, Tracer = (ammo.Capacity - remainingRounds) % Configuration.MachineGunTracerEvery == 0 });
                         remainingRounds--;
@@ -620,6 +621,10 @@ public sealed partial class ItemAuthority
                 else { empHit = null; }
             }
             if (hit is float nativeFraction && (!float.IsFinite(nativeFraction) || nativeFraction is < 0 or > 1)) { throw new ArgumentException("Invalid projectile collision fraction."); }
+            // Attached membranes share the damaging projectile sweep. Flying EMPs and
+            // stowed ammo are deliberately absent from this projectile hit region.
+            if (missile.EmpClaw is null && IntersectAttachedNoses(missile.Position, end, requests, attachments) is { } noseContact &&
+                (hit is null || noseContact.Fraction < hit)) { hit = noseContact.Fraction; }
             var directShield = shields.Intersect(missile.Position, end, missile.Owner);
             if (directShield is { } direct && (hit is null || direct.Fraction <= hit)) { hit = direct.Fraction; }
             else { directShield = null; }
@@ -652,7 +657,7 @@ public sealed partial class ItemAuthority
                     continue;
                 }
                 events.Add(new ItemEvent(missile.Id, missile.Owner, missile.Item, center, true));
-                BlastEmpRounds(center, missile, requests, slots, events, shields);
+                BlastEmpNoses(center, missile, requests, slots, attachments, events, shields);
                 shields.BlastWalls(this, center, missile);
                 foreach (VehicleStepRequest request in requests)
                 {

@@ -135,7 +135,11 @@ shared vehicle effect contains eight short branching blue arcs, with 96 core and
 underside and the rear panel for chase-camera visibility; each claw retains its
 local electricity. Natural expiry independently
 deflates the nose, fizzles, releases and falls away without damage or explosion.
-Released models are bounded and reclaimed after their 1.3-second cosmetic tail.
+Natural-expiry models are bounded and reclaimed after their 1.3-second cosmetic tail.
+A destroyed nose immediately hides the whole rigid model and local electricity,
+leaving only a shrinking 0.4-second fragment burst at the membrane. No opaque
+claw falls through the car after a pop. Reconstruction hides the old set before
+deferred freeing, so it cannot draw a duplicate during the handoff.
 
 ## Flight tuning
 
@@ -180,7 +184,9 @@ the old instance and seeds the accepted round/shot state without historical firi
 
 Deployment takes 1.20 seconds: the existing split deck/rack path occupies the first
 44%, then the cannon emerges vertically, seats down, and extends its barrel.
-All hardware remains full size. One round starts inside the chamber; two 50%-larger rear-facing reserves hang beneath the rack. The approved Round 3 layout overrides the reference image’s three stored units. The loader may nest inside the vehicle interior. The magazine, saddle and
+All hardware remains full size. Three fixed rear-facing rounds remain exposed
+behind the cannon; no live round is hidden in the chamber. The parked loader may
+nest inside the vehicle interior. The magazine, saddle and
 vehicle rack never inherit cannon yaw or pitch. Return
 centers yaw/pitch above the deck, reverses articulation and closes over 0.82 seconds
 plus any centering/final-discharge hold. Mid-deploy cancellation reverses its actual
@@ -223,8 +229,8 @@ activated nose inflation, natural deflation/fizzle, or distinct balloon pop/rele
 Flight owns six short blue lightning ribbons. Activated ribbons spread from the
 claw toward its contact plane; landed entry produces small gold sparks. Expiry
 deflates over 0.38 seconds before a cosmetic world-space fall. Pop hides the
-membrane immediately and emits red fragments. Both terminal presentations finish
-within 1.3 seconds. They neither explode nor damage anything. Independent instances
+entire rigid model immediately and emits shrinking red fragments for 0.4 seconds.
+Natural expiry finishes within 1.3 seconds. They neither explode nor damage anything. Independent instances
 allow simultaneous flight/attachments and independent terminal cues.
 
 Each claw has 120 fine white-blue segments, a separate 120-segment blue halo,
@@ -309,7 +315,16 @@ clears the held item, retracts its cannon and cannot reload without a new pickup
 The existing damaging Missile blast can destroy each stored round inside its
 actual radius, subject to existing shield interception. It uses the original
 radial damage calculation; cosmetic pops create no secondary blast, projectile,
-vehicle damage or impulse. Salvo and other damage systems are unchanged.
+vehicle damage or impulse. Stored ammunition retains its Missile-only blast rule.
+
+Attached inflated membranes additionally participate in the shared damaging
+projectile sweep and `Explosion` evaluator, including Missile and Salvo. The
+nearest point of the membrane must receive positive damage; a blast reaching
+only metal or zero-damage tuning cannot destroy a nose. Existing shield geometry
+blocks the damage path. These queries never include flying EMP projectiles and
+never refresh surviving attachments. Proxy Mine damage remains chassis contact-only:
+its cinematic dust has no radial damage volume to extend to noses. Non-damaging
+items likewise do not gain a nose-damage path.
 
 Active rear armor and deployed world walls intercept EMP segments through the
 existing staged shield geometry. A shield contact produces a cosmetic pop/drop,
@@ -321,7 +336,9 @@ Recovery restores live state without replaying historical pops or firing.
 
 `check-emp-claw-counterplay.ps1 -GodotPath <editor> [-Visual]` exercises rendered
 production arenas over three impaired UDP peers: membrane/art alignment, metal-only
-contact rejection, selective and simultaneous pops on rotated cars, repeated cleanup,
+contact rejection, selective and simultaneous pops on rotated cars, per-frame
+rigid-model removal through moving pop transitions and reconstruction, attached
+Machine Gun/Missile/Salvo counterplay, repeated cleanup,
 normal Machine Gun destruction of three individually aimed stored sockets, empty
 retraction, simultaneous shield impacts, a native Missile/wall blast, and returning
 owner/weapon-ray immunity. Saved attachment/projectile states and fixed car poses

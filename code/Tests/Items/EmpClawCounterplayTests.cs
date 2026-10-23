@@ -7,7 +7,7 @@ using Trackstorm.Core.Vehicles;
 namespace Trackstorm.Core.Tests.Items;
 
 [TestFixture]
-internal sealed class EmpClawCounterplayTests
+internal sealed partial class EmpClawCounterplayTests
 {
     private HostVehicleSession _host = null!;
     private Vector3 _aim;

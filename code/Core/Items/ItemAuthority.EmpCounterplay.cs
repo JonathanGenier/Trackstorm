@@ -10,17 +10,12 @@ public sealed partial class ItemAuthority
     private EmpNoseHit? IntersectEmpNoses(Vector3 start, Vector3 end, ulong shooter,
         IReadOnlyList<VehicleStepRequest> requests, Dictionary<ulong, ItemSlot> slots, List<EmpClawAttachment> claws)
     {
-        EmpNoseHit? nearest = null;
+        EmpNoseHit? nearest = IntersectAttachedNoses(start, end, requests, claws);
         void Consider(Vector3 center, float radius, ulong attachment, ulong vehicle, ulong magazine, int socket)
         {
             if (EmpClawGeometry.Intersect(start, end, center, radius) is float fraction &&
                 (nearest is null || fraction < nearest.Fraction))
             { nearest = new(fraction, attachment, vehicle, magazine, socket); }
-        }
-        foreach (var claw in claws.OrderBy(c => c.Id))
-        {
-            var pose = requests.Single(r => r.VehicleId == claw.Vehicle).Observation.Physics;
-            Consider(EmpClawGeometry.Nose(claw, pose), EmpClawGeometry.InflatedRadius, claw.Id, claw.Vehicle, 0, -1);
         }
         foreach (var request in requests.OrderBy(r => r.VehicleId))
         {
@@ -33,6 +28,20 @@ public sealed partial class ItemAuthority
                 Consider(pose.Position + Vector3.Transform(EmpClawGeometry.StoredNose(i), pose.Orientation),
                     EmpClawGeometry.StowedRadius, 0, request.VehicleId, load.Magazine, i);
             }
+        }
+        return nearest;
+    }
+
+    private static EmpNoseHit? IntersectAttachedNoses(Vector3 start, Vector3 end,
+        IReadOnlyList<VehicleStepRequest> requests, List<EmpClawAttachment> claws)
+    {
+        EmpNoseHit? nearest = null;
+        foreach (var claw in claws.OrderBy(c => c.Id))
+        {
+            var pose = requests.Single(r => r.VehicleId == claw.Vehicle).Observation.Physics;
+            if (EmpClawGeometry.Intersect(start, end, EmpClawGeometry.Nose(claw, pose), EmpClawGeometry.InflatedRadius) is float fraction &&
+                (nearest is null || fraction < nearest.Fraction))
+            { nearest = new(fraction, claw.Id, claw.Vehicle, 0, -1); }
         }
         return nearest;
     }
@@ -59,9 +68,21 @@ public sealed partial class ItemAuthority
         events.Add(new(load.Magazine, hit.Vehicle, HeldItem.EmpClaw, position, true) { EmpPop = true });
     }
 
-    private void BlastEmpRounds(Vector3 center, MissileState missile, IReadOnlyList<VehicleStepRequest> requests,
-        Dictionary<ulong, ItemSlot> slots, List<ItemEvent> events, RearShieldBatch shields)
+    private void BlastEmpNoses(Vector3 center, MissileState missile, IReadOnlyList<VehicleStepRequest> requests,
+        Dictionary<ulong, ItemSlot> slots, List<EmpClawAttachment> claws, List<ItemEvent> events, RearShieldBatch shields)
     {
+        // Every damaging projectile uses the existing shared blast contract. Check the
+        // nearest membrane point, not the car or metal body; no secondary blast is created.
+        bool Reaches(Vector3 point) => Explosion(center, point, missile.Item).Damage > 0 && shields.Intersect(center, point) is null;
+        claws.RemoveAll(claw =>
+        {
+            var pose = requests.Single(r => r.VehicleId == claw.Vehicle).Observation.Physics;
+            Vector3 nose = EmpClawGeometry.Nose(claw, pose), offset = center - nose;
+            float distance = offset.Length();
+            Vector3 point = distance <= EmpClawGeometry.InflatedRadius ? center : nose + offset * (EmpClawGeometry.InflatedRadius / distance);
+            return Reaches(point);
+        });
+        // Stored ammo retains its approved Missile-only blast behavior.
         if (missile.Item != HeldItem.Missile) { return; }
         foreach (var request in requests)
         {
@@ -72,7 +93,7 @@ public sealed partial class ItemAuthority
                 if ((load.RoundMask & (1 << i)) == 0) { continue; }
                 var pose = request.Observation.Physics;
                 Vector3 nose = pose.Position + Vector3.Transform(EmpClawGeometry.StoredNose(i), pose.Orientation);
-                if (Explosion(center, nose, HeldItem.Missile).Damage <= 0 || shields.Intersect(center, nose) is not null) { continue; }
+                if (!Reaches(nose)) { continue; }
                 PopEmpNose(new(0, 0, request.VehicleId, load.Magazine, i), nose, slots, [], events);
             }
         }
