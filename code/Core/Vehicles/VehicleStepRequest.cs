@@ -15,8 +15,9 @@ public sealed class VehicleStepRequest
     /// <param name="repairCause">Allowlisted source of repair.</param>
     /// <param name="nitro">New boost staged by item authority.</param>
     /// <param name="clearNitro">Match boundary clearing temporary boost.</param>
+    /// <param name="empUntilTick">Latest active claw deadline supplied only by item authority; zero clears impairment.</param>
     /// <param name="oilContact">Distinct per-wheel Oil entries confirmed by item authority.</param>
-    public VehicleStepRequest(ulong vehicleId, InputFrame input, VehicleObservation observation, IEnumerable<VehicleEffectRequest>? effects = null, VehiclePhysicsState? reset = null, float repair = 0, string repairCause = "repair", WheelMask oilContact = WheelMask.None, NitroState nitro = default, bool clearNitro = false)
+    public VehicleStepRequest(ulong vehicleId, InputFrame input, VehicleObservation observation, IEnumerable<VehicleEffectRequest>? effects = null, VehiclePhysicsState? reset = null, float repair = 0, string repairCause = "repair", WheelMask oilContact = WheelMask.None, NitroState nitro = default, bool clearNitro = false, ulong empUntilTick = 0)
     {
         ArgumentNullException.ThrowIfNull(observation);
         if (vehicleId == 0 || !float.IsFinite(repair))
@@ -40,6 +41,7 @@ public sealed class VehicleStepRequest
         nitro.Validate();
         Nitro = nitro;
         ClearNitro = clearNitro;
+        EmpUntilTick = empUntilTick;
         VehicleId = vehicleId;
         Input = input;
         Observation = observation;
@@ -55,6 +57,8 @@ public sealed class VehicleStepRequest
     public NitroState Nitro { get; }
     /// <summary>Ends a boost at the authoritative match boundary.</summary>
     public bool ClearNitro { get; }
+    /// <summary>Latest active authoritative EMP deadline, zero when none remains.</summary>
+    public ulong EmpUntilTick { get; }
     /// <summary>Registered identity.</summary>
     public ulong VehicleId { get; }
     /// <summary>Ordered logical input.</summary>

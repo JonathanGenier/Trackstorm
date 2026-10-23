@@ -40,6 +40,8 @@ public sealed partial class EmpClawFlightChecks : Node3D
         {
             Engine.MaxFps = 60;
             _output = ProjectSettings.GlobalizePath("res://.godot/emp-flight-checks");
+            if (OS.GetCmdlineUserArgs().Contains("--emp-attachments")) { _output = ProjectSettings.GlobalizePath("res://.godot/emp-attachment-checks/round2"); }
+            if (OS.GetCmdlineUserArgs().Contains("--emp-power")) { _output = ProjectSettings.GlobalizePath("res://.godot/emp-attachment-checks/round2/readability"); }
             if (OS.GetCmdlineUserArgs().Contains("--emp-production")) { _output += "/production"; }
             if (OS.GetCmdlineUserArgs().Contains("--emp-long-flight")) { _output += "/long-flight"; }
             System.IO.Directory.CreateDirectory(_output);
@@ -51,7 +53,9 @@ public sealed partial class EmpClawFlightChecks : Node3D
             else
             {
                 await Connect();
-                if (OS.GetCmdlineUserArgs().Contains("--emp-long-flight"))
+                if (OS.GetCmdlineUserArgs().Contains("--emp-power")) { await NativePowerComparison(); }
+                else if (OS.GetCmdlineUserArgs().Contains("--emp-attachments")) { await AttachmentLifecycle(); }
+                else if (OS.GetCmdlineUserArgs().Contains("--emp-long-flight"))
                 {
                     await LongFlight();
                     GD.Print($"EMP long flight passed: {_checks} checks.");
@@ -65,11 +69,14 @@ public sealed partial class EmpClawFlightChecks : Node3D
                     await MultipleAndRecovery();
                     await Terrain();
                 }
-                Check(_motions.All(n => n > 30), "All three peers received sustained replaceable motion.");
+                if (!OS.GetCmdlineUserArgs().Contains("--emp-power"))
+                { Check(_motions.All(n => n > 30), "All three peers received sustained replaceable motion."); }
                 Record(new { scenario = "network", delayMs = 100, jitterMs = 15, lossPercent = 3, motions = _motions,
                     launches = _events.Select(es => es.Count(e => !e.Impact)).ToArray(), impacts = _events.Select(es => es.Count(e => e.Impact)).ToArray() });
                 System.IO.File.WriteAllText(System.IO.Path.Combine(_output, "results.json"), System.Text.Json.JsonSerializer.Serialize(_evidence, new System.Text.Json.JsonSerializerOptions { WriteIndented = true, IncludeFields = true }));
-                GD.Print($"EMP flight integration passed: {_checks} checks; three impaired UDP peers, native hits, terrain, recovery and cleanup.");
+                GD.Print(OS.GetCmdlineUserArgs().Contains("--emp-power")
+                    ? $"EMP power integration passed: {_checks} checks; host, client and practice-driver launches, capped power and native respawn cleanup."
+                    : $"EMP flight integration passed: {_checks} checks; three impaired UDP peers, native hits, terrain, recovery and cleanup.");
             }
         }
         catch (Exception exception) { GD.PushError(exception.ToString()); _failed = true; }
@@ -82,6 +89,8 @@ public sealed partial class EmpClawFlightChecks : Node3D
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         }
+        // Give native audio playback teardown real mixer time, including headless runs.
+        await ToSignal(GetTree().CreateTimer(.25), SceneTreeTimer.SignalName.Timeout);
         GetTree().Quit(_failed ? 1 : 0);
     }
 
@@ -107,6 +116,9 @@ public sealed partial class EmpClawFlightChecks : Node3D
             int index = i;
             arena.Driver.ItemsReceived += p => _events[index].AddRange(p.Events.Where(e => e.Item == HeldItem.EmpClaw));
             arena.Driver.ProjectileMotionReceived += _ => _motions[index]++;
+            // Admit one peer at a time: fixtures address cars 1/2/3, but simultaneous
+            // impaired connections may arrive in a different order.
+            await Until(() => arena.Driver.LocalState?.VehicleId == (ulong)i + 1, "Fixture peer receives its expected stable identity.");
         }
         await Until(() => _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 3), "Three production arenas connected.");
         Configure(new() { ["match.minimum_players"] = 1, ["match.countdown_ticks"] = 1, ["items.emp_claw_lifetime"] = 8 });
@@ -126,7 +138,7 @@ public sealed partial class EmpClawFlightChecks : Node3D
                 Host.World.Restore(new SimulationState(state.Tick, state.LastInput, state.Vehicles.Select(v =>
                 {
                     if (!_positions.TryGetValue(v.VehicleId, out var position)) { return v; }
-                    var pose = new VehiclePhysicsState(position, v.VehicleId == 1 ? _shooterOrientation : N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero);
+                    var pose = new VehiclePhysicsState(position, v.VehicleId == 1 ? _shooterOrientation : v.VehicleId == 2 ? _victimOrientation : _powerFixture && v.VehicleId == 4 ? N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitY, -MathF.PI / 2) : N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero);
                     return new VehicleSnapshot(v.VehicleId, v.LifeId, new VehicleState(state.Tick, pose, false, false, 0, 0), v.Damage, pose);
                 }), state.Match));
             }
@@ -136,7 +148,7 @@ public sealed partial class EmpClawFlightChecks : Node3D
                 driver.DesiredAim = _directions[i];
                 driver.DesiredAimTarget = _targets[i];
                 driver.DesiredAimTargetLife = _targets[i] == 0 ? 0 : Host.World.GetVehicle(_targets[i]).LifeId;
-                _arenas[i].Advance(default);
+                _arenas[i].Advance(i == 0 ? _hostInput : i == 1 ? _victimInput : default);
                 if (driver.Failure.Length > 0) { throw new InvalidOperationException(driver.Failure); }
             }
         }

@@ -3,19 +3,21 @@ param (
     [switch]$Visual,
     [switch]$Shield,
     [switch]$OilFiring,
+    [switch]$EmpClaw,
     [switch]$NoBuild
 )
 $ErrorActionPreference = 'Stop'
-if ($Shield -and $OilFiring) { throw 'Select one focused recovery scenario: Shield or OilFiring.' }
+if (@($Shield, $OilFiring, $EmpClaw).Where({ $_ }).Count -gt 1) { throw 'Select one focused recovery scenario: Shield, OilFiring or EmpClaw.' }
 if (-not $NoBuild) {
     dotnet build Trackstorm.sln -c Debug -warnaserror
     if ($LASTEXITCODE -ne 0) { throw 'Reconnect build failed.' }
 }
 $arguments = @('--path', $PSScriptRoot, 'res://scenes/verification/reconnect_checks.tscn')
 if (-not $Visual) { $arguments = @('--headless') + $arguments }
-if ($Shield -or $OilFiring) { $arguments += '--' }
+if ($Shield -or $OilFiring -or $EmpClaw) { $arguments += '--' }
 if ($Shield) { $arguments += '--shield-recovery' }
 if ($OilFiring) { $arguments += '--oil-firing-recovery' }
+if ($EmpClaw) { $arguments += '--emp-recovery' }
 $outputDirectory = Join-Path $PSScriptRoot '.godot/reconnect-checks'
 New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
 $log = & $GodotPath @arguments 2>&1

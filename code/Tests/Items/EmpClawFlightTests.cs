@@ -114,7 +114,8 @@ internal sealed class EmpClawFlightTests
     [Test]
     public void InterceptionHandsOffActualCarOnceWithoutDamageOrSelfHit()
     {
-        Fire(2);
+        var shot = Fire(2);
+        _positions[3] = shot.Position;
         _ray = (owner, _, _) => { Assert.That(owner, Is.EqualTo(1), "Every sweep excludes the original owner."); return new(.4f, 3) { Normal = Vector3.UnitZ }; };
         Step();
         Assert.That(_host.Items.Missiles, Is.Empty);

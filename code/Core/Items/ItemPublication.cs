@@ -18,8 +18,9 @@ public sealed class ItemPublication
     /// <param name="oilContacts">Current overlap latches; consumed passes are retained on each patch.</param>
     /// <param name="mines">Complete magnetic hazards.</param>
     /// <param name="shields">Complete persistent Shield pools and lifecycle state.</param>
+    /// <param name="empAttachments">Complete independently timed EMP anchors.</param>
     /// <param name="discardRevision">Permanent-deletion watermark retained by recovery boundaries.</param>
-    public ItemPublication(ulong revision, WorldSnapshot world, IEnumerable<ItemSlot> slots, IEnumerable<MissileState> missiles, IEnumerable<ItemEvent> events, IEnumerable<ItemSpawnState>? spawns = null, IEnumerable<OilPatch>? patches = null, IEnumerable<OilContact>? oilContacts = null, IEnumerable<PlayerItemBalance>? balances = null, IEnumerable<ProxyMineState>? mines = null, IEnumerable<ShieldState>? shields = null, ulong discardRevision = 0)
+    public ItemPublication(ulong revision, WorldSnapshot world, IEnumerable<ItemSlot> slots, IEnumerable<MissileState> missiles, IEnumerable<ItemEvent> events, IEnumerable<ItemSpawnState>? spawns = null, IEnumerable<OilPatch>? patches = null, IEnumerable<OilContact>? oilContacts = null, IEnumerable<PlayerItemBalance>? balances = null, IEnumerable<ProxyMineState>? mines = null, IEnumerable<ShieldState>? shields = null, ulong discardRevision = 0, IEnumerable<EmpClawAttachment>? empAttachments = null)
     {
         var inventory = slots.ToArray();
         var projectiles = missiles.ToArray();
@@ -121,6 +122,14 @@ public sealed class ItemPublication
             (state.Stage == ShieldStage.RearShield) != inventory.Any(slot => slot.Vehicle == state.Owner &&
                 slot.Active.Item == HeldItem.Shield && slot.Active.Token == state.Token)))
         { throw new ArgumentException("Shield exposure must match selected ownership."); }
+        var claws = empAttachments?.ToArray() ?? [];
+        foreach (var claw in claws) { claw.Validate(world.Tick); }
+        if (claws.Length + projectiles.Count(p => p.EmpClaw is not null) > ItemAuthority.MaximumEmpAttachments || claws.Select(c => c.Id).Distinct().Count() != claws.Length ||
+            claws.Any(c => !world.Vehicles.Any(v => v.State.VehicleId == c.Vehicle && v.State.LifeId == c.Life && v.State.CanInteract) ||
+                projectiles.Any(p => p.Id == c.Id) || hazards.Any(p => p.Id == c.Id) || oil.Any(p => p.Id == c.Id) || walls.Any(p => p.Id == c.Id) ||
+                inventory.Any(s => (s.Token == c.Id && s.Item != HeldItem.None) || (s.SecondToken == c.Id && s.SecondItem != HeldItem.None))))
+        { throw new ArgumentException("Invalid EMP attachment membership."); }
+        EmpAttachments = Array.AsReadOnly(claws);
         Shields = Array.AsReadOnly(walls);
         Mines = Array.AsReadOnly(hazards);
         Balances = Array.AsReadOnly(history);
@@ -164,6 +173,8 @@ public sealed class ItemPublication
     public IReadOnlyList<ProxyMineState> Mines { get; }
     /// <summary>Complete live Shield identities, attachment/world state, health and duplicate-damage memory.</summary>
     public IReadOnlyList<ShieldState> Shields { get; }
+    /// <summary>Complete independently identified, life-scoped EMP attachments.</summary>
+    public IReadOnlyList<EmpClawAttachment> EmpAttachments { get; }
     /// <summary>Per-life entry latches.</summary>
     public IReadOnlyList<OilContact> OilContacts { get; }
     /// <summary>Complete marker state and last claim.</summary>

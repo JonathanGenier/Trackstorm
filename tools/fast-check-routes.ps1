@@ -113,7 +113,9 @@ function Get-FastCheckPlan {
         if ($path -match 'EmpClaw|emp-claw|emp_claw') {
             Add-Runtime 'check-emp-claw.ps1'
             Add-Runtime 'check-emp-claw-flight.ps1'
-            Add-Manual 'Inspect EMP cannon deployment, full yaw/pitch, three distinct noses, accepted depletion and claw effects in the rendered fixture; future EMP combat authority is outside this presentation harness.'
+            Add-Runtime 'check-emp-claw-attachments.ps1'
+            Add-Manual 'Run check-reconnect.ps1 -EmpClaw for active attachment recovery and offline expiry over impaired UDP.'
+            Add-Manual 'Inspect EMP cannon deployment, actual attachment faces, three independent noses, electricity while driving/rolling, reduced acceleration and Nitro, and staggered deflation/release in rendered gameplay.'
         }
         if ($path -match 'CarRack|RackItemVisual|car_rack|check-car-rack') {
             Add-Runtime 'check-car-rack.ps1'

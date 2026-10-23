@@ -23,3 +23,8 @@ Both local HUD slots use the shared [dynamic HUD assembly](hud.md) to show regis
 Rocket force does not cancel on wall contact. Collision response remains with the environment/vehicle adapter: scrape resistance must remain dissipative, with thrust able to overcome it; direct collision resolution still removes normal momentum and feeds the existing damage path. Nitro introduces no wall steering assist or wall-specific force.
 
 The obsolete `items.nitro_acceleration_multiplier` saved key is no longer applied (retained as an unknown key by existing persistence); missing forward-thrust/airborne values use canonical defaults. No conversion from an engine multiplier to a physical force is assumed.
+
+An active [EMP attachment](items-emp-claw.md#attachment-authority-and-vehicle-power)
+scales Nitro thrust to 20% alongside engine drive, on ground and in air. Additional
+claws do not multiply that penalty. Fuel, deployment, speed ceiling and release
+recovery retain the normal rules; full thrust returns when the last claw ends.
