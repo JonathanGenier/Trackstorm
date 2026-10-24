@@ -390,6 +390,7 @@ public sealed partial class ItemAuthority
                 // Retire each shot's capability so delayed/replayed requests cannot spend the next round.
                 ulong next = remaining > 0 ? NextToken() : slot.Token;
                 ulong ready = remaining > 0 ? checked(input.Tick + (ulong)Configuration.SalvoIntervalTicks) : 0;
+                if (remaining > 0) { ContinueSalvoAim(slot.Vehicle, slot.Token, next); }
                 slots[pair.Key] = usedIndex == 0
                     ? inventory with { Item = remaining > 0 ? HeldItem.Salvo : HeldItem.None, Token = next, SalvoShots = remaining, SalvoReadyTick = ready }
                     : inventory with { SecondItem = remaining > 0 ? HeldItem.Salvo : HeldItem.None, SecondToken = next, SecondSalvoShots = remaining, SecondSalvoReadyTick = ready };
@@ -745,7 +746,7 @@ public sealed partial class ItemAuthority
         {
             var state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == aim.Vehicle);
             if (state is not { CanInteract: true } || state.LifeId != aim.Life || !_slots.TryGetValue(aim.Vehicle, out var slot) ||
-                slot.Active.Token != aim.Token || !WeaponAim.Supports(slot.Active.Item)) { ResetAim(aim.Vehicle); }
+                slot.Active.Token != aim.Token || !WeaponAim.SupportsArticulation(slot.Active.Item)) { ResetAim(aim.Vehicle); }
         }
 
         foreach (var removed in missiles.Where(missile => !advanced.Any(value => value.Id == missile.Id) && !events.Any(value => value.Token == missile.Id && value.Impact)))

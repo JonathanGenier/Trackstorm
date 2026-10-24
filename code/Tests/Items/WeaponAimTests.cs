@@ -8,6 +8,31 @@ namespace Trackstorm.Core.Tests.Items;
 [TestFixture]
 internal sealed class WeaponAimTests
 {
+    [TestCase(0)]
+    [TestCase(90)]
+    [TestCase(180)]
+    [TestCase(-90)]
+    public void SalvoArticulationUsesAcceptedCapabilityWithoutAdoptingDirectFire(float degrees)
+    {
+        var host = Create(HeldItem.Salvo);
+        var slot = host.Items.Slots.Single();
+        Vector3 direction = WeaponAim.Direction(degrees * MathF.PI / 180, 0);
+        for (ulong i = 1; i <= 90; i++)
+        {
+            Assert.That(host.AimItem(0, 99, slot.Life, slot.Token, slot.SelectionRevision, i, direction), Is.True);
+            host.Step(default, Observe);
+        }
+        var aim = host.Items.Aims.Single();
+        Assert.That(Vector3.Distance(aim.Direction, direction), Is.LessThan(.0001));
+        Assert.That(ItemCodec.DecodeAims(ItemCodec.EncodeAims(99, host.World.State.Tick, 0, [aim])).Aims.Single(), Is.EqualTo(aim));
+        Assert.That(host.Items.Slots.Single().SalvoShots, Is.EqualTo(5));
+        Assert.That(host.Items.Missiles, Is.Empty);
+        Assert.That(WeaponAim.Supports(HeldItem.Salvo), Is.False, "Articulation does not opt Salvo into direct-fire or sticky assistance.");
+        Assert.That(host.AimItem(0, 99, slot.Life, slot.Token + 1, slot.SelectionRevision, 91, direction), Is.False);
+        Assert.That(host.SwitchItem(0, 99, slot.Life, 1), Is.True);
+        Assert.That(host.Items.Aims, Is.Empty);
+    }
+
     [TestCase(0, 0)]
     [TestCase(90, 0)]
     [TestCase(180, 0)]
@@ -27,6 +52,32 @@ internal sealed class WeaponAimTests
         Assert.That(aim, Is.Not.Null);
         Assert.That(Vector3.Distance(aim.Direction, desired), Is.LessThan(.0001));
         Assert.That(WeaponAim.IntersectsBody(WeaponAim.Pivot, WeaponAim.Direction(aim.Yaw, aim.Pitch)), Is.False);
+    }
+
+    [Test]
+    public void AcceptedSalvoRoundPreservesTurretHeadingButRetiresOldInputToken()
+    {
+        var host = Create(HeldItem.Salvo);
+        var before = host.Items.Slots.Single();
+        for (ulong i = 1; i <= 90; i++)
+        {
+            host.AimItem(0, 99, before.Life, before.Token, 0, i, Vector3.UnitX);
+            host.Step(default, Observe);
+        }
+        float yaw = host.Items.Aims.Single().Yaw;
+        Assert.That(host.Items.RequestUse(host.World, 1, before.Life, before.Token), Is.True);
+        host.Step(default, Observe, ground: point => point with { Y = 0 });
+        var after = host.Items.Slots.Single();
+        Assert.That(after.SalvoShots, Is.EqualTo(4));
+        Assert.That(after.Token, Is.Not.EqualTo(before.Token));
+        Assert.That(host.Items.Aims.Single().Token, Is.EqualTo(after.Token));
+        Assert.That(host.Items.Aims.Single().Yaw, Is.EqualTo(yaw).Within(.00001));
+        Assert.That(host.AimItem(0, 99, before.Life, before.Token, 0, 91, Vector3.UnitX), Is.False);
+        Assert.That(host.AimItem(0, 99, after.Life, after.Token, 0, 92, Vector3.UnitX), Is.True);
+        host.Step(default, Observe);
+        Assert.That(host.Items.Aims.Single().Yaw, Is.EqualTo(yaw).Within(.00001));
+        Assert.That(host.Items.Discard(host.World, 1, after.Life, after.Token, 0), Is.True);
+        Assert.That(host.Items.Aims, Is.Empty);
     }
 
     [Test]

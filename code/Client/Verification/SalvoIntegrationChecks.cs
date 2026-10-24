@@ -159,7 +159,7 @@ public sealed partial class SalvoIntegrationChecks : Node
                             _firstMarker ??= center;
                             if (center.DistanceTo(_firstMarker.Value) > 3) { _markerMoved = true; }
                             var aim = SalvoFlight.Aim(_arenas[ShooterIndex].LocalState!.Movement.Physics, host.Items.Configuration.SalvoRange);
-                            Check(new Vector2(center.X - aim.X, center.Z - aim.Z).Length() < 4, "Marker follows current vehicle forward aim during the volley");
+                            Check(new Vector2(center.X - aim.X, center.Z - aim.Z).Length() < 4, $"Marker follows current vehicle forward aim during the volley: center={center}, aim={aim}, frame={_frame}");
                             if (!_movingCaptured && _frame - _boundary >= 90) { Capture(ShooterIndex, "moving-aim.png"); _movingCaptured = true; }
                         }
                         if (!_captured && _frame - _boundary > 28) { Capture(ShooterIndex, "owner-arc.png"); _captured = true; }

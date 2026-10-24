@@ -35,7 +35,7 @@ public sealed partial class ItemAuthority
         if (state is not { CanInteract: true } || state.LifeId != life || sequence == 0 || !WeaponAim.IsDirection(direction) ||
             (target == 0) != (targetLife == 0) || target == vehicle ||
             !_slots.TryGetValue(vehicle, out var slot) || slot.Life != life || slot.Active.Token != token ||
-            slot.SelectionRevision != selection || !WeaponAim.Supports(slot.Active.Item) ||
+            slot.SelectionRevision != selection || !WeaponAim.SupportsArticulation(slot.Active.Item) ||
             (_aimIntents.TryGetValue(vehicle, out var previous) && previous.Life == life && previous.Sequence >= sequence)) { return false; }
         _aimIntents[vehicle] = new(life, token, selection, sequence, world.State.Tick, direction, target, targetLife);
         return true;
@@ -75,7 +75,7 @@ public sealed partial class ItemAuthority
                 { EmpDeploySeconds = Configuration.EmpClawDeploySeconds, EmpStowSeconds = Configuration.EmpClawStowSeconds };
                 _aims.Remove(id);
             }
-            if (!WeaponAim.Supports(slot.Active.Item) && slot.Active.Item != HeldItem.Wrench)
+            if (!WeaponAim.SupportsArticulation(slot.Active.Item) && slot.Active.Item != HeldItem.Wrench)
             { _aimDeployment[id] = deployment; ResetAim(id); continue; }
             // An accepted mine arm owns the rack until placement and its return finish,
             // even if the selected inventory has already become a direct-fire weapon.
@@ -130,6 +130,18 @@ public sealed partial class ItemAuthority
     {
         _aims.Remove(id);
         _aimIntents.Remove(id);
+    }
+
+    // Only an accepted Salvo consumption can carry articulation to its successor
+    // capability. Old input tokens remain invalid; recovery still clears all aim.
+    private void ContinueSalvoAim(ulong vehicle, ulong priorToken, ulong nextToken)
+    {
+        if (_aimIntents.TryGetValue(vehicle, out var intent) && intent.Token == priorToken)
+        { _aimIntents[vehicle] = intent with { Token = nextToken }; }
+        if (_aims.TryGetValue(vehicle, out var aim) && aim.Token == priorToken)
+        { _aims[vehicle] = aim with { Token = nextToken }; }
+        if (_aimDeployment.TryGetValue(vehicle, out var deployment) && deployment.Token == priorToken)
+        { _aimDeployment[vehicle] = deployment with { Token = nextToken }; }
     }
 
     private void ResetAims()

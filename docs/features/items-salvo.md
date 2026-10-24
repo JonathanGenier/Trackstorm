@@ -2,7 +2,48 @@
 
 Read the [shared system contract](items.md) first. This reference contains only the selected subsystem; preserve its shared ownership and integration requirements.
 
-## Arcing Salvo
+## Catapult mechanical presentation
+
+The production [Blender catapult](../../assets/items/salvo/README.md) replaces the
+labelled box on the existing Car weapon rack. An outgoing weapon retains the
+mechanism until it retracts and the trunk closes. Salvo then uses the ordinary
+split-deck/rack lift, extends its forward sliding bearing and overlapping wooden
+spoon sections, winches the arm to a five-degree downhill incline and feeds one
+of five horizontal rounds into the bowl. Four remain on the handle after loading.
+The 1.25-second catapult extension/loading path begins only after the rack clears
+the roof. Retraction centers yaw first, completes any release, returns ammunition
+to its captive storage positions and nests the arm/mount before lowering the rack.
+
+The fixed winch is inside the rear rack. Its cable passes through an axial fairlead
+to the underside of the spoon. The spring and telescoping support plate belong to
+the turret hierarchy, so both rotate with the spoon. Accepted use gives a rapid
+75 ms upward swing, a 45-degree stop with damped recoil, winch return and captive
+reload; the presentation cycle lasts 0.48 seconds to fit the existing minimum
+single-shot cadence. Stored rounds and the bowl's loaded round remain attached
+to the mechanism during airborne, rolling and inverted vehicle poses.
+
+Salvo uses the existing life/token/selection-validated camera direction and
+replaceable accepted-aim publication for full yaw articulation. It does not enable
+direct-fire sticky assistance or alter shared camera motion. Accepted Salvo token
+rotation carries articulation to the successor token; stale-token input remains
+invalid. No new packet or inventory authority is introduced. Both peers derive
+mechanical state from accepted selection/count/use events. Recovery reconstructs
+the remaining load and replays deployment without historical firing. Cosmetic
+deployment phases remain local, as with the ordinary rack; exact phase-locking
+across late admission is not part of this presentation contract.
+
+`SalvoCatapult.Bowl`, `IsReady`, `Cycling` and `ObserveRounds` provide the mechanical
+integration points for the automatic firing system. The current firing rules,
+forward ground target, projectile arc and effects below remain unchanged. This
+mechanical layer does not create an automatic volley or a fuse timer. Non-default
+developer inventories above five rounds show at most five physical rounds; the
+future five-shot controller owns the final fixed magazine contract.
+
+`check-salvo-catapult.ps1 -GodotPath <editor> [-Visual]` covers the actual Car,
+two local native UDP peers, full-yaw aim, repeated releases, weapon switching,
+airborne/rolled poses, captive rounds, impaired handoffs and reconstruction.
+
+## Existing single-shot gameplay
 
 Salvo is a Weapon in the existing registry (wire identity 6, alongside Proxy Mine identity 5). Each pickup holds five individually fired shots by default. Each separate UseItem press fires one missile and decrements only that physical slot; holding never repeats. A thirty-tick (0.5-second) minimum cooldown rejects early presses without spending ammunition or queuing a future shot. The HUD shows the remaining count, and the slot clears after its final shot. Each shot needs one place within the shared sixteen-projectile cap; insufficient capacity or missing target ground preserves ammunition. There is no manual target packet. At each launch the host projects the vehicle's current horizontal forward direction 65 metres onto static ground. Driving and steering change the aim for remaining rounds; each airborne missile finishes its own committed arc. Shots launch three metres above the current host-observed vehicle when their individual requests are accepted. A parabola twelve metres above the launch-to-target chord provides the arc, with mean travel speed 150 m/s. Complete 60 Hz segment sweeps can hit obstacles/vehicles before the intended ground point; an unobstructed final segment impacts the stored target.
 
