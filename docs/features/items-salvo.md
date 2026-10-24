@@ -14,9 +14,20 @@ The 1.25-second catapult extension/loading path begins only after the rack clear
 the roof. Retraction centers yaw first, completes any release, returns ammunition
 to its captive storage positions and nests the arm/mount before lowering the rack.
 
-The fixed winch is inside the rear rack. Its cable passes through an axial fairlead
-to the underside of the spoon. The spring and telescoping support plate belong to
-the turret hierarchy, so both rotate with the spoon. Accepted use gives a rapid
+The fixed winch is inside the rear rack. A captured-post platform lift and overlapping
+slide runners connect the rack to the forward slew bearing. The spoon's hinge rises
+within telescoping cheeks. The straight rearward support plate connects to a visible
+clevis on that bearing and pivots upward during release to limit spring extension.
+The six-turn spring has separate rigid seats connected to the plate and spoon
+saddles, plus an internal guide. Its authored morph changes pitch without stretching
+the wire gauge. The spring and plate rotate with the turret, independently of the magazine.
+
+The cable runs from the drum up the mount, along the lifting/sliding platform,
+through an axial tension swivel and along the spoon underside to its rear strap.
+The rotating fairlead keeps that last segment outside the spring. Six normalized
+mesh segments align to physical anchors throughout deployment and rotation;
+coincident anchors hide their zero-length segment instead of creating a singular
+transform. Accepted use gives a rapid
 75 ms upward swing, a 45-degree stop with damped recoil, winch return and captive
 reload; the presentation cycle lasts 0.48 seconds to fit the existing minimum
 single-shot cadence. Stored rounds and the bowl's loaded round remain attached
@@ -41,7 +52,9 @@ future five-shot controller owns the final fixed magazine contract.
 
 `check-salvo-catapult.ps1 -GodotPath <editor> [-Visual]` covers the actual Car,
 two local native UDP peers, full-yaw aim, repeated releases, weapon switching,
-airborne/rolled poses, captive rounds, impaired handoffs and reconstruction.
+airborne/rolled poses, captive rounds, impaired handoffs and reconstruction. It
+also samples actual rendered cable endpoints, coil morph/scale, seat attachment
+and platform engagement through deployment, eight yaw bearings, use and retraction.
 
 ## Existing single-shot gameplay
 

@@ -26,9 +26,9 @@
   "export": {
     "primitivesWithoutUv": 0,
     "materials": 7,
-    "primitives": 45,
-    "triangles": 43900,
-    "meshes": 18
+    "primitives": 64,
+    "triangles": 51148,
+    "meshes": 24
   },
   "files": [
     {
@@ -61,19 +61,23 @@
     },
     {
       "path": "assets/items/salvo/SalvoCatapult.glb",
-      "sha256": "ac1078a2b25413d095f865cc12f8bbc35833301edec1501204b53dd4ffb3476a"
+      "sha256": "e77cd687db8b7eb42a4a335d5cbc4632f592c5b3f696a34d278ae375bd91def0"
     },
     {
       "path": "assets/items/salvo/source/AuditCatapult.py",
-      "sha256": "f4f761a84d21da216c36ac5b9f81e219b0069a606da488fdbb027a1d250ade62"
+      "sha256": "669b0b72ab7cb7e8fa09885c726251f79c3dc2f83aa54cde90a2525bd0596d99"
     },
     {
       "path": "assets/items/salvo/source/BuildCatapult.py",
       "sha256": "29e2e6967b84750e20ce9c6d69c037df7ab60e506c20662f84430905d2e3188d"
     },
     {
+      "path": "assets/items/salvo/source/RefineCatapult.py",
+      "sha256": "145532b59cf7ec1690b1a396e36862666b75307062de833b5801d59da08b82f4"
+    },
+    {
       "path": "assets/items/salvo/source/SalvoCatapult.blend",
-      "sha256": "8f2e5bdb7bc2845bf706e46e89cad48f3d3018f21155125aa4457a72dca5b0eb"
+      "sha256": "0109370731ab6b9d08d4640038eb1b4357e2b4ed023692f38b5fb3723db361c8"
     }
   ]
 }

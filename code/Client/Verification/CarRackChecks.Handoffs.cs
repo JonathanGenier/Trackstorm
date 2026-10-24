@@ -9,7 +9,7 @@ public sealed partial class CarRackChecks
 {
     private Action? _sampleHandoff;
 
-    public override void _Process(double delta) => _sampleHandoff?.Invoke();
+    public override void _Process(double delta) { _sampleHandoff?.Invoke(); _sampleCatapult?.Invoke(); }
 
     private async Task CheckWeaponHandoffs()
     {

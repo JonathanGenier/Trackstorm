@@ -160,7 +160,7 @@ function Get-FastCheckPlan {
             Add-Runtime 'check-salvo.ps1'
             Add-Manual 'Play Salvo from the chase camera; inspect terrain-conforming marker privacy on remote peers and repeated use. Run impaired salvo, reconnect and migration checks.'
         }
-        if ($path -match 'SalvoCatapult|CarRackPresentation\.Salvo|CarRackChecks\.Salvo|assets/items/salvo/|check-salvo-catapult') {
+        if ($path -match 'SalvoCatapult|CatapultConnectionAudit|CarRackPresentation\.Salvo|CarRackChecks\.Salvo|assets/items/salvo/|check-salvo-catapult') {
             Add-Runtime 'check-salvo-catapult.ps1'
         }
         if ($path -match 'TireFeedback|TireMarkBatch|TireEffect|TireTrack|WaterWake|EnvironmentPresentation|EnvironmentPreset|EnvironmentSky|TerrainEffects|terrain_effects|check-terrain-effects') {

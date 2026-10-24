@@ -9,19 +9,33 @@ namespace Trackstorm.Client.Verification;
 public sealed partial class CarRackChecks
 {
     private float _catapultAim;
+    private Action? _sampleCatapult;
     private IEnumerable<SalvoCatapult> Catapults => _arenas.Select(a => a.Bodies[Shooter].Rack.Catapult!);
 
     private async Task CheckSalvoCatapult()
     {
         string output = ProjectSettings.GlobalizePath("res://.godot/ts175");
         System.IO.Directory.CreateDirectory(output);
+        ProcessPriority = 1000;
+        string? connectionFailure = null;
+        int connectionSamples = 0;
+        _sampleCatapult = () =>
+        {
+            if (connectionFailure is not null) { return; }
+            foreach (var catapult in Catapults.Where(c => c is { Visible: true }))
+            {
+                try { CatapultConnectionAudit.Verify(catapult); connectionSamples++; }
+                catch (InvalidOperationException exception) { connectionFailure = exception.Message; }
+            }
+        };
         await SetupHandoff(HeldItem.Salvo, HeldItem.MachineGun);
         await Until(() => AllPresent(HeldItem.Salvo), "Both UDP peers complete rack, slide, telescope, winch and captive feed");
         Check(Catapults.All(c => c.VisibleRounds == 5 && c.ArmDegrees is > -5.1f and < -4.9f), "Five horizontal rounds; cocked spoon slopes down toward bowl");
         await CaptureCatapult("side-ready", new(-7, 2.7f, 1));
         await CaptureCatapult("rear-winch", new(-1.9f, 2.2f, 6));
         await CaptureCatapult("magazine", new(-3, 4.5f, 3));
-        foreach (float angle in new[] { 90f, 180f, -90f, 0f })
+        await CaptureCatapult("mechanics-close", new(-4, 2.7f, .5f), 1.8f);
+        foreach (float angle in new[] { 45f, 90f, 135f, 180f, -135f, -90f, -45f, 0f })
         {
             _catapultAim = Mathf.DegToRad(angle);
             await Until(() => Catapults.All(c => Math.Abs(Mathf.AngleDifference(c.Yaw, _catapultAim)) < .025f), "Accepted camera articulation reaches " + angle + " degrees on both peers");
@@ -98,9 +112,9 @@ public sealed partial class CarRackChecks
             if (round == 4)
             {
                 await Frames(3);
-                await CaptureCatapult("release-stop", new(-6, 3.5f, 4));
+                await CaptureCatapult("release-stop", new(-7, 4.5f, 5), 2.0f);
                 await Frames(10);
-                await CaptureCatapult("winch-reset", new(-6, 3.5f, 4));
+                await CaptureCatapult("winch-reset", new(-7, 4.5f, 5), 2.0f);
             }
             if (round > 0)
             {
@@ -130,18 +144,21 @@ public sealed partial class CarRackChecks
         await SwitchHandoff(HeldItem.Shield, "impaired-catapult-to-shield");
         await SwitchHandoff(HeldItem.Salvo, "impaired-shield-to-catapult");
         _gateways[0].ConfigureSimulation(new());
+        _sampleCatapult = null;
+        Check(connectionFailure is null && connectionSamples > 300,
+            $"Rendered coil, seats, cable endpoints and platform overlap: {connectionSamples} temporal samples; failure={connectionFailure ?? "none"}");
         System.IO.File.WriteAllLines(System.IO.Path.Combine(output, "mechanical-evidence.txt"), _evidence);
         GD.Print($"Salvo catapult integration passed: {_checks} checks on two UDP peers.");
     }
 
-    private async Task CaptureCatapult(string name, Vector3 offset)
+    private async Task CaptureCatapult(string name, Vector3 offset, float focusHeight = 1)
     {
         if (DisplayServer.GetName() == "headless") { return; }
         var arena = _arenas[1]; var body = arena.Bodies[Shooter];
         var camera = new Camera3D { Fov = 42, PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off };
         arena.AddChild(camera);
         camera.GlobalPosition = body.VisualPosition + body.VisualTransform.Basis * offset;
-        camera.LookAt(body.VisualPosition + Vector3.Up * 1.0f + body.VisualTransform.Basis.Z * .25f);
+        camera.LookAt(body.VisualPosition + Vector3.Up * focusHeight + body.VisualTransform.Basis.Z * .25f);
         camera.MakeCurrent();
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
         using var image = _views[1].GetTexture().GetImage();
