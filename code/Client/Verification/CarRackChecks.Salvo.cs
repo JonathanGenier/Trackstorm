@@ -35,6 +35,8 @@ public sealed partial class CarRackChecks
         await CaptureCatapult("rear-winch", new(-1.9f, 2.2f, 6));
         await CaptureCatapult("magazine", new(-3, 4.5f, 3));
         await CaptureCatapult("mechanics-close", new(-4, 2.7f, .5f), 1.8f);
+        await CaptureCatapult("winch-close", new(-.5f, 2.2f, 5), 1.1f);
+        var readyDrums = Catapults.Select(c => ((Node3D)c.FindChild("WinchDrum", true, false)).Rotation.X).ToArray();
         foreach (float angle in new[] { 45f, 90f, 135f, 180f, -135f, -90f, -45f, 0f })
         {
             _catapultAim = Mathf.DegToRad(angle);
@@ -47,6 +49,9 @@ public sealed partial class CarRackChecks
                 Check(catapult.VisibleRounds == 5, "Aiming never consumes ammunition");
             }
             await CaptureCatapult("yaw-" + angle, new(-6, 4, 5));
+            Check(Catapults.Select((c, i) => Math.Abs(Mathf.AngleDifference(
+                ((Node3D)c.FindChild("WinchDrum", true, false)).Rotation.X, readyDrums[i])) < .002f).All(v => v),
+                "Yaw alone does not wind or unwind the fixed winch: " + angle);
         }
         // Native driving uses the normal authority and replicated presentation.
         await Frames(90, throttle: 18000, steer: 8000);
@@ -93,12 +98,18 @@ public sealed partial class CarRackChecks
         float compressed = Catapults.First().SpringLength;
         float highest = -5, longest = compressed;
         int samples = 0;
+        var previousDrums = Catapults.ToDictionary(c => c, c => ((Node3D)c.FindChild("WinchDrum", true, false)).Rotation.X);
+        float paidOut = 0, hauledIn = 0;
         _sampleHandoff = () =>
         {
             foreach (var catapult in Catapults.Where(c => c is not null))
             {
                 highest = Math.Max(highest, catapult.ArmDegrees);
                 longest = Math.Max(longest, catapult.SpringLength);
+                float drum = ((Node3D)catapult.FindChild("WinchDrum", true, false)).Rotation.X;
+                float movement = Mathf.AngleDifference(previousDrums[catapult], drum);
+                paidOut += Math.Max(0, -movement); hauledIn += Math.Max(0, movement);
+                previousDrums[catapult] = drum;
                 if (catapult.ArmDegrees > 45.01f) { throw new InvalidOperationException("Spoon passed its mechanical stop."); }
                 if (catapult.VisibleRounds > 0 && Math.Abs(Mathf.AngleDifference(catapult.Yaw, _catapultAim)) > .1f)
                 { throw new InvalidOperationException("An accepted shot reset turret heading."); }
@@ -107,6 +118,11 @@ public sealed partial class CarRackChecks
         };
         for (int round = 4; round >= 0; round--)
         {
+            // Screenshots advance local presentation time without advancing this
+            // harness's authority. Visual reset alone is not the firing cooldown.
+            await Until(() => _arenas[0].Driver.Host!.World.State.Tick >=
+                _arenas[1].Driver.ItemState!.Slots.Single(s => s.Vehicle == Shooter).Active.SalvoReadyTick,
+                "Authoritative cooldown ready before shot " + (5 - round));
             Check(_arenas[1].Driver.RequestItemUse(), "Existing single-shot request " + (5 - round));
             await Until(() => _arenas.All(a => a.Driver.ItemState!.Slots.Single(s => s.Vehicle == Shooter).Active.SalvoShots == round), "Accepted remaining rounds " + round);
             if (round == 4)
@@ -126,6 +142,7 @@ public sealed partial class CarRackChecks
         _sampleHandoff = null;
         _catapultAim = 0;
         Check(samples > 30 && highest > 42 && longest > compressed + .3f, "Release reaches approximately 45 degrees and spring extends/recompresses");
+        Check(paidOut > 1 && hauledIn > 1, $"Winch visibly pays out and hauls in: {paidOut:F3}/{hauledIn:F3} radians across both peers");
         Check(_arenas[0].Driver.Host!.Items.Slots.Single(s => s.Vehicle == Shooter).SecondItem == HeldItem.MachineGun, "Existing firing leaves second-slot capability untouched");
         await SetupHandoff(HeldItem.Salvo, HeldItem.Shield);
         await Until(() => AllPresent(HeldItem.Salvo), "Fresh magazine deploys for recovery");
@@ -144,11 +161,48 @@ public sealed partial class CarRackChecks
         await SwitchHandoff(HeldItem.Shield, "impaired-catapult-to-shield");
         await SwitchHandoff(HeldItem.Salvo, "impaired-shield-to-catapult");
         _gateways[0].ConfigureSimulation(new());
+        await CaptureWinchCycle();
         _sampleCatapult = null;
         Check(connectionFailure is null && connectionSamples > 300,
             $"Rendered coil, seats, cable endpoints and platform overlap: {connectionSamples} temporal samples; failure={connectionFailure ?? "none"}");
         System.IO.File.WriteAllLines(System.IO.Path.Combine(output, "mechanical-evidence.txt"), _evidence);
         GD.Print($"Salvo catapult integration passed: {_checks} checks on two UDP peers.");
+    }
+
+    private async Task CaptureWinchCycle()
+    {
+        if (DisplayServer.GetName() == "headless") { return; }
+        var arena = _arenas[1]; var body = arena.Bodies[Shooter];
+        var camera = new Camera3D { Fov = 42, PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off };
+        arena.AddChild(camera);
+        var winch = (Node3D)body.Rack.Catapult!.FindChild("WinchHousing", true, false);
+        camera.GlobalPosition = winch.GlobalPosition + body.VisualTransform.Basis * new Vector3(-.35f, .35f, 2.0f);
+        camera.LookAt(winch.GlobalPosition + Vector3.Up * .10f);
+        camera.MakeCurrent();
+        string directory = ProjectSettings.GlobalizePath("res://.godot/ts175/winch-cycle");
+        System.IO.Directory.CreateDirectory(directory);
+        var evidence = new List<string> { "frame,milliseconds,drum_radians,spoon_degrees,guide_x" };
+        var images = new List<Image>();
+        ulong start = Time.GetTicksMsec();
+        for (int frame = 0; frame < 30; frame++)
+        {
+            if (frame == 2) { Check(arena.Driver.RequestItemUse(), "Winch capture uses an ordinary accepted shot"); }
+            await Frames(2);
+            await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            var catapult = body.Rack.Catapult!;
+            var drum = (Node3D)catapult.FindChild("WinchDrum", true, false);
+            var guide = (Node3D)catapult.FindChild("WinchLevelWind", true, false);
+            evidence.Add(FormattableString.Invariant($"{frame},{Time.GetTicksMsec()-start},{drum.Rotation.X},{catapult.ArmDegrees},{guide.Position.X}"));
+            images.Add(_views[1].GetTexture().GetImage());
+        }
+        for (int frame = 0; frame < images.Count; frame++)
+        {
+            using var image = images[frame];
+            Check(image.SavePng(System.IO.Path.Combine(directory, $"frame-{frame:D2}.png")) == Error.Ok, "Captured winch cycle " + frame);
+        }
+        System.IO.File.WriteAllLines(System.IO.Path.Combine(directory, "poses.csv"), evidence);
+        Check(Catapults.All(c => c.IsReady && c.VisibleRounds == 4), "Recorded winch cycle finishes reset with four rounds on both peers");
+        camera.QueueFree();
     }
 
     private async Task CaptureCatapult(string name, Vector3 offset, float focusHeight = 1)

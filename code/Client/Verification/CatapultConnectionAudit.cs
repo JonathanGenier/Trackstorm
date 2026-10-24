@@ -25,7 +25,8 @@ internal static class CatapultConnectionAudit
         Connected(Joint("SpringUpperSeat").GlobalPosition, Joint("SpringTop").GlobalPosition, "Upper seat");
         Require(Math.Abs(coil.GlobalBasis.X.Length() - 1) < .003f && Math.Abs(coil.GlobalBasis.Y.Length() - 1) < .003f,
             "Spring pitch must change without scaling its wire or seats");
-        string[] route = ["WinchExit", "CableRiser", "CablePlatformRear", "CableSwivel", "CableSwivelTop", "CableFairlead", "CableEye"];
+        string[] route = ["WinchExit", "CableRiser", "CablePlatformRear", "CableSwivel", "CableSwivelTop", "CableFairlead", "CableSpoonGuide", "CableEye"];
+        float ropeLength = 0;
         for (int i = 0; i < route.Length - 1; i++)
         {
             var segment = Joint(i == 0 ? "Cable" : "CableSegment" + i);
@@ -33,7 +34,23 @@ internal static class CatapultConnectionAudit
             var bounds = mesh.Mesh.GetAabb();
             Connected(mesh.ToGlobal(new(0, bounds.Position.Y, 0)), Joint(route[i]).GlobalPosition, "Cable start " + i);
             Connected(mesh.ToGlobal(new(0, bounds.End.Y, 0)), Joint(route[i + 1]).GlobalPosition, "Cable end " + i);
+            float span = Joint(route[i]).GlobalPosition.DistanceTo(Joint(route[i + 1]).GlobalPosition);
+            ropeLength += span;
+            Require(bounds.Size.X > .06f && bounds.Size.Z > .06f, "Ship rope must retain readable physical thickness");
+            var material = (StandardMaterial3D)mesh.GetSurfaceOverrideMaterial(0);
+            Require(material.AlbedoTexture is not null && Math.Abs(material.Uv1Scale.Y * .12f - span) < .001f,
+                "Authored rope braid must retain its physical pitch");
         }
+        float drumAngle = (4 - ropeLength) / .18f;
+        Require(Math.Abs(Mathf.AngleDifference(Joint("WinchDrum").Rotation.X, drumAngle)) < .002f,
+            "Winch must rotate according to actual rope travel");
+        Require(Math.Abs(Joint("WinchExit").Position.X - .052f * drumAngle / Mathf.Tau) < .001f,
+            "Rope must leave the current winding tangent");
+        Require(Math.Abs(Joint("WinchLevelWind").Position.X - Joint("WinchExit").Position.X) < .001f &&
+            Math.Abs(Joint("WinchExit").Position.X) < .25f, "Level wind must follow the rope within the flanges");
+        var localExit = Joint("WinchHousing").ToLocal(Joint("WinchExit").GlobalPosition);
+        Require(Math.Abs(new Vector2(localExit.Y, localExit.Z).Length() - .18f) < .001f,
+            "Rope must meet the wound drum, not float beside it");
         // Measure actual relative travel: the runner's rear end must remain within
         // the fixed guide, and each lifting post retains positive socket overlap.
         var lift = Joint("PlatformLift"); var slide = Joint("TurretSlide");
@@ -44,7 +61,7 @@ internal static class CatapultConnectionAudit
         var yaw = Joint("TurretYaw"); var top = Joint("SpringTop");
         Vector3 end = yaw.ToLocal(Joint("CableEye").GlobalPosition);
         Vector3 fairlead = yaw.ToLocal(Joint("CableFairlead").GlobalPosition);
-        Require(end.X > .19f && fairlead.X > .19f && Math.Abs(yaw.ToLocal(top.GlobalPosition).X) < .001f,
+        Require(Math.Abs(end.X) > .23f && Math.Abs(fairlead.X) > .23f && end.X * fairlead.X > 0 && Math.Abs(yaw.ToLocal(top.GlobalPosition).X) < .001f,
             "Underspoon cable must pass outside the spring wire");
     }
 }

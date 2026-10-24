@@ -56,7 +56,7 @@ minimum = [min(p[i] for p in points) for i in range(3)]
 maximum = [max(p[i] for p in points) for i in range(3)]
 assert all(math.isfinite(v) for p in points for v in p)
 print('Highest compact surfaces:', sorted(heights, reverse=True)[:4])
-assert triangles <= 60000 and surfaces <= 64, (triangles,surfaces)
+assert triangles <= 60000 and surfaces <= 72, (triangles,surfaces)
 assert minimum[0] > -.75 and maximum[0] < .75, (minimum,maximum)
 assert minimum[1] > -.75 and maximum[1] < .60, (minimum,maximum)
 assert minimum[2] > -1.0 and maximum[2] < .80, (minimum,maximum)
@@ -89,4 +89,10 @@ for n in nodes:
         p=doc['meshes'][n['mesh']]['primitives'][0]
         points=positions(p['attributes']['POSITION'])
         assert abs(min(v[1] for v in points))<.001 and abs(max(v[1] for v in points)-1)<.001
+        assert .065 < max(v[0] for v in points)-min(v[0] for v in points) < .067
+        assert doc['materials'][p['material']]['name']=='Salvo carnival rope'
+assert descends('CableSpoonGuide','SpoonHinge') and descends('CableEye','ArmTip')
+assert descends('WinchDrum','WinchHousing') and not descends('WinchLevelWind','TurretYaw')
+assert 'CableSegment6' in names
+assert any(image.get('name') == 'Salvo carnival rope' for image in doc['images'])
 print('Spring mesh/morph, rigid seats, normalized cable meshes and platform ancestry: PASS')

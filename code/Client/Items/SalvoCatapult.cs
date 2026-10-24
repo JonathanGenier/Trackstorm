@@ -26,7 +26,9 @@ internal sealed partial class SalvoCatapult : Node3D
     private readonly Node3D _upperSeat;
     private readonly Node3D[] _cables;
     private readonly Node3D[] _cableRoute;
+    private readonly StandardMaterial3D[] _ropeMaterials;
     private readonly Node3D _drum;
+    private readonly Node3D _levelWind;
     private readonly Node3D _services;
     private readonly Node3D _gate;
     private readonly Node3D[] _rounds;
@@ -60,8 +62,16 @@ internal sealed partial class SalvoCatapult : Node3D
         _spring = Joint("Spring"); _springTop = Joint("SpringTop"); _springFoot = Joint("SpringFoot");
         _coil = (MeshInstance3D)Joint("SpringCoil"); _springGuide = Joint("SpringGuide");
         _lowerSeat = Joint("SpringLowerSeat"); _upperSeat = Joint("SpringUpperSeat");
-        _cables = Enumerable.Range(0, 6).Select(i => Joint(i == 0 ? "Cable" : "CableSegment" + i)).ToArray();
-        _cableRoute = new[] { "WinchExit", "CableRiser", "CablePlatformRear", "CableSwivel", "CableSwivelTop", "CableFairlead", "CableEye" }.Select(Joint).ToArray();
+        _cables = Enumerable.Range(0, 7).Select(i => Joint(i == 0 ? "Cable" : "CableSegment" + i)).ToArray();
+        _cableRoute = new[] { "WinchExit", "CableRiser", "CablePlatformRear", "CableSwivel", "CableSwivelTop", "CableFairlead", "CableSpoonGuide", "CableEye" }.Select(Joint).ToArray();
+        _ropeMaterials = _cables.Select(segment =>
+        {
+            var mesh = segment.GetChildren().OfType<MeshInstance3D>().Single();
+            var material = (StandardMaterial3D)mesh.Mesh.SurfaceGetMaterial(0).Duplicate();
+            mesh.SetSurfaceOverrideMaterial(0, material);
+            return material;
+        }).ToArray();
+        _levelWind = Joint("WinchLevelWind");
         _drum = Joint("WinchDrum"); _services = Joint("WinchHousing"); _gate = Joint("FeedGate");
         Bowl = Joint("BowlSocket");
         _rounds = Enumerable.Range(0, 5).Select(i => Joint("Round_" + i)).ToArray();
@@ -115,7 +125,6 @@ internal sealed partial class SalvoCatapult : Node3D
         // unloads, keeping both captive seats within useful coil travel.
         _plate.Rotation = new(-Mathf.DegToRad(Math.Max(0, degrees) * .55f), 0, 0);
         _services.Visible = rackProgress > .72f;
-        _drum.Rotation = new(Mathf.DegToRad(degrees * 9), 0, 0);
         _gate.Position = new(0, -.07f * MathF.Sin(feed * MathF.PI), 0);
         // A captive escapement moves the nearest remaining round along the handle
         // into the bowl. Five minus the accepted count never reappears during reset.
@@ -141,12 +150,36 @@ internal sealed partial class SalvoCatapult : Node3D
         Align(_springGuide, _springFoot.GlobalPosition, _springTop.GlobalPosition, true);
         Align(_lowerSeat, _springFoot.GlobalPosition, _springTop.GlobalPosition, false);
         Align(_upperSeat, _springTop.GlobalPosition, _springTop.GlobalPosition * 2 - _springFoot.GlobalPosition, false);
-        // The cable rises beside the drum, follows the lifting/sliding platform,
-        // transfers tension through an axial swivel, then follows the spoon underside.
+        // Drum rotation follows actual paid-out rope, including deployment. The
+        // travelling guide follows the authored 52 mm helical winding pitch.
+        // A few fixed iterations settle its small contribution to path length;
+        // this derives the same pose after reconstruction, with no phase accumulator.
+        float cableLength = 0;
+        for (int iteration = 0; iteration < 4; iteration++)
+        {
+            cableLength = 0;
+            for (int i = 0; i < _cables.Length; i++)
+                cableLength += _cableRoute[i].GlobalPosition.DistanceTo(_cableRoute[i + 1].GlobalPosition);
+            float angle = (4 - cableLength) / .18f;
+            _drum.Rotation = new(angle, 0, 0);
+            float feedX = .052f * angle / Mathf.Tau;
+            for (int guideIndex = 0; guideIndex < 3; guideIndex++)
+            {
+                var guide = guideIndex == 2 ? _levelWind : _cableRoute[guideIndex];
+                guide.Position = new(feedX, guide.Position.Y, guide.Position.Z);
+            }
+        }
+        // Preserve braid pitch in metres as spans change length. Its continuous
+        // offset pays rope out from the drum while the spliced spoon end stays fixed.
+        float along = -cableLength;
         for (int i = 0; i < _cables.Length; i++)
         {
+            float length = _cableRoute[i].GlobalPosition.DistanceTo(_cableRoute[i + 1].GlobalPosition);
             Align(_cables[i], _cableRoute[i].GlobalPosition, _cableRoute[i + 1].GlobalPosition, true);
-            _cables[i].Visible = _services.Visible && _cableRoute[i].GlobalPosition.DistanceSquaredTo(_cableRoute[i + 1].GlobalPosition) > .000001f;
+            _cables[i].Visible = _services.Visible && length > .001f;
+            _ropeMaterials[i].Uv1Scale = new(1, length / .12f, 1);
+            _ropeMaterials[i].Uv1Offset = new(0, along / .12f, 0);
+            along += length;
         }
         Deployed = progress >= .999f && !returning;
         IsReady = Deployed && !Cycling && _remaining > 0;

@@ -1,6 +1,6 @@
 {
   "asset": "Trackstorm Salvo catapult",
-  "authoring": "Original project geometry, UVs, deterministic grain/patina and rigid articulation authored in Blender 5.2.2",
+  "authoring": "Original project geometry, UVs, deterministic grain/patina and braided rope texture, and mechanical articulation authored in Blender 5.2.2",
   "references": [
     {
       "filename": "Cata 5.png",
@@ -25,10 +25,10 @@
   "units": "metres",
   "export": {
     "primitivesWithoutUv": 0,
-    "materials": 7,
-    "primitives": 64,
-    "triangles": 51148,
-    "meshes": 24
+    "materials": 8,
+    "primitives": 71,
+    "triangles": 44660,
+    "meshes": 32
   },
   "files": [
     {
@@ -61,11 +61,11 @@
     },
     {
       "path": "assets/items/salvo/SalvoCatapult.glb",
-      "sha256": "e77cd687db8b7eb42a4a335d5cbc4632f592c5b3f696a34d278ae375bd91def0"
+      "sha256": "83e90f4012a95a156ab51d4f5e65f43114d4d5020fba0d7f14e62c5e4927d6c2"
     },
     {
       "path": "assets/items/salvo/source/AuditCatapult.py",
-      "sha256": "669b0b72ab7cb7e8fa09885c726251f79c3dc2f83aa54cde90a2525bd0596d99"
+      "sha256": "f7b3b4717283e5c3caed1acb770de10f0548aa6e1d4657a5c6bef2d375cc447e"
     },
     {
       "path": "assets/items/salvo/source/BuildCatapult.py",
@@ -77,7 +77,15 @@
     },
     {
       "path": "assets/items/salvo/source/SalvoCatapult.blend",
-      "sha256": "0109370731ab6b9d08d4640038eb1b4357e2b4ed023692f38b5fb3723db361c8"
+      "sha256": "a64b2559107af350863b5d3d1b40ac6ed4d59445ab423dfe4563a20462e93673"
+    },
+    {
+      "path": "assets/items/salvo/SalvoCatapult_Salvo carnival rope.png",
+      "sha256": "2967746cfc5d07a9244df6210bb23ecb2d002863a40fc1fffcc4b4f0d5579d43"
+    },
+    {
+      "path": "assets/items/salvo/source/PolishWinch.py",
+      "sha256": "88b1d815b034a1036e6170f6bceba4fe0e090ac9b57dc6ab59bd1318088e454c"
     }
   ]
 }

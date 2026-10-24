@@ -22,12 +22,22 @@ The six-turn spring has separate rigid seats connected to the plate and spoon
 saddles, plus an internal guide. Its authored morph changes pitch without stretching
 the wire gauge. The spring and plate rotate with the turret, independently of the magazine.
 
-The cable runs from the drum up the mount, along the lifting/sliding platform,
-through an axial tension swivel and along the spoon underside to its rear strap.
-The rotating fairlead keeps that last segment outside the spring. Six normalized
-mesh segments align to physical anchors throughout deployment and rotation;
-coincident anchors hide their zero-length segment instead of creating a singular
-transform. Accepted use gives a rapid
+The thick brown ship rope runs from the drum through a travelling level-wind guide,
+up the mount, along the lifting/sliding platform, through an axial tension swivel
+and along the spoon underside to a visible spliced eye around its rear pin.
+The rotating fairlead and spoon guide keep the line outside the spring. Seven
+normalized mesh spans retain a 66 mm diameter and constant braid texture pitch
+throughout deployment and rotation. Coincident anchors hide their zero-length
+segment instead of creating a singular transform.
+
+The drum has ten visible windings, crimson rims and asymmetric brass rotation
+markers. Its phase derives from routed rope length at a 0.18 m winding radius;
+the level wind tracks the authored 52 mm helix pitch. Rope texture moves continuously
+along the route with its spliced end fixed. Yaw alone leaves the drum still, while
+deployment, release and reset pay out or haul in rope. Reconstruction derives the
+same pose without an accumulated phase or additional networking. The stored winding
+is a fixed visible rope bed; physical tension and changing spool volume are not
+simulated. Accepted use gives a rapid
 75 ms upward swing, a 45-degree stop with damped recoil, winch return and captive
 reload; the presentation cycle lasts 0.48 seconds to fit the existing minimum
 single-shot cadence. Stored rounds and the bowl's loaded round remain attached
@@ -55,6 +65,10 @@ two local native UDP peers, full-yaw aim, repeated releases, weapon switching,
 airborne/rolled poses, captive rounds, impaired handoffs and reconstruction. It
 also samples actual rendered cable endpoints, coil morph/scale, seat attachment
 and platform engagement through deployment, eight yaw bearings, use and retraction.
+It also checks spool/rope-length agreement, tangent/guide alignment, physical braid
+pitch, payout/rewind and no winding from yaw alone. Visual runs record a buffered
+winch cycle with frame timestamps and observed drum/spoon/guide poses. Repeated-shot
+inputs wait for the authoritative cooldown as well as the mechanical reset.
 
 ## Existing single-shot gameplay
 
