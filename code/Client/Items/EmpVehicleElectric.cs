@@ -29,6 +29,10 @@ internal sealed partial class EmpVehicleElectric : Node3D
     public override void _Process(double delta)
     {
         _time += (float)delta;
+        float intensity = EmpClawVfxSettings.Current.ElectricIntensity;
+        _lines.VisibleInstanceCount = _halos.VisibleInstanceCount = intensity > 0 ? Count : 0;
+        _material.EmissionEnergyMultiplier = 2 * intensity;
+        _glow.AlbedoColor = new(.04f, .22f, 1, .32f * intensity);
         int sample = (int)(_time * 24);
         // Eight short, independently wandering arcs avoid tracing a rigid body outline.
         // Each owns eight trunk segments and four fork segments within the fixed budget.

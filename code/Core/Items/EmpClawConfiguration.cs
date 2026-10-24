@@ -1,8 +1,14 @@
 namespace Trackstorm.Core.Items;
 
-/// <summary>Authoritative EMP flight tuning; ammunition and attached EMP effects have separate owners.</summary>
+/// <summary>Authoritative EMP flight, captured attachment duration and live membrane-query tuning.</summary>
 public sealed record EmpClawConfiguration
 {
+    /// <summary>Duration captured independently by each new attachment; existing deadlines never refresh.</summary>
+    public float AttachmentSeconds { get; init; } = 30;
+    /// <summary>Live attached membrane query radius in metres.</summary>
+    public float AttachedNoseRadius { get; init; } = EmpClawGeometry.InflatedRadius;
+    /// <summary>Live stored membrane query radius in metres.</summary>
+    public float StoredNoseRadius { get; init; } = EmpClawGeometry.StowedRadius;
     /// <summary>Initial speed in metres per second, always above 200 km/h.</summary>
     public float LaunchSpeed { get; init; } = 65;
     /// <summary>Sustained speed in metres per second; default is 100 km/h.</summary>
@@ -25,6 +31,10 @@ public sealed record EmpClawConfiguration
     /// <summary>Rejects invalid or contradictory phase and sensing bounds.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(AttachmentSeconds) || AttachmentSeconds is < .1f or > 30 ||
+            !float.IsFinite(AttachedNoseRadius) || AttachedNoseRadius is < .05f or > .3f ||
+            !float.IsFinite(StoredNoseRadius) || StoredNoseRadius is < .025f or > .12f)
+        { throw new ArgumentException("Invalid EMP attachment or membrane configuration."); }
         if (!float.IsFinite(LaunchSpeed) || LaunchSpeed is <= (200f / 3.6f) or > 150 ||
             !float.IsFinite(CruiseSpeed) || CruiseSpeed is < 10 or > 50 || CruiseSpeed >= LaunchSpeed ||
             !float.IsFinite(Deceleration) || Deceleration is < 10 or > 200 ||

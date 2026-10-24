@@ -26,20 +26,20 @@ public sealed partial class ItemAuthority
                 if ((load.RoundMask & (1 << i)) == 0) { continue; }
                 var pose = request.Observation.Physics;
                 Consider(pose.Position + Vector3.Transform(EmpClawGeometry.StoredNose(i), pose.Orientation),
-                    EmpClawGeometry.StowedRadius, 0, request.VehicleId, load.Magazine, i);
+                    Configuration.EmpClaw.StoredNoseRadius, 0, request.VehicleId, load.Magazine, i);
             }
         }
         return nearest;
     }
 
-    private static EmpNoseHit? IntersectAttachedNoses(Vector3 start, Vector3 end,
+    private EmpNoseHit? IntersectAttachedNoses(Vector3 start, Vector3 end,
         IReadOnlyList<VehicleStepRequest> requests, List<EmpClawAttachment> claws)
     {
         EmpNoseHit? nearest = null;
         foreach (var claw in claws.OrderBy(c => c.Id))
         {
             var pose = requests.Single(r => r.VehicleId == claw.Vehicle).Observation.Physics;
-            if (EmpClawGeometry.Intersect(start, end, EmpClawGeometry.Nose(claw, pose), EmpClawGeometry.InflatedRadius) is float fraction &&
+            if (EmpClawGeometry.Intersect(start, end, EmpClawGeometry.Nose(claw, pose), Configuration.EmpClaw.AttachedNoseRadius) is float fraction &&
                 (nearest is null || fraction < nearest.Fraction))
             { nearest = new(fraction, claw.Id, claw.Vehicle, 0, -1); }
         }
@@ -79,7 +79,7 @@ public sealed partial class ItemAuthority
             var pose = requests.Single(r => r.VehicleId == claw.Vehicle).Observation.Physics;
             Vector3 nose = EmpClawGeometry.Nose(claw, pose), offset = center - nose;
             float distance = offset.Length();
-            Vector3 point = distance <= EmpClawGeometry.InflatedRadius ? center : nose + offset * (EmpClawGeometry.InflatedRadius / distance);
+            Vector3 point = distance <= Configuration.EmpClaw.AttachedNoseRadius ? center : nose + offset * (Configuration.EmpClaw.AttachedNoseRadius / distance);
             return Reaches(point);
         });
         // Stored ammo retains its approved Missile-only blast behavior.

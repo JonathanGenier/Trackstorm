@@ -43,10 +43,13 @@ internal sealed partial class EmpClawElectric : Node3D
     internal void Advance(float delta)
     {
         _clock += delta;
+        var settings = EmpClawVfxSettings.Current;
+        _arcMaterial.EmissionEnergyMultiplier = 3 * settings.ElectricIntensity;
+        _haloMaterial.AlbedoColor = new(.06f, .25f, 1, .30f * settings.ElectricIntensity);
         bool flight = Mode == EmpClawVisualState.Fired;
         bool active = Mode == EmpClawVisualState.Activated;
         bool fizzle = Mode == EmpClawVisualState.Expired && StateAge < .3f;
-        int count = flight || active || fizzle ? SegmentCount : 0;
+        int count = (flight || active || fizzle) && settings.ElectricIntensity > 0 ? SegmentCount : 0;
         _segments.VisibleInstanceCount = _halos.VisibleInstanceCount = count;
         int sample = (int)(_clock * 30);
         for (int bolt = 0; bolt < count / 20; bolt++)
@@ -81,12 +84,12 @@ internal sealed partial class EmpClawElectric : Node3D
         }
         bool pop = Mode == EmpClawVisualState.NoseDestroyed && StateAge < .4f;
         bool spark = Burst && StateAge < .35f;
-        _flecks.VisibleInstanceCount = pop || spark ? 32 : 0;
+        _flecks.VisibleInstanceCount = (pop || spark) && settings.ImpactIntensity > 0 ? 32 : 0;
         _fleckMaterial.AlbedoColor = pop ? new(.85f, .025f, .035f) : new(1, .72f, .2f);
         for (int i = 0; i < _flecks.VisibleInstanceCount; i++)
         {
             float a = i * 2.39996f;
-            float speed = pop ? 1.3f : 1.8f + i % 5 * .4f;
+            float speed = (pop ? 1.3f : 1.8f + i % 5 * .4f) * settings.ImpactIntensity;
             Vector3 velocity = new(MathF.Cos(a) * speed, MathF.Sin(a) * speed, -.5f - i % 3 * .25f);
             float size = pop ? .020f * Math.Max(0, 1 - StateAge / .4f) : .004f;
             var basis = new Basis(new Quaternion(Vector3.Up, velocity.Normalized()));
@@ -102,7 +105,7 @@ internal sealed partial class EmpClawElectric : Node3D
         float radius = flight ? .08f + t * .10f + jitter : .14f + t * (.75f + bolt % 3 * .16f) + jitter;
         return new(MathF.Cos(angle) * radius - MathF.Sin(angle) * jitter,
             MathF.Sin(angle) * radius + MathF.Cos(angle) * jitter,
-            flight ? .07f + t * 2.8f : .025f - MathF.Sin(t * MathF.PI) * .025f);
+            flight ? .07f + t * EmpClawVfxSettings.Current.TrailLength : .025f - MathF.Sin(t * MathF.PI) * .025f);
     }
 
     public override void _ExitTree()

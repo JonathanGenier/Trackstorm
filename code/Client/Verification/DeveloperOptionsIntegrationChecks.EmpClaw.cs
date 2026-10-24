@@ -23,6 +23,23 @@ public sealed partial class DeveloperOptionsIntegrationChecks
         await Capture("emp-claw-controls");
         search.Text = string.Empty;
         search.EmitSignal(LineEdit.SignalName.TextChanged, search.Text);
+        var local = Descendants(panel).OfType<ConfigsAccordion>().Single(section =>
+            section.GetChildren().OfType<Button>().Single().Text.EndsWith("Local VFX", StringComparison.Ordinal) &&
+            section.GetChildren().OfType<Button>().Single().Text.Contains("EMP Claw", StringComparison.Ordinal));
+        var localEditors = Descendants(local.Body).OfType<SpinBox>().ToArray();
+        Check(localEditors.Length == 6, "All six bounded EMP cosmetic controls are present.");
+        var beforeLocal = _host.DeveloperConfiguration;
+        localEditors[0].Value = 1.5;
+        localEditors[1].Value = 4;
+        localEditors[2].Value = .5;
+        localEditors[3].Value = 1.5;
+        localEditors[4].Value = .6;
+        localEditors[5].Value = 1.8;
+        Check(Items.EmpClawVfxSettings.Current == new Items.EmpClawVfxSettings
+        { ShockwaveScale = 1.5f, TrailLength = 4, ElectricIntensity = .5f, ImpactIntensity = 1.5f, DeflationSeconds = .6f, CleanupSeconds = 1.8f }, "Native controls edit real cosmetic settings immediately.");
+        Check(_host.DeveloperConfiguration == beforeLocal && !panel.HasUnappliedChanges, "Local EMP VFX leaves the authority draft untouched.");
+        Descendants(local.Body).OfType<Button>().Single(button => button.Text == "Reset to Defaults").EmitSignal(BaseButton.SignalName.Pressed);
+        Check(Items.EmpClawVfxSettings.Current == new Items.EmpClawVfxSettings(), "Local reset restores EMP cosmetics.");
         if (phase == "read") { return; }
 
         foreach (var item in ItemRegistry.All) { Set($"spawns.{item.Key}_weight", item.Identity == HeldItem.EmpClaw ? 3 : 0); }
@@ -36,6 +53,10 @@ public sealed partial class DeveloperOptionsIntegrationChecks
             ["items.emp_claw_response"] = 6, ["items.emp_claw_acquisition_degrees"] = 20,
             ["items.emp_claw_acquisition_range"] = 140, ["items.emp_claw_lifetime"] = 45,
             ["items.emp_claw_terrain_clearance"] = 1.5,
+            ["items.emp_claw_attachment_seconds"] = 12,
+            ["items.emp_claw_suppression"] = .5,
+            ["items.emp_claw_attached_nose_radius"] = .25,
+            ["items.emp_claw_stored_nose_radius"] = .1,
         };
         foreach (var edit in flightEdits) { Set(edit.Key, edit.Value); }
         Check(panel.HasUnappliedChanges, "EMP edits remain staged before Apply.");

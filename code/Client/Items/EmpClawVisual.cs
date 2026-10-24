@@ -12,6 +12,7 @@ internal sealed partial class EmpClawVisual : Node3D
     private readonly Node3D _nose;
     private readonly EmpClawElectric _electric = new();
     private float _age;
+    private EmpClawVfxSettings _releaseSettings = new();
     private float _spread;
     private float _inflation = 1;
     private Transform3D _releasePose;
@@ -19,7 +20,7 @@ internal sealed partial class EmpClawVisual : Node3D
     private float _noseAtTransition = 1;
 
     internal EmpClawVisualState State { get; private set; }
-    internal bool Finished => State == EmpClawVisualState.NoseDestroyed ? _age >= .4f : State == EmpClawVisualState.Expired && _age >= 1.3f;
+    internal bool Finished => State == EmpClawVisualState.NoseDestroyed ? _age >= .4f : State == EmpClawVisualState.Expired && _age >= _releaseSettings.CleanupSeconds;
     internal bool BodyVisible => _model.IsVisibleInTree();
     internal Node3D NoseAnchor { get; }
     internal Node3D Attachment { get; }
@@ -46,6 +47,7 @@ internal sealed partial class EmpClawVisual : Node3D
     {
         if (State == state && !restore) { return; }
         State = state;
+        if (state is EmpClawVisualState.Expired or EmpClawVisualState.NoseDestroyed) _releaseSettings = EmpClawVfxSettings.Current;
         SetProcess(true);
         _age = restore ? 1.3f : 0;
         _noseAtTransition = _inflation;
@@ -77,13 +79,13 @@ internal sealed partial class EmpClawVisual : Node3D
         float targetSpread = State is EmpClawVisualState.Landed or EmpClawVisualState.Activated ? 1 : State == EmpClawVisualState.Fired ? .35f : 0;
         _spread = Mathf.MoveToward(_spread, targetSpread, delta * 8);
         if (State == EmpClawVisualState.Expired)
-        { _inflation = Mathf.Lerp(_noseAtTransition, .06f, EmpClawLauncher.Ease(_age, 0, .38f)); }
+        { _inflation = Mathf.Lerp(_noseAtTransition, .06f, EmpClawLauncher.Ease(_age, 0, _releaseSettings.DeflationSeconds)); }
         else if (State == EmpClawVisualState.NoseDestroyed) { _inflation = .01f; }
         else { _inflation = Mathf.MoveToward(_inflation, State == EmpClawVisualState.Activated ? 2.6f : 1, delta * 7); }
         if (terminal && IsInsideTree())
         {
             if (!_releaseCaptured) { _releasePose = GlobalTransform; TopLevel = true; GlobalTransform = _releasePose; _releaseCaptured = true; }
-            float fall = State == EmpClawVisualState.NoseDestroyed ? 0 : Math.Max(0, _age - .38f);
+            float fall = State == EmpClawVisualState.NoseDestroyed ? 0 : Math.Max(0, _age - _releaseSettings.DeflationSeconds);
             GlobalTransform = new Transform3D(_releasePose.Basis.Rotated(Vector3.Right, fall * 2.8f),
                 _releasePose.Origin + Vector3.Down * (3 * fall * fall));
         }

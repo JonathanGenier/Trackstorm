@@ -3,6 +3,8 @@ namespace Trackstorm.Core.Vehicles;
 /// <summary>Validated arcade tuning shared by local, replay, and future authority drivers.</summary>
 public sealed record VehicleConfiguration
 {
+    /// <summary>EMP engine and Nitro impairment; shared across all active claws, never stacked.</summary>
+    public float EmpSuppression { get; init; } = .8f;
     private static readonly SurfaceBraking NeutralBraking = new();
     /// <summary>Trunk mechanism speed relative to its original 0.72-second travel; independently tunable.</summary>
     public float TrunkDeploymentSpeed { get; init; } = 3;
@@ -273,6 +275,7 @@ public sealed record VehicleConfiguration
     /// <summary>Rejects unsafe tuning before any state or native body is created.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(EmpSuppression) || EmpSuppression is < 0 or > .8f) { throw new ArgumentException("EMP suppression must be between zero and 80 percent."); }
         if (AsphaltBraking is null || DirtBraking is null || GrassBraking is null) { throw new ArgumentException("Missing surface braking profile."); }
         AsphaltBraking.Validate();
         DirtBraking.Validate();

@@ -17,7 +17,7 @@ public sealed record EmpClawAttachment(ulong Id, ulong Owner, ulong Vehicle, ulo
         if (Id == 0 || Owner == 0 || Vehicle == 0 || Owner == Vehicle || Life == 0 ||
             !VehiclePhysicsState.IsFinite(LocalPosition) || LocalPosition.Length() > 10 ||
             !WeaponAim.IsDirection(LocalNormal) || AttachedAtTick > tick || ExpiresAtTick <= tick ||
-            ExpiresAtTick <= AttachedAtTick || ExpiresAtTick - AttachedAtTick != LifetimeTicks)
+            ExpiresAtTick <= AttachedAtTick || ExpiresAtTick - AttachedAtTick > LifetimeTicks)
         { throw new ArgumentException("Invalid EMP attachment."); }
     }
 }

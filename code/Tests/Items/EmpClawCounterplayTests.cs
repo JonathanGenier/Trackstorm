@@ -68,6 +68,32 @@ internal sealed partial class EmpClawCounterplayTests
         return claws;
     }
 
+    [Test]
+    public void TunedMembraneRadiiChangeActualGunHits()
+    {
+        Assert.That(_host.Items.Grant(_host.World, 2, HeldItem.EmpClaw), Is.True);
+        Gun();
+        Vector3 storedEdge = Pose(2).Position + EmpClawGeometry.StoredNose(0) + Vector3.UnitY * .1f;
+        AimAt(storedEdge); Step();
+        Assert.That(_host.Items.Slots.Single(s => s.Vehicle == 2).EmpClaw!.Remaining, Is.EqualTo(3));
+        Assert.That(_host.TryConfigure(0, new Dictionary<string, double> { ["items.emp_claw_stored_nose_radius"] = .12 }, out _), Is.True);
+        AimAt(storedEdge); Step();
+        Assert.That(_host.Items.Slots.Single(s => s.Vehicle == 2).EmpClaw!.Remaining, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void TunedAttachedMembraneRadiusChangesActualGunHit()
+    {
+        Gun();
+        var claws = SeedClaws();
+        Vector3 attachedEdge = EmpClawGeometry.Nose(claws[1], Pose(2)) + Vector3.UnitY * .24f;
+        AimAt(attachedEdge); Step();
+        Assert.That(_host.Items.EmpAttachments, Has.Count.EqualTo(3));
+        Assert.That(_host.TryConfigure(0, new Dictionary<string, double> { ["items.emp_claw_attached_nose_radius"] = .3 }, out _), Is.True);
+        AimAt(attachedEdge); Step();
+        Assert.That(_host.Items.EmpAttachments.Select(c => c.Id), Is.EquivalentTo(new[] { claws[0].Id, claws[2].Id }));
+    }
+
     [TestCase(1)]
     [TestCase(2)]
     [TestCase(3)]

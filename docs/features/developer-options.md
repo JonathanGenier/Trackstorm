@@ -596,10 +596,12 @@ to receive EMP from normal markers. The EMP Claw presentation category adds
 `items.emp_claw_deploy_seconds` (1.2 s, 0.8–4),
 `items.emp_claw_stow_seconds` (0.82 s, 0.5–3), and
 `items.emp_claw_interval_ticks` (50 ticks, 15–60). Timings support deployment and
-repeated three-shot tests; no homing or EMP damage controls are exposed.
-TC53 carries 263 values / 2125 bytes. These fields use the same staged transaction,
+repeated three-shot tests. Flight, terrain, effect and counterplay use separate EMP categories.
+TC55 carries 284 values / 2293 bytes. These fields use the same staged transaction,
 host validation, explicit config export/import and replication as existing settings.
 Shared tuning is session-only; restarting restores canonical defaults.
 See [EMP presentation](items-emp-claw.md) for the playable and fixture boundaries.
 
 EMP Claw exposes independent authoritative [flight and terrain controls](items-emp-claw.md#flight-tuning) alongside its presentation controls.
+
+[EMP effect, counterplay and local VFX controls](items-emp-claw.md#effect-controls-and-hud) extend the existing host configuration and device-local cosmetic patterns.

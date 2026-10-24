@@ -59,7 +59,7 @@ internal sealed partial class EmpClawDischarge : Node3D
         {
             float t = Math.Max(0, _age - i * .025f);
             _rings[i].Visible = Active && t > 0;
-            float radius = .18f + t * (3.8f - i * .6f);
+            float radius = (.18f + t * (3.8f - i * .6f)) * EmpClawVfxSettings.Current.ShockwaveScale;
             _rings[i].Scale = new(radius, .022f + t * .04f, radius);
             _rings[i].Position = new(0, 0, -t * (10 - i * 1.2f));
             _materials[i].AlbedoColor = new(.75f, .88f, 1, Math.Max(0, 1 - t / .29f) * .45f);

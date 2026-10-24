@@ -381,3 +381,14 @@ locally without an authoritative Apply transaction, export or persistence.
 The existing `items.wrench_heal` and spawn weight remain separate shared controls.
 `check-developer-options.ps1 -WrenchOnly` exercises every editor, actual rig/VFX
 effects, reset and a second process with fresh defaults.
+
+## EMP Claw controls
+
+[EMP Claw](items-emp-claw.md#flight-tuning) documents flight/terrain tuning and
+[effect/counterplay/VFX mapping](items-emp-claw.md#effect-controls-and-hud).
+`items.emp_claw_attachment_seconds` captures each new attachment deadline;
+`items.emp_claw_suppression` owns `VehicleConfiguration.EmpSuppression` and scales
+actual engine/reverse/Nitro force; the attached/stored nose-radius keys drive existing
+membrane queries. EMP cosmetics use the local VFX accordion and never enter the
+configuration codec. The fixed three-round load, preserved target identity and
+zero-damage one-hit pop remain documented invariants.

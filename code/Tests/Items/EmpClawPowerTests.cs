@@ -7,6 +7,23 @@ namespace Trackstorm.Core.Tests.Items;
 [TestFixture]
 internal sealed class EmpClawPowerTests
 {
+    [TestCase(0f)]
+    [TestCase(.35f)]
+    [TestCase(.8f)]
+    public void TunedSuppressionAffectsActualNitroForceAndSurvivesSnapshot(float suppression)
+    {
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+        VehicleState Sample(float amount)
+        {
+            var movement = new VehicleMovement(new() { EmpSuppression = amount }, pose);
+            return movement.Step(new(1, 0, 0, 0, 0, 0, 0), pose, Vector3.Zero,
+                nitro: new(60, 18000, 1.4f, 1), empUntilTick: 1800);
+        }
+        var actual = Sample(suppression);
+        Assert.That(actual.Physics.LinearVelocity.Z, Is.EqualTo(Sample(0).Physics.LinearVelocity.Z * (1 - suppression)).Within(.00001));
+        Assert.That(VehicleStateCodec.Decode(VehicleStateCodec.Encode(actual)), Is.EqualTo(actual));
+    }
+
     [TestCase(0f, false)]
     [TestCase(5f, false)]
     [TestCase(14f, false)]

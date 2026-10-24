@@ -404,7 +404,7 @@ public static partial class ItemCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 31, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 32, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {
@@ -416,7 +416,7 @@ public static partial class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 31 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 32 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }
