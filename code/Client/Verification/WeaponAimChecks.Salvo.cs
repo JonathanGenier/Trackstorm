@@ -107,6 +107,12 @@ public sealed partial class WeaponAimChecks
         await Frames(100);
         Require(driver.LocalItem?.Active.Item == HeldItem.None && events.SequenceEqual(remote), "Impaired out-of-arena depletion and outcomes converge");
         await Capture("salvo-outside-arena");
+        var outside = launches.Values.Skip(priorLaunches).Select(shot => shot.Arc).ToArray();
+        Require(outside.Length == 5 && host.Items.Missiles.Count(m => m.Arc is not null) >= 5,
+            "No-contact rounds remain active beyond their aimed endpoints");
+        await Until(() => host.Items.Missiles.All(m => m.Arc is null), "Out-of-arena rounds expire through authority after thirty seconds", 1900);
+        await Frames(30);
+        Require(events.SequenceEqual(remote), "Expiry outcomes converge once through impaired native UDP");
 
         _wires[0].ConfigureSimulation(new());
         _heldShooter = new(0, Ground, 35);
@@ -120,7 +126,7 @@ public sealed partial class WeaponAimChecks
             priorLaunches = launches.Count;
             Require(driver.RequestItemUse(), "Repeated pickup activation " + cycle);
             await Until(() => driver.LocalItem?.Active.Item == HeldItem.None, "Repeated volley depletion " + cycle);
-            await Until(() => host.Items.Missiles.Count == 0 && _arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Repeated projectiles and rack cleanup " + cycle);
+            await Until(() => host.Items.Missiles.Count == 0 && _arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Repeated projectiles and rack cleanup " + cycle, 1900);
             await Frames(120);
             int nodes = CountNodes(this);
             stableNodes ??= nodes;

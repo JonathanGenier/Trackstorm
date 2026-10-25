@@ -156,7 +156,7 @@ internal sealed partial class SalvoCatapult : Node3D
         _fuse.Visible = !returning && _remaining > 0 && feed >= .999f && progress >= .999f;
         if (_fuse.Visible)
         {
-            _fuse.GlobalTransform = _rounds[loaded].GlobalTransform * new Transform3D(Basis.Identity, new(.235f, .04f, .015f));
+            _fuse.GlobalTransform = _rounds[loaded].GlobalTransform * new Transform3D(Basis.Identity, SalvoFirework.FusePosition);
             _fuse.Present(delta);
         }
         // Morph only the coil pitch: wire gauge and rigid seats do not stretch.

@@ -45,7 +45,8 @@ public sealed class ItemPublication
             { throw new ArgumentException("Invalid EMP flight continuation."); }
             if (missile.Arc is not { } arc) { continue; }
             arc.Validate();
-            if (missile.RemainingTicks != arc.DurationTicks - arc.ElapsedTicks || Vector3Distance(missile.Position, arc.At(arc.ElapsedTicks)) > 0.01f ||
+            if (missile.RemainingTicks != SalvoFlight.LifetimeTicks - arc.ElapsedTicks || Vector3Distance(missile.Position, arc.At(arc.ElapsedTicks)) > 0.01f ||
+                Vector3Distance(missile.Velocity, arc.VelocityAt(arc.ElapsedTicks)) > 0.01f ||
                 !world.Vehicles.Any(vehicle => vehicle.State.VehicleId == missile.Owner && vehicle.State.LifeId == arc.Life && vehicle.State.CanInteract))
             { throw new ArgumentException("Inconsistent salvo continuation."); }
         }
@@ -69,7 +70,7 @@ public sealed class ItemPublication
             projectiles.Length + inventory.Sum(s => s.ReservedSalvoShots) > ItemAuthority.MaximumProjectiles ||
             inventory.Any(s => s.ReservedSalvoShots > 0 && !s.Active.SalvoCommitted) ||
             projectiles.Select(missile => missile.Id).Distinct().Count() != projectiles.Length ||
-            projectiles.Any(missile => missile.Id == 0 || missile.Owner == 0 || !VehiclePhysicsState.IsFinite(missile.Position) || !VehiclePhysicsState.IsFinite(missile.Velocity) || missile.Velocity.Length() <= 0 || missile.Velocity.Length() > (missile.Arc is null ? 301 : 1000) || missile.RemainingTicks is < 1 or > 3600) ||
+            projectiles.Any(missile => missile.Id == 0 || missile.Owner == 0 || !VehiclePhysicsState.IsFinite(missile.Position) || !VehiclePhysicsState.IsFinite(missile.Velocity) || (missile.Arc is null && (missile.Velocity.Length() <= 0 || missile.Velocity.Length() > 301)) || missile.RemainingTicks is < 1 or > 3600) ||
             outcomes.Length > ItemAuthority.MaximumProjectiles * 2 + ItemAuthority.MaximumMines + 16 + ItemAuthority.MaximumEmpAttachments + 24 || outcomes.Any(outcome => outcome.Token == 0 || outcome.Owner == 0 || ItemRegistry.Find(outcome.Item)?.CanUse != true || !VehiclePhysicsState.IsFinite(outcome.Position) || !VehiclePhysicsState.IsFinite(outcome.Origin) || (outcome.Item is not (HeldItem.MachineGun or HeldItem.EmpClaw) && (outcome.Origin != System.Numerics.Vector3.Zero || outcome.Tracer)) || (outcome.Item == HeldItem.MachineGun && System.Numerics.Vector3.Distance(outcome.Origin, outcome.Position) > 300.01f) || (outcome.Impact && outcome.Item is not (HeldItem.Missile or HeldItem.Salvo or HeldItem.ProxyMine or HeldItem.MachineGun or HeldItem.EmpClaw))))
         {
             throw new ArgumentException("Invalid item publication.");

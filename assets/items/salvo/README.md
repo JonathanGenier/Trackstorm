@@ -78,10 +78,18 @@ articulation checks.
   round to `BowlSocket`; brass retainers constrain the stored and loaded rounds.
   No round is a rigid body or world-gravity simulation.
 
-`SalvoCatapult` presents accepted counts and releases. Its `Bowl`, `IsReady`,
-`Cycling` and `ObserveRounds` interface is available to the later firing-system
-integration. It does not schedule a five-shot volley, ignite a fuse, spawn a
-projectile or control impacts. Existing single-shot Salvo gameplay remains active.
+`SalvoCatapult` presents the authoritative five-shot controller's accepted counts
+and releases through `Bowl`, `IsReady`, `Cycling` and `ObserveRounds`. One loaded
+round has a looping white fuse spark with no gameplay timer. Core owns launch
+scheduling, collisions and the thirty-second flight lifetime.
+
+`SalvoFirework` extracts the authored `Round_0` rigid subtree from this same export
+for flight; magazine, bowl and airborne rounds therefore share geometry and
+materials. The crimson paper cylinder, ivory bands and brass fuse end remain
+original project work. `SalvoFlightVisual` adds independent tumbling and the same
+bright fuse. `SalvoSmoke.gdshader` is original project code using the existing CC0
+Kenney `smoke_01` texture in one bounded world-space segment pool; the fuse uses
+the existing Kenney `spark_01`. No additional third-party content is acquired.
 
 `check-salvo-catapult.ps1 -GodotPath <editor> -Visual` exercises production Car,
 the shared rack, two native UDP peers, aim, captive feed, release/reset, switching,

@@ -8,7 +8,7 @@ using Trackstorm.Core.Vehicles;
 namespace Trackstorm.Core.Tests.Items;
 
 [TestFixture]
-internal sealed class SalvoTests
+internal sealed partial class SalvoTests
 {
     [TestCase(false)]
     [TestCase(true)]
@@ -29,7 +29,7 @@ internal sealed class SalvoTests
         Assert.That(launches.Select(x => x.Token).Distinct().Count(), Is.EqualTo(5));
         Assert.That(host.Items.Slots.Single().Item, Is.EqualTo(HeldItem.None));
         Assert.That(host.Items.Slots.Single().SalvoShots, Is.Zero);
-        Assert.That(host.Items.Missiles, Is.Empty);
+        Assert.That(host.Items.Missiles, Has.Count.EqualTo(5), "No contact: all five continue until their launch lifetimes expire.");
     }
 
     [Test]

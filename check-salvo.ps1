@@ -6,6 +6,13 @@ if (-not $NoBuild) {
 }
 $output = Join-Path $PSScriptRoot '.godot/salvo-checks'
 New-Item -ItemType Directory -Path $output -Force | Out-Null
+$arguments = @('--path', $PSScriptRoot, 'res://scenes/verification/salvo_projectile_checks.tscn')
+if (-not $Visual) { $arguments = @('--headless') + $arguments }
+$log = & $GodotPath @arguments 2>&1
+$code = $LASTEXITCODE
+$log | Set-Content (Join-Path $output 'projectile-runtime.log')
+$log | Write-Output
+if ($code -ne 0 -or $log -match 'ERROR:|WARNING:' -or -not ($log -match 'Salvo projectile presentation passed:')) { throw 'Salvo projectile presentation failed.' }
 $arguments = @('--path', $PSScriptRoot, 'res://scenes/verification/salvo_checks.tscn')
 if (-not $Visual) { $arguments = @('--headless') + $arguments }
 if ($Impaired) { $arguments += @('--', '--salvo-impaired') }

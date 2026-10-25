@@ -16,6 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Salvo firework projectile, ballistic lifetime and persistent smoke | [TS-212 verification evidence](ts-212.md) |
 | Salvo automatic five-shot controller, aim retention and extended aimed reach | [TS-211 verification evidence](ts-211.md) |
 | EMP Claw DevTools and HUD integration | [TS-300 verification evidence](ts-300.md) |
 | EMP Claw pickup/DevTools access, three-hose layout, under-magazine loader, hollow breech and Round 4 critique | [TS-296 verification evidence](ts-296.md) |

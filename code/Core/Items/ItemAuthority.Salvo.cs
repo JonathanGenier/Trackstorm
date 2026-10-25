@@ -39,7 +39,7 @@ public sealed partial class ItemAuthority
                 raycast is null ? null : (from, to) => raycast(slot.Vehicle, from, to));
             if (Vector3.DistanceSquared(origin, target) < 1) { target = origin + direction * 2; }
             var arc = new SalvoFlight(origin, target, Configuration.SalvoArcHeight, 60, 0, slot.Life).Launch(origin, Configuration.SalvoSpeed);
-            missiles.Add(new(slot.Token, slot.Vehicle, origin, (arc.At(1) - origin) * 60, arc.DurationTicks) { Arc = arc });
+            missiles.Add(new(slot.Token, slot.Vehicle, origin, arc.VelocityAt(0), SalvoFlight.LifetimeTicks) { Arc = arc });
             int remaining = slot.SalvoShots - 1;
             ulong token = remaining > 0 ? nextToken() : slot.Token;
             ulong deadline = remaining > 0 ? checked(input.Tick + (ulong)Configuration.SalvoIntervalTicks) : 0;

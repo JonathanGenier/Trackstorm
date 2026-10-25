@@ -20,7 +20,7 @@ internal sealed partial class EmpClawCounterplayTests
         var arc = new SalvoFlight(end + Vector3.UnitY * 2, end, 1, 2, 1, 1);
         // Both observations put the existing projectile on one known final segment.
         return item == HeldItem.Salvo
-            ? new(id, 1, arc.At(1), -Vector3.UnitY * 60, 1) { Arc = arc }
+            ? new(id, 1, arc.At(1), arc.VelocityAt(1), SalvoFlight.LifetimeTicks - 1) { Arc = arc }
             : new(id, 1, start, -Vector3.UnitY * 60, 300);
     }
 
@@ -132,8 +132,8 @@ internal sealed partial class EmpClawCounterplayTests
         Vector3 center = Pose(2).Position + EmpClawGeometry.StoredNose(1);
         var emp = new MissileState(201, 1, center, Vector3.UnitY * 10, 300)
             { EmpClaw = new(1, 2, 1, _host.World.State.Tick + 300) };
-        var salvo = new MissileState(200, 1, center + Vector3.UnitY * 200, -Vector3.UnitY * 120, 101)
-            { Arc = new(center + Vector3.UnitY * 200, center, 1, 101, 0, 1) };
+        var arc = new SalvoFlight(center + Vector3.UnitY * 200, center, 1, 101, 0, 1);
+        var salvo = new MissileState(200, 1, arc.Origin, arc.VelocityAt(0), SalvoFlight.LifetimeTicks) { Arc = arc };
         RestoreCombat([], salvo, emp);
         Step(100); // Recover normal deployment before the final blast reaches the magazine.
         Assert.That(_host.Items.EmpClawReady(_host.Items.Slots.Single(s => s.Vehicle == 2)), Is.True);
