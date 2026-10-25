@@ -4,6 +4,13 @@ Read the [shared system contract](items.md) first. This reference contains only 
 
 ## Vehicle rack presentation
 
+The [Salvo catapult](items-salvo.md) holds its loaded, visibly lit round indefinitely
+after deployment. One activation owns the rack for all five automatic launches;
+selection/discard cannot interrupt the committed magazine. Each accepted deadline
+drives release, winch return and captive reload; final depletion releases ownership
+after safe stow. Recovery of a committed magazine reconstructs a deployed mechanism
+and remaining ammunition without replaying historical shots.
+
 The [EMP Claw presentation](items-emp-claw.md) uses this same mechanism for ordinary
 pickups and accepted three-shot inventory loads, as well as isolated visual-state
 fixtures. Its full-size cannon centers and nests before handing the rack to another

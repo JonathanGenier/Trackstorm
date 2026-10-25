@@ -28,7 +28,7 @@ internal sealed partial class NetworkVehicleArena
     private Vector2 _aimDeparture;
     private System.Numerics.Vector2 _aimGesture;
     internal ulong AssistedCar => StickyAiming ? _aimTarget : 0;
-    private bool StickyAiming => WeaponAim.Supports(_driver.LocalItem?.Active.Item ?? HeldItem.None);
+    private bool StickyAiming => WeaponAim.SupportsArticulation(_driver.LocalItem?.Active.Item ?? HeldItem.None);
     internal WeaponAimOverlay AimOverlay => _aimOverlay;
     internal float AimRecoverySeconds => _aimRecoverySeconds;
     internal Action<string>? AimReleaseObserved { get; set; }
@@ -68,6 +68,10 @@ internal sealed partial class NetworkVehicleArena
         if (!enabled) { ResetAiming(); return; }
         var current = _driver.LocalItem!;
         var capability = (current.Life, current.Active.Token, current.SelectionRevision);
+        // Accepted token retirement within one Salvo magazine preserves the same
+        // local assisted target; it does not simulate a player selection change.
+        if (current.Active.SalvoCommitted && _aimCapability.Life == current.Life && _aimCapability.Selection == current.SelectionRevision)
+        { capability = (current.Life, _aimCapability.Token, current.SelectionRevision); }
         if (_aimCapability != capability) { ReleaseAim("capability changed"); _aimDismissed = 0; _aimReleaseSeconds = 0; _aimCapability = capability; }
         if (CameraInput is { } input && (_aimIntentRevision != input.CameraAimRevision || !input.CameraAimActive))
         {
@@ -154,10 +158,6 @@ internal sealed partial class NetworkVehicleArena
         // input selects the same free/assisted solution as every direct-fire weapon.
         if (slot.Active.Item == HeldItem.Missile && CameraInput?.CameraAimActive != true)
         { _driver.DesiredAim = System.Numerics.Vector3.Transform(-System.Numerics.Vector3.UnitZ, local.ObservedPhysics.Orientation); }
-        // The catapult consumes camera yaw only. Keep Salvo's existing local
-        // ground guide rather than implying a new direct-fire readiness/target.
-        if (slot.Active.Item == HeldItem.Salvo)
-        { _aimOverlay.Reset(); _targetIndicator.Clear(); return; }
         var accepted = _driver.AcceptedAims.FirstOrDefault(value => value.Vehicle == local.VehicleId && value.Life == local.LifeId && value.Token == slot.Active.Token);
         Rect2? bounds = null;
         if (framed is { } target)

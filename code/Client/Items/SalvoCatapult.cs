@@ -32,6 +32,8 @@ internal sealed partial class SalvoCatapult : Node3D
     private readonly Node3D _gate;
     private readonly Node3D[] _rounds;
     private readonly Vector3[] _stored;
+    private readonly SalvoFuse _fuse;
+    private bool _launching;
     private float _shotAge = 10;
     private int _remaining = 5;
     private float _yawAngle;
@@ -46,6 +48,7 @@ internal sealed partial class SalvoCatapult : Node3D
     internal bool IsReady { get; private set; }
     internal int ReleaseCount { get; private set; }
     internal float SpringLength { get; private set; }
+    internal bool FuseLit => _fuse.Visible;
     internal IReadOnlyList<Node3D> Rounds => _rounds;
 
     internal SalvoCatapult()
@@ -74,6 +77,8 @@ internal sealed partial class SalvoCatapult : Node3D
         Bowl = Joint("BowlSocket");
         _rounds = Enumerable.Range(0, 5).Select(i => Joint("Round_" + i)).ToArray();
         _stored = _rounds.Select(round => round.Position).ToArray();
+        _fuse = new SalvoFuse { Visible = false };
+        AddChild(_fuse);
     }
 
     /// <summary>Reconstruction sets the current count without replay; only an observed
@@ -83,14 +88,23 @@ internal sealed partial class SalvoCatapult : Node3D
         remaining = Math.Clamp(remaining, 0, 5);
         if (release && remaining < _remaining)
         {
-            _shotAge = Math.Clamp(elapsed, 0, .48f);
+            _shotAge = Math.Clamp(ItemSlot.SalvoReleaseTicks / 60f + elapsed, 0, .48f);
+            _launching = false;
             ReleaseCount++;
         }
         _remaining = remaining;
     }
 
+    /// <summary>The accepted deadline starts the release stroke before the round leaves the bowl.</summary>
+    internal void PrepareRelease(float secondsUntilLaunch)
+    {
+        if (secondsUntilLaunch is < 0 or > (ItemSlot.SalvoReleaseTicks / 60f) || _remaining == 0) { return; }
+        _launching = true;
+        _shotAge = ItemSlot.SalvoReleaseTicks / 60f - secondsUntilLaunch;
+    }
+
     /// <summary>Progress is local mechanical deployment after the shared rack is raised.
-    /// TS-211 can consume Bowl and supply accepted releases through ObserveRounds.</summary>
+    /// Accepted shot deadlines and counts drive the release/reload cycle.</summary>
     internal void Present(float progress, bool returning, WeaponAimSolution? aim, float delta, float rackProgress)
     {
         _shotAge += delta;
@@ -114,11 +128,11 @@ internal sealed partial class SalvoCatapult : Node3D
         float degrees = Mathf.Lerp(0, 24, armExtension) * (1 - cock) - 5 * cock;
         if (Cycling && progress >= .84f)
         {
-            float up = Ease(_shotAge, 0, .075f);
+            float up = Ease(_shotAge, 0, ItemSlot.SalvoReleaseTicks / 60f);
             float reset = Ease(_shotAge, .17f, .34f);
-            float recoil = _shotAge > .075f && _shotAge < .17f ? 3 * MathF.Sin((_shotAge - .075f) / .095f * MathF.PI) : 0;
+            float recoil = !_launching && _shotAge > .085f && _shotAge < .17f ? 3 * MathF.Sin((_shotAge - .085f) / .085f * MathF.PI) : 0;
             degrees = Mathf.Lerp(-5 + 50 * up - recoil, -5, reset);
-            feed = Ease(_shotAge, .34f, .48f);
+            feed = _launching ? 1 : Ease(_shotAge, .34f, .48f);
         }
         _hinge.Rotation = new(-Mathf.DegToRad(degrees), 0, 0);
         _services.Visible = rackProgress > .72f;
@@ -138,6 +152,12 @@ internal sealed partial class SalvoCatapult : Node3D
                 round.Position = _stored[i].Lerp(end, feed);
                 round.Rotation = new(feed * 7, 0, 0);
             }
+        }
+        _fuse.Visible = !returning && _remaining > 0 && feed >= .999f && progress >= .999f;
+        if (_fuse.Visible)
+        {
+            _fuse.GlobalTransform = _rounds[loaded].GlobalTransform * new Transform3D(Basis.Identity, new(.235f, .04f, .015f));
+            _fuse.Present(delta);
         }
         // Morph only the coil pitch: wire gauge and rigid seats do not stretch.
         // The lower saddle stays on the fixed turret plate; only the upper

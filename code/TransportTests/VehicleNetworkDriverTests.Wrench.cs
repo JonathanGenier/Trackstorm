@@ -30,6 +30,8 @@ internal sealed partial class VehicleNetworkDriverTests
         authority.Items.Grant(authority.World, 1, HeldItem.Salvo);
         driver.Advance(default, Observe);
         driver.WrenchReturning = () => true;
+        for (int i = 0; i < 240; i++) { driver.Advance(default, Observe); }
+        Assert.That(authority.Items.SalvoReady(authority.Items.Slots.Single()), Is.True);
         Assert.That(driver.RequestItemUse(), Is.False, "Incoming capability waits for the spent Wrench mechanism.");
         Assert.That(driver.RequestItemDiscard(), Is.False, "Discard cannot delete the incoming capability behind the displayed Wrench.");
         driver.Advance(default, Observe);

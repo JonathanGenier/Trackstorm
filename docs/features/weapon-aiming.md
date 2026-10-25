@@ -23,9 +23,13 @@ An accepted Proxy Mine placement retains ownership of the existing rack until pl
 Salvo also consumes accepted yaw through `SupportsArticulation`, while remaining
 outside the direct-fire `Supports` set. The same camera ray, sender/life/token/
 selection guards, angular limits and replaceable publication drive its catapult.
-It does not acquire direct-fire sticky assistance or consume the aim as a launch
-target. Accepted single-round consumption carries transient articulation onto the
-remaining magazine's new use token without accepting stale-token requests. See
+It reuses the shared sticky assistance, cursor and assisted-car indicator. Each
+automatic shot snapshots the accepted direction into its own native ray/ground
+target; later camera motion never changes an existing arc. Straight-barrel body
+clearance does not gate the arcing spoon. A committed magazine preserves local
+assistance and accepted articulation across shot-token rotation while rejecting
+stale-token requests. Missing transient aim uses chassis-forward fallback so a
+committed volley cannot be cancelled by loss of input or ground. See
 [Salvo mechanics](items-salvo.md#catapult-mechanical-presentation).
 
 ## EMP Claw firing consumer

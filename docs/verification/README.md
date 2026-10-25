@@ -16,6 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Salvo automatic five-shot controller and shared camera aiming | [TS-211 verification evidence](ts-211.md) |
 | EMP Claw DevTools and HUD integration | [TS-300 verification evidence](ts-300.md) |
 | EMP Claw pickup/DevTools access, three-hose layout, under-magazine loader, hollow breech and Round 4 critique | [TS-296 verification evidence](ts-296.md) |
 | Wrench three-point hood repair and sparks | [TS-293 verification evidence](ts-293.md) |

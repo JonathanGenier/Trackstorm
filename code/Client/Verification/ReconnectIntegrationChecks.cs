@@ -264,7 +264,8 @@ public sealed partial class ReconnectIntegrationChecks : Node
 
             _stage = 42;
         }
-        else if (_stage == 42 && _arenas.All(arena => arena.Driver.LocalItem?.Item == HeldItem.Wrench))
+        else if (_stage == 42 && _arenas.All(arena => arena.Driver.LocalItem is { Item: HeldItem.Wrench } wrench &&
+            arena.Driver.WrenchReady?.Invoke(wrench) == true && _arenas[0].Driver.Host!.Items.WrenchReady(wrench)))
         {
             foreach (var arena in _arenas)
             {

@@ -91,7 +91,8 @@ public sealed partial class ItemAuthority
                     : slot.Active.Item == HeldItem.Wrench && !deployment.Retracting
                     ? Math.Min(1, deployment.Progress + elapsed / ItemSlot.WrenchDeploymentSeconds)
                     : RackDeploymentPath.Advance(deployment.Progress, !deployment.Retracting, elapsed, vehicleConfiguration);
-                float arm = slot.Active.Item == HeldItem.Wrench ? progress : 0;
+                float arm = slot.Active.Item == HeldItem.Wrench ? progress : slot.Active.Item == HeldItem.Salvo && !deployment.Retracting && deployment.Progress >= 1
+                    ? Math.Min(1, deployment.Arm + elapsed / ItemSlot.SalvoDeploymentSeconds) : 0;
                 deployment = deployment with { Progress = progress, Arm = arm, Retracting = deployment.Retracting && progress > 0,
                     Tick = tick, Nesting = Math.Max(0, deployment.Nesting - 1f / 60) };
             }
@@ -106,8 +107,9 @@ public sealed partial class ItemAuthority
             if (previous?.Tick == tick && previous.Pitch >= -Configuration.Aim.DownDegrees * MathF.PI / 180 &&
                 previous.Pitch <= Configuration.Aim.UpDegrees * MathF.PI / 180) { continue; }
             var solution = WeaponAim.Solve(state, intent.Token, intent.Direction, previous, Configuration.Aim, tick,
-                observations?.Single(request => request.VehicleId == id).Observation.Physics, slot.Active.Item == HeldItem.EmpClaw ? .37f : 0);
-            _aims[id] = solution with { Ready = solution.Clear && !deployment.Retracting && deployment.Progress >= 1 && (slot.Active.Item != HeldItem.Missile || tick >= slot.MissileReadyTick) };
+                observations?.Single(request => request.VehicleId == id).Observation.Physics, slot.Active.Item == HeldItem.EmpClaw ? .37f : 0, slot.Active.Item == HeldItem.Salvo);
+            _aims[id] = solution with { Ready = solution.Clear && !deployment.Retracting && deployment.Progress >= 1 &&
+                (slot.Active.Item != HeldItem.Salvo || deployment.Arm >= 1) && (slot.Active.Item != HeldItem.Missile || tick >= slot.MissileReadyTick) };
         }
     }
 
