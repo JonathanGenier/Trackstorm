@@ -8,9 +8,13 @@ articulation. `source/RefineCatapult.py` opens and refines the retained master,
 preserving the spoon, magazine, winch, materials and named runtime interfaces.
 It replaces the named platform/support/cable components and authors the coil morph.
 `source/PolishWinch.py` then refines only the rope, its guides/attachment and drum,
-retaining the approved spring, plate, turret and ammunition. For a complete
-regeneration, run `source/BuildCatapult.py`, `source/RefineCatapult.py`, then
-`source/PolishWinch.py`. Each saves the master/export; preserve manual edits first.
+retaining the approved spring, plate, turret and ammunition. `source/PolishCircus.py`
+applies the original red enamel, bold white stripes and selected gold stars to the
+spoon exterior, fixed turret/support housings and magazine flanges. Sliding metal,
+spring, joints, brown rope and ammunition retain their contrasting materials; the
+bowl interior retains wood. For a complete regeneration, run `source/BuildCatapult.py`,
+`source/RefineCatapult.py`, `source/PolishWinch.py`, then `source/PolishCircus.py`.
+Each saves the master/export; preserve manual edits first.
 
 The three original TS-210 images supplied by the user define the wooden spoon,
 steel reinforcement, forward bearing, underslung rack winch and flat magazine.
@@ -23,10 +27,10 @@ to the selected authoring script. Import the export using the repository's
 authoring helper converts to Blender +Z up / +Y forward. Source is excluded from
 Godot import. Runtime poses use the exported rigid pivots, not skeletal skinning.
 `python source/AuditCatapult.py` checks the exported rigid hierarchy, actual compact
-vertex envelope, normals/UVs and the 60,000-triangle / 72-surface budget. The rope
-material and extra moving guide add surfaces while the simplified winding reduces
-total geometry: the current export has 44,660 triangles and 71 surfaces. It is a
-read-only audit and does not replace runtime articulation checks.
+vertex envelope, normals/UVs and the 60,000-triangle / 88-surface budget. Authored
+livery adds only 104 triangles; the current export has 44,764 triangles, 80 surfaces
+and 10 materials. It is a read-only audit and does not replace runtime
+articulation checks.
 
 ## Mechanical contract
 
@@ -44,7 +48,11 @@ read-only audit and does not replace runtime articulation checks.
 - `WinchHousing` lives inside/below the rack. The thick brown ship rope rises from
   the drum through its travelling guide, follows the lifting/sliding platform into
   an axial tension swivel, then passes outside the spring through `CableSpoonGuide`
-  along the spoon underside to a visible spliced `CableEye` around the rear pin.
+  along the spoon underside to a visible spliced `CableEye` around the terminal pin
+  on the turret side of the spring, at the beginning of `ArmTip`. The pin is 0.32 m
+  toward the turret from `SpringTop`; the eye approaches it from another 0.07 m
+  toward the turret. This is the left circle in the supplied `attachement.png`.
+  No rope terminal remains at the bowl.
   Seven authored rope spans have a 66 mm diameter and normalized mesh coordinates.
   Runtime repeats the original three-ply texture by physical length, paying it
   along the spans while the spoon eye remains fixed. The coaxial tension coupling

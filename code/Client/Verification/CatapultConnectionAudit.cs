@@ -63,5 +63,9 @@ internal static class CatapultConnectionAudit
         Vector3 fairlead = yaw.ToLocal(Joint("CableFairlead").GlobalPosition);
         Require(Math.Abs(end.X) > .23f && Math.Abs(fairlead.X) > .23f && end.X * fairlead.X > 0 && Math.Abs(yaw.ToLocal(top.GlobalPosition).X) < .001f,
             "Underspoon cable must pass outside the spring wire");
+        Vector3 terminal = Joint("ArmTip").ToLocal(Joint("CableEye").GlobalPosition);
+        Vector3 springSeat = Joint("ArmTip").ToLocal(top.GlobalPosition);
+        Require(terminal.Z < springSeat.Z - .30f && terminal.Y < springSeat.Y && terminal.Z > -.10f,
+            "Terminal eye must attach beneath the spoon on the turret side of the spring, at the human-marked position");
     }
 }

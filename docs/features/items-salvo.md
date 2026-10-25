@@ -24,11 +24,20 @@ the wire gauge. The spring and plate rotate with the turret, independently of th
 
 The thick brown ship rope runs from the drum through a travelling level-wind guide,
 up the mount, along the lifting/sliding platform, through an axial tension swivel
-and along the spoon underside to a visible spliced eye around its rear pin.
+and along the spoon underside to a visible spliced eye around a pin behind the
+spring, toward the turret. The terminal is attached to the beginning of the outer
+spoon member, 0.32 m toward the turret from the spring's upper saddle; it does not
+continue to the bowl. The eye and strap remain children of that spoon member.
 The rotating fairlead and spoon guide keep the line outside the spring. Seven
 normalized mesh spans retain a 66 mm diameter and constant braid texture pitch
 throughout deployment and rotation. Coincident anchors hide their zero-length
 segment instead of creating a singular transform.
+
+The weapon's original circus livery uses scuffed red enamel on the spoon exterior,
+fixed turret/support housings and magazine flanges, bold white stripes and selected
+gold stars. The bowl interior remains wood. Bare sliding metal, joints, spring,
+brown rope and the existing firecrackers retain contrast. Decoration follows its
+authored rigid parent and does not change the vehicle's unrelated materials.
 
 The drum has ten visible windings, crimson rims and asymmetric brass rotation
 markers. Its phase derives from routed rope length at a 0.18 m winding radius;
@@ -67,8 +76,10 @@ also samples actual rendered cable endpoints, coil morph/scale, seat attachment
 and platform engagement through deployment, eight yaw bearings, use and retraction.
 It also checks spool/rope-length agreement, tangent/guide alignment, physical braid
 pitch, payout/rewind and no winding from yaw alone. Visual runs record a buffered
-winch cycle with frame timestamps and observed drum/spoon/guide poses. Repeated-shot
-inputs wait for the authoritative cooldown as well as the mechanical reset.
+winch cycle with frame timestamps and observed drum/spoon/guide poses. The terminal
+is also checked beneath the spoon and on the turret side of the upper spring seat.
+Repeated-shot inputs wait for the authoritative cooldown as well as the mechanical
+reset.
 
 ## Existing single-shot gameplay
 

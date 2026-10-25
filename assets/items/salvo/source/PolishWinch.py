@@ -119,7 +119,9 @@ swivel=empty('CableSwivel',joint('TurretSlide'),(0,-.31,0))
 swivel_top=empty('CableSwivelTop',joint('TurretYaw'),(0,-.045,0))
 fairlead=empty('CableFairlead',joint('TurretYaw'),(-.245,.015,.15))
 spoon_guide=empty('CableSpoonGuide',joint('SpoonHinge'),(-.245,-.135,.28))
-eye=empty('CableEye',joint('ArmTip'),(-.245,-.135,.60))
+# Human-marked terminal is on the turret side of the spring (SpringTop Z=.32),
+# not at the bowl. The eye approaches a pin at Z=0 from the underside guide.
+eye=empty('CableEye',joint('ArmTip'),(-.245,-.135,-.07))
 level=empty('WinchLevelWind',root,(0,-.13,.18))
 clear_meshes(level)
 tube('Travelling brass rope guide',[(.045*cos(i*pi/16),0,.045*sin(i*pi/16)) for i in range(33)],.01,brass,level)
@@ -131,9 +133,9 @@ for parent,at in [(joint('PlatformLift'),(0,-.19,.18)),(joint('TurretSlide'),(0,
 cyl('Rope rotary tension sleeve',(0,-.31,0),(0,-.045,0),.063,brass,joint('TurretYaw'))
 box('Underspoon rope guide bracket',(-.215,-.065,.28),(.08,.14,.12),iron,joint('SpoonHinge'))
 tube('Underspoon rope guide ring',[(-.245+.047*cos(i*pi/16),-.135+.047*sin(i*pi/16),.28) for i in range(33)],.01,brass,joint('SpoonHinge'))
-box('Rear spoon rope strap',(0,-.09,.67),(.54,.055,.12),red,joint('ArmTip'))
-cyl('Rear rope attachment pin',(-.30,-.135,.67),(-.18,-.135,.67),.035,brass,joint('ArmTip'))
-tube('Spliced rope eye',[(-.245,-.135+.07*sin(i*pi/16),.67-.07*cos(i*pi/16)) for i in range(33)],.028,rope,joint('ArmTip'))
+box('Behind spring rope strap',(0,-.09,0),(.54,.055,.12),red,joint('ArmTip'))
+cyl('Behind spring attachment pin',(-.30,-.135,0),(-.18,-.135,0),.035,brass,joint('ArmTip'))
+tube('Spliced rope eye',[(-.245,-.135+.07*sin(i*pi/16),-.07*cos(i*pi/16)) for i in range(33)],.028,rope,joint('ArmTip'))
 
 segments=[]
 for index in range(7):
