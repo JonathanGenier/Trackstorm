@@ -40,7 +40,7 @@ public sealed record ItemConfiguration
     /// <summary>Mean flight speed (m/s).</summary>
     public float SalvoSpeed { get; init; } = 150;
     /// <summary>Blast radius (m).</summary>
-    public float SalvoBlastRadius { get; init; } = 10;
+    public float SalvoBlastRadius { get; init; } = .9144f;
     /// <summary>Maximum damage per round.</summary>
     public float SalvoDamage { get; init; } = 250;
     /// <summary>Damage and impulse falloff exponent.</summary>
@@ -174,7 +174,7 @@ public sealed record ItemConfiguration
         if (!double.IsFinite(SalvoLaunchHeight) || SalvoLaunchHeight < 1 || SalvoLaunchHeight > 10) { throw new ArgumentException("Invalid salvo launch_height."); }
         if (!double.IsFinite(SalvoArcHeight) || SalvoArcHeight < 1 || SalvoArcHeight > 60) { throw new ArgumentException("Invalid salvo arc_height."); }
         if (!double.IsFinite(SalvoSpeed) || SalvoSpeed < 20 || SalvoSpeed > 200) { throw new ArgumentException("Invalid salvo speed."); }
-        if (!double.IsFinite(SalvoBlastRadius) || SalvoBlastRadius < 1 || SalvoBlastRadius > 30) { throw new ArgumentException("Invalid salvo blast_radius."); }
+        if (!double.IsFinite(SalvoBlastRadius) || SalvoBlastRadius < .1f || SalvoBlastRadius > 30) { throw new ArgumentException("Invalid salvo blast_radius."); }
         if (!double.IsFinite(SalvoDamage) || SalvoDamage < 0 || SalvoDamage > 1000) { throw new ArgumentException("Invalid salvo damage."); }
         if (!double.IsFinite(SalvoFalloff) || SalvoFalloff < 0.25 || SalvoFalloff > 4) { throw new ArgumentException("Invalid salvo falloff."); }
         if (!double.IsFinite(SalvoImpulse) || SalvoImpulse < 0 || SalvoImpulse > 50000) { throw new ArgumentException("Invalid salvo impulse."); }

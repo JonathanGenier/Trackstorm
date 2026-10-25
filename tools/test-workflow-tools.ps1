@@ -224,6 +224,7 @@ Assert-True ($startPlan.RuntimeScripts -contains "check-match-start.ps1") "Count
 Assert-True ($playPlan.RuntimeScripts -contains "check-play-menu.ps1") "Play Menu presentation changes must route the runtime interaction harness."
 $salvoPlan = Get-FastCheckPlan -Paths @("code/Client/Items/SalvoMarker.cs")
 Assert-True ($salvoPlan.RuntimeScripts -contains "check-salvo.ps1") "Salvo marker changes must route the native marker privacy harness."
+Assert-True ($salvoPlan.RuntimeScripts -contains "check-salvo-explosion.ps1") "Salvo changes must route native explosions and bounded smoke verification."
 $catapultPlan = Get-FastCheckPlan -Paths @("assets/items/salvo/SalvoCatapult.glb")
 Assert-True ($catapultPlan.RuntimeScripts -contains "check-salvo-catapult.ps1") "Catapult asset changes must exercise deployment and native peer presentation."
 $destructionPlan = Get-FastCheckPlan -Paths @("code/Core/Arenas/EnvironmentAuthority.cs")

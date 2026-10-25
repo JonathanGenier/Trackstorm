@@ -45,6 +45,17 @@ public static class ShieldGeometry
     public static float? Intersect(ShieldState wall, Vector3 start, Vector3 end)
         => IntersectBox(wall.Position, wall.Orientation, wall.WallSize, start, end);
 
+    /// <summary>Nearest point in the physical armor, for finite-radius Salvo damage.</summary>
+    public static Vector3 ClosestPoint(ShieldState shield, VehiclePhysicsState pose, Vector3 point)
+    {
+        if (!shield.Attached) { return ClosestBox(shield.Position, shield.Orientation, shield.WallSize, point); }
+        return MountedBoxes.Select(box => ClosestBox(pose.Position + Vector3.Transform(box.Center, pose.Orientation), pose.Orientation, box.Size, point))
+            .MinBy(candidate => Vector3.DistanceSquared(point, candidate));
+    }
+
+    private static Vector3 ClosestBox(Vector3 center, Quaternion orientation, Vector3 size, Vector3 point)
+        => center + Vector3.Transform(Vector3.Clamp(Vector3.Transform(point - center, Quaternion.Conjugate(orientation)), -size / 2, size / 2), orientation);
+
     /// <summary>Separating-axis test for deployment candidates, including two uses in one batch.</summary>
     public static bool Overlaps(ShieldState first, ShieldState second)
     {

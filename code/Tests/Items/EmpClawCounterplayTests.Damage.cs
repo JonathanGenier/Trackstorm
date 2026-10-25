@@ -1,6 +1,7 @@
 using System.Numerics;
 using Trackstorm.Core.Items;
 using Trackstorm.Core.Networking.Replication;
+using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Core.Tests.Items;
 
@@ -36,7 +37,8 @@ internal sealed partial class EmpClawCounterplayTests
     [TestCase(HeldItem.Salvo)]
     public void SharedDamagingBlastReachesMembraneEdgeWithoutDamagingCarOrOtherClaws(HeldItem item)
     {
-        var claws = BlastFixture();
+        // Keep the blast clear of the physical chassis as well as its origin.
+        var claws = BlastFixture().Select(c => c with { LocalPosition = c.LocalPosition + Vector3.UnitZ * .3f }).ToArray();
         Vector3 nose = EmpClawGeometry.Nose(claws[1], Pose(2));
         // Centre lies outside the damage radius, but the near membrane is inside it.
         Vector3 center = nose + Vector3.UnitZ * 1.1f;
@@ -91,7 +93,8 @@ internal sealed partial class EmpClawCounterplayTests
         _host.Step(default, v => new(Pose(v.VehicleId), Vector3.UnitY), collide: (_, _) => 1);
         var impacts = _host.Items.Events.Where(e => e.Impact).ToArray();
         Assert.That(impacts, Has.Length.EqualTo(2));
-        float expected = impacts.Sum(e => _host.Items.Explosion(e.Position, Pose(2).Position, e.Item).Damage);
+        float expected = impacts.Sum(e => _host.Items.Explosion(e.Position,
+            e.Item == HeldItem.Salvo ? VehicleHull.ClosestPoint(Pose(2), e.Position) : Pose(2).Position, e.Item).Damage);
         Assert.That(_host.World.GetVehicle(2).Damage.CurrentHP, Is.EqualTo(1000 - expected).Within(.001));
         Assert.That(_host.Items.EmpAttachments, Is.Empty);
         Assert.That(_host.World.GetVehicle(2).Movement.EnginePowerScale, Is.EqualTo(1));

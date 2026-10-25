@@ -102,7 +102,49 @@ Acceptance reserves all remaining rounds within the shared sixteen-projectile ca
 
 Each launch independently samples the shared accepted camera/assisted direction, current vehicle pose and deliberate aiming state. Full yaw covers front, sides and rear. Salvo retains the shared angular/pitch limits but does not apply the straight-barrel self-clearance test to its arcing spoon. Native closest cover along the accepted ray wins within reach; otherwise horizontal/downward aim projects onto available static ground. Sky aim or missing ground retains a finite endpoint. Ordinary fire retains the configured base range (65 m by default). Held RMB or existing controller aiming intent initially doubles that range (130 m by default), including shared assist acquisition and the ground circle. This multiplier is initial playtest tuning, not a permanent balance decision. The held-only `AimItem` state travels through existing ordered vehicle input; the authority applies it only with a fresh accepted aiming solution. Missing/expired transient aim falls back to current chassis-forward direction and base range; it never cancels a committed sequence. Previously launched rounds retain their own target, origin, speed and parabola independently of later camera motion.
 
-Shots start at the fully extended bowl's 45-degree release socket. The default launch-height tuning preserves that authored socket; an offset from the default adjusts it along chassis up. The existing parabola rises twelve metres above the launch-to-target chord, with mean travel speed 150 m/s. Complete 60 Hz segment sweeps can hit obstacles/vehicles before the stored target. Each impact uses a ten-metre blast radius, 250 maximum HP damage and 3,500 N s impulse, with distance falloff `(1 - distance / radius)^falloff` (default exponent one). The existing vehicle damage transaction and Circus scoring own actual per-target damage, kill attribution and points. Explosion presentation, audio and damage tuning remain unchanged by the projectile presentation work.
+Shots start at the fully extended bowl's 45-degree release socket. The default launch-height tuning preserves that authored socket; an offset from the default adjusts it along chassis up. The existing parabola rises twelve metres above the launch-to-target chord, with mean travel speed 150 m/s. Complete 60 Hz segment sweeps can hit obstacles/vehicles before the stored target. Each impact has a default 0.9144 m (three-foot) blast radius, 250 maximum HP damage and 3,500 N s impulse, with distance falloff `(1 - distance / radius)^falloff` (default exponent one). The existing vehicle damage transaction and Circus scoring own actual per-target damage, kill attribution and points.
+
+## Explosion, damage and destruction
+
+One accepted impact removes its round and creates one authoritative explosion.
+Three quick visual bursts never create additional damage, scoring or impact events.
+Salvo falloff measures the nearest point in the existing oriented chassis hull,
+attached shield panels, detached wall or rock bounds, so small blasts can reach
+large objects without reaching their distant origins. Vehicle/wall impulse still
+points away from the blast toward the body center. Missile behavior is unchanged.
+
+[Rear-shield coverage](items-shield.md) retains the existing blast-to-victim-center
+intersection rule, evaluated before that hit can destroy armor. A covered vehicle
+takes neither damage nor weapon impulse from that hit. An exposed front can take
+damage while rear armor remains intact; when both exposed bodywork and armor are
+inside the radius, each receives its own single damage application. Other vehicles
+retain their own coverage tests. Detached walls receive one blast application each,
+independent of vehicle count; explosions gain no new general wall occlusion.
+
+Eligible attached [EMP noses](items-emp-claw.md#nose-shield-and-stored-ammunition-counterplay)
+retain their membrane-distance and shield-interception rules. Cosmetic pops add
+no secondary blast. Stored EMP ammunition retains its Missile-only blast rule.
+[Destructible rocks](destructible-environment.md) consume the same committed impact
+through the existing staged-destruction transaction, with at most one stage change
+per piece per batch.
+
+`SalvoExplosion` renders three token-seeded bursts 0.16 seconds apart, each with
+48 colored sparks and a soft flash, inside twenty expanding dark smoke billboards.
+Smoke fades gradually from 1.5 to 20 seconds and survives projectile removal.
+Spark updates stop after 1.15 seconds. The arena retains at most 128 explosion
+owners (2,560 smoke billboards); saturation replaces the oldest cosmetic owner,
+so extreme overload may shorten its smoke lifetime without changing gameplay.
+Teardown frees all effects. Accepted reliable publications suppress duplicate
+effects; an empty recovery checkpoint rebases the event revision without replaying
+historical explosions. A restored round whose explosion is still alive keeps that
+effect owner rather than duplicating or restarting its bursts. Peers use the same token seed, but appearance starts at local
+receipt time. Late admission reconstructs flight, not historical explosion smoke.
+
+`check-salvo-explosion.ps1 -GodotPath <editor> [-Visual]` exercises native chassis
+and shield contacts, simultaneous repeated volleys across three impaired UDP peers,
+an imported-rock blast, duplicate/recovery presentation, three bursts, smoke fade,
+bounded accumulation and teardown. Its explicit cosmetic stress fixture is not a
+full-match GPU benchmark.
 
 ## Firework flight and smoke
 
@@ -141,7 +183,7 @@ remote-multiplayer benchmark.
 
 Salvo reuses the shared centered camera cursor, assisted-car indicator and existing owner-only gold terrain circle. The circle follows current accepted targeting while the selected magazine or its flying rounds remain; it never steers old shots or leaves their targeting rings behind. Both ring edges sample static ground and surface normals; unsupported/discontinuous segments are omitted. Sky/outside-arena shots may have no supported footprint to draw. Remote inventories do not create guides. Death, Finished, inactive session and teardown clear the applicable guide.
 
-Runtime keys `items.salvo_*` retain the existing Developer Options/Configs pipeline. `count` is fixed at 5; `interval_ticks` allows 30–180 ticks with default 75. Range (25–250 m), launch_height (1–10 m, default 3), arc_height (1–60 m), speed (20–200 m/s), blast_radius (1–30 m), damage (0–1000 HP), falloff (0.25–4), impulse (0–50,000 N s), marker_scale (0.5–2 times blast radius), marker_width (0.1–2 m) and marker_lift (0.02–0.5 m) remain configurable. Each shot captures flight tuning and its successor deadline; live edits cannot refill ammunition, move an already scheduled deadline or bend an existing flight. Impact/marker properties use current tuning. Isolate normal pickups with `spawns.salvo_weight = 1`, every other registered item weight zero, and `spawns.category_weapon_weight > 0`.
+Runtime keys `items.salvo_*` retain the existing Developer Options/Configs pipeline. `count` is fixed at 5; `interval_ticks` allows 30–180 ticks with default 75. Range (25–250 m), launch_height (1–10 m, default 3), arc_height (1–60 m), speed (20–200 m/s), blast_radius (0.1–30 m, default 0.9144), damage (0–1000 HP), falloff (0.25–4), impulse (0–50,000 N s), marker_scale (0.5–2 times blast radius), marker_width (0.1–2 m) and marker_lift (0.02–0.5 m) remain configurable. Each shot captures flight tuning and its successor deadline; live edits cannot refill ammunition, move an already scheduled deadline or bend an existing flight. Impact/marker properties use current tuning. Isolate normal pickups with `spawns.salvo_weight = 1`, every other registered item weight zero, and `spawns.category_weapon_weight > 0`.
 
 Resume/migration preserves the remaining magazine, next launch deadline and flying arcs without replaying historical events. Transient aim must be reacquired after restoration; disconnected retained players continue under the existing authority with forward fallback if necessary. Reset, death, permanent departure and Finished clear committed/flying rounds. A new life cannot resume a dead magazine even when the optional respawn policy retains other inventory. New matches begin empty.
 

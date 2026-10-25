@@ -94,7 +94,22 @@ public sealed class EnvironmentAuthority
             for (int i = 0; i < _rocks.Length; i++)
             {
                 if (_rocks[i].Stage == 0) { continue; }
-                var effect = items.Explosion(impact.Position, _layout.Rocks[i] + _rocks[i].Offset, impact.Item);
+                Vector3 target = _layout.Rocks[i] + _rocks[i].Offset;
+                if (impact.Item == HeldItem.Salvo)
+                {
+                    if (_layout.BlastBounds(i, _rocks[i]) is { } bounds)
+                    { target = bounds.ClosestPoint(impact.Position); }
+                    else
+                    {
+                        // Legacy engine-independent fixtures can omit authored bounds.
+                        float radius = _layout.Size(i, _rocks[i].Stage) / 2;
+                        Vector3 sphere = target + (_rocks[i].Stage > 1 ? Vector3.UnitY * radius : Vector3.Zero);
+                        Vector3 offset = impact.Position - sphere;
+                        float distance = offset.Length();
+                        target = distance <= radius ? impact.Position : sphere + offset * (radius / distance);
+                    }
+                }
+                var effect = items.Explosion(impact.Position, _layout.Rocks[i] + _rocks[i].Offset, impact.Item, target);
                 damage[i] += effect.Damage;
                 pushes[i] += effect.Impulse / 1000;
             }
