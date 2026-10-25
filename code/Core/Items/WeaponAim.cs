@@ -10,6 +10,8 @@ public static class WeaponAim
     public static Vector3 Pivot => new(0, 1.81f, 1.845f);
     /// <summary>Only direct-fire identities participate; Salvo retains its separate mechanics.</summary>
     public static bool Supports(HeldItem item) => item is HeldItem.MachineGun or HeldItem.Missile or HeldItem.EmpClaw;
+    /// <summary>Salvo shares accepted camera articulation without adopting direct-fire rules or assistance.</summary>
+    public static bool SupportsArticulation(HeldItem item) => Supports(item) || item == HeldItem.Salvo;
     /// <summary>Requests must already be finite unit directions, never arbitrary magnitudes.</summary>
     public static bool IsDirection(Vector3 direction) => VehiclePhysicsState.IsFinite(direction) && Math.Abs(direction.LengthSquared() - 1) <= .002f;
 

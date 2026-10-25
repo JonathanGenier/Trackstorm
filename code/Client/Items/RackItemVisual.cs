@@ -17,6 +17,7 @@ internal static class RackItemVisual
             return new ShieldRack();
         }
         if (item == HeldItem.Missile) { return new MissileVisual(); }
+        if (item == HeldItem.Salvo) { return new SalvoCatapult(); }
         var root = new Node3D { Name = "RackItem_" + item };
         var definition = ItemRegistry.Find(item) ?? throw new ArgumentOutOfRangeException(nameof(item));
         {

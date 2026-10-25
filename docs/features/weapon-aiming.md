@@ -18,6 +18,16 @@ Aim preparation uses the exact current native observation batch passed to the it
 
 An accepted Proxy Mine placement retains ownership of the existing rack until placement and its 0.23-second arm return finish. Selecting or acquiring a direct-fire capability during that placement holds its readiness gate before the replacement path; it does not interrupt or redesign mine placement.
 
+## Salvo articulation consumer
+
+Salvo also consumes accepted yaw through `SupportsArticulation`, while remaining
+outside the direct-fire `Supports` set. The same camera ray, sender/life/token/
+selection guards, angular limits and replaceable publication drive its catapult.
+It does not acquire direct-fire sticky assistance or consume the aim as a launch
+target. Accepted single-round consumption carries transient articulation onto the
+remaining magazine's new use token without accepting stale-token requests. See
+[Salvo mechanics](items-salvo.md#catapult-mechanical-presentation).
+
 ## EMP Claw firing consumer
 
 EMP forwards the shared assisted car ID and life with the ordinary desired aim

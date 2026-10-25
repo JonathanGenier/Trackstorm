@@ -9,6 +9,7 @@ namespace Trackstorm.Client.Items;
 internal sealed partial class SalvoMarker : MeshInstance3D
 {
     private double _remaining;
+    private Vector3 _sampledTarget;
     internal int RingCount { get; private set; }
     internal IReadOnlyList<Vector3> SurfaceVertices { get; private set; } = [];
 
@@ -39,8 +40,11 @@ internal sealed partial class SalvoMarker : MeshInstance3D
         }
         if (targets.Count == 0) { Visible = false; RingCount = 0; SurfaceVertices = []; _remaining = 0; return; }
         _remaining -= delta;
-        if (_remaining > 0) { return; }
+        // Keep the terrain sampling budget while stationary, but do not let the
+        // ground guide trail fast steering by several metres between refreshes.
+        if (_remaining > 0 && targets[0].DistanceSquaredTo(_sampledTarget) < 1) { return; }
         _remaining = 0.05;
+        _sampledTarget = targets[0];
         var mesh = new ImmediateMesh();
         var vertices = new List<Vector3>();
         RingCount = 0;

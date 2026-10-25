@@ -77,9 +77,10 @@ public sealed partial class CarRackChecks : Node
                 GetTree().Quit();
                 return;
             }
-            if (OS.GetCmdlineUserArgs().Contains("--weapon-handoffs"))
+            if (OS.GetCmdlineUserArgs().Contains("--weapon-handoffs") || OS.GetCmdlineUserArgs().Contains("--salvo-catapult"))
             {
-                await CheckWeaponHandoffs();
+                if (OS.GetCmdlineUserArgs().Contains("--salvo-catapult")) { await CheckSalvoCatapult(); }
+                else { await CheckWeaponHandoffs(); }
                 System.IO.File.WriteAllLines(ProjectSettings.GlobalizePath(_output + "/handoff-evidence.txt"), _evidence);
                 GD.Print($"Weapon handoff integration passed: {_checks} checks on two UDP peers.");
                 foreach (var arena in _arenas) { arena.QueueFree(); }
@@ -333,6 +334,7 @@ public sealed partial class CarRackChecks : Node
         (item != HeldItem.Nitro || body.Rack.Boost.Deployment >= .999f) &&
         (item != HeldItem.EmpClaw || a.Driver.ItemState?.Slots.SingleOrDefault(s => s.Vehicle == Shooter) is { } emp && body.Rack.IsEmpClawReady(emp)) &&
         (item != HeldItem.Wrench || a.Driver.ItemState?.Slots.SingleOrDefault(s => s.Vehicle == Shooter) is { } wrench && body.Rack.IsWrenchReady(wrench)) &&
+        (item != HeldItem.Salvo || body.Rack.Catapult is { Deployed: true }) &&
         (item != HeldItem.Missile || a.Driver.ItemState?.Slots.SingleOrDefault(s => s.Vehicle == Shooter) is { } inventory && body.Rack.IsMissileReady(inventory))));
     private IEnumerable<CarLighting> Lamps() => _arenas.Select(a => a.Bodies[Shooter].Rack.GetParent<Node3D>().GetChildren().OfType<CarLighting>().Single());
     private async Task Frames(int count, InputButtons held = 0, InputButtons released = 0, ushort throttle = 0, short steer = 0, ushort brake = 0)
@@ -343,7 +345,7 @@ public sealed partial class CarRackChecks : Node
             for (int peer = 0; peer < _arenas.Count; peer++)
             {
                 if (peer == 1 && _arenas[peer].Driver.LocalState is { } local)
-                { _arenas[peer].Driver.DesiredAim = N.Vector3.Transform(-N.Vector3.UnitZ, local.ObservedPhysics.Orientation); }
+                { _arenas[peer].Driver.DesiredAim = N.Vector3.Transform(WeaponAim.Direction(_catapultAim, 0), local.ObservedPhysics.Orientation); }
                 _arenas[peer].Advance(peer == 1 ? new InputFrame(0, steer, throttle, brake, held, 0, released) : default);
                 if (_arenas[peer].Driver.Failure.Length > 0) { throw new InvalidOperationException(_arenas[peer].Driver.Failure); }
             }

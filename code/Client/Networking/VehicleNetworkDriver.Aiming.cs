@@ -22,7 +22,7 @@ internal sealed partial class VehicleNetworkDriver
 
     private void SubmitAim()
     {
-        if (!AllowsParticipation || DesiredAim is not Vector3 direction || !WeaponAim.IsDirection(direction) || LocalItem is not { } inventory || !WeaponAim.Supports(inventory.Active.Item)) { return; }
+        if (!AllowsParticipation || DesiredAim is not Vector3 direction || !WeaponAim.IsDirection(direction) || LocalItem is not { } inventory || !WeaponAim.SupportsArticulation(inventory.Active.Item)) { return; }
         ulong sequence = checked(++_aimSequence);
         if (Host is not null)
         {

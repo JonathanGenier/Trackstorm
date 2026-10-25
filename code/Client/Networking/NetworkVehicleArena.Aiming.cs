@@ -63,7 +63,7 @@ internal sealed partial class NetworkVehicleArena
     private void PrepareAiming()
     {
         bool enabled = _driver.IsActive && _driver.AllowsParticipation && _driver.LocalState is { CanInteract: true } &&
-            _driver.LocalItem is { } slot && WeaponAim.Supports(slot.Active.Item) && CameraInput?.CameraEnabled == true;
+            _driver.LocalItem is { } slot && WeaponAim.SupportsArticulation(slot.Active.Item) && CameraInput?.CameraEnabled == true;
         _camera.WeaponAiming = enabled;
         if (!enabled) { ResetAiming(); return; }
         var current = _driver.LocalItem!;
@@ -111,7 +111,7 @@ internal sealed partial class NetworkVehicleArena
             var state = _driver.Latest?.Vehicles.FirstOrDefault(value => value.State.VehicleId == pair.Key)?.State;
             var inventory = (_driver.Host?.Items.Slots ?? _driver.ItemState?.Slots)?.FirstOrDefault(value => value.Vehicle == pair.Key);
             var aim = _driver.AcceptedAims.FirstOrDefault(value => value.Vehicle == pair.Key && value.Life == state?.LifeId && value.Token == inventory?.Active.Token);
-            pair.Value.Rack.ObserveAim(state is { CanInteract: true } && inventory is not null && WeaponAim.Supports(inventory.Active.Item) ? aim : null);
+            pair.Value.Rack.ObserveAim(state is { CanInteract: true } && inventory is not null && WeaponAim.SupportsArticulation(inventory.Active.Item) ? aim : null);
         }
         if (!_camera.WeaponAiming || _driver.LocalState is not { } local || _driver.LocalItem is not { } slot) { return; }
         Vector2 center = _camera.GetViewport().GetVisibleRect().GetCenter();
@@ -154,6 +154,10 @@ internal sealed partial class NetworkVehicleArena
         // input selects the same free/assisted solution as every direct-fire weapon.
         if (slot.Active.Item == HeldItem.Missile && CameraInput?.CameraAimActive != true)
         { _driver.DesiredAim = System.Numerics.Vector3.Transform(-System.Numerics.Vector3.UnitZ, local.ObservedPhysics.Orientation); }
+        // The catapult consumes camera yaw only. Keep Salvo's existing local
+        // ground guide rather than implying a new direct-fire readiness/target.
+        if (slot.Active.Item == HeldItem.Salvo)
+        { _aimOverlay.Reset(); _targetIndicator.Clear(); return; }
         var accepted = _driver.AcceptedAims.FirstOrDefault(value => value.Vehicle == local.VehicleId && value.Life == local.LifeId && value.Token == slot.Active.Token);
         Rect2? bounds = null;
         if (framed is { } target)
