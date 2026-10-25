@@ -28,7 +28,16 @@ automatic shot snapshots the accepted direction into its own native ray/ground
 target; later camera motion never changes an existing arc. Straight-barrel body
 clearance does not gate the arcing spoon. A committed magazine preserves local
 assistance and accepted articulation across shot-token rotation while rejecting
-stale-token requests. Missing transient aim uses chassis-forward fallback so a
+stale-token requests. Fresh same-life accepted presentation follows that committed
+magazine when inventory and aim packets arrive in either order; normal expiry is
+unchanged. An uncommitted magazine and every other weapon still require exact
+token matching. Acquisition and retention are bounded by Salvo's usable aimed
+reach: initially twice its existing configurable base range (130 m by default).
+Camera-driven free aim and the shared ground circle use that same range; ordinary
+fire keeps the base range. Each launch samples the held-only aiming state from
+existing vehicle input independently of the accepted direction. Other weapons'
+acquisition distances and firing rules are unchanged.
+Missing transient aim uses chassis-forward fallback so a
 committed volley cannot be cancelled by loss of input or ground. See
 [Salvo mechanics](items-salvo.md#catapult-mechanical-presentation).
 

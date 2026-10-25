@@ -102,6 +102,52 @@ internal sealed class SalvoTests
         }
     }
 
+    [TestCase(65f)]
+    [TestCase(90f)]
+    [TestCase(250f)]
+    public void EachShotSamplesDeliberateAimReachWhileUnaimedFireKeepsConfiguredRange(float range)
+    {
+        var host = Ready(new() { SalvoRange = range });
+        Use(host);
+        var distances = new List<float>();
+        for (int i = 0; i < 350; i++)
+        {
+            var slot = host.Items.Slots.Single();
+            if (slot.Active.Item == HeldItem.Salvo)
+            { host.AimItem(0, 99, 1, slot.Token, 0, (ulong)i + 1, Vector3.UnitX); }
+            var held = (i / 75) % 2 == 0 ? InputButtons.AimItem : InputButtons.None;
+            host.Step(new(0, 0, 0, 0, held, 0, 0), Observe);
+            foreach (var launch in host.Items.Events.Where(e => !e.Impact))
+            {
+                var pose = host.World.GetVehicle(1).ObservedPhysics;
+                Vector3 pivot = pose.Position + Vector3.Transform(WeaponAim.Pivot, pose.Orientation);
+                distances.Add(Vector3.Distance(pivot, host.Items.Missiles.Single(m => m.Id == launch.Token).Arc!.Target));
+            }
+        }
+        Assert.That(distances, Is.EqualTo(new[] { range * 2, range, range * 2, range, range * 2 }).Within(.001f));
+    }
+
+    [Test]
+    public void ExpiredAimCannotKeepExtendedReachEvenWithAimingHeld()
+    {
+        var host = Ready();
+        Use(host);
+        var distances = new List<float>();
+        for (int i = 0; i < 350; i++)
+        {
+            var slot = host.Items.Slots.Single();
+            if (i < 10) { host.AimItem(0, 99, 1, slot.Token, 0, (ulong)i + 1, Vector3.UnitX); }
+            host.Step(new(0, 0, 0, 0, InputButtons.AimItem, 0, 0), Observe);
+            foreach (var launch in host.Items.Events.Where(e => !e.Impact))
+            {
+                var pose = host.World.GetVehicle(1).ObservedPhysics;
+                Vector3 pivot = pose.Position + Vector3.Transform(WeaponAim.Pivot, pose.Orientation);
+                distances.Add(Vector3.Distance(pivot, host.Items.Missiles.Single(m => m.Id == launch.Token).Arc!.Target));
+            }
+        }
+        Assert.That(distances, Is.EqualTo(new[] { 130f, 65, 65, 65, 65 }).Within(.001f));
+    }
+
     [TestCase(false)]
     [TestCase(true)]
     public void SwitchingAndDiscardCannotCancelCommittedShotsAndSecondMagazineRemainsUntouched(bool beforeFirstStep)

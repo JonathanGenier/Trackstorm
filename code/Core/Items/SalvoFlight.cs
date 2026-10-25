@@ -6,6 +6,10 @@ namespace Trackstorm.Core.Items;
 /// <summary>Portable parabola committed by an individual shot, retained for checkpoint continuation.</summary>
 public sealed record SalvoFlight(Vector3 Origin, Vector3 Target, float Height, int DurationTicks, int ElapsedTicks, ulong Life)
 {
+    /// <summary>Initial aimed reach is twice the existing configurable range;
+    /// ordinary fire retains its prior range for every existing configuration.</summary>
+    public static float AimRange(ItemConfiguration configuration, bool activelyAiming) => configuration.SalvoRange * (activelyAiming ? 2 : 1);
+
     /// <summary>Analytic arc; integer time avoids integration drift at the intended impact point.</summary>
     public Vector3 At(int tick)
     {

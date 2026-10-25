@@ -25,7 +25,8 @@ public sealed partial class ItemAuthority
             var slot = inventory.Active;
             if (!slot.SalvoCommitted || input.Tick < slot.SalvoReadyTick || !world.GetVehicle(pair.Key).CanInteract ||
                 world.State.Match is { Phase: not Matches.MatchPhase.Active }) { continue; }
-            var pose = requests.Single(r => r.VehicleId == pair.Key).Observation.Physics;
+            var request = requests.Single(r => r.VehicleId == pair.Key);
+            var pose = request.Observation.Physics;
             // Aim expiry, loss of terrain and release of the trigger cannot cancel a
             // committed magazine. Fresh shared aim is sampled separately at each launch.
             var aim = _aims.GetValueOrDefault(pair.Key);
@@ -33,7 +34,8 @@ public sealed partial class ItemAuthority
             Vector3 direction = aim?.Direction ?? Vector3.Transform(-Vector3.UnitZ, pose.Orientation);
             float yaw = aim?.Yaw ?? 0;
             Vector3 origin = SalvoFlight.LaunchOrigin(pose, yaw, Configuration.SalvoLaunchHeight);
-            Vector3 target = SalvoFlight.ResolveTarget(pose, direction, Configuration.SalvoRange, ground,
+            float range = SalvoFlight.AimRange(Configuration, aim is not null && (request.Input.Held & InputButtons.AimItem) != 0);
+            Vector3 target = SalvoFlight.ResolveTarget(pose, direction, range, ground,
                 raycast is null ? null : (from, to) => raycast(slot.Vehicle, from, to));
             if (Vector3.DistanceSquared(origin, target) < 1) { target = origin + direction * 2; }
             var arc = new SalvoFlight(origin, target, Configuration.SalvoArcHeight, 60, 0, slot.Life).Launch(origin, Configuration.SalvoSpeed);

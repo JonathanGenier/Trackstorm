@@ -229,8 +229,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _salvoMarker.Refresh(delta, _driver.LocalState, _driver.LocalItem, _driver.ItemState,
             _driver.Configuration.Configuration.Items, _driver.IsActive && (!ApplicationEntry || _driver.EntryReady) &&
             _driver.Match?.Phase is not (Core.Matches.MatchPhase.Finished or Core.Matches.MatchPhase.Waiting or Core.Matches.MatchPhase.Countdown), SalvoGround,
-            _driver.AcceptedAims.FirstOrDefault(a => a.Vehicle == _driver.LocalVehicleId && a.Token == _driver.LocalItem?.Active.Token),
-            (from, to) => RaycastWeapon(_driver.LocalVehicleId, from, to));
+            _driver.PresentedAim(_driver.LocalItem),
+            (from, to) => RaycastWeapon(_driver.LocalVehicleId, from, to), CameraInput?.CameraAimActive == true);
         if (ApplicationEntry && !_driver.EntryReady)
         {
             ResetAiming();
@@ -381,6 +381,12 @@ internal sealed partial class NetworkVehicleArena : Node3D
     /// <param name="input">Immediately captured local logical input.</param>
     internal void Advance(InputFrame input)
     {
+        // The held input bit travels with ordinary ordered/redundant vehicle input.
+        // It changes Salvo reach only; the separate accepted direction still owns aim.
+        var aimHeld = CameraInput?.CameraAimActive == true && _driver.LocalItem?.Active.Item == HeldItem.Salvo
+            ? InputButtons.AimItem : InputButtons.None;
+        input = new(input.Tick, input.Steering, input.Accelerate, input.Brake, (input.Held & ~InputButtons.AimItem) | aimHeld,
+            input.Pressed, input.Released, input.AirPitch, input.AirYaw, input.AirRoll);
         _audio.Initialize(_driver.LocalVehicleId);
         Dictionary<ulong, VehicleObservation>? hostObservations = null;
         _driver.Advance(input, state =>

@@ -28,7 +28,7 @@ internal sealed partial class SalvoMarker : MeshInstance3D
 
     internal void Refresh(double delta, VehicleSnapshot? local, ItemSlot? inventory, ItemPublication? state,
         ItemConfiguration tuning, bool active, Func<Vector3, (Vector3 Position, Vector3 Normal)?> ground,
-        WeaponAimSolution? aim = null, Func<System.Numerics.Vector3, System.Numerics.Vector3, WeaponRayHit?>? raycast = null)
+        WeaponAimSolution? aim = null, Func<System.Numerics.Vector3, System.Numerics.Vector3, WeaponRayHit?>? raycast = null, bool activelyAiming = false)
     {
         var targets = new List<Vector3>();
         if (active && local is { CanInteract: true })
@@ -38,7 +38,7 @@ internal sealed partial class SalvoMarker : MeshInstance3D
             {
                 var pose = local.ObservedPhysics;
                 targets.Add(VehicleBody.ToGodot(SalvoFlight.ResolveTarget(pose,
-                    aim?.Direction ?? System.Numerics.Vector3.Transform(-System.Numerics.Vector3.UnitZ, pose.Orientation), tuning.SalvoRange,
+                    aim?.Direction ?? System.Numerics.Vector3.Transform(-System.Numerics.Vector3.UnitZ, pose.Orientation), SalvoFlight.AimRange(tuning, activelyAiming && aim is not null),
                     point => ground(VehicleBody.ToGodot(point)) is { } hit ? VehicleBody.ToCore(hit.Position) : null, raycast)));
             }
         }

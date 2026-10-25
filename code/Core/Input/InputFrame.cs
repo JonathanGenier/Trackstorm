@@ -27,7 +27,7 @@ public readonly record struct InputFrame
         ArgumentOutOfRangeException.ThrowIfEqual(airPitch, short.MinValue);
         ArgumentOutOfRangeException.ThrowIfEqual(airYaw, short.MinValue);
         ArgumentOutOfRangeException.ThrowIfEqual(airRoll, short.MinValue);
-        ValidateButtons(held);
+        ValidateButtons(held, aimingState: true);
         ValidateButtons(pressed);
         ValidateButtons(released);
         Tick = tick;
@@ -117,9 +117,10 @@ public readonly record struct InputFrame
             BinaryPrimitives.ReadInt16LittleEndian(source[25..]));
     }
 
-    private static void ValidateButtons(InputButtons buttons)
+    private static void ValidateButtons(InputButtons buttons, bool aimingState = false)
     {
-        if ((buttons & ~ValidButtons) != 0)
+        var valid = ValidButtons | (aimingState ? InputButtons.AimItem : InputButtons.None);
+        if ((buttons & ~valid) != 0)
         {
             throw new ArgumentOutOfRangeException(nameof(buttons));
         }

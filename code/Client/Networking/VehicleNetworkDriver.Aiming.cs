@@ -20,6 +20,13 @@ internal sealed partial class VehicleNetworkDriver
     /// <summary>Current trusted solutions only; late/stalled samples cannot retain a firing marker.</summary>
     internal IReadOnlyList<WeaponAimSolution> AcceptedAims => _seconds() - _aimReceivedAt <= .3 ? _acceptedAims : Array.Empty<WeaponAimSolution>();
 
+    /// <summary>A committed Salvo keeps one selected magazine across per-shot tokens.
+    /// Reliable inventory and replaceable aim may arrive in either order; only fresh
+    /// authority samples for this vehicle life can bridge that presentation boundary.</summary>
+    internal WeaponAimSolution? PresentedAim(ItemSlot? inventory) => inventory is null ? null :
+        AcceptedAims.FirstOrDefault(aim => aim.Vehicle == inventory.Vehicle && aim.Life == inventory.Life &&
+            (aim.Token == inventory.Active.Token || inventory.Active.SalvoCommitted));
+
     private void SubmitAim()
     {
         if (!AllowsParticipation || DesiredAim is not Vector3 direction || !WeaponAim.IsDirection(direction) || LocalItem is not { } inventory || !WeaponAim.SupportsArticulation(inventory.Active.Item)) { return; }
