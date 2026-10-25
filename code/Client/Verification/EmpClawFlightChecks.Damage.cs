@@ -42,10 +42,14 @@ public sealed partial class EmpClawFlightChecks
             N.Vector3 center = nose - N.Vector3.UnitX * 1.1f;
             var items = Host.Items;
             ulong token = items.TokenHighWater + 1;
-            // Missile hits actual scenery; Salvo completes its existing authoritative arc.
+            // Both damaging projectiles hit actual scenery; an aimed endpoint is not a contact.
             var missile = new MissileState(token, 1, center + N.Vector3.UnitY * 2, -N.Vector3.UnitY * 60, 300);
-            if (item == HeldItem.Missile) { _obstacles.Add(AddBox(_arenas[0], VehicleBody.ToGodot(center - N.Vector3.UnitY * .025f), new(.1f, .05f, .1f))); }
-            else { missile = missile with { Arc = new(center + N.Vector3.UnitY * 2, center, 1, 2, 1, Host.World.GetVehicle(1).LifeId), RemainingTicks = 1 }; }
+            _obstacles.Add(AddBox(_arenas[0], VehicleBody.ToGodot(center - N.Vector3.UnitY * .025f), new(.1f, .05f, .1f)));
+            if (item == HeldItem.Salvo)
+            {
+                var arc = new SalvoFlight(center + N.Vector3.UnitY * 2, center, 1, 2, 1, Host.World.GetVehicle(1).LifeId);
+                missile = missile with { Arc = arc, Position = arc.At(1), Velocity = arc.VelocityAt(1), RemainingTicks = SalvoFlight.LifetimeTicks - 1 };
+            }
             await Frames(2);
             views = Enumerable.Range(0, 3).Select(p => Attachments(p).Views.ToArray()).ToArray();
             items.Restore(new(items.Revision + 1, Host.Snapshot(), items.Slots, [missile], [], discardRevision: items.DiscardRevision,
@@ -54,7 +58,7 @@ public sealed partial class EmpClawFlightChecks
             Check(items.EmpAttachments.Count == 2 && items.EmpAttachments.All(c => c.Id != claws[0].Id), "Existing blast reaches only the first inflated membrane edge.");
             Check(items.EmpAttachments.All(claws.Contains) && Host.World.GetVehicle(2).Movement.EnginePowerScale == .2f, "Blast leaves other clocks and capped power intact.");
             await ObserveRetirement(views, item.ToString().ToLowerInvariant());
-            Record(new { scenario = "attached-damaging-blast", weapon = item.ToString(), survivors = 2, nativeWorldHit = item == HeldItem.Missile });
+            Record(new { scenario = "attached-damaging-blast", weapon = item.ToString(), survivors = 2, nativeWorldHit = true });
             await Reset();
         }
         Configure(new() { ["items.explosion_radius"] = configuration.ExplosionRadius, ["items.salvo_blast_radius"] = configuration.SalvoBlastRadius });

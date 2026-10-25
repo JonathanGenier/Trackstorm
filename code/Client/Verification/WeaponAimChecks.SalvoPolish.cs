@@ -84,8 +84,25 @@ public sealed partial class WeaponAimChecks
             {
                 if (moving && _heldTargets is { } targets) { _heldTargets = (targets.First + new N.Vector3(.015f, 0, 0), targets.Second); }
                 await Frames(1);
+                // Marker vertices are rebuilt during render presentation, after the
+                // physics publication. Compare only once that boundary is displayed.
+                if (DisplayServer.GetName() != "headless")
+                { await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw); }
                 if (driver.LocalItem?.Active.Item != HeldItem.Salvo) { continue; }
                 var vertices = _arenas[1].SalvoMarker.SurfaceVertices;
+                // The final launch retires the authoritative selection. An empty
+                // replaceable aim publication can beat reliable inventory depletion;
+                // the ordinary forward fallback then belongs to completed-volley
+                // presentation, not target retention during an active magazine.
+                if (launches.Count >= start + 5)
+                {
+                    if (vertices.Count > 0 && driver.PresentedAim(driver.LocalItem) is null)
+                    {
+                        var completedCenter = vertices.Aggregate(Vector3.Zero, (sum, v) => sum + v) / vertices.Count;
+                        GD.Print($"Completed-volley publication gap: host shots={host.Items.Slots.Single(s => s.Vehicle == Shooter).Active.SalvoShots}, local shots={driver.LocalItem.Active.SalvoShots}, marker={completedCenter}; all five launches already accepted.");
+                    }
+                    continue;
+                }
                 if (vertices.Count == 0) { throw new InvalidOperationException("The active aiming circle disappeared."); }
                 Vector3 center = vertices.Aggregate(Vector3.Zero, (sum, v) => sum + v) / vertices.Count;
                 var target = _heldTargets!.Value.First;
@@ -187,7 +204,7 @@ public sealed partial class WeaponAimChecks
             verifyUnaimed = false;
         }
         await Until(() => host.Items.Missiles.Count == 0 && _arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0),
-            "All repeated polish volleys finish flight and fully stow");
+            "All repeated polish volleys finish flight and fully stow", 1900);
         await Frames(120);
         Require(events.SequenceEqual(remote), "Observer receives the same ordered authoritative launch/impact outcomes for every polish volley");
         Require(_arenas.All(a => a.Bodies[Shooter].Rack.Catapult is null && !a.SalvoMarker.Visible),

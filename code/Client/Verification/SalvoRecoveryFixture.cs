@@ -21,7 +21,7 @@ internal static class SalvoRecoveryFixture
         var rounds = Enumerable.Range(0, 2).Select(i =>
         {
             var arc = new SalvoFlight(origin, target, 12, 1800, 30 + i * 30, owner.LifeId);
-            return new MissileState(++token, owner.VehicleId, arc.At(arc.ElapsedTicks), (arc.At(arc.ElapsedTicks + 1) - arc.At(arc.ElapsedTicks)) * 60, arc.DurationTicks - arc.ElapsedTicks) { Arc = arc };
+            return new MissileState(++token, owner.VehicleId, arc.At(arc.ElapsedTicks), arc.VelocityAt(arc.ElapsedTicks), SalvoFlight.LifetimeTicks - arc.ElapsedTicks) { Arc = arc };
         }).ToArray();
         host.Items.Restore(new(Math.Max(1, host.Items.Revision), host.Snapshot(), slots, rounds, [], host.Spawns?.States,
             host.Items.Patches, host.Items.OilContacts, host.Spawns?.Balances, host.Items.Mines, host.Items.Shields, host.Items.DiscardRevision), host.Items.Revision + 1, token);

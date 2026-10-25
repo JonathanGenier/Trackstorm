@@ -12,10 +12,16 @@ internal sealed partial class SalvoFuse : Node3D
     {
         Name = "LoadedFuse";
         var material = new StandardMaterial3D { ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
-            AlbedoColor = new(1, .85f, .22f), EmissionEnabled = true, Emission = new(1, .55f, .08f), EmissionEnergyMultiplier = 3 };
+            AlbedoColor = new(1, 1, .94f), EmissionEnabled = true, Emission = new(1, .97f, .85f), EmissionEnergyMultiplier = 12 };
         var mesh = new SphereMesh { Radius = .018f, Height = .036f, RadialSegments = 6, Rings = 3, Material = material };
         _sparks = Enumerable.Range(0, 9).Select(_ => new MeshInstance3D { Mesh = mesh, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off }).ToArray();
         foreach (var spark in _sparks) { AddChild(spark); }
+        AddChild(new MeshInstance3D { Name = "MagnesiumGlare", CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+            Mesh = new QuadMesh { Size = new(.30f, .30f), Material = new StandardMaterial3D
+            { ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded, Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+                BlendMode = BaseMaterial3D.BlendModeEnum.Add, BillboardMode = BaseMaterial3D.BillboardModeEnum.Enabled,
+                AlbedoTexture = Networking.MatchResourceLoader.LoadResource<Texture2D>("res://assets/items/kenney/particles/spark_01.png"),
+                AlbedoColor = new(1, 1, .92f, .8f), NoDepthTest = false } } });
     }
 
     internal void Present(float delta)

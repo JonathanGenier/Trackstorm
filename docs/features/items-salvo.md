@@ -102,7 +102,42 @@ Acceptance reserves all remaining rounds within the shared sixteen-projectile ca
 
 Each launch independently samples the shared accepted camera/assisted direction, current vehicle pose and deliberate aiming state. Full yaw covers front, sides and rear. Salvo retains the shared angular/pitch limits but does not apply the straight-barrel self-clearance test to its arcing spoon. Native closest cover along the accepted ray wins within reach; otherwise horizontal/downward aim projects onto available static ground. Sky aim or missing ground retains a finite endpoint. Ordinary fire retains the configured base range (65 m by default). Held RMB or existing controller aiming intent initially doubles that range (130 m by default), including shared assist acquisition and the ground circle. This multiplier is initial playtest tuning, not a permanent balance decision. The held-only `AimItem` state travels through existing ordered vehicle input; the authority applies it only with a fresh accepted aiming solution. Missing/expired transient aim falls back to current chassis-forward direction and base range; it never cancels a committed sequence. Previously launched rounds retain their own target, origin, speed and parabola independently of later camera motion.
 
-Shots start at the fully extended bowl's 45-degree release socket. The default launch-height tuning preserves that authored socket; an offset from the default adjusts it along chassis up. The existing parabola rises twelve metres above the launch-to-target chord, with mean travel speed 150 m/s. Complete 60 Hz segment sweeps can hit obstacles/vehicles before the stored target. Each impact uses a ten-metre blast radius, 250 maximum HP damage and 3,500 N s impulse, with distance falloff `(1 - distance / radius)^falloff` (default exponent one). The existing vehicle damage transaction and Circus scoring own actual per-target damage, kill attribution and points. Flight still uses the existing rocket/particle/audio representation; a separate projectile redesign and timed fuse are not part of this controller.
+Shots start at the fully extended bowl's 45-degree release socket. The default launch-height tuning preserves that authored socket; an offset from the default adjusts it along chassis up. The existing parabola rises twelve metres above the launch-to-target chord, with mean travel speed 150 m/s. Complete 60 Hz segment sweeps can hit obstacles/vehicles before the stored target. Each impact uses a ten-metre blast radius, 250 maximum HP damage and 3,500 N s impulse, with distance falloff `(1 - distance / radius)^falloff` (default exponent one). The existing vehicle damage transaction and Circus scoring own actual per-target damage, kill attribution and points. Explosion presentation, audio and damage tuning remain unchanged by the projectile presentation work.
+
+## Firework flight and smoke
+
+Airborne rounds use the exact crimson paper/ivory-band model extracted from the
+catapult's original `Round_0` subtree. A white magnesium-like fuse spark and glare
+remain lit while loaded and throughout flight. They are presentation only: waiting
+in the spoon does not consume flight lifetime or cause an explosion. Independent
+axial roll and end-over-end tumble leave the ballistic path unchanged. There is no
+rocket motor, exhaust thrust, homing or midflight aim update.
+
+Core starts a fixed 1,800-tick (30-second) lifetime at launch. The stored target
+defines the initial constant-acceleration parabola, not an automatic detonation
+point. Without contact, the same arc continues past that point and outside arena
+bounds. The first eligible swept collision detonates immediately; otherwise the
+final lifetime step detonates at its endpoint. Collision on the expiry step wins.
+The existing atomic impact/removal transaction prevents duplicate damage/events.
+The normal owner-life, reset, departure and Finished cleanup rules still apply.
+Checkpoint and motion validation retain the original arc and launch age, including
+late off-map positions and velocities; restoration never restarts the timer.
+
+One arena-owned `SalvoSmokeTrail` MultiMesh holds at most 16,384 world-space textured
+segments, sampled at 60 Hz per visible round with at most six catch-up steps per
+render. Its budget accommodates the shared sixteen-projectile cap for fifteen
+seconds of history. Saturation declines new cosmetic segments instead of deleting
+existing smoke early. Each dark segment expands/drifts gently, fades from age two
+through fifteen seconds, then expires. Smoke survives projectile removal and does
+not inherit projectile spin. Late admission reconstructs current flight without
+replaying historical smoke. Client extrapolation is limited to 100 ms and cannot
+decide a hit or detonation.
+
+`salvo_projectile_checks.tscn`, included in `check-salvo.ps1`, renders captive feeds,
+translated/inverted seating, shared round/fuse, tumbling, five simultaneous arcs,
+smoke removal/fade, thirty seconds of sixteen concurrent rounds and pool saturation.
+Its performance sample is a focused presentation fixture, not a full-match or
+remote-multiplayer benchmark.
 
 Salvo reuses the shared centered camera cursor, assisted-car indicator and existing owner-only gold terrain circle. The circle follows current accepted targeting while the selected magazine or its flying rounds remain; it never steers old shots or leaves their targeting rings behind. Both ring edges sample static ground and surface normals; unsupported/discontinuous segments are omitted. Sky/outside-arena shots may have no supported footprint to draw. Remote inventories do not create guides. Death, Finished, inactive session and teardown clear the applicable guide.
 

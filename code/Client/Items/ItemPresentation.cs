@@ -4,11 +4,12 @@ using Trackstorm.Core.Items;
 
 namespace Trackstorm.Client.Items;
 
-/// <summary>Reconstructable Kenney projectile and particle effects; no collision or gameplay mutation.</summary>
+/// <summary>Reconstructable projectile and particle effects; no collision or gameplay mutation.</summary>
 internal sealed partial class ItemPresentation : Node3D
 {
     internal EmpClawAttachments EmpAttachments { get; } = new();
     public override void _Ready() => AddChild(EmpAttachments);
+    private SalvoSmokeTrail? _salvoSmoke;
 
     internal Func<ulong, Vector3?>? OilMouth { get; set; }
     internal Func<ulong, Transform3D?>? OilFrame { get; set; }
@@ -155,9 +156,10 @@ internal sealed partial class ItemPresentation : Node3D
         {
             if (!_missiles.TryGetValue(missile.Id, out var node))
             {
-                node = missile.Item == HeldItem.EmpClaw ? new EmpClawFlightVisual() : missile.Item == HeldItem.Missile ? new MissileFlightVisual() : Rocket();
+                if (missile.Item == HeldItem.Salvo && _salvoSmoke is null)
+                { _salvoSmoke = new SalvoSmokeTrail(); AddChild(_salvoSmoke); }
+                node = missile.Item == HeldItem.EmpClaw ? new EmpClawFlightVisual() : missile.Item == HeldItem.Missile ? new MissileFlightVisual() : new SalvoFlightVisual { Smoke = _salvoSmoke };
                 AddChild(node);
-                if (missile.Item == HeldItem.Salvo) { node.AddChild(Particles("smoke_01", false, 0.5f)); }
                 _missiles.Add(missile.Id, node);
             }
 
@@ -288,6 +290,8 @@ internal sealed partial class ItemPresentation : Node3D
         { flight.Observe(VehicleBody.ToGodot(missile.Position), VehicleBody.ToGodot(missile.Velocity)); }
         else if (node is EmpClawFlightVisual emp)
         { emp.Observe(VehicleBody.ToGodot(missile.Position), VehicleBody.ToGodot(missile.Velocity)); }
+        else if (node is SalvoFlightVisual salvo)
+        { salvo.Observe(missile); }
         else
         {
             node.Position = VehicleBody.ToGodot(missile.Position);
@@ -341,16 +345,6 @@ internal sealed partial class ItemPresentation : Node3D
         } };
         root.AddChild(sparks);
         _bursts.Add((root, 0, 0.3f));
-    }
-
-    private static Node3D Rocket()
-    {
-        var root = new Node3D();
-        var mesh = Networking.MatchResourceLoader.LoadResource<Mesh>("res://assets/items/kenney/weapons/ammo_rocket.obj");
-        Aabb bounds = mesh.GetAabb();
-        float scale = 1.5f / Math.Max(bounds.Size.X, Math.Max(bounds.Size.Y, bounds.Size.Z));
-        root.AddChild(new MeshInstance3D { Mesh = mesh, Scale = Vector3.One * scale, Position = -bounds.GetCenter() * scale, MaterialOverride = Networking.MatchResourceLoader.LoadResource<StandardMaterial3D>("res://assets/items/materials/Projectile.tres") });
-        return root;
     }
 
 }

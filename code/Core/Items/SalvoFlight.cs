@@ -6,16 +6,22 @@ namespace Trackstorm.Core.Items;
 /// <summary>Portable parabola committed by an individual shot, retained for checkpoint continuation.</summary>
 public sealed record SalvoFlight(Vector3 Origin, Vector3 Target, float Height, int DurationTicks, int ElapsedTicks, ulong Life)
 {
+    /// <summary>Thirty seconds from launch, independent of the aimed point or visual fuse.</summary>
+    public const int LifetimeTicks = 30 * 60;
     /// <summary>Initial aimed reach is twice the existing configurable range;
     /// ordinary fire retains its prior range for every existing configuration.</summary>
     public static float AimRange(ItemConfiguration configuration, bool activelyAiming) => configuration.SalvoRange * (activelyAiming ? 2 : 1);
 
-    /// <summary>Analytic arc; integer time avoids integration drift at the intended impact point.</summary>
-    public Vector3 At(int tick)
+    /// <summary>Constant-acceleration ballistic arc. The aimed point is not a collision;
+    /// flight continues along the same parabola past it until contact or expiry.</summary>
+    public Vector3 At(float tick)
     {
-        float t = Math.Clamp((float)tick / DurationTicks, 0, 1);
-        return Vector3.Lerp(Origin, Target, t) + Vector3.UnitY * (4 * Height * t * (1 - t));
+        float t = Math.Max(0, tick) / DurationTicks;
+        return Origin + (Target - Origin) * t + Vector3.UnitY * (4 * Height * t * (1 - t));
     }
+
+    /// <summary>Committed fixed-step displacement velocity, also used to validate replicated continuation.</summary>
+    public Vector3 VelocityAt(int tick) => (At(Math.Max(1, tick)) - At(Math.Max(1, tick) - 1)) * 60;
 
     /// <summary>Starts above the current host-observed vehicle toward this round's committed target.</summary>
     public SalvoFlight Launch(Vector3 origin, float speed)
@@ -31,7 +37,7 @@ public sealed record SalvoFlight(Vector3 Origin, Vector3 Target, float Height, i
     {
         if (!VehiclePhysicsState.IsFinite(Origin) || !VehiclePhysicsState.IsFinite(Target) ||
             !float.IsFinite(Height) || Height is < 1 or > 60 || DurationTicks is < 1 or > 3600 ||
-            ElapsedTicks < 0 || ElapsedTicks >= DurationTicks || Life == 0 || Vector3.Distance(Origin, Target) is < 1 or > 600)
+            ElapsedTicks < 0 || ElapsedTicks >= LifetimeTicks || Life == 0 || Vector3.Distance(Origin, Target) is < 1 or > 600)
         {
             throw new ArgumentException("Invalid salvo continuation.");
         }
