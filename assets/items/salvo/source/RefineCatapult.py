@@ -180,7 +180,8 @@ def pose(extension, cock, load, heading, release):
     middle.location=v((0,0,.68*extension)); tip.location=v((0,0,.64*extension)); support.location=v((0,.08,.74*extension-.16))
     angle=(45 if release else 24*extension*(1-cock)-5*cock)*pi/180
     arm.location=v((0,.20,0)); arm.rotation_euler=(-angle,0,0)
-    plate.rotation_euler=(-max(0,angle)*.55,0,0)
+    # The spring base follows yaw only; release pitch belongs to the spoon.
+    plate.rotation_euler=(0,0,0)
     joint('WinchDrum').rotation_euler=(angle*9,0,0)
     joint('Round_4').location=v((0,.165,4*.112)).lerp(v((0,.06,.77)),load)
     bpy.context.view_layer.update()

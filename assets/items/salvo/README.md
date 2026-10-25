@@ -12,8 +12,11 @@ retaining the approved spring, plate, turret and ammunition. `source/PolishCircu
 applies the original red enamel, bold white stripes and selected gold stars to the
 spoon exterior, fixed turret/support housings and magazine flanges. Sliding metal,
 spring, joints, brown rope and ammunition retain their contrasting materials; the
-bowl interior retains wood. For a complete regeneration, run `source/BuildCatapult.py`,
-`source/RefineCatapult.py`, `source/PolishWinch.py`, then `source/PolishCircus.py`.
+bowl interior retains wood. `source/StabilizeSupport.py` locks the lower support
+to turret yaw, adds fixed red braces/gold locking bolts, and rebakes the spring
+between the stationary base and moving spoon. For a complete regeneration, run
+`source/BuildCatapult.py`, `source/RefineCatapult.py`, `source/PolishWinch.py`,
+`source/PolishCircus.py`, then `source/StabilizeSupport.py`.
 Each saves the master/export; preserve manual edits first.
 
 The three original TS-210 images supplied by the user define the wooden spoon,
@@ -28,8 +31,8 @@ authoring helper converts to Blender +Z up / +Y forward. Source is excluded from
 Godot import. Runtime poses use the exported rigid pivots, not skeletal skinning.
 `python source/AuditCatapult.py` checks the exported rigid hierarchy, actual compact
 vertex envelope, normals/UVs and the 60,000-triangle / 88-surface budget. Authored
-livery adds only 104 triangles; the current export has 44,764 triangles, 80 surfaces
-and 10 materials. It is a read-only audit and does not replace runtime
+livery and fixed braces retain a compact budget; the current export has 45,252
+triangles, 81 surfaces and 10 materials. It is a read-only audit and does not replace runtime
 articulation checks.
 
 ## Mechanical contract
@@ -42,9 +45,11 @@ articulation checks.
 - `SpoonHinge`, `ArmMiddle` and `ArmTip` retain overlapping telescopic members.
   The cocked spoon slopes down five degrees; release stops at 45 degrees with a
   short buffer recoil. `HingeCarriage` lifts the spoon pivot within overlapping
-  cheeks. The straight rearward plate telescopes and pivots at `PlateHinge` as the
-  spring unloads, keeping the spring within useful travel while remaining attached
-  to the rotating clevis.
+  cheeks. The straight rearward plate is fixed to turret yaw at `PlateHinge`
+  (a retained joint name, no longer a pitch hinge). Its telescoping extension seats
+  before cocking starts and retracts only during stow. Neither section pitches
+  with the spoon. The spring foot remains fixed during cock/release/recoil/reset;
+  the coil changes pitch and the rigid seats pivot about their captive anchors.
 - `WinchHousing` lives inside/below the rack. The thick brown ship rope rises from
   the drum through its travelling guide, follows the lifting/sliding platform into
   an axial tension swivel, then passes outside the spring through `CableSpoonGuide`
@@ -82,4 +87,6 @@ projectile or control impacts. Existing single-shot Salvo gameplay remains activ
 the shared rack, two native UDP peers, aim, captive feed, release/reset, switching,
 airborne poses and reconstruction. It checks rope diameter/texture pitch, winding
 phase, tangent attachment and guide travel, and captures a buffered 30-frame native
-winch cycle with actual timestamps/poses. Captures/logs go to `.godot/ts175`.
+winch cycle and a second side-view support cycle with timestamps, plate/foot poses
+and spring length. It also checks that the base seats before cocking begins.
+Captures/logs go to `.godot/ts175`.

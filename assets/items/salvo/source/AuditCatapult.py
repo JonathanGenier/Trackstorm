@@ -75,6 +75,10 @@ assert descends('SpringFoot', 'SupportExtension') and descends('SpringTop', 'Arm
 assert not descends('SpringTop', 'Magazine')
 assert descends('TurretSlide', 'PlatformLift') and descends('SpoonHinge', 'HingeCarriage')
 assert descends('HingeCarriage', 'TurretYaw')
+assert parents[names['PlateHinge']] == names['TurretYaw']
+assert parents[names['SupportExtension']] == names['PlateHinge']
+for name in ['PlateHinge', 'SupportExtension']:
+    assert max(abs(a-b) for a,b in zip(nodes[names[name]].get('rotation',[0,0,0,1]),[0,0,0,1])) < .0001, 'Support must be level in turret coordinates'
 
 base=positions(primitive['attributes']['POSITION']); delta=positions(primitive['targets'][0]['POSITION'])
 for weight,expected in [(0,.234),(1,2.034)]:

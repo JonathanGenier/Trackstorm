@@ -16,7 +16,6 @@ internal sealed partial class SalvoCatapult : Node3D
     private readonly Node3D _middle;
     private readonly Node3D _tip;
     private readonly Node3D _support;
-    private readonly Node3D _plate;
     private readonly Node3D _spring;
     private readonly Node3D _springTop;
     private readonly Node3D _springFoot;
@@ -58,7 +57,6 @@ internal sealed partial class SalvoCatapult : Node3D
         _slide = Joint("TurretSlide"); _yaw = Joint("TurretYaw"); _hinge = Joint("SpoonHinge");
         _platformLift = Joint("PlatformLift"); _carriage = Joint("HingeCarriage");
         _middle = Joint("ArmMiddle"); _tip = Joint("ArmTip"); _support = Joint("SupportExtension");
-        _plate = Joint("PlateHinge");
         _spring = Joint("Spring"); _springTop = Joint("SpringTop"); _springFoot = Joint("SpringFoot");
         _coil = (MeshInstance3D)Joint("SpringCoil"); _springGuide = Joint("SpringGuide");
         _lowerSeat = Joint("SpringLowerSeat"); _upperSeat = Joint("SpringUpperSeat");
@@ -108,7 +106,9 @@ internal sealed partial class SalvoCatapult : Node3D
         _carriage.Position = new(0, .30f * armExtension, 0);
         _middle.Position = new(0, 0, .68f * armExtension);
         _tip.Position = new(0, 0, .64f * armExtension);
-        _support.Position = new(0, .08f, .74f * armExtension - .16f);
+        // Finish the base's deployment slide before cocking starts. Once seated,
+        // this plate belongs only to turret yaw; spoon pitch never drives it.
+        _support.Position = new(0, .08f, .74f * Ease(progress, .25f, .65f) - .16f);
         // Arm rests rearward. Positive physical elevation lifts +Z around -X.
         // Rapid release stops at 45 degrees; a damped buffer recoil never exceeds it.
         float degrees = Mathf.Lerp(0, 24, armExtension) * (1 - cock) - 5 * cock;
@@ -121,9 +121,6 @@ internal sealed partial class SalvoCatapult : Node3D
             feed = Ease(_shotAge, .34f, .48f);
         }
         _hinge.Rotation = new(-Mathf.DegToRad(degrees), 0, 0);
-        // The straight rear plate pivots on its visible clevis as the spring
-        // unloads, keeping both captive seats within useful coil travel.
-        _plate.Rotation = new(-Mathf.DegToRad(Math.Max(0, degrees) * .55f), 0, 0);
         _services.Visible = rackProgress > .72f;
         _gate.Position = new(0, -.07f * MathF.Sin(feed * MathF.PI), 0);
         // A captive escapement moves the nearest remaining round along the handle
@@ -143,7 +140,8 @@ internal sealed partial class SalvoCatapult : Node3D
             }
         }
         // Morph only the coil pitch: wire gauge and rigid seats do not stretch.
-        // Both saddles belong to the rotating plate/spoon, never the magazine.
+        // The lower saddle stays on the fixed turret plate; only the upper
+        // saddle follows spoon pitch. Seats pivot about their captive anchors.
         SpringLength = _springFoot.GlobalPosition.DistanceTo(_springTop.GlobalPosition);
         Align(_spring, _springFoot.GlobalPosition, _springTop.GlobalPosition, false);
         _coil.SetBlendShapeValue(0, Mathf.Clamp((SpringLength - .20f) / 1.8f, 0, 1));

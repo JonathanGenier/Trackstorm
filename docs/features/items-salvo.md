@@ -17,10 +17,16 @@ to its captive storage positions and nests the arm/mount before lowering the rac
 The fixed winch is inside the rear rack. A captured-post platform lift and overlapping
 slide runners connect the rack to the forward slew bearing. The spoon's hinge rises
 within telescoping cheeks. The straight rearward support plate connects to a visible
-clevis on that bearing and pivots upward during release to limit spring extension.
+fixed braced bracket on that bearing. It remains level relative to turret yaw;
+spoon pitch never drives it. Its telescoping section finishes seating before
+cocking starts and moves again only for stow. The spring's lower anchor remains
+stationary during cocking, release, recoil and reset.
 The six-turn spring has separate rigid seats connected to the plate and spoon
 saddles, plus an internal guide. Its authored morph changes pitch without stretching
-the wire gauge. The spring and plate rotate with the turret, independently of the magazine.
+the wire gauge; the rigid seats pivot about their captive anchor pins as the spring
+leans toward the moving spoon. The spring and plate rotate with the turret,
+independently of the magazine. Red fixed gussets and gold locking bolts make the
+plate's rigid mounting visible without altering the approved spoon or livery.
 
 The thick brown ship rope runs from the drum through a travelling level-wind guide,
 up the mount, along the lifting/sliding platform, through an axial tension swivel
@@ -78,6 +84,9 @@ It also checks spool/rope-length agreement, tangent/guide alignment, physical br
 pitch, payout/rewind and no winding from yaw alone. Visual runs record a buffered
 winch cycle with frame timestamps and observed drum/spoon/guide poses. The terminal
 is also checked beneath the spoon and on the turret side of the upper spring seat.
+The audit verifies the lower plate's turret-relative pose throughout operation,
+and that its base is fully seated before cocking. A second buffered side-view
+cycle records plate pitch, spring-foot position and spring length during firing.
 Repeated-shot inputs wait for the authoritative cooldown as well as the mechanical
 reset.
 

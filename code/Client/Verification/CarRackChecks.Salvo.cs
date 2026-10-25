@@ -31,6 +31,18 @@ public sealed partial class CarRackChecks
         await SetupHandoff(HeldItem.Salvo, HeldItem.MachineGun);
         await Until(() => AllPresent(HeldItem.Salvo), "Both UDP peers complete rack, slide, telescope, winch and captive feed");
         Check(Catapults.All(c => c.VisibleRounds == 5 && c.ArmDegrees is > -5.1f and < -4.9f), "Five horizontal rounds; cocked spoon slopes down toward bowl");
+        foreach (var catapult in Catapults)
+        {
+            var yaw = (Node3D)catapult.FindChild("TurretYaw", true, false);
+            var foot = (Node3D)catapult.FindChild("SpringFoot", true, false);
+            Vector3 seated = yaw.ToLocal(foot.GlobalPosition);
+            foreach (float progress in new[] { .65f, .68f, .72f, .80f, .84f, .92f, 1f })
+            {
+                catapult.Present(progress, false, null, 0, 1);
+                Check(yaw.ToLocal(foot.GlobalPosition).DistanceTo(seated) < .001f,
+                    "Spring base is already seated and stationary throughout cocking: " + progress);
+            }
+        }
         await CaptureCatapult("side-ready", new(-7, 2.7f, 1));
         await CaptureCatapult("rear-winch", new(-1.9f, 2.2f, 6));
         await CaptureCatapult("magazine", new(-3, 4.5f, 3));
@@ -162,6 +174,7 @@ public sealed partial class CarRackChecks
         await SwitchHandoff(HeldItem.Salvo, "impaired-shield-to-catapult");
         _gateways[0].ConfigureSimulation(new());
         await CaptureWinchCycle();
+        await CaptureWinchCycle(supportView: true);
         _sampleCatapult = null;
         Check(connectionFailure is null && connectionSamples > 300,
             $"Rendered coil, seats, cable endpoints and platform overlap: {connectionSamples} temporal samples; failure={connectionFailure ?? "none"}");
@@ -169,19 +182,31 @@ public sealed partial class CarRackChecks
         GD.Print($"Salvo catapult integration passed: {_checks} checks on two UDP peers.");
     }
 
-    private async Task CaptureWinchCycle()
+    private async Task CaptureWinchCycle(bool supportView = false)
     {
         if (DisplayServer.GetName() == "headless") { return; }
+        await Until(() => _arenas[0].Driver.Host!.World.State.Tick >=
+            _arenas[1].Driver.ItemState!.Slots.Single(s => s.Vehicle == Shooter).Active.SalvoReadyTick,
+            "Authoritative cooldown ready for recorded mechanical cycle");
         var arena = _arenas[1]; var body = arena.Bodies[Shooter];
+        int expectedRounds = body.Rack.Catapult!.VisibleRounds - 1;
         var camera = new Camera3D { Fov = 42, PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off };
         arena.AddChild(camera);
         var winch = (Node3D)body.Rack.Catapult!.FindChild("WinchHousing", true, false);
         camera.GlobalPosition = winch.GlobalPosition + body.VisualTransform.Basis * new Vector3(-.35f, .35f, 2.0f);
         camera.LookAt(winch.GlobalPosition + Vector3.Up * .10f);
+        if (supportView)
+        {
+            var yaw = (Node3D)body.Rack.Catapult.FindChild("TurretYaw", true, false);
+            var top = (Node3D)body.Rack.Catapult.FindChild("SpringTop", true, false);
+            Vector3 focus = (yaw.GlobalPosition + top.GlobalPosition) / 2 + Vector3.Up * .55f;
+            camera.GlobalPosition = focus + body.VisualTransform.Basis * new Vector3(-5.2f, .3f, 0);
+            camera.LookAt(focus);
+        }
         camera.MakeCurrent();
-        string directory = ProjectSettings.GlobalizePath("res://.godot/ts175/winch-cycle");
+        string directory = ProjectSettings.GlobalizePath("res://.godot/ts175/" + (supportView ? "support-cycle" : "winch-cycle"));
         System.IO.Directory.CreateDirectory(directory);
-        var evidence = new List<string> { "frame,milliseconds,drum_radians,spoon_degrees,guide_x" };
+        var evidence = new List<string> { "frame,milliseconds,drum_radians,spoon_degrees,guide_x,plate_pitch,foot_x,foot_y,foot_z,spring_length" };
         var images = new List<Image>();
         ulong start = Time.GetTicksMsec();
         for (int frame = 0; frame < 30; frame++)
@@ -192,7 +217,10 @@ public sealed partial class CarRackChecks
             var catapult = body.Rack.Catapult!;
             var drum = (Node3D)catapult.FindChild("WinchDrum", true, false);
             var guide = (Node3D)catapult.FindChild("WinchLevelWind", true, false);
-            evidence.Add(FormattableString.Invariant($"{frame},{Time.GetTicksMsec()-start},{drum.Rotation.X},{catapult.ArmDegrees},{guide.Position.X}"));
+            var plate = (Node3D)catapult.FindChild("PlateHinge", true, false);
+            var yaw = (Node3D)catapult.FindChild("TurretYaw", true, false);
+            Vector3 foot = yaw.ToLocal(((Node3D)catapult.FindChild("SpringFoot", true, false)).GlobalPosition);
+            evidence.Add(FormattableString.Invariant($"{frame},{Time.GetTicksMsec()-start},{drum.Rotation.X},{catapult.ArmDegrees},{guide.Position.X},{plate.Rotation.X},{foot.X},{foot.Y},{foot.Z},{catapult.SpringLength}"));
             images.Add(_views[1].GetTexture().GetImage());
         }
         for (int frame = 0; frame < images.Count; frame++)
@@ -201,7 +229,7 @@ public sealed partial class CarRackChecks
             Check(image.SavePng(System.IO.Path.Combine(directory, $"frame-{frame:D2}.png")) == Error.Ok, "Captured winch cycle " + frame);
         }
         System.IO.File.WriteAllLines(System.IO.Path.Combine(directory, "poses.csv"), evidence);
-        Check(Catapults.All(c => c.IsReady && c.VisibleRounds == 4), "Recorded winch cycle finishes reset with four rounds on both peers");
+        Check(Catapults.All(c => c.IsReady && c.VisibleRounds == expectedRounds), "Recorded mechanical cycle finishes reset with " + expectedRounds + " rounds on both peers");
         camera.QueueFree();
     }
 

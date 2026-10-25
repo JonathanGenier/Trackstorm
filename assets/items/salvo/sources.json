@@ -30,8 +30,8 @@
   "export": {
     "primitivesWithoutUv": 0,
     "materials": 10,
-    "primitives": 80,
-    "triangles": 44764,
+    "primitives": 81,
+    "triangles": 45252,
     "meshes": 32
   },
   "files": [
@@ -65,11 +65,11 @@
     },
     {
       "path": "assets/items/salvo/SalvoCatapult.glb",
-      "sha256": "dbafa7e8741990ce78096745b70c5017203e4ed99b4aff63dc88e33929ee0421"
+      "sha256": "08952418fc4080b21adeb73029b4d25a1a7ccd2009b1f7d2dc52c331a65090ac"
     },
     {
       "path": "assets/items/salvo/source/AuditCatapult.py",
-      "sha256": "7d16216383723f32b7318ce137f0bd16a22da634d7db94d156dfa06d9b84936a"
+      "sha256": "27c0481becb42cb26f753f89ff3eabf261040f64550aac22aea647a5595dd0cc"
     },
     {
       "path": "assets/items/salvo/source/BuildCatapult.py",
@@ -77,11 +77,11 @@
     },
     {
       "path": "assets/items/salvo/source/RefineCatapult.py",
-      "sha256": "145532b59cf7ec1690b1a396e36862666b75307062de833b5801d59da08b82f4"
+      "sha256": "0e6ea7c5b28e70419dcd380c50f304629ef636af5257b8c8b0b4bcb019715a75"
     },
     {
       "path": "assets/items/salvo/source/SalvoCatapult.blend",
-      "sha256": "4d6ee925cf6de9325b78692cf8814c52a30d9a0791452f57e95f113c25ba71db"
+      "sha256": "41584fcf6c467be3feb6551d15015f5ae92a80ade33363f3cf33024014378e95"
     },
     {
       "path": "assets/items/salvo/SalvoCatapult_Salvo carnival rope.png",
@@ -98,6 +98,10 @@
     {
       "path": "assets/items/salvo/source/PolishCircus.py",
       "sha256": "45654d36b90e8d6994026dec43d83154b3e36e965abaf294445bafec12888b95"
+    },
+    {
+      "path": "assets/items/salvo/source/StabilizeSupport.py",
+      "sha256": "dfe2247d27e82179e5ace56336e6f12f55fa7d06abfbab48a2a096f17ab657d4"
     }
   ]
 }

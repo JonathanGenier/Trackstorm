@@ -15,6 +15,14 @@ internal static class CatapultConnectionAudit
         }
         void Connected(Vector3 actual, Vector3 anchor, string label) =>
             Require(actual.DistanceTo(anchor) < .004f, label + " detached from its physical anchor");
+        var plate = Joint("PlateHinge"); var support = Joint("SupportExtension");
+        Require(plate.GetParent() == Joint("TurretYaw") && support.GetParent() == plate &&
+            plate.Basis.IsEqualApprox(Basis.Identity) && support.Basis.IsEqualApprox(Basis.Identity),
+            "Lower support plate must stay level relative to turret yaw, independently of spoon pitch");
+        Connected(plate.Position, new(0, -.08f, .16f), "Fixed plate mounting bracket");
+        Require(Joint("PlateHinge_Surfaces").IsVisibleInTree(), "Stable plate must remain visibly rendered");
+        if (catapult.Deployed)
+            Connected(Joint("TurretYaw").ToLocal(Joint("SpringFoot").GlobalPosition), new(0, -.08f, 1.64f), "Stationary deployed spring base");
         var coil = (MeshInstance3D)Joint("SpringCoil");
         Require(coil.IsVisibleInTree() && coil.Mesh is ArrayMesh array && array.GetBlendShapeCount() == 1, "Authored spring mesh/morph must be rendered");
         float length = .20f + 1.8f * coil.GetBlendShapeValue(0);
