@@ -66,7 +66,9 @@ public sealed class ItemPublication
                 (slot.Item != HeldItem.None && ItemRegistry.Find(slot.Item) is null) || (slot.SecondItem != HeldItem.None && ItemRegistry.Find(slot.SecondItem) is null) ||
                 !world.Vehicles.Any(vehicle => vehicle.State.VehicleId == slot.Vehicle && vehicle.State.LifeId == slot.Life)) ||
             inventory.SelectMany(slot => new[] { slot.Token, slot.SecondToken }).Where(token => token != 0).GroupBy(token => token).Any(group => group.Count() > 1) ||
-            projectiles.Length > ItemAuthority.MaximumProjectiles || projectiles.Select(missile => missile.Id).Distinct().Count() != projectiles.Length ||
+            projectiles.Length + inventory.Sum(s => s.ReservedSalvoShots) > ItemAuthority.MaximumProjectiles ||
+            inventory.Any(s => s.ReservedSalvoShots > 0 && !s.Active.SalvoCommitted) ||
+            projectiles.Select(missile => missile.Id).Distinct().Count() != projectiles.Length ||
             projectiles.Any(missile => missile.Id == 0 || missile.Owner == 0 || !VehiclePhysicsState.IsFinite(missile.Position) || !VehiclePhysicsState.IsFinite(missile.Velocity) || missile.Velocity.Length() <= 0 || missile.Velocity.Length() > (missile.Arc is null ? 301 : 1000) || missile.RemainingTicks is < 1 or > 3600) ||
             outcomes.Length > ItemAuthority.MaximumProjectiles * 2 + ItemAuthority.MaximumMines + 16 + ItemAuthority.MaximumEmpAttachments + 24 || outcomes.Any(outcome => outcome.Token == 0 || outcome.Owner == 0 || ItemRegistry.Find(outcome.Item)?.CanUse != true || !VehiclePhysicsState.IsFinite(outcome.Position) || !VehiclePhysicsState.IsFinite(outcome.Origin) || (outcome.Item is not (HeldItem.MachineGun or HeldItem.EmpClaw) && (outcome.Origin != System.Numerics.Vector3.Zero || outcome.Tracer)) || (outcome.Item == HeldItem.MachineGun && System.Numerics.Vector3.Distance(outcome.Origin, outcome.Position) > 300.01f) || (outcome.Impact && outcome.Item is not (HeldItem.Missile or HeldItem.Salvo or HeldItem.ProxyMine or HeldItem.MachineGun or HeldItem.EmpClaw))))
         {
@@ -161,7 +163,7 @@ public sealed class ItemPublication
         (item == HeldItem.Nitro ? charge is > 0 and <= 100 : charge == 0);
 
     private static bool ValidSalvo(HeldItem item, int shots, ulong ready, ulong tick) => item == HeldItem.Salvo
-        ? shots is >= 1 and <= 16 && (ready <= tick || ready - tick <= 60)
+        ? shots is >= 1 and <= ItemSlot.SalvoMagazineSize && (ready != 0 || shots == ItemSlot.SalvoMagazineSize) && (ready <= tick || ready - tick <= 180)
         : shots == 0 && ready == 0;
 
     private static float Vector3Distance(System.Numerics.Vector3 a, System.Numerics.Vector3 b) => System.Numerics.Vector3.Distance(a, b);

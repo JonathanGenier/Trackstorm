@@ -31,6 +31,16 @@ public sealed partial class CarRackChecks
         await SetupHandoff(HeldItem.Salvo, HeldItem.MachineGun);
         await Until(() => AllPresent(HeldItem.Salvo), "Both UDP peers complete rack, slide, telescope, winch and captive feed");
         Check(Catapults.All(c => c.VisibleRounds == 5 && c.ArmDegrees is > -5.1f and < -4.9f), "Five horizontal rounds; cocked spoon slopes down toward bowl");
+        foreach (var arena in _arenas)
+        {
+            var catapult = arena.Bodies[Shooter].Rack.Catapult!;
+            catapult.PrepareRelease(0); catapult.Present(1, false, null, 0, 1);
+            var model = arena.Bodies[Shooter].Rack.GetParent<Node3D>();
+            var expected = SalvoFlight.LaunchOrigin(new(N.Vector3.Zero, N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero), catapult.Yaw);
+            Check(model.ToLocal(catapult.Bowl.GlobalPosition).DistanceTo(Vehicles.VehicleBody.ToGodot(expected)) < .005f,
+                "Authored bowl at release agrees with authoritative launch socket");
+            catapult.Present(1, false, null, 1, 1);
+        }
         foreach (var catapult in Catapults)
         {
             var yaw = (Node3D)catapult.FindChild("TurretYaw", true, false);
@@ -112,8 +122,18 @@ public sealed partial class CarRackChecks
         int samples = 0;
         var previousDrums = Catapults.ToDictionary(c => c, c => ((Node3D)c.FindChild("WinchDrum", true, false)).Rotation.X);
         float paidOut = 0, hauledIn = 0;
+        var anticipations = Catapults.ToDictionary(c => c, _ => new HashSet<ulong>());
         _sampleHandoff = () =>
         {
+            foreach (var arena in _arenas)
+            {
+                var slot = arena.Driver.ItemState!.Slots.Single(s => s.Vehicle == Shooter).Active;
+                var catapult = arena.Bodies[Shooter].Rack.Catapult!;
+                ulong tick = arena.Driver.Latest!.Tick;
+                if (slot.SalvoCommitted && slot.SalvoShots < 5 && slot.SalvoReadyTick > tick &&
+                    slot.SalvoReadyTick - tick <= ItemSlot.SalvoReleaseTicks && catapult.ArmDegrees > -4)
+                { anticipations[catapult].Add(slot.SalvoReadyTick); }
+            }
             foreach (var catapult in Catapults.Where(c => c is not null))
             {
                 highest = Math.Max(highest, catapult.ArmDegrees);
@@ -128,14 +148,9 @@ public sealed partial class CarRackChecks
                 samples++;
             }
         };
+        Check(_arenas[1].Driver.RequestItemUse(), "One activation commits five mechanical cycles");
         for (int round = 4; round >= 0; round--)
         {
-            // Screenshots advance local presentation time without advancing this
-            // harness's authority. Visual reset alone is not the firing cooldown.
-            await Until(() => _arenas[0].Driver.Host!.World.State.Tick >=
-                _arenas[1].Driver.ItemState!.Slots.Single(s => s.Vehicle == Shooter).Active.SalvoReadyTick,
-                "Authoritative cooldown ready before shot " + (5 - round));
-            Check(_arenas[1].Driver.RequestItemUse(), "Existing single-shot request " + (5 - round));
             await Until(() => _arenas.All(a => a.Driver.ItemState!.Slots.Single(s => s.Vehicle == Shooter).Active.SalvoShots == round), "Accepted remaining rounds " + round);
             if (round == 4)
             {
@@ -152,6 +167,8 @@ public sealed partial class CarRackChecks
             else { await Until(() => _arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Final round releases then fully nests rack and closes trunk"); }
         }
         _sampleHandoff = null;
+        Check(anticipations.Values.All(deadlines => deadlines.Count == 4),
+            "Both peers start all four subsequent release strokes before launch: " + string.Join(',', anticipations.Values.Select(v => v.Count)));
         _catapultAim = 0;
         Check(samples > 30 && highest > 42 && longest > compressed + .3f, "Release reaches approximately 45 degrees and spring extends/recompresses");
         Check(paidOut > 1 && hauledIn > 1, $"Winch visibly pays out and hauls in: {paidOut:F3}/{hauledIn:F3} radians across both peers");
@@ -185,9 +202,8 @@ public sealed partial class CarRackChecks
     private async Task CaptureWinchCycle(bool supportView = false)
     {
         if (DisplayServer.GetName() == "headless") { return; }
-        await Until(() => _arenas[0].Driver.Host!.World.State.Tick >=
-            _arenas[1].Driver.ItemState!.Slots.Single(s => s.Vehicle == Shooter).Active.SalvoReadyTick,
-            "Authoritative cooldown ready for recorded mechanical cycle");
+        await SetupHandoff(HeldItem.Salvo, HeldItem.Shield);
+        await Until(() => AllPresent(HeldItem.Salvo) && _arenas[0].Driver.Host!.Items.SalvoReady(_arenas[0].Driver.Host!.Items.Slots.Single(s => s.Vehicle == Shooter)), "Fresh ready magazine for recorded mechanical cycle");
         var arena = _arenas[1]; var body = arena.Bodies[Shooter];
         int expectedRounds = body.Rack.Catapult!.VisibleRounds - 1;
         var camera = new Camera3D { Fov = 42, PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off };
@@ -231,6 +247,8 @@ public sealed partial class CarRackChecks
         System.IO.File.WriteAllLines(System.IO.Path.Combine(directory, "poses.csv"), evidence);
         Check(Catapults.All(c => c.IsReady && c.VisibleRounds == expectedRounds), "Recorded mechanical cycle finishes reset with " + expectedRounds + " rounds on both peers");
         camera.QueueFree();
+        await Until(() => _arenas[1].Driver.LocalItem?.Active.Item == HeldItem.None, "Recorded activation finishes all five automatic rounds");
+        await Until(() => _arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Recorded volley stows normally");
     }
 
     private async Task CaptureCatapult(string name, Vector3 offset, float focusHeight = 1)

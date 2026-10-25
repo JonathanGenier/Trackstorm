@@ -27,7 +27,7 @@ internal sealed class WeaponAimTests
         Assert.That(ItemCodec.DecodeAims(ItemCodec.EncodeAims(99, host.World.State.Tick, 0, [aim])).Aims.Single(), Is.EqualTo(aim));
         Assert.That(host.Items.Slots.Single().SalvoShots, Is.EqualTo(5));
         Assert.That(host.Items.Missiles, Is.Empty);
-        Assert.That(WeaponAim.Supports(HeldItem.Salvo), Is.False, "Articulation does not opt Salvo into direct-fire or sticky assistance.");
+        Assert.That(WeaponAim.Supports(HeldItem.Salvo), Is.False, "Shared articulation/assistance retains Salvo's arcing firing rules.");
         Assert.That(host.AimItem(0, 99, slot.Life, slot.Token + 1, slot.SelectionRevision, 91, direction), Is.False);
         Assert.That(host.SwitchItem(0, 99, slot.Life, 1), Is.True);
         Assert.That(host.Items.Aims, Is.Empty);
@@ -58,6 +58,7 @@ internal sealed class WeaponAimTests
     public void AcceptedSalvoRoundPreservesTurretHeadingButRetiresOldInputToken()
     {
         var host = Create(HeldItem.Salvo);
+        for (int i = 0; i < 150; i++) { host.Step(default, Observe); }
         var before = host.Items.Slots.Single();
         for (ulong i = 1; i <= 90; i++)
         {
@@ -66,7 +67,7 @@ internal sealed class WeaponAimTests
         }
         float yaw = host.Items.Aims.Single().Yaw;
         Assert.That(host.Items.RequestUse(host.World, 1, before.Life, before.Token), Is.True);
-        host.Step(default, Observe, ground: point => point with { Y = 0 });
+        for (int i = 0; i <= ItemSlot.SalvoReleaseTicks; i++) { host.Step(default, Observe, ground: point => point with { Y = 0 }); }
         var after = host.Items.Slots.Single();
         Assert.That(after.SalvoShots, Is.EqualTo(4));
         Assert.That(after.Token, Is.Not.EqualTo(before.Token));
@@ -76,8 +77,7 @@ internal sealed class WeaponAimTests
         Assert.That(host.AimItem(0, 99, after.Life, after.Token, 0, 92, Vector3.UnitX), Is.True);
         host.Step(default, Observe);
         Assert.That(host.Items.Aims.Single().Yaw, Is.EqualTo(yaw).Within(.00001));
-        Assert.That(host.Items.Discard(host.World, 1, after.Life, after.Token, 0), Is.True);
-        Assert.That(host.Items.Aims, Is.Empty);
+        Assert.That(host.Items.Discard(host.World, 1, after.Life, after.Token, 0), Is.False, "A committed magazine cannot be cancelled.");
     }
 
     [Test]

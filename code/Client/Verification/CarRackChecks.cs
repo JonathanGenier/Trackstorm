@@ -232,14 +232,14 @@ public sealed partial class CarRackChecks : Node
             await Frames(60);
             Check(_arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Empty slot does not reopen");
             Check(_arenas[1].Driver.RequestItemSwitch(), "Return to usable slot");
-            await Until(() => AllPresent(HeldItem.Salvo), "Usable slot opens again");
+            await Until(() => HandoffReady(HeldItem.Salvo), "Usable slot opens and finishes authoritative preload again");
+            Check(_arenas[1].Driver.RequestItemUse(), "One automatic volley accepted");
             for (int shots = 4; shots >= 0; shots--)
             {
-                Check(_arenas[1].Driver.RequestItemUse(), "Repeated shot accepted");
                 await Until(() => _arenas[1].Driver.LocalItem?.Active.SalvoShots == shots, "Confirmed remaining shots " + shots);
                 if (shots > 0)
                 {
-                    for (int frame = 0; frame < 90; frame++)
+                    for (int frame = 0; frame < 40; frame++)
                     {
                         await Frames(1);
                         if (!AllPresent(HeldItem.Salvo)) { throw new InvalidOperationException("Rack cycled between usable shots"); }

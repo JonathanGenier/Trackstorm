@@ -24,7 +24,7 @@ internal sealed class InputFrameTests
     [Test]
     public void Serialization_RoundTripsBoundaryFrames()
     {
-        InputFrame[] frames = [new(3, 123, 456, 789, InputButtons.AirControl, 0, 0, -32767, 32767, -23456), default, new(ulong.MaxValue, 32767, 65535, 65535, (InputButtons)2047, (InputButtons)2047, (InputButtons)2047)];
+        InputFrame[] frames = [new(3, 123, 456, 789, InputButtons.AirControl | InputButtons.AimItem, 0, 0, -32767, 32767, -23456), default, new(ulong.MaxValue, 32767, 65535, 65535, (InputButtons)2047, (InputButtons)2047, (InputButtons)2047)];
         foreach (InputFrame frame in frames)
         {
             byte[] bytes = new byte[InputFrame.SerializedSize];
@@ -46,7 +46,7 @@ internal sealed class InputFrameTests
         bytes[10] = 128;
         Assert.Throws<ArgumentOutOfRangeException>(() => InputFrame.Read(bytes));
         bytes[10] = 0;
-        foreach (int offset in new[] { 16, 18, 20 })
+        foreach (int offset in new[] { 18, 20 })
         {
             bytes[offset] = 128;
             Assert.Throws<ArgumentOutOfRangeException>(() => InputFrame.Read(bytes));
@@ -73,6 +73,20 @@ internal sealed class InputFrameTests
             Assert.That(release.Held, Is.EqualTo(InputButtons.Drift));
             Assert.That(new[] { press, hold, release }.Select(frame => (frame.Steering, frame.Accelerate, frame.Brake)), Is.All.EqualTo((123, 456, 789)));
         });
+    }
+
+    [Test]
+    public void Capture_AimingStateHasNoEdgesAndPreservesOrdinaryButtonEdges()
+    {
+        var capture = new InputFrameCapture();
+        capture.Observe(InputButtons.AimItem | InputButtons.UseItem);
+        var aiming = capture.Capture(1, 0, 0, 0);
+        capture.Observe(InputButtons.None);
+        var released = capture.Capture(2, 0, 0, 0);
+        Assert.That(aiming.Held, Is.EqualTo(InputButtons.AimItem | InputButtons.UseItem));
+        Assert.That(aiming.Pressed, Is.EqualTo(InputButtons.UseItem));
+        Assert.That(released.Held, Is.EqualTo(InputButtons.None));
+        Assert.That(released.Released, Is.EqualTo(InputButtons.UseItem));
     }
 
     /// <summary>Between-tick taps survive once, even when no button is held at capture.</summary>

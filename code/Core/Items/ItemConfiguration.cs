@@ -27,11 +27,11 @@ public sealed record ItemConfiguration
     public float ShieldTipSpeed { get; init; } = 20;
     /// <summary>Shared direct-fire aiming rules.</summary>
     public WeaponAimConfiguration Aim { get; init; } = new();
-    /// <summary>Individually fired shots per pickup.</summary>
+    /// <summary>Fixed physical five-round magazine.</summary>
     public int SalvoCount { get; init; } = 5;
-    /// <summary>Minimum interval between presses accepted as shots, at 60 Hz.</summary>
-    public int SalvoIntervalTicks { get; init; } = 30;
-    /// <summary>Fixed forward range (m).</summary>
+    /// <summary>Automatic launch interval at 60 Hz; default 1.25 seconds.</summary>
+    public int SalvoIntervalTicks { get; init; } = 75;
+    /// <summary>Maximum camera aim range (m).</summary>
     public float SalvoRange { get; init; } = 65;
     /// <summary>Height above vehicle (m).</summary>
     public float SalvoLaunchHeight { get; init; } = 3;
@@ -168,8 +168,8 @@ public sealed record ItemConfiguration
         if (!float.IsFinite(MissileLifetimeSeconds) || MissileLifetimeSeconds is < 0.05f or > 60 ||
             !float.IsFinite(MissileWorldLimit) || MissileWorldLimit is < 256 or > 16384)
         { throw new ArgumentException("Invalid Missile cleanup bounds."); }
-        if (!double.IsFinite(SalvoCount) || SalvoCount < 1 || SalvoCount > 16) { throw new ArgumentException("Invalid salvo count."); }
-        if (!double.IsFinite(SalvoIntervalTicks) || SalvoIntervalTicks < 1 || SalvoIntervalTicks > 60) { throw new ArgumentException("Invalid salvo interval_ticks."); }
+        if (SalvoCount != ItemSlot.SalvoMagazineSize) { throw new ArgumentException("Salvo magazines contain exactly five rounds."); }
+        if (SalvoIntervalTicks < 30 || SalvoIntervalTicks > 180) { throw new ArgumentException("Salvo interval must allow a complete reload (30–180 ticks)."); }
         if (!double.IsFinite(SalvoRange) || SalvoRange < 25 || SalvoRange > 250) { throw new ArgumentException("Invalid salvo range."); }
         if (!double.IsFinite(SalvoLaunchHeight) || SalvoLaunchHeight < 1 || SalvoLaunchHeight > 10) { throw new ArgumentException("Invalid salvo launch_height."); }
         if (!double.IsFinite(SalvoArcHeight) || SalvoArcHeight < 1 || SalvoArcHeight > 60) { throw new ArgumentException("Invalid salvo arc_height."); }

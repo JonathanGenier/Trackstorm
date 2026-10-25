@@ -36,4 +36,6 @@ public enum InputButtons : ushort
 	AirControl = 8192,
 	/// <summary>Permanently delete the selected held item.</summary>
 	DiscardItem = 16384,
+	/// <summary>Held-only deliberate weapon aiming state, supplied by the existing camera input adapter.</summary>
+	AimItem = 32768,
 }

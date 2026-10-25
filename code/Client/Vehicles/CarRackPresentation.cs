@@ -127,7 +127,7 @@ internal sealed partial class CarRackPresentation : Node
         if (_useItem == HeldItem.Shield) { _usePending = false; _desired = active?.Item ?? HeldItem.None; }
         ObserveMissile(inventory, tick);
         ObserveEmpInventory(inventory, tick);
-        ObserveSalvo(inventory, outcome);
+        ObserveSalvo(inventory, outcome, tick);
         _previous = inventory;
         if (_placement is not null || _mineReturning)
         {
@@ -141,6 +141,7 @@ internal sealed partial class CarRackPresentation : Node
     {
         ResetEmpClaw();
         _salvoProgress = 0; _salvoReturning = false; _salvoSelection = 0;
+        _salvoClock = _salvoBoundary = 0;
         _oilPour = null; _oilFired = false; _oilClock = 0;
         _missileProgress = _missileReturn = 0;
         _missileStowing = false;

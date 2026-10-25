@@ -96,13 +96,16 @@ internal sealed partial class VehicleNetworkDriverTests
     public void MotionCodecRejectsMalformedAndForeignBaselines(bool arcing)
     {
         using var wire = ConnectedGateway();
-        using var host = new VehicleNetworkDriver(wire, Session);
+        using var host = new VehicleNetworkDriver(wire, Session,
+            configuration: new() { Match = new() { MinimumPlayers = 1, CountdownTicks = 1 } });
         host.Advance(default, Observe);
         host.ProjectSalvoGround = point => new Vector3(point.X, 0, point.Z);
         host.GiveDeveloperItem(arcing ? HeldItem.Salvo : HeldItem.Missile);
         if (!arcing) { WaitForMissile(host); }
+        else { for (int i = 0; i < 240; i++) { host.Advance(default, Observe); } }
         Assert.That(host.RequestItemUse(), Is.True);
         host.Advance(default, Observe);
+        if (arcing) { for (int i = 0; i < ItemSlot.SalvoReleaseTicks; i++) { host.Advance(default, Observe); } }
         var baseline = host.ItemState!;
         host.Advance(default, Observe);
         byte[] valid = ProjectileMotionCodec.Encode(baseline, host.Latest!.Tick, host.Host!.Items.Missiles);

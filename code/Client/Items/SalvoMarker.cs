@@ -27,7 +27,8 @@ internal sealed partial class SalvoMarker : MeshInstance3D
     }
 
     internal void Refresh(double delta, VehicleSnapshot? local, ItemSlot? inventory, ItemPublication? state,
-        ItemConfiguration tuning, bool active, Func<Vector3, (Vector3 Position, Vector3 Normal)?> ground)
+        ItemConfiguration tuning, bool active, Func<Vector3, (Vector3 Position, Vector3 Normal)?> ground,
+        WeaponAimSolution? aim = null, Func<System.Numerics.Vector3, System.Numerics.Vector3, WeaponRayHit?>? raycast = null, bool activelyAiming = false)
     {
         var targets = new List<Vector3>();
         if (active && local is { CanInteract: true })
@@ -35,7 +36,10 @@ internal sealed partial class SalvoMarker : MeshInstance3D
             if ((inventory?.Life == local.LifeId && inventory.Active.Item == HeldItem.Salvo) ||
                 state?.Missiles.Any(m => m.Owner == local.VehicleId && m.Arc?.Life == local.LifeId) == true)
             {
-                targets.Add(VehicleBody.ToGodot(SalvoFlight.Aim(local.Movement.Physics, tuning.SalvoRange)));
+                var pose = local.ObservedPhysics;
+                targets.Add(VehicleBody.ToGodot(SalvoFlight.ResolveTarget(pose,
+                    aim?.Direction ?? System.Numerics.Vector3.Transform(-System.Numerics.Vector3.UnitZ, pose.Orientation), SalvoFlight.AimRange(tuning, activelyAiming && aim is not null),
+                    point => ground(VehicleBody.ToGodot(point)) is { } hit ? VehicleBody.ToCore(hit.Position) : null, raycast)));
             }
         }
         if (targets.Count == 0) { Visible = false; RingCount = 0; SurfaceVertices = []; _remaining = 0; return; }
@@ -66,7 +70,8 @@ internal sealed partial class SalvoMarker : MeshInstance3D
             {
                 int next = (i + 1) % segments;
                 if (inner[i] is not { } a || outer[i] is not { } b || inner[next] is not { } c || outer[next] is not { } d ||
-                    Math.Abs(a.Y - c.Y) > 3 || Math.Abs(b.Y - d.Y) > 3) { continue; }
+                    Math.Max(Math.Max(a.Y, b.Y), Math.Max(c.Y, d.Y)) -
+                    Math.Min(Math.Min(a.Y, b.Y), Math.Min(c.Y, d.Y)) > 3) { continue; }
                 vertices.AddRange(new[] { a, b, c, b, d, c });
                 drawn = true;
             }

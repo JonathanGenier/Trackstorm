@@ -122,6 +122,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver.WrenchReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.Rack.IsWrenchReady(inventory);
         _driver.WrenchReturning = () => LocalState is { } state && _bodies.TryGetValue(state.VehicleId, out var body) && body.Rack.WrenchOwnsRack;
         _driver.MissileReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.Rack.IsMissileReady(inventory);
+        _driver.SalvoReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.Rack.IsSalvoReady(inventory);
         _driver.EmpClawReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.Rack.IsEmpClawReady(inventory);
         _driver.ObserveShield = Walls.Observe;
         AddChild(_salvoMarker);
@@ -227,7 +228,9 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _environment.Apply(_driver.Configuration.Configuration.Environment);
         _salvoMarker.Refresh(delta, _driver.LocalState, _driver.LocalItem, _driver.ItemState,
             _driver.Configuration.Configuration.Items, _driver.IsActive && (!ApplicationEntry || _driver.EntryReady) &&
-            _driver.Match?.Phase is not (Core.Matches.MatchPhase.Finished or Core.Matches.MatchPhase.Waiting or Core.Matches.MatchPhase.Countdown), SalvoGround);
+            _driver.Match?.Phase is not (Core.Matches.MatchPhase.Finished or Core.Matches.MatchPhase.Waiting or Core.Matches.MatchPhase.Countdown), SalvoGround,
+            _driver.PresentedAim(_driver.LocalItem),
+            (from, to) => RaycastWeapon(_driver.LocalVehicleId, from, to), CameraInput?.CameraAimActive == true);
         if (ApplicationEntry && !_driver.EntryReady)
         {
             ResetAiming();
@@ -378,6 +381,12 @@ internal sealed partial class NetworkVehicleArena : Node3D
     /// <param name="input">Immediately captured local logical input.</param>
     internal void Advance(InputFrame input)
     {
+        // The held input bit travels with ordinary ordered/redundant vehicle input.
+        // It changes Salvo reach only; the separate accepted direction still owns aim.
+        var aimHeld = CameraInput?.CameraAimActive == true && _driver.LocalItem?.Active.Item == HeldItem.Salvo
+            ? InputButtons.AimItem : InputButtons.None;
+        input = new(input.Tick, input.Steering, input.Accelerate, input.Brake, (input.Held & ~InputButtons.AimItem) | aimHeld,
+            input.Pressed, input.Released, input.AirPitch, input.AirYaw, input.AirRoll);
         _audio.Initialize(_driver.LocalVehicleId);
         Dictionary<ulong, VehicleObservation>? hostObservations = null;
         _driver.Advance(input, state =>
@@ -554,6 +563,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
             }
 
             body!.SynchronizeLifecycle(vehicle.State);
+            body.Rack.ObserveSalvoTick(snapshot.Tick);
             body.ObserveShields(vehicle.State, _driver.ItemState?.Shields ?? []);
             if (created)
             {

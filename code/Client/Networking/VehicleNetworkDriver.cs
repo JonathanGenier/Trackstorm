@@ -518,6 +518,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         _pendingShieldUse = null;
         if (!AllowsParticipation || LocalState is not { CanInteract: true } state) { return false; }
         var inventory = LocalItem;
+        if (inventory?.ReservedSalvoShots > 0) { return false; }
         if (_switchLife != state.LifeId) { _switchLife = state.LifeId; _switchRevision = 0; }
         ulong revision = checked(Math.Max(_switchRevision, inventory?.SelectionRevision ?? 0) + 1);
         bool accepted = Host is not null ? Host.SwitchItem(0, _session, state.LifeId, revision)
@@ -553,6 +554,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
     /// <summary>Local Missile readiness rejects early input without queuing it.</summary>
     internal Func<ItemSlot, bool>? MissileReady { get; set; }
     internal Func<ItemSlot, bool>? EmpClawReady { get; set; }
+    internal Func<ItemSlot, bool>? SalvoReady { get; set; }
 
     /// <summary>Submits the local slot capability reliably; never creates a predicted item effect.</summary>
     /// <returns>Whether queued locally or sent to the host.</returns>
@@ -571,6 +573,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         if (WrenchReturning?.Invoke() == true) { return false; }
         if (slot.Item == HeldItem.Missile && MissileReady?.Invoke(inventory!) == false) { return false; }
         if (slot.Item == HeldItem.EmpClaw && EmpClawReady?.Invoke(inventory!) == false) { return false; }
+        if (slot.Item == HeldItem.Salvo && (slot.SalvoCommitted || SalvoReady?.Invoke(inventory!) == false)) { return false; }
         if (slot.Item == HeldItem.Wrench && WrenchReady?.Invoke(inventory!) == false) { return false; }
         if ((slot.Item == HeldItem.Shield && ShieldReady?.Invoke(inventory!) == false) ||
             (slot.Item == HeldItem.Oil && OilReady?.Invoke(inventory!) == false))
@@ -754,6 +757,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         WrenchReturning = null;
         OilReady = null;
         MissileReady = null;
+        SalvoReady = null;
         EmpClawReady = null;
         ResetAiming();
         PropSnapshot = null;

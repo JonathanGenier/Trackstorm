@@ -12,8 +12,8 @@ public sealed class InputFrameCapture
     public void Observe(InputButtons held)
     {
         _ = new InputFrame(0, 0, 0, 0, held, InputButtons.None, InputButtons.None);
-        _pressed |= held & ~_held;
-        _released |= _held & ~held;
+        _pressed |= held & ~_held & ~InputButtons.AimItem;
+        _released |= _held & ~held & ~InputButtons.AimItem;
         _held = held;
     }
 

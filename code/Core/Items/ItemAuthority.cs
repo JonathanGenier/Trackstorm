@@ -178,6 +178,7 @@ public sealed partial class ItemAuthority
             (slot.Active.Item != HeldItem.Missile || (slot.MissileReadyTick > 0 && world.State.Tick >= slot.MissileReadyTick)) &&
             (slot.Active.Item != HeldItem.Wrench || WrenchReady(slot)) &&
             (slot.Active.Item != HeldItem.EmpClaw || (EmpClawReady(slot) && world.State.Tick >= slot.Active.EmpClaw!.ReadyTick)) &&
+            (slot.Active.Item != HeldItem.Salvo || SalvoReady(slot)) &&
             _pending.TryAdd(vehicle, (token, checked(world.State.Tick + 15), inputSequence));
     }
 
@@ -188,7 +189,7 @@ public sealed partial class ItemAuthority
         if (state is null || !state.CanInteract || state.LifeId != life ||
             !_slots.TryGetValue(vehicle, out var inventory) || inventory.Life != life ||
             inventory.SelectionRevision != selection || inventory.Active.Token != token ||
-            inventory.Active.Item == HeldItem.None) { return false; }
+            inventory.Active.Item == HeldItem.None || SalvoOwnsSelection(inventory)) { return false; }
 
         var selected = inventory.Active;
         ulong discardRevision = checked(DiscardRevision + 1);
@@ -217,6 +218,16 @@ public sealed partial class ItemAuthority
         if (state is null || !state.CanInteract || state.LifeId != life || revision == 0) { return false; }
         var inventory = _slots.GetValueOrDefault(vehicle) ?? new ItemSlot(vehicle, life, 0, HeldItem.None);
         if (inventory.Life != life || revision <= inventory.SelectionRevision) { return false; }
+        if (SalvoOwnsSelection(inventory))
+        {
+            // Acknowledge the ordered command without allowing it to cancel the
+            // magazine. No deferred switch fires unexpectedly after the last round.
+            _slots[vehicle] = inventory with { SelectionRevision = revision };
+            if (_aimIntents.TryGetValue(vehicle, out var intent)) { _aimIntents[vehicle] = intent with { Selection = revision }; }
+            if (_aimDeployment.TryGetValue(vehicle, out var deployment)) { _aimDeployment[vehicle] = deployment with { Selection = revision }; }
+            Revision++; ReliableRevision++;
+            return true;
+        }
         _slots[vehicle] = inventory with { ActiveSlot = (byte)(inventory.ActiveSlot ^ ((revision - inventory.SelectionRevision) & 1)), SelectionRevision = revision, EngagedToken = 0 };
         ResetAim(vehicle);
         if (_slots[vehicle].ActiveSlot != inventory.ActiveSlot)
@@ -243,7 +254,7 @@ public sealed partial class ItemAuthority
     /// <param name="moveMine">Host sweep and contact query.</param>
     /// <param name="acknowledgedInputs">Host-consumed remote input sequences; never client-authored acknowledgements.</param>
     /// <param name="raycastWeapon">Host closest collision on an authoritative weapon ray.</param>
-    /// <param name="ground">Host terrain projection at the fixed salvo range; missing terrain rejects use.</param>
+    /// <param name="ground">Host Salvo terrain projection; missing terrain retains the free-aim endpoint.</param>
     /// <param name="placeShield">Host-only native rear placement and clearance query.</param>
     /// <param name="observeShield">Host-only native wall motion observation.</param>
     /// <param name="oilCollision">Host-only swept Oil surface collision.</param>
@@ -307,12 +318,23 @@ public sealed partial class ItemAuthority
             ItemSlot slot = (inventory with { ActiveSlot = usedIndex }).Active;
             if (slot.Token != pair.Value.Token || slot.Item == HeldItem.None) { continue; }
             VehicleStepRequest request = requests.Single(value => value.VehicleId == pair.Key);
+            if (slot.Item == HeldItem.Salvo)
+            {
+                if (!request.Reset.HasValue && inventory.Active.Token == slot.Token && SalvoReady(inventory) &&
+                    world.State.Match is not { Phase: not Matches.MatchPhase.Active } &&
+                    missiles.Count + slots.Values.Sum(s => s.ReservedSalvoShots) + slot.SalvoShots <= MaximumProjectiles)
+                {
+                    ulong deadline = checked(input.Tick + ItemSlot.SalvoReleaseTicks);
+                    slots[pair.Key] = usedIndex == 0 ? inventory with { SalvoReadyTick = deadline } : inventory with { SecondSalvoReadyTick = deadline };
+                }
+                continue;
+            }
             if (slot.Item == HeldItem.EmpClaw)
             {
                 var aim = AcceptedAim(slot.Vehicle, slot.Life, slot.Token);
                 if (request.Reset.HasValue || inventory.Active.Token != slot.Token || !EmpClawReady(inventory) ||
                     slot.EmpClaw is not { Remaining: > 0 } load || input.Tick < load.ReadyTick || aim is null || aim.Tick != world.State.Tick ||
-                    world.State.Match is { Phase: not Matches.MatchPhase.Active } || missiles.Count >= MaximumProjectiles ||
+                    world.State.Match is { Phase: not Matches.MatchPhase.Active } || missiles.Count + slots.Values.Sum(s => s.ReservedSalvoShots) >= MaximumProjectiles ||
                     attachments.Count + missiles.Count(p => p.EmpClaw is not null) >= MaximumEmpAttachments) { continue; }
                 int fired = Enumerable.Range(0, 3).First(i => (load.RoundMask & (1 << i)) != 0);
                 byte remaining = (byte)(load.Remaining - 1);
@@ -371,7 +393,8 @@ public sealed partial class ItemAuthority
             var missileAim = slot.Item == HeldItem.Missile ? AcceptedAim(slot.Vehicle, slot.Life, slot.Token) : null;
             bool aimedMissile = slot.Item == HeldItem.Missile && _aimIntents.ContainsKey(slot.Vehicle);
             if (request.Reset.HasValue || handler is null ||
-                (slot.Item == HeldItem.Oil && (patches.Count >= MaximumPatches || patches.Any(p => p.Owner == slot.Vehicle && p.Pour is { Cancelled: false } pour && input.Tick < pour.StartTick + (ulong)pour.DurationTicks))) || (slot.Item == HeldItem.Salvo && input.Tick < slot.SalvoReadyTick) ||
+                (slot.Item == HeldItem.Oil && (patches.Count >= MaximumPatches || patches.Any(p => p.Owner == slot.Vehicle && p.Pour is { Cancelled: false } pour && input.Tick < pour.StartTick + (ulong)pour.DurationTicks))) ||
+                (slot.Item == HeldItem.Missile && missiles.Count + slots.Values.Sum(s => s.ReservedSalvoShots) >= MaximumProjectiles) ||
                 (slot.Item == HeldItem.Missile && (inventory.Active.Token != slot.Token || world.State.Tick < inventory.MissileReadyTick ||
                     (aimedMissile && (missileAim is null || missileAim.Tick != world.State.Tick)))) ||
                 !(slot.Item == HeldItem.Missile
@@ -382,21 +405,12 @@ public sealed partial class ItemAuthority
             }
 
             if (slot.Item == HeldItem.Missile) { inventory = StowMissile(inventory, input.Tick); }
-            if (slot.Item != HeldItem.Salvo) { events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item,
-                slot.Item == HeldItem.Missile ? missiles[^1].Position : request.Observation.Physics.Position, false)); }
-            if (slot.Item == HeldItem.Salvo)
-            {
-                int remaining = slot.SalvoShots - 1;
-                // Retire each shot's capability so delayed/replayed requests cannot spend the next round.
-                ulong next = remaining > 0 ? NextToken() : slot.Token;
-                ulong ready = remaining > 0 ? checked(input.Tick + (ulong)Configuration.SalvoIntervalTicks) : 0;
-                if (remaining > 0) { ContinueSalvoAim(slot.Vehicle, slot.Token, next); }
-                slots[pair.Key] = usedIndex == 0
-                    ? inventory with { Item = remaining > 0 ? HeldItem.Salvo : HeldItem.None, Token = next, SalvoShots = remaining, SalvoReadyTick = ready }
-                    : inventory with { SecondItem = remaining > 0 ? HeldItem.Salvo : HeldItem.None, SecondToken = next, SecondSalvoShots = remaining, SecondSalvoReadyTick = ready };
-            }
-            else { slots[pair.Key] = usedIndex == 0 ? inventory with { Item = HeldItem.None } : inventory with { SecondItem = HeldItem.None }; }
+            events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item,
+                slot.Item == HeldItem.Missile ? missiles[^1].Position : request.Observation.Physics.Position, false));
+            slots[pair.Key] = usedIndex == 0 ? inventory with { Item = HeldItem.None } : inventory with { SecondItem = HeldItem.None };
         }
+
+        AdvanceSalvos(world, input, requests, slots, missiles, NextToken, ground, raycastWeapon);
 
         foreach (var request in requests)
         {
@@ -720,6 +734,18 @@ public sealed partial class ItemAuthority
             (missile.EmpClaw is null || missile.EmpClaw.OwnerLife == vehicle.LifeId)));
         movingMines.RemoveAll(mine => mine.IsPlacing && !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == mine.Owner && vehicle.LifeId == mine.PlacementLife && vehicle.CanInteract));
         if (world.State.Match?.Phase == Matches.MatchPhase.Finished) { advanced.RemoveAll(missile => missile.Arc is not null || missile.EmpClaw is not null); }
+        // A life or match ending destroys an in-progress magazine even when the
+        // optional respawn policy preserves other held items. It cannot resume firing
+        // on a new life or silently refill spent rounds.
+        foreach (var pair in slots.ToArray())
+        {
+            if (pair.Value.ReservedSalvoShots == 0 || (world.GetVehicle(pair.Key).CanInteract &&
+                world.GetVehicle(pair.Key).LifeId == _slots.GetValueOrDefault(pair.Key)?.Life && world.State.Match?.Phase != Matches.MatchPhase.Finished)) { continue; }
+            var slot = pair.Value;
+            if (slot.SalvoCommitted) { slot = slot with { Item = HeldItem.None, SalvoShots = 0, SalvoReadyTick = 0 }; }
+            if (slot.SecondItem == HeldItem.Salvo && slot.SecondSalvoReadyTick != 0) { slot = slot with { SecondItem = HeldItem.None, SecondSalvoShots = 0, SecondSalvoReadyTick = 0 }; }
+            slots[pair.Key] = slot;
+        }
         bool shieldsChanged = !_shields.SequenceEqual(shields.States);
         _shields.Clear();
         _shields.AddRange(shields.States);
