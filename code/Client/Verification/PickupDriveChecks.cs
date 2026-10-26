@@ -33,9 +33,11 @@ public sealed partial class PickupDriveChecks : Node
     private readonly Dictionary<string, (int Attempts, int Successes, float MinSpeed, float MaxSpeed)> _counts = [];
     private int MotionDriver => _motionTrial / 90;
     private float MotionSpeed => new[] { 8f, 40f, 65f }[(_motionTrial / 30) % 3];
-    // Pickup distance is three-dimensional. Keep the grazing centerline inside
-    // the 3 m sphere after the tall production chassis settles to its ride height.
-    private float MotionOffset => new[] { 0f, 1.5f, MathF.Sqrt(9 - VehicleDimensions.RideHeight * VehicleDimensions.RideHeight) - 0.1f }[(_motionTrial / 10) % 3];
+    // Pickup distance is three-dimensional. Suspension extension and bank grade
+    // can raise the centre above nominal ride height during phase-varied resets.
+    // Keep this valid-crossing sample inside the sphere; the measured-distance
+    // assertion below still rejects invalid trials instead of counting them as misses.
+    private float MotionOffset => new[] { 0f, 1.5f, 2.4f }[(_motionTrial / 10) % 3];
     private bool OldMap => OS.GetCmdlineUserArgs().Contains("--pickup-old-map");
     private string MarkerId => OldMap ? "item-03" : "item-triple-01-2";
     private static int RosterCount => ItemRegistry.All.Count;
@@ -102,6 +104,11 @@ public sealed partial class PickupDriveChecks : Node
             }
             else if (_stage == 3)
             {
+                if (Case == 1 && _frames - _boundary == 8 && DisplayServer.GetName() != "headless")
+                {
+                    using var approach = _views[DriverIndex].GetTexture().GetImage();
+                    approach.SavePng(System.IO.Path.Combine(_output, $"driver-{DriverIndex}-approach.png"));
+                }
                 var arena = host.Arena!;
                 var marker = arena.MapConfiguration.Items.Single(m => m.Id == MarkerId);
                 ulong player = _sessions[DriverIndex].Arena!.Driver.LocalVehicleId;

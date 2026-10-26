@@ -352,6 +352,12 @@ function Get-FastCheckPlan {
         }
 
         # Items and lifecycle.
+        if ($path -match '(?i)CarnivalPickup|carnival.crate|carnival.pickup|ItemSpawnPresentation') {
+            Add-Runtime 'check-carnival-pickup.ps1'
+            Add-Runtime 'check-item-spawns.ps1'
+            Add-Runtime 'check-pickup-drive.ps1'
+            Add-Manual 'Inspect the intact three-crate pickup in all environment presets, at driving distances and from both approaches; confirm one unobstructed host-authoritative collectible.'
+        }
         if ($path -match '(?i)TireFeedback|OilTireChecks|oil_tire_checks|check-oil-tires|OilTractionState' -or $path -eq 'docs/features/items-oil.md') {
             Add-Runtime 'check-oil-tires.ps1'
             Add-Manual 'Observe independent glossy tire contamination, oil spray, curved/drifting wet trails, airborne breaks and recovery across cars and peers.'

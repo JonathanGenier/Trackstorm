@@ -190,7 +190,11 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 Require(host.Items.Slots.All(slot => slot.Item != HeldItem.None), "Occupied slots retain their grants.");
                 Require(host.Spawns!.States.All(spawn => spawn.Available), "Occupied players cannot consume reactivated spawns while remaining in range.");
                 Require(_arenas.All(arena => arena.Driver.ItemState!.Slots.SequenceEqual(_distributed)), "Occupied grants and tokens remain unchanged on all peers after reactivation.");
-                Require(_arenas.All(arena => arena.GetChildren().OfType<Items.ItemPresentation>().Single().GetChildCount() == 0), "Held inventory creates no world presentation for local or remote vehicles.");
+                Require(_arenas.All(arena =>
+                {
+                    var presentation = arena.GetChildren().OfType<Items.ItemPresentation>().Single();
+                    return presentation.GetChildren().SequenceEqual(new Node[] { presentation.EmpAttachments }) && presentation.EmpAttachments.GetChildCount() == 0;
+                }), "Held inventory creates no projectile/effect visuals; only the existing empty EMP attachment owner remains.");
                 Capture("occupied-slots.png");
                 _evidence.Add($"All {PickupCount} pickups are available after cooldown, including under occupied vehicles. No duplicate awards or overwritten grants.");
                 Require(host.TryConfigure(0, new Dictionary<string, double> { ["spawns.cooldown_ticks"] = 1 }, out _), "Repeated pickup fixture configures a one-tick cooldown.");

@@ -1,0 +1,18 @@
+{
+  "author": "Original Trackstorm project artwork",
+  "tool": "5.2.2 LTS",
+  "reference": "User-approved 3 crates.png supplied 2026-10-26; retained authoring reference only; no reference pixels in runtime textures.",
+  "units": "metres; Blender Z-up exported to Godot Y-up",
+  "crateGroups": [
+    "CrateLeft",
+    "CrateRight",
+    "CrateTop"
+  ],
+  "triangles": 53040,
+  "files": {
+    "source/BuildCarnivalCrate.py": "40bb0f63bd6095ce0d57217d7a48444775abc3e98706852a5e4c211b5ff8126d",
+    "source/ApprovedIntact.png": "bf39a75a027e1e24292fe47d9e201f0e5c4eab4808a8327973eb908a9a6fe62a",
+    "source/CarnivalCrate.blend": "bac0c708968a29f4ba9ab7f823e8d9e0f41a03cd983ea7efb0cb6da332936ed8",
+    "CarnivalCrate.glb": "1bda0d96b7371dd412797b8738145353e300509fcf1be60816ae1882ccabd1e1"
+  }
+}
