@@ -28,6 +28,14 @@ The oval lies on Godot X/Z, its long axis is X, and racing from the grid starts
 toward +X. The plane center is the map origin. All inner-edge vertices lie at
 y=0; the bank rises outward and the infield has positive and negative grades.
 
+Pickup marker -Z axes follow the measured oval section tangents, retained by
+`BuildOvalContent.gd`. Infield marker yaw is authored in `infield_pickups.tscn`:
+loop/link tangents, the north/south underpass and east/west jump/shoreline routes.
+These headings guide the grounded [pickup presentation](item-spawns.md); marker
+positions and collection mechanics remain unchanged.
+The jump marker explicitly carries `pickup_floating=true`, preserving its
+elevated presentation while the other pickups seat against the terrain.
+
 ## Geometry and collision ownership
 
 Blender owns the production meshes. The unchanged project-supplied master,

@@ -16,6 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Carnival crate intact pickup | [TS-310 verification evidence](ts-310.md) |
 | Salvo firework projectile, ballistic lifetime and persistent smoke | [TS-212 verification evidence](ts-212.md) |
 | Salvo automatic five-shot controller, aim retention and extended aimed reach | [TS-211 verification evidence](ts-211.md) |
 | EMP Claw DevTools and HUD integration | [TS-300 verification evidence](ts-300.md) |

@@ -1083,124 +1083,153 @@ multimesh = SubResource("MultiMesh_5yfqd")
 [node name="ItemSpawns" type="Node3D" parent="." unique_id=1043318068]
 
 [node name="item-triple-01-1" type="Marker3D" parent="ItemSpawns" unique_id=548550531]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -65.156425, 0.052771535, 85.00093)
+position = Vector3(-65.156425, 0.052771535, 85.00093)
+rotation = Vector3(0, -1.5705751, 0)
 metadata/surface_lane_m = 3.0
 metadata/source_section = 35
 
 [node name="item-triple-01-2" type="Marker3D" parent="ItemSpawns" unique_id=865943214]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -65.156425, 0.1583146, 91)
+position = Vector3(-65.156425, 0.1583146, 91)
+rotation = Vector3(0, -1.57079633, 0)
 metadata/surface_lane_m = 9.0
 metadata/source_section = 35
 
 [node name="item-triple-01-3" type="Marker3D" parent="ItemSpawns" unique_id=1318718043]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -65.156425, 0.26385766, 96.99907)
+position = Vector3(-65.156425, 0.26385766, 96.99907)
+rotation = Vector3(0, -1.57101756, 0)
 metadata/surface_lane_m = 15.0
 metadata/source_section = 35
 
 [node name="item-triple-02-1" type="Marker3D" parent="ItemSpawns" unique_id=1108531553]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 165.94193, 1.7043002, 62.710125)
+position = Vector3(165.94193, 1.7043002, 62.710125)
+rotation = Vector3(0, -0.82052092, 0)
 metadata/surface_lane_m = 3.0
 metadata/source_section = 246
 
 [node name="item-triple-02-2" type="Marker3D" parent="ItemSpawns" unique_id=1738630492]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 169.32365, 5.1129003, 66.30808)
+position = Vector3(169.32365, 5.1129003, 66.30808)
+rotation = Vector3(0, -0.816365811, 0)
 metadata/surface_lane_m = 9.0
 metadata/source_section = 246
 
 [node name="item-triple-02-3" type="Marker3D" parent="ItemSpawns" unique_id=1107592026]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 172.70538, 8.521501, 69.90604)
+position = Vector3(172.70538, 8.521501, 69.90604)
+rotation = Vector3(0, -0.812638413, 0)
 metadata/surface_lane_m = 15.0
 metadata/source_section = 246
 
 [node name="item-triple-03-1" type="Marker3D" parent="ItemSpawns" unique_id=1064855630]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 147.81245, 1.5342182, -75.52171)
+position = Vector3(147.81245, 1.5342182, -75.52171)
+rotation = Vector3(0, 1.09049715, 0)
 metadata/surface_lane_m = 3.0
 metadata/source_section = 414
 
 [node name="item-triple-03-2" type="Marker3D" parent="ItemSpawns" unique_id=1221784425]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 150.26378, 4.6026545, -80.05776)
+position = Vector3(150.26378, 4.6026545, -80.05776)
+rotation = Vector3(0, 1.07534636, 0)
 metadata/surface_lane_m = 9.0
 metadata/source_section = 414
 
 [node name="item-triple-03-3" type="Marker3D" parent="ItemSpawns" unique_id=263052349]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 152.7151, 7.6710906, -84.59381)
+position = Vector3(152.7151, 7.6710906, -84.59381)
+rotation = Vector3(0, 1.06182004, 0)
 metadata/surface_lane_m = 15.0
 metadata/source_section = 414
 
 [node name="item-triple-04-1" type="Marker3D" parent="ItemSpawns" unique_id=954339315]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -141.69456, 1.4375069, -78.39993)
+position = Vector3(-141.69456, 1.4375069, -78.39993)
+rotation = Vector3(0, 1.97013605, 0)
 metadata/surface_lane_m = 3.0
 metadata/source_section = 674
 
 [node name="item-triple-04-2" type="Marker3D" parent="ItemSpawns" unique_id=860782078]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -143.82573, 4.3125205, -83.21578)
+position = Vector3(-143.82573, 4.3125205, -83.21578)
+rotation = Vector3(0, 1.98742207, 0)
 metadata/surface_lane_m = 9.0
 metadata/source_section = 674
 
 [node name="item-triple-04-3" type="Marker3D" parent="ItemSpawns" unique_id=1285122519]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -145.9569, 7.187534, -88.03163)
+position = Vector3(-145.9569, 7.187534, -88.03163)
+rotation = Vector3(0, 2.0028167, 0)
 metadata/surface_lane_m = 15.0
 metadata/source_section = 674
 
 [node name="item-triple-05-1" type="Marker3D" parent="ItemSpawns" unique_id=1601914739]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -185.9162, 1.7207294, 34.39299)
+position = Vector3(-185.9162, 1.7207294, 34.39299)
+rotation = Vector3(0, -2.73059226, 0)
 metadata/surface_lane_m = 3.0
 metadata/source_section = 813
 
 [node name="item-triple-05-2" type="Marker3D" parent="ItemSpawns" unique_id=1417264117]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -190.4218, 5.162188, 36.35663)
+position = Vector3(-190.4218, 5.162188, 36.35663)
+rotation = Vector3(0, -2.73059203, 0)
 metadata/surface_lane_m = 9.0
 metadata/source_section = 813
 
 [node name="item-triple-05-3" type="Marker3D" parent="ItemSpawns" unique_id=1966307621]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -194.9274, 8.603646, 38.320267)
+position = Vector3(-194.9274, 8.603646, 38.320267)
+rotation = Vector3(0, -2.73059182, 0)
 metadata/surface_lane_m = 15.0
 metadata/source_section = 813
 
 [node name="item-single-01" type="Marker3D" parent="ItemSpawns" unique_id=1927218308]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.050278, 0, 97)
+position = Vector3(40.050278, 0, 97)
+rotation = Vector3(0, -1.57079633, 0)
 metadata/surface_lane_m = 15.0
 metadata/source_section = 123
 
 [node name="item-single-02" type="Marker3D" parent="ItemSpawns" unique_id=1414352224]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 79.50279, 0.18961182, -85.01199)
+position = Vector3(79.50279, 0.18961182, -85.01199)
+rotation = Vector3(0, 1.57242789, 0)
 metadata/surface_lane_m = 3.0
 metadata/source_section = 481
 
 [node name="item-single-03" type="Marker3D" parent="ItemSpawns" unique_id=393697778]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 199.28813, 8.603646, -26.1261)
+position = Vector3(199.28813, 8.603646, -26.1261)
+rotation = Vector3(0, 0.27587114, 0)
 metadata/surface_lane_m = 15.0
 metadata/source_section = 343
 
 [node name="item-single-04" type="Marker3D" parent="ItemSpawns" unique_id=1165562418]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -189.51947, 8.603646, -48.889748)
+position = Vector3(-189.51947, 8.603646, -48.889748)
+rotation = Vector3(0, 2.60672926, 0)
 metadata/surface_lane_m = 15.0
 metadata/source_section = 729
 
 [node name="item-single-05" type="Marker3D" parent="ItemSpawns" unique_id=1306723095]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -153.65767, 7.731537, 84.061066)
+position = Vector3(-153.65767, 7.731537, 84.061066)
+rotation = Vector3(0, -2.09068963, 0)
 metadata/surface_lane_m = 15.0
 metadata/source_section = 871
 
 [node name="item-infield-01-trail" type="Marker3D" parent="ItemSpawns" unique_id=1675333122]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -70, 0.439, 51)
+position = Vector3(-70, 0.439, 51)
+rotation = Vector3(0, -1.44681576, 0)
 
 [node name="item-infield-02-north" type="Marker3D" parent="ItemSpawns" unique_id=1114579525]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 0.812, -56)
+position = Vector3(70, 0.812, -56)
+rotation = Vector3(0, -1.47849962, 0)
 
 [node name="item-infield-03-tunnel" type="Marker3D" parent="ItemSpawns" unique_id=248906709]
+position = Vector3(0, 0, 0)
+rotation = Vector3(0, 3.14159265, 0)
 
 [node name="item-infield-04-water" type="Marker3D" parent="ItemSpawns" unique_id=1899704115]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 77, 0.101, -43)
+position = Vector3(77, 0.101, -43)
+rotation = Vector3(0, -1.57079633, 0)
 
 [node name="item-infield-05-jump" type="Marker3D" parent="ItemSpawns" unique_id=1286274249]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -74, 10.65, 0)
+position = Vector3(-74, 10.65, 0)
+rotation = Vector3(0, -1.57079633, 0)
+metadata/pickup_floating = true
 
 [node name="item-infield-06-turn" type="Marker3D" parent="ItemSpawns" unique_id=28539661]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -155, 0, 15)
+position = Vector3(-155, 0, 15)
+rotation = Vector3(0, -2.5662185, 0)
 
 [node name="item-infield-07-berm" type="Marker3D" parent="ItemSpawns" unique_id=408928943]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 126, -0.235, 41)
+position = Vector3(126, -0.235, 41)
+rotation = Vector3(0, 2.08045624, 0)
 
 [node name="InfieldTerrain" type="Node3D" parent="." unique_id=212154856 instance=ExtResource("7_pbxv2")]
 

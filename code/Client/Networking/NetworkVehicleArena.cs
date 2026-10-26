@@ -135,7 +135,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         var markers = MapConfiguration;
         _driver.Host?.RegisterSpawns(markers, SpawnConfiguration);
         AddChild(_pickups);
-        _pickups.Initialize(markers);
+        _pickups.Initialize(markers, Map.GetNode<Node3D>("ItemSpawns"));
         _driver.CollideMissile = CollideMissile;
         _driver.QueryMissileTerrain = (from, to) => Items.MissileTerrainQuery.Cast(GetWorld3D().DirectSpaceState, from, to);
         _driver.RaycastWeapon = RaycastWeapon;

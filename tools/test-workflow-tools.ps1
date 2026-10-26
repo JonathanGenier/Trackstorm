@@ -14,6 +14,12 @@ function Assert-True {
 . "$PSScriptRoot/fast-check-routes.ps1"
 
 # Route-selection regression coverage.
+foreach ($path in @('assets/items/carnival-crate/CarnivalCrate.glb', 'code/Client/Items/CarnivalPickupAura.cs', 'code/Client/Items/ItemSpawnPresentation.cs', 'code/Client/Items/PickupGroundPose.cs')) {
+    $cratePlan = Get-FastCheckPlan -Paths @($path)
+    Assert-True ($cratePlan.RuntimeScripts -contains 'check-carnival-pickup.ps1') 'Crate changes require intact presentation verification.'
+    Assert-True ($cratePlan.RuntimeScripts -contains 'check-item-spawns.ps1') 'Crate changes retain multiplayer pickup verification.'
+    Assert-True ($cratePlan.RuntimeScripts -contains 'check-pickup-drive.ps1') 'Crate changes retain drive-through verification.'
+}
 Assert-True ((Get-FastCheckPlan -Paths @('code/Core/Items/EmpClawGeometry.cs')).RuntimeScripts -contains 'check-emp-claw-counterplay.ps1') 'EMP membrane changes retain native nose, ammunition and shield counterplay coverage.'
 Assert-True ((Get-FastCheckPlan -Paths @('code/Core/Items/EmpClawFlight.cs')).RuntimeScripts -contains 'check-emp-claw-flight.ps1') 'EMP flight changes require native homing, collision and multiplayer verification.'
 foreach ($path in @('assets/items/wrench/RepairArm.glb', 'code/Client/Items/WrenchArm.cs', 'check-wrench-arm.ps1')) {

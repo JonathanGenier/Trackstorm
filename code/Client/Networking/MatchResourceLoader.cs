@@ -24,6 +24,8 @@ internal sealed class MatchResourceLoader
         Items.MissileExplosion.ShaderPath,
         Items.OilJack.AssetPath,
         Items.WrenchArm.AssetPath,
+        Items.ItemSpawnPresentation.AssetPath,
+        Items.CarnivalPickupAura.ShaderPath,
         Items.OilFluidMaterial.ShaderPath,
         Items.ProxyMineVisual.AssetPath,
         Items.ProxyMineRack.AssetPath,
