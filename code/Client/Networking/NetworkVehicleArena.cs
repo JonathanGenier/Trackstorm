@@ -520,6 +520,20 @@ internal sealed partial class NetworkVehicleArena : Node3D
         using var ray = PhysicsRayQueryParameters3D.Create(start, finish, 3 | 16, exclude);
         ray.HitFromInside = true;
         var hit = QueryWithoutRearShields(ray);
+        // Concave terrain has no solid interior: a ray starting exactly on a face
+        // can miss it. Overlap Salvo terrain segment boundaries by one centimetre;
+        // retain the original closest body hit and clamp contact to this segment.
+        if (missile.Arc is not null && start.DistanceSquaredTo(finish) > .000001f)
+        {
+            Vector3 overlap = (finish - start).Normalized() * .01f;
+            using var terrainRay = PhysicsRayQueryParameters3D.Create(start - overlap, finish + overlap, 1);
+            using var terrain = GetWorld3D().DirectSpaceState.IntersectRay(terrainRay);
+            if (terrain.Count > 0 && (hit.Count == 0 || start.DistanceSquaredTo(terrain["position"].AsVector3()) < start.DistanceSquaredTo(hit["position"].AsVector3())))
+            {
+                float along = (terrain["position"].AsVector3() - start).Dot(finish - start) / start.DistanceSquaredTo(finish);
+                return Math.Clamp(along, 0, 1);
+            }
+        }
         return hit.Count == 0 ? null : Math.Clamp(start.DistanceTo(hit["position"].AsVector3()) / start.DistanceTo(finish), 0, 1);
     }
 

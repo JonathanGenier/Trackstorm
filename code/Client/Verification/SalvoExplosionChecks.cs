@@ -21,7 +21,7 @@ public sealed partial class SalvoExplosionChecks : Node
     private readonly List<ItemEvent>[] _impacts = [[], [], []];
     private readonly List<string> _evidence = [];
     private readonly Dictionary<ulong, N.Vector3> _positions = new() { [1] = new(-10, 101.2f, 20), [2] = new(0, 101.2f, 0), [3] = new(15, 101.2f, 20) };
-    private readonly string _output = ProjectSettings.GlobalizePath("res://.godot/ts-213/explosions");
+    private readonly string _output = ProjectSettings.GlobalizePath("res://.godot/ts-213/polish1/explosions");
     private List<double>? _times;
     private Core.Networking.Replication.HostVehicleSession Host => _arenas[0].Driver.Host!;
 
@@ -58,10 +58,13 @@ public sealed partial class SalvoExplosionChecks : Node
             Check(Host.TryConfigure(0, new Dictionary<string, double> { ["match.countdown_ticks"] = 1, ["match.minimum_players"] = 1 }, out _), "Active fixture configuration");
             await Frames(120);
             Check(Host.Items.Configuration.SalvoBlastRadius == .9144f, "Production default blast radius is three feet");
+            await TerrainContacts();
+            await MarkerDimensions();
             Focus(VehicleBody.ToGodot(_positions[2]), new(7, 5, 9));
             await SurfaceDamage();
             foreach (var gateway in _gateways) { gateway.ConfigureSimulation(new NetworkSimulation(45, 8, 2, 0, 0)); }
             await Volleys();
+            await TerrainVolleys();
             await RockDamage();
             await CosmeticChecks();
             System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
@@ -131,7 +134,7 @@ public sealed partial class SalvoExplosionChecks : Node
         // Explicit presentation fixtures, separate from native collision evidence above.
         var presentation = new ItemPresentation(); _arenas[0].AddChild(presentation);
         var point = new Vector3(0, 102, 8);
-        Focus(point, new(4, 2.5f, 5));
+        Focus(point, new(26, 15, 32));
         ulong revision = 20;
         ItemPublication Event(int count, ulong token) => new(revision++, Host.Snapshot(), [], [], Enumerable.Range(0, count)
             .Select(i => new ItemEvent(token + (ulong)i, 1, HeldItem.Salvo, VehicleBody.ToCore(point + new Vector3(i % 8 * 1.6f, 0, i / 8 * 1.6f)), true)));
@@ -172,6 +175,21 @@ public sealed partial class SalvoExplosionChecks : Node
         Check(resumedEffect.Seed == 10001, "First post-recovery explosion appears exactly once after revision rebase");
         resumedEffect.QueueFree(); await Frames(2);
         await Until(() => _arenas.All(a => !Descendants(a).OfType<SalvoExplosion>().Any()), "Earlier native smoke fully clears", 1500);
+        // Matched one-view presentation sample, separate from actual native volleys
+        // above and the deliberate overload below. Three worlds still simulate.
+        foreach (var view in _views.Skip(1)) { view.RenderTargetUpdateMode = SubViewport.UpdateMode.Disabled; }
+        Focus(point, new(26, 15, 32));
+        var singleBaseline = new List<double>(); _times = singleBaseline; await Frames(120); _times = null;
+        var ordinary = new List<double>(); _times = ordinary;
+        for (int shot = 0; shot < 10; shot++)
+        { presentation.Apply(Event(2, (ulong)(14000 + shot * 2))); await Frames(75); }
+        _times = null;
+        await Capture("06-single-view-repeated-smoke");
+        Timing("one rendered view baseline, three simulated worlds", singleBaseline);
+        Timing("one rendered view, 20 cosmetic impacts at two five-shot volleys per cycle, two cycles", ordinary);
+        foreach (var effectOwner in Descendants(presentation).OfType<SalvoExplosion>()) { effectOwner.QueueFree(); }
+        await Frames(3);
+        foreach (var view in _views.Skip(1)) { view.RenderTargetUpdateMode = SubViewport.UpdateMode.Always; }
         var baseline = new List<double>(); _times = baseline; await Frames(120); _times = null;
         Focus(point + new Vector3(6, 0, 8), new(28, 18, 32));
         var stress = new List<double>(); _times = stress;
@@ -214,7 +232,11 @@ public sealed partial class SalvoExplosionChecks : Node
                 return new VehicleSnapshot(v.VehicleId, v.LifeId, new VehicleState(state.Tick, pose, true, false, 0, 0), v.Damage, pose,
                     lifecycle: v.Lifecycle, respawnAtTick: v.RespawnAtTick);
             }), state.Match));
-            foreach (var arena in _arenas) { arena.Advance(default); Check(arena.Driver.Failure.Length == 0, arena.Driver.Failure, false); }
+            foreach (var arena in _arenas)
+            {
+                if (_terrainDirection is { } direction) { arena.Driver.DesiredAim = direction; }
+                arena.Advance(default); Check(arena.Driver.Failure.Length == 0, arena.Driver.Failure, false);
+            }
         }
     }
 

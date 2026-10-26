@@ -154,7 +154,7 @@ public static class GameplayOptions
         new("items.salvo_damage", "Salvo", "Maximum damage per round", false, c => c.Items.SalvoDamage, (c, v) => c with { Items = c.Items with { SalvoDamage = checked((float)v) } }),
         new("items.salvo_falloff", "Salvo", "Damage and impulse falloff exponent", false, c => c.Items.SalvoFalloff, (c, v) => c with { Items = c.Items with { SalvoFalloff = checked((float)v) } }),
         new("items.salvo_impulse", "Salvo", "Maximum impulse (N s)", false, c => c.Items.SalvoImpulse, (c, v) => c with { Items = c.Items with { SalvoImpulse = checked((float)v) } }),
-        new("items.salvo_marker_scale", "Salvo", "Marker radius relative to blast", false, c => c.Items.SalvoMarkerScale, (c, v) => c with { Items = c.Items with { SalvoMarkerScale = checked((float)v) } }),
+        new("items.salvo_marker_scale", "Salvo", "Marker radius scale (10 m reference)", false, c => c.Items.SalvoMarkerScale, (c, v) => c with { Items = c.Items with { SalvoMarkerScale = checked((float)v) } }),
         new("items.salvo_marker_width", "Salvo", "Marker ring width (m)", false, c => c.Items.SalvoMarkerWidth, (c, v) => c with { Items = c.Items with { SalvoMarkerWidth = checked((float)v) } }),
         new("items.salvo_marker_lift", "Salvo", "Marker surface offset (m)", false, c => c.Items.SalvoMarkerLift, (c, v) => c with { Items = c.Items with { SalvoMarkerLift = checked((float)v) } }),
         new("vehicle.oil_grip_reduction", "Oil", "Front lateral grip reduction (fraction)", false, c => c.Vehicle.OilGripReduction, (c, v) => c with { Vehicle = c.Vehicle with { OilGripReduction = checked((float)v) } }),

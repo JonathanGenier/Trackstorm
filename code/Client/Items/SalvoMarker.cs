@@ -8,6 +8,8 @@ namespace Trackstorm.Client.Items;
 /// <summary>One arena-local aiming guide. Never creates markers by iterating remote inventory.</summary>
 internal sealed partial class SalvoMarker : MeshInstance3D
 {
+    // Preserve the pre-firework guide (5 m default radius), independently of damage and VFX.
+    private const float ReferenceRadius = 10;
     private double _remaining;
     private Vector3 _sampledTarget;
     internal int RingCount { get; private set; }
@@ -57,7 +59,7 @@ internal sealed partial class SalvoMarker : MeshInstance3D
             const int segments = 64;
             var inner = new Vector3?[segments];
             var outer = new Vector3?[segments];
-            float radius = tuning.SalvoBlastRadius * tuning.SalvoMarkerScale;
+            float radius = ReferenceRadius * tuning.SalvoMarkerScale;
             for (int i = 0; i < segments; i++)
             {
                 float angle = Mathf.Tau * i / segments;

@@ -202,6 +202,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         }
 
         AddMissileVfxControls(settings);
+        AddSalvoExplosionControls(settings);
         AddEmpClawControls(settings);
         AddWrenchControls(settings);
         _resetButton = Button(Footer, "Reset to Defaults", Reset);
@@ -448,6 +449,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     private void Reset()
     {
         ResetMissileVfx();
+        ResetSalvoExplosion();
         ResetWrench();
         if (LocalSettings is not null) { RenderTireValues(TireEffectSettings.Defaults); UpdateFeedback(); }
         if (Session()?.CanConfigureDeveloperOptions != true)
