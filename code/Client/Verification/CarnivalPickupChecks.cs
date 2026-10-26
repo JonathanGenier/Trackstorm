@@ -58,7 +58,7 @@ public sealed partial class CarnivalPickupChecks : Node3D
             VerifyProjectilePassage(host, configuration.Items.Single(s => s.Id == "item-infield-06-turn").Position);
             for (ulong cycle = 0; cycle < 120; cycle++)
             {
-                presentation.Apply(Publication(false, 2 + cycle * 2));
+                presentation.Apply(Publication(false, 2 + cycle * 2), seed: true);
                 Check(presentation.ActiveCount == 0 && nodes.OfType<GpuParticles3D>().All(p => !p.Emitting), "Cooldown hides all three crates and stops ambient particles", record: cycle == 0);
                 presentation.Apply(Publication(true, 3 + cycle * 2));
                 Check(presentation.ActiveCount == 27, "Confirmed respawn restores all three crates as one pickup", record: cycle == 0);

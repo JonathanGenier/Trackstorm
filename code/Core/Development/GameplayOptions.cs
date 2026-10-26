@@ -181,7 +181,7 @@ public static class GameplayOptions
         new("items.maximum_damage", "Missile", "Damage (maximum radial HP)", false, c => c.Items.MaximumDamage, (c, v) => c with { Items = c.Items with { MaximumDamage = checked((float)v) } }),
         new("items.maximum_impulse", "Missile", "Blast impulse (N s)", false, c => c.Items.MaximumImpulse, (c, v) => c with { Items = c.Items with { MaximumImpulse = checked((float)v) } }),
         new("items.missile_lifetime_ticks", "Missile", "Ticks (60 ticks/s; launch budget)", true, c => c.Items.MissileLifetimeTicks, (c, v) => c with { Items = c.Items with { MissileLifetimeTicks = checked((int)v) } }),
-        new("spawns.cooldown_ticks", "Item spawns", "CooldownTicks", true, c => c.Spawns.CooldownTicks, (c, v) => c with { Spawns = c.Spawns with { CooldownTicks = checked((int)v) } }),
+        new("spawns.cooldown_ticks", "Item spawns", "Crate respawn time (60 ticks = 1 second)", true, c => c.Spawns.CooldownTicks, (c, v) => c with { Spawns = c.Spawns with { CooldownTicks = checked((int)v) } }),
         new("spawns.seed", "Item spawns", "Seed", true, c => c.Spawns.Seed, (c, v) => c with { Spawns = c.Spawns with { Seed = checked((int)v) } }),
         new("spawns.pickup_radius", "Item spawns", "PickupRadius", false, c => c.Spawns.PickupRadius, (c, v) => c with { Spawns = c.Spawns with { PickupRadius = checked((float)v) } }),
         new("respawn.delay_ticks", "Respawn", "DelayTicks", true, c => c.Respawn.DelayTicks, (c, v) => c with { Respawn = c.Respawn with { DelayTicks = checked((ulong)v) } }),

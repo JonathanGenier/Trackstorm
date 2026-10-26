@@ -1,0 +1,12 @@
+{
+  "author": "Original Trackstorm project artwork",
+  "tool": "5.2.2 LTS",
+  "reference": "User-approved 3 crates explosion.png, local TS-309/TS-310 reference for golden_confetti_circus_crate_explosion.png. Reference pixels are not used at runtime.",
+  "materials": "Runtime reuses intact crimson, ivory and exposed-endgrain maps on bevelled planks. Original thick stars, rimmed embossed coins and bevelled lightning bolts use runtime metallic gold.",
+  "files": {
+    "source/BuildCarnivalSmash.py": "487a44a1a6ea628df85d79480c7caecb66526cf94d30913605a2441ad81d176a",
+    "source/CarnivalSmash.blend": "fb5129432e0eac384bf3cafc98ec4b4ed4210b7b936615a98ca9f9ffe3042306",
+    "CarnivalSmash.glb": "be84aabe051af5903d6997e790b854594ab1bc43cc85a03c7c62be28971960aa",
+    "source/ApprovedSmash.png": "9354e69c476461ad6f65e594dd699f1b0895051bd9127fa440fd0eafe7aa7e6c"
+  }
+}

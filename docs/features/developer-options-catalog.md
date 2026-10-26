@@ -113,6 +113,25 @@ The [environment preset](terrain-effects.md) uses "environment.preset" in the sa
 
 Open **F1 → Configs → Salvo** for `items.salvo_*` controls through the existing catalog and host configuration boundary. **Automatic launch interval** defaults to 75 ticks (1.25 seconds), with a 30–180 tick range. **Shots per pickup (fixed at 5)** documents the fixed physical magazine; other counts are rejected. Base range remains configurable (65 m by default); deliberate aiming initially uses 2x that value, while ordinary fire retains the base range. Release-height offset, arc height, flight speed, radius, damage, falloff, impulse and marker scale/width/lift remain configurable. Apply Settings submits shared tuning through the host. Existing valid overrides remain effective until edited or reset; edits cannot refill a magazine, move a scheduled launch deadline or steer existing arcs. See [Salvo](items-salvo.md#automatic-five-shot-gameplay) for current defaults, bounds and lifecycle. Marker scale uses a fixed 10 m reference (5 m radius at default 0.5), independently of damage. Marker nodes remain local presentation. A separate **Salvo · Local explosion VFX** accordion exposes firework size, explosion-smoke size, burst spacing, smoke lifetime, smoke opacity and brightness. These session-only local previews apply to the next impact, have their own reset, and do not change damage, flight trails or shared tuning. Both default visual size scales are 10; smoke lasts 20 seconds. `check-developer-options.ps1 -SalvoOnly` exercises the real controls and their renderer bindings.
 
+## Crate pickup tuning
+
+Search **crate** in Configs to see both controls. **Item spawns → Crate respawn
+time (60 ticks = 1 second)** is the existing `spawns.cooldown_ticks` key, default
+600 (10 seconds), valid from 1 to 216000 ticks. Apply submits it through the same
+host validation, replication and recovery path as other spawn tuning. The value
+affects future claims; already scheduled reactivation deadlines are preserved.
+
+**Crates · Local smash VFX → Crate explosion size** is a 0.5–1.5× device-local
+preview, default 1. Like the existing local Salvo/EMP VFX controls, it applies
+immediately for the current process and is captured by the next effect. Category
+or global reset restores 1× for future bursts; active effects keep their size and
+expiry. It scales wood, foil, stars, coins, lightning bolts, sparks and flash
+together. It is not a shared gameplay key, does not enter configuration exports
+or packets, and cannot affect collection radius, item selection or respawn.
+`check-developer-options.ps1 -CratesOnly` exercises actual editor signals,
+renderer parameters, reset, fresh-process defaults and shared respawn validation.
+`check-carnival-smash.ps1 -Visual` measures rendered bounds at default and 1.5×.
+
 ## Live distribution tuning
 
 F1 → Configs exposes the registry-generated item weights under **Item spawns** and category targets under **Item categories**. Search for `weight` to show both. Weights are nonnegative integers, not percentages: within a selected category, an item weighted 2 has twice the probability of one weighted 1. Category defaults remain Weapon 2, Consumable 1 and Droppable 1; every registered item defaults to 1. An all-disabled effective pool is rejected atomically.

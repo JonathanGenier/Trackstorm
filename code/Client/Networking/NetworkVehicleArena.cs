@@ -135,7 +135,9 @@ internal sealed partial class NetworkVehicleArena : Node3D
         var markers = MapConfiguration;
         _driver.Host?.RegisterSpawns(markers, SpawnConfiguration);
         AddChild(_pickups);
-        _pickups.Initialize(markers, Map.GetNode<Node3D>("ItemSpawns"));
+        // The fresh host already knows its initial boundary; its first simulation
+        // publication may itself contain a pickup and must not be treated as history.
+        _pickups.Initialize(markers, Map.GetNode<Node3D>("ItemSpawns"), freshHost: _driver.Host is not null);
         _driver.CollideMissile = CollideMissile;
         _driver.QueryMissileTerrain = (from, to) => Items.MissileTerrainQuery.Cast(GetWorld3D().DirectSpaceState, from, to);
         _driver.RaycastWeapon = RaycastWeapon;
@@ -180,7 +182,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
             }
             _audio.ApplyVehicles(publication.World.Vehicles.Select(vehicle => vehicle.State));
             _audio.ApplyItems(publication);
-            _pickups.Apply(publication);
+            _pickups.Apply(publication, observedTick: _driver.Latest?.Tick ?? publication.World.Tick);
             if (_driver.Host is not null)
             {
                 foreach (var impact in publication.Events.Where(outcome => outcome.Impact && outcome.Item is HeldItem.Missile or HeldItem.Salvo))
@@ -354,6 +356,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
             if (_driver.EnvironmentState is { } environment) { _destructibles?.Apply(environment, true); }
             _audio.ApplyVehicles(snapshot.Vehicles.Select(vehicle => vehicle.State), true);
             _audio.ApplyItems(_driver.ItemState!, true);
+            _pickups.Apply(_driver.ItemState!, true);
             _audio.ApplyMatch(_driver.Match!, true);
             _interpolation.Reset();
             if (_layout is not null)

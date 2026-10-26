@@ -35,8 +35,44 @@ pickup aura in Compatibility rendering; they are not collection/smash effects.
 The asset has no physics bodies, collision shapes, hit areas, gameplay scripts or
 independent crate authority. Only the existing confirmed item publication changes
 availability. Collection hides all three crates together; the established
-RECHARGING label remains. Destruction, confetti and wooden fragments are deferred
-to the separate smash implementation.
+RECHARGING label remains. Confirmed new claim tokens start the arena-owned smash;
+admission/recovery seed history without replaying old bursts.
+
+`source/BuildCarnivalSmash.py` produces the editable `source/CarnivalSmash.blend`
+and `CarnivalSmash.glb`: three long bevelled plank profiles with torn ends, folded
+gold foil, a faceted five-point star, a thick rimmed/embossed coin and a bevelled
+lightning bolt. The shader reuses the intact crate's original red/ivory/raw wood
+textures, with painted-face vertex masks, ivory stripes and exposed torn edges. The approved
+`source/ApprovedSmash.png` is an import-excluded reference only. The source/export
+hashes and local reference identity are recorded in `smash-sources.json`.
+
+Runtime creates 72 wooden fragments, 96 foil pieces, 12 stars, 12 coins, 12 bolts
+and 140 spark trails in eight instance batches, plus a brief flash using the already acquired
+Kenney `spark_01.png`. All geometry is cosmetic, seeded by one authoritative grant
+token, with no physical debris or per-piece replication. Shared arena resources
+and batch uploads bound construction cost; shader motion avoids per-piece frame
+updates. Normal fade/expiry completes at 12 seconds, including while paused.
+Pressure above 27 concurrent bursts retires older effects over 0.2 seconds, with
+a 54-burst hard ceiling; full match teardown releases all active effects.
+
+The short impulse keeps the default burst concentrated just beyond the intact
+stack. Planks and solid gold tokens settle toward the fitted floor plane. Local
+DevTools size preview (0.5–1.5×) scales all effect components around the stack centre,
+captured per collection; it changes neither the intact asset nor gameplay.
+Shared crate respawn timing remains the existing `spawns.cooldown_ticks` control.
+
+Build the smash master with:
+
+```powershell
+blender --background --python-exit-code 1 --python assets/items/carnival-crate/source/BuildCarnivalSmash.py
+```
+
+`check-carnival-smash.ps1 -GodotPath <exe> -Visual` verifies whole-stack events,
+repeat suppression, recovery, shader batches, pixel-measured orthographic bounds,
+size preview response, rendered time samples/material close-ups in all five
+environments, sustained publication pressure and paused cleanup. See the current
+[pickup feature documentation](../../../docs/features/item-spawns.md) for native
+driving, multiplayer, recovery contracts and their separate verification tools.
 
 `check-carnival-pickup.ps1 -GodotPath <exe> -Visual` verifies import dimensions,
 named crate groups, shared resources, absence of colliders, 120 availability

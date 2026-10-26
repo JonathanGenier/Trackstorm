@@ -63,6 +63,13 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 return;
             }
             await CheckInitialAccordionState();
+            if (args.Contains("--crate-options-only"))
+            {
+                await CheckCrateOptions();
+                _bootstrap.QueueFree(); await Frames(3);
+                GD.Print($"Developer Options integration passed: {phase}; crate controls; {_assertions} assertions.");
+                GetTree().Quit(); return;
+            }
             if (args.Contains("--wrench-options-only"))
             {
                 var before = _host.DeveloperConfiguration;

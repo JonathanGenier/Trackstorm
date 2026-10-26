@@ -352,11 +352,12 @@ function Get-FastCheckPlan {
         }
 
         # Items and lifecycle.
-        if ($path -match '(?i)CarnivalPickup|carnival.crate|carnival.pickup|ItemSpawnPresentation|PickupGroundPose') {
+        if ($path -match '(?i)CarnivalPickup|CarnivalSmash|PickupSmash|carnival.crate|carnival.pickup|carnival.smash|ItemSpawnPresentation|PickupGroundPose') {
             Add-Runtime 'check-carnival-pickup.ps1'
+            Add-Runtime 'check-carnival-smash.ps1'
             Add-Runtime 'check-item-spawns.ps1'
             Add-Runtime 'check-pickup-drive.ps1'
-            Add-Manual 'Inspect the intact three-crate pickup in all environment presets, at driving distances and from both approaches; confirm one unobstructed host-authoritative collectible.'
+            Add-Manual 'Inspect the intact stack and gold smash in all environment presets at driving distances; confirm one unobstructed authoritative collectible, consistent peer bursts and complete debris cleanup.'
         }
         if ($path -match '(?i)TireFeedback|OilTireChecks|oil_tire_checks|check-oil-tires|OilTractionState' -or $path -eq 'docs/features/items-oil.md') {
             Add-Runtime 'check-oil-tires.ps1'

@@ -67,17 +67,21 @@ public sealed partial class InfieldIntegrationChecks
             _routeWaterDepth = 0;
             _routeCollected = false;
             _collectedAirborne = false;
+            // Each route creates a new authority with a fresh token sequence.
+            // Install that boundary silently before observing this route's claim.
             _pickupPresentation.Apply(new ItemPublication(_simulation.State.Tick + 1,
                 new Core.Networking.Replication.WorldSnapshot(1, _simulation.State.Tick, _simulation.State.Vehicles.Select(vehicle => new Core.Networking.Replication.ReplicatedVehicle(vehicle, 0))), _routeItems.Slots,
-                _routeItems.Missiles, _routeItems.Events, _routePickups.States));
+                _routeItems.Missiles, _routeItems.Events, _routePickups.States), seed: true);
         }
 
         async Task Collect(int index, string name, Vector3[] path, float speed, bool jump = false)
         {
             Begin(index);
+            ulong smashes = _pickupPresentation.SmashCount;
             await Drive("Pickup" + name, path, 16, speed, jump);
             Check(_routeCollected && _routeItems!.Slots.Single().Item != HeldItem.None,
                 $"{name}: authoritative award at {_collectionPosition}, minimum distance {_pickupDistance:F3} m, airborne={_collectedAirborne}, maximum immersion={_routeWaterDepth:F3} m.");
+            Check(_pickupPresentation.SmashCount == smashes + 1, name + ": one complete-stack smash accompanies the one authoritative award.");
             Check(_routeWaterDepth == 0, name + ": complete collection route remains dry.");
             if (jump) { Check(_collectedAirborne, name + ": awarded during the intended airborne trajectory."); }
         }
