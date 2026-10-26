@@ -59,7 +59,12 @@ public sealed partial class CarnivalSmashChecks : Node3D
             var burst = Descendants(presentation).OfType<CarnivalSmash>().Single();
             var batches = burst.GetChildren().OfType<MultiMeshInstance3D>().ToArray();
             Check(batches.Where(n => n.Name.ToString().StartsWith("Smash0", StringComparison.Ordinal)).Sum(n => n.Multimesh.InstanceCount) == 72, "Exactly 72 visibly sized wood instances in three batches");
-            Check(batches.Length == 6 && batches.Sum(n => n.Multimesh.InstanceCount) == 534, "534 total wood/foil/star/spark instances use six render batches and zero per-piece nodes");
+            Check(batches.Length == 8 && batches.Sum(n => n.Multimesh.InstanceCount) == 344, "344 wood/foil/star/coin/bolt/spark instances use eight render batches and zero per-piece nodes");
+            var gold = batches.Where(n => n.Name.ToString().StartsWith("Smash2", StringComparison.Ordinal)).ToArray();
+            Check(gold.Length == 3 && gold.All(n => n.Multimesh.InstanceCount == 12) && gold.Select(n => n.Multimesh.Mesh).Distinct().Count() == 3,
+                "Twelve stars, twelve rimmed coins and twelve lightning bolts use three distinct solid meshes");
+            Check(burst.Resources.Wood.All(mesh => { var size = mesh.GetAabb().Size; return size.Y > size.X*3 && size.Z > .07f; }),
+                "Imported plank masters have long grain-oriented faces and more than 7 cm of modelled thickness before instance scale");
             presentation.Apply(claim, seed: true);
             Check(presentation.ActiveSmashCount == 0 && !intact.Visible, "Recovery clears transient debris and restores availability without replay");
             presentation.Apply(Publication(502), observedTick: 1200);
@@ -67,6 +72,7 @@ public sealed partial class CarnivalSmashChecks : Node3D
 
             if (DisplayServer.GetName() != "headless")
             {
+                await VerifyRenderedFootprint();
                 foreach (var preset in Enum.GetValues<EnvironmentPreset>())
                 {
                     environment.Apply(preset);
@@ -80,6 +86,14 @@ public sealed partial class CarnivalSmashChecks : Node3D
                     {
                         burst.Advance(age-previous); previous = age;
                         await Capture($"{preset}-{age:F2}s");
+                        if (age == .22f)
+                        {
+                            var originalCamera = camera.GlobalTransform;
+                            camera.GlobalPosition = pose.Origin+pose.Basis.Z*5+pose.Basis.X*1.5f+Vector3.Up*2.4f;
+                            camera.LookAt(pose.Origin+Vector3.Up*1.5f);
+                            await Capture(preset+"-material-close");
+                            camera.GlobalTransform = originalCamera;
+                        }
                     }
                     burst.Advance(.3f); await Frames(2);
                     Check(presentation.ActiveSmashCount == 0, preset + " burst completely removed at 12 seconds");

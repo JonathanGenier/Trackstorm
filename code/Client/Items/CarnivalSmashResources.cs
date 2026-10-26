@@ -8,9 +8,9 @@ internal sealed class CarnivalSmashResources
 {
     internal Mesh[] Wood { get; }
     internal Mesh Foil { get; }
-    internal Mesh Star { get; }
+    internal Mesh[] GoldShapes { get; }
     internal Mesh Spark { get; }
-    internal Mesh Flash { get; } = new QuadMesh { Size = new(3.8f, 3.8f) };
+    internal Mesh Flash { get; } = new QuadMesh { Size = new(2.6f, 2.6f) };
     internal Texture2D FlashTexture { get; } = MatchResourceLoader.LoadResource<Texture2D>("res://assets/items/kenney/particles/spark_01.png");
     internal Shader SurfaceShader { get; } = MatchResourceLoader.LoadResource<Shader>(CarnivalSmash.ShaderPath);
     internal Shader SparkShader { get; } = MatchResourceLoader.LoadResource<Shader>(CarnivalSmash.SparkShaderPath);
@@ -23,7 +23,7 @@ internal sealed class CarnivalSmashResources
         var source = MatchResourceLoader.LoadResource<PackedScene>(CarnivalSmash.AssetPath).Instantiate<Node3D>();
         Wood = Enumerable.Range(0, 3).Select(i => source.GetNode<MeshInstance3D>("WoodShard"+i).Mesh).ToArray();
         Foil = source.GetNode<MeshInstance3D>("GoldFoil").Mesh;
-        Star = source.GetNode<MeshInstance3D>("GoldStar").Mesh;
+        GoldShapes = new[] { "GoldStar", "GoldCoin", "GoldBolt" }.Select(name => source.GetNode<MeshInstance3D>(name).Mesh).ToArray();
         source.Free();
         var surface = new SurfaceTool(); surface.Begin(Mesh.PrimitiveType.Triangles);
         for (int segment = 0; segment < 8; segment++)

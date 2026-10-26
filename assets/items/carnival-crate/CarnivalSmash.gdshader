@@ -4,6 +4,9 @@ render_mode world_vertex_coords, cull_disabled;
 uniform float age = 0.0;
 uniform float retire_opacity = 1.0;
 uniform int kind = 0;
+uniform mat4 burst_transform;
+uniform mat4 burst_inverse;
+uniform float effect_scale = 1.0;
 uniform vec3 floor_point;
 uniform vec3 floor_normal = vec3(0.0, 1.0, 0.0);
 uniform sampler2D red_wood : source_color;
@@ -28,41 +31,53 @@ void vertex() {
     vec3 direction = vec3(cos(angle), 0.0, sin(angle));
     vec3 origin = MODEL_MATRIX[3].xyz;
     vec3 local = VERTEX - origin;
-    vec3 axis = normalize(vec3(sin(seed*35.0), .35, cos(seed*21.0)));
-    float drag = kind == 0 ? .9 : 1.35;
-    float speed = kind == 0 ? 4.0 + energy*5.0 : 3.0 + energy*4.0;
-    vec3 move = direction * speed * (1.0-exp(-drag*t))/drag;
+    vec3 axis = normalize(mat3(burst_transform)*vec3(sin(seed*35.0), .35, cos(seed*21.0)));
+    vec3 start = (burst_inverse*vec4(origin,1.0)).xyz;
+    // A short, fast impulse opens the stack; it never becomes a room-sized blast.
+    vec3 move = direction*vec3(.5+energy*.2,0.0,.3+energy*.12)*(1.0-exp(-7.0*t));
     if (kind == 1) {
-        move.y = (4.0+energy*2.0)*t*exp(-.95*t) - .38*t;
-        move += vec3(sin(t*4.0+seed*20.0),0.0,cos(t*3.0+seed*20.0))*.12*t;
+        move.y = (1.3+energy)*t*exp(-3.0*t) - .35*t;
+        move += vec3(sin(t*5.0+seed*20.0),0.0,cos(t*4.0+seed*20.0))*.06;
     } else {
-        move.y = (4.0+energy*4.0)*t - 4.9*t*t;
+        move.y = (2.2+energy*.7)*t - 4.8*t*t;
     }
-    vec3 centre = origin + move;
+    vec3 centre_local = start+move;
+    centre_local.x = clamp(centre_local.x,-1.55,1.55);
+    centre_local.z = clamp(centre_local.z,-.72,.72);
+    centre_local = vec3(0.0,1.4,0.0)+(centre_local-vec3(0.0,1.4,0.0))*effect_scale;
+    vec3 centre = (burst_transform*vec4(centre_local,1.0)).xyz;
     float depth = dot(centre-floor_point, floor_normal);
-    if (depth < .10) {
-        centre += floor_normal * (.10-depth + abs(sin(t*8.0+seed*20.0))*.18*exp(-t));
+    if (depth < .07*effect_scale) {
+        centre += floor_normal * (.07*effect_scale-depth);
     }
-    float turn_time = kind == 0 ? min(t, 1.8) : t;
-    VERTEX = centre + spin(local, axis, turn_time*(3.0+seed*9.0));
-    NORMAL = normalize(spin(NORMAL, axis, turn_time*(3.0+seed*9.0)));
-    opacity = (1.0-smoothstep(life*.42, life, age)) * retire_opacity;
+    float landing = kind == 1 ? 0.0 : (1.0-smoothstep(.08,.5,depth))*smoothstep(.2,.65,t);
+    vec3 face_normal = normalize(MODEL_MATRIX[2].xyz);
+    vec3 rest_axis = normalize(cross(face_normal,floor_normal)+vec3(.00001,0.0,.00001));
+    float rest_angle = acos(clamp(dot(face_normal,floor_normal),-1.0,1.0))*landing;
+    float turn = t*(4.0+seed*8.0)*(1.0-landing);
+    VERTEX = centre + spin(spin(local,axis,turn),rest_axis,rest_angle)*effect_scale;
+    NORMAL = normalize(spin(spin(NORMAL,axis,turn),rest_axis,rest_angle));
+    opacity = (1.0-smoothstep(life*.35, life, age)) * retire_opacity;
 }
 
 void fragment() {
     if (kind == 0) {
-        vec3 painted = seed < .26 ? texture(ivory_wood, UV).rgb : texture(red_wood, UV).rgb;
-        ALBEDO = mix(texture(raw_wood, UV).rgb, painted, paint);
-        ROUGHNESS = .72;
+        vec3 red = texture(red_wood,UV).rgb;
+        vec3 ivory = texture(ivory_wood,UV).rgb;
+        float stripe = seed < .17 ? 1.0 : (seed > .7 ? smoothstep(.27,.31,UV.x)*(1.0-smoothstep(.56,.60,UV.x)) : 0.0);
+        vec3 painted = mix(red,ivory,stripe);
+        // Original painted faces, bare endgrain and bevels keep the material tied to the crate.
+        ALBEDO = mix(texture(raw_wood,UV).rgb,painted,paint);
+        ROUGHNESS = mix(.84,.56,paint);
         METALLIC = 0.0;
         EMISSION = vec3(0.0);
     } else {
-        vec3 gold = vec3(1.0, .61, .075);
+        vec3 gold = vec3(1.0, .64, .09);
         float glint = pow(max(0.0, sin(age*(9.0+seed*7.0)+seed*53.0)), 14.0);
         ALBEDO = gold;
-        METALLIC = .82;
-        ROUGHNESS = .18;
-        EMISSION = gold*(.65+glint*2.5) + vec3(1.0,.9,.5)*glint;
+        METALLIC = .86;
+        ROUGHNESS = .22;
+        EMISSION = gold*(.6+glint*.9) + vec3(1.0,.92,.58)*glint*.65;
     }
     ALPHA = opacity;
 }
