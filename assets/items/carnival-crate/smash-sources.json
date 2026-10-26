@@ -1,0 +1,12 @@
+{
+  "author": "Original Trackstorm project artwork",
+  "tool": "5.2.2 LTS",
+  "reference": "User-approved 3 crates explosion.png, local TS-309/TS-310 reference for golden_confetti_circus_crate_explosion.png. Reference pixels are not used at runtime.",
+  "materials": "Runtime reuses the original intact crimson, ivory and exposed-endgrain maps.",
+  "files": {
+    "source/BuildCarnivalSmash.py": "b2338f4ca05647f2730a00e3092eeb18e46398b560bfc2d2d1440ba856b21a41",
+    "source/CarnivalSmash.blend": "ea8ffd795574a659210a97fa3164a9c30056b44c6310d14f38bc60b14fa88e6e",
+    "CarnivalSmash.glb": "c4d32f631d63a5f5e750a44d3c0919b7ee7d924cf49b12f48d21e2a0c86cb40b",
+    "source/ApprovedSmash.png": "9354e69c476461ad6f65e594dd699f1b0895051bd9127fa440fd0eafe7aa7e6c"
+  }
+}

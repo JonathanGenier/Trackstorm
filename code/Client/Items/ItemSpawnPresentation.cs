@@ -12,6 +12,15 @@ internal sealed partial class ItemSpawnPresentation : Node3D
     private readonly Dictionary<string, Node3D> _models = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Label3D> _labels = new(StringComparer.Ordinal);
     private readonly HashSet<string> _floating = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, (Vector3 Point, Vector3 Normal)> _floors = new(StringComparer.Ordinal);
+    private readonly List<CarnivalSmash> _smashes = [];
+    private PickupSmashProjection _claims = null!;
+    private CarnivalSmashResources _smashResources = null!;
+    internal const int MaximumSmashes = 54;
+    internal ulong SmashCount { get; private set; }
+    internal int ActiveSmashCount => _smashes.Count(s => IsInstanceValid(s) && !s.IsQueuedForDeletion());
+
+    public override void _Process(double delta) => _smashes.RemoveAll(s => !IsInstanceValid(s) || s.IsQueuedForDeletion());
 
     /// <summary>Number of confirmed active visuals.</summary>
     internal int ActiveCount => _models.Values.Count(model => model.Visible);
@@ -40,6 +49,13 @@ internal sealed partial class ItemSpawnPresentation : Node3D
             // its upper front edge. Grounded approach views need less separation.
             float clearance = _floating.Contains(pair.Key) ? .95f : .42f;
             _labels[pair.Key].GlobalPosition = top + Vector3.Up * (clearance + tiltedTop);
+            _floors[pair.Key] = (model.GlobalPosition, model.GlobalBasis.Y);
+            if (_floating.Contains(pair.Key))
+            {
+                using var query = PhysicsRayQueryParameters3D.Create(model.GlobalPosition, model.GlobalPosition + Vector3.Down * 100, 1);
+                using var hit = GetWorld3D().DirectSpaceState.IntersectRay(query);
+                if (hit.Count != 0) _floors[pair.Key] = (hit["position"].AsVector3(), hit["normal"].AsVector3());
+            }
         }
         SetPhysicsProcess(false);
     }
@@ -47,8 +63,12 @@ internal sealed partial class ItemSpawnPresentation : Node3D
     /// <summary>Builds one non-colliding visual per actual registered marker, hidden until authority arrives.</summary>
     /// <param name="arena">Validated scene markers.</param>
     /// <param name="authoredMarkers">Map-owned presentation guidance; never changes the Core spawn contract.</param>
-    internal void Initialize(ArenaConfiguration arena, Node3D authoredMarkers)
+    /// <param name="freshHost">The newly registered host knows no claim predates this match.</param>
+    internal void Initialize(ArenaConfiguration arena, Node3D authoredMarkers, bool freshHost = false)
     {
+        ProcessMode = ProcessModeEnum.Always;
+        _claims = new PickupSmashProjection(arena.Items.Select(marker => marker.Id), freshHost);
+        _smashResources = new CarnivalSmashResources();
         var scene = Networking.MatchResourceLoader.LoadResource<PackedScene>(AssetPath);
         var material = new StandardMaterial3D
         {
@@ -89,8 +109,16 @@ internal sealed partial class ItemSpawnPresentation : Node3D
 
     /// <summary>Changes availability only from a confirmed complete publication.</summary>
     /// <param name="state">Host state accepted by the production driver.</param>
-    internal void Apply(ItemPublication state)
+    /// <param name="seed">Recovery baseline; suppress old smashes and clear transient effects.</param>
+    /// <param name="observedTick">Newest confirmed tick, used to age a delayed reliable outcome.</param>
+    internal void Apply(ItemPublication state, bool seed = false, ulong observedTick = 0)
     {
+        if (!_claims.Observe(state, seed, out var claims)) return;
+        if (seed)
+        {
+            foreach (var smash in _smashes) if (IsInstanceValid(smash)) smash.Free();
+            _smashes.Clear();
+        }
         foreach (var pair in _models)
         {
             bool active = state.Spawns.Any(spawn => spawn.Id == pair.Key && spawn.Available);
@@ -102,6 +130,24 @@ internal sealed partial class ItemSpawnPresentation : Node3D
 
             var spawn = state.Spawns.SingleOrDefault(spawn => spawn.Id == pair.Key);
             _labels[pair.Key].Text = active ? "ITEM" : spawn is null ? string.Empty : "RECHARGING";
+        }
+        foreach (var claim in claims)
+        {
+            float age = observedTick > state.World.Tick ? (observedTick-state.World.Tick)/60f : 0;
+            if (age >= CarnivalSmash.Lifetime) continue;
+            _smashes.RemoveAll(s => !IsInstanceValid(s) || s.IsQueuedForDeletion());
+            // An extreme developer cooldown can produce hundreds of claims/second.
+            // Fade older bursts under pressure; a hard ceiling also bounds one-frame floods.
+            if (_smashes.Count >= MaximumSmashes / 2) _smashes[_smashes.Count-MaximumSmashes/2].Retire();
+            if (_smashes.Count >= MaximumSmashes) { _smashes[0].Free(); _smashes.RemoveAt(0); }
+            var model = _models[claim.Id];
+            var root = model.GetParent<Node3D>();
+            var floor = _floors.GetValueOrDefault(claim.Id, (model.GlobalPosition, model.GlobalBasis.Y));
+            var smash = new CarnivalSmash { Resources = _smashResources, Token = claim.Token, InitialAge = age,
+                Transform = root.GlobalTransform.AffineInverse()*model.GlobalTransform, FloorPoint = floor.Item1, FloorNormal = floor.Item2 };
+            root.AddChild(smash);
+            _smashes.Add(smash);
+            SmashCount++;
         }
     }
 }

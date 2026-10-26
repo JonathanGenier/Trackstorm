@@ -143,7 +143,12 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 break;
             case 1 when _arenas.All(arena => arena.Pickups.ActiveCount == PickupCount - 1) && _elapsed - _started > 1.2:
                 Require(_arenas.All(arena => arena.Driver.ItemState!.Slots.Count == 1), "Only one slot is awarded on every peer.");
+                Require(_arenas.All(arena => arena.Pickups.SmashCount == 1), "Each native peer emits exactly one three-crate smash for the contested claim.");
                 var claim = host.Spawns!.States[0];
+                float[] BurstBuffer(NetworkVehicleArena arena) => arena.Pickups.GetNode<Node3D>(claim.Id).GetChildren()
+                    .OfType<Items.CarnivalSmash>().Single().GetChildren().OfType<MultiMeshInstance3D>().SelectMany(m => m.Multimesh.Buffer).ToArray();
+                var burstBuffer = BurstBuffer(_arenas[0]);
+                Require(_arenas.All(arena => BurstBuffer(arena).SequenceEqual(burstBuffer)), "All peers reconstruct identical fragment seeds and initial transforms from the single grant token.");
                 _winner = claim.ClaimedBy;
                 Require(_winner == _arenas[1].Driver.LocalVehicleId || _winner == _arenas[2].Driver.LocalVehicleId, "A contesting remote player wins.");
                 Require(_arenas.All(arena => arena.Driver.ItemState!.Spawns[0] == claim && arena.Driver.ItemState.Slots.Single().Token == claim.Token), "Claim, cooldown and grant token match everywhere.");
@@ -240,6 +245,10 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                     }
                 }
                 _evidence.Add("32 repeated rounds across eight native peers; exact replicated per-player credits/counts and target convergence: " + signature);
+                ulong totalClaims = host.Spawns.Balances.Aggregate(0ul, (total, balance) => total+balance.Total);
+                Require(_arenas.All(arena => arena.Pickups.SmashCount == totalClaims), "Every native peer observes exactly one smash per authoritative claim across repeated/rapid respawns.");
+                Require(_arenas.All(arena => arena.Pickups.ActiveSmashCount <= Items.ItemSpawnPresentation.MaximumSmashes), "Burst ownership stays bounded on all native peers.");
+                _evidence.Add($"Smash replication: all eight native peers observed exactly {totalClaims} bursts; no duplicates or missed claims, including rapid cooldowns and impaired delivery when selected.");
                 System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
                 GD.Print("Item spawn integration passed: " + string.Join("\n", _evidence));
                 Cleanup();

@@ -17,6 +17,7 @@ function Assert-True {
 foreach ($path in @('assets/items/carnival-crate/CarnivalCrate.glb', 'code/Client/Items/CarnivalPickupAura.cs', 'code/Client/Items/ItemSpawnPresentation.cs', 'code/Client/Items/PickupGroundPose.cs')) {
     $cratePlan = Get-FastCheckPlan -Paths @($path)
     Assert-True ($cratePlan.RuntimeScripts -contains 'check-carnival-pickup.ps1') 'Crate changes require intact presentation verification.'
+    Assert-True ($cratePlan.RuntimeScripts -contains 'check-carnival-smash.ps1') 'Crate changes require smash lifecycle verification.'
     Assert-True ($cratePlan.RuntimeScripts -contains 'check-item-spawns.ps1') 'Crate changes retain multiplayer pickup verification.'
     Assert-True ($cratePlan.RuntimeScripts -contains 'check-pickup-drive.ps1') 'Crate changes retain drive-through verification.'
 }

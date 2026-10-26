@@ -31,6 +31,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
     private string _categoryHistory = string.Empty;
     private int _stage;
     private int _resyncs;
+    private ulong _smashesBeforeResume;
     private OilPatch? _oil;
     private Core.Arenas.EnvironmentSnapshot? _environment;
     private ulong _mine;
@@ -193,6 +194,9 @@ public sealed partial class ReconnectIntegrationChecks : Node
                 if (OilFiringRecovery) { VerifyOilResume(); return; }
 
                 _resyncs++;
+                Require(_arenas[1].Pickups.SmashCount == _smashesBeforeResume && _arenas[1].Pickups.ActiveSmashCount == 0,
+                    "Native recovery clears transient crate fragments without replaying historical pickup tokens.");
+                GD.Print($"Carnival smash reconnect {_resyncs}: no historical bursts, zero retained debris after checkpoint.");
                 SalvoRecoveryFixture.Verify(_arenas[1].Driver.ItemState!, _salvoBoundaries);
                 ShieldRecoveryFixture.Verify(_arenas[1].Driver.ItemState!.Shields, _shields, _salvoBoundaries[world.Tick].Shields, world.Tick);
                 if (_resyncs <= 3)
@@ -422,6 +426,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
 
     private void Drop()
     {
+        _smashesBeforeResume = _arenas[1].Pickups.SmashCount;
         if (_arenas.Count > 1 && _arenas[1].LocalState is { } cameraState)
         {
             var camera = _arenas[1].GetNode<Vehicles.VehicleChaseCamera>("ChaseCamera");
