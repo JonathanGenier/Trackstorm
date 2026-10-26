@@ -25,6 +25,7 @@ public sealed partial class WorldWallChecks : Node
     private bool _done;
     private int _stressCount;
     private float _weaponHP;
+    private int _weaponFiredAt;
     private N.Quaternion _beforeImpact;
     private StaticBody3D? _blocker;
     private readonly Dictionary<ulong, N.Vector3> _releasedFacing = new();
@@ -51,6 +52,11 @@ public sealed partial class WorldWallChecks : Node
         _arenas[0].Driver.ItemsReceived += p =>
         {
             _boundaries[p.World.Tick] = p.Shields.ToArray();
+            if (_stage is 12 or 13)
+            {
+                foreach (var outcome in p.Events.Where(e => e.Item is HeldItem.Missile or HeldItem.Salvo))
+                { Record($"Native {outcome.Item} {(outcome.Impact ? "impact" : "launch")} at {outcome.Position}."); }
+            }
             foreach (var wall in p.Shields.Where(s => !s.Attached && !_releasedFacing.ContainsKey(s.Id)))
             {
                 var vehicle = p.World.Vehicles.Single(v => v.State.VehicleId == wall.Owner).State;
@@ -102,17 +108,30 @@ public sealed partial class WorldWallChecks : Node
                 Check(Math.Abs(wall.AngularVelocity.X) < 0.001f && Math.Abs(wall.AngularVelocity.Z) < 0.001f, "No pitch/roll velocity");
             }
             if (_stage is 11 or 6) { AimAtWall(); }
-            if (_stage is 12 or 13 && elapsed == 15)
+            bool weaponUse = false;
+            if (_stage is 12 or 13)
             {
                 var target = host.Items.Shields.Single();
-                Position(1, target.Position + new N.Vector3(0, 3, _stage == 12 ? 8 : 65), N.Vector3.Zero,
-                    _stage == 12 ? N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitX, -MathF.Atan2(3, 8)) : N.Quaternion.Identity);
+                // Keep the rack level with the standing panel so the existing
+                // direct-fire chassis-clearance rule does not lift aim above it.
+                // Aim the existing free-aim ground endpoint just behind the panel,
+                // so the descending arc strikes it instead of relying on broad splash.
+                var position = target.Position + new N.Vector3(0, -.115f, _stage == 12 ? 8 : 62);
+                Position(1, position, N.Vector3.Zero);
+                var driver = _arenas[0].Driver;
+                driver.DesiredAim = N.Vector3.Normalize(target.Position + N.Vector3.UnitY * .8f - (position + WeaponAim.Pivot));
+                // Both production launchers gate use on completed rack deployment.
+                // An arbitrary early tap is rejected and never queued.
+                weaponUse = _weaponFiredAt == 0 && elapsed > 30 && driver.LocalItem is { } inventory &&
+                    (_stage == 12 ? inventory.Active.Item == HeldItem.Missile && driver.MissileReady?.Invoke(inventory) == true :
+                        driver.SalvoReady?.Invoke(inventory) == true && host.Items.SalvoReady(host.Items.Slots.Single(s => s.Vehicle == 1)));
+                if (weaponUse) { _weaponFiredAt = _frame; Record($"Native weapon activation after {elapsed} deployment frames, with authority and presentation ready."); }
             }
             float incomingSpeed = _stage == 4 ? host.World.GetVehicle(2).Movement.Physics.LinearVelocity.Length() : 0;
             for (int i = 0; i < _arenas.Count; i++)
             {
-                bool use = ((_stage == 2 || _stage == 18) && elapsed == 1) || (_stage == 14 && elapsed == 1 && i == 0) || (_stage == 6 && i == 0) || (_stage is 8 or 12 or 13 && elapsed == 15 && i == 0);
-                bool pressed = use && (elapsed == 1 || (_stage is 8 or 12 or 13 && elapsed == 15));
+                bool use = ((_stage == 2 || _stage == 18) && elapsed == 1) || (_stage == 14 && elapsed == 1 && i == 0) || (_stage == 6 && i == 0) || (_stage == 8 && elapsed == 15 && i == 0) || (weaponUse && i == 0);
+                bool pressed = use && (elapsed == 1 || (_stage == 8 && elapsed == 15) || weaponUse);
                 ushort throttle = ((_stage == 3 && (!ProductionMap || _scenario < 4))) ? ushort.MaxValue : (ushort)0;
                 _arenas[i].Advance(new((ulong)_frame, 0, throttle, 0, use ? InputButtons.UseItem : 0, pressed ? InputButtons.UseItem : 0, 0));
                 Check(_arenas[i].Driver.Failure.Length == 0, _arenas[i].Driver.Failure);
@@ -266,12 +285,12 @@ public sealed partial class WorldWallChecks : Node
                     RestWall(flatWeaponTarget: true);
                     _weaponHP = host.Items.Shields.Single().HP;
                     Check(host.Items.Grant(host.World, 1, HeldItem.Missile), "Native missile grant"); Next(12); break;
-                case 12 when elapsed > 90:
+                case 12 when _weaponFiredAt > 0 && _frame - _weaponFiredAt > 90:
                     Check(host.Items.Shields.Single().HP < _weaponHP, "Native Missile sweep/blast damages wall");
                     Record($"Native Missile wall damage: {_weaponHP:F1} -> {host.Items.Shields.Single().HP:F1} HP.");
                     host.Items.RemovePlayer(1); _weaponHP = host.Items.Shields.Single().HP; RestWall(flatWeaponTarget: true);
                     Check(host.Items.Grant(host.World, 1, HeldItem.Salvo), "Native Salvo grant"); Next(13); break;
-                case 13 when elapsed > 120:
+                case 13 when _weaponFiredAt > 0 && _frame - _weaponFiredAt > 120:
                     Check(host.Items.Shields.Single().HP < _weaponHP, "Native Salvo sweep/blast damages wall");
                     Record($"Native Salvo wall damage: {_weaponHP:F1} -> {host.Items.Shields.Single().HP:F1} HP.");
                     host.Items.RemovePlayer(1); StressGrant(); break;
@@ -450,7 +469,7 @@ public sealed partial class WorldWallChecks : Node
         var facing = N.Vector3.Transform(N.Vector3.UnitZ, rotation); facing.Y = 0;
         return N.Vector3.Normalize(facing);
     }
-    private void Next(int stage) { _stage = stage; _boundary = _frame; }
+    private void Next(int stage) { _stage = stage; _boundary = _frame; _weaponFiredAt = 0; }
     private void Finish(int code)
     {
         _done = true;

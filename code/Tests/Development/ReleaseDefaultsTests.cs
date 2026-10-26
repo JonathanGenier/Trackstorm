@@ -94,7 +94,7 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("items.mine_maximum_force", 2000d)]
     [TestCase("items.mine_knockback", 18000d)]
     [TestCase("items.salvo_speed", 150d)]
-    [TestCase("items.salvo_blast_radius", 10d)]
+    [TestCase("items.salvo_blast_radius", (double).9144f)]
     [TestCase("items.salvo_damage", 250d)]
     [TestCase("items.salvo_marker_scale", 0.5d)]
     [TestCase("items.salvo_marker_width", 0.5d)]

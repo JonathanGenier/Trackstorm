@@ -676,6 +676,28 @@ public sealed partial class ItemAuthority
                 shields.BlastWalls(this, center, missile);
                 foreach (VehicleStepRequest request in requests)
                 {
+                    if (missile.Item == HeldItem.Salvo)
+                    {
+                        // Cover is still the existing target-center path, evaluated before this
+                        // explosion can destroy its shield. Range uses actual physical extents.
+                        var pose = request.Observation.Physics;
+                        var armor = shields.RearShield(request.VehicleId);
+                        bool covered = directShield is { } contact && contact.State.Attached && contact.State.Owner == request.VehicleId ||
+                            shields.Intersect(center, pose.Position, onlyOwner: request.VehicleId) is not null;
+                        var salvoContext = new DamageContext("salvo", missile.Owner, $"radial-explosion:{missile.Id}");
+                        if (armor is not null)
+                        {
+                            var armorEffect = Explosion(center, ShieldGeometry.ClosestPoint(armor, pose, center), HeldItem.Salvo);
+                            shields.Damage(armor.Id, armorEffect.Damage, salvoContext);
+                        }
+                        if (!covered)
+                        {
+                            var vehicleEffect = Explosion(center, pose.Position, HeldItem.Salvo, VehicleHull.ClosestPoint(pose, center));
+                            if (vehicleEffect.Damage > 0 || vehicleEffect.Impulse != Vector3.Zero)
+                            { effects[request.VehicleId].Add(new VehicleEffectRequest(vehicleEffect, salvoContext)); }
+                        }
+                        continue;
+                    }
                     DamageEffect effect = Explosion(center, request.Observation.Physics.Position, missile.Item);
                     if (effect.Damage > 0 || effect.Impulse != Vector3.Zero)
                     {
@@ -807,13 +829,15 @@ public sealed partial class ItemAuthority
     /// <param name="center">Impact point.</param>
     /// <param name="target">Target center.</param>
     /// <param name="item">Authoritative exploding item identity.</param>
-    public DamageEffect Explosion(Vector3 center, Vector3 target, HeldItem item = HeldItem.Missile)
+    /// <param name="salvoSurface">Optional physical extent for Salvo falloff; impulse still points toward the body center.</param>
+    public DamageEffect Explosion(Vector3 center, Vector3 target, HeldItem item = HeldItem.Missile, Vector3? salvoSurface = null)
     {
         if (item != HeldItem.Salvo) { return VehicleDamageMath.Explosion(center, target, Configuration.ExplosionRadius, Configuration.MaximumDamage, Configuration.MaximumImpulse, Vector3.Zero); }
-        float linear = Math.Clamp(1 - Vector3.Distance(center, target) / Configuration.SalvoBlastRadius, 0, 1);
-        float scale = linear > 0 ? MathF.Pow(linear, Configuration.SalvoFalloff) / linear : 0;
-        var unit = VehicleDamageMath.Explosion(center, target, Configuration.SalvoBlastRadius, 1, 1, Vector3.Zero);
-        return new(unit.Damage * scale * Configuration.SalvoDamage, unit.Impulse * (scale * Configuration.SalvoImpulse), Vector3.Zero);
+        float linear = Math.Clamp(1 - Vector3.Distance(center, salvoSurface ?? target) / Configuration.SalvoBlastRadius, 0, 1);
+        float scale = MathF.Pow(linear, Configuration.SalvoFalloff);
+        Vector3 direction = target - center;
+        direction = direction.LengthSquared() > .000001f ? Vector3.Normalize(direction) : Vector3.UnitY;
+        return new(scale * Configuration.SalvoDamage, direction * (scale * Configuration.SalvoImpulse), Vector3.Zero);
     }
     /// <summary>Updates the existing authority; in-flight speed changes preserve direction and remaining lifetime.</summary>
     /// <param name="configuration">Validated effective gameplay tuning.</param>

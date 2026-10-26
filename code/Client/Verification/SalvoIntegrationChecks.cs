@@ -110,7 +110,8 @@ public sealed partial class SalvoIntegrationChecks : Node
             switch (_stage)
             {
                 case 0 when _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 3):
-                    Check(host.TryConfigure(0, new Dictionary<string, double> { ["match.countdown_ticks"] = 1, ["match.minimum_players"] = 1 }, out _), "fixture countdown");
+                    Check(host.TryConfigure(0, new Dictionary<string, double> { ["match.countdown_ticks"] = 1, ["match.minimum_players"] = 1,
+                        ["items.salvo_blast_radius"] = 10 }, out _), "fixture countdown and wide-blast multi-target/terrain-ring scenario");
                     Position(); Next("Three UDP peers joined; native bank prepared."); break;
                 case 1 when _frame - _boundary > 60:
                     foreach (var a in _arenas) { Check(!a.SalvoMarker.Visible, "No marker without local salvo."); }

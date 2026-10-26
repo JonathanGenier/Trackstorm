@@ -91,6 +91,11 @@ bright fuse. `SalvoSmoke.gdshader` is original project code using the existing C
 Kenney `smoke_01` texture in one bounded world-space segment pool; the fuse uses
 the existing Kenney `spark_01`. No additional third-party content is acquired.
 
+`SalvoExplosion` and `SalvoExplosionSmoke.gdshader` are original project code for
+three token-seeded colored spark/flash bursts inside twenty fading smoke billboards.
+They reuse those same CC0 `spark_01` and `smoke_01` textures. Explosion smoke lasts
+twenty seconds, with arena-owned bounded cleanup; no new asset is acquired.
+
 `check-salvo-catapult.ps1 -GodotPath <editor> -Visual` exercises production Car,
 the shared rack, two native UDP peers, aim, captive feed, release/reset, switching,
 airborne poses and reconstruction. It checks rope diameter/texture pitch, winding

@@ -97,12 +97,15 @@ public sealed partial class ItemAuthority
         {
             foreach (var wall in States.Where(s => !s.Attached).ToArray())
             {
-                var effect = items.Explosion(center, wall.Position, missile.Item);
+                Vector3 target = missile.Item == HeldItem.Salvo ? ShieldGeometry.ClosestPoint(wall, default, center) : wall.Position;
+                var effect = items.Explosion(center, wall.Position, missile.Item, target);
                 Damage(wall.Id, effect.Damage, new(missile.Arc is null ? "missile" : "salvo", missile.Owner, "world-wall-blast"));
                 int index = States.FindIndex(s => s.Id == wall.Id);
                 if (index >= 0) { States[index] = States[index] with { LinearVelocity = States[index].LinearVelocity + effect.Impulse / wall.WallMass }; }
             }
         }
+
+        internal ShieldState? RearShield(ulong owner) => Active().SingleOrDefault(s => s.Owner == owner);
 
         internal void Damage(ulong id, float amount, DamageContext context, bool collision = false)
         {

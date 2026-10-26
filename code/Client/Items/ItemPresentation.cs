@@ -32,6 +32,9 @@ internal sealed partial class ItemPresentation : Node3D
     private readonly List<(Node3D Node, float Age, float Lifetime)> _bursts = new();
     private readonly List<ProxyMineExplosion> _mineExplosions = new();
     private readonly List<MissileExplosion> _missileExplosions = new();
+    private readonly List<SalvoExplosion> _salvoExplosions = new();
+    internal const int MaximumSalvoExplosions = 128;
+    private ulong _salvoEventRevision;
     private readonly List<MissileSmokeResidue> _missileSmoke = new();
     internal const int MaximumMissileSmokeResidues = 32;
     internal const int MaximumMissileExplosions = 32;
@@ -44,6 +47,7 @@ internal sealed partial class ItemPresentation : Node3D
         _oilResidues.RemoveAll(oil => !GodotObject.IsInstanceValid(oil) || oil.IsQueuedForDeletion());
         _missileSmoke.RemoveAll(smoke => !GodotObject.IsInstanceValid(smoke) || smoke.IsQueuedForDeletion());
         _missileExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());
+        _salvoExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());
         _mineExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());
         _mineScars.RemoveAll(scar => !GodotObject.IsInstanceValid(scar) || scar.IsQueuedForDeletion());
         for (int i = _bursts.Count - 1; i >= 0; i--)
@@ -168,6 +172,21 @@ internal sealed partial class ItemPresentation : Node3D
 
         foreach (var outcome in state.Events)
         {
+            if (outcome.Item == HeldItem.Salvo && outcome.Impact)
+            {
+                // Reliable publications are ordered by the driver. Keep the presentation
+                // boundary idempotent too; checkpoints intentionally contain no old events.
+                if (state.Revision <= _salvoEventRevision) { continue; }
+                _salvoExplosions.RemoveAll(e => !GodotObject.IsInstanceValid(e) || e.IsQueuedForDeletion());
+                // A rollback checkpoint may restore a round whose smoke is still
+                // alive locally. Keep that owner instead of layering the same effect.
+                if (_salvoExplosions.Any(e => e.Seed == outcome.Token)) { continue; }
+                if (_salvoExplosions.Count >= MaximumSalvoExplosions)
+                { _salvoExplosions[0].QueueFree(); _salvoExplosions.RemoveAt(0); }
+                var explosion = new SalvoExplosion { Position = VehicleBody.ToGodot(outcome.Position), Seed = outcome.Token };
+                AddChild(explosion); _salvoExplosions.Add(explosion);
+                continue;
+            }
             if (outcome.Item == HeldItem.EmpClaw)
             {
                 // Launcher owns the compressed-air discharge. Flight is complete-state membership;
@@ -246,6 +265,9 @@ internal sealed partial class ItemPresentation : Node3D
 
             _bursts.Add((burst, 0, outcome.Impact ? 1.3f : 0.5f));
         }
+        // The driver orders live publications. An accepted empty recovery checkpoint
+        // can rebase the revision; do not suppress the replacement authority's events.
+        _salvoEventRevision = state.Revision;
     }
 
     private void AddMineScar(Vector3 detonation)

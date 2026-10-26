@@ -100,6 +100,13 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 GetTree().Quit();
                 return;
             }
+            if (args.Contains("--salvo-options-only"))
+            {
+                await CheckSalvoOptions();
+                _bootstrap.QueueFree(); await Frames(3);
+                GD.Print($"Developer Options integration passed: {phase}; Salvo controls; {_assertions} assertions.");
+                GetTree().Quit(); return;
+            }
             if (args.Contains("--emp-claw-options-only"))
             {
                 await CheckEmpClawOptions(phase);

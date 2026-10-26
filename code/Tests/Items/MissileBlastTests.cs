@@ -45,6 +45,7 @@ internal sealed class MissileBlastTests
         var restored = new ItemAuthority(state.Configuration.Items);
         Assert.That(restored.Explosion(Vector3.Zero, Vector3.UnitX * 4).Impulse, Is.EqualTo(Vector3.Zero));
         Assert.That(restored.Explosion(Vector3.Zero, Vector3.Zero).Damage, Is.EqualTo(300));
-        Assert.That(restored.Explosion(Vector3.Zero, Vector3.UnitX * 4, HeldItem.Salvo).Damage, Is.GreaterThan(0), "Salvo keeps its own radius.");
+        Assert.That(restored.Configuration.SalvoBlastRadius, Is.EqualTo(.9144f), "Salvo keeps its own radius.");
+        Assert.That(restored.Explosion(Vector3.Zero, Vector3.UnitX, HeldItem.Salvo).Damage, Is.Zero);
     }
 }
