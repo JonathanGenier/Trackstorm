@@ -48,12 +48,12 @@ public sealed partial class InfieldIntegrationChecks
         var markers = configuration.Items.Where(marker => marker.Id.StartsWith("item-infield-", StringComparison.Ordinal)).ToArray();
         Check(configuration.Items.Count == 27 && markers.Length == 7, "Exactly seven infield singles extend the twenty oval locations.");
         var source = GD.Load<PackedScene>("res://scenes/maps/infield_pickups.tscn").Instantiate<Node3D>();
-        Check(source.GetChildren().OfType<Marker3D>().Select(marker => new Core.Arenas.ArenaSpawn(marker.Name, VehicleBody.ToCore(marker.Position)))
+        Check(source.GetChildren().OfType<Marker3D>().Select(marker => new Core.Arenas.ArenaSpawn(marker.Name, VehicleBody.ToCore(marker.Position), marker.Rotation.Y))
             .SequenceEqual(markers), "Baked map markers exactly match the seven-marker authoring scene.");
         source.Free();
         _pickupPresentation = new ItemSpawnPresentation();
         AddChild(_pickupPresentation);
-        _pickupPresentation.Initialize(configuration);
+        _pickupPresentation.Initialize(configuration, map.GetNode<Node3D>("ItemSpawns"));
 
         Vector3[] Line(Vector3 start, Vector3 end) => Enumerable.Range(0, 41).Select(i => start.Lerp(end, i / 40f)).ToArray();
         Vector3[] Route(string id, int start, int count) => ReadPoints(routes.Single(route => route.GetProperty("id").GetString() == id)).Skip(start).Take(count).ToArray();

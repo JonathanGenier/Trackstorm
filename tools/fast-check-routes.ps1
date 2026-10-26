@@ -352,7 +352,7 @@ function Get-FastCheckPlan {
         }
 
         # Items and lifecycle.
-        if ($path -match '(?i)CarnivalPickup|carnival.crate|carnival.pickup|ItemSpawnPresentation') {
+        if ($path -match '(?i)CarnivalPickup|carnival.crate|carnival.pickup|ItemSpawnPresentation|PickupGroundPose') {
             Add-Runtime 'check-carnival-pickup.ps1'
             Add-Runtime 'check-item-spawns.ps1'
             Add-Runtime 'check-pickup-drive.ps1'

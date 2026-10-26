@@ -11,31 +11,43 @@ internal sealed partial class ItemSpawnPresentation : Node3D
     internal const string AssetPath = "res://assets/items/carnival-crate/CarnivalCrate.glb";
     private readonly Dictionary<string, Node3D> _models = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Label3D> _labels = new(StringComparer.Ordinal);
-    private ItemPublication? _state;
-    private float _age;
+    private readonly HashSet<string> _floating = new(StringComparer.Ordinal);
 
     /// <summary>Number of confirmed active visuals.</summary>
     internal int ActiveCount => _models.Values.Count(model => model.Visible);
 
     /// <inheritdoc/>
-    public override void _Process(double delta)
+    public override void _PhysicsProcess(double delta)
     {
-        if (_state is null)
+        // The static map has entered the physics world by this boundary. Placement
+        // is cosmetic and happens once; confirmed spawn centres remain untouched.
+        foreach (var pair in _models)
         {
-            return;
-        }
+            var model = pair.Value;
+            if (!_floating.Contains(pair.Key))
+            {
+                if (PickupGroundPose.Resolve(GetWorld3D().DirectSpaceState, model.GlobalPosition, model.GlobalBasis) is { } pose)
+                    model.GlobalTransform = pose;
+                else
+                    GD.PushWarning($"No terrain support for pickup {pair.Key}.");
+            }
 
-        _age += (float)delta;
-        foreach (var model in _models.Values)
-        {
-            // Keep the compact, grounded pyramid readable; only a small pickup hover.
-            model.Position = new Vector3(0, 0.10f + (MathF.Sin(_age * 1.4f) * 0.025f), 0);
+            // Billboard upright, with clearance above the tilted upper crate.
+            // Both texts share the same stable anchor through cooldown/respawn.
+            Vector3 top = model.ToGlobal(new Vector3(0, 2.88f, 0));
+            float tiltedTop = MathF.Abs(model.GlobalBasis.X.Y) * .75f + MathF.Abs(model.GlobalBasis.Z.Y) * .8f;
+            // Looking up at a floating pickup must not hide the billboard behind
+            // its upper front edge. Grounded approach views need less separation.
+            float clearance = _floating.Contains(pair.Key) ? .95f : .42f;
+            _labels[pair.Key].GlobalPosition = top + Vector3.Up * (clearance + tiltedTop);
         }
+        SetPhysicsProcess(false);
     }
 
     /// <summary>Builds one non-colliding visual per actual registered marker, hidden until authority arrives.</summary>
     /// <param name="arena">Validated scene markers.</param>
-    internal void Initialize(ArenaConfiguration arena)
+    /// <param name="authoredMarkers">Map-owned presentation guidance; never changes the Core spawn contract.</param>
+    internal void Initialize(ArenaConfiguration arena, Node3D authoredMarkers)
     {
         var scene = Networking.MatchResourceLoader.LoadResource<PackedScene>(AssetPath);
         var material = new StandardMaterial3D
@@ -47,10 +59,12 @@ internal sealed partial class ItemSpawnPresentation : Node3D
         var aura = CarnivalPickupAura.CreateMesh();
         foreach (var marker in arena.Items)
         {
+            if (authoredMarkers.GetNode<Marker3D>(marker.Id).GetMeta("pickup_floating", false).AsBool())
+                _floating.Add(marker.Id);
             var root = new Node3D { Name = marker.Id, Position = VehicleBody.ToGodot(marker.Position) };
             AddChild(root);
-            // A diagonal facing exposes both lower crates on either oval straight and cross-route.
-            var model = new Node3D { Name = "IntactPickup", Position = new Vector3(0, 0.10f, 0), Rotation = new Vector3(0, marker.Yaw + Mathf.Pi / 4, 0), Visible = false };
+            // Marker -Z follows the authored route; the star faces its approach (+Z).
+            var model = new Node3D { Name = "IntactPickup", Rotation = new Vector3(0, marker.Yaw, 0), Visible = false };
             root.AddChild(model);
             model.AddChild(scene.Instantiate<Node3D>());
             model.AddChild(new MeshInstance3D { Mesh = aura, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off });
@@ -70,13 +84,13 @@ internal sealed partial class ItemSpawnPresentation : Node3D
             _models.Add(marker.Id, model);
             _labels.Add(marker.Id, label);
         }
+        SetPhysicsProcess(true);
     }
 
     /// <summary>Changes availability only from a confirmed complete publication.</summary>
     /// <param name="state">Host state accepted by the production driver.</param>
     internal void Apply(ItemPublication state)
     {
-        _state = state;
         foreach (var pair in _models)
         {
             bool active = state.Spawns.Any(spawn => spawn.Id == pair.Key && spawn.Available);

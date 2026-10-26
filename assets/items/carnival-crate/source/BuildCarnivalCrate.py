@@ -74,11 +74,11 @@ def material(name, color, metal=0, rough=.72, wood=False):
     return mat
 
 
-red = material('Crate crimson wood', (.36, .012, .006), wood=True)
+red = material('Crate crimson wood', (.52, .018, .009), wood=True)
 ivory = material('Crate ivory wood', (.70, .62, .46), wood=True)
 timber = material('Crate exposed endgrain', (.29, .16, .065), wood=True)
-brass = material('Crate aged brass', (.65, .37, .075), .72, .42)
-gold = material('Crate raised gold', (.65, .38, .10), .68, .30)
+brass = material('Crate aged brass', (.78, .48, .11), .66, .40)
+gold = material('Crate raised gold', (.88, .56, .14), .58, .30)
 dark = material('Crate recessed iron', (.09, .045, .018), .50, .62)
 
 

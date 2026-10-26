@@ -14,7 +14,7 @@ function Assert-True {
 . "$PSScriptRoot/fast-check-routes.ps1"
 
 # Route-selection regression coverage.
-foreach ($path in @('assets/items/carnival-crate/CarnivalCrate.glb', 'code/Client/Items/CarnivalPickupAura.cs', 'code/Client/Items/ItemSpawnPresentation.cs')) {
+foreach ($path in @('assets/items/carnival-crate/CarnivalCrate.glb', 'code/Client/Items/CarnivalPickupAura.cs', 'code/Client/Items/ItemSpawnPresentation.cs', 'code/Client/Items/PickupGroundPose.cs')) {
     $cratePlan = Get-FastCheckPlan -Paths @($path)
     Assert-True ($cratePlan.RuntimeScripts -contains 'check-carnival-pickup.ps1') 'Crate changes require intact presentation verification.'
     Assert-True ($cratePlan.RuntimeScripts -contains 'check-item-spawns.ps1') 'Crate changes retain multiplayer pickup verification.'
