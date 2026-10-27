@@ -29,7 +29,10 @@ internal sealed partial class ShieldWallBody : RigidBody3D
         LinearDamp = 2;
         AngularDamp = 1.5f;
         PhysicsMaterialOverride = new PhysicsMaterial { Friction = 0.6f, Rough = false, Bounce = 0 };
-        AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = VehicleBody.ToGodot(state.WallSize) } });
+        foreach (var corners in ShieldGeometry.DeployedCorners(state.WallSize))
+        {
+            AddChild(new CollisionShape3D { Shape = new ConvexPolygonShape3D { Points = corners.Select(VehicleBody.ToGodot).ToArray() } });
+        }
         Visual = new ShieldVisual();
         AddChild(Visual);
         Install(state, host);

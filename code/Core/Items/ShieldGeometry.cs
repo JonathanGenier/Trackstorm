@@ -19,6 +19,34 @@ public static class ShieldGeometry
         (new Vector3(1.85f, .25f, 2.525f), new Vector3(.28f, 2.5f, 1.45f)),
     });
 
+    /// <summary>Final wing hinge angle, opening toward the vehicle as in the approved plan view.</summary>
+    public const float DeployedWingAngle = MathF.PI / 4;
+
+    private static readonly (Vector3 Center, Vector3 Size, Quaternion Rotation)[] DeployedPanels =
+    [
+        (Vector3.Zero, new(3.7f, 2.5f, .28f), Quaternion.Identity),
+        Panel(-1), Panel(1),
+    ];
+
+    private static (Vector3 Center, Vector3 Size, Quaternion Rotation) Panel(int side)
+    {
+        var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitY, side * DeployedWingAngle);
+        return (new Vector3(side * 1.85f, 0, 0) + Vector3.Transform(new Vector3(side * .725f, 0, 0), rotation),
+            new(1.45f, 2.5f, .28f), rotation);
+    }
+
+    /// <summary>Captured scale applied to the authored three-panel shape.</summary>
+    public static Vector3 DeployedScale(Vector3 size) => size / new Vector3(6.6f, 2.5f, .6f);
+
+    /// <summary>Convex panel corners in wall-local space, shared with native collision and placement.</summary>
+    public static IReadOnlyList<Vector3[]> DeployedCorners(Vector3 size)
+    {
+        var scale = DeployedScale(size);
+        return DeployedPanels.Select(panel =>
+            (from x in new[] { -1, 1 } from y in new[] { -1, 1 } from z in new[] { -1, 1 }
+             select (panel.Center + Vector3.Transform(panel.Size * new Vector3(x, y, z) / 2, panel.Rotation)) * scale).ToArray()).ToArray();
+    }
+
     /// <summary>Tests an actual local contact, with only native solver margin tolerance.</summary>
     public static bool Contains(Vector3 localPoint)
     {
@@ -43,12 +71,29 @@ public static class ShieldGeometry
 
     /// <summary>Tests a deployed wall's captured physical envelope.</summary>
     public static float? Intersect(ShieldState wall, Vector3 start, Vector3 end)
-        => IntersectBox(wall.Position, wall.Orientation, wall.WallSize, start, end);
+    {
+        var inverse = Quaternion.Conjugate(wall.Orientation);
+        var scale = DeployedScale(wall.WallSize);
+        start = Vector3.Transform(start - wall.Position, inverse) / scale;
+        end = Vector3.Transform(end - wall.Position, inverse) / scale;
+        return DeployedPanels.Select(panel => IntersectBox(panel.Center, panel.Rotation, panel.Size, start, end))
+            .Where(hit => hit.HasValue).DefaultIfEmpty(null).Min();
+    }
 
     /// <summary>Nearest point in the physical armor, for finite-radius Salvo damage.</summary>
     public static Vector3 ClosestPoint(ShieldState shield, VehiclePhysicsState pose, Vector3 point)
     {
-        if (!shield.Attached) { return ClosestBox(shield.Position, shield.Orientation, shield.WallSize, point); }
+        if (!shield.Attached)
+        {
+            if (Intersect(shield, point, point).HasValue) { return point; }
+            var local = Vector3.Transform(point - shield.Position, Quaternion.Conjugate(shield.Orientation));
+            var nearest = DeployedCorners(shield.WallSize).SelectMany(corners => Faces.SelectMany(face => new[]
+            {
+                ClosestTriangle(local, corners[face[0]], corners[face[1]], corners[face[2]]),
+                ClosestTriangle(local, corners[face[0]], corners[face[2]], corners[face[3]]),
+            })).MinBy(candidate => Vector3.DistanceSquared(local, candidate));
+            return shield.Position + Vector3.Transform(nearest, shield.Orientation);
+        }
         return MountedBoxes.Select(box => ClosestBox(pose.Position + Vector3.Transform(box.Center, pose.Orientation), pose.Orientation, box.Size, point))
             .MinBy(candidate => Vector3.DistanceSquared(point, candidate));
     }
@@ -59,17 +104,48 @@ public static class ShieldGeometry
     /// <summary>Separating-axis test for deployment candidates, including two uses in one batch.</summary>
     public static bool Overlaps(ShieldState first, ShieldState second)
     {
-        var a = new[] { Vector3.Transform(Vector3.UnitX, first.Orientation), Vector3.Transform(Vector3.UnitY, first.Orientation), Vector3.Transform(Vector3.UnitZ, first.Orientation) };
-        var b = new[] { Vector3.Transform(Vector3.UnitX, second.Orientation), Vector3.Transform(Vector3.UnitY, second.Orientation), Vector3.Transform(Vector3.UnitZ, second.Orientation) };
-        var axes = a.Concat(b).Concat(a.SelectMany(x => b.Select(y => Vector3.Cross(x, y))));
+        var firstPanels = DeployedCorners(first.WallSize).Select(c => c.Select(p => first.Position + Vector3.Transform(p, first.Orientation)).ToArray());
+        var secondPanels = DeployedCorners(second.WallSize).Select(c => c.Select(p => second.Position + Vector3.Transform(p, second.Orientation)).ToArray()).ToArray();
+        return firstPanels.Any(a => secondPanels.Any(b => ConvexOverlaps(a, b)));
+    }
+
+    private static readonly int[][] Faces = [[0, 1, 3, 2], [4, 6, 7, 5], [0, 4, 5, 1], [2, 3, 7, 6], [0, 2, 6, 4], [1, 5, 7, 3]];
+
+    private static bool ConvexOverlaps(Vector3[] a, Vector3[] b)
+    {
+        Vector3[] Edges(Vector3[] p) => [p[4] - p[0], p[2] - p[0], p[1] - p[0]];
+        var ae = Edges(a); var be = Edges(b);
+        var axes = Faces.Select(f => Vector3.Cross(a[f[1]] - a[f[0]], a[f[2]] - a[f[0]]))
+            .Concat(Faces.Select(f => Vector3.Cross(b[f[1]] - b[f[0]], b[f[2]] - b[f[0]])))
+            .Concat(ae.SelectMany(x => be.Select(y => Vector3.Cross(x, y))));
         foreach (var axis in axes)
         {
-            if (axis.LengthSquared() < 0.000001f) { continue; }
-            float Radius(Vector3[] basis, Vector3 size) => (Math.Abs(Vector3.Dot(axis, basis[0])) * size.X +
-                Math.Abs(Vector3.Dot(axis, basis[1])) * size.Y + Math.Abs(Vector3.Dot(axis, basis[2])) * size.Z) / 2;
-            if (Math.Abs(Vector3.Dot(second.Position - first.Position, axis)) >= Radius(a, first.WallSize) + Radius(b, second.WallSize)) { return false; }
+            if (axis.LengthSquared() < .000001f) { continue; }
+            if (a.Max(p => Vector3.Dot(p, axis)) <= b.Min(p => Vector3.Dot(p, axis)) ||
+                b.Max(p => Vector3.Dot(p, axis)) <= a.Min(p => Vector3.Dot(p, axis))) { return false; }
         }
         return true;
+    }
+
+    private static Vector3 ClosestTriangle(Vector3 p, Vector3 a, Vector3 b, Vector3 c)
+    {
+        var ab = b - a; var ac = c - a; var ap = p - a;
+        float d1 = Vector3.Dot(ab, ap), d2 = Vector3.Dot(ac, ap);
+        if (d1 <= 0 && d2 <= 0) { return a; }
+        var bp = p - b;
+        float d3 = Vector3.Dot(ab, bp), d4 = Vector3.Dot(ac, bp);
+        if (d3 >= 0 && d4 <= d3) { return b; }
+        float vc = d1 * d4 - d3 * d2;
+        if (vc <= 0 && d1 >= 0 && d3 <= 0) { return a + ab * (d1 / (d1 - d3)); }
+        var cp = p - c;
+        float d5 = Vector3.Dot(ab, cp), d6 = Vector3.Dot(ac, cp);
+        if (d6 >= 0 && d5 <= d6) { return c; }
+        float vb = d5 * d2 - d1 * d6;
+        if (vb <= 0 && d2 >= 0 && d6 <= 0) { return a + ac * (d2 / (d2 - d6)); }
+        float va = d3 * d6 - d5 * d4;
+        if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0) { return b + (c - b) * ((d4 - d3) / ((d4 - d3) + (d5 - d6))); }
+        float inverse = 1 / (va + vb + vc);
+        return a + ab * (vb * inverse) + ac * (vc * inverse);
     }
 
     private static float? IntersectBox(Vector3 center, Quaternion orientation, Vector3 size, Vector3 start, Vector3 end)
