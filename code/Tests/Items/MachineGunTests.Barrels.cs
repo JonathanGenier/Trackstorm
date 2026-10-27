@@ -25,7 +25,7 @@ internal sealed partial class MachineGunTests
             Assert.That(shots.Count(s => s.MachineGunBarrel == barrel && s.Impact), Is.EqualTo(40));
             Assert.That(shots.Count(s => s.MachineGunBarrel == barrel && s.Tracer), Is.EqualTo(13));
         }
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(720));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(420));
         Assert.That(host.World.GetVehicle(2).Damage.CurrentHP, Is.EqualTo(820));
     }
 

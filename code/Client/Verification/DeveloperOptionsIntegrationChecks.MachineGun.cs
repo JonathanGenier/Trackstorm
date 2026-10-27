@@ -51,7 +51,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks
             ["items.machine_gun_range"] = 250, ["items.machine_gun_spread"] = .7,
             ["items.machine_gun_ammo_per_round"] = 3, ["items.machine_gun_tracer_every"] = 4 };
         foreach (var edit in edits) { Set(edit.Key, edit.Value); }
-        Check(panel.HasUnappliedChanges && _host.DeveloperConfiguration.Items.MachineGunCapacity == 800,
+        Check(panel.HasUnappliedChanges && _host.DeveloperConfiguration.Items.MachineGunCapacity == 500,
             "Gameplay edits remain staged until authoritative Apply.");
         Press("Apply Settings");
         await Until(() => !panel.AwaitingConfirmation && _host.DeveloperConfiguration.Items.MachineGunAmmoPerRound == 3 &&
@@ -67,7 +67,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks
             section.GetChildren().OfType<Button>().Single().Text.EndsWith(" Machine Gun", StringComparison.Ordinal));
         Descendants(shared.Body).OfType<Button>().Single(b => b.Text == "Reset to Defaults").EmitSignal(BaseButton.SignalName.Pressed);
         await Until(() => !panel.AwaitingConfirmation && _client.DeveloperConfiguration == _host.DeveloperConfiguration &&
-            _host.DeveloperConfiguration.Items.MachineGunCapacity == 800, "Machine Gun category Reset is acknowledged by both peers");
+            _host.DeveloperConfiguration.Items.MachineGunCapacity == 500, "Machine Gun category Reset is acknowledged by both peers");
         Check(_host.DeveloperConfiguration.Items == GameplayConfiguration.HostedDefaults.Items,
             "Shared Reset restores all production Machine Gun defaults.");
         if (OS.GetCmdlineUserArgs().Contains("--machine-gun-readability")) { await CheckMachineGunReadability(); }

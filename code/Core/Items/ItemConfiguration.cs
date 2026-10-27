@@ -54,7 +54,7 @@ public sealed record ItemConfiguration
     /// <summary>Marker surface offset (m).</summary>
     public float SalvoMarkerLift { get; init; } = 0.05f;
     /// <summary>Acquired rounds; existing magazines keep their capacity.</summary>
-    public int MachineGunCapacity { get; init; } = 800;
+    public int MachineGunCapacity { get; init; } = 500;
     /// <summary>Rounds per second, bounded to two rounds per fixed step.</summary>
     public double MachineGunFireRate { get; init; } = 80;
     /// <summary>Resource units consumed per actual round; final partial cost exhausts the item.</summary>

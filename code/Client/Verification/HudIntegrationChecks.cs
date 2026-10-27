@@ -205,7 +205,7 @@ public sealed partial class HudIntegrationChecks : Node
             slot = new ItemSlot(state.VehicleId, state.LifeId, 1, HeldItem.MachineGun)
             { Ammo = new(187, 500), SecondToken = 2, SecondItem = HeldItem.Nitro, SecondNitroCharge = 42, ActiveSlot = 0 };
             hud.Refresh();
-            CheckSlot(hud, "FirstSlot", "MACHINE GUN", "38%", true);
+            CheckSlot(hud, "FirstSlot", "MACHINE GUN", "187", true);
             CheckSlot(hud, "SecondSlot", "NITRO", "42%", false);
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
             using (Image frame = viewport.GetTexture().GetImage())
@@ -216,11 +216,30 @@ public sealed partial class HudIntegrationChecks : Node
             slot = new ItemSlot(state.VehicleId, state.LifeId, 1, HeldItem.MachineGun)
             { Ammo = new(187, 500), SecondToken = 2, SecondItem = HeldItem.MachineGun, SecondAmmo = new(1, 500) };
             hud.Refresh();
-            Require(hud.Displayed!.ItemName == "MACHINE GUN 38%" && hud.Displayed.SecondItemName == "MACHINE GUN 1%", "Independent discrete ammo percentages");
-            CheckSlot(hud, "FirstSlot", "MACHINE GUN", "38%", true);
-            CheckSlot(hud, "SecondSlot", "MACHINE GUN", "1%", false);
+            Require(hud.Displayed!.ItemName == "MACHINE GUN 187" && hud.Displayed.SecondItemName == "MACHINE GUN 1", "Independent remaining bullet counts");
+            CheckSlot(hud, "FirstSlot", "MACHINE GUN", "187", true);
+            CheckSlot(hud, "SecondSlot", "MACHINE GUN", "1", false);
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
             using (Image frame = viewport.GetTexture().GetImage()) { frame.SavePng(System.IO.Path.Combine(output, "machine-gun-partial.png")); }
+            foreach (int width in new[] { 640, 1280, 1920 })
+            {
+                viewport.Size = new Vector2I(width, width * 9 / 16);
+                foreach (int rounds in new[] { 500, 100, 1, 0, 10000 })
+                {
+                    slot = slot! with { Ammo = new(rounds, rounds > 500 ? 10000 : 500) };
+                    hud.Refresh();
+                    CheckSlot(hud, "FirstSlot", "MACHINE GUN", rounds.ToString(), true);
+                    CheckSlot(hud, "SecondSlot", "MACHINE GUN", "1", false);
+                    var first = (ItemHudSlot)hud.FindChild("FirstSlot", true, false);
+                    string legend = ((Label)first.FindChild("ResourceUnit", true, false)).Text;
+                    Require(legend == (rounds == 0 ? "EMPTY" : rounds <= 100 ? "LOW AMMO" : "ROUNDS"), "Magazine low/empty legend follows captured capacity");
+                    await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                    using Image frame = viewport.GetTexture().GetImage();
+                    frame.SavePng(System.IO.Path.Combine(output, $"machine-gun-{width}-{rounds}.png"));
+                }
+            }
+            viewport.Size = new Vector2I(1280, 720);
+            slot = slot! with { Ammo = new(187, 500) };
             // Exercise replacement/clear through the production binding, including deliberately stale resource fields.
             foreach (bool second in new[] { false, true })
             {
@@ -229,7 +248,7 @@ public sealed partial class HudIntegrationChecks : Node
                     slot = second ? slot! with { SecondItem = replacement, SecondSalvoShots = 3, SecondNitroCharge = 62.5, ActiveSlot = 1 }
                         : slot! with { Item = replacement, SalvoShots = 3, NitroCharge = 62.5, ActiveSlot = 0 };
                     hud.Refresh();
-                    string? resource = replacement switch { HeldItem.Salvo => "3", HeldItem.Nitro => "63%", HeldItem.MachineGun => second ? "1%" : "38%", _ => null };
+                    string? resource = replacement switch { HeldItem.Salvo => "3", HeldItem.Nitro => "63%", HeldItem.MachineGun => second ? "1" : "187", _ => null };
                     CheckSlot(hud, second ? "SecondSlot" : "FirstSlot", ItemRegistry.Find(replacement)?.DisplayName.ToUpperInvariant() ?? "EMPTY", resource, true);
                     await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 }
