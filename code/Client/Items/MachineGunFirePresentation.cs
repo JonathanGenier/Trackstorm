@@ -84,7 +84,11 @@ internal sealed partial class MachineGunFirePresentation : MultiMeshInstance3D
 
     internal void Advance(float seconds)
     {
-        Vector3 camera = GetViewport().GetCamera3D()?.GlobalPosition ?? Vector3.Up * 10;
+        var view = GetViewport();
+        var lens = view.GetCamera3D();
+        Vector3 camera = lens?.GlobalPosition ?? Vector3.Up * 10;
+        float projection = lens is null ? 1 : Math.Abs(lens.GetCameraProjection().Y.Y);
+        float pixelScale = 2 / Math.Max(1, view.GetVisibleRect().Size.Y * projection);
         var bounds = new Aabb();
         for (int i = 0; i < ActiveCount;)
         {
@@ -103,7 +107,10 @@ internal sealed partial class MachineGunFirePresentation : MultiMeshInstance3D
             }
             float distance = streak.Start.DistanceTo(streak.End);
             float length = streak.Tracer ? streak.Settings.TracerLength : streak.Settings.BulletLength;
-            float head = length + streak.Age * streak.Settings.Speed;
+            // Near hits must survive more than a one-frame flash. Only cosmetic travel
+            // slows down; the accepted damage/impact already happened and the endpoint stays fixed.
+            float speed = Math.Min(streak.Settings.Speed, distance / streak.Settings.MinimumFlightSeconds);
+            float head = length + streak.Age * speed;
             float tail = Math.Max(0, head - length);
             if (tail >= distance || streak.Age >= MaximumLifetime)
             { _streaks[i] = _streaks[--ActiveCount]; continue; }
@@ -114,9 +121,11 @@ internal sealed partial class MachineGunFirePresentation : MultiMeshInstance3D
             Vector3 across = direction.Cross(camera - middle).Normalized();
             if (across.LengthSquared() < .001f)
             { across = direction.Cross(Math.Abs(direction.Y) < .9f ? Vector3.Up : Vector3.Right).Normalized(); }
-            // A capped subpixel width floor keeps distant tracers readable without
-            // turning every ordinary round into a bright rope at close range.
-            float width = streak.Tracer ? Math.Clamp(camera.DistanceTo(middle) * .001f, .045f, .16f) : .025f;
+            // A subpixel gold ribbon disappears under the normal chase view. Keep a
+            // small luminous core in screen pixels, with hard metre caps for distant fire.
+            float depth = lens is null ? camera.DistanceTo(middle) : Math.Max(.1f, -lens.ToLocal(middle).Z);
+            float width = streak.Tracer ? Math.Clamp(depth * pixelScale * 3.8f, .075f, .36f)
+                : Math.Clamp(depth * pixelScale * 2.4f, .055f, .24f);
             var basis = new Basis(across * width * streak.Settings.Width, direction * from.DistanceTo(to), across.Cross(direction));
             Multimesh.SetInstanceTransform(i, new(basis, middle));
             Multimesh.SetInstanceCustomData(i, new(streak.Tracer ? 1 : 0, streak.Color / 2f,
@@ -129,7 +138,7 @@ internal sealed partial class MachineGunFirePresentation : MultiMeshInstance3D
             i++;
         }
         Multimesh.VisibleInstanceCount = ActiveCount;
-        CustomAabb = bounds.Grow(.2f);
+        CustomAabb = bounds.Grow(.4f);
     }
 
     private struct Streak(ItemEvent shot, Vector3 end, MachineGunVfxSettings settings)

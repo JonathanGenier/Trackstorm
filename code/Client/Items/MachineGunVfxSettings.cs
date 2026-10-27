@@ -9,20 +9,22 @@ internal sealed record MachineGunVfxSettings
         get => _current;
         set
         {
-            if (!Within(value.Speed, 300, 1000) || !Within(value.BulletLength, .4f, 2) ||
-                !Within(value.TracerLength, 1, 6) || !Within(value.Width, .5f, 2) ||
-                !Within(value.BulletBrightness, .25f, 2.5f) || !Within(value.TracerBrightness, 1, 4) || !Within(value.FlashScale, 0, 1.5f) ||
+            if (!Within(value.Speed, 300, 1000) || !Within(value.BulletLength, .4f, 5) ||
+                !Within(value.TracerLength, 1, 8) || !Within(value.Width, .5f, 2) ||
+                !Within(value.BulletBrightness, .25f, 6) || !Within(value.TracerBrightness, 1, 10) ||
+                !Within(value.MinimumFlightSeconds, .04f, .12f) || !Within(value.FlashScale, 0, 1.5f) ||
                 !Within(value.SmokeIntensity, 0, 2))
                 throw new ArgumentException("Invalid Machine Gun cosmetics.");
             _current = value;
         }
     }
     internal float Speed { get; init; } = 600;
-    internal float BulletLength { get; init; } = 1.1f;
-    internal float TracerLength { get; init; } = 4.2f;
+    internal float BulletLength { get; init; } = 3.2f;
+    internal float TracerLength { get; init; } = 6;
     internal float Width { get; init; } = 1;
-    internal float BulletBrightness { get; init; } = 1.35f;
-    internal float TracerBrightness { get; init; } = 2.5f;
+    internal float BulletBrightness { get; init; } = 2.8f;
+    internal float TracerBrightness { get; init; } = 5;
+    internal float MinimumFlightSeconds { get; init; } = .09f;
     internal float FlashScale { get; init; } = 1;
     internal float SmokeIntensity { get; init; } = 1;
 

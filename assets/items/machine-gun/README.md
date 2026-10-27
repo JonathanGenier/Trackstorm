@@ -36,7 +36,7 @@ shaders are original project work.
 
 `BulletStreak.gdshader` is an original procedural project shader with no external
 textures or dependencies. One arena-owned MultiMesh draws travelling gold bullet
-streaks and brighter tracers. Each gun repeats gold, gold, colored: left red, right green. Each begins at its
+streaks (3.2 m) and brighter tracers (6 m), clipped at the accepted endpoint. Camera-projected width, a luminous emission core and at least 90 ms of cosmetic travel for short paths keep shots readable at driving distance. These defaults add no bloom or lights and do not delay authoritative hits. Each gun repeats gold, gold, colored: left red, right green. Each begins at its
 rendered barrel socket after that frame's vehicle pose, aim and recoil updates and keeps the authoritative hit endpoint. The authoritative actual-round ordinal
 supplies barrel parity for the rig and flight presentation, independent of ammo-cost tuning. The shared central
 ray continues to own collision, spread and damage; barrel sockets are cosmetic.

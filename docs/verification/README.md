@@ -16,7 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
-| Machine Gun moving muzzle alignment, per-gun tracer sequence and Dev Options | [TS-235 verification evidence](ts-235.md) |
+| Machine Gun rendered visibility, moving muzzles, per-gun tracer sequence and Dev Options | [TS-235 verification evidence](ts-235.md) |
 | Twin Fang Machine Gun model, animated feeds and firing VFX | [TS-234 implementation and runtime evidence](ts-234.md) |
 | Carnival crate single-unit smash, gold VFX and cleanup | [TS-311 verification evidence](ts-311.md) |
 | Carnival crate intact pickup | [TS-310 verification evidence](ts-310.md) |

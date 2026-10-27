@@ -25,11 +25,11 @@ public sealed partial class DeveloperOptionsIntegrationChecks
         var local = Descendants(panel).OfType<ConfigsAccordion>().Single(section =>
             section.GetChildren().OfType<Button>().Single().Text.EndsWith("Machine Gun · Local VFX", StringComparison.Ordinal));
         var editors = Descendants(local.Body).OfType<SpinBox>().ToArray();
-        double[] values = [750, 1.5, 5, 1.3, .8, 3, .5, 1.5];
-        Check(editors.Length == values.Length, "All eight bounded Machine Gun visual controls are present.");
+        double[] values = [750, 1.5, 5, 1.3, .8, 3, .12, .5, 1.5];
+        Check(editors.Length == values.Length, "All nine bounded Machine Gun visual controls are present.");
         for (int i = 0; i < values.Length; i++) { editors[i].Value = values[i]; }
         Check(MachineGunVfxSettings.Current == new MachineGunVfxSettings { Speed = 750, BulletLength = 1.5f, TracerLength = 5,
-            Width = 1.3f, BulletBrightness = .8f, TracerBrightness = 3, FlashScale = .5f, SmokeIntensity = 1.5f },
+            Width = 1.3f, BulletBrightness = .8f, TracerBrightness = 3, MinimumFlightSeconds = .12f, FlashScale = .5f, SmokeIntensity = 1.5f },
             "All native cosmetic editor signals reach their real production values.");
         Check(_host.DeveloperConfiguration == GameplayConfiguration.HostedDefaults && !panel.HasUnappliedChanges,
             "Visual edits neither submit gameplay nor dirty the authority draft.");
@@ -70,5 +70,6 @@ public sealed partial class DeveloperOptionsIntegrationChecks
             _host.DeveloperConfiguration.Items.MachineGunCapacity == 800, "Machine Gun category Reset is acknowledged by both peers");
         Check(_host.DeveloperConfiguration.Items == GameplayConfiguration.HostedDefaults.Items,
             "Shared Reset restores all production Machine Gun defaults.");
+        if (OS.GetCmdlineUserArgs().Contains("--machine-gun-readability")) { await CheckMachineGunReadability(); }
     }
 }

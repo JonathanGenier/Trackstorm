@@ -27,7 +27,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
     public override void _Ready() => CallDeferred(MethodName.Run);
 
     /// <inheritdoc/>
-    public override void _PhysicsProcess(double delta) { _client?.Advance(default); _lateClient?.Advance(default); }
+    public override void _PhysicsProcess(double delta) { AdvanceReadability(); _client?.Advance(default); _lateClient?.Advance(default); }
 
     /// <summary>Exercises actual UI commands and exits nonzero on any missing gameplay or persistence boundary.</summary>
     public async void Run()

@@ -11,7 +11,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Rendered production barrels and fixed-pool behavior with explicitly scripted confirmed outcomes.</summary>
 public sealed partial class MachineGunVfxChecks : Node3D
 {
-    private const string Output = "res://.godot/ts235-round3-vfx/";
+    private const string Output = "res://.godot/ts235-readability-vfx/";
     private readonly List<Node3D> _cars = [];
     private readonly List<WeaponAimMount> _mounts = [];
     private readonly List<string> _checks = [];
@@ -214,6 +214,14 @@ public sealed partial class MachineGunVfxChecks : Node3D
             "Close trace clamps exactly to the accepted endpoint");
         int before = _fire.EmittedCount; _fire.Observe(close);
         Check(_fire.EmittedCount == before, "Repeated publication never duplicates fire");
+        _fire.Advance(.05f); _fire.Advance(0);
+        Check(_fire.ActiveCount == 1, "Close hits remain visible across multiple frames instead of vanishing in one frame");
+        var travelling = _fire.Multimesh.GetInstanceTransform(0);
+        Check((travelling.Origin - travelling.Basis.Y * .5f).DistanceTo(origin) > .1f &&
+            (travelling.Origin + travelling.Basis.Y * .5f).DistanceTo(origin + Vector3.Forward * .2f) < .0001f,
+            "Close luminous streak travels forward while staying clipped to the accepted endpoint");
+        _fire.Advance(.05f); _fire.Advance(0);
+        Check(_fire.ActiveCount == 0, "Close flight retires after its minimum visible travel time");
         _fire.Clear();
         for (int i = 0; i < 100; i++) { Publish(1, 2, 225, 0); }
         Check(_fire.ActiveCount == MachineGunFirePresentation.PerShooterCapacity && _fire.DroppedCount > 0,
@@ -277,7 +285,7 @@ public sealed partial class MachineGunVfxChecks : Node3D
             int color = (int)MathF.Round(custom.G * 2);
             int expected = round % 6 >= 4 ? round % 2 + 1 : 0;
             Check(color == expected && custom.R == (expected == 0 ? 0 : 1), $"Round {round} follows independent gold/gold/colored sequence");
-            Check(Math.Abs(custom.B - (expected == 0 ? 1.35f : 2.5f)) < .001f, "Gold and colored intensities reach the renderer");
+            Check(Math.Abs(custom.B - (expected == 0 ? 2.8f : 5)) < .005f, "Gold and colored intensities reach the renderer");
             colors[round % 2, color]++;
         }
         for (int side = 0; side < 2; side++)
