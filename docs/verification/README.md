@@ -16,6 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Machine Gun count HUD, cartridge belt and 500-round default | [TS-178 verification evidence](ts-178.md) |
 | Machine Gun non-explosive impact VFX | [TS-236 verification evidence](ts-236.md) |
 | Machine Gun rendered visibility, moving muzzles, per-gun tracer sequence and Dev Options | [TS-235 verification evidence](ts-235.md) |
 | Twin Fang Machine Gun model, animated feeds and firing VFX | [TS-234 implementation and runtime evidence](ts-234.md) |

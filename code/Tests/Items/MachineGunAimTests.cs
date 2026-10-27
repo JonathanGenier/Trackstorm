@@ -104,7 +104,7 @@ internal sealed class MachineGunAimTests
             }
         }
         Assert.That(blocked, Is.GreaterThan(0));
-        Assert.That(_host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(680));
+        Assert.That(_host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(380));
         Assert.That(_host.World.GetVehicle(1).Damage.CurrentHP, Is.EqualTo(_host.World.GetVehicle(1).Damage.MaxHP));
     }
 

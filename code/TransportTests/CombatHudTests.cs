@@ -12,6 +12,23 @@ namespace Trackstorm.Transport.Tests;
 internal sealed class CombatHudTests
 {
     [Test]
+    public void MachineGunCountsFollowCapturedCapacityAndClearWithoutBorrowingOtherSlot()
+    {
+        var inventory = new ItemSlot(1, 1, 1, HeldItem.MachineGun)
+        { Ammo = new(500, 500), SecondToken = 2, SecondItem = HeldItem.MachineGun, SecondAmmo = new(10000, 10000) };
+        foreach (int remaining in new[] { 500, 498, 100, 1, 0 })
+        {
+            inventory = inventory with { Ammo = new(remaining, 500), ActiveSlot = (byte)(remaining % 2) };
+            var view = CombatHudView.From(State(850, 1000, 0), inventory, 0);
+            Assert.That(view.FirstSlot.Resource, Is.EqualTo(new ItemHudResource(remaining.ToString(), remaining / 500.0)));
+            Assert.That(view.SecondSlot.Resource, Is.EqualTo(new ItemHudResource("10000", 1)));
+        }
+        Assert.That(ItemHudSlotView.From(inventory with { Item = HeldItem.None }, false), Is.EqualTo(ItemHudSlotView.Empty));
+        Assert.That(ItemHudSlotView.From(inventory with { Ammo = new(17, 37) }, false).Resource,
+            Is.EqualTo(new ItemHudResource("17", 17.0 / 37)));
+    }
+
+    [Test]
     public void ResourcesBelongToPhysicalSlotsAndDisappearWithOccupancy()
     {
         var state = State(850, 1000, 10);
@@ -45,8 +62,8 @@ internal sealed class CombatHudTests
         var inventory = new ItemSlot(1, 1, 1, HeldItem.MachineGun)
         { Ammo = new(187, 500), SecondItem = HeldItem.MachineGun, SecondAmmo = new(1, 100) };
         var view = CombatHudView.From(State(850, 1000, 0), inventory, 0);
-        Assert.That(view.FirstSlot.Resource, Is.EqualTo(new ItemHudResource("38%", .374)));
-        Assert.That(view.SecondSlot.Resource, Is.EqualTo(new ItemHudResource("1%", .01)));
+        Assert.That(view.FirstSlot.Resource, Is.EqualTo(new ItemHudResource("187", .374)));
+        Assert.That(view.SecondSlot.Resource, Is.EqualTo(new ItemHudResource("1", .01)));
         var salvo = ItemHudSlotView.From(inventory with { Item = HeldItem.Salvo, SalvoShots = 16 }, false);
         Assert.That(salvo.Resource, Is.EqualTo(new ItemHudResource("16", null)));
         var unknown = ItemHudSlotView.From(inventory with { Item = (HeldItem)255 }, false);
@@ -148,7 +165,7 @@ internal sealed class CombatHudTests
             Assert.That(view.SecondItem, Is.EqualTo(HeldItem.Oil));
             Assert.That(view.ActiveSlot, Is.EqualTo(1));
             Assert.That(CombatHudView.From(initial, slot with { Vehicle = 2 }, 0).SecondItem, Is.EqualTo(HeldItem.None));
-            Assert.That(view.ItemName, Is.EqualTo(item == HeldItem.None ? "EMPTY" : item == HeldItem.Nitro ? "NITRO 100%" : item == HeldItem.ProxyMine ? "PROXY MINE" : item == HeldItem.MachineGun ? "MACHINE GUN 100%" : item == HeldItem.Salvo ? "SALVO 5" : item == HeldItem.Shield ? "SHIELD" : item == HeldItem.EmpClaw ? "EMP CLAW 3" : item.ToString().ToUpperInvariant()));
+            Assert.That(view.ItemName, Is.EqualTo(item == HeldItem.None ? "EMPTY" : item == HeldItem.Nitro ? "NITRO 100%" : item == HeldItem.ProxyMine ? "PROXY MINE" : item == HeldItem.MachineGun ? "MACHINE GUN 500" : item == HeldItem.Salvo ? "SALVO 5" : item == HeldItem.Shield ? "SHIELD" : item == HeldItem.EmpClaw ? "EMP CLAW 3" : item.ToString().ToUpperInvariant()));
             Assert.That(view.Standing, Is.EqualTo("--"));
             Assert.That(view.Timer, Is.EqualTo("--:--"));
             Assert.That(view.HealthFill, Is.EqualTo(0.85));

@@ -61,11 +61,15 @@ internal sealed partial class ItemHudSlot : Control
         _resource.Visible = view.Resource is not null;
         _resource.Text = view.Resource?.Text ?? string.Empty;
         bool shield = view.Item == HeldItem.Shield;
-        _resource.Size = new Vector2(54, shield ? 20 : 29);
-        _resourceUnit.Visible = shield && view.Resource is not null;
+        bool magazine = view.Item == HeldItem.MachineGun;
+        bool lowAmmo = magazine && view.Resource?.Fraction <= 0.2;
+        _resource.Size = new Vector2(54, shield || magazine ? 20 : 29);
+        _resource.AddThemeFontSizeOverride("font_size", magazine && _resource.Text.Length > 4 ? 18 : 23);
+        _resourceUnit.Text = magazine ? (view.Resource?.Fraction == 0 ? "EMPTY" : lowAmmo ? "LOW AMMO" : "ROUNDS") : "HP";
+        _resourceUnit.Visible = (shield || magazine) && view.Resource is not null;
         bool damagedShield = view.Item == HeldItem.Shield && view.Resource?.Fraction <= 0.25;
-        _resource.Modulate = damagedShield ? new Color("ff7852") : Colors.White;
-        _icon.Modulate = damagedShield ? new Color("ff9a73") : Colors.White;
+        _resource.Modulate = damagedShield || lowAmmo ? new Color("ff7852") : Colors.White;
+        _icon.Modulate = damagedShield || lowAmmo ? new Color("ff9a73") : Colors.White;
         QueueRedraw();
     }
 
@@ -79,6 +83,11 @@ internal sealed partial class ItemHudSlot : Control
         }
 
         if (_view?.Resource?.Fraction is not double fraction) return;
+        if (_view.Item == HeldItem.MachineGun)
+        {
+            DrawCartridges(fraction);
+            return;
+        }
         if (_view.Item == HeldItem.Shield)
         {
             DrawDurability(fraction);
@@ -97,6 +106,23 @@ internal sealed partial class ItemHudSlot : Control
             var content = new Rect2(rect.Position, new Vector2(rect.Size.X * filled, rect.Size.Y));
             DrawRect(content, fill);
             DrawRect(new Rect2(content.Position, new Vector2(content.Size.X, 2)), edge);
+        }
+    }
+
+    // Linked pointed cartridges distinguish ammunition from fuel and armor.
+    private void DrawCartridges(double fraction)
+    {
+        Color brass = new(fraction <= 0.2 ? "ff7852" : "e6b952");
+        DrawLine(new(65, 73), new(145, 73), new Color("807362"), 3);
+        for (int i = 0; i < 8; i++)
+        {
+            float x = 66 + i * 10;
+            Vector2[] cartridge = [new(x, 65), new(x + 4, 59), new(x + 8, 65), new(x + 8, 80), new(x, 80)];
+            DrawColoredPolygon(cartridge, new Color("302b25"));
+            float fill = (float)Math.Clamp(fraction * 8 - i, 0, 1);
+            if (fill > 0) DrawRect(new Rect2(x + 1, 79 - 14 * fill, 6, 14 * fill), brass);
+            if (fill >= 1) DrawColoredPolygon([new(x + 1, 65), new(x + 4, 60), new(x + 7, 65)], brass);
+            DrawPolyline([.. cartridge, cartridge[0]], new Color("9f927d"), 1, true);
         }
     }
 

@@ -12,7 +12,7 @@ namespace Trackstorm.Core.Tests.Items;
 internal sealed partial class MachineGunTests
 {
     [Test]
-    public void EightHundredActualRoundsExhaustInTenSecondsAndCannotRepeat()
+    public void FiveHundredActualRoundsExhaustAndCannotRepeat()
     {
         var host = Create();
         var slot = Grant(host);
@@ -24,14 +24,14 @@ internal sealed partial class MachineGunTests
             shots++;
             return null;
         }
-        for (int i = 0; i < 599; i++) { Step(host, true, Miss); }
-        Assert.That(shots, Is.EqualTo(798));
+        for (int i = 0; i < 374; i++) { Step(host, true, Miss); }
+        Assert.That(shots, Is.EqualTo(498));
         Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(2));
         Step(host, true, Miss);
-        Assert.That(shots, Is.EqualTo(800));
+        Assert.That(shots, Is.EqualTo(500));
         Assert.That(host.Items.Slots.Single(), Is.EqualTo(slot with { Item = HeldItem.None, Ammo = null }));
         for (int i = 0; i < 60; i++) { Step(host, true, Miss); }
-        Assert.That(shots, Is.EqualTo(800));
+        Assert.That(shots, Is.EqualTo(500));
         Assert.That(host.UseItem(0, 99, slot.Life, slot.Token), Is.False);
         Assert.That(host.World.Events.Entries.Count(e => e.Kind == "Exhausted"), Is.EqualTo(1));
     }
@@ -42,7 +42,7 @@ internal sealed partial class MachineGunTests
         var host = Create();
         var first = Grant(host);
         for (int i = 0; i < 60; i++) { Step(host, true); }
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(720));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(420));
         Step(host);
         var paused = host.Items.Slots.Single();
         for (int i = 0; i < 30; i++) { Step(host); }
@@ -51,7 +51,7 @@ internal sealed partial class MachineGunTests
         Assert.That(host.Items.Grant(host.World, 1, HeldItem.Wrench), Is.False);
         Assert.That(host.SwitchItem(0, 99, 1, 1), Is.True);
         Step(host, true);
-        Assert.That(host.Items.Slots.Single().SecondAmmo!.Remaining, Is.EqualTo(800));
+        Assert.That(host.Items.Slots.Single().SecondAmmo!.Remaining, Is.EqualTo(500));
         Assert.That(host.UseItem(0, 99, 1, first.Token), Is.False);
         var second = host.Items.Slots.Single();
         Assert.That(host.UseItem(0, 99, 1, second.SecondToken), Is.True);
@@ -83,7 +83,7 @@ internal sealed partial class MachineGunTests
         }
         else { Assert.That(target.Damage.LastDamage, Is.Null); }
         Assert.That(host.World.State.Match!.Players.Single(p => p.Player == 1).CircusScore, Is.EqualTo(1000 - target.Damage.CurrentHP));
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(799));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(499));
     }
 
     [Test]
@@ -92,10 +92,10 @@ internal sealed partial class MachineGunTests
         var host = Create(new() { MachineGunFireRate = 60 });
         Grant(host);
         host.Step(Held, Observe);
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(800));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(500));
         Step(host, true, (_, _, _) => new(0.1f, 0));
         Step(host, true);
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(798));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(498));
         Assert.That(host.World.GetVehicle(2).Damage.CurrentHP, Is.EqualTo(1000));
     }
 
@@ -113,7 +113,7 @@ internal sealed partial class MachineGunTests
         Assert.That(host.World.State.Tick, Is.EqualTo(tick));
         Assert.That(host.Items.Slots.Single(), Is.EqualTo(slot));
         Step(host, true);
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(799));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(499));
     }
 
     [Test]
@@ -204,11 +204,11 @@ internal sealed partial class MachineGunTests
         Assert.That(host.UseItem(10, 99, 1, slot.Token, 3), Is.True);
         host.Receive(10, 99, [new SequencedInput(1, Held)]); Step(host);
         host.Receive(10, 99, [new SequencedInput(2, default)]); Step(host);
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(800));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(500));
         host.Receive(10, 99, [new SequencedInput(3, Held)]); Step(host);
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(799));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(499));
         host.Suspend(10); Step(host);
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(799));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(499));
     }
 
     [Test]
@@ -246,21 +246,21 @@ internal sealed partial class MachineGunTests
                     return null;
                 });
         }
-        Assert.That(slopes.Count, Is.EqualTo(800));
+        Assert.That(slopes.Count, Is.EqualTo(500));
         var rates = new List<double>();
         foreach (float distance in new[] { 5f, 15f, 224f })
         {
             var pattern = slopes.Select(p => p * distance).ToArray();
             float width = pattern.Max(p => p.X) - pattern.Min(p => p.X);
             int hits = pattern.Count(p => Math.Abs(p.X) <= 1 && Math.Abs(p.Y) <= 0.75);
-            rates.Add(hits / 800.0);
-            TestContext.Out.WriteLine($"Cone plane {distance} m: width {width:F4} m, 2 x 1.5 m target {hits}/800 ({hits / 8.0:F2}%).");
+            rates.Add(hits / 500.0);
+            TestContext.Out.WriteLine($"Cone plane {distance} m: width {width:F4} m, 2 x 1.5 m target {hits}/500 ({hits / 5.0:F2}%).");
             Assert.That(width, Is.InRange(distance * .014f, distance * .0148f));
         }
         Assert.That(rates[0], Is.EqualTo(1));
         Assert.That(rates[1], Is.EqualTo(1));
         Assert.That(rates[2], Is.LessThan(rates[1] * 0.65));
-        Assert.That(new ItemConfiguration().MachineGunDamage * 800, Is.EqualTo(1800));
+        Assert.That(new ItemConfiguration().MachineGunDamage * 500, Is.EqualTo(1125));
     }
 
     [Test]
@@ -272,7 +272,7 @@ internal sealed partial class MachineGunTests
         Step(host, true, (_, _, end) => { ends.Add(end); return new(0.02f, 2); });
         Assert.That(ends.Count, Is.EqualTo(2));
         Assert.That(ends[0], Is.Not.EqualTo(ends[1]));
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(798));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(498));
         Assert.That(host.World.GetVehicle(2).Damage.CurrentHP, Is.EqualTo(995.5));
         Assert.That(host.Items.Events.Select(e => e.Tracer), Is.EqualTo(new[] { false, false }));
         var publication = new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], host.Items.Events);
@@ -303,7 +303,7 @@ internal sealed partial class MachineGunTests
         Assert.That(host.Items.Slots.Single(), Is.EqualTo(slot));
         Assert.That(host.World.GetVehicle(2).Damage.CurrentHP, Is.EqualTo(1000));
         Step(host, true);
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(798));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(498));
     }
 
     private static InputFrame Held => new(0, 0, 0, 0, InputButtons.UseItem, 0, 0);

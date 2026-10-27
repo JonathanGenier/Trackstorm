@@ -145,11 +145,11 @@ public sealed partial class MachineGunIntegrationChecks : Node
                     _held = true; _press = true;
                     Next("Held input starts through the production driver.");
                     break;
-                case 3 when _frames - _boundary > (_scenario == 1 ? 360 : 120):
+                case 3 when _frames - _boundary > (_scenario == 1 ? 240 : 120):
                     _held = false;
                     float loss = _health - host.World.GetVehicle(targetId).Damage.CurrentHP;
                     var slot = host.Items.Slots.Single(s => s.Vehicle == shooterId);
-                    int expectedRounds = _scenario == 1 ? 320 : 640;
+                    int expectedRounds = slot.Ammo!.Capacity - (_scenario == 1 ? 320 : 160);
                     Check(Math.Abs(slot.Ammo!.Remaining - expectedRounds) < 30, $"sustained round budget {slot.Ammo.Remaining}");
                     // Each committed subtraction rounds at the fixture's 10,000-HP magnitude.
                     // Bound that accumulation by half an HP ULP per shot, not a fixed tolerance

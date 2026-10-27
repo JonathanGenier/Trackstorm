@@ -19,7 +19,7 @@ internal sealed record ItemHudSlotView(HeldItem Item, string Name, string? IconK
         ItemHudResource? resource = item switch
         {
             HeldItem.Nitro => Percentage(second ? inventory.SecondNitroCharge : inventory.NitroCharge),
-            HeldItem.MachineGun => Percentage((second ? inventory.SecondAmmo : inventory.Ammo)?.Percentage ?? 0),
+            HeldItem.MachineGun => Ammunition(second ? inventory.SecondAmmo : inventory.Ammo),
             HeldItem.Shield => Durability(inventory, second, shields),
             // The authoritative Salvo boundary has a remaining count, not its captured starting capacity.
             HeldItem.Salvo => new((second ? inventory.SecondSalvoShots : inventory.SalvoShots).ToString(CultureInfo.InvariantCulture), null),
@@ -39,6 +39,10 @@ internal sealed record ItemHudSlotView(HeldItem Item, string Name, string? IconK
         return new(Math.Ceiling(shield.HP).ToString("0", CultureInfo.InvariantCulture),
             CombatHudView.NormalizeHealth(shield.HP, ShieldState.DefaultHP));
     }
+
+    private static ItemHudResource Ammunition(MachineGunAmmo? ammo) => new(
+        (ammo?.Remaining ?? 0).ToString(CultureInfo.InvariantCulture),
+        ammo is { Capacity: > 0 } ? Math.Clamp((double)ammo.Remaining / ammo.Capacity, 0, 1) : 0);
 
     private static ItemHudResource Percentage(double value)
     {
