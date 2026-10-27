@@ -1,0 +1,45 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Oil connection peer 1: Connecting.
+Oil connection peer 0: Connecting.
+Oil connection peer 0: Connected.
+Oil connection peer 1: Connected.
+Oil admission peer 1: Welcome received with connection=Connected, local=0, rejected=0.
+Native banked straight firing with two real UDP peers.
+Capture stage-1-firing.png: source=(-1.6975017, 24.346748, -42.284557), mouth=(-1.6975017, 24.346748, -42.284557), emitted=21, tick=564, start=534
+Readback stage-1-firing.png: mouth=(648.0516, 305.59235), stream=(-1.716902, 24.35645, -44.40373), vertex=(647.3855, 305.60037), distance=0.018
+Native steering, throttle and handbrake while firing on the bank.
+Capture stage-2-firing.png: source=(23.100779, 30.604004, -22.467245), mouth=(23.100779, 30.604004, -22.467245), emitted=21, tick=807, start=777
+Readback stage-2-firing.png: mouth=(722.9714, 300.69815), stream=(24.93967, 31.060728, -21.654188), vertex=(722.4369, 300.8573), distance=0.018
+Airborne activation with native gravity and landing.
+Capture stage-3-firing.png: source=(3.0908978, 43.50146, -17.057129), mouth=(3.0908978, 43.50146, -17.057129), emitted=21, tick=1127, start=1097
+Oil connection peer 2: Connecting.
+Readback stage-3-firing.png: mouth=(675.8606, 286.05737), stream=(4.1849613, 43.30558, -18.398293), vertex=(675.49506, 286.18185), distance=0.018
+Oil connection peer 0: Connecting.
+Oil connection peer 0: Connected.
+Oil admission peer 2: Welcome received with connection=Connecting, local=0, rejected=0.
+Oil connection peer 2: Connected.
+Native first-hit deposition on a vertical world wall.
+Capture stage-4-firing.png: source=(0, 27.729994, 32.80642), mouth=(0, 27.729994, 32.80642), emitted=21, tick=1487, start=1457
+Readback stage-4-firing.png: mouth=(619.9448, 295.3174), stream=(0, 25.562372, 32.83298), vertex=(620.6054, 295.45157), distance=0.018
+Replacement pickup while Oil owns the shared rack.
+Meter capture meter-full.png: displayed level 1.000.
+Meter capture meter-full.png: displayed level 1.000.
+Capture stage-5-firing.png: source=(-20.884205, 19.417551, -18.189255), mouth=(-20.884205, 19.417551, -18.189255), emitted=21, tick=1872, start=1842
+Meter capture meter-half.png: displayed level 0.360.
+Meter capture meter-half.png: displayed level 0.272.
+Meter capture meter-empty.png: displayed level 0.000.
+Meter capture meter-empty.png: displayed level 0.000.
+Late admission, retained deadlines and 30-second cleanup.
+Oil connection peer 3: Connecting.
+Oil connection peer 0: Connecting.
+Oil connection peer 0: Connected.
+Oil connection peer 3: Connected.
+Oil admission peer 3: Welcome received with connection=Connected, local=0, rejected=0.
+System.InvalidOperationException: Oil jack stage 6 timeout: peer 0: local=1, tick=4778, roster=4, itemTick=3642, patches=0, rejected=0, failure=; peer 1: local=2, tick=4776, roster=4, itemTick=3642, patches=0, rejected=189, failure=; peer 2: local=0, tick=, roster=, itemTick=, patches=, rejected=2551, failure=; peer 3: local=4, tick=4776, roster=4, itemTick=3642, patches=0, rejected=1, failure=
+   at Trackstorm.Client.Verification.OilJackChecks._PhysicsProcess(Double delta) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\OilJackChecks.cs:line 142
+REPLICATION_TRAFFIC {"seconds":159.6565585,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":6279,"messages":3,"peak":2093},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":746684,"messages":220,"peak":13368},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":22022,"messages":68,"peak":447},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":2317,"messages":4,"peak":1018},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":1632434,"messages":3184,"peak":1018},{"peer":2,"protocol":"TC","delivery":"Reliable","bytes":4186,"messages":2,"peak":2093},{"peer":2,"protocol":"TI","delivery":"Reliable","bytes":539960,"messages":124,"peak":13368},{"peer":2,"protocol":"TM","delivery":"Reliable","bytes":14257,"messages":40,"peak":447},{"peer":2,"protocol":"TS","delivery":"Reliable","bytes":1824,"messages":3,"peak":1018},{"peer":2,"protocol":"TS","delivery":"Unreliable","bytes":1367354,"messages":2426,"peak":1018},{"peer":3,"protocol":"TC","delivery":"Reliable","bytes":2093,"messages":1,"peak":2093},{"peer":3,"protocol":"TI","delivery":"Reliable","bytes":45293,"messages":6,"peak":13368},{"peer":3,"protocol":"TM","delivery":"Reliable","bytes":2638,"messages":7,"peak":403},{"peer":3,"protocol":"TS","delivery":"Reliable","bytes":1038,"messages":2,"peak":1018},{"peer":3,"protocol":"TS","delivery":"Unreliable","bytes":1031616,"messages":1728,"peak":1018}]}
+REPLICATION_TRAFFIC {"seconds":159.016267,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":692044,"messages":4774,"peak":145}]}
+REPLICATION_TRAFFIC {"seconds":93.2283251,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[]}
+REPLICATION_TRAFFIC {"seconds":44.4190131,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":375219,"messages":2589,"peak":145}]}

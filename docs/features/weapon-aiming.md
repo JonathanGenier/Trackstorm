@@ -2,7 +2,7 @@
 
 The assisted indicator exposes its current projected top edge, including glow, to the [remote name/HP layout](hud.md#remote-vehicle-tags). The arena updates that stack after camera and marker presentation so it clears the chevron at the current distance, FOV and resolution. Marker dimensions retain no targeting or accuracy meaning.
 
-The shared direct-fire foundation serves Machine Gun and standard Missile. Salvo keeps its separate mechanics. The production Car's deployed rack stays fixed: its child mount yaws and the child payload pitches. Missile uses its production Blender turret and telescoping payload; Machine Gun uses the Blender-authored Twin Fang with co-rotating suspended drums and flexible ammunition feeds.
+The shared direct-fire foundation serves Machine Gun, standard Missile and the EMP Claw launcher. EMP uses a 0.37 m conservative clearance radius for its enlarged cannon; the existing weapons retain their zero-radius aiming test. Salvo keeps its separate mechanics. The production Car's deployed rack stays fixed: its child mount yaws and the child payload pitches. Missile uses its production Blender turret and telescoping payload; Machine Gun uses the Blender-authored Twin Fang with co-rotating suspended drums and flexible ammunition feeds.
 
 Machine Gun and standard Missile consume the ready accepted direction and production rack pivot for authoritative fire. Machine Gun adds deterministic spread calibrated for approximately 80% grouping inside a production car's frame at 200 m. Missile launches one round along the accepted direction without spread; its later terrain correction never consumes an aim target or vehicle position. Missile driving fire without camera-aim intent requests chassis-forward direction, while held mouse aim or the existing controller camera intent uses shared free aim and car assistance. The centered cursor represents camera intent, not a guarantee of impact or an accepted-ray reticle.
 
@@ -17,6 +17,38 @@ Readiness starts on accepted ownership/selection, independently of first camera 
 Aim preparation uses the exact current native observation batch passed to the item step, matching the existing weapon handlers' pre-command pose phase. If that item/world transaction throws, the host restores transient aim and readiness state before retry. Presentation remains downstream of a successful host step.
 
 An accepted Proxy Mine placement retains ownership of the existing rack until placement and its 0.23-second arm return finish. Selecting or acquiring a direct-fire capability during that placement holds its readiness gate before the replacement path; it does not interrupt or redesign mine placement.
+
+## Salvo articulation consumer
+
+Salvo also consumes accepted yaw through `SupportsArticulation`, while remaining
+outside the direct-fire `Supports` set. The same camera ray, sender/life/token/
+selection guards, angular limits and replaceable publication drive its catapult.
+It reuses the shared sticky assistance, cursor and assisted-car indicator. Each
+automatic shot snapshots the accepted direction into its own native ray/ground
+target; later camera motion never changes an existing arc. Straight-barrel body
+clearance does not gate the arcing spoon. A committed magazine preserves local
+assistance and accepted articulation across shot-token rotation while rejecting
+stale-token requests. Fresh same-life accepted presentation follows that committed
+magazine when inventory and aim packets arrive in either order; normal expiry is
+unchanged. An uncommitted magazine and every other weapon still require exact
+token matching. Acquisition and retention are bounded by Salvo's usable aimed
+reach: initially twice its existing configurable base range (130 m by default).
+Camera-driven free aim and the shared ground circle use that same range; ordinary
+fire keeps the base range. Each launch samples the held-only aiming state from
+existing vehicle input independently of the accepted direction. Other weapons'
+acquisition distances and firing rules are unchanged.
+Missing transient aim uses chassis-forward fallback so a
+committed volley cannot be cancelled by loss of input or ground. See
+[Salvo mechanics](items-salvo.md#catapult-mechanical-presentation).
+
+## EMP Claw firing consumer
+
+EMP forwards the shared assisted car ID and life with the ordinary desired aim
+request. The host validates eligibility, accepted cone/range and native visibility
+before committing one identity in flight. Camera changes cannot replace it after
+launch. An unlocked flight may acquire once through its limited forward search.
+The 72-byte aim request retains sender/life/token/selection/sequence guards.
+Standard Missile never consumes the candidate identity. See [EMP flight](items-emp-claw.md).
 
 ## Machine Gun firing consumer
 

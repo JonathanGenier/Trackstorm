@@ -9,7 +9,7 @@ public sealed partial class CarRackChecks
 {
     private Action? _sampleHandoff;
 
-    public override void _Process(double delta) => _sampleHandoff?.Invoke();
+    public override void _Process(double delta) { _sampleHandoff?.Invoke(); _sampleCatapult?.Invoke(); }
 
     private async Task CheckWeaponHandoffs()
     {
@@ -91,6 +91,8 @@ public sealed partial class CarRackChecks
             await Until(() => HandoffReady(item.Identity), item.Key + " ready for post-use switching");
             Check(_arenas[1].Driver.RequestItemUse(), item.Key + " use before switch");
             await Frames(item.Sustained ? 40 : 2, item.Sustained ? InputButtons.UseItem : 0);
+            if (item.Identity == HeldItem.Salvo)
+            { await Until(() => _arenas[1].Driver.LocalItem?.Active.Item == HeldItem.None, "Committed Salvo finishes before switching"); }
             await SwitchHandoff(HeldItem.Shield, item.Key + "-post-use-to-shield", allowConsumption: true);
             Check(host.Items.Slots.Single(s => s.Vehicle == Shooter).EngagedToken == 0, item.Key + " switch stops sustained engagement");
         }
@@ -151,6 +153,9 @@ public sealed partial class CarRackChecks
     }
 
     private bool HandoffReady(HeldItem item) => AllPresent(item) &&
+        (item != HeldItem.Salvo || _arenas.All(a => a.Bodies[Shooter].Rack.IsSalvoReady(a.Driver.ItemState!.Slots.Single(s => s.Vehicle == Shooter))) &&
+            _arenas[0].Driver.Host!.Items.SalvoReady(_arenas[0].Driver.Host!.Items.Slots.Single(s => s.Vehicle == Shooter))) &&
+        (item != HeldItem.Oil || _arenas.All(a => a.Bodies[Shooter].Rack.IsOilReady(a.Driver.ItemState!.Slots.Single(s => s.Vehicle == Shooter)))) &&
         (item != HeldItem.Shield || _arenas.All(a => a.Bodies[Shooter].ShieldMountProgress == 1));
 
     private async Task SwitchHandoff(HeldItem incoming, string scenario, bool capture = false, bool allowConsumption = false)

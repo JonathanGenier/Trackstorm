@@ -1,0 +1,62 @@
+[
+  {
+    "file": "astra-native-evidence.txt",
+    "sha256": "B0E147EA9AF2F5DA364B1D9CEDE79F256180E70189D0A544859AE1108D97F261",
+    "source": ".godot/ts-245-round6/astra-native-runtime/evidence.txt"
+  },
+  {
+    "file": "astra-native-impact.png",
+    "sha256": "326567CB815BAAAA424145D8C595B39DC4CFEDDD8DA3A314C967A8F0B1AB4EF2",
+    "source": ".godot/ts-245-round6/astra-native-runtime/impact.png"
+  },
+  {
+    "file": "astra-native-jester-detail.png",
+    "sha256": "41CD8D527B19B36E373143DF88A2628BC2F8B8D9CB76BD5D0D554D6539F865B2",
+    "source": ".godot/ts-245-round6/astra-native-runtime/jester-detail.png"
+  },
+  {
+    "file": "astra-native-meter-empty.png",
+    "sha256": "5364A072BBA502BEB64B48240205891F61A41F66C6528DB9CD30999462F731D6",
+    "source": ".godot/ts-245-round6/astra-native-runtime/meter-empty.png"
+  },
+  {
+    "file": "astra-native-meter-full.png",
+    "sha256": "A23F64AE018C3098751B09CF44327DEF3C2A837CBE9E3E1DDEB9A65D73A00F6F",
+    "source": ".godot/ts-245-round6/astra-native-runtime/meter-full.png"
+  },
+  {
+    "file": "astra-native-meter-half.png",
+    "sha256": "63345F0AB289D5DD8E13E8C146770DE87BE8F45AF30980AA1F6FE3271A48FC6A",
+    "source": ".godot/ts-245-round6/astra-native-runtime/meter-half.png"
+  },
+  {
+    "file": "astra-native-mouth-closing.png",
+    "sha256": "4C03FEF03CF26D1438DF9CE738D3E488A3FB80AF91E1EF0CEEA617A8DA2CC7E8",
+    "source": ".godot/ts-245-round6/astra-native-runtime/mouth-closing.png"
+  },
+  {
+    "file": "astra-native-runtime.log",
+    "sha256": "927CDC75039A7819DE8D72B5B9D48340B65462FE4C99D951FE4FB301B70A8751",
+    "source": ".godot/ts-245-round6/astra-native-runtime/runtime.log"
+  },
+  {
+    "file": "astra-native-stage-1-firing.png",
+    "sha256": "7980B17177723EDBF86C2C8C93FFA31776B731271087A4A5E5A9E092D882CF64",
+    "source": ".godot/ts-245-round6/astra-native-runtime/stage-1-firing.png"
+  },
+  {
+    "file": "astra-native-stage-3-firing.png",
+    "sha256": "F3E4A4E723C22A4A2ED8876A4A5EDF20808858DFAE1F770CC2DBC5F9892B7898",
+    "source": ".godot/ts-245-round6/astra-native-runtime/stage-3-firing.png"
+  },
+  {
+    "file": "astra-native-tank-detail.png",
+    "sha256": "DAC98A2539DED1B3B8796B26985D00ABC2431C1DFFF910B13D75567A13C2C901",
+    "source": ".godot/ts-245-round6/astra-native-runtime/tank-detail.png"
+  },
+  {
+    "file": "astra-native-trace.json",
+    "sha256": "7D05813C03D7A74A8A9D523A02A4E9394D9F075E4FE67A3946ACFB312D6E35AC",
+    "source": ".godot/ts-245-round6/astra-native-runtime/trace.json"
+  }
+]

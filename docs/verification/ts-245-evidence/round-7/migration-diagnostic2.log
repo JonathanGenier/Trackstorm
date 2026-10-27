@@ -1,0 +1,84 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+MIGRATION retain player=2 seq=2 tick= observed=
+MIGRATION retain player=3 seq=2 tick= observed=
+MIGRATION retain player=2 seq=3 tick= observed=
+MIGRATION retain player=3 seq=3 tick= observed=
+MIGRATION loss player=2 confirmed=True connected=True receiptElapsed=0.04192286666666667 observed= retained=2::True;3::True
+MIGRATION loss player=3 confirmed=True connected=True receiptElapsed=0.038833166666666696 observed= retained=2::True;3::True
+MIGRATION retain player=3 seq=1 tick= observed=
+MIGRATION retain player=3 seq=2 tick= observed=
+MIGRATION retain player=4 seq=3 tick= observed=
+MIGRATION retain player=3 seq=3 tick= observed=
+Migration native arena 1 prepared in 227 ms.
+Migration native arena 0 prepared in 104 ms.
+Migration native arena 2 prepared in 98 ms.
+MIGRATION retain player=4 seq=4 tick=0 observed=0
+MIGRATION retain player=3 seq=4 tick=0 observed=0
+MIGRATION retain player=3 seq=5 tick=0 observed=0
+MIGRATION retain player=4 seq=5 tick=0 observed=0
+MIGRATION retain player=4 seq=6 tick=15 observed=15
+MIGRATION retain player=3 seq=6 tick=15 observed=15
+MIGRATION retain player=4 seq=7 tick=44 observed=42
+MIGRATION retain player=3 seq=7 tick=44 observed=42
+MIGRATION retain player=4 seq=8 tick=71 observed=69
+MIGRATION retain player=3 seq=8 tick=71 observed=69
+MIGRATION retain player=4 seq=9 tick=100 observed=99
+MIGRATION retain player=3 seq=9 tick=100 observed=99
+MIGRATION retain player=4 seq=10 tick=129 observed=129
+MIGRATION retain player=3 seq=10 tick=129 observed=129
+MIGRATION retain player=4 seq=11 tick=159 observed=159
+MIGRATION retain player=3 seq=11 tick=159 observed=159
+MIGRATION retain player=4 seq=12 tick=188 observed=186
+MIGRATION retain player=3 seq=12 tick=188 observed=186
+MIGRATION retain player=3 seq=13 tick=218 observed=216
+MIGRATION retain player=4 seq=13 tick=218 observed=216
+MIGRATION retain player=4 seq=14 tick=246 observed=246
+MIGRATION retain player=3 seq=14 tick=246 observed=246
+MIGRATION retain player=4 seq=15 tick=276 observed=276
+MIGRATION retain player=3 seq=15 tick=276 observed=276
+Category pickup history before migration: 2:3:Nitro:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;3:3:MachineGun:Weapon=-0.5/2,Consumable=0.75/0,Droppable=-0.25/1;4:3:ProxyMine:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1
+Item recovery seed: three distinct applied hits, 2.25 points, rate 0.375, target watermark 3.
+MIGRATION retain player=3 seq=16 tick=303 observed=300
+MIGRATION retain player=4 seq=16 tick=303 observed=300
+MIGRATION retain player=3 seq=17 tick=304 observed=304
+MIGRATION retain player=4 seq=17 tick=304 observed=304
+MIGRATION retain player=4 seq=18 tick=314 observed=314
+MIGRATION retain player=3 seq=18 tick=314 observed=314
+MIGRATION retain player=3 seq=19 tick=325 observed=325
+MIGRATION retain player=4 seq=19 tick=325 observed=325
+MIGRATION retain player=4 seq=20 tick=338 observed=338
+MIGRATION retain player=3 seq=20 tick=338 observed=338
+MIGRATION retain player=3 seq=21 tick=350 observed=350
+MIGRATION retain player=4 seq=21 tick=350 observed=350
+MIGRATION retain player=3 seq=22 tick=363 observed=363
+MIGRATION retain player=4 seq=22 tick=363 observed=363
+MIGRATION retain player=3 seq=23 tick=375 observed=375
+MIGRATION retain player=4 seq=23 tick=375 observed=375
+MIGRATION retain player=3 seq=24 tick=388 observed=388
+MIGRATION retain player=4 seq=24 tick=388 observed=388
+MIGRATION retain player=3 seq=25 tick=400 observed=400
+MIGRATION retain player=4 seq=25 tick=400 observed=400
+MIGRATION retain player=3 seq=26 tick=413 observed=413
+MIGRATION retain player=4 seq=26 tick=413 observed=413
+MIGRATION retain player=3 seq=27 tick=426 observed=426
+MIGRATION retain player=4 seq=27 tick=426 observed=426
+MIGRATION retain player=4 seq=28 tick=438 observed=438
+MIGRATION retain player=3 seq=28 tick=438 observed=438
+MIGRATION retain player=4 seq=29 tick=450 observed=450
+MIGRATION retain player=3 seq=29 tick=450 observed=450
+MIGRATION loss player=4 confirmed=False connected=False receiptElapsed=0.1641130999999998 observed=451 retained=26:413:True;27:426:True;28:438:True;29:450:True
+MIGRATION loss player=3 confirmed=False connected=False receiptElapsed=0.13089109999999948 observed=454 retained=26:413:True;27:426:True;28:438:True;29:450:True
+Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 450; no historical events.
+Shield recovery verified: 2 retained pools; 0 expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.
+Machine gun recovery verified: 299/800 rounds, phase 0.25, no historical shot.
+Nitro migration verified: partial charge retained without unwanted activation; Circus totals restore without historical awards.
+Proxy Mine migration verified: same hazard survives authority replacement.
+Environment recovery verified at tick 453: original deadline 902, expired=False, exact piece state and persistent cleared plants.
+Category history verified after authority migration: 2:3:Nitro:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;3:3:MachineGun:Weapon=-0.5/2,Consumable=0.75/0,Droppable=-0.25/1;4:3:ProxyMine:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1
+Circus timer migration verified: 35848 -> 35807 remaining ticks, recovery debit 42; score boundary retained.
+MIGRATION loss player=4 confirmed=False connected=False receiptElapsed=0.06648000000000032 observed=450 retained=
+REPLICATION_TRAFFIC {"seconds":17.6208448,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TD","delivery":"Reliable","bytes":2124,"messages":1,"peak":2124},{"peer":1,"protocol":"TE","delivery":"Reliable","bytes":564,"messages":2,"peak":282},{"peer":1,"protocol":"TL","delivery":"Reliable","bytes":398,"messages":3,"peak":142},{"peer":1,"protocol":"TX","delivery":"Reliable","bytes":6660,"messages":5,"peak":3207},{"peer":2,"protocol":"TD","delivery":"Reliable","bytes":2124,"messages":1,"peak":2124},{"peer":2,"protocol":"TE","delivery":"Reliable","bytes":282,"messages":1,"peak":282},{"peer":2,"protocol":"TL","delivery":"Reliable","bytes":284,"messages":2,"peak":142},{"peer":2,"protocol":"TX","delivery":"Reliable","bytes":6660,"messages":5,"peak":3207},{"peer":3,"protocol":"TG","delivery":"Reliable","bytes":78,"messages":2,"peak":39},{"peer":3,"protocol":"TG","delivery":"Unreliable","bytes":63298,"messages":452,"peak":172},{"peer":3,"protocol":"TL","delivery":"Reliable","bytes":298,"messages":2,"peak":150},{"peer":4,"protocol":"TX","delivery":"Reliable","bytes":492,"messages":2,"peak":348}]}
+REPLICATION_TRAFFIC {"seconds":17.6260629,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TL","delivery":"Reliable","bytes":148,"messages":1,"peak":148},{"peer":2,"protocol":"TD","delivery":"Reliable","bytes":6372,"messages":3,"peak":2124},{"peer":2,"protocol":"TE","delivery":"Reliable","bytes":19895,"messages":10,"peak":4493},{"peer":2,"protocol":"TG","delivery":"Reliable","bytes":513025,"messages":185,"peak":10935},{"peer":2,"protocol":"TG","delivery":"Unreliable","bytes":175052,"messages":159,"peak":6652},{"peer":2,"protocol":"TL","delivery":"Reliable","bytes":682,"messages":5,"peak":142},{"peer":2,"protocol":"TP","delivery":"Reliable","bytes":788,"messages":10,"peak":80},{"peer":2,"protocol":"TX","delivery":"Reliable","bytes":257510,"messages":46,"peak":20442},{"peer":2,"protocol":"TZ","delivery":"Reliable","bytes":206989,"messages":15,"peak":14335},{"peer":3,"protocol":"TD","delivery":"Reliable","bytes":6372,"messages":3,"peak":2124},{"peer":3,"protocol":"TE","delivery":"Reliable","bytes":19581,"messages":9,"peak":4493},{"peer":3,"protocol":"TG","delivery":"Reliable","bytes":513025,"messages":185,"peak":10935},{"peer":3,"protocol":"TG","delivery":"Unreliable","bytes":175052,"messages":159,"peak":6652},{"peer":3,"protocol":"TL","delivery":"Reliable","bytes":568,"messages":4,"peak":142},{"peer":3,"protocol":"TP","delivery":"Reliable","bytes":720,"messages":9,"peak":80},{"peer":3,"protocol":"TX","delivery":"Reliable","bytes":250747,"messages":40,"peak":20442},{"peer":3,"protocol":"TZ","delivery":"Reliable","bytes":206989,"messages":15,"peak":14335}]}
+REPLICATION_TRAFFIC {"seconds":17.6257903,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TL","delivery":"Reliable","bytes":148,"messages":1,"peak":148},{"peer":2,"protocol":"TG","delivery":"Reliable","bytes":78,"messages":2,"peak":39},{"peer":2,"protocol":"TG","delivery":"Unreliable","bytes":68430,"messages":453,"peak":172},{"peer":2,"protocol":"TL","delivery":"Reliable","bytes":150,"messages":1,"peak":150},{"peer":2,"protocol":"TX","delivery":"Reliable","bytes":358,"messages":2,"peak":214},{"peer":3,"protocol":"TX","delivery":"Reliable","bytes":293,"messages":2,"peak":147}]}
+Migration integration passed: 3 native UDP peers; intentional lobby host leave; former-host fresh join; active native match authority loss; sequential epochs; retained vehicles; prediction reset; item/spawn/match restore. Identity is a trusted test seam, not real EOS.

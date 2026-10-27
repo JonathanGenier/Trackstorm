@@ -8,250 +8,306 @@ using Trackstorm.Core.Vehicles;
 namespace Trackstorm.Core.Tests.Items;
 
 [TestFixture]
-internal sealed class SalvoTests
+internal sealed partial class SalvoTests
 {
-    [Test]
-    public void LaterRoundsFollowCurrentPositionAndHeadingWhileFlyingRoundsKeepTheirTarget()
+    [TestCase(false)]
+    [TestCase(true)]
+    public void OneActivationCommitsExactlyFiveLaunchesWithoutGroundOrFurtherInput(bool held)
     {
-        var host = new HostVehicleSession(99, new ItemConfiguration { SalvoSpeed = 85 });
-        GrantUse(host); host.Step(default, Observe, ground: Ground);
-        var target = host.Items.Missiles[0].Arc!.Target;
-        var origin = host.World.GetVehicle(1).ObservedPhysics.Position;
-        var moving = new VehiclePhysicsState(origin + Vector3.UnitX * 10, Quaternion.CreateFromAxisAngle(Vector3.UnitY, 1.5f), Vector3.Zero, Vector3.Zero);
-        for (int i = 0; i < 29; i++) { host.Step(default, _ => new(moving, Vector3.UnitY), ground: Ground); }
-        Use(host); host.Step(default, _ => new(moving, Vector3.UnitY), ground: Ground);
-        var round = host.Items.Missiles.Single(m => m.Arc!.ElapsedTicks == 1);
-        Assert.That(round.Arc!.Origin, Is.EqualTo(moving.Position + Vector3.UnitY * 3));
-        Assert.That(round.Arc.Target, Is.EqualTo(Ground(SalvoFlight.Aim(moving, 65))));
-        Assert.That(round.Arc.Target, Is.Not.EqualTo(target));
-        Assert.That(host.Items.Missiles.Single(m => m.Arc!.ElapsedTicks > 1).Arc!.Target, Is.EqualTo(target));
+        var host = Ready();
+        ulong start = host.World.State.Tick, token = host.Items.TokenHighWater;
+        Use(host);
+        var launches = new List<(ulong Tick, ulong Token)>();
+        for (int i = 0; i < 500; i++)
+        {
+            host.Step(new(0, 0, 0, 0, held ? InputButtons.UseItem : 0, 0, 0), Observe);
+            launches.AddRange(host.Items.Events.Where(e => !e.Impact).Select(e => (host.World.State.Tick - start, e.Token)));
+            Assert.That(host.Items.RequestUse(host.World, 1, 1, token), Is.False);
+            Assert.That(host.Items.Missiles.Count + host.Items.Slots.Sum(s => s.ReservedSalvoShots), Is.LessThanOrEqualTo(ItemAuthority.MaximumProjectiles));
+        }
+        Assert.That(launches.Select(x => x.Tick), Is.EqualTo(new ulong[] { 6, 81, 156, 231, 306 }));
+        Assert.That(launches.Select(x => x.Token).Distinct().Count(), Is.EqualTo(5));
+        Assert.That(host.Items.Slots.Single().Item, Is.EqualTo(HeldItem.None));
+        Assert.That(host.Items.Slots.Single().SalvoShots, Is.Zero);
+        Assert.That(host.Items.Missiles, Has.Count.EqualTo(5), "No contact: all five continue until their launch lifetimes expire.");
     }
 
     [Test]
-    public void FiveSeparatePressesProduceFiveHalfSecondLaunchesAndConsumeOneMagazine()
+    public void PreloadWaitsIndefinitelyAndEarlyUseIsNotQueued()
     {
         var host = new HostVehicleSession(99);
-        GrantUse(host);
-        var launches = new List<ulong>();
-        var impacts = new List<ItemEvent>();
-        Vector3? target = null;
-        float highest = 0;
-        for (int i = 0; i < 240; i++)
+        host.Items.Grant(host.World, 1, HeldItem.Salvo);
+        Assert.That(host.Items.RequestUse(host.World, 1, 1, host.Items.TokenHighWater), Is.False);
+        for (int i = 0; i < 2400; i++) { host.Step(default, Observe); }
+        Assert.That(host.Items.Missiles, Is.Empty);
+        Assert.That(host.Items.Slots.Single().SalvoShots, Is.EqualTo(5));
+        Assert.That(host.Items.Slots.Single().SalvoReadyTick, Is.Zero);
+        Assert.That(host.Items.SalvoReady(host.Items.Slots.Single()), Is.True);
+    }
+
+    [TestCase(0f)]
+    [TestCase(90f)]
+    [TestCase(180f)]
+    public void EachLaunchUsesCurrentCameraAimAndVehiclePoseWithoutSteeringEarlierRounds(float roll)
+    {
+        var host = Ready(new() { SalvoSpeed = 20, SalvoIntervalTicks = 30 });
+        Use(host);
+        var targets = new Dictionary<ulong, Vector3>();
+        var directions = new[] { -Vector3.UnitZ, Vector3.UnitX, Vector3.UnitZ, -Vector3.UnitX, Vector3.UnitY };
+        for (int i = 0; i < 140; i++)
         {
-            if (i is 30 or 60 or 90 or 120) { Use(host); }
-            host.Step(default, Observe, ground: Ground);
-            if (i == 0)
+            var slot = host.Items.Slots.Single();
+            var pose = new VehiclePhysicsState(new(i * .02f, 30, 0), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, roll * MathF.PI / 180), Vector3.Zero, Vector3.Zero);
+            if (slot.Item == HeldItem.Salvo)
+            { host.AimItem(0, 99, 1, slot.Token, slot.SelectionRevision, (ulong)i + 1, directions[Math.Min(4, (i + 24) / 30)]); }
+            host.Step(default, _ => new(pose, Vector3.UnitY));
+            foreach (var missile in host.Items.Missiles)
             {
-                Assert.That(host.Items.Missiles.Count, Is.EqualTo(1));
-                target = host.Items.Missiles[0].Arc!.Target;
-                Assert.That(target.Value.Z, Is.EqualTo(host.World.GetVehicle(1).ObservedPhysics.Position.Z - 65));
-                Assert.That(host.Items.Missiles[0].Arc!.Origin.Y, Is.EqualTo(host.World.GetVehicle(1).ObservedPhysics.Position.Y + 3));
-                Assert.That(host.Items.Slots.Single().SalvoShots, Is.EqualTo(4));
-            }
-            foreach (var m in host.Items.Missiles)
-            {
-                Assert.That(m.Arc!.Target, Is.EqualTo(target));
-                highest = Math.Max(highest, m.Position.Y);
-            }
-            foreach (var e in host.Items.Events)
-            {
-                if (e.Impact) { impacts.Add(e); } else { launches.Add(host.World.State.Tick); }
+                var arc = missile.Arc!;
+                if (targets.TryGetValue(missile.Id, out var prior)) { Assert.That(arc.Target, Is.EqualTo(prior)); }
+                else
+                {
+                    targets.Add(missile.Id, arc.Target);
+                    var aim = host.Items.Aims.SingleOrDefault();
+                    if (aim is not null)
+                    {
+                        Assert.That(Vector3.Distance(arc.Target, SalvoFlight.ResolveTarget(pose, aim.Direction, 65, null)), Is.LessThan(.001));
+                        Assert.That(Vector3.Distance(arc.Origin, SalvoFlight.LaunchOrigin(pose, aim.Yaw)), Is.LessThan(.001));
+                    }
+                }
             }
         }
-        Assert.That(launches, Is.EqualTo(new ulong[] { 1, 31, 61, 91, 121 }));
-        Assert.That(highest, Is.GreaterThan(12));
-        Assert.That(impacts.Count, Is.EqualTo(5));
-        Assert.That(impacts.Select(e => e.Token).Distinct().Count(), Is.EqualTo(5));
-        Assert.That(host.Items.Slots.Single(), Has.Property(nameof(ItemSlot.Item)).EqualTo(HeldItem.None));
-        Assert.That(host.Items.Slots.Single().SalvoShots, Is.Zero);
-        Assert.That(impacts.All(e => e.Item == HeldItem.Salvo && e.Position == target), Is.True);
-        Assert.That(host.Items.Missiles, Is.Empty);
+        Assert.That(targets.Count, Is.EqualTo(5));
+        Assert.That(targets.Values.Distinct().Count(), Is.EqualTo(5));
     }
 
     [Test]
-    public void ResumeAndReplacementHostRetainPartialAmmunitionCooldownAndFlightWithoutReplay()
+    public void ResumeAndReplacementHostContinueDeadlinesAndFlightWithoutReplay()
     {
-        var host = new HostVehicleSession(99);
-        host.Join(42);
-        GrantUse(host);
-        for (int i = 0; i < 10; i++) { host.Step(default, Observe, ground: Ground); }
-        var publication = ItemCodec.DecodeState(ItemCodec.EncodeState(new(1, host.Snapshot(), host.Items.Slots, host.Items.Missiles, [])));
-        var checkpoint = ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(new ResumeCheckpoint(publication, host.World.State.Match!, null, host.Configuration)));
+        var host = Ready(new() { SalvoSpeed = 20 }); host.Join(42);
+        Use(host);
+        for (int i = 0; i < 90; i++) { host.Step(default, Observe); }
+        var state = new ItemPublication(1, host.Snapshot(), host.Items.Slots, host.Items.Missiles, []);
+        var decoded = ItemCodec.DecodeState(ItemCodec.EncodeState(state));
+        var checkpoint = ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(new(decoded, host.World.State.Match!, null, host.Configuration)));
         var restored = HostVehicleSession.Restore(checkpoint, host.CaptureAuthority(), 2);
         Assert.That(restored.Items.Events, Is.Empty);
-        Assert.That(restored.Items.Missiles, Is.EqualTo(host.Items.Missiles));
-        Assert.That(restored.Items.Slots, Is.EqualTo(host.Items.Slots));
-        Assert.That(restored.Items.Slots.Single().SalvoShots, Is.EqualTo(4));
-        var start = host.World.GetVehicle(1).Movement.Physics.Position;
-        for (int i = 0; i < 240; i++)
+        Assert.That(restored.Items.Slots.Single().SalvoShots, Is.EqualTo(3));
+        for (int i = 0; i < 500; i++)
         {
-            if (i is 0 or 20 or 50 or 80 or 110) { Use(host); Use(restored); }
-            var moving = new VehiclePhysicsState(start + Vector3.UnitX * (i * 0.05f), Quaternion.CreateFromAxisAngle(Vector3.UnitY, i * 0.002f), Vector3.Zero, Vector3.Zero);
-            VehicleObservation ObserveMoving(VehicleSnapshot v) => v.VehicleId == 1 ? new(moving, Vector3.UnitY) : Observe(v);
-            host.Step(default, ObserveMoving, ground: Ground);
-            restored.Step(default, ObserveMoving, ground: Ground);
+            host.Step(default, Observe); restored.Step(default, Observe);
             Assert.That(restored.Items.Missiles, Is.EqualTo(host.Items.Missiles));
             Assert.That(restored.Items.Events, Is.EqualTo(host.Items.Events));
             Assert.That(restored.Items.Slots, Is.EqualTo(host.Items.Slots));
         }
-        Assert.That(restored.Items.Missiles, Is.Empty);
-        GrantUse(restored, 2);
-        restored.Step(default, Observe, ground: Ground);
-        Assert.That(restored.Items.Missiles.Count, Is.EqualTo(1));
-        Assert.That(restored.Items.Missiles.Min(m => m.Id), Is.GreaterThan(publication.Missiles.Max(m => m.Id)));
     }
 
-    [Test]
-    public void HoldingOrIdleDoesNotAutoFireAndCooldownPressDoesNotQueueOrSpendAmmo()
+    [TestCase(65f)]
+    [TestCase(90f)]
+    [TestCase(250f)]
+    public void EachShotSamplesDeliberateAimReachWhileUnaimedFireKeepsConfiguredRange(float range)
     {
-        var host = new HostVehicleSession(99);
-        GrantUse(host); host.Step(default, Observe, ground: Ground);
-        ulong retired = host.Items.Missiles.Single().Id;
-        Assert.That(host.Items.RequestUse(host.World, 1, 1, retired), Is.False);
-        Use(host); // A fresh press during cooldown is rejected at its authoritative step.
-        int launches = 0;
-        for (int i = 0; i < 180; i++)
+        var host = Ready(new() { SalvoRange = range });
+        Use(host);
+        var distances = new List<float>();
+        for (int i = 0; i < 350; i++)
         {
-            host.Step(new(0, 0, 0, 0, InputButtons.UseItem, 0, 0), Observe, ground: Ground);
-            launches += host.Items.Events.Count(e => !e.Impact);
+            var slot = host.Items.Slots.Single();
+            if (slot.Active.Item == HeldItem.Salvo)
+            { host.AimItem(0, 99, 1, slot.Token, 0, (ulong)i + 1, Vector3.UnitX); }
+            var held = (i / 75) % 2 == 0 ? InputButtons.AimItem : InputButtons.None;
+            host.Step(new(0, 0, 0, 0, held, 0, 0), Observe);
+            foreach (var launch in host.Items.Events.Where(e => !e.Impact))
+            {
+                var pose = host.World.GetVehicle(1).ObservedPhysics;
+                Vector3 pivot = pose.Position + Vector3.Transform(WeaponAim.Pivot, pose.Orientation);
+                distances.Add(Vector3.Distance(pivot, host.Items.Missiles.Single(m => m.Id == launch.Token).Arc!.Target));
+            }
         }
-        Assert.That(launches, Is.Zero);
-        Assert.That(host.Items.Slots.Single().SalvoShots, Is.EqualTo(4));
-        Assert.That(host.Items.Missiles, Is.Empty);
-        Use(host); host.Step(default, Observe, ground: Ground);
-        Assert.That(host.Items.Slots.Single().SalvoShots, Is.EqualTo(3));
-        Assert.That(host.Items.Events.Count(e => !e.Impact), Is.EqualTo(1));
+        Assert.That(distances, Is.EqualTo(new[] { range * 2, range, range * 2, range, range * 2 }).Within(.001f));
     }
 
     [Test]
-    public void MissingGroundCapacityAndRejectedBatchPreserveInventoryAndTokens()
+    public void ExpiredAimCannotKeepExtendedReachEvenWithAimingHeld()
     {
-        var host = new HostVehicleSession(99);
-        GrantUse(host);
-        host.Step(default, Observe);
-        Assert.That(host.Items.Slots.Single().Item, Is.EqualTo(HeldItem.Salvo));
-        var token = host.Items.TokenHighWater;
-        host.Items.RequestUse(host.World, 1, 1, token);
-        Assert.Throws<ArgumentException>(() => host.Step(default, Observe, (_, _) => float.NaN, ground: Ground));
+        var host = Ready();
+        Use(host);
+        var distances = new List<float>();
+        for (int i = 0; i < 350; i++)
+        {
+            var slot = host.Items.Slots.Single();
+            if (i < 10) { host.AimItem(0, 99, 1, slot.Token, 0, (ulong)i + 1, Vector3.UnitX); }
+            host.Step(new(0, 0, 0, 0, InputButtons.AimItem, 0, 0), Observe);
+            foreach (var launch in host.Items.Events.Where(e => !e.Impact))
+            {
+                var pose = host.World.GetVehicle(1).ObservedPhysics;
+                Vector3 pivot = pose.Position + Vector3.Transform(WeaponAim.Pivot, pose.Orientation);
+                distances.Add(Vector3.Distance(pivot, host.Items.Missiles.Single(m => m.Id == launch.Token).Arc!.Target));
+            }
+        }
+        Assert.That(distances, Is.EqualTo(new[] { 130f, 65, 65, 65, 65 }).Within(.001f));
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void SwitchingAndDiscardCannotCancelCommittedShotsAndSecondMagazineRemainsUntouched(bool beforeFirstStep)
+    {
+        var host = Ready(); host.Items.Grant(host.World, 1, HeldItem.Salvo);
+        Use(host);
+        if (!beforeFirstStep) { host.Step(default, Observe); }
+        var slot = host.Items.Slots.Single();
+        Assert.That(host.Items.Discard(host.World, 1, 1, slot.Token, slot.SelectionRevision), Is.False);
+        Assert.That(host.Items.Switch(host.World, 1, 1, 1), Is.True, "Acknowledge without deferring a switch.");
+        Assert.That(host.Items.Slots.Single().ActiveSlot, Is.Zero);
+        for (int i = 0; i < 500; i++) { host.Step(default, Observe); }
+        Assert.That(host.Items.Slots.Single().SecondSalvoShots, Is.EqualTo(5));
+        Assert.That(host.Items.Switch(host.World, 1, 1, 2), Is.True);
+        for (int i = 0; i < 240; i++) { host.Step(default, Observe); }
+        Use(host);
+        int launches = 0;
+        for (int i = 0; i < 500; i++) { host.Step(default, Observe); launches += host.Items.Events.Count(e => !e.Impact); }
+        Assert.That(launches, Is.EqualTo(5));
+        Assert.That(host.Items.Slots.Single().SecondItem, Is.EqualTo(HeldItem.None));
+    }
+
+    [Test]
+    public void FullCapacityRejectsActivationWithoutConsumingAndReservationsProtectAcceptedVolley()
+    {
+        var host = Ready(); var slot = host.Items.Slots.Single();
+        var full = Enumerable.Range(0, 12).Select(i => new MissileState((ulong)i + 100, 1, new(0, 100, 0), -Vector3.UnitZ, 900)).ToArray();
+        host.Items.Restore(new(1, host.Snapshot(), [slot], full, []), 1, 200);
+        for (int i = 0; i < 240; i++) { host.Step(default, Observe); }
+        Use(host); host.Step(default, Observe);
+        Assert.That(host.Items.Slots.Single().SalvoReadyTick, Is.Zero);
+        Assert.That(host.Items.Slots.Single().SalvoShots, Is.EqualTo(5));
+        Assert.That(host.Items.TokenHighWater, Is.EqualTo(200));
+        Assert.Throws<ArgumentException>(() => new ItemPublication(1, host.Snapshot(), [slot with { SalvoReadyTick = host.World.State.Tick + 5 }], full, []));
+    }
+
+    [Test]
+    public void FailedWorldBatchDoesNotConsumeLaunchDeadlineOrCapability()
+    {
+        var host = Ready(); Use(host);
+        for (int i = 0; i < 5; i++) { host.Step(default, Observe); }
+        var slots = host.Items.Slots; var token = host.Items.TokenHighWater;
+        Assert.Throws<ArgumentException>(() => host.Step(default, Observe, (_, _) => float.NaN));
+        Assert.That(host.Items.Slots, Is.EqualTo(slots));
         Assert.That(host.Items.TokenHighWater, Is.EqualTo(token));
         Assert.That(host.Items.Missiles, Is.Empty);
-        host.Step(default, Observe, ground: Ground);
+        host.Step(default, Observe);
         Assert.That(host.Items.Slots.Single().SalvoShots, Is.EqualTo(4));
-        var slot = host.Items.Slots.Single();
-        var full = Enumerable.Range(0, 16).Select(i => new MissileState((ulong)i + 100, 1, Vector3.Zero, -Vector3.UnitZ, 300)).ToArray();
-        host.Items.Restore(new(1, host.Snapshot(), [slot with { SalvoReadyTick = 0 }], full, []), 1, 200);
+    }
+
+    [Test]
+    public void ConcurrentActivationsReserveCapacityBeforeAcceptingWholeMagazines()
+    {
+        var host = Ready();
+        for (ulong peer = 42; peer < 45; peer++) { host.Join(peer); }
+        foreach (var vehicle in host.World.State.Vehicles.Where(v => v.VehicleId != 1))
+        { Assert.That(host.Items.Grant(host.World, vehicle.VehicleId, HeldItem.Salvo), Is.True); }
+        for (int i = 0; i < 240; i++) { host.Step(default, Observe); }
+        foreach (var slot in host.Items.Slots)
+        { Assert.That(host.Items.RequestUse(host.World, slot.Vehicle, slot.Life, slot.Token), Is.True); }
+        host.Step(default, Observe);
+        Assert.That(host.Items.Slots.Count(s => s.SalvoCommitted), Is.EqualTo(3));
+        Assert.That(host.Items.Slots.Single(s => !s.SalvoCommitted).SalvoShots, Is.EqualTo(5));
+        var launches = new List<ItemEvent>();
+        for (int i = 0; i < 500; i++)
+        {
+            host.Step(default, Observe);
+            launches.AddRange(host.Items.Events.Where(e => !e.Impact));
+            Assert.That(host.Items.Missiles.Count + host.Items.Slots.Sum(s => s.ReservedSalvoShots), Is.LessThanOrEqualTo(ItemAuthority.MaximumProjectiles));
+        }
+        Assert.That(launches.Count, Is.EqualTo(15));
+        Assert.That(launches.GroupBy(e => e.Owner).Select(g => g.Count()), Is.All.EqualTo(5));
+        Assert.That(launches.Select(e => e.Token).Distinct().Count(), Is.EqualTo(15));
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void DeathAndRespawnCannotResumeCommittedMagazine(bool clearInventory)
+    {
+        var host = Ready(respawn: new() { DelayTicks = 1, ClearHeldItemOnDeath = clearInventory });
+        host.Items.Grant(host.World, 1, HeldItem.Wrench);
         Use(host);
-        host.Step(default, Observe, ground: Ground);
-        Assert.That(host.Items.Missiles.Count, Is.EqualTo(16));
-        Assert.That(host.Items.Slots.Single().Item, Is.EqualTo(HeldItem.Salvo));
-        Assert.That(host.Items.Slots.Single().SalvoShots, Is.EqualTo(4));
-        Assert.That(host.Items.TokenHighWater, Is.EqualTo(200));
+        for (int i = 0; i < 10; i++) { host.Step(default, Observe); }
+        ulong life = host.World.GetVehicle(1).LifeId;
+        var input = new InputFrame(host.World.State.Tick + 1, 0, 0, 0, 0, 0, 0);
+        host.Items.Step(host.World, input, [new(1, input, Observe(host.World.GetVehicle(1)),
+            [new(new DamageEffect(10000, Vector3.Zero, Vector3.Zero), new DamageContext("test", 0, "lethal"))])], (_, _) => null);
+        Assert.That(host.Items.Missiles, Is.Empty);
+        Assert.That(host.Items.Slots.Sum(s => s.ReservedSalvoShots), Is.Zero);
+        for (int i = 0; i < 500; i++)
+        {
+            host.Step(default, Observe);
+            Assert.That(host.Items.Events.Where(e => e.Item == HeldItem.Salvo), Is.Empty);
+        }
+        Assert.That(host.World.GetVehicle(1).LifeId, Is.GreaterThan(life));
+        if (!clearInventory) { Assert.That(host.Items.Slots.Single().SecondItem, Is.EqualTo(HeldItem.Wrench)); }
     }
 
     [Test]
-    public void RadialFalloffMultipleTargetsAndDistinctActualDamageRemainAuthoritative()
+    public void FinishedMatchClearsCommittedMagazineAndFlight()
     {
-        var host = new HostVehicleSession(99, new ItemConfiguration { SalvoCount = 2, SalvoIntervalTicks = 1, SalvoDamage = 20 });
-        host.Join(42); host.Join(43);
-        GrantUse(host);
-        host.Step(default, Observe, ground: Ground);
-        var center = host.Items.Missiles[0].Arc!.Target;
-        float previous = 100;
-        for (int distance = 0; distance <= 8; distance++)
-        {
-            var effect = host.Items.Explosion(center, center + Vector3.UnitX * distance, HeldItem.Salvo);
-            Assert.That(effect.Damage, Is.LessThanOrEqualTo(previous));
-            Assert.That(effect.Impulse.Length(), Is.LessThanOrEqualTo(3500.01));
-            previous = effect.Damage;
-        }
-        for (int i = 0; i < 120; i++)
-        {
-            if (i == 0) { Use(host); }
-            host.Step(default, v => v.VehicleId == 1 ? Observe(v) : new(new VehiclePhysicsState(center + Vector3.UnitX * (v.VehicleId == 2 ? 1 : 4), Quaternion.Identity, Vector3.Zero, Vector3.Zero), Vector3.UnitY), ground: Ground);
-        }
-        var near = host.World.GetVehicle(2).Damage;
-        var far = host.World.GetVehicle(3).Damage;
-        Assert.That(near.CurrentHP, Is.LessThan(far.CurrentHP));
-        Assert.That(near.LastDamage!.Sequence, Is.EqualTo(2));
-        Assert.That(far.LastDamage!.Sequence, Is.EqualTo(2));
-        Assert.That(near.LastDamage.Attribution.Source, Is.EqualTo("salvo"));
-        Assert.That(near.LastDamage.Attribution.InstigatorId, Is.EqualTo(1));
-        Assert.That(host.World.GetVehicle(1).Damage.LastDamage, Is.Null);
+        var host = Ready(); Use(host);
+        for (int i = 0; i < 10; i++) { host.Step(default, Observe); }
+        var current = host.World.State; var match = current.Match!;
+        var finished = new Trackstorm.Core.Matches.MatchState(current.Tick, match.Revision + 1, match.KillTarget,
+            Trackstorm.Core.Matches.MatchPhase.Finished, null, 1, match.Players.Select(p => p with { Wins = 1, Stunts = null }),
+            mode: match.Mode, activeStartedAtTick: match.ActiveStartedAtTick, durationTicks: match.DurationTicks);
+        host.World.Restore(new(current.Tick, current.LastInput, current.Vehicles, finished));
+        host.Step(default, Observe);
+        Assert.That(host.Items.Missiles, Is.Empty);
+        Assert.That(host.Items.Slots.Single().Item, Is.EqualTo(HeldItem.None));
+        Assert.That(host.Items.Slots.Single().ReservedSalvoShots, Is.Zero);
     }
 
     [Test]
-    public void ResetAndDepartureCancelPendingAndFlyingRounds()
+    public void ResetDepartureAndNewMatchClearScheduledAndFlyingRounds()
     {
-        var host = new HostVehicleSession(99);
-        GrantUse(host); host.Step(default, Observe, ground: Ground);
+        var host = Ready(); Use(host);
+        for (int i = 0; i < 10; i++) { host.Step(default, Observe); }
         var input = new InputFrame(host.World.State.Tick + 1, 0, 0, 0, 0, 0, 0);
         var pose = host.World.GetVehicle(1).Movement.Physics;
         host.Items.Step(host.World, input, [new(1, input, new(pose, Vector3.UnitY), reset: pose)], (_, _) => null);
         Assert.That(host.Items.Missiles, Is.Empty);
-        GrantUse(host); host.Step(default, Observe, ground: Ground);
-        host.Items.RemovePlayer(1);
-        Assert.That(host.Items.Missiles, Is.Empty);
-        Assert.That(new HostVehicleSession(100).Items.Missiles, Is.Empty);
+        Assert.That(host.Items.Slots, Is.Empty);
+        host = Ready(); Use(host); host.Step(default, Observe); host.Items.RemovePlayer(1);
+        Assert.That(host.Items.Slots, Is.Empty);
+        Assert.That(new HostVehicleSession(100).Items.Slots, Is.Empty);
     }
 
     [Test]
-    public void LiveTuningRoundTripsAndDoesNotBendExistingArc()
+    public void LiveIntervalTuningRoundTripsAndCannotRefillOrBendExistingFlight()
     {
-        var host = new HostVehicleSession(99);
-        GrantUse(host); host.Step(default, Observe, ground: Ground);
-        var before = host.Items.Missiles.ToArray();
-        Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["items.salvo_range"] = 80, ["items.salvo_speed"] = 100, ["items.salvo_damage"] = 40, ["items.missile_speed"] = 100 }, out _), Is.True);
+        var host = Ready(); Use(host);
+        for (int i = 0; i < 10; i++) { host.Step(default, Observe); }
+        var before = host.Items.Missiles.ToArray(); var deadline = host.Items.Slots.Single().SalvoReadyTick;
+        Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["items.salvo_interval_ticks"] = 90, ["items.salvo_range"] = 80 }, out _), Is.True);
         Assert.That(host.Items.Missiles, Is.EqualTo(before));
+        Assert.That(host.Items.Slots.Single().SalvoReadyTick, Is.EqualTo(deadline));
         Assert.That(GameplayConfigurationCodec.Decode(GameplayConfigurationCodec.Encode(99, host.Configuration)).State, Is.EqualTo(host.Configuration));
-        Assert.That(host.TryConfigure(999, new Dictionary<string, double> { ["items.salvo_count"] = 1 }, out _), Is.False);
-        Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["items.salvo_count"] = 17 }, out _), Is.False);
-        var broken = before[0] with { Arc = before[0].Arc! with { ElapsedTicks = 9999 } };
-        Assert.Throws<ArgumentException>(() => new ItemPublication(1, host.Snapshot(), host.Items.Slots, [broken], []));
-    }
-
-    [Test]
-    public void TwoPartialSlotsSwitchIndependentlyAndRoundTripWithCooldowns()
-    {
-        var host = new HostVehicleSession(99);
-        GrantUse(host); host.Step(default, Observe, ground: Ground);
+        Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["items.salvo_count"] = 8 }, out _), Is.False);
+        Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["items.salvo_interval_ticks"] = 1 }, out _), Is.False);
         Assert.That(host.Items.Grant(host.World, 1, HeldItem.Salvo), Is.True);
-        Assert.That(host.Items.Switch(host.World, 1, 1, 1), Is.True);
-        Use(host); host.Step(default, Observe, ground: Ground);
-        var slot = host.Items.Slots.Single();
-        Assert.That(slot.SalvoShots, Is.EqualTo(4));
-        Assert.That(slot.SecondSalvoShots, Is.EqualTo(4));
-        Assert.That(slot.SecondSalvoReadyTick, Is.EqualTo(32));
-        Assert.That(slot.SalvoReadyTick, Is.EqualTo(31));
-        var decoded = ItemCodec.DecodeState(ItemCodec.EncodeState(new(1, host.Snapshot(), [slot], host.Items.Missiles, [])));
-        Assert.That(decoded.Slots.Single(), Is.EqualTo(slot));
-        Assert.That(host.Items.Switch(host.World, 1, 1, 2), Is.True);
-        Use(host); host.Step(default, Observe, ground: Ground);
-        Assert.That(host.Items.Slots.Single().SalvoShots, Is.EqualTo(4));
-        foreach (var invalid in new[] { slot with { SalvoShots = 0 }, slot with { SecondSalvoShots = 17 }, slot with { SecondItem = HeldItem.Wrench }, slot with { SalvoReadyTick = 1000 } })
-        { Assert.Throws<ArgumentException>(() => new ItemPublication(1, host.Snapshot(), [invalid], [], [])); }
+        Assert.That(host.Items.Slots.Single().SecondSalvoShots, Is.EqualTo(5));
+        while (host.World.State.Tick < deadline) { host.Step(default, Observe); }
+        Assert.That(host.Items.Slots.Single().SalvoReadyTick, Is.EqualTo(deadline + 90));
     }
 
-    [Test]
-    public void TuningCountAffectsNewPickupsWithoutRefillingHeldShots()
+    private static HostVehicleSession Ready(ItemConfiguration? configuration = null, RespawnConfiguration? respawn = null)
     {
-        var host = new HostVehicleSession(99);
-        GrantUse(host); host.Step(default, Observe, ground: Ground);
-        Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["items.salvo_count"] = 8 }, out _), Is.True);
+        var host = new HostVehicleSession(99, configuration, respawnConfiguration: respawn);
+        Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["match.minimum_players"] = 1, ["match.countdown_ticks"] = 1 }, out _), Is.True);
         Assert.That(host.Items.Grant(host.World, 1, HeldItem.Salvo), Is.True);
-        Assert.That(host.Items.Slots.Single().SalvoShots, Is.EqualTo(4));
-        Assert.That(host.Items.Slots.Single().SecondSalvoShots, Is.EqualTo(8));
+        for (int i = 0; i < 240; i++) { host.Step(default, Observe); }
+        Assert.That(host.Items.SalvoReady(host.Items.Slots.Single()), Is.True);
+        return host;
     }
-
-    private static void GrantUse(HostVehicleSession host, ulong player = 1)
+    private static void Use(HostVehicleSession host)
     {
-        Assert.That(host.Items.Grant(host.World, player, HeldItem.Salvo), Is.True);
-        Use(host, player);
-    }
-    private static void Use(HostVehicleSession host, ulong player = 1)
-    {
-        var slot = host.Items.Slots.Single(s => s.Vehicle == player);
-        Assert.That(host.Items.RequestUse(host.World, player, slot.Life, slot.Active.Token), Is.True);
+        var slot = host.Items.Slots.Single(s => s.Vehicle == 1);
+        Assert.That(host.Items.RequestUse(host.World, 1, slot.Life, slot.Active.Token), Is.True);
     }
     private static VehicleObservation Observe(VehicleSnapshot state) => new(state.Movement.Physics, Vector3.UnitY);
-    private static Vector3? Ground(Vector3 point) => new Vector3(point.X, 0, point.Z);
 }

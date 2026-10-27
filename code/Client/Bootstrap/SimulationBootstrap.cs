@@ -186,8 +186,10 @@ public sealed partial class SimulationBootstrap : Node
         {
             Name = "CombatHud",
             Vehicle = () => _session?.PostMatch is null ? _session?.Arena?.LocalState ?? _arena?.Player.Snapshot : null,
-            Slot = () => _session?.Arena?.Driver.LocalItem,
+            Slot = () => _session?.Arena?.PresentedLocalItem,
             Shields = () => _session?.Arena?.Driver.ItemState?.Shields ?? Array.Empty<Core.Items.ShieldState>(),
+            EmpAttachments = () => _session?.Arena?.Driver.ItemState?.EmpAttachments ?? Array.Empty<Core.Items.EmpClawAttachment>(),
+            Session = () => _session?.Arena?.Driver.ItemState?.World.Session ?? 0,
             Units = () => _settings.Current.SpeedUnit,
             Position = () => _session?.Standings.Position ?? "--",
             Match = () => _session?.Arena?.Driver.Match,

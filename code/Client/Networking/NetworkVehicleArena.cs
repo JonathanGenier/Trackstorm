@@ -64,6 +64,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
     internal IReadOnlyDictionary<ulong, NetworkVehicleBody> Bodies => _bodies;
     /// <summary>Current local gameplay snapshot for settings telemetry.</summary>
     internal VehicleSnapshot? LocalState => _driver.LocalState;
+    internal ItemSlot? PresentedLocalItem => LocalState is { } state && _bodies.TryGetValue(state.VehicleId, out var body)
+        ? body.Rack.PresentedInventory(_driver.LocalItem) : _driver.LocalItem;
     /// <summary>Measured render-buffer delay for diagnostics and runtime checks.</summary>
     internal double InterpolationDelay => _interpolation.DelayMilliseconds;
     internal double InterpolationTimelineDelay => _interpolation.TimelineDelayMilliseconds;
@@ -74,7 +76,11 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private IReadOnlyList<RigidBody3D> Props => _layout?.Props ?? Array.Empty<RigidBody3D>();
 
     /// <inheritdoc/>
-    public override void _ExitTree() => _driver?.Dispose();
+    public override void _ExitTree()
+    {
+        _driver?.Dispose();
+        _empSurface?.Dispose();
+    }
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -99,13 +105,25 @@ internal sealed partial class NetworkVehicleArena : Node3D
             prop.Freeze = ApplicationEntry || _driver.Host is null;
         }
 
+        _items.OilMouth = owner => _bodies.TryGetValue(owner, out var body) ? body.Rack.OilMouth : null;
+        _items.OilFrame = owner => _bodies.TryGetValue(owner, out var body) ? body.VisualTransform : null;
+        _items.EmpAttachments.TargetFrame = (vehicle, life) =>
+            _bodies.TryGetValue(vehicle, out var body) && _driver.Latest?.Vehicles.Any(v =>
+                v.State.VehicleId == vehicle && v.State.LifeId == life && v.State.CanInteract) == true ? body.VisualTransform : null;
+        _items.EmpAttachments.AcceptedTick = () => _driver.Latest?.Tick ?? 0;
+        _driver.Resynchronized += _ => _items.EmpAttachments.Restore();
         AddChild(_items);
         AddChild(Walls);
         Walls.MountedPose = owner => _bodies.TryGetValue(owner, out var body)
             ? body.ShieldRelease : null;
         _driver.PlaceShield = (slot, pose, tuning) => Walls.Place(pose, tuning, _bodies[slot.Vehicle]);
+        _driver.OilReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.Rack.IsOilReady(inventory);
         _driver.ShieldReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.CanDeployShield(inventory);
+        _driver.WrenchReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.Rack.IsWrenchReady(inventory);
+        _driver.WrenchReturning = () => LocalState is { } state && _bodies.TryGetValue(state.VehicleId, out var body) && body.Rack.WrenchOwnsRack;
         _driver.MissileReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.Rack.IsMissileReady(inventory);
+        _driver.SalvoReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.Rack.IsSalvoReady(inventory);
+        _driver.EmpClawReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.Rack.IsEmpClawReady(inventory);
         _driver.ObserveShield = Walls.Observe;
         AddChild(_salvoMarker);
         InitializeAiming();
@@ -117,11 +135,17 @@ internal sealed partial class NetworkVehicleArena : Node3D
         var markers = MapConfiguration;
         _driver.Host?.RegisterSpawns(markers, SpawnConfiguration);
         AddChild(_pickups);
-        _pickups.Initialize(markers);
+        // The fresh host already knows its initial boundary; its first simulation
+        // publication may itself contain a pickup and must not be treated as history.
+        _pickups.Initialize(markers, Map.GetNode<Node3D>("ItemSpawns"), freshHost: _driver.Host is not null);
         _driver.CollideMissile = CollideMissile;
         _driver.QueryMissileTerrain = (from, to) => Items.MissileTerrainQuery.Cast(GetWorld3D().DirectSpaceState, from, to);
         _driver.RaycastWeapon = RaycastWeapon;
+        _driver.RaycastEmpClaw = RaycastEmpClaw;
+        _driver.ContactEmpNose = ContactEmpNose;
+        if (_driver.Host is not null) { _empSurface = new(); }
         _driver.PlaceOil = PlaceOil;
+        _driver.OilCollision = (from, to, radius) => Items.OilSurfaceQuery.Cast(GetWorld3D().DirectSpaceState, from, to, radius);
         _driver.ProjectSalvoGround = point => SalvoGround(VehicleBody.ToGodot(point)) is { } hit ? VehicleBody.ToCore(hit.Position) : null;
         var mines = new Items.ProxyMinePhysics();
         AddChild(mines);
@@ -134,6 +158,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
         };
         _driver.ItemsReceived += publication =>
         {
+            _items.OilRoughness = _driver.Configuration.Configuration.Items.OilRoughness;
+            _items.OilStreamWidth = _driver.Configuration.Configuration.Items.OilStreamWidth;
             _items.Apply(publication, _driver.Configuration.Configuration.Items.ExplosionRadius);
             Walls.Apply(publication, _driver.Host is not null);
             foreach (var vehicle in publication.World.Vehicles)
@@ -144,16 +170,19 @@ internal sealed partial class NetworkVehicleArena : Node3D
                 if (_bodies.TryGetValue(state.VehicleId, out var body))
                 {
                     body.ObserveShields(state, publication.Shields);
+                    body.Rack.OilConfiguration = _driver.Configuration.Configuration.Items;
+                    body.Rack.EmpConfiguration = _driver.Configuration.Configuration.Items;
                     body.Rack.Observe(state.LifeId, state.CanInteract,
                         publication.Slots.FirstOrDefault(slot => slot.Vehicle == state.VehicleId),
                         publication.Events.Where(outcome => outcome.Owner == state.VehicleId),
                         publication.Mines.FirstOrDefault(mine => mine.Owner == state.VehicleId && mine.IsPlacing),
                         publication.World.Tick, publication.Shields);
+                    body.Rack.ObserveOil(publication.Patches, state.VehicleId, publication.World.Tick);
                 }
             }
             _audio.ApplyVehicles(publication.World.Vehicles.Select(vehicle => vehicle.State));
             _audio.ApplyItems(publication);
-            _pickups.Apply(publication);
+            _pickups.Apply(publication, observedTick: _driver.Latest?.Tick ?? publication.World.Tick);
             if (_driver.Host is not null)
             {
                 foreach (var impact in publication.Events.Where(outcome => outcome.Impact && outcome.Item is HeldItem.Missile or HeldItem.Salvo))
@@ -201,7 +230,9 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _environment.Apply(_driver.Configuration.Configuration.Environment);
         _salvoMarker.Refresh(delta, _driver.LocalState, _driver.LocalItem, _driver.ItemState,
             _driver.Configuration.Configuration.Items, _driver.IsActive && (!ApplicationEntry || _driver.EntryReady) &&
-            _driver.Match?.Phase is not (Core.Matches.MatchPhase.Finished or Core.Matches.MatchPhase.Waiting or Core.Matches.MatchPhase.Countdown), SalvoGround);
+            _driver.Match?.Phase is not (Core.Matches.MatchPhase.Finished or Core.Matches.MatchPhase.Waiting or Core.Matches.MatchPhase.Countdown), SalvoGround,
+            _driver.PresentedAim(_driver.LocalItem),
+            (from, to) => RaycastWeapon(_driver.LocalVehicleId, from, to), CameraInput?.CameraAimActive == true);
         if (ApplicationEntry && !_driver.EntryReady)
         {
             ResetAiming();
@@ -307,9 +338,12 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver = new VehicleNetworkDriver(gateway, session, serverPeer, lobby, configuration: configuration ?? Core.Development.GameplayConfiguration.HostedDefaults, arena: MapConfiguration, applicationEntry: ApplicationEntry);
         _driver.ConfigurationChanged += accepted =>
         {
+            _items.OilRoughness = accepted.Items.OilRoughness;
+            _items.OilStreamWidth = accepted.Items.OilStreamWidth;
             foreach (var body in _bodies.Values)
             {
                 body.ApplyConfiguration(accepted.Vehicle);
+                body.Rack.OilConfiguration = accepted.Items;
             }
         };
         _driver.RosterChanged += SynchronizeBodies;
@@ -322,6 +356,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
             if (_driver.EnvironmentState is { } environment) { _destructibles?.Apply(environment, true); }
             _audio.ApplyVehicles(snapshot.Vehicles.Select(vehicle => vehicle.State), true);
             _audio.ApplyItems(_driver.ItemState!, true);
+            _pickups.Apply(_driver.ItemState!, true);
             _audio.ApplyMatch(_driver.Match!, true);
             _interpolation.Reset();
             if (_layout is not null)
@@ -349,6 +384,12 @@ internal sealed partial class NetworkVehicleArena : Node3D
     /// <param name="input">Immediately captured local logical input.</param>
     internal void Advance(InputFrame input)
     {
+        // The held input bit travels with ordinary ordered/redundant vehicle input.
+        // It changes Salvo reach only; the separate accepted direction still owns aim.
+        var aimHeld = CameraInput?.CameraAimActive == true && _driver.LocalItem?.Active.Item == HeldItem.Salvo
+            ? InputButtons.AimItem : InputButtons.None;
+        input = new(input.Tick, input.Steering, input.Accelerate, input.Brake, (input.Held & ~InputButtons.AimItem) | aimHeld,
+            input.Pressed, input.Released, input.AirPitch, input.AirYaw, input.AirRoll);
         _audio.Initialize(_driver.LocalVehicleId);
         Dictionary<ulong, VehicleObservation>? hostObservations = null;
         _driver.Advance(input, state =>
@@ -445,32 +486,13 @@ internal sealed partial class NetworkVehicleArena : Node3D
 
     private OilPatch? PlaceOil(ItemSlot slot, VehiclePhysicsState pose)
     {
-        Vector3 up = VehicleBody.ToGodot(System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitY, pose.Orientation));
-        Vector3 behind = VehicleBody.ToGodot(pose.Position + System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitZ * (_driver.Host!.Configuration.Configuration.Vehicle.Wheelbase / 2 + 3.5f), pose.Orientation));
-        using var ray = PhysicsRayQueryParameters3D.Create(behind + up, behind - up * 5, 1);
-        var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
-        if (hit.Count == 0 || hit["collider"].AsGodotObject() is not StaticBody3D) { return null; }
-        Vector3 center = hit["position"].AsVector3();
-        Vector3 normal = hit["normal"].AsVector3().Normalized();
-        if (normal.Y < 0.55f) { return null; }
-        Vector3 tangent = normal.Cross(Vector3.Forward).Normalized();
-        Vector3 bitangent = normal.Cross(tangent);
-        // Refuse ledges, obstacles and surfaces that cannot support the entire planar footprint.
-        for (int i = 0; i < 16; i++)
+        var c = _driver.Host!.Configuration.Configuration.Items;
+        return new OilPatch(slot.Token, slot.Vehicle, pose.Position, System.Numerics.Vector3.UnitY, c.OilRadius)
         {
-            float angle = i * Mathf.Tau / 16;
-            Vector3 point = center + 3 * (tangent * Mathf.Cos(angle) + bitangent * Mathf.Sin(angle));
-            ray.From = point + normal * 0.5f;
-            ray.To = point - normal * 0.5f;
-            var sample = GetWorld3D().DirectSpaceState.IntersectRay(ray);
-            if (sample.Count == 0 || sample["collider"].AsGodotObject() is not StaticBody3D ||
-                sample["normal"].AsVector3().Dot(normal) < 0.98f ||
-                Mathf.Abs((sample["position"].AsVector3() - point).Dot(normal)) > 0.06f)
-            {
-                return null;
-            }
-        }
-        return new OilPatch(slot.Token, slot.Vehicle, new System.Numerics.Vector3(center.X, center.Y, center.Z), new System.Numerics.Vector3(normal.X, normal.Y, normal.Z), 3);
+            Pour = new OilPour { Life = slot.Life, DurationTicks = (int)MathF.Ceiling(c.OilFireSeconds * 60),
+                IntervalTicks = c.OilIntervalTicks, Speed = c.OilSpeed, Gravity = c.OilGravity, Radius = c.OilRadius,
+                PreviousVelocity = pose.LinearVelocity, Stiffness = c.OilSpringStiffness, Damping = c.OilSpringDamping, Reaction = c.OilSpringReaction, Kickback = c.OilKickback }
+        };
     }
 
     private WeaponRayHit? RaycastWeapon(ulong ownerId, System.Numerics.Vector3 origin, System.Numerics.Vector3 end)
@@ -484,7 +506,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
         var hit = QueryWithoutRearShields(ray);
         if (hit.Count == 0) { return null; }
         float fraction = Math.Clamp(start.DistanceTo(hit["position"].AsVector3()) / start.DistanceTo(finish), 0, 1);
-        return new(fraction, (hit["collider"].AsGodotObject() as NetworkVehicleBody)?.VehicleId ?? 0);
+        return new(fraction, (hit["collider"].AsGodotObject() as NetworkVehicleBody)?.VehicleId ?? 0)
+        { Normal = VehicleBody.ToCore(hit["normal"].AsVector3()) };
     }
 
     private float? CollideMissile(MissileState missile, System.Numerics.Vector3 end)
@@ -500,6 +523,20 @@ internal sealed partial class NetworkVehicleArena : Node3D
         using var ray = PhysicsRayQueryParameters3D.Create(start, finish, 3 | 16, exclude);
         ray.HitFromInside = true;
         var hit = QueryWithoutRearShields(ray);
+        // Concave terrain has no solid interior: a ray starting exactly on a face
+        // can miss it. Overlap Salvo terrain segment boundaries by one centimetre;
+        // retain the original closest body hit and clamp contact to this segment.
+        if (missile.Arc is not null && start.DistanceSquaredTo(finish) > .000001f)
+        {
+            Vector3 overlap = (finish - start).Normalized() * .01f;
+            using var terrainRay = PhysicsRayQueryParameters3D.Create(start - overlap, finish + overlap, 1);
+            using var terrain = GetWorld3D().DirectSpaceState.IntersectRay(terrainRay);
+            if (terrain.Count > 0 && (hit.Count == 0 || start.DistanceSquaredTo(terrain["position"].AsVector3()) < start.DistanceSquaredTo(hit["position"].AsVector3())))
+            {
+                float along = (terrain["position"].AsVector3() - start).Dot(finish - start) / start.DistanceSquaredTo(finish);
+                return Math.Clamp(along, 0, 1);
+            }
+        }
         return hit.Count == 0 ? null : Math.Clamp(start.DistanceTo(hit["position"].AsVector3()) / start.DistanceTo(finish), 0, 1);
     }
 
@@ -543,13 +580,17 @@ internal sealed partial class NetworkVehicleArena : Node3D
             }
 
             body!.SynchronizeLifecycle(vehicle.State);
+            body.Rack.ObserveSalvoTick(snapshot.Tick);
             body.ObserveShields(vehicle.State, _driver.ItemState?.Shields ?? []);
             if (created)
             {
+                body.Rack.OilConfiguration = _driver.Configuration.Configuration.Items;
+                body.Rack.EmpConfiguration = _driver.Configuration.Configuration.Items;
                 body.Rack.Observe(vehicle.State.LifeId, vehicle.State.CanInteract,
                     _driver.ItemState?.Slots.FirstOrDefault(slot => slot.Vehicle == id), [],
                     _driver.ItemState?.Mines.FirstOrDefault(mine => mine.Owner == id && mine.IsPlacing),
                     _driver.ItemState?.World.Tick ?? vehicle.State.Movement.Tick, _driver.ItemState?.Shields);
+                body.Rack.ObserveOil(_driver.ItemState?.Patches ?? [], id, _driver.ItemState?.World.Tick ?? 0);
             }
         }
     }

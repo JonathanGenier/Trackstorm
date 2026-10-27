@@ -15,12 +15,12 @@ internal static class OilRecoveryFixture
         var slot = host.Items.Slots.Single(slot => slot.Vehicle == owner);
         bool first = slot.Item == HeldItem.Oil;
         var pose = host.World.GetVehicle(owner).Movement.Physics;
-        var patch = new OilPatch(first ? slot.Token : slot.SecondToken, owner, pose.Position + System.Numerics.Vector3.UnitX * 40 - System.Numerics.Vector3.UnitY * 0.9f, System.Numerics.Vector3.UnitY, 3) { ExpiresAtTick = host.World.State.Tick + 36000, PassesUsed = 1 };
+        var patch = new OilPatch(first ? slot.Token : slot.SecondToken, owner, pose.Position + System.Numerics.Vector3.UnitX * 40 - System.Numerics.Vector3.UnitY * 0.9f, System.Numerics.Vector3.UnitY, 3) { ExpiresAtTick = host.World.State.Tick + 36000 };
         patch = patch with { AdditionalSegments = new OilFootprint([
             new(patch.Position + System.Numerics.Vector3.UnitZ * 2, patch.Position + System.Numerics.Vector3.UnitZ * 8, patch.Normal, 0.6f),
             new(patch.Position + System.Numerics.Vector3.UnitX * 2, patch.Position + System.Numerics.Vector3.UnitX * 2, patch.Normal, 0.8f)]) };
         ulong token = host.Items.TokenHighWater;
-        var patches = Enumerable.Range(0, PatchCount).Select(i => i == 0 ? patch : patch with { Id = token + (ulong)i, PassesUsed = 0, AdditionalSegments = OilFootprint.Empty, Position = patch.Position + System.Numerics.Vector3.UnitX * (100 + i * 7) }).ToArray();
+        var patches = Enumerable.Range(0, PatchCount).Select(i => i == 0 ? patch : patch with { Id = token + (ulong)i, AdditionalSegments = OilFootprint.Empty, Position = patch.Position + System.Numerics.Vector3.UnitX * (100 + i * 7) }).ToArray();
         OilContact[] contacts = [];
         var state = new ItemPublication(Math.Max(1, host.Items.Revision), host.Snapshot(),
             host.Items.Slots.Select(value => value.Vehicle != owner ? value : first ? value with { Item = HeldItem.None } : value with { SecondItem = HeldItem.None }),
@@ -29,9 +29,9 @@ internal static class OilRecoveryFixture
         return patch;
     }
 
-    internal static void Verify(ItemPublication state, OilPatch patch)
+    internal static void Verify(ItemPublication state, OilPatch patch, int additionalHazards = 0)
     {
-        if (state.Patches.Count != PatchCount || state.Patches.Single(p => p.Id == patch.Id) != patch || state.OilContacts.Count != 0)
-        { throw new InvalidOperationException("Large Oil continuation lost ownership, deadline or consumed pass count."); }
+        if (state.Patches.Count != PatchCount + additionalHazards || state.Patches.Single(p => p.Id == patch.Id) != patch || state.OilContacts.Count != 0)
+        { throw new InvalidOperationException("Large Oil continuation lost ownership, deadline, geometry or overlap state."); }
     }
 }

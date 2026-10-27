@@ -81,11 +81,15 @@ internal sealed partial class VehicleNetworkDriverTests
         gateway.Receive(new(ServerPeer, selection, TransportDelivery.Reliable));
         gateway.Receive(new(ServerPeer, ItemCodec.EncodeUse(Session, inventory.Life, inventory.SecondToken), TransportDelivery.Reliable));
         driver.Advance(default, Observe);
+        Assert.That(host.Items.Slots.Single(s => s.Vehicle == 2).SecondItem, Is.EqualTo(HeldItem.Wrench), "Early remote Wrench use cannot bypass deployment.");
+        for (int tick = 0; tick < 180; tick++) { driver.Advance(default, Observe); }
+        gateway.Receive(new(ServerPeer, ItemCodec.EncodeUse(Session, inventory.Life, inventory.SecondToken), TransportDelivery.Reliable));
+        driver.Advance(default, Observe);
         Assert.That(host.Items.Slots.Single(s => s.Vehicle == 1).ActiveSlot, Is.Zero);
         Assert.That(host.Items.Slots.Single(s => s.Vehicle == 2), Is.EqualTo(inventory with { ActiveSlot = 1, SelectionRevision = 1, SecondItem = HeldItem.None,
             MissileDeployStartTick = 0, MissileReadyTick = 0, MissileStowStartTick = 2, MissileStowEndTick = 56 }));
         Assert.That(host.Items.Missiles, Is.Empty);
-        Assert.That(driver.RejectedPackets, Is.EqualTo(2));
+        Assert.That(driver.RejectedPackets, Is.EqualTo(3));
     }
 
     /// <summary>Only clients expose snapshot freshness; host diagnostics render the metric as unavailable.</summary>

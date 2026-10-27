@@ -1,6 +1,7 @@
 param (
     [Parameter(Mandatory)]
-    [string]$GodotPath
+    [string]$GodotPath,
+    [switch]$NoBuild
 )
 
 $ErrorActionPreference = "Stop"
@@ -19,8 +20,10 @@ function Invoke-GodotCheck {
     }
 }
 
-dotnet build Trackstorm.sln -c Debug -warnaserror
-if ($LASTEXITCODE -ne 0) { throw "Input verification build failed." }
+if (-not $NoBuild) {
+    dotnet build Trackstorm.sln -c Debug -warnaserror
+    if ($LASTEXITCODE -ne 0) { throw "Input verification build failed." }
+}
 & (Join-Path $PSScriptRoot 'import-godot.ps1') -GodotPath $GodotPath
 Invoke-GodotCheck -Arguments @('res://scenes/verification/input_checks.tscn', '--quit-after', '600') -ExpectedOutput 'Input integration passed:'
 # Allow asynchronous frontend media loading to finish; this is a startup smoke,

@@ -1,11 +1,13 @@
 function Get-FastCheckPlan {
     param(
         [Parameter(Mandatory)]
-        [string[]]$Paths
+        [AllowEmptyCollection()][string[]]$Paths,
+        [switch]$IncludeFeatureDocHints
     )
 
     $normalized = @($Paths | ForEach-Object { $_.Replace('\', '/') })
 
+    $workflowTests = $false
     $coreTests = $false
     $transportTests = $false
     $serviceTests = $false
@@ -28,7 +30,8 @@ function Get-FastCheckPlan {
         [void]$manual.Add($Scenario)
     }
 
-    $hasProductionChanges = [bool]($normalized | Where-Object {
+    $productionPaths = @($normalized | Where-Object { -not $_.EndsWith('.md') })
+    $hasProductionChanges = [bool]($productionPaths | Where-Object {
         $_ -match '^code/' -or
         $_ -match '^test/' -or
         $_ -match '^services/' -or
@@ -38,12 +41,32 @@ function Get-FastCheckPlan {
         $_ -match '\.(cs|csproj|gd|tscn|tres|blend|jsonc|js)$'
     })
 
+    $hasProductionChanges = $hasProductionChanges -or $IncludeFeatureDocHints
+
+    # Focused feature references retain their owning integration hints.
+    $normalized += @($normalized | Where-Object {
+        $_ -match '^docs/features/(items|vehicles|developer-options)-'
+    } | ForEach-Object {
+        if ($_ -match '^docs/features/(items|vehicles|developer-options)-') {
+            "docs/features/$($Matches[1]).md"
+        }
+    })
+
     foreach ($path in $normalized) {
+        # Documentation-only edits stay cheap before any feature route is evaluated.
+        if ($path.EndsWith('.md') -and -not $hasProductionChanges) { continue }
+
+        if (($path.StartsWith('tools/') -and $path.EndsWith('.ps1')) -or
+            $path -eq 'check.ps1' -or
+            $path.StartsWith('.github/workflows/')) {
+            $workflowTests = $true
+        }
         if ($path -match 'PracticeVehicleInput|PracticeCar|HostedPractice|hosted_practice|check-hosted-practice') {
             Add-Extended 'check-hosted-practice.ps1'
             Add-Manual 'Check hosted practice driving on both maps, target acquisition/fire, respawn and host migration; use check-hosted-practice.ps1 -OldMap for the smaller route.'
         }
         if ($path -match '(?i)missile|CarRackPresentation') { Add-Runtime 'check-missile-presentation.ps1' }
+        if ($path -match '(?i)WrenchArm|wrench-arm|items/wrench|CarRackPresentation|CarRackChecks.Wrench') { Add-Runtime 'check-wrench-arm.ps1' }
         if ($path -match 'Missile|missile_terrain|check-missile-terrain') {
             Add-Runtime 'check-missile-terrain.ps1'
             Add-Manual 'Observe heavy missile pitch response, banks/ramps, cliff departure, reacquisition and repeated firing under latency with the rendered missile harness.'
@@ -87,6 +110,14 @@ function Get-FastCheckPlan {
             Add-Manual 'Inspect aiming while driving, close/airborne/crossing targets, mouse and physical controller feel, and impaired remote articulation with check-weapon-aim.ps1 -Visual -Impaired.'
             Add-Manual 'Measure actual 200 m grouping with check-weapon-aim.ps1 -Accuracy -Impaired; inspect retention/breakaway with -Sticky -Visual -Impaired and driving/placement freedom with -Freedom -Visual -Impaired -Oval.'
         }
+        if ($path -match 'EmpClaw|emp-claw|emp_claw') {
+            Add-Runtime 'check-emp-claw.ps1'
+            Add-Runtime 'check-emp-claw-flight.ps1'
+            Add-Runtime 'check-emp-claw-attachments.ps1'
+            Add-Runtime 'check-emp-claw-counterplay.ps1'
+            Add-Manual 'Run check-reconnect.ps1 -EmpClaw for active attachment recovery and offline expiry over impaired UDP.'
+            Add-Manual 'Inspect EMP cannon deployment, actual attachment faces, three independent noses, electricity while driving/rolling, reduced acceleration and Nitro, and staggered deflation/release in rendered gameplay.'
+        }
         if ($path -match 'CarRack|RackItemVisual|car_rack|check-car-rack') {
             Add-Runtime 'check-car-rack.ps1'
             Add-Manual 'Inspect selected rack payloads, two-slot switching, sustained use and remote visibility.'
@@ -127,7 +158,11 @@ function Get-FastCheckPlan {
         }
         if ($path -match 'Salvo|salvo_checks|check-salvo') {
             Add-Runtime 'check-salvo.ps1'
+            Add-Runtime 'check-salvo-explosion.ps1'
             Add-Manual 'Play Salvo from the chase camera; inspect terrain-conforming marker privacy on remote peers and repeated use. Run impaired salvo, reconnect and migration checks.'
+        }
+        if ($path -match 'SalvoCatapult|CatapultConnectionAudit|CarRackPresentation\.Salvo|CarRackChecks\.Salvo|assets/items/salvo/|check-salvo-catapult') {
+            Add-Runtime 'check-salvo-catapult.ps1'
         }
         if ($path -match 'TireFeedback|TireMarkBatch|TireEffect|TireTrack|WaterWake|EnvironmentPresentation|EnvironmentPreset|EnvironmentSky|TerrainEffects|terrain_effects|check-terrain-effects') {
             Add-Runtime 'check-integrated-driving.ps1'
@@ -149,12 +184,6 @@ function Get-FastCheckPlan {
             Add-Runtime 'check-surfaces.ps1'
             Add-Manual 'Inspect material readability, gradual shoulders, designated Water basin and local Stats during driving.'
         }
-        # Feature-document-only edits stay cheap. Feature docs act as route hints only
-        # when the same change also contains production/runtime files.
-        if ($path -match '^docs/features/' -and -not $hasProductionChanges) {
-            continue
-        }
-
         if ($path -match '^assets/environment/' -or $path -match 'environment_library_checks|check-environment' -or $path -eq 'docs/features/environment-library.md') {
             Add-Runtime 'check-environment.ps1'
             Add-Manual 'Render check-environment.ps1 -Visual and inspect asset scale, materials, modular reuse and distance transitions.'
@@ -324,12 +353,24 @@ function Get-FastCheckPlan {
         }
 
         # Items and lifecycle.
+        if ($path -match '(?i)CarnivalPickup|CarnivalSmash|PickupSmash|carnival.crate|carnival.pickup|carnival.smash|ItemSpawnPresentation|PickupGroundPose') {
+            Add-Runtime 'check-carnival-pickup.ps1'
+            Add-Runtime 'check-carnival-smash.ps1'
+            Add-Runtime 'check-item-spawns.ps1'
+            Add-Runtime 'check-pickup-drive.ps1'
+            Add-Manual 'Inspect the intact stack and gold smash in all environment presets at driving distances; confirm one unobstructed authoritative collectible, consistent peer bursts and complete debris cleanup.'
+        }
+        if ($path -match '(?i)TireFeedback|OilTireChecks|oil_tire_checks|check-oil-tires|OilTractionState' -or $path -eq 'docs/features/items-oil.md') {
+            Add-Runtime 'check-oil-tires.ps1'
+            Add-Manual 'Observe independent glossy tire contamination, oil spray, curved/drifting wet trails, airborne breaks and recovery across cars and peers.'
+        }
         if ($path -match '(?i)PickupDrive|MovingPickup|pickup_drive|check-pickup-drive|ItemSpawnAuthority|HostVehicleSession|NetworkVehicleArena|VehicleNetworkDriver') {
             Add-Runtime 'check-pickup-drive.ps1'
         }
         if ($path -match '^code/(Core|Client)/Items/' -or $path -eq 'docs/features/items.md') {
             Add-Runtime 'check-items.ps1'
             Add-Runtime 'check-oil.ps1'
+            Add-Runtime 'check-oil-jack.ps1'
             Add-Runtime 'check-oil-handling.ps1'
             Add-Runtime 'check-nitro.ps1'
         }
@@ -449,6 +490,8 @@ function Get-FastCheckPlan {
     }
 
     [pscustomobject]@{
+        HasProductionChanges = [bool]$hasProductionChanges
+        WorkflowTests = $workflowTests
         CoreTests = $coreTests
         TransportTests = $transportTests
         ServiceTests = $serviceTests

@@ -38,6 +38,7 @@ public sealed partial class SalvoIntegrationChecks : Node
     public override void _Ready()
     {
         Engine.MaxFps = 60;
+        ProcessPriority = 1000;
         _output = ProjectSettings.GlobalizePath("res://.godot/salvo-checks");
         System.IO.Directory.CreateDirectory(_output);
         AddChild(_input); _input.SetPhysicsProcess(false);
@@ -86,10 +87,9 @@ public sealed partial class SalvoIntegrationChecks : Node
             if (!_done && _stage == 3)
             {
                 int elapsed = _frame - _boundary;
-                bool press = elapsed is 90 or 135 or 180 or 225;
-                bool held = elapsed < 80 || press;
+                bool held = elapsed < 80;
                 playInput = new((ulong)_frame, _wave == 1 ? (short)8000 : (short)0, _wave == 1 ? ushort.MaxValue : (ushort)0, 0,
-                    held ? InputButtons.UseItem : 0, press ? InputButtons.UseItem : 0, elapsed is 80 or 91 or 136 or 181 or 226 ? InputButtons.UseItem : 0);
+                    held ? InputButtons.UseItem : 0, 0, elapsed == 80 ? InputButtons.UseItem : 0);
             }
             if (_done && playInput.Pressed != 0) { GD.Print($"Interactive input: {playInput.Pressed}"); }
             foreach (var arena in _arenas)
@@ -110,14 +110,15 @@ public sealed partial class SalvoIntegrationChecks : Node
             switch (_stage)
             {
                 case 0 when _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 3):
-                    Check(host.TryConfigure(0, new Dictionary<string, double> { ["match.countdown_ticks"] = 1, ["match.minimum_players"] = 1 }, out _), "fixture countdown");
+                    Check(host.TryConfigure(0, new Dictionary<string, double> { ["match.countdown_ticks"] = 1, ["match.minimum_players"] = 1,
+                        ["items.salvo_blast_radius"] = 10 }, out _), "fixture countdown and wide-blast multi-target/terrain-ring scenario");
                     Position(); Next("Three UDP peers joined; native bank prepared."); break;
                 case 1 when _frame - _boundary > 60:
                     foreach (var a in _arenas) { Check(!a.SalvoMarker.Visible, "No marker without local salvo."); }
                     Check(host.Items.Grant(host.World, 2, HeldItem.Salvo), "Remote grant");
                     Check(host.Items.Grant(host.World, 2, HeldItem.Wrench), "Second slot retained");
                     Next("Remote player receives Salvo and second-slot Wrench."); break;
-                case 2 when _arenas[ShooterIndex].SalvoMarker.Visible:
+                case 2 when _arenas[ShooterIndex].SalvoMarker.Visible && _arenas[ShooterIndex].Driver.LocalItem is { } ready && _arenas[ShooterIndex].Driver.SalvoReady?.Invoke(ready) == true && host.Items.SalvoReady(host.Items.Slots.Single(s => s.Vehicle == Shooter)):
                     Check(_arenas[ShooterIndex].SalvoMarker.RingCount == 1, "Local marker circular footprint");
                     var vertices = _arenas[ShooterIndex].SalvoMarker.SurfaceVertices;
                     Check(vertices.Max(v => v.Y) - vertices.Min(v => v.Y) > 1, "Marker conforms to bank height");
@@ -134,13 +135,14 @@ public sealed partial class SalvoIntegrationChecks : Node
                     Check(!_arenas[ShooterIndex].SalvoMarker.Visible, "Switch away clears unused aiming marker");
                     Check(_arenas[ShooterIndex].Driver.RequestItemSwitch(), "Switch back");
                     _stage = 21; _boundary = _frame; break;
-                case 21 when _arenas[ShooterIndex].SalvoMarker.Visible && _arenas[ShooterIndex].Driver.LocalItem?.Active.Item == HeldItem.Salvo:
+                case 21 when _arenas[ShooterIndex].SalvoMarker.Visible && _arenas[ShooterIndex].Driver.LocalItem is { } selected && _arenas[ShooterIndex].Driver.SalvoReady?.Invoke(selected) == true && host.Items.SalvoReady(host.Items.Slots.Single(s => s.Vehicle == Shooter)):
                     Check(_arenas[ShooterIndex].Driver.RequestItemUse(), "Switched-back remote use");
                     _stage = 3; _boundary = _frame; break;
                 case 3:
-                    if (_frame - _boundary == 80)
+                    if (_frame - _boundary == 60)
                     {
-                        Check(_launches.Count == 1 && host.Items.Slots.Single(s => s.Vehicle == Shooter).Active.SalvoShots == 4, "Holding use does not fire remaining shots automatically");
+                        Check(_launches.Count == 1 && host.Items.Slots.Single(s => s.Vehicle == Shooter).Active.SalvoShots == 4, "First round fired; committed reload waits for its launch deadline");
+                        Check(!_arenas[ShooterIndex].Driver.RequestItemUse() && !_arenas[ShooterIndex].Driver.RequestItemSwitch(), "Held/repeated use and switching cannot restart or cancel the volley");
                         Check(_arenas[ShooterIndex].Driver.LocalItem?.Active.SalvoShots == 4, "Partial ammunition replicated to owner");
                         Capture(ShooterIndex, "four-shots-held.png");
                     }
@@ -158,8 +160,6 @@ public sealed partial class SalvoIntegrationChecks : Node
                             var center = marker.SurfaceVertices.Aggregate(Vector3.Zero, (sum, v) => sum + v) / marker.SurfaceVertices.Count;
                             _firstMarker ??= center;
                             if (center.DistanceTo(_firstMarker.Value) > 3) { _markerMoved = true; }
-                            var aim = SalvoFlight.Aim(_arenas[ShooterIndex].LocalState!.Movement.Physics, host.Items.Configuration.SalvoRange);
-                            Check(new Vector2(center.X - aim.X, center.Z - aim.Z).Length() < 4, "Marker follows current vehicle forward aim during the volley");
                             if (!_movingCaptured && _frame - _boundary >= 90) { Capture(ShooterIndex, "moving-aim.png"); _movingCaptured = true; }
                         }
                         if (!_captured && _frame - _boundary > 28) { Capture(ShooterIndex, "owner-arc.png"); _captured = true; }
@@ -173,16 +173,17 @@ public sealed partial class SalvoIntegrationChecks : Node
                             Check(events.Where(e => e.Impact).Select(e => e.Token).Distinct().Count() == 5, "Unique explosion identities");
                         }
                         var launches = _launches.Values.OrderBy(l => l.Tick).ToArray();
-                        Check(launches.Length == 5 && launches.Zip(launches.Skip(1)).All(pair => pair.Second.Tick - pair.First.Tick >= 30), "Five individually pressed launches respect the half-second minimum");
+                        Check(launches.Length == 5 && launches.Zip(launches.Skip(1)).All(pair => pair.Second.Tick - pair.First.Tick == 75), "One activation produces five automatic launches exactly 1.25 seconds apart");
                         Check(host.Items.Slots.Single(s => s.Vehicle == Shooter).Active is { Item: HeldItem.None, SalvoShots: 0 }, "Fifth shot exhausts its slot");
                         if (_wave == 1)
                         {
                             Check(_markerMoved && N.Vector3.Distance(launches[0].Target, launches[^1].Target) > 5, "Driving and steering move the marker and later launch targets");
                         }
-                        else { Check(host.World.State.Vehicles.Where(v => v.VehicleId != Shooter).All(v => v.Damage.CurrentHP < 1000), "Multiple native targets damaged"); }
+                        else { Check(host.World.State.Vehicles.Where(v => v.VehicleId != Shooter).All(v => v.Damage.CurrentHP < 1000),
+                            $"Multiple native targets damaged: {string.Join(';', host.World.State.Vehicles.Select(v => $"{v.VehicleId}:hp={v.Damage.CurrentHP}:pose={v.ObservedPhysics.Position}"))}; targets={string.Join(';', launches.Select(l => l.Target))}; impacts={string.Join(';', _events[0].Where(e => e.Impact).Select(e => e.Position))}"); }
                         Check(host.Items.Slots.Single(s => s.Vehicle == Shooter).SecondItem == HeldItem.Wrench, "Second slot unchanged");
                         Capture(ShooterIndex, "owner-impact.png");
-                        Next($"Wave {_wave + 1}: five separately pressed launches/impacts, held input preserves ammo, {(_wave == 1 ? "moving aim and launch targets" : "damage to both targets")}, remote marker privacy.");
+                        Next($"Wave {_wave + 1}: one activation, five automatic launches/impacts, {(_wave == 1 ? "moving aim and launch targets" : "damage to both targets")}, remote marker privacy.");
                     }
                     break;
                 case 4 when _frame - _boundary > 45:
@@ -222,6 +223,25 @@ public sealed partial class SalvoIntegrationChecks : Node
         catch (Exception exception) { GD.PushError(exception.ToString()); GetTree().Quit(1); _done = true; }
     }
 
+    public override void _Process(double delta)
+    {
+        // The guide is sampled by arena presentation, after physics. Comparing it
+        // inside the preceding physics callback compares different car boundaries.
+        if (_done || _stage != 3 || _wave != 1 || !_arenas[ShooterIndex].SalvoMarker.Visible) { return; }
+        try
+        {
+            var driver = _arenas[ShooterIndex].Driver;
+            var pose = driver.LocalState!.ObservedPhysics;
+            var marker = _arenas[ShooterIndex].SalvoMarker;
+            var center = marker.SurfaceVertices.Aggregate(Vector3.Zero, (sum, v) => sum + v) / marker.SurfaceVertices.Count;
+            var accepted = driver.AcceptedAims.FirstOrDefault(a => a.Vehicle == Shooter && a.Token == driver.LocalItem?.Active.Token);
+            var aim = SalvoFlight.ResolveTarget(pose, accepted?.Direction ?? N.Vector3.Transform(-N.Vector3.UnitZ, pose.Orientation), driver.Configuration.Configuration.Items.SalvoRange,
+                driver.ProjectSalvoGround, (from, to) => driver.RaycastWeapon?.Invoke(Shooter, from, to));
+            Check(new Vector2(center.X - aim.X, center.Z - aim.Z).Length() < 1.1f, $"Rendered marker follows current accepted aim and native cover: center={center}, aim={aim}, frame={_frame}");
+        }
+        catch (Exception exception) { GD.PushError(exception.ToString()); GetTree().Quit(1); _done = true; }
+    }
+
     private void Position()
     {
         var host = _arenas[0].Driver.Host!;
@@ -229,7 +249,9 @@ public sealed partial class SalvoIntegrationChecks : Node
         host.World.Restore(new(state.Tick, state.LastInput, state.Vehicles.Select(v =>
         {
             float x = v.VehicleId == Shooter ? 0 : v.VehicleId == 3 ? 3 : -2;
-            var pose = new VehiclePhysicsState(new N.Vector3(x, 22 + x * 0.12f, v.VehicleId == Shooter ? 70 : 5), N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero);
+            // Keep the camera ray inside the prototype perimeter. The old fixture
+            // fired an elevated fixed-range arc through a wall from z=70.
+            var pose = new VehiclePhysicsState(new N.Vector3(x, 22 + x * 0.12f, v.VehicleId == Shooter ? 35 : -30), N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero);
             _arenas[0].Bodies[v.VehicleId].Apply(pose);
             return new VehicleSnapshot(v.VehicleId, v.LifeId, new VehicleState(state.Tick, pose, true, false, 0, 0), new VehicleDamageState(1000, 1000, v.Damage.LastDamage, v.Damage.LastCollisionTick), pose);
         }), state.Match));

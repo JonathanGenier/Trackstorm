@@ -22,6 +22,8 @@ internal sealed partial class CarRackPresentation : Node
     private ProxyMineState? _placement;
     private bool _mineReturning;
     private WeaponAimSolution? _aim;
+    private bool _wrenchStarted;
+    private ulong _wrenchUseToken;
 
     internal required BoostExhaust Boost { get; init; }
 
@@ -35,9 +37,14 @@ internal sealed partial class CarRackPresentation : Node
         _previous?.SelectionRevision == inventory.SelectionRevision && _previous.Active.Token == inventory.Active.Token &&
         _previous.Life == inventory.Life;
     internal Items.ShieldRack? ShieldCarrier => _payload as Items.ShieldRack;
+    internal bool IsWrenchReady(ItemSlot inventory) => _desired == HeldItem.Wrench && !_replace && !_usePending &&
+        Progress >= .999f && _payload is Items.WrenchArm { IsReady: true } &&
+        _previous?.SelectionRevision == inventory.SelectionRevision && _previous.Active.Token == inventory.Active.Token &&
+        _previous.Life == inventory.Life;
     internal void ObserveAim(WeaponAimSolution? aim)
     {
         _aim = aim is not null && aim.Life == _life && aim.Token == _previous?.Active.Token ? aim : null;
+        _empAim = _aim is not null && _previous?.Active.EmpClaw is { } load ? _aim with { Token = load.Magazine } : null;
     }
 
     public override void _Ready()
@@ -65,8 +72,25 @@ internal sealed partial class CarRackPresentation : Node
         if (inventory?.Life != life) { inventory = null; }
         ItemSlot? active = inventory?.Active;
         if (_payload is Items.WeaponAimMount { TwinFang: { } fang }) { fang.Observe(inventory, events, tick); }
-        var outcome = events.LastOrDefault(e => e.Item != HeldItem.Nitro && (e.Item == HeldItem.MachineGun || !e.Impact) &&
-            (e.Token == active?.Token || e.Token == _previous?.Active.Token));
+        var outcome = events.LastOrDefault(e => e.Item is not (HeldItem.Nitro or HeldItem.EmpClaw) && (e.Item == HeldItem.MachineGun || !e.Impact) &&
+            (e.Item != HeldItem.Wrench || e.Token != _wrenchUseToken) &&
+            (e.Token == active?.Token || e.Token == _previous?.Active.Token ||
+                (e.Item == HeldItem.Wrench && e.Token == _wrenchCapability)));
+        if (outcome is { Item: HeldItem.Wrench } && _payload is Items.WrenchArm)
+        {
+            _wrenchUseToken = outcome.Token;
+            _wrenchOwnsRack = true;
+            _wrenchReturning = false;
+            _wrenchStarted = false;
+        }
+        // Accepted repair owns the mechanism through trunk closure. Acquisitions and
+        // selection still update authoritative inventory, but cannot cancel this handoff.
+        if (_wrenchOwnsRack)
+        {
+            _previous = inventory;
+            _aim = null;
+            return;
+        }
         bool used = outcome is not null;
         bool selection = inventory is not null && (_previous is null || inventory.ActiveSlot != _previous.ActiveSlot || inventory.SelectionRevision != _previous.SelectionRevision);
         // The same selected capability becoming empty is confirmed depletion. A missing
@@ -80,6 +104,7 @@ internal sealed partial class CarRackPresentation : Node
             (_previous is null || active.Item != _previous.Active.Item || (active.Token != _previous.Active.Token && !used));
         if (selection || acquired)
         {
+            _wrenchStarted = false;
             _aim = null;
             _replace = _mounted != HeldItem.None;
             _usePending = false;
@@ -90,6 +115,8 @@ internal sealed partial class CarRackPresentation : Node
         _engaged = active?.Item != HeldItem.Nitro && inventory is { EngagedToken: > 0 };
         if (active?.Item != HeldItem.MachineGun && outcome?.Item != HeldItem.MachineGun && (outcome is not null || (_previous is null && _engaged)))
         {
+            if (outcome?.Item == HeldItem.Wrench) { _wrenchUseToken = outcome.Token; }
+            _wrenchStarted = false;
             _useItem = outcome?.Item ?? active!.Item;
             _usePending = true;
             _useTime = 0.32f;
@@ -100,6 +127,8 @@ internal sealed partial class CarRackPresentation : Node
         if (_usePending) { _desired = _useItem; }
         if (_useItem == HeldItem.Shield) { _usePending = false; _desired = active?.Item ?? HeldItem.None; }
         ObserveMissile(inventory, tick);
+        ObserveEmpInventory(inventory, tick);
+        ObserveSalvo(inventory, outcome, tick);
         _previous = inventory;
         if (_placement is not null || _mineReturning)
         {
@@ -111,6 +140,10 @@ internal sealed partial class CarRackPresentation : Node
 
     internal void Reset()
     {
+        ResetEmpClaw();
+        _salvoProgress = 0; _salvoReturning = false; _salvoSelection = 0;
+        _salvoClock = _salvoBoundary = 0;
+        _oilPour = null; _oilFired = false; _oilClock = 0;
         _missileProgress = _missileReturn = 0;
         _missileStowing = false;
         _missileReturnBoundary = 0;
@@ -126,10 +159,18 @@ internal sealed partial class CarRackPresentation : Node
         _placement = null;
         _mineReturning = false;
         _aim = null;
+        _wrenchStarted = false;
+        _wrenchUseToken = 0;
+        _wrenchCapability = 0;
+        _wrenchOwnsRack = _wrenchReturning = false;
     }
 
     public override void _Process(double delta)
     {
+        if (AnimateEmpClaw(Math.Max(0, (float)delta))) { return; }
+        if (AnimateSalvo(Math.Max(0, (float)delta))) { return; }
+        if (AnimateWrenchUse(Math.Max(0, (float)delta))) { return; }
+        if (AnimateOil(Math.Max(0, (float)delta))) { return; }
         if (AnimateMissile(Math.Max(0, (float)delta))) { return; }
         if (_desired == HeldItem.Nitro && (_mounted == HeldItem.None || (_mounted == HeldItem.Nitro && !_replace)))
         {
@@ -152,7 +193,8 @@ internal sealed partial class CarRackPresentation : Node
         if (_replace || (_desired != _mounted && _mounted != HeldItem.None))
         {
             // Nest the barrel before lowering the rack through the open deck.
-            _mechanism.Deployed = (_mounted == HeldItem.Nitro && Boost.Deployment > 0) || ShieldReturning?.Invoke() == true;
+            _mechanism.Deployed = (_mounted == HeldItem.Nitro && Boost.Deployment > 0) || ShieldReturning?.Invoke() == true ||
+                (_payload is Items.WrenchArm returningArm && !returningArm.Nested);
             if (_mechanism.Progress <= 0)
             {
                 ClearPayload();
@@ -166,6 +208,11 @@ internal sealed partial class CarRackPresentation : Node
             _payload = _mounted == HeldItem.Nitro ? Boost : WeaponAim.Supports(_mounted) ? new Items.WeaponAimMount(_mounted) : Items.RackItemVisual.Create(_mounted);
             _payload.Visible = false;
             if (_mounted != HeldItem.Nitro) { _rack.AddChild(_payload); }
+            if (_payload is Items.WrenchArm)
+            {
+                _wrenchCapability = _previous?.Active.Token ?? 0;
+                _wrenchSlot = _previous?.ActiveSlot ?? 0;
+            }
             if (_payload is Items.ProxyMineRack arm) { arm.Observe(_placement); }
             _mechanism.Deployed = true;
         }
@@ -173,6 +220,26 @@ internal sealed partial class CarRackPresentation : Node
 
         if (_payload is not null)
         {
+            if (_payload is Items.WrenchArm repairArm)
+            {
+                _payload.Visible = true;
+                _payload.Scale = Vector3.One;
+                _payload.Position = Vector3.Zero;
+                bool deploy = !_replace && _desired == HeldItem.Wrench && _mechanism.Progress >= .999f;
+                if (deploy && _usePending && !_wrenchStarted && repairArm.IsReady)
+                {
+                    repairArm.BeginRepair();
+                    _wrenchStarted = true;
+                }
+                AnimateWrenchMechanism(repairArm, !_replace && _desired == HeldItem.Wrench, Math.Max(0, (float)delta));
+                if (_wrenchStarted && !repairArm.Repairing)
+                {
+                    _usePending = false;
+                    _wrenchStarted = false;
+                    _desired = _previous?.Active.Item ?? HeldItem.None;
+                }
+                return;
+            }
             if (_payload is Items.ShieldRack)
             {
                 _payload.Visible = _mechanism.Progress >= .45f;

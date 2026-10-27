@@ -4,15 +4,37 @@ using Trackstorm.Core.Items;
 
 namespace Trackstorm.Client.Items;
 
-/// <summary>Reconstructable Kenney projectile and particle effects; no collision or gameplay mutation.</summary>
+/// <summary>Reconstructable projectile and particle effects; no collision or gameplay mutation.</summary>
 internal sealed partial class ItemPresentation : Node3D
 {
+    internal EmpClawAttachments EmpAttachments { get; } = new();
+    public override void _Ready() => AddChild(EmpAttachments);
+    private SalvoSmokeTrail? _salvoSmoke;
+
+    internal Func<ulong, Vector3?>? OilMouth { get; set; }
+    internal Func<ulong, Transform3D?>? OilFrame { get; set; }
+    internal float OilStreamWidth { get; set; } = .24f;
+    private float _oilRoughness = .16f;
+    internal float OilRoughness
+    {
+        get => _oilRoughness;
+        set
+        {
+            _oilRoughness = value;
+            foreach (var visual in _oil.Values.OfType<OilHazardVisual>()) { visual.Roughness = value; }
+        }
+    }
     private readonly Dictionary<ulong, Node3D> _mines = new();
     private readonly Dictionary<ulong, Node3D> _oil = new();
+    private readonly List<OilHazardVisual> _oilResidues = new();
+    internal const int MaximumOilResidues = 32;
     private readonly Dictionary<ulong, Node3D> _missiles = new();
     private readonly List<(Node3D Node, float Age, float Lifetime)> _bursts = new();
     private readonly List<ProxyMineExplosion> _mineExplosions = new();
     private readonly List<MissileExplosion> _missileExplosions = new();
+    private readonly List<SalvoExplosion> _salvoExplosions = new();
+    internal const int MaximumSalvoExplosions = 128;
+    private ulong _salvoEventRevision;
     private readonly List<MissileSmokeResidue> _missileSmoke = new();
     internal const int MaximumMissileSmokeResidues = 32;
     internal const int MaximumMissileExplosions = 32;
@@ -22,8 +44,10 @@ internal sealed partial class ItemPresentation : Node3D
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        _oilResidues.RemoveAll(oil => !GodotObject.IsInstanceValid(oil) || oil.IsQueuedForDeletion());
         _missileSmoke.RemoveAll(smoke => !GodotObject.IsInstanceValid(smoke) || smoke.IsQueuedForDeletion());
         _missileExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());
+        _salvoExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());
         _mineExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());
         _mineScars.RemoveAll(scar => !GodotObject.IsInstanceValid(scar) || scar.IsQueuedForDeletion());
         for (int i = _bursts.Count - 1; i >= 0; i--)
@@ -76,6 +100,7 @@ internal sealed partial class ItemPresentation : Node3D
     /// <param name="missileBlastRadius">Current shared authoritative radius, used only to bound the central fire.</param>
     internal void Apply(ItemPublication state, float missileBlastRadius = Trackstorm.Core.Vehicles.VehicleDimensions.Length)
     {
+        EmpAttachments.Observe(state);
         foreach (ulong id in _mines.Keys.Except(state.Mines.Where(mine => !mine.IsPlacing).Select(mine => mine.Id)).ToArray())
         {
             _mines[id].QueueFree();
@@ -94,18 +119,28 @@ internal sealed partial class ItemPresentation : Node3D
         }
         foreach (ulong id in _oil.Keys.Except(state.Patches.Select(patch => patch.Id)).ToArray())
         {
-            _oil[id].QueueFree();
+            var visual = (OilHazardVisual)_oil[id];
+            if (visual.Retire(state.World.Tick))
+            {
+                _oilResidues.RemoveAll(oil => !GodotObject.IsInstanceValid(oil) || oil.IsQueuedForDeletion());
+                if (_oilResidues.Count == MaximumOilResidues) { _oilResidues[0].QueueFree(); _oilResidues.RemoveAt(0); }
+                _oilResidues.Add(visual);
+            }
+            else { visual.QueueFree(); }
             _oil.Remove(id);
         }
+        foreach (var residue in _oilResidues) { residue.ObserveTick(state.World.Tick); }
         foreach (var patch in state.Patches)
         {
             if (!_oil.TryGetValue(patch.Id, out var node))
             {
-                node = new OilHazardVisual();
+                node = new OilHazardVisual { Mouth = () => OilMouth?.Invoke(patch.Owner), OwnerFrame = () => OilFrame?.Invoke(patch.Owner) };
                 AddChild(node);
                 _oil.Add(patch.Id, node);
             }
-            ((OilHazardVisual)node).Apply(patch);
+            ((OilHazardVisual)node).StreamWidth = OilStreamWidth;
+            var owner = state.World.Vehicles.FirstOrDefault(v => v.State.VehicleId == patch.Owner)?.State;
+            ((OilHazardVisual)node).Apply(patch, OilRoughness, state.World.Tick, owner?.Movement.Physics);
         }
 
         foreach (ulong id in _missiles.Keys.Except(state.Missiles.Where(missile => missile.Launched).Select(missile => missile.Id)).ToArray())
@@ -125,9 +160,10 @@ internal sealed partial class ItemPresentation : Node3D
         {
             if (!_missiles.TryGetValue(missile.Id, out var node))
             {
-                node = missile.Item == HeldItem.Missile ? new MissileFlightVisual() : Rocket();
+                if (missile.Item == HeldItem.Salvo && _salvoSmoke is null)
+                { _salvoSmoke = new SalvoSmokeTrail(); AddChild(_salvoSmoke); }
+                node = missile.Item == HeldItem.EmpClaw ? new EmpClawFlightVisual() : missile.Item == HeldItem.Missile ? new MissileFlightVisual() : new SalvoFlightVisual { Smoke = _salvoSmoke };
                 AddChild(node);
-                if (node is not MissileFlightVisual) { node.AddChild(Particles("smoke_01", false, 0.5f)); }
                 _missiles.Add(missile.Id, node);
             }
 
@@ -136,6 +172,41 @@ internal sealed partial class ItemPresentation : Node3D
 
         foreach (var outcome in state.Events)
         {
+            if (outcome.Item == HeldItem.Salvo && outcome.Impact)
+            {
+                // Reliable publications are ordered by the driver. Keep the presentation
+                // boundary idempotent too; checkpoints intentionally contain no old events.
+                if (state.Revision <= _salvoEventRevision) { continue; }
+                _salvoExplosions.RemoveAll(e => !GodotObject.IsInstanceValid(e) || e.IsQueuedForDeletion());
+                // A rollback checkpoint may restore a round whose smoke is still
+                // alive locally. Keep that owner instead of layering the same effect.
+                if (_salvoExplosions.Any(e => e.Seed == outcome.Token)) { continue; }
+                if (_salvoExplosions.Count >= MaximumSalvoExplosions)
+                { _salvoExplosions[0].QueueFree(); _salvoExplosions.RemoveAt(0); }
+                var explosion = new SalvoExplosion { Position = VehicleBody.ToGodot(outcome.Position), Seed = outcome.Token };
+                AddChild(explosion); _salvoExplosions.Add(explosion);
+                continue;
+            }
+            if (outcome.Item == HeldItem.EmpClaw)
+            {
+                // Launcher owns the compressed-air discharge. Flight is complete-state membership;
+                // attachment grip owns vehicle-hit sparks; world contacts retain their small impact cue.
+                if (outcome.EmpPop && _bursts.Count < 128)
+                {
+                    var popped = new EmpClawVisual { Position = VehicleBody.ToGodot(outcome.Position) };
+                    AddChild(popped);
+                    popped.Observe(EmpClawVisualState.NoseDestroyed);
+                    _bursts.Add((popped, 0, 1.3f));
+                }
+                else if (outcome.Impact && outcome.EmpClawContact is null && _bursts.Count < 128)
+                {
+                    var spark = new Node3D { Position = VehicleBody.ToGodot(outcome.Position) };
+                    AddChild(spark);
+                    spark.AddChild(Particles("spark_01", true, .22f));
+                    _bursts.Add((spark, 0, .3f));
+                }
+                continue;
+            }
             if (outcome.Item == HeldItem.Missile && outcome.Impact)
             {
                 _missileExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());
@@ -175,6 +246,8 @@ internal sealed partial class ItemPresentation : Node3D
                 if (outcome.Impact) { BulletImpact(outcome); }
                 continue;
             }
+            // Repair sparks belong to the moving drill contact, not the vehicle's world origin.
+            if (outcome.Item == HeldItem.Wrench) { continue; }
             var definition = ItemRegistry.Find(outcome.Item)!;
             string? texture = outcome.Impact ? definition.ImpactVfx : definition.UseVfx;
             if (texture is null)
@@ -192,6 +265,9 @@ internal sealed partial class ItemPresentation : Node3D
 
             _bursts.Add((burst, 0, outcome.Impact ? 1.3f : 0.5f));
         }
+        // The driver orders live publications. An accepted empty recovery checkpoint
+        // can rebase the revision; do not suppress the replacement authority's events.
+        _salvoEventRevision = state.Revision;
     }
 
     private void AddMineScar(Vector3 detonation)
@@ -234,6 +310,10 @@ internal sealed partial class ItemPresentation : Node3D
     {
         if (node is MissileFlightVisual flight)
         { flight.Observe(VehicleBody.ToGodot(missile.Position), VehicleBody.ToGodot(missile.Velocity)); }
+        else if (node is EmpClawFlightVisual emp)
+        { emp.Observe(VehicleBody.ToGodot(missile.Position), VehicleBody.ToGodot(missile.Velocity)); }
+        else if (node is SalvoFlightVisual salvo)
+        { salvo.Observe(missile); }
         else
         {
             node.Position = VehicleBody.ToGodot(missile.Position);
@@ -287,16 +367,6 @@ internal sealed partial class ItemPresentation : Node3D
         } };
         root.AddChild(sparks);
         _bursts.Add((root, 0, 0.3f));
-    }
-
-    private static Node3D Rocket()
-    {
-        var root = new Node3D();
-        var mesh = Networking.MatchResourceLoader.LoadResource<Mesh>("res://assets/items/kenney/weapons/ammo_rocket.obj");
-        Aabb bounds = mesh.GetAabb();
-        float scale = 1.5f / Math.Max(bounds.Size.X, Math.Max(bounds.Size.Y, bounds.Size.Z));
-        root.AddChild(new MeshInstance3D { Mesh = mesh, Scale = Vector3.One * scale, Position = -bounds.GetCenter() * scale, MaterialOverride = Networking.MatchResourceLoader.LoadResource<StandardMaterial3D>("res://assets/items/materials/Projectile.tres") });
-        return root;
     }
 
 }

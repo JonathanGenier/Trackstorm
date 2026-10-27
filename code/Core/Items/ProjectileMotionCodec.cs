@@ -50,12 +50,13 @@ public static class ProjectileMotionCodec
             int remaining = reader.ReadInt32(), arcTick = reader.ReadInt32();
             if (id != original.Id || elapsed >= (ulong)original.RemainingTicks || remaining != original.RemainingTicks - (int)elapsed ||
                 !VehiclePhysicsState.IsFinite(position) || !VehiclePhysicsState.IsFinite(velocity) ||
-                velocity.Length() <= 0 || velocity.Length() > (original.Arc is null ? 301 : 1000) ||
+                (original.Arc is null && (velocity.Length() <= 0 || velocity.Length() > (original.EmpClaw is not null ? 150.01f : 301))) ||
                 (original.Arc is null ? arcTick != -1 : arcTick != original.Arc.ElapsedTicks + (int)elapsed))
             { throw new ArgumentException("Invalid projectile motion sample."); }
             var arc = original.Arc is { } flight ? flight with { ElapsedTicks = arcTick } : null;
-            if (arc is not null && Vector3.Distance(position, arc.At(arcTick)) > 0.01f)
-            { throw new ArgumentException("Invalid projectile arc position."); }
+            if (arc is not null && (arcTick >= SalvoFlight.LifetimeTicks || Vector3.Distance(position, arc.At(arcTick)) > 0.01f ||
+                Vector3.Distance(velocity, arc.VelocityAt(arcTick)) > 0.01f))
+            { throw new ArgumentException("Invalid projectile arc motion."); }
             missiles[i] = original with { Position = position, Velocity = velocity, RemainingTicks = remaining, Arc = arc };
         }
         return (tick, Array.AsReadOnly(missiles));

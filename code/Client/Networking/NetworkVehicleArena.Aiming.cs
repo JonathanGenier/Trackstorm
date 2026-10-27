@@ -28,7 +28,7 @@ internal sealed partial class NetworkVehicleArena
     private Vector2 _aimDeparture;
     private System.Numerics.Vector2 _aimGesture;
     internal ulong AssistedCar => StickyAiming ? _aimTarget : 0;
-    private bool StickyAiming => WeaponAim.Supports(_driver.LocalItem?.Active.Item ?? HeldItem.None);
+    private bool StickyAiming => WeaponAim.SupportsArticulation(_driver.LocalItem?.Active.Item ?? HeldItem.None);
     internal WeaponAimOverlay AimOverlay => _aimOverlay;
     internal float AimRecoverySeconds => _aimRecoverySeconds;
     internal Action<string>? AimReleaseObserved { get; set; }
@@ -63,11 +63,15 @@ internal sealed partial class NetworkVehicleArena
     private void PrepareAiming()
     {
         bool enabled = _driver.IsActive && _driver.AllowsParticipation && _driver.LocalState is { CanInteract: true } &&
-            _driver.LocalItem is { } slot && WeaponAim.Supports(slot.Active.Item) && CameraInput?.CameraEnabled == true;
+            _driver.LocalItem is { } slot && WeaponAim.SupportsArticulation(slot.Active.Item) && CameraInput?.CameraEnabled == true;
         _camera.WeaponAiming = enabled;
         if (!enabled) { ResetAiming(); return; }
         var current = _driver.LocalItem!;
         var capability = (current.Life, current.Active.Token, current.SelectionRevision);
+        // Accepted token retirement within one Salvo magazine preserves the same
+        // local assisted target; it does not simulate a player selection change.
+        if (current.Active.SalvoCommitted && _aimCapability.Life == current.Life && _aimCapability.Selection == current.SelectionRevision)
+        { capability = (current.Life, _aimCapability.Token, current.SelectionRevision); }
         if (_aimCapability != capability) { ReleaseAim("capability changed"); _aimDismissed = 0; _aimReleaseSeconds = 0; _aimCapability = capability; }
         if (CameraInput is { } input && (_aimIntentRevision != input.CameraAimRevision || !input.CameraAimActive))
         {
@@ -82,6 +86,7 @@ internal sealed partial class NetworkVehicleArena
     private void ResetAiming(string reason)
     {
         _driver.DesiredAim = null;
+        _driver.DesiredAimTarget = _driver.DesiredAimTargetLife = 0;
         _camera.WeaponAiming = false;
         _aimCapability = default;
         ResetAssistance(reason);
@@ -109,19 +114,21 @@ internal sealed partial class NetworkVehicleArena
         {
             var state = _driver.Latest?.Vehicles.FirstOrDefault(value => value.State.VehicleId == pair.Key)?.State;
             var inventory = (_driver.Host?.Items.Slots ?? _driver.ItemState?.Slots)?.FirstOrDefault(value => value.Vehicle == pair.Key);
-            var aim = _driver.AcceptedAims.FirstOrDefault(value => value.Vehicle == pair.Key && value.Life == state?.LifeId && value.Token == inventory?.Active.Token);
-            pair.Value.Rack.ObserveAim(state is { CanInteract: true } && inventory is not null && WeaponAim.Supports(inventory.Active.Item) ? aim : null);
+            var aim = state?.LifeId == inventory?.Life ? _driver.PresentedAim(inventory) : null;
+            pair.Value.Rack.ObserveAim(state is { CanInteract: true } && inventory is not null && WeaponAim.SupportsArticulation(inventory.Active.Item) ? aim : null);
         }
-        if (!_camera.WeaponAiming || _driver.LocalState is not { } local || _driver.LocalItem is not { } slot) { return; }
+        if (!_camera.WeaponAiming || _driver.LocalState is not { } local || _driver.LocalItem is not { } slot || slot.Life != local.LifeId) { return; }
         Vector2 center = _camera.GetViewport().GetVisibleRect().GetCenter();
         Vector3 lens = _camera.ProjectRayOrigin(center);
-        Vector3 rayEnd = lens + _camera.ProjectRayNormal(center) * 300;
+        float rayLength = slot.Active.Item == HeldItem.Salvo && CameraInput?.CameraAimActive == true
+            ? Math.Max(300, SalvoFlight.AimRange(_driver.Configuration.Configuration.Items, true) + lens.DistanceTo(VehicleBody.ToGodot(local.ObservedPhysics.Position))) : 300;
+        Vector3 rayEnd = lens + _camera.ProjectRayNormal(center) * rayLength;
         // Free aim always resolves the actual centred ray. Assistance may acquire nearby cars.
         var hit = TraceViewedAim(lens, rayEnd);
         if (StickyAiming)
         {
             ValidateStickyTarget(delta);
-            if (CameraInput?.CameraAimActive == true && _aimTarget == 0 && _aimReleaseSeconds <= 0 && _driver.AcceptedAims.Any(a => a.Vehicle == local.VehicleId && a.Life == local.LifeId && a.Token == slot.Active.Token) && FindAcquisition(lens) is { } acquired)
+            if (CameraInput?.CameraAimActive == true && _aimTarget == 0 && _aimReleaseSeconds <= 0 && _driver.PresentedAim(slot) is not null && FindAcquisition(lens) is { } acquired)
             {
                 _aimTarget = acquired.VehicleId;
                 _aimTargetLife = _driver.Latest!.Vehicles.Single(v => v.State.VehicleId == _aimTarget).State.LifeId;
@@ -135,6 +142,8 @@ internal sealed partial class NetworkVehicleArena
             }
         }
         NetworkVehicleBody? framed = StickyAiming ? (_aimTarget != 0 ? _bodies[_aimTarget] : null) : hit.Car;
+        _driver.DesiredAimTarget = slot.Active.Item == HeldItem.EmpClaw && CameraInput?.CameraAimActive == true ? framed?.VehicleId ?? 0 : 0;
+        _driver.DesiredAimTargetLife = _driver.Latest?.Vehicles.FirstOrDefault(v => v.State.VehicleId == _driver.DesiredAimTarget)?.State.LifeId ?? 0;
         Vector3 desiredPoint = hit.Point;
         if (StickyAiming && framed is not null)
         {
@@ -151,7 +160,7 @@ internal sealed partial class NetworkVehicleArena
         // input selects the same free/assisted solution as every direct-fire weapon.
         if (slot.Active.Item == HeldItem.Missile && CameraInput?.CameraAimActive != true)
         { _driver.DesiredAim = System.Numerics.Vector3.Transform(-System.Numerics.Vector3.UnitZ, local.ObservedPhysics.Orientation); }
-        var accepted = _driver.AcceptedAims.FirstOrDefault(value => value.Vehicle == local.VehicleId && value.Life == local.LifeId && value.Token == slot.Active.Token);
+        var accepted = _driver.PresentedAim(slot);
         Rect2? bounds = null;
         if (framed is { } target)
         {
@@ -245,7 +254,7 @@ internal sealed partial class NetworkVehicleArena
             var state = _driver.Latest?.Vehicles.FirstOrDefault(v => v.State.VehicleId == pair.Key)?.State;
             Vector3 point = AimBodyCenter(pair.Value), to = point - lens;
             if (pair.Key == _driver.LocalVehicleId || state is not { CanInteract: true } || !pair.Value.IsPresented ||
-                to.LengthSquared() > 90000 || _camera.IsPositionBehind(point) ||
+                !WithinAimReach(point, lens) || _camera.IsPositionBehind(point) ||
                 !_camera.GetViewport().GetVisibleRect().HasPoint(_camera.UnprojectPosition(point))) { continue; }
             float angle = (-_camera.GlobalBasis.Z).AngleTo(to);
             if (ProjectAimBounds(pair.Value) is not { } frame) { continue; }
@@ -271,7 +280,7 @@ internal sealed partial class NetworkVehicleArena
     {
         if (CameraInput?.CameraAimActive != true) { ResetAssistance(); return; }
         if (_aimTarget == 0) { return; }
-        if (!_driver.AcceptedAims.Any(a => a.Vehicle == _driver.LocalVehicleId && a.Life == _aimCapability.Life && a.Token == _aimCapability.Token))
+        if (_driver.LocalItem?.Life != _driver.LocalState?.LifeId || _driver.PresentedAim(_driver.LocalItem) is null)
         { ReleaseAim("accepted aim expired"); return; }
         var state = _driver.Latest?.Vehicles.FirstOrDefault(v => v.State.VehicleId == _aimTarget)?.State;
         float cone = _driver.Configuration.Configuration.Items.Aim.AssistDegrees * MathF.PI / 180;
@@ -282,11 +291,10 @@ internal sealed partial class NetworkVehicleArena
         // Only validate spatial visibility against this frame's resolved camera.
         if (delta <= 0 && !finalView) { return; }
         Vector3 center = AimBodyCenter(body);
-        Vector3 to = center - _camera.GlobalPosition;
         Vector2 viewportCenter = _camera.GetViewport().GetVisibleRect().GetCenter();
         if (_camera.IsPositionBehind(center) || !_camera.GetViewport().GetVisibleRect().HasPoint(_camera.UnprojectPosition(center)))
         { ReleaseAim("offscreen"); return; }
-        if (to.LengthSquared() > 90000) { ReleaseAim("range"); return; }
+        if (!WithinAimReach(center, _camera.GlobalPosition)) { ReleaseAim("range"); return; }
         if (!HasAimSight(_aimTarget, _camera.GlobalPosition, center)) { ReleaseAim("occluded"); return; }
         if (ProjectAimBounds(body) is not { } frame) { ReleaseAim("offscreen body"); return; }
         float gap = AimFrameGap(frame);
@@ -413,5 +421,14 @@ internal sealed partial class NetworkVehicleArena
                 TraceViewedAim(from, point).Car?.VehicleId == target) { return true; }
         }
         return false;
+    }
+
+    private bool WithinAimReach(Vector3 point, Vector3 lens)
+    {
+        if (_driver.LocalItem?.Active.Item != HeldItem.Salvo || _driver.LocalState is not { } local)
+        { return point.DistanceSquaredTo(lens) <= 90000; }
+        var pivot = local.ObservedPhysics.Position + System.Numerics.Vector3.Transform(WeaponAim.Pivot, local.ObservedPhysics.Orientation);
+        float range = SalvoFlight.AimRange(_driver.Configuration.Configuration.Items, true);
+        return point.DistanceSquaredTo(VehicleBody.ToGodot(pivot)) <= range * range;
     }
 }

@@ -1,0 +1,15 @@
+All models hidden before confirmed publication
+Exactly one intact pickup per each of the 27 existing map markers
+No collision bodies, areas or shapes: no vehicle obstruction or projectile hit target
+One asset retains exactly three named crate groups
+Compact stack bounds: (-1.5443391, 0.020999976, -0.9295084), (3.0886705, 2.8510003, 1.7739725)
+Repeated pickups share the imported mesh resource
+Native projectile sweeps pass through the intact stack at height 0.8 m
+Native projectile sweeps pass through the intact stack at height 2.2 m
+Projectile passage neither consumes pickups nor awards items
+Both projectile paths exercised native physics queries
+Cooldown hides all three crates and stops ambient particles
+Confirmed respawn restores all three crates as one pickup
+120 hide/respawn cycles do not accumulate nodes or visual owners
+Rendered production map with 27 active stacks, 300 frames capped at 60 FPS: median=16.67 ms, p95=16.67 ms, max=16.77 ms. These are whole-frame timings on this machine, not isolated GPU cost.
+Scene teardown releases pickup owner

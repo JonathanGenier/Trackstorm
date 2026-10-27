@@ -17,6 +17,17 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 | Evidence | Reports |
 | --- | --- |
 | Twin Fang Machine Gun model, animated feeds and firing VFX | [TS-234 implementation and runtime evidence](ts-234.md) |
+| Carnival crate single-unit smash, gold VFX and cleanup | [TS-311 verification evidence](ts-311.md) |
+| Carnival crate intact pickup | [TS-310 verification evidence](ts-310.md) |
+| Salvo firework projectile, ballistic lifetime and persistent smoke | [TS-212 verification evidence](ts-212.md) |
+| Salvo automatic five-shot controller, aim retention and extended aimed reach | [TS-211 verification evidence](ts-211.md) |
+| EMP Claw DevTools and HUD integration | [TS-300 verification evidence](ts-300.md) |
+| EMP Claw pickup/DevTools access, three-hose layout, under-magazine loader, hollow breech and Round 4 critique | [TS-296 verification evidence](ts-296.md) |
+| Wrench three-point hood repair and sparks | [TS-293 verification evidence](ts-293.md) |
+| Wrench robotic repair arm | [TS-292 verification evidence](ts-292.md) |
+| Oil wheel contamination, spray and trails | [TS-246 implementation, native/UDP verification and Astra critique](ts-246.md) |
+| Jack-in-the-box Oil | [TS-245 tank artwork, presentation, deposition, timer lifecycle, native recovery and critique evidence](ts-245.md) |
+| Agent tooling and context routing | [TS-287 verification evidence](ts-287.md) |
 | Machine Gun camera aiming | [TS-262 accepted firing, sticky car assistance, 200 m grouping, native multiplayer and critique](ts-262.md) |
 | Standard Missile camera aiming | [TS-263 shared free aim, car assistance, launcher articulation, multiplayer/runtime verification and Astra critique](ts-263.md) |
 | Missile model and flight VFX | [Implementation and runtime verification](ts-240.md) |

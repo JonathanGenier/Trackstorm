@@ -187,10 +187,13 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
     /// <summary>Latest accepted complete prop publication.</summary>
     internal Trackstorm.Core.Arenas.ArenaPropSnapshot? PropSnapshot { get; private set; }
     /// <summary>Native swept collision query, host only.</summary>
+    internal Func<ulong, System.Numerics.Vector3, System.Numerics.Vector3, float, bool>? ContactEmpNose { get; set; }
     internal Func<ulong, System.Numerics.Vector3, System.Numerics.Vector3, WeaponRayHit?>? RaycastWeapon { get; set; }
+    internal Func<ulong, System.Numerics.Vector3, System.Numerics.Vector3, IReadOnlyList<VehicleStepRequest>, WeaponRayHit?>? RaycastEmpClaw { get; set; }
     internal Func<MissileState, System.Numerics.Vector3, float?>? CollideMissile { get; set; }
     internal Func<System.Numerics.Vector3, System.Numerics.Vector3, MissileTerrainSample?>? QueryMissileTerrain { get; set; }
     /// <summary>Host-only ground projection for persistent oil deployment.</summary>
+    internal Func<System.Numerics.Vector3, System.Numerics.Vector3, float, OilImpact?>? OilCollision { get; set; }
     internal Func<ItemSlot, VehiclePhysicsState, OilPatch?>? PlaceOil { get; set; }
     internal Func<System.Numerics.Vector3, System.Numerics.Vector3?>? ProjectSalvoGround { get; set; }
     internal Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? PlaceShield { get; set; }
@@ -338,7 +341,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
             FlushShieldUse();
 
             var previousVehicles = Host.World.State.Vehicles;
-            Host.Step(input, observe, CollideMissile, PlaceOil, PlaceMine, MoveMine, ProjectSalvoGround, RaycastWeapon, PlaceShield, ObserveShield, QueryMissileTerrain);
+            Host.Step(input, observe, CollideMissile, PlaceOil, PlaceMine, MoveMine, ProjectSalvoGround, RaycastWeapon, PlaceShield, ObserveShield, QueryMissileTerrain, OilCollision, RaycastEmpClaw, ContactEmpNose);
             Host.CollectPickups();
             if (Host.Environment is { } environment)
             {
@@ -392,7 +395,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
             if (_publishedSpawnRevision != (Host.Spawns?.Revision ?? 0) || _publishedItemRevision != Host.Items.ReliableRevision || _rosterChanged)
             {
                 var previousItems = _rosterChanged ? null : ItemState;
-                ItemState = new ItemPublication(++_itemPublication, Latest, Host.Items.Slots, Host.Items.Missiles, Host.Items.Events, Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines, Host.Items.Shields, Host.Items.DiscardRevision);
+                ItemState = new ItemPublication(++_itemPublication, Latest, Host.Items.Slots, Host.Items.Missiles, Host.Items.Events, Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines, Host.Items.Shields, Host.Items.DiscardRevision, Host.Items.EmpAttachments);
                 byte[] items = ItemCodec.EncodeState(ItemState, previousItems);
                 foreach (ulong peer in _assigned)
                 {
@@ -515,6 +518,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         _pendingShieldUse = null;
         if (!AllowsParticipation || LocalState is not { CanInteract: true } state) { return false; }
         var inventory = LocalItem;
+        if (inventory?.ReservedSalvoShots > 0) { return false; }
         if (_switchLife != state.LifeId) { _switchLife = state.LifeId; _switchRevision = 0; }
         ulong revision = checked(Math.Max(_switchRevision, inventory?.SelectionRevision ?? 0) + 1);
         bool accepted = Host is not null ? Host.SwitchItem(0, _session, state.LifeId, revision)
@@ -526,6 +530,9 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
     internal bool RequestItemDiscard()
     {
         _pendingShieldUse = null;
+        // The visible slot still belongs to the installed spent Wrench; do not
+        // delete an incoming capability that is waiting behind its handoff.
+        if (WrenchReturning?.Invoke() == true) { return false; }
         var inventory = RequestedInventory();
         var slot = inventory?.Active;
         if (!AllowsParticipation || LocalState?.CanInteract != true || slot is null || slot.Item == HeldItem.None) { return false; }
@@ -546,6 +553,8 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
 
     /// <summary>Local Missile readiness rejects early input without queuing it.</summary>
     internal Func<ItemSlot, bool>? MissileReady { get; set; }
+    internal Func<ItemSlot, bool>? EmpClawReady { get; set; }
+    internal Func<ItemSlot, bool>? SalvoReady { get; set; }
 
     /// <summary>Submits the local slot capability reliably; never creates a predicted item effect.</summary>
     /// <returns>Whether queued locally or sent to the host.</returns>
@@ -561,8 +570,13 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
             return false;
         }
 
+        if (WrenchReturning?.Invoke() == true) { return false; }
         if (slot.Item == HeldItem.Missile && MissileReady?.Invoke(inventory!) == false) { return false; }
-        if (slot.Item == HeldItem.Shield && ShieldReady?.Invoke(inventory!) == false)
+        if (slot.Item == HeldItem.EmpClaw && EmpClawReady?.Invoke(inventory!) == false) { return false; }
+        if (slot.Item == HeldItem.Salvo && (slot.SalvoCommitted || SalvoReady?.Invoke(inventory!) == false)) { return false; }
+        if (slot.Item == HeldItem.Wrench && WrenchReady?.Invoke(inventory!) == false) { return false; }
+        if ((slot.Item == HeldItem.Shield && ShieldReady?.Invoke(inventory!) == false) ||
+            (slot.Item == HeldItem.Oil && OilReady?.Invoke(inventory!) == false))
         {
             _pendingShieldUse = (slot.Life, slot.Token, inventory!.SelectionRevision);
             return true;
@@ -739,7 +753,12 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         ItemState = null;
         _pendingShieldUse = null;
         ShieldReady = null;
+        WrenchReady = null;
+        WrenchReturning = null;
+        OilReady = null;
         MissileReady = null;
+        SalvoReady = null;
+        EmpClawReady = null;
         ResetAiming();
         PropSnapshot = null;
         _inputs = null;
@@ -751,7 +770,10 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         CollideMissile = null;
         QueryMissileTerrain = null;
         RaycastWeapon = null;
+        RaycastEmpClaw = null;
+        ContactEmpNose = null;
         PlaceOil = null;
+        OilCollision = null;
         ProjectSalvoGround = null;
         RosterChanged = null;
         LocalCorrected = null;
@@ -790,7 +812,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
     {
         _lobby!.Authority!.RetainConfiguration(Host!.Configuration);
         WorldSnapshot world = Host!.Snapshot();
-        var items = new ItemPublication(Math.Max(1, _itemPublication), world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines, Host.Items.Shields, Host.Items.DiscardRevision);
+        var items = new ItemPublication(Math.Max(1, _itemPublication), world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines, Host.Items.Shields, Host.Items.DiscardRevision, Host.Items.EmpAttachments);
         var state = Host.World.State.Match!;
         var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode, activeStartedAtTick: state.ActiveStartedAtTick, durationTicks: state.DurationTicks, recoveryElapsedTicks: state.RecoveryElapsedTicks);
         var props = ObserveProps is null ? null : new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, world.Tick, ObserveProps());
@@ -851,7 +873,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
     {
         _rosterChanged = true; // Resume establishes a new full Oil baseline before subsequent references.
         WorldSnapshot world = Host!.Snapshot();
-        var items = new ItemPublication(++_itemPublication, world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines, Host.Items.Shields, Host.Items.DiscardRevision);
+        var items = new ItemPublication(++_itemPublication, world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines, Host.Items.Shields, Host.Items.DiscardRevision, Host.Items.EmpAttachments);
         var state = Host.World.State.Match!;
         var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode, activeStartedAtTick: state.ActiveStartedAtTick, durationTicks: state.DurationTicks, recoveryElapsedTicks: state.RecoveryElapsedTicks);
         var props = ObserveProps is null ? null : new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, world.Tick, ObserveProps());

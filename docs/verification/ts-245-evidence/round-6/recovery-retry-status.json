@@ -1,0 +1,20 @@
+[
+  {
+    "name": "migration-retry",
+    "status": "FAIL",
+    "seconds": 66.61,
+    "error": "Migration integration failed; inspect .godot/migration-checks/runtime.log."
+  },
+  {
+    "name": "migration-two-peer-retry",
+    "status": "PASS",
+    "seconds": 28.09,
+    "error": ""
+  },
+  {
+    "name": "reconnect-retry",
+    "status": "FAIL",
+    "seconds": 321.43,
+    "error": "Reconnect integration failed; inspect .godot/reconnect-checks/runtime.log."
+  }
+]

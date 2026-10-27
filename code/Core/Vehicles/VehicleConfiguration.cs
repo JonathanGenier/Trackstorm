@@ -3,21 +3,23 @@ namespace Trackstorm.Core.Vehicles;
 /// <summary>Validated arcade tuning shared by local, replay, and future authority drivers.</summary>
 public sealed record VehicleConfiguration
 {
+    /// <summary>EMP engine and Nitro impairment; shared across all active claws, never stacked.</summary>
+    public float EmpSuppression { get; init; } = .8f;
     private static readonly SurfaceBraking NeutralBraking = new();
     /// <summary>Trunk mechanism speed relative to its original 0.72-second travel; independently tunable.</summary>
     public float TrunkDeploymentSpeed { get; init; } = 3;
     /// <summary>Rack mechanism speed relative to its original 0.88-second travel; independently tunable.</summary>
     public float RackDeploymentSpeed { get; init; } = 3;
     /// <summary>Front tire lateral grip reduction during contamination.</summary>
-    public float OilGripReduction { get; init; } = 0.85f;
+    public float OilGripReduction { get; init; } = 0.95f;
     /// <summary>Rear tire longitudinal grip reduction, including drive and braking.</summary>
-    public float OilRearDriveReduction { get; init; } = 0.85f;
+    public float OilRearDriveReduction { get; init; } = 0.95f;
     /// <summary>Rear tire lateral grip reduction during contamination.</summary>
-    public float OilRearLateralReduction { get; init; } = 0.65f;
-    /// <summary>Full-strength impairment following a distinct tire entry.</summary>
-    public float OilImpairmentSeconds { get; init; } = 5;
-    /// <summary>Progressive recovery after the full impairment interval.</summary>
-    public float OilRecoverySeconds { get; init; } = 2;
+    public float OilRearLateralReduction { get; init; } = 0.95f;
+    /// <summary>Total handling disturbance following a distinct tire entry, including recovery.</summary>
+    public float OilImpairmentSeconds { get; init; } = 2;
+    /// <summary>Progressive recovery within the end of the impairment interval, capped to that interval.</summary>
+    public float OilRecoverySeconds { get; init; } = 0.35f;
     /// <summary>Recovery progression exponent before smoothstep easing.</summary>
     public float OilRecoveryCurve { get; init; } = 1;
     /// <summary>Asphalt tire capacity; neutral drag/drive retain approved power and coasting.</summary>
@@ -273,6 +275,7 @@ public sealed record VehicleConfiguration
     /// <summary>Rejects unsafe tuning before any state or native body is created.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(EmpSuppression) || EmpSuppression is < 0 or > .8f) { throw new ArgumentException("EMP suppression must be between zero and 80 percent."); }
         if (AsphaltBraking is null || DirtBraking is null || GrassBraking is null) { throw new ArgumentException("Missing surface braking profile."); }
         AsphaltBraking.Validate();
         DirtBraking.Validate();

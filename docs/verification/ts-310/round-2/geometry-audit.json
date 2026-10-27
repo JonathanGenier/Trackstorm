@@ -1,0 +1,8 @@
+{
+  "result": "PASS",
+  "base": "fd407c2f3421937adfee329fae2162a85c8d3a86",
+  "position_accessors": 15,
+  "nodes": 7,
+  "assertion": "Every exported vertex POSITION accessor and node transform matches the approved-size base asset byte for byte. All attribute/index counts are unchanged.",
+  "limitation": "Blender re-export changes some UV/index bytes and one normal accessor; this verifies unchanged spatial geometry, transforms and element counts, not byte-identical topology/UV encoding."
+}

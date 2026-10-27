@@ -140,10 +140,13 @@ internal sealed class WorldWallTests
         var host = Start(); var wall = Deploy(host);
         host.Items.Grant(host.World, 1, weapon);
         MissileTestPreparation.Wait(host);
-        host.TryConfigure(0, new Dictionary<string, double> { ["items.salvo_arc_height"] = 1, ["items.salvo_launch_height"] = 1 }, out _);
+        if (weapon == HeldItem.Salvo) { for (int i = 0; i < 240; i++) { host.Step(default, Observe); } }
+        host.TryConfigure(0, new Dictionary<string, double> { ["items.salvo_arc_height"] = 1, ["items.salvo_launch_height"] = 1,
+            ["items.salvo_blast_radius"] = 10 }, out _); // This broad-blast fixture deliberately detonates near the launcher.
         host.Items.RequestUse(host.World, 1, 1, host.Items.Slots.Single().Active.Token);
         VehicleObservation Shooter(VehicleSnapshot s) => new(new(new(0, 2, 12), Quaternion.Identity, Vector3.Zero, Vector3.Zero), Vector3.UnitY);
         host.Step(default, Shooter, collide: (_, _) => 1, ground: point => new(point.X, 2, point.Z));
+        if (weapon == HeldItem.Salvo) { for (int i = 0; i < ItemSlot.SalvoReleaseTicks; i++) { host.Step(default, Shooter, collide: (_, _) => 1, ground: point => new(point.X, 2, point.Z)); } }
         var hit = host.Items.Shields.Single();
         Assert.That(hit.HP, Is.LessThan(1000));
         Assert.That(hit.DamageSequence, Is.EqualTo(1));

@@ -1,0 +1,6 @@
+{
+  "result": "PASS",
+  "base": "fd407c2f3421937adfee329fae2162a85c8d3a86",
+  "markers": 27,
+  "assertion": "All authoritative pickup marker IDs and three-dimensional positions are numerically identical to the previous implementation."
+}

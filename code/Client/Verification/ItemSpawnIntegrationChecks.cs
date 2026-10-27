@@ -143,7 +143,12 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 break;
             case 1 when _arenas.All(arena => arena.Pickups.ActiveCount == PickupCount - 1) && _elapsed - _started > 1.2:
                 Require(_arenas.All(arena => arena.Driver.ItemState!.Slots.Count == 1), "Only one slot is awarded on every peer.");
+                Require(_arenas.All(arena => arena.Pickups.SmashCount == 1), "Each native peer emits exactly one three-crate smash for the contested claim.");
                 var claim = host.Spawns!.States[0];
+                float[] BurstBuffer(NetworkVehicleArena arena) => arena.Pickups.GetNode<Node3D>(claim.Id).GetChildren()
+                    .OfType<Items.CarnivalSmash>().Single().GetChildren().OfType<MultiMeshInstance3D>().SelectMany(m => m.Multimesh.Buffer).ToArray();
+                var burstBuffer = BurstBuffer(_arenas[0]);
+                Require(_arenas.All(arena => BurstBuffer(arena).SequenceEqual(burstBuffer)), "All peers reconstruct identical fragment seeds and initial transforms from the single grant token.");
                 _winner = claim.ClaimedBy;
                 Require(_winner == _arenas[1].Driver.LocalVehicleId || _winner == _arenas[2].Driver.LocalVehicleId, "A contesting remote player wins.");
                 Require(_arenas.All(arena => arena.Driver.ItemState!.Spawns[0] == claim && arena.Driver.ItemState.Slots.Single().Token == claim.Token), "Claim, cooldown and grant token match everywhere.");
@@ -158,11 +163,15 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 PositionPlayers(false, true);
                 Next("Authoritative cooldown reactivates on every peer; all eight vehicles approach separate pickups.");
                 break;
-            case 3 when _arenas.All(arena => arena.Pickups.ActiveCount == PickupCount - 8):
+            // Nitro's deployment countdown changes each host tick. Compare complete snapshots
+            // once that bounded transition has settled on every peer, not across different ticks.
+            case 3 when host.Items.Slots.All(slot => slot.NitroDeploymentTicks == 0) &&
+                _arenas.All(arena => arena.Pickups.ActiveCount == PickupCount - 8 && arena.Driver.ItemState!.Slots.All(slot => slot.NitroDeploymentTicks == 0)):
                 var expected = host.Items.Slots;
                 _distributed = expected.ToArray();
                 Require(expected.Count == 8 && expected.All(slot => ItemRegistry.Find(slot.Item) is not null), "Normal weighted pickups award registered items to all eight players; random draws do not guarantee roster coverage in eight slots.");
-                Require(_arenas.All(arena => arena.Driver.ItemState!.Slots.SequenceEqual(expected) && arena.Driver.ItemState.Spawns.SequenceEqual(host.Spawns!.States)), "All inventory and spawn outcomes agree across eight peers.");
+                Require(_arenas.All(arena => arena.Driver.ItemState!.Slots.SequenceEqual(expected) && arena.Driver.ItemState.Spawns.SequenceEqual(host.Spawns!.States)),
+                    "All inventory and spawn outcomes agree across eight peers after deployment settles.");
                 foreach (var arena in _arenas.Where(arena => ItemRegistry.Find(arena.Driver.LocalItem!.Item)?.CanUse == false))
                 {
                     var slot = arena.Driver.LocalItem!;
@@ -186,7 +195,11 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 Require(host.Items.Slots.All(slot => slot.Item != HeldItem.None), "Occupied slots retain their grants.");
                 Require(host.Spawns!.States.All(spawn => spawn.Available), "Occupied players cannot consume reactivated spawns while remaining in range.");
                 Require(_arenas.All(arena => arena.Driver.ItemState!.Slots.SequenceEqual(_distributed)), "Occupied grants and tokens remain unchanged on all peers after reactivation.");
-                Require(_arenas.All(arena => arena.GetChildren().OfType<Items.ItemPresentation>().Single().GetChildCount() == 0), "Held inventory creates no world presentation for local or remote vehicles.");
+                Require(_arenas.All(arena =>
+                {
+                    var presentation = arena.GetChildren().OfType<Items.ItemPresentation>().Single();
+                    return presentation.GetChildren().SequenceEqual(new Node[] { presentation.EmpAttachments }) && presentation.EmpAttachments.GetChildCount() == 0;
+                }), "Held inventory creates no projectile/effect visuals; only the existing empty EMP attachment owner remains.");
                 Capture("occupied-slots.png");
                 _evidence.Add($"All {PickupCount} pickups are available after cooldown, including under occupied vehicles. No duplicate awards or overwritten grants.");
                 Require(host.TryConfigure(0, new Dictionary<string, double> { ["spawns.cooldown_ticks"] = 1 }, out _), "Repeated pickup fixture configures a one-tick cooldown.");
@@ -214,7 +227,7 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                     Require(CategoryBalanceRecoveryFixture.Signature(host.Spawns.Balances) == signature, "Live item weights preserve all player histories.");
                     Require(host.Items.Slots.SequenceEqual(slots) && host.Spawns.States.SequenceEqual(spawns), "Live item weights preserve held grants and committed claims.");
                     Require(host.ItemSelectionRandom.State == random, "Live item weights preserve RNG continuation.");
-                    _evidence.Add("After round 16, host changed each category to its last registered item (Machine Gun, Nitro, Proxy Mine); subsequent rounds verify the new pool for all eight players without resetting history or RNG.");
+                    _evidence.Add("After round 16, host changed each category to its last registered item; subsequent rounds verify the current registry's pool for all eight players without resetting history or RNG.");
                 }
                 if (_balanceRounds < 32)
                 {
@@ -232,6 +245,10 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                     }
                 }
                 _evidence.Add("32 repeated rounds across eight native peers; exact replicated per-player credits/counts and target convergence: " + signature);
+                ulong totalClaims = host.Spawns.Balances.Aggregate(0ul, (total, balance) => total+balance.Total);
+                Require(_arenas.All(arena => arena.Pickups.SmashCount == totalClaims), "Every native peer observes exactly one smash per authoritative claim across repeated/rapid respawns.");
+                Require(_arenas.All(arena => arena.Pickups.ActiveSmashCount <= Items.ItemSpawnPresentation.MaximumSmashes), "Burst ownership stays bounded on all native peers.");
+                _evidence.Add($"Smash replication: all eight native peers observed exactly {totalClaims} bursts; no duplicates or missed claims, including rapid cooldowns and impaired delivery when selected.");
                 System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
                 GD.Print("Item spawn integration passed: " + string.Join("\n", _evidence));
                 Cleanup();

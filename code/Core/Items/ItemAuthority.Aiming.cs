@@ -5,24 +5,39 @@ namespace Trackstorm.Core.Items;
 
 public sealed partial class ItemAuthority
 {
-    private sealed record AimIntent(ulong Life, ulong Token, ulong Selection, ulong Sequence, ulong Received, Vector3 Direction);
+    private sealed record AimIntent(ulong Life, ulong Token, ulong Selection, ulong Sequence, ulong Received, Vector3 Direction, ulong Target, ulong TargetLife);
     private readonly Dictionary<ulong, AimIntent> _aimIntents = new();
     private readonly Dictionary<ulong, WeaponAimSolution> _aims = new();
-    private sealed record AimDeployment(ulong Life, ulong Token, ulong Selection, HeldItem Item, float Progress, bool Retracting, ulong Tick, float Nesting);
+    private sealed record AimDeployment(ulong Life, ulong Token, ulong Selection, HeldItem Item, float Progress, bool Retracting, ulong Tick, float Nesting, float Arm = 0)
+    {
+        internal float EmpDeploySeconds { get; init; }
+        internal float EmpStowSeconds { get; init; }
+    }
     private readonly Dictionary<ulong, AimDeployment> _aimDeployment = new();
 
     /// <summary>Detached accepted articulation; transient input is deliberately reset on recovery.</summary>
     public IReadOnlyList<WeaponAimSolution> Aims => _aims.Values.OrderBy(value => value.Vehicle).ToArray();
 
+    /// <summary>Host readiness for the selected repair capability; recovery redeploys before use.</summary>
+    public bool WrenchReady(ItemSlot slot) => _aimDeployment.TryGetValue(slot.Vehicle, out var deployment) &&
+        deployment.Life == slot.Life && deployment.Token == slot.Active.Token && deployment.Selection == slot.SelectionRevision &&
+        deployment.Item == HeldItem.Wrench && !deployment.Retracting && deployment.Progress >= 1 && deployment.Arm >= 1;
+
+    /// <summary>Normal pickup test access waits for complete EMP deployment.</summary>
+    public bool EmpClawReady(ItemSlot slot) => _aimDeployment.TryGetValue(slot.Vehicle, out var deployment) &&
+        deployment.Life == slot.Life && deployment.Token == slot.Active.Token && deployment.Selection == slot.SelectionRevision &&
+        deployment.Item == HeldItem.EmpClaw && !deployment.Retracting && deployment.Progress >= 1;
+
     /// <summary>Validates direction against actual sender inventory, life, selection and ordered input.</summary>
-    public bool RequestAim(Simulation.Simulation world, ulong vehicle, ulong life, ulong token, ulong selection, ulong sequence, Vector3 direction)
+    public bool RequestAim(Simulation.Simulation world, ulong vehicle, ulong life, ulong token, ulong selection, ulong sequence, Vector3 direction, ulong target = 0, ulong targetLife = 0)
     {
         var state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == vehicle);
         if (state is not { CanInteract: true } || state.LifeId != life || sequence == 0 || !WeaponAim.IsDirection(direction) ||
+            (target == 0) != (targetLife == 0) || target == vehicle ||
             !_slots.TryGetValue(vehicle, out var slot) || slot.Life != life || slot.Active.Token != token ||
-            slot.SelectionRevision != selection || !WeaponAim.Supports(slot.Active.Item) ||
+            slot.SelectionRevision != selection || !WeaponAim.SupportsArticulation(slot.Active.Item) ||
             (_aimIntents.TryGetValue(vehicle, out var previous) && previous.Life == life && previous.Sequence >= sequence)) { return false; }
-        _aimIntents[vehicle] = new(life, token, selection, sequence, world.State.Tick, direction);
+        _aimIntents[vehicle] = new(life, token, selection, sequence, world.State.Tick, direction, target, targetLife);
         return true;
     }
 
@@ -44,16 +59,23 @@ public sealed partial class ItemAuthority
             _aimDeployment.TryGetValue(id, out var deployment);
             if (deployment?.Life != state.LifeId) { deployment = null; }
             if (slot.Active.Item == HeldItem.None) { ResetAim(id); continue; }
+            // A consumed presentation round retires its use token, but keeps this magazine mounted.
+            if (deployment is not null && deployment.Item == HeldItem.EmpClaw && slot.Active.Item == HeldItem.EmpClaw &&
+                deployment.Selection == slot.SelectionRevision && slot.Active.EmpClaw is { } load && load.Magazine <= deployment.Token)
+            { deployment = deployment with { Token = slot.Active.Token }; }
             if (deployment is null || deployment.Token != slot.Active.Token || deployment.Selection != slot.SelectionRevision)
             {
                 // Keep capability history through depletion and switches. A replacement
                 // takes over a complete retract/deploy path, even without a slot switch.
-                bool replacing = deployment is not null;
+                // Repair requires at least a complete fresh rack/arm deployment. The
+                // local presentation additionally waits for the outgoing payload's return.
+                bool replacing = deployment is not null && slot.Active.Item != HeldItem.Wrench;
                 deployment = new(state.LifeId, slot.Active.Token, slot.SelectionRevision, slot.Active.Item,
-                    replacing ? 1 : 0, replacing, tick, deployment?.Item == HeldItem.Nitro ? .24f : 0);
+                    replacing ? 1 : 0, replacing, tick, replacing && deployment?.Item == HeldItem.Nitro ? .24f : 0)
+                { EmpDeploySeconds = Configuration.EmpClawDeploySeconds, EmpStowSeconds = Configuration.EmpClawStowSeconds };
                 _aims.Remove(id);
             }
-            if (!WeaponAim.Supports(slot.Active.Item))
+            if (!WeaponAim.SupportsArticulation(slot.Active.Item) && slot.Active.Item != HeldItem.Wrench)
             { _aimDeployment[id] = deployment; ResetAim(id); continue; }
             // An accepted mine arm owns the rack until placement and its return finish,
             // even if the selected inventory has already become a direct-fire weapon.
@@ -62,11 +84,20 @@ public sealed partial class ItemAuthority
             if (deployment.Tick < tick)
             {
                 float elapsed = Math.Max(0, 1f / 60 - deployment.Nesting);
-                float progress = RackDeploymentPath.Advance(deployment.Progress, !deployment.Retracting, elapsed, vehicleConfiguration);
-                deployment = deployment with { Progress = progress, Retracting = deployment.Retracting && progress > 0,
+                // Wrench has a bounded complete deployment, independent of generic
+                // rack tuning. The local mechanical gate may wait longer, never less.
+                float progress = slot.Active.Item == HeldItem.EmpClaw
+                    ? Math.Clamp(deployment.Progress + (deployment.Retracting ? -elapsed / deployment.EmpStowSeconds : elapsed / deployment.EmpDeploySeconds), 0, 1)
+                    : slot.Active.Item == HeldItem.Wrench && !deployment.Retracting
+                    ? Math.Min(1, deployment.Progress + elapsed / ItemSlot.WrenchDeploymentSeconds)
+                    : RackDeploymentPath.Advance(deployment.Progress, !deployment.Retracting, elapsed, vehicleConfiguration);
+                float arm = slot.Active.Item == HeldItem.Wrench ? progress : slot.Active.Item == HeldItem.Salvo && !deployment.Retracting && deployment.Progress >= 1
+                    ? Math.Min(1, deployment.Arm + elapsed / ItemSlot.SalvoDeploymentSeconds) : 0;
+                deployment = deployment with { Progress = progress, Arm = arm, Retracting = deployment.Retracting && progress > 0,
                     Tick = tick, Nesting = Math.Max(0, deployment.Nesting - 1f / 60) };
             }
             _aimDeployment[id] = deployment;
+            if (slot.Active.Item == HeldItem.Wrench) { ResetAim(id); continue; }
             if (!_aimIntents.TryGetValue(id, out var intent) || intent.Life != state.LifeId || intent.Token != slot.Active.Token || intent.Selection != slot.SelectionRevision)
             { _aims.Remove(id); continue; }
             if (tick - intent.Received > 15) { _aims.Remove(id); continue; }
@@ -76,10 +107,11 @@ public sealed partial class ItemAuthority
             if (previous?.Tick == tick && previous.Pitch >= -Configuration.Aim.DownDegrees * MathF.PI / 180 &&
                 previous.Pitch <= Configuration.Aim.UpDegrees * MathF.PI / 180) { continue; }
             var solution = WeaponAim.Solve(state, intent.Token, intent.Direction, previous, Configuration.Aim, tick,
-                observations?.Single(request => request.VehicleId == id).Observation.Physics);
+                observations?.Single(request => request.VehicleId == id).Observation.Physics, slot.Active.Item == HeldItem.EmpClaw ? .37f : 0, slot.Active.Item == HeldItem.Salvo);
             if (slot.Active.Item == HeldItem.MachineGun)
             { solution = solution with { Origin = solution.Origin + solution.Direction * WeaponAim.MachineGunMuzzleDistance }; }
-            _aims[id] = solution with { Ready = solution.Clear && !deployment.Retracting && deployment.Progress >= 1 && (slot.Active.Item != HeldItem.Missile || tick >= slot.MissileReadyTick) };
+            _aims[id] = solution with { Ready = solution.Clear && !deployment.Retracting && deployment.Progress >= 1 &&
+                (slot.Active.Item != HeldItem.Salvo || deployment.Arm >= 1) && (slot.Active.Item != HeldItem.Missile || tick >= slot.MissileReadyTick) };
         }
     }
 
@@ -102,6 +134,18 @@ public sealed partial class ItemAuthority
     {
         _aims.Remove(id);
         _aimIntents.Remove(id);
+    }
+
+    // Only an accepted Salvo consumption can carry articulation to its successor
+    // capability. Old input tokens remain invalid; recovery still clears all aim.
+    private void ContinueSalvoAim(ulong vehicle, ulong priorToken, ulong nextToken)
+    {
+        if (_aimIntents.TryGetValue(vehicle, out var intent) && intent.Token == priorToken)
+        { _aimIntents[vehicle] = intent with { Token = nextToken }; }
+        if (_aims.TryGetValue(vehicle, out var aim) && aim.Token == priorToken)
+        { _aims[vehicle] = aim with { Token = nextToken }; }
+        if (_aimDeployment.TryGetValue(vehicle, out var deployment) && deployment.Token == priorToken)
+        { _aimDeployment[vehicle] = deployment with { Token = nextToken }; }
     }
 
     private void ResetAims()

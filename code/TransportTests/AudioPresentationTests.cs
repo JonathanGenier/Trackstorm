@@ -12,6 +12,25 @@ namespace Trackstorm.Transport.Tests;
 internal sealed class AudioPresentationTests
 {
     [Test]
+    public void EmpClawShotsSoundAtTheMuzzleWithoutRepeatingPickupAudio()
+    {
+        var projection = new AudioEventProjection();
+        var cues = new List<(AudioCue Cue, Vector3 Position)>();
+        projection.Cue += (cue, position) => cues.Add((cue, position));
+        var world = new WorldSnapshot(1, 1, [new ReplicatedVehicle(State(), 0)]);
+        var slot = new ItemSlot(1, 1, 1, HeldItem.EmpClaw) { EmpClaw = new(1, 3) };
+        var muzzle = new Vector3(2, 3, 4);
+        projection.Items(new(1, world, [slot], [], []));
+        var fired = new ItemPublication(2, world, [slot with { Token = 2, EmpClaw = new(1, 2) }], [],
+            [new(1, 1, HeldItem.EmpClaw, muzzle + (Vector3.UnitZ * 50), false) { Origin = muzzle }]);
+        projection.Items(fired);
+        projection.Items(fired);
+        Assert.That(cues, Is.EqualTo(new[] { (AudioCue.MissileFire, muzzle) }));
+        projection.Items(new(3, world, [slot with { Token = 3, EmpClaw = new(3, 3) }], [], []));
+        Assert.That(cues.Last().Cue, Is.EqualTo(AudioCue.WeaponPickup));
+    }
+
+    [Test]
     public void SalvoNextShotCapabilityDoesNotSoundLikeAnotherPickup()
     {
         var projection = new AudioEventProjection();
@@ -20,7 +39,7 @@ internal sealed class AudioPresentationTests
         var world = new WorldSnapshot(1, 1, [new ReplicatedVehicle(State(), 0)]);
         var slot = new ItemSlot(1, 1, 1, HeldItem.Salvo);
         projection.Items(new(1, world, [slot], [], []));
-        projection.Items(new(2, world, [slot with { Token = 2, SalvoShots = 4 }], [], [new(1, 1, HeldItem.Salvo, Vector3.Zero, false)]));
+        projection.Items(new(2, world, [slot with { Token = 2, SalvoShots = 4, SalvoReadyTick = world.Tick + 75 }], [], [new(1, 1, HeldItem.Salvo, Vector3.Zero, false)]));
         Assert.That(cues, Is.EqualTo(new[] { AudioCue.MissileFire }));
         projection.Items(new(3, world, [new(1, 1, 3, HeldItem.Salvo)], [], []));
         Assert.That(cues.Last(), Is.EqualTo(AudioCue.WeaponPickup));

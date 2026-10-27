@@ -1,0 +1,26 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Oil connection peer 0: Connecting.
+Oil connection peer 1: Connecting.
+Oil connection peer 1: Connected.
+Oil connection peer 0: Connected.
+Oil admission peer 1: Welcome received with connection=Connected, local=0, rejected=0.
+Bank start surface (-196.36028, 4.0150666, 0.17076667), normal (0.5735623, 0.8191619, -0).
+Grass approach (-185, -1.6610355, 9), normal (0.11600983, 0.99316084, -0.0131623885).
+Native vehicle-roof query: accepted radius=, position=.
+Capture bank-0-firing.png: source=(-189.56816, 7.7594295, 29.24144), mouth=(-189.56816, 7.7594295, 29.24144), emitted=20, tick=304, start=275
+Readback bank-0-firing.png: mouth=(791.8109, 291.14374), stream=(-189.12277, 8.31364, 32.761456), vertex=(792.4497, 291.39676), distance=0.018
+Capture bank-1-firing.png: source=(-190.41817, 12.356555, 43.55265), mouth=(-190.41817, 12.356555, 43.55265), emitted=20, tick=698, start=669
+Capture bank-2-firing.png: source=(-185.02278, 10.07358, 46.844715), mouth=(-185.02278, 10.07358, 46.844715), emitted=20, tick=1102, start=1073
+Readback bank-2-firing.png: mouth=(886.51373, 387.90244), stream=(-184.44101, 9.605815, 46.637226), vertex=(886.07336, 387.90427), distance=0.018
+Oil jack integration passed: Native car proxy roof query returned no impact; no retained deposit is permitted.
+Native support eligibility passed: static terrain, ledge shrink, missing/water, cars, moving static/animated/rigid geometry and destructible rock proxies.
+Production oval, two native UDP peers: approach from authored grass, cross onto bank asphalt, full-lock held drift and repeated/airborne Oil.
+Bank cycle 0: forty emitted; native accepted impacts 40, vehicle proxy hits 18, unsupported deposited pieces 0.
+Bank cycle 1: forty emitted; native accepted impacts 74, vehicle proxy hits 21, unsupported deposited pieces 0.
+Bank cycle 2: forty emitted; native accepted impacts 114, vehicle proxy hits 21, unsupported deposited pieces 0.
+Bank motion: speed 32.683 m/s, lateral slip 14.633 m/s, rise 11.039 m, heading change 179.72 degrees; grass 120, asphalt 786, supported 1016, airborne 86 frames; 168 pieces checked.
+Moving presentation clearance: 27 rendered flight frames, 0 liquid vertices inside the box.
+REPLICATION_TRAFFIC {"seconds":68.7317815,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":2093,"messages":1,"peak":2093},{"peer":1,"protocol":"TD","delivery":"Unreliable","bytes":144958,"messages":22,"peak":6589},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":669068,"messages":174,"peak":8983},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":29925,"messages":105,"peak":325},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":513,"messages":2,"peak":493},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":216855,"messages":427,"peak":554}]}
+REPLICATION_TRAFFIC {"seconds":66.0316987,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":184689,"messages":1275,"peak":145}]}

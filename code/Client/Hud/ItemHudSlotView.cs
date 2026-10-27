@@ -23,6 +23,7 @@ internal sealed record ItemHudSlotView(HeldItem Item, string Name, string? IconK
             HeldItem.Shield => Durability(inventory, second, shields),
             // The authoritative Salvo boundary has a remaining count, not its captured starting capacity.
             HeldItem.Salvo => new((second ? inventory.SecondSalvoShots : inventory.SalvoShots).ToString(CultureInfo.InvariantCulture), null),
+            HeldItem.EmpClaw => new(((second ? inventory.SecondEmpClaw : inventory.EmpClaw)?.Remaining ?? 0).ToString(CultureInfo.InvariantCulture), null),
             _ => null,
         };
         return new(item, definition.DisplayName.ToUpperInvariant(), definition.PresentationKey, resource);

@@ -110,9 +110,14 @@ internal sealed class AudioEventProjection
             var before = _slots.GetValueOrDefault(slot.Vehicle);
             ulong previous = Math.Max(before?.Token ?? 0, before?.SecondToken ?? 0);
             _slots[slot.Vehicle] = slot;
-            foreach (var held in new[] { (slot.Token, slot.Item, Before: before?.Token), (Token: slot.SecondToken, Item: slot.SecondItem, Before: before?.SecondToken) })
+            foreach (var held in new[]
             {
-                bool nextShot = held.Item == HeldItem.Salvo && state.Events.Any(e => !e.Impact && e.Item == HeldItem.Salvo && e.Owner == slot.Vehicle && e.Token == held.Before);
+                (slot.Token, slot.Item, Before: before?.Token, Load: slot.EmpClaw, BeforeLoad: before?.EmpClaw),
+                (Token: slot.SecondToken, Item: slot.SecondItem, Before: before?.SecondToken, Load: slot.SecondEmpClaw, BeforeLoad: before?.SecondEmpClaw),
+            })
+            {
+                bool sameEmpMagazine = held.Item == HeldItem.EmpClaw && held.Load is { } load && load.Magazine == held.BeforeLoad?.Magazine;
+                bool nextShot = (held.Item == HeldItem.Salvo || sameEmpMagazine) && state.Events.Any(e => !e.Impact && e.Item == held.Item && e.Owner == slot.Vehicle && e.Token == held.Before);
                 if (!initialize && held.Token > previous && held.Item != HeldItem.None && !nextShot)
                 {
                     var vehicle = state.World.Vehicles.Single(entry => entry.State.VehicleId == slot.Vehicle).State;
@@ -150,9 +155,9 @@ internal sealed class AudioEventProjection
             string? hook = outcome.Impact ? definition.ImpactAudio : definition.UseAudio;
             if (hook is not null)
             {
-                Emit(Enum.Parse<AudioCue>(hook), outcome.Position);
+                Emit(Enum.Parse<AudioCue>(hook), outcome.Item == HeldItem.EmpClaw ? outcome.Origin : outcome.Position);
             }
-            if (outcome.Impact)
+            if (outcome.Impact && outcome.Item != HeldItem.EmpClaw)
             {
                 Emit(AudioCue.Explosion, outcome.Position);
             }

@@ -116,5 +116,10 @@ static func marker(map: Node3D, parent: Node, inner: Array[Vector3], outer: Arra
 			nearest = i
 	var spawn := child(map,parent,Marker3D.new(),id) as Marker3D
 	spawn.position = inner[nearest].lerp(outer[nearest],lane/18.0)
+	# Follow the measured section sequence in the grid's racing direction.
+	var before := inner[posmod(nearest-1, inner.size())].lerp(outer[posmod(nearest-1, outer.size())], lane/18.0)
+	var after := inner[(nearest+1)%inner.size()].lerp(outer[(nearest+1)%outer.size()], lane/18.0)
+	var tangent := after-before
+	spawn.rotation.y = atan2(-tangent.x, -tangent.z)
 	spawn.set_meta("surface_lane_m",lane)
 	spawn.set_meta("source_section",nearest)

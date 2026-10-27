@@ -2,7 +2,7 @@ using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Stages a host-projected persistent patch in the ordinary item transaction.</summary>
+/// <summary>Stages a validated host emission/geometry boundary in the ordinary item transaction.</summary>
 internal sealed class OilUseHandler : IItemUseHandler
 {
     public bool Stage(ItemSlot slot, VehiclePhysicsState pose, ItemConfiguration configuration,
@@ -15,13 +15,19 @@ internal sealed class OilUseHandler : IItemUseHandler
         }
 
         patch.Validate();
-        if (patch.Id != slot.Token || patch.Owner != slot.Vehicle || patch.Radius != 3 ||
+        if (patch.Pour is { } pour && (pour.Life != slot.Life || pour.Speed != configuration.OilSpeed ||
+            pour.Gravity != configuration.OilGravity || pour.Radius != configuration.OilRadius ||
+            pour.DurationTicks != (int)MathF.Ceiling(configuration.OilFireSeconds * 60) || pour.IntervalTicks != configuration.OilIntervalTicks ||
+            pour.Stiffness != configuration.OilSpringStiffness || pour.Damping != configuration.OilSpringDamping || pour.Reaction != configuration.OilSpringReaction || pour.Kickback != configuration.OilKickback ||
+            pour.Emitted != 0 || pour.Deposited || pour.Cancelled || pour.Drops.Length != 0))
+        { throw new ArgumentException("Oil emission differs from the authorized configuration."); }
+        if (patch.Id != slot.Token || patch.Owner != slot.Vehicle || (patch.Pour is null && patch.Radius != 3) ||
             System.Numerics.Vector3.Distance(patch.Position, pose.Position) > 9)
         {
             throw new ArgumentException("Oil placement differs from the authorized use.");
         }
 
-        patches.Add(patch with { PassLimit = configuration.OilPasses, PassesUsed = 0 });
+        patches.Add(patch);
         return true;
     }
 }

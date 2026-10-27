@@ -4,7 +4,7 @@ using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-twenty-four item protocol. Reliable outcomes and replaceable aim share existing item ownership.</summary>
+/// <summary>Bounded version-thirty-one item protocol. Reliable outcomes and replaceable aim share existing item ownership.</summary>
 public static partial class ItemCodec
 {
     /// <summary>Accommodates the maximum lifetime-derived Oil set and its pass counts and overlap latches.</summary>
@@ -147,6 +147,7 @@ public static partial class ItemCodec
             writer.Write(slot.SecondSalvoShots);
             writer.Write(slot.SalvoReadyTick);
             writer.Write(slot.SecondSalvoReadyTick);
+            EmpClaw(writer, slot.EmpClaw); EmpClaw(writer, slot.SecondEmpClaw);
             Ammo(writer, slot.Ammo);
             Ammo(writer, slot.SecondAmmo);
         }
@@ -169,8 +170,18 @@ public static partial class ItemCodec
                 writer.Write(arc.ElapsedTicks);
                 writer.Write(arc.Life);
             }
+            writer.Write(missile.EmpClaw is not null);
+            if (missile.EmpClaw is { } emp)
+            { writer.Write(emp.OwnerLife); writer.Write(emp.Target); writer.Write(emp.TargetLife); writer.Write(emp.ExpiresAtTick); }
         }
 
+        writer.Write((byte)state.EmpAttachments.Count);
+        foreach (var claw in state.EmpAttachments)
+        {
+            writer.Write(claw.Id); writer.Write(claw.Owner); writer.Write(claw.Vehicle); writer.Write(claw.Life);
+            Vector(writer, claw.LocalPosition); Vector(writer, claw.LocalNormal);
+            writer.Write(claw.AttachedAtTick); writer.Write(claw.ExpiresAtTick);
+        }
         writer.Write((byte)state.Shields.Count);
         foreach (var wall in state.Shields)
         {
@@ -220,8 +231,7 @@ public static partial class ItemCodec
                 Vector(writer, patch.Normal);
                 writer.Write(patch.Radius);
                 writer.Write(patch.ExpiresAtTick);
-                writer.Write((byte)patch.PassLimit);
-                writer.Write((byte)patch.PassesUsed);
+                Pour(writer, patch.Pour);
                 writer.Write((byte)patch.AdditionalSegments.Segments.Count);
                 foreach (var segment in patch.AdditionalSegments.Segments)
                 {
@@ -264,7 +274,10 @@ public static partial class ItemCodec
             Vector(writer, outcome.Position);
             writer.Write(outcome.Impact);
             Vector(writer, outcome.Origin);
-            writer.Write(outcome.Tracer);
+            writer.Write(outcome.Tracer); writer.Write(outcome.EmpPop);
+            writer.Write(outcome.EmpClawContact is not null);
+            if (outcome.EmpClawContact is { } contact)
+            { writer.Write(contact.Vehicle); writer.Write(contact.Life); Vector(writer, contact.LocalPosition); Vector(writer, contact.LocalNormal); }
         }
     });
 
@@ -299,7 +312,7 @@ public static partial class ItemCodec
             { SecondToken = reader.ReadUInt64(), SecondItem = (HeldItem)reader.ReadByte(), ActiveSlot = reader.ReadByte(), SelectionRevision = reader.ReadUInt64(), NitroCharge = reader.ReadDouble(), SecondNitroCharge = reader.ReadDouble(), EngagedToken = reader.ReadUInt64(), NitroDeploymentTicks = reader.ReadByte(),
                 MissileDeployStartTick = reader.ReadUInt64(), MissileReadyTick = reader.ReadUInt64(),
                 MissileStowStartTick = reader.ReadUInt64(), MissileStowEndTick = reader.ReadUInt64(),
-                SalvoShots = reader.ReadInt32(), SecondSalvoShots = reader.ReadInt32(), SalvoReadyTick = reader.ReadUInt64(), SecondSalvoReadyTick = reader.ReadUInt64(), Ammo = Ammo(reader), SecondAmmo = Ammo(reader) };
+                SalvoShots = reader.ReadInt32(), SecondSalvoShots = reader.ReadInt32(), SalvoReadyTick = reader.ReadUInt64(), SecondSalvoReadyTick = reader.ReadUInt64(), EmpClaw = EmpClaw(reader), SecondEmpClaw = EmpClaw(reader), Ammo = Ammo(reader), SecondAmmo = Ammo(reader) };
         }
 
         var missiles = new MissileState[Count(reader, ItemAuthority.MaximumProjectiles)];
@@ -308,8 +321,13 @@ public static partial class ItemCodec
             missiles[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader), reader.ReadInt32());
             bool arcing = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid arc flag.") };
             if (arcing) { missiles[i] = missiles[i] with { Arc = new(Vector(reader), Vector(reader), reader.ReadSingle(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadUInt64()) }; }
+            if (Flag(reader)) { missiles[i] = missiles[i] with { EmpClaw = new(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64()) }; }
         }
 
+        var claws = new EmpClawAttachment[Count(reader, ItemAuthority.MaximumEmpAttachments)];
+        for (int i = 0; i < claws.Length; i++)
+        { claws[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(),
+            Vector(reader), Vector(reader), reader.ReadUInt64(), reader.ReadUInt64()); }
         var shields = new ShieldState[Count(reader, ItemAuthority.MaximumShields)];
         for (int i = 0; i < shields.Length; i++)
         {
@@ -336,12 +354,12 @@ public static partial class ItemCodec
             patches = new OilPatch[WideCount(reader, ItemAuthority.MaximumPatches)];
             for (int i = 0; i < patches.Length; i++)
             {
-                patches[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader), reader.ReadSingle()) { ExpiresAtTick = reader.ReadUInt64(), PassLimit = reader.ReadByte(), PassesUsed = reader.ReadByte() };
+                patches[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader), reader.ReadSingle()) { ExpiresAtTick = reader.ReadUInt64(), Pour = Pour(reader) };
                 var segments = new OilSegment[Count(reader, OilFootprint.MaximumSegments)];
                 for (int j = 0; j < segments.Length; j++) { segments[j] = new(Vector(reader), Vector(reader), Vector(reader), reader.ReadSingle()); }
                 patches[i] = patches[i] with { AdditionalSegments = new OilFootprint(segments) };
             }
-            int contactCount = WideCount(reader, ItemAuthority.MaximumPatches * 6);
+            int contactCount = WideCount(reader, ItemAuthority.MaximumPatches * 8);
             contacts = new OilContact[contactCount];
             for (int i = 0; i < contacts.Length; i++)
             {
@@ -366,7 +384,7 @@ public static partial class ItemCodec
             }
             balances[i] = new() { Player = player, Total = total, SelectedItem = selected, Credits = credits.ToImmutable(), Counts = counts.ToImmutable() };
         }
-        var events = new ItemEvent[Count(reader, ItemAuthority.MaximumProjectiles * 2 + ItemAuthority.MaximumMines + 16)];
+        var events = new ItemEvent[Count(reader, ItemAuthority.MaximumProjectiles * 2 + ItemAuthority.MaximumMines + 16 + ItemAuthority.MaximumEmpAttachments + 24)];
         for (int i = 0; i < events.Length; i++)
         {
             ulong token = reader.ReadUInt64();
@@ -375,16 +393,18 @@ public static partial class ItemCodec
             Vector3 position = Vector(reader);
             bool impact = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid impact flag.") };
             events[i] = new(token, owner, item, position, impact) { Origin = Vector(reader), Tracer = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid tracer flag.") } };
+            events[i] = events[i] with { EmpPop = Flag(reader) };
+            if (Flag(reader)) { events[i] = events[i] with { EmpClawContact = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader)) }; }
         }
 
-        return new ItemPublication(revision, world, slots, missiles, events, spawns, patches, contacts, balances, mines, shields, discardRevision);
+        return new ItemPublication(revision, world, slots, missiles, events, spawns, patches, contacts, balances, mines, shields, discardRevision, claws);
     });
 
     private static byte[] Write(byte kind, Action<BinaryWriter> encode)
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 24, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 32, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {
@@ -396,7 +416,7 @@ public static partial class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 24 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 32 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }
@@ -428,6 +448,20 @@ public static partial class ItemCodec
         writer.Write(ammo.Capacity);
         writer.Write(ammo.Phase);
     }
+
+    private static void EmpClaw(BinaryWriter writer, EmpClawLoad? load)
+    {
+        writer.Write(load is not null);
+        if (load is null) { return; }
+        writer.Write(load.Magazine); writer.Write(load.Remaining); writer.Write(load.ReadyTick); writer.Write(load.RoundMask); writer.Write(load.ShotsFired); writer.Write((sbyte)load.FiredRound);
+    }
+
+    private static EmpClawLoad? EmpClaw(BinaryReader reader) => reader.ReadByte() switch
+    {
+        0 => null,
+        1 => new(reader.ReadUInt64(), reader.ReadByte(), reader.ReadUInt64()) { RoundMask = reader.ReadByte(), ShotsFired = reader.ReadByte(), FiredRound = reader.ReadSByte() },
+        _ => throw new ArgumentException("Invalid EMP presentation load flag."),
+    };
 
     private static MachineGunAmmo? Ammo(BinaryReader reader) => reader.ReadByte() switch
     {

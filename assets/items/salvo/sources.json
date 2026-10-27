@@ -1,0 +1,107 @@
+{
+  "asset": "Trackstorm Salvo catapult",
+  "authoring": "Original geometry, UVs, grain/patina, braided rope, circus enamel/stripes/stars and mechanical articulation authored in Blender 5.2.2",
+  "references": [
+    {
+      "filename": "Cata 5.png",
+      "jira": "TS-210",
+      "usage": "User-approved side concept; reference pixels not redistributed",
+      "attachment": "10160"
+    },
+    {
+      "filename": "Winch.png",
+      "jira": "TS-210",
+      "usage": "User-approved rear winch location; reference pixels not redistributed",
+      "attachment": "10161"
+    },
+    {
+      "filename": "Cata 5 firecracker.png",
+      "jira": "TS-210",
+      "usage": "User-approved flat handle-mounted five-round magazine; reference pixels not redistributed",
+      "attachment": "10159"
+    },
+    {
+      "filename": "attachement.png",
+      "usage": "Human-annotated 2026-10-25 screenshot: left green circle is the terminal behind the spring; reference pixels not redistributed"
+    }
+  ],
+  "thirdPartyAcquisitions": [],
+  "units": "metres",
+  "export": {
+    "primitivesWithoutUv": 0,
+    "materials": 10,
+    "primitives": 81,
+    "triangles": 45252,
+    "meshes": 32
+  },
+  "files": [
+    {
+      "path": "assets/items/salvo/SalvoCatapult_Salvo brass bushings.png",
+      "sha256": "1efba3ba8e11b2d74a7086a003de7ff2ccbcf5f397e97f15ff0aa41c553ca93f"
+    },
+    {
+      "path": "assets/items/salvo/SalvoCatapult_Salvo crimson paper.png",
+      "sha256": "13082f2295416e25a0a6e17e375769ee3879bf7a97efea20013937bed3386ac3"
+    },
+    {
+      "path": "assets/items/salvo/SalvoCatapult_Salvo forged graphite.png",
+      "sha256": "8b815030dd37afdbd3d469a1c44398d1ff44ed8c72c6859afac87a9ce0fd2725"
+    },
+    {
+      "path": "assets/items/salvo/SalvoCatapult_Salvo oiled ash grain.png",
+      "sha256": "94732d4e61d0fa925a46e2b7f3e9916e5246b1ae80a6bf3e56c87bc397404580"
+    },
+    {
+      "path": "assets/items/salvo/SalvoCatapult_Salvo paper labels.png",
+      "sha256": "de87aead36184cc6101bf47e211ff9bd852866ce0c22e14fd69e7ba79f9eeb1d"
+    },
+    {
+      "path": "assets/items/salvo/SalvoCatapult_Salvo rubber buffers.png",
+      "sha256": "e788a36a9ec31d49ec2e02ac732c78937c0931f11730262786b0eab8e98ef443"
+    },
+    {
+      "path": "assets/items/salvo/SalvoCatapult_Salvo worn steel edges.png",
+      "sha256": "8c4d3b49d667b967a53c19892d36e7b9641a782a48350ba68b5edaecb0f9a40a"
+    },
+    {
+      "path": "assets/items/salvo/SalvoCatapult.glb",
+      "sha256": "08952418fc4080b21adeb73029b4d25a1a7ccd2009b1f7d2dc52c331a65090ac"
+    },
+    {
+      "path": "assets/items/salvo/source/AuditCatapult.py",
+      "sha256": "27c0481becb42cb26f753f89ff3eabf261040f64550aac22aea647a5595dd0cc"
+    },
+    {
+      "path": "assets/items/salvo/source/BuildCatapult.py",
+      "sha256": "29e2e6967b84750e20ce9c6d69c037df7ab60e506c20662f84430905d2e3188d"
+    },
+    {
+      "path": "assets/items/salvo/source/RefineCatapult.py",
+      "sha256": "0e6ea7c5b28e70419dcd380c50f304629ef636af5257b8c8b0b4bcb019715a75"
+    },
+    {
+      "path": "assets/items/salvo/source/SalvoCatapult.blend",
+      "sha256": "41584fcf6c467be3feb6551d15015f5ae92a80ade33363f3cf33024014378e95"
+    },
+    {
+      "path": "assets/items/salvo/SalvoCatapult_Salvo carnival rope.png",
+      "sha256": "2967746cfc5d07a9244df6210bb23ecb2d002863a40fc1fffcc4b4f0d5579d43"
+    },
+    {
+      "path": "assets/items/salvo/source/PolishWinch.py",
+      "sha256": "b2b63bbf57ec6ec0e4bf7ca1fb9e1b74b7462cd7f157c00f77f4bb154429b5e2"
+    },
+    {
+      "path": "assets/items/salvo/SalvoCatapult_Salvo circus enamel.png",
+      "sha256": "dccca2ff60d67cbdbf41db316f327b38ed52f7e08a9990aad04e08cbfcbd3c23"
+    },
+    {
+      "path": "assets/items/salvo/source/PolishCircus.py",
+      "sha256": "45654d36b90e8d6994026dec43d83154b3e36e965abaf294445bafec12888b95"
+    },
+    {
+      "path": "assets/items/salvo/source/StabilizeSupport.py",
+      "sha256": "dfe2247d27e82179e5ace56336e6f12f55fa7d06abfbab48a2a096f17ab657d4"
+    }
+  ]
+}

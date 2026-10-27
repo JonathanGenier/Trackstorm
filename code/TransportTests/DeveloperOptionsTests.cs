@@ -94,7 +94,7 @@ internal sealed class DeveloperOptionsTests
         var host = Host();
         var draft = new DeveloperOptionsDraft();
         draft.Discard(host.Configuration.Configuration);
-        Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["items.salvo_count"] = 8, ["vehicle.mass"] = 1200 }, out _), Is.True);
+        Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["items.salvo_interval_ticks"] = 90, ["vehicle.mass"] = 1200 }, out _), Is.True);
         var before = host.Configuration;
         draft.Set("items.machine_gun_damage", "12");
         draft.ResetCategoryToDefaults("Salvo");

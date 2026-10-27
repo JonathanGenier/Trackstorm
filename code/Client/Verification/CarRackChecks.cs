@@ -61,13 +61,34 @@ public sealed partial class CarRackChecks : Node
             Position(1000, false);
             _arenas[1].Driver.ItemsReceived += p => _events.AddRange(p.Events.Where(e => e.Owner == Shooter));
             await Frames(90);
-            if (OS.GetCmdlineUserArgs().Contains("--weapon-handoffs"))
+            if (OS.GetCmdlineUserArgs().Contains("--wrench-arm"))
             {
-                await CheckWeaponHandoffs();
+                await CheckWrenchArm();
+                System.IO.File.WriteAllLines(ProjectSettings.GlobalizePath("res://.godot/ts293/wrench-evidence.txt"), _evidence);
+                GD.Print($"Wrench arm integration passed: {_checks} checks on two UDP peers.");
+                foreach (var arena in _arenas) { arena.QueueFree(); }
+                foreach (var view in _views) { view.QueueFree(); }
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                // Settle unreachable managed Resource wrappers before native engine teardown.
+                GC.Collect(); GC.WaitForPendingFinalizers();
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                GetTree().Quit();
+                return;
+            }
+            if (OS.GetCmdlineUserArgs().Contains("--weapon-handoffs") || OS.GetCmdlineUserArgs().Contains("--salvo-catapult"))
+            {
+                if (OS.GetCmdlineUserArgs().Contains("--salvo-catapult")) { await CheckSalvoCatapult(); }
+                else { await CheckWeaponHandoffs(); }
                 System.IO.File.WriteAllLines(ProjectSettings.GlobalizePath(_output + "/handoff-evidence.txt"), _evidence);
                 GD.Print($"Weapon handoff integration passed: {_checks} checks on two UDP peers.");
                 foreach (var arena in _arenas) { arena.QueueFree(); }
                 foreach (var view in _views) { view.QueueFree(); }
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                // Settle unreachable managed Resource wrappers before native engine teardown.
+                GC.Collect(); GC.WaitForPendingFinalizers();
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 GetTree().Quit();
@@ -144,6 +165,10 @@ public sealed partial class CarRackChecks : Node
                 foreach (var view in _views) { view.QueueFree(); }
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                // Settle unreachable managed Resource wrappers before native engine teardown.
+                GC.Collect(); GC.WaitForPendingFinalizers();
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 GetTree().Quit();
                 return;
             }
@@ -160,8 +185,10 @@ public sealed partial class CarRackChecks : Node
                 }
                 await Capture(item.Key + "-equipped");
                 Check(_arenas[1].Driver.RequestItemSwitch(), "Switch away");
+                await Until(() => _arenas.All(a => a.Driver.ItemState!.Slots.Single(s => s.Vehicle == Shooter).ActiveSlot == 1), "Second physical slot confirmed");
                 await Until(() => AllPresent(HeldItem.Wrench), "Wrench selected on both peers");
                 Check(_arenas[1].Driver.RequestItemSwitch(), "Switch back");
+                await Until(() => _arenas.All(a => a.Driver.ItemState!.Slots.Single(s => s.Vehicle == Shooter).ActiveSlot == 0), "First physical slot confirmed");
                 await Until(() => AllPresent(item.Identity), "Selected item re-deployed");
                 int before = _events.Count;
                 if (item.Identity == HeldItem.Shield)
@@ -205,14 +232,14 @@ public sealed partial class CarRackChecks : Node
             await Frames(60);
             Check(_arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Empty slot does not reopen");
             Check(_arenas[1].Driver.RequestItemSwitch(), "Return to usable slot");
-            await Until(() => AllPresent(HeldItem.Salvo), "Usable slot opens again");
+            await Until(() => HandoffReady(HeldItem.Salvo), "Usable slot opens and finishes authoritative preload again");
+            Check(_arenas[1].Driver.RequestItemUse(), "One automatic volley accepted");
             for (int shots = 4; shots >= 0; shots--)
             {
-                Check(_arenas[1].Driver.RequestItemUse(), "Repeated shot accepted");
                 await Until(() => _arenas[1].Driver.LocalItem?.Active.SalvoShots == shots, "Confirmed remaining shots " + shots);
                 if (shots > 0)
                 {
-                    for (int frame = 0; frame < 90; frame++)
+                    for (int frame = 0; frame < 40; frame++)
                     {
                         await Frames(1);
                         if (!AllPresent(HeldItem.Salvo)) { throw new InvalidOperationException("Rack cycled between usable shots"); }
@@ -279,15 +306,21 @@ public sealed partial class CarRackChecks : Node
             await Until(() => AllPresent(HeldItem.Salvo), "Rapid-use setup visible");
             int rapidBefore = _events.Count;
             Check(_arenas[1].Driver.RequestItemSwitch(), "Immediate switch command");
-            Check(_arenas[1].Driver.RequestItemUse(), "Immediate switched use command");
-            await Until(() => _events.Count > rapidBefore, "Immediate switched use confirmed");
-            await Until(() => AllPresent(HeldItem.Wrench), "Consumed switched Wrench presented rather than old Salvo");
+            Check(!_arenas[1].Driver.RequestItemUse(), "Immediate switched Wrench use waits for deployment");
+            await Until(() => AllPresent(HeldItem.Wrench), "Switched Wrench fully deployed");
+            Check(_arenas[1].Driver.RequestItemUse(), "Deployed switched Wrench use command");
+            await Until(() => _events.Count > rapidBefore, "Deployed switched use confirmed");
             await Until(() => _arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Rapid switched use closes coherently");
             Check(_arenas[1].Driver.LocalItem?.Item == HeldItem.Salvo, "Rapid use preserves unselected Salvo");
             System.IO.File.WriteAllLines(ProjectSettings.GlobalizePath(_output + "/rack-evidence.txt"), _evidence);
             GD.Print($"Car rack integration passed: {_checks} checks; eight items, switching/use, duplicates, lifecycle and two UDP peers.");
             foreach (var arena in _arenas) { arena.QueueFree(); }
             foreach (var view in _views) { view.QueueFree(); }
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            // Match the native surface/collision fixtures: queued scene teardown precedes
+            // managed wrapper finalization, which can otherwise remain deferred headlessly.
+            GC.Collect(); GC.WaitForPendingFinalizers();
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             GetTree().Quit();
@@ -299,6 +332,9 @@ public sealed partial class CarRackChecks : Node
         (item == HeldItem.Shield ? body.HasRearShield && body.Rack.PresentedItem == item && body.Rack.Progress >= .999f :
         body.Rack.PresentedItem == item && body.Rack.Progress >= 0.999f && !body.HasRearShield &&
         (item != HeldItem.Nitro || body.Rack.Boost.Deployment >= .999f) &&
+        (item != HeldItem.EmpClaw || a.Driver.ItemState?.Slots.SingleOrDefault(s => s.Vehicle == Shooter) is { } emp && body.Rack.IsEmpClawReady(emp)) &&
+        (item != HeldItem.Wrench || a.Driver.ItemState?.Slots.SingleOrDefault(s => s.Vehicle == Shooter) is { } wrench && body.Rack.IsWrenchReady(wrench)) &&
+        (item != HeldItem.Salvo || body.Rack.Catapult is { Deployed: true }) &&
         (item != HeldItem.Missile || a.Driver.ItemState?.Slots.SingleOrDefault(s => s.Vehicle == Shooter) is { } inventory && body.Rack.IsMissileReady(inventory))));
     private IEnumerable<CarLighting> Lamps() => _arenas.Select(a => a.Bodies[Shooter].Rack.GetParent<Node3D>().GetChildren().OfType<CarLighting>().Single());
     private async Task Frames(int count, InputButtons held = 0, InputButtons released = 0, ushort throttle = 0, short steer = 0, ushort brake = 0)
@@ -309,7 +345,7 @@ public sealed partial class CarRackChecks : Node
             for (int peer = 0; peer < _arenas.Count; peer++)
             {
                 if (peer == 1 && _arenas[peer].Driver.LocalState is { } local)
-                { _arenas[peer].Driver.DesiredAim = N.Vector3.Transform(-N.Vector3.UnitZ, local.ObservedPhysics.Orientation); }
+                { _arenas[peer].Driver.DesiredAim = N.Vector3.Transform(WeaponAim.Direction(_catapultAim, 0), local.ObservedPhysics.Orientation); }
                 _arenas[peer].Advance(peer == 1 ? new InputFrame(0, steer, throttle, brake, held, 0, released) : default);
                 if (_arenas[peer].Driver.Failure.Length > 0) { throw new InvalidOperationException(_arenas[peer].Driver.Failure); }
             }

@@ -1,0 +1,74 @@
+[
+  {
+    "name": "clearance-final",
+    "status": "PASS",
+    "seconds": 24.88,
+    "error": ""
+  },
+  {
+    "name": "bank-final",
+    "status": "PASS",
+    "seconds": 51.73,
+    "error": ""
+  },
+  {
+    "name": "contacts-final",
+    "status": "PASS",
+    "seconds": 22.04,
+    "error": ""
+  },
+  {
+    "name": "handling-final",
+    "status": "PASS",
+    "seconds": 6.05,
+    "error": ""
+  },
+  {
+    "name": "rack-final",
+    "status": "FAIL",
+    "seconds": 248.97,
+    "error": "Car rack verification failed."
+  },
+  {
+    "name": "reconnect-final",
+    "status": "PASS",
+    "seconds": 173.71,
+    "error": ""
+  },
+  {
+    "name": "oil-reconnect-final",
+    "status": "PASS",
+    "seconds": 80.92,
+    "error": ""
+  },
+  {
+    "name": "migration-final",
+    "status": "PASS",
+    "seconds": 21.24,
+    "error": ""
+  },
+  {
+    "name": "oil-migration-final",
+    "status": "FAIL",
+    "seconds": 60.23,
+    "error": "Migration integration failed; inspect .godot/migration-checks/runtime.log."
+  },
+  {
+    "name": "migration-two-peer",
+    "status": "PASS",
+    "seconds": 15.76,
+    "error": ""
+  },
+  {
+    "name": "developer-options-final",
+    "status": "PASS",
+    "seconds": 45.69,
+    "error": ""
+  },
+  {
+    "name": "startup-final",
+    "status": "PASS",
+    "seconds": 1.43,
+    "error": ""
+  }
+]

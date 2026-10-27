@@ -13,8 +13,8 @@ public sealed partial class ItemAuthority
     private readonly Dictionary<ulong, ItemSlot> _slots = new();
     private readonly Dictionary<ulong, (ulong Token, ulong Expires, uint? InputSequence)> _pending = new();
     private readonly List<MissileState> _missiles = new();
-    /// <summary>Allocation bound derived from eight uses per step and the maximum 600-second lifetime, not a deployment gate.</summary>
-    public const int MaximumPatches = 8 * 60 * 600;
+    /// <summary>Allocation bound from eight players, the 0.5-second minimum firing duration and 600-second maximum lifetime.</summary>
+    public const int MaximumPatches = 8 * 1200;
     private readonly List<OilPatch> _patches = new();
     private readonly List<OilContact> _contacts = new();
     /// <summary>Bounded persistent magnetic hazards per match.</summary>
@@ -60,7 +60,7 @@ public sealed partial class ItemAuthority
     /// <param name="token">Highest ever issued token in this match.</param>
     public void Restore(ItemPublication publication, ulong revision, ulong token)
     {
-        if (publication.DiscardRevision < DiscardRevision || publication.DiscardRevision > token || publication.DiscardRevision > revision || publication.Events.Count != 0 || publication.Shields.Any(state => state.Id > token || state.Token > token) || publication.Mines.Any(mine => mine.Id > token) || publication.Patches.Any(patch => patch.Id > token) || publication.Slots.Any(slot => slot.Token > token || slot.SecondToken > token) ||
+        if (publication.EmpAttachments.Any(claw => claw.Id > token) || publication.DiscardRevision < DiscardRevision || publication.DiscardRevision > token || publication.DiscardRevision > revision || publication.Events.Count != 0 || publication.Shields.Any(state => state.Id > token || state.Token > token) || publication.Mines.Any(mine => mine.Id > token) || publication.Patches.Any(patch => patch.Id > token) || publication.Slots.Any(slot => slot.Token > token || slot.SecondToken > token) ||
             publication.Spawns.Any(spawn => spawn.Token > token) || publication.Missiles.Any(missile => missile.Id > token ||
                 !publication.World.Vehicles.Any(vehicle => vehicle.State.VehicleId == missile.Owner && vehicle.State.CanInteract)))
         {
@@ -76,6 +76,9 @@ public sealed partial class ItemAuthority
 
         _missiles.Clear();
         _missiles.AddRange(publication.Missiles);
+        _empAttachments.Clear();
+        _empAttachments.AddRange(publication.EmpAttachments);
+        _empRemovals.Clear();
         _patches.Clear();
         _patches.AddRange(publication.Patches);
         _mines.Clear();
@@ -104,6 +107,8 @@ public sealed partial class ItemAuthority
         ResetAim(vehicle);
         _aimDeployment.Remove(vehicle);
         bool changed = _slots.Remove(vehicle);
+        changed |= _empAttachments.RemoveAll(claw => claw.Vehicle == vehicle) > 0;
+        _empRemovals.RemoveWhere(id => !_empAttachments.Any(claw => claw.Id == id));
         changed |= _contacts.RemoveAll(contact => contact.Vehicle == vehicle) > 0;
         changed |= _missiles.RemoveAll(missile => missile.Owner == vehicle) > 0;
         changed |= _mines.RemoveAll(mine => mine.Owner == vehicle && mine.IsPlacing) > 0;
@@ -142,6 +147,9 @@ public sealed partial class ItemAuthority
         {
             _slots[vehicle] = _slots[vehicle] with { NitroDeploymentTicks = ItemSlot.NitroDeploymentDurationTicks };
         }
+        _slots[vehicle] = inventory.Item == HeldItem.None
+            ? _slots[vehicle] with { EmpClaw = item == HeldItem.EmpClaw ? new(token, 3) : null }
+            : _slots[vehicle] with { SecondEmpClaw = item == HeldItem.EmpClaw ? new(token, 3) : null };
         if (_slots[vehicle].Active is { Item: HeldItem.Missile, Token: var missileToken } && missileToken == token)
         { _slots[vehicle] = SelectMissile(_slots[vehicle], world.State.Tick); }
         SynchronizeShieldSelection(_slots[vehicle]);
@@ -168,6 +176,9 @@ public sealed partial class ItemAuthority
         return state is not null && state.CanInteract && state.LifeId == life &&
             _slots.TryGetValue(vehicle, out var slot) && slot.Life == life && slot.Active.Token == token && ItemRegistry.Find(slot.Active.Item)?.CanUse == true &&
             (slot.Active.Item != HeldItem.Missile || (slot.MissileReadyTick > 0 && world.State.Tick >= slot.MissileReadyTick)) &&
+            (slot.Active.Item != HeldItem.Wrench || WrenchReady(slot)) &&
+            (slot.Active.Item != HeldItem.EmpClaw || (EmpClawReady(slot) && world.State.Tick >= slot.Active.EmpClaw!.ReadyTick)) &&
+            (slot.Active.Item != HeldItem.Salvo || SalvoReady(slot)) &&
             _pending.TryAdd(vehicle, (token, checked(world.State.Tick + 15), inputSequence));
     }
 
@@ -178,13 +189,14 @@ public sealed partial class ItemAuthority
         if (state is null || !state.CanInteract || state.LifeId != life ||
             !_slots.TryGetValue(vehicle, out var inventory) || inventory.Life != life ||
             inventory.SelectionRevision != selection || inventory.Active.Token != token ||
-            inventory.Active.Item == HeldItem.None) { return false; }
+            inventory.Active.Item == HeldItem.None || SalvoOwnsSelection(inventory)) { return false; }
 
         var selected = inventory.Active;
         ulong discardRevision = checked(DiscardRevision + 1);
         _slots[vehicle] = inventory.ActiveSlot == 0
             ? inventory with { Item = HeldItem.None, NitroCharge = 0, Ammo = null, SalvoShots = 0, SalvoReadyTick = 0, EngagedToken = inventory.EngagedToken == token ? 0 : inventory.EngagedToken, NitroDeploymentTicks = 0 }
             : inventory with { SecondItem = HeldItem.None, SecondNitroCharge = 0, SecondAmmo = null, SecondSalvoShots = 0, SecondSalvoReadyTick = 0, EngagedToken = inventory.EngagedToken == token ? 0 : inventory.EngagedToken, NitroDeploymentTicks = 0 };
+        _slots[vehicle] = inventory.ActiveSlot == 0 ? _slots[vehicle] with { EmpClaw = null } : _slots[vehicle] with { SecondEmpClaw = null };
         if (selected.Item == HeldItem.Missile)
         { _slots[vehicle] = StowMissile(_slots[vehicle], world.State.Tick); }
         // Retain the retired grant token and match high-water mark, as on consumption.
@@ -206,6 +218,16 @@ public sealed partial class ItemAuthority
         if (state is null || !state.CanInteract || state.LifeId != life || revision == 0) { return false; }
         var inventory = _slots.GetValueOrDefault(vehicle) ?? new ItemSlot(vehicle, life, 0, HeldItem.None);
         if (inventory.Life != life || revision <= inventory.SelectionRevision) { return false; }
+        if (SalvoOwnsSelection(inventory))
+        {
+            // Acknowledge the ordered command without allowing it to cancel the
+            // magazine. No deferred switch fires unexpectedly after the last round.
+            _slots[vehicle] = inventory with { SelectionRevision = revision };
+            if (_aimIntents.TryGetValue(vehicle, out var intent)) { _aimIntents[vehicle] = intent with { Selection = revision }; }
+            if (_aimDeployment.TryGetValue(vehicle, out var deployment)) { _aimDeployment[vehicle] = deployment with { Selection = revision }; }
+            Revision++; ReliableRevision++;
+            return true;
+        }
         _slots[vehicle] = inventory with { ActiveSlot = (byte)(inventory.ActiveSlot ^ ((revision - inventory.SelectionRevision) & 1)), SelectionRevision = revision, EngagedToken = 0 };
         ResetAim(vehicle);
         if (_slots[vehicle].ActiveSlot != inventory.ActiveSlot)
@@ -232,22 +254,25 @@ public sealed partial class ItemAuthority
     /// <param name="moveMine">Host sweep and contact query.</param>
     /// <param name="acknowledgedInputs">Host-consumed remote input sequences; never client-authored acknowledgements.</param>
     /// <param name="raycastWeapon">Host closest collision on an authoritative weapon ray.</param>
-    /// <param name="ground">Host terrain projection at the fixed salvo range; missing terrain rejects use.</param>
+    /// <param name="ground">Host Salvo terrain projection; missing terrain retains the free-aim endpoint.</param>
     /// <param name="placeShield">Host-only native rear placement and clearance query.</param>
     /// <param name="observeShield">Host-only native wall motion observation.</param>
+    /// <param name="oilCollision">Host-only swept Oil surface collision.</param>
+    /// <param name="raycastEmpClaw">Host closest EMP surface/scenery hit; separate from coarse weapon hull queries.</param>
     /// <param name="missileTerrain">Bounded host-only suitable terrain ray; never vehicle queries.</param>
-    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeShield = null, Func<ShieldState, ShieldObservation?>? observeShield = null, Func<Vector3, Vector3, MissileTerrainSample?>? missileTerrain = null)
+    /// <param name="contactEmpNose">Host-only swept membrane contact; excludes the attached vehicle.</param>
+    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeShield = null, Func<ShieldState, ShieldObservation?>? observeShield = null, Func<Vector3, Vector3, MissileTerrainSample?>? missileTerrain = null, Func<Vector3, Vector3, float, OilImpact?>? oilCollision = null, Func<ulong, Vector3, Vector3, IReadOnlyList<VehicleStepRequest>, WeaponRayHit?>? raycastEmpClaw = null, Func<ulong, Vector3, Vector3, float, bool>? contactEmpNose = null)
     {
         ulong token = _token;
         ulong NextToken() => checked(++token);
         var slots = new Dictionary<ulong, ItemSlot>(_slots);
         var missiles = new List<MissileState>(_missiles);
         var events = new List<ItemEvent>();
+        var attachments = StageEmpAttachments(world, input.Tick, requests);
         var patches = _patches.Where(patch => patch.ExpiresAtTick > input.Tick).ToList();
         var mines = new List<ProxyMineState>(_mines);
         var contacts = new List<OilContact>();
         var priorContacts = _contacts.ToDictionary(contact => (contact.Patch, contact.Vehicle, contact.Life));
-        var contactCounts = patches.ToDictionary(patch => patch.Id, patch => patch.PassesUsed);
         var oilTriggers = new List<OilTrigger>();
         var oilEntries = new Dictionary<ulong, WheelMask>();
         var journal = new List<RuntimeEvent>();
@@ -270,6 +295,17 @@ public sealed partial class ItemAuthority
             }
         }
 
+        if (contactEmpNose is not null)
+        {
+            attachments.RemoveAll(claw =>
+            {
+                var current = requests.Single(r => r.VehicleId == claw.Vehicle).Observation.Physics;
+                var previous = world.GetVehicle(claw.Vehicle).Movement.Physics;
+                return contactEmpNose(claw.Vehicle, EmpClawGeometry.Nose(claw, previous),
+                    EmpClawGeometry.Nose(claw, current), Configuration.EmpClaw.AttachedNoseRadius);
+            });
+        }
+
         foreach (var pair in _pending.OrderBy(pair => pair.Key))
         {
             if (!slots.TryGetValue(pair.Key, out var inventory) || !world.GetVehicle(pair.Key).CanInteract)
@@ -282,6 +318,39 @@ public sealed partial class ItemAuthority
             ItemSlot slot = (inventory with { ActiveSlot = usedIndex }).Active;
             if (slot.Token != pair.Value.Token || slot.Item == HeldItem.None) { continue; }
             VehicleStepRequest request = requests.Single(value => value.VehicleId == pair.Key);
+            if (slot.Item == HeldItem.Salvo)
+            {
+                if (!request.Reset.HasValue && inventory.Active.Token == slot.Token && SalvoReady(inventory) &&
+                    world.State.Match is not { Phase: not Matches.MatchPhase.Active } &&
+                    missiles.Count + slots.Values.Sum(s => s.ReservedSalvoShots) + slot.SalvoShots <= MaximumProjectiles)
+                {
+                    ulong deadline = checked(input.Tick + ItemSlot.SalvoReleaseTicks);
+                    slots[pair.Key] = usedIndex == 0 ? inventory with { SalvoReadyTick = deadline } : inventory with { SecondSalvoReadyTick = deadline };
+                }
+                continue;
+            }
+            if (slot.Item == HeldItem.EmpClaw)
+            {
+                var aim = AcceptedAim(slot.Vehicle, slot.Life, slot.Token);
+                if (request.Reset.HasValue || inventory.Active.Token != slot.Token || !EmpClawReady(inventory) ||
+                    slot.EmpClaw is not { Remaining: > 0 } load || input.Tick < load.ReadyTick || aim is null || aim.Tick != world.State.Tick ||
+                    world.State.Match is { Phase: not Matches.MatchPhase.Active } || missiles.Count + slots.Values.Sum(s => s.ReservedSalvoShots) >= MaximumProjectiles ||
+                    attachments.Count + missiles.Count(p => p.EmpClaw is not null) >= MaximumEmpAttachments) { continue; }
+                int fired = Enumerable.Range(0, 3).First(i => (load.RoundMask & (1 << i)) != 0);
+                byte remaining = (byte)(load.Remaining - 1);
+                ulong next = remaining > 0 ? NextToken() : slot.Token;
+                var updated = load with { RoundMask = (byte)(load.RoundMask & ~(1 << fired)), ShotsFired = (byte)(load.ShotsFired + 1), FiredRound = fired, Remaining = remaining, ReadyTick = remaining > 0 ? checked(input.Tick + (ulong)Configuration.EmpClawIntervalTicks) : 0 };
+                slots[pair.Key] = usedIndex == 0
+                    ? inventory with { Item = remaining > 0 ? HeldItem.EmpClaw : HeldItem.None, Token = next, EmpClaw = updated }
+                    : inventory with { SecondItem = remaining > 0 ? HeldItem.EmpClaw : HeldItem.None, SecondToken = next, SecondEmpClaw = updated };
+                int budget = (int)MathF.Ceiling(Configuration.EmpClaw.LifetimeSeconds * 60);
+                var flight = CaptureEmpTarget(world, slot, aim, requests, raycastWeapon, checked(world.State.Tick + (ulong)budget));
+                // Start at the accepted pivot so the first sweep also covers the barrel-to-muzzle interval.
+                missiles.Add(new(slot.Token, slot.Vehicle, aim.Origin, aim.Direction * Configuration.EmpClaw.LaunchSpeed, budget) { EmpClaw = flight });
+                Vector3 muzzle = aim.Origin + aim.Direction * 1.62f;
+                events.Add(new(slot.Token, slot.Vehicle, HeldItem.EmpClaw, muzzle + aim.Direction * 50, false) { Origin = muzzle });
+                continue;
+            }
             if (slot.Item == HeldItem.Shield)
             {
                 if (!request.Reset.HasValue && inventory.Active.Token == slot.Token &&
@@ -323,7 +392,9 @@ public sealed partial class ItemAuthority
             // expired or blocked solution must not silently become a forward shot.
             var missileAim = slot.Item == HeldItem.Missile ? AcceptedAim(slot.Vehicle, slot.Life, slot.Token) : null;
             bool aimedMissile = slot.Item == HeldItem.Missile && _aimIntents.ContainsKey(slot.Vehicle);
-            if (request.Reset.HasValue || handler is null || (slot.Item == HeldItem.Salvo && input.Tick < slot.SalvoReadyTick) ||
+            if (request.Reset.HasValue || handler is null ||
+                (slot.Item == HeldItem.Oil && (patches.Count >= MaximumPatches || patches.Any(p => p.Owner == slot.Vehicle && p.Pour is { Cancelled: false } pour && input.Tick < pour.StartTick + (ulong)pour.DurationTicks))) ||
+                (slot.Item == HeldItem.Missile && missiles.Count + slots.Values.Sum(s => s.ReservedSalvoShots) >= MaximumProjectiles) ||
                 (slot.Item == HeldItem.Missile && (inventory.Active.Token != slot.Token || world.State.Tick < inventory.MissileReadyTick ||
                     (aimedMissile && (missileAim is null || missileAim.Tick != world.State.Tick)))) ||
                 !(slot.Item == HeldItem.Missile
@@ -334,20 +405,12 @@ public sealed partial class ItemAuthority
             }
 
             if (slot.Item == HeldItem.Missile) { inventory = StowMissile(inventory, input.Tick); }
-            if (slot.Item != HeldItem.Salvo) { events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item,
-                slot.Item == HeldItem.Missile ? missiles[^1].Position : request.Observation.Physics.Position, false)); }
-            if (slot.Item == HeldItem.Salvo)
-            {
-                int remaining = slot.SalvoShots - 1;
-                // Retire each shot's capability so delayed/replayed requests cannot spend the next round.
-                ulong next = remaining > 0 ? NextToken() : slot.Token;
-                ulong ready = remaining > 0 ? checked(input.Tick + (ulong)Configuration.SalvoIntervalTicks) : 0;
-                slots[pair.Key] = usedIndex == 0
-                    ? inventory with { Item = remaining > 0 ? HeldItem.Salvo : HeldItem.None, Token = next, SalvoShots = remaining, SalvoReadyTick = ready }
-                    : inventory with { SecondItem = remaining > 0 ? HeldItem.Salvo : HeldItem.None, SecondToken = next, SecondSalvoShots = remaining, SecondSalvoReadyTick = ready };
-            }
-            else { slots[pair.Key] = usedIndex == 0 ? inventory with { Item = HeldItem.None } : inventory with { SecondItem = HeldItem.None }; }
+            events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item,
+                slot.Item == HeldItem.Missile ? missiles[^1].Position : request.Observation.Physics.Position, false));
+            slots[pair.Key] = usedIndex == 0 ? inventory with { Item = HeldItem.None } : inventory with { SecondItem = HeldItem.None };
         }
+
+        AdvanceSalvos(world, input, requests, slots, missiles, NextToken, ground, raycastWeapon);
 
         foreach (var request in requests)
         {
@@ -391,7 +454,20 @@ public sealed partial class ItemAuthority
                     if (bodyDistance is { } distance && distance <= Configuration.MachineGunRange &&
                         (hit is null || distance / Configuration.MachineGunRange < hit.Fraction))
                     { hit = new(distance / Configuration.MachineGunRange, 0); }
+                    var noseHit = IntersectEmpNoses(rayOrigin, end, slot.Vehicle, requests, slots, attachments);
                     var shieldHit = shields.Intersect(rayOrigin, end, slot.Vehicle);
+                    if (noseHit is not null && (hit is null || noseHit.Fraction < hit.Fraction) &&
+                        (shieldHit is null || noseHit.Fraction < shieldHit.Value.Fraction))
+                    {
+                        end = Vector3.Lerp(rayOrigin, end, noseHit.Fraction);
+                        if (Configuration.MachineGunDamage * MachineGunShot.Falloff(noseHit.Fraction * Configuration.MachineGunRange, Configuration) > 0)
+                        { PopEmpNose(noseHit, end, slots, attachments, events); }
+                        events.Add(new(slot.Token, slot.Vehicle, HeldItem.MachineGun, end, true)
+                        { Origin = rayOrigin + direction * Math.Min(WeaponAim.MachineGunMuzzleDistance, Vector3.Distance(rayOrigin, end)),
+                            Tracer = (ammo.Capacity - remainingRounds) % Configuration.MachineGunTracerEvery == 0 });
+                        remainingRounds--;
+                        continue;
+                    }
                     if (shieldHit is { } blocked && (hit is null || blocked.Fraction <= hit.Fraction))
                     {
                         float fade = MachineGunShot.Falloff(blocked.Fraction * Configuration.MachineGunRange, Configuration);
@@ -440,7 +516,16 @@ public sealed partial class ItemAuthority
         var previousPatchIds = _patches.Select(patch => patch.Id).ToHashSet();
         for (int i = 0; i < patches.Count; i++)
         {
-            if (!previousPatchIds.Contains(patches[i].Id)) { patches[i] = patches[i] with { ExpiresAtTick = checked(input.Tick + (ulong)MathF.Ceiling(Configuration.OilLifetimeSeconds * 60)) }; }
+            if (!previousPatchIds.Contains(patches[i].Id)) { patches[i] = patches[i] with { ExpiresAtTick = checked(input.Tick + (ulong)MathF.Ceiling(Configuration.OilLifetimeSeconds * 60)), Pour = patches[i].Pour is { } pour ? pour with { StartTick = input.Tick } : null }; }
+        }
+
+        for (int i = 0; i < patches.Count; i++)
+        {
+            var patch = patches[i];
+            if (patch.Pour is null) { continue; }
+            var owner = requests.FirstOrDefault(r => r.VehicleId == patch.Owner && !r.Reset.HasValue &&
+                world.GetVehicle(r.VehicleId).CanInteract && world.GetVehicle(r.VehicleId).LifeId == patch.Pour.Life);
+            patches[i] = OilDeposition.Advance(patch, input.Tick, owner?.Observation.Physics, oilCollision);
         }
 
         if (world.State.Match?.Phase != Matches.MatchPhase.Finished)
@@ -455,12 +540,10 @@ public sealed partial class ItemAuthority
                     if (wheels == WheelMask.None) { continue; }
                     var contact = new OilContact(patch.Id, vehicle.VehicleId, vehicle.LifeId, wheels);
                     priorContacts.TryGetValue((contact.Patch, contact.Vehicle, contact.Life), out var previousContact);
-                    if (previousContact is null && contactCounts.GetValueOrDefault(patch.Id) >= patch.PassLimit) { continue; }
                     oilEntries[vehicle.VehicleId] = oilEntries.GetValueOrDefault(vehicle.VehicleId) | (wheels & ~(previousContact?.Wheels ?? WheelMask.None));
                     contacts.Add(contact);
                     if (previousContact is null)
                     {
-                        contactCounts[patch.Id] = contactCounts.GetValueOrDefault(patch.Id) + 1;
                         oilTriggers.Add(new(patch.Id, patch.Owner, vehicle.VehicleId, vehicle.LifeId));
                     }
                 }
@@ -534,15 +617,36 @@ public sealed partial class ItemAuthority
                 }
             }
 
-            if (missile.Arc is null)
+            if (missile.EmpClaw is { } emp)
+            {
+                if (world.State.Match?.Phase == Matches.MatchPhase.Finished || input.Tick > emp.ExpiresAtTick ||
+                    world.GetVehicle(missile.Owner).LifeId != emp.OwnerLife || requests.Any(r => r.VehicleId == missile.Owner && r.Reset.HasValue)) { continue; }
+                // An unlocked shot flies its initial accepted segment before it searches.
+                if (_missiles.Any(p => p.Id == missile.Id)) { missile = GuideEmp(world, missile, requests, raycastWeapon, missileTerrain); }
+            }
+            else if (missile.Arc is null)
             {
                 Vector3 position = missile.Position;
                 if (Math.Max(Math.Abs(position.X), Math.Max(Math.Abs(position.Y), Math.Abs(position.Z))) > Configuration.MissileWorldLimit) { continue; }
                 missile = missile with { Velocity = MissileFlight.Correct(missile, Configuration.MissileTerrain, missileTerrain) };
             }
             Vector3 end = missile.Arc is { } flight ? flight.At(flight.ElapsedTicks + 1) : missile.Position + (missile.Velocity / 60);
-            float? hit = collide(missile, end);
+            WeaponRayHit? empHit = missile.EmpClaw is not null ? (raycastEmpClaw is not null ? raycastEmpClaw(missile.Owner, missile.Position, end, requests) :
+                raycastWeapon?.Invoke(missile.Owner, missile.Position, end)) : null;
+            // A dedicated EMP sweep includes scenery and exact bodywork. Never let the
+            // coarse movement hull terminate that flight above an uncontacted hood.
+            float? hit = missile.EmpClaw is not null && raycastEmpClaw is not null ? empHit?.Fraction : collide(missile, end);
+            if (empHit is not null)
+            {
+                if (!float.IsFinite(empHit.Fraction) || empHit.Fraction is < 0 or > 1) { throw new ArgumentException("Invalid EMP contact fraction."); }
+                if (hit is null || empHit.Fraction <= hit) { hit = empHit.Fraction; }
+                else { empHit = null; }
+            }
             if (hit is float nativeFraction && (!float.IsFinite(nativeFraction) || nativeFraction is < 0 or > 1)) { throw new ArgumentException("Invalid projectile collision fraction."); }
+            // Attached membranes share the damaging projectile sweep. Flying EMPs and
+            // stowed ammo are deliberately absent from this projectile hit region.
+            if (missile.EmpClaw is null && IntersectAttachedNoses(missile.Position, end, requests, attachments) is { } noseContact &&
+                (hit is null || noseContact.Fraction < hit)) { hit = noseContact.Fraction; }
             var directShield = shields.Intersect(missile.Position, end, missile.Owner);
             if (directShield is { } direct && (hit is null || direct.Fraction <= hit)) { hit = direct.Fraction; }
             else { directShield = null; }
@@ -555,10 +659,52 @@ public sealed partial class ItemAuthority
                 }
 
                 Vector3 center = Vector3.Lerp(missile.Position, end, fraction);
+                if (missile.EmpClaw is not null)
+                {
+                    var contact = directShield is null ? EmpContact(world, missile, center, empHit, requests) : null;
+                    bool popped = directShield is not null;
+                    if (contact is not null)
+                    {
+                        var attachment = new EmpClawAttachment(missile.Id, missile.Owner, contact.Vehicle, contact.Life,
+                            contact.LocalPosition, contact.LocalNormal, input.Tick, checked(input.Tick + (ulong)MathF.Ceiling(Configuration.EmpClaw.AttachmentSeconds * 60)));
+                        attachment.Validate(input.Tick);
+                        var pose = requests.Single(r => r.VehicleId == contact.Vehicle).Observation.Physics;
+                        Vector3 nose = EmpClawGeometry.Nose(attachment, pose);
+                        popped = contactEmpNose?.Invoke(contact.Vehicle, nose, nose, Configuration.EmpClaw.AttachedNoseRadius) ?? false;
+                        if (popped) { contact = null; }
+                        else { attachments.Add(attachment); }
+                    }
+                    events.Add(new(missile.Id, missile.Owner, HeldItem.EmpClaw, center, true)
+                    { Origin = missile.Position, EmpClawContact = contact, EmpPop = popped });
+                    continue;
+                }
                 events.Add(new ItemEvent(missile.Id, missile.Owner, missile.Item, center, true));
+                BlastEmpNoses(center, missile, requests, slots, attachments, events, shields);
                 shields.BlastWalls(this, center, missile);
                 foreach (VehicleStepRequest request in requests)
                 {
+                    if (missile.Item == HeldItem.Salvo)
+                    {
+                        // Cover is still the existing target-center path, evaluated before this
+                        // explosion can destroy its shield. Range uses actual physical extents.
+                        var pose = request.Observation.Physics;
+                        var armor = shields.RearShield(request.VehicleId);
+                        bool covered = directShield is { } contact && contact.State.Attached && contact.State.Owner == request.VehicleId ||
+                            shields.Intersect(center, pose.Position, onlyOwner: request.VehicleId) is not null;
+                        var salvoContext = new DamageContext("salvo", missile.Owner, $"radial-explosion:{missile.Id}");
+                        if (armor is not null)
+                        {
+                            var armorEffect = Explosion(center, ShieldGeometry.ClosestPoint(armor, pose, center), HeldItem.Salvo);
+                            shields.Damage(armor.Id, armorEffect.Damage, salvoContext);
+                        }
+                        if (!covered)
+                        {
+                            var vehicleEffect = Explosion(center, pose.Position, HeldItem.Salvo, VehicleHull.ClosestPoint(pose, center));
+                            if (vehicleEffect.Damage > 0 || vehicleEffect.Impulse != Vector3.Zero)
+                            { effects[request.VehicleId].Add(new VehicleEffectRequest(vehicleEffect, salvoContext)); }
+                        }
+                        continue;
+                    }
                     DamageEffect effect = Explosion(center, request.Observation.Physics.Position, missile.Item);
                     if (effect.Damage > 0 || effect.Impulse != Vector3.Zero)
                     {
@@ -579,7 +725,8 @@ public sealed partial class ItemAuthority
         }
 
         var observations = shields.Collisions();
-        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, observations[request.VehicleId], effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause, oilEntries.GetValueOrDefault(request.VehicleId), boosts.GetValueOrDefault(request.VehicleId), request.ClearNitro || !boosts.ContainsKey(request.VehicleId))).ToArray(), journal.Concat(events.Where(outcome => outcome.Item != HeldItem.MachineGun).Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick })).ToArray(), oilTriggers, shields.ProtectedVehicleImpacts);
+        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, observations[request.VehicleId], effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause, oilEntries.GetValueOrDefault(request.VehicleId), boosts.GetValueOrDefault(request.VehicleId), request.ClearNitro || !boosts.ContainsKey(request.VehicleId),
+            attachments.Where(claw => claw.Vehicle == request.VehicleId).Select(claw => claw.ExpiresAtTick).DefaultIfEmpty(0UL).Max())).ToArray(), journal.Concat(events.Where(outcome => outcome.Item != HeldItem.MachineGun).Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick })).ToArray(), oilTriggers, shields.ProtectedVehicleImpacts);
         foreach (var pair in slots.ToArray())
         {
             VehicleSnapshot state = world.GetVehicle(pair.Key);
@@ -596,16 +743,13 @@ public sealed partial class ItemAuthority
             }
         }
 
-        // Commit only successful effects. Expired overlaps release their latch, never their consumed pass.
+        // Commit only successful effects. Ended overlaps release their latch; contact never changes the hazard deadline.
         contacts.RemoveAll(contact => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == contact.Vehicle && vehicle.LifeId == contact.Life && vehicle.CanInteract));
         var patchOwners = patches.ToDictionary(patch => patch.Id, patch => patch.Owner);
         foreach (var contact in contacts.Where(contact => !priorContacts.ContainsKey((contact.Patch, contact.Vehicle, contact.Life))))
         {
             world.Events.Record(EventCategory.Item, "Oil triggered", actor: patchOwners[contact.Patch], target: contact.Vehicle, cause: "Oil", tick: input.Tick);
         }
-        contactCounts = contacts.Where(contact => !priorContacts.ContainsKey((contact.Patch, contact.Vehicle, contact.Life))).GroupBy(contact => contact.Patch).ToDictionary(group => group.Key, group => group.Count());
-        for (int i = 0; i < patches.Count; i++) { patches[i] = patches[i] with { PassesUsed = patches[i].PassesUsed + contactCounts.GetValueOrDefault(patches[i].Id) }; }
-        patches.RemoveAll(patch => patch.PassesUsed >= patch.PassLimit);
         var activePatchIds = patches.Select(patch => patch.Id).ToHashSet();
         contacts.RemoveAll(contact => !activePatchIds.Contains(contact.Patch));
         if (world.State.Match?.Phase == Matches.MatchPhase.Finished)
@@ -615,17 +759,33 @@ public sealed partial class ItemAuthority
             contacts.Clear();
         }
 
-        advanced.RemoveAll(missile => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == missile.Owner && vehicle.CanInteract));
+        advanced.RemoveAll(missile => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == missile.Owner && vehicle.CanInteract &&
+            (missile.EmpClaw is null || missile.EmpClaw.OwnerLife == vehicle.LifeId)));
         movingMines.RemoveAll(mine => mine.IsPlacing && !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == mine.Owner && vehicle.LifeId == mine.PlacementLife && vehicle.CanInteract));
-        if (world.State.Match?.Phase == Matches.MatchPhase.Finished) { advanced.RemoveAll(missile => missile.Arc is not null); }
+        if (world.State.Match?.Phase == Matches.MatchPhase.Finished) { advanced.RemoveAll(missile => missile.Arc is not null || missile.EmpClaw is not null); }
+        // A life or match ending destroys an in-progress magazine even when the
+        // optional respawn policy preserves other held items. It cannot resume firing
+        // on a new life or silently refill spent rounds.
+        foreach (var pair in slots.ToArray())
+        {
+            if (pair.Value.ReservedSalvoShots == 0 || (world.GetVehicle(pair.Key).CanInteract &&
+                world.GetVehicle(pair.Key).LifeId == _slots.GetValueOrDefault(pair.Key)?.Life && world.State.Match?.Phase != Matches.MatchPhase.Finished)) { continue; }
+            var slot = pair.Value;
+            if (slot.SalvoCommitted) { slot = slot with { Item = HeldItem.None, SalvoShots = 0, SalvoReadyTick = 0 }; }
+            if (slot.SecondItem == HeldItem.Salvo && slot.SecondSalvoReadyTick != 0) { slot = slot with { SecondItem = HeldItem.None, SecondSalvoShots = 0, SecondSalvoReadyTick = 0 }; }
+            slots[pair.Key] = slot;
+        }
         bool shieldsChanged = !_shields.SequenceEqual(shields.States);
         _shields.Clear();
         _shields.AddRange(shields.States);
         shieldsChanged |= ReconcileShields(world, slots);
-        bool reliableChanged = shieldsChanged || !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) ||
-            !patches.SequenceEqual(_patches) || !contacts.SequenceEqual(_contacts) || journal.Count > 0 ||
+        attachments.RemoveAll(claw => !EmpTargetLives(claw, world));
+        bool reliableChanged = !_empAttachments.SequenceEqual(attachments) || shieldsChanged || !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) ||
+            !patches.Select(p => (p.Id, p.Pour?.Cancelled)).SequenceEqual(_patches.Select(p => (p.Id, p.Pour?.Cancelled))) ||
+            (input.Tick % 6 == 0 && patches.Any(p => p.Pour is { } pour && input.Tick < pour.StartTick + (ulong)pour.DurationTicks + 180)) ||
+            !contacts.SequenceEqual(_contacts) || journal.Count > 0 ||
             !movingMines.SequenceEqual(_mines) || events.Count > 0 ||
-            !_missiles.Select(missile => missile.Id).SequenceEqual(advanced.Select(missile => missile.Id));
+            !_missiles.Select(missile => (missile.Id, missile.EmpClaw)).SequenceEqual(advanced.Select(missile => (missile.Id, missile.EmpClaw)));
         bool changed = reliableChanged || missiles.Count > 0;
         foreach (var removed in _slots.Values.Where(slot => !slots.ContainsKey(slot.Vehicle)).SelectMany(slot => new[] { slot, slot with { Token = slot.SecondToken, Item = slot.SecondItem } }).Where(slot => slot.Item != HeldItem.None))
         {
@@ -641,7 +801,7 @@ public sealed partial class ItemAuthority
         {
             var state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == aim.Vehicle);
             if (state is not { CanInteract: true } || state.LifeId != aim.Life || !_slots.TryGetValue(aim.Vehicle, out var slot) ||
-                slot.Active.Token != aim.Token || !WeaponAim.Supports(slot.Active.Item)) { ResetAim(aim.Vehicle); }
+                slot.Active.Token != aim.Token || !WeaponAim.SupportsArticulation(slot.Active.Item)) { ResetAim(aim.Vehicle); }
         }
 
         foreach (var removed in missiles.Where(missile => !advanced.Any(value => value.Id == missile.Id) && !events.Any(value => value.Token == missile.Id && value.Impact)))
@@ -651,6 +811,9 @@ public sealed partial class ItemAuthority
 
         _missiles.Clear();
         _missiles.AddRange(advanced);
+        _empAttachments.Clear();
+        _empAttachments.AddRange(attachments);
+        _empRemovals.Clear();
         _token = token;
         _mines.Clear();
         _mines.AddRange(movingMines);
@@ -673,13 +836,15 @@ public sealed partial class ItemAuthority
     /// <param name="center">Impact point.</param>
     /// <param name="target">Target center.</param>
     /// <param name="item">Authoritative exploding item identity.</param>
-    public DamageEffect Explosion(Vector3 center, Vector3 target, HeldItem item = HeldItem.Missile)
+    /// <param name="salvoSurface">Optional physical extent for Salvo falloff; impulse still points toward the body center.</param>
+    public DamageEffect Explosion(Vector3 center, Vector3 target, HeldItem item = HeldItem.Missile, Vector3? salvoSurface = null)
     {
         if (item != HeldItem.Salvo) { return VehicleDamageMath.Explosion(center, target, Configuration.ExplosionRadius, Configuration.MaximumDamage, Configuration.MaximumImpulse, Vector3.Zero); }
-        float linear = Math.Clamp(1 - Vector3.Distance(center, target) / Configuration.SalvoBlastRadius, 0, 1);
-        float scale = linear > 0 ? MathF.Pow(linear, Configuration.SalvoFalloff) / linear : 0;
-        var unit = VehicleDamageMath.Explosion(center, target, Configuration.SalvoBlastRadius, 1, 1, Vector3.Zero);
-        return new(unit.Damage * scale * Configuration.SalvoDamage, unit.Impulse * (scale * Configuration.SalvoImpulse), Vector3.Zero);
+        float linear = Math.Clamp(1 - Vector3.Distance(center, salvoSurface ?? target) / Configuration.SalvoBlastRadius, 0, 1);
+        float scale = MathF.Pow(linear, Configuration.SalvoFalloff);
+        Vector3 direction = target - center;
+        direction = direction.LengthSquared() > .000001f ? Vector3.Normalize(direction) : Vector3.UnitY;
+        return new(scale * Configuration.SalvoDamage, direction * (scale * Configuration.SalvoImpulse), Vector3.Zero);
     }
     /// <summary>Updates the existing authority; in-flight speed changes preserve direction and remaining lifetime.</summary>
     /// <param name="configuration">Validated effective gameplay tuning.</param>
@@ -691,7 +856,7 @@ public sealed partial class ItemAuthority
             for (int i = 0; i < _missiles.Count; i++)
             {
                 var missile = _missiles[i];
-                if (missile.Arc is not null) { continue; }
+                if (missile.Arc is not null || missile.EmpClaw is not null) { continue; }
                 _missiles[i] = missile with { Velocity = Vector3.Normalize(missile.Velocity) * configuration.MissileSpeed };
             }
 

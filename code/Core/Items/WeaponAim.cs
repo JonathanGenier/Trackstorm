@@ -11,13 +11,16 @@ public static class WeaponAim
     /// <summary>Twin Fang's shared muzzle plane along accepted aim; paired cosmetic barrels bracket this axis.</summary>
     public const float MachineGunMuzzleDistance = 1.8999f;
     /// <summary>Only direct-fire identities participate; Salvo retains its separate mechanics.</summary>
-    public static bool Supports(HeldItem item) => item is HeldItem.MachineGun or HeldItem.Missile;
+    public static bool Supports(HeldItem item) => item is HeldItem.MachineGun or HeldItem.Missile or HeldItem.EmpClaw;
+    /// <summary>Salvo shares camera articulation and assistance with the direct-fire identities.</summary>
+    public static bool SupportsArticulation(HeldItem item) => Supports(item) || item == HeldItem.Salvo;
     /// <summary>Requests must already be finite unit directions, never arbitrary magnitudes.</summary>
     public static bool IsDirection(Vector3 direction) => VehiclePhysicsState.IsFinite(direction) && Math.Abs(direction.LengthSquared() - 1) <= .002f;
 
     /// <summary>Solves on the host pose, enforcing rate, angular and conservative production-chassis clearance.</summary>
-    public static WeaponAimSolution Solve(VehicleSnapshot vehicle, ulong token, Vector3 desired, WeaponAimSolution? previous, WeaponAimConfiguration tuning, ulong tick, VehiclePhysicsState? observedPose = null)
+    public static WeaponAimSolution Solve(VehicleSnapshot vehicle, ulong token, Vector3 desired, WeaponAimSolution? previous, WeaponAimConfiguration tuning, ulong tick, VehiclePhysicsState? observedPose = null, float clearanceRadius = 0, bool arcing = false)
     {
+        if (!float.IsFinite(clearanceRadius) || clearanceRadius < 0) { throw new ArgumentOutOfRangeException(nameof(clearanceRadius)); }
         if (!IsDirection(desired)) { throw new ArgumentException("Aim requires a unit direction."); }
         var pose = observedPose ?? vehicle.ObservedPhysics;
         Vector3 local = Vector3.Transform(desired, Quaternion.Conjugate(pose.Orientation));
@@ -35,14 +38,14 @@ public static class WeaponAim
         // A conservative body envelope includes armor and roof. The pivot-to-muzzle segment
         // is included, so offsetting a future muzzle can never skip through the owner's Car.
         Vector3 direction = Direction(yaw, pitch);
-        bool clear = !IntersectsBody(Pivot, direction);
+        bool clear = arcing || !BodyDistance(Pivot, direction, clearanceRadius).HasValue;
         if (!clear)
         {
             float lo = pitch, hi = 0;
             for (int i = 0; i < 20; i++)
             {
                 float mid = (lo + hi) * .5f;
-                if (IntersectsBody(Pivot, Direction(yaw, mid))) { lo = mid; } else { hi = mid; }
+                if (BodyDistance(Pivot, Direction(yaw, mid), clearanceRadius).HasValue) { lo = mid; } else { hi = mid; }
             }
             pitch = hi;
             direction = Direction(yaw, pitch);
@@ -58,10 +61,12 @@ public static class WeaponAim
     public static bool IntersectsBody(Vector3 origin, Vector3 direction) => BodyDistance(origin, direction).HasValue;
 
     /// <summary>Distance to the conservative owner envelope, including a ray that starts inside it.</summary>
-    public static float? BodyDistance(Vector3 origin, Vector3 direction)
+    public static float? BodyDistance(Vector3 origin, Vector3 direction, float clearanceRadius = 0)
     {
         Vector3 minimum = new(-VehicleDimensions.Width / 2 - .05f, -1.1f, -VehicleDimensions.Length / 2 - .05f);
         Vector3 maximum = new(VehicleDimensions.Width / 2 + .05f, 1.30f, VehicleDimensions.Length / 2 + .05f);
+        minimum -= new Vector3(clearanceRadius);
+        maximum += new Vector3(clearanceRadius);
         float near = 0, far = 10;
         for (int axis = 0; axis < 3; axis++)
         {

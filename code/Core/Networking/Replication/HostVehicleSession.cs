@@ -254,10 +254,10 @@ public sealed class HostVehicleSession
     }
 
     /// <summary>Accepts camera direction through the existing item ownership and sender boundary.</summary>
-    public bool AimItem(ulong peer, ulong session, ulong life, ulong token, ulong selection, ulong sequence, System.Numerics.Vector3 direction)
+    public bool AimItem(ulong peer, ulong session, ulong life, ulong token, ulong selection, ulong sequence, System.Numerics.Vector3 direction, ulong target = 0, ulong targetLife = 0)
     {
         ulong vehicle = peer == 0 ? HostPlayerId : _peers.TryGetValue(peer, out var entry) ? entry.Vehicle : 0;
-        return AllowsParticipation && session == SessionId && vehicle != 0 && Items.RequestAim(World, vehicle, life, token, selection, sequence, direction);
+        return AllowsParticipation && session == SessionId && vehicle != 0 && Items.RequestAim(World, vehicle, life, token, selection, sequence, direction, target, targetLife);
     }
 
     /// <summary>Resolves a use request using actual sender ownership.</summary>
@@ -310,7 +310,7 @@ public sealed class HostVehicleSession
         var vehicle = new VehicleSnapshot(player, 1, new VehicleState(World.State.Tick, spawn, false, false, 0, 0), new VehicleHealth(Configuration.Configuration.Damage).State, spawn);
         var current = Snapshot();
         var world = new WorldSnapshot(SessionId, current.Tick, current.Vehicles.Append(new ReplicatedVehicle(vehicle, 0)), Configuration.Revision);
-        var items = new ItemPublication(revision, world, Items.Slots, Items.Missiles, [], Spawns?.States, Items.Patches, Items.OilContacts, Spawns?.Balances, Items.Mines, Items.Shields, Items.DiscardRevision);
+        var items = new ItemPublication(revision, world, Items.Slots, Items.Missiles, [], Spawns?.States, Items.Patches, Items.OilContacts, Spawns?.Balances, Items.Mines, Items.Shields, Items.DiscardRevision, Items.EmpAttachments);
         var match = Matches.MatchAuthority.Join(World.State.Match!, current.Tick, player);
         return new ResumeCheckpoint(items, match, props, Configuration, Environment?.Snapshot(SessionId, World.State.Tick));
     }
@@ -485,8 +485,11 @@ public sealed class HostVehicleSession
     /// <param name="raycastWeapon">Host closest collision on an authoritative weapon ray.</param>
     /// <param name="placeShield">Host-only native rear placement and clearance query.</param>
     /// <param name="observeShield">Host-only native wall motion observation.</param>
+    /// <param name="oilCollision">Host-only swept Oil surface collision.</param>
+    /// <param name="raycastEmpClaw">Host closest EMP surface/scenery hit; separate from coarse weapon hull queries.</param>
     /// <param name="missileTerrain">Bounded host-only suitable terrain ray; never vehicle queries.</param>
-    public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe, Func<MissileState, Vector3, float?>? collide = null, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeShield = null, Func<ShieldState, ShieldObservation?>? observeShield = null, Func<Vector3, Vector3, MissileTerrainSample?>? missileTerrain = null)
+    /// <param name="contactEmpNose">Host-only swept membrane contact; excludes the attached vehicle.</param>
+    public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe, Func<MissileState, Vector3, float?>? collide = null, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeShield = null, Func<ShieldState, ShieldObservation?>? observeShield = null, Func<Vector3, Vector3, MissileTerrainSample?>? missileTerrain = null, Func<Vector3, Vector3, float, OilImpact?>? oilCollision = null, Func<ulong, Vector3, Vector3, IReadOnlyList<VehicleStepRequest>, WeaponRayHit?>? raycastEmpClaw = null, Func<ulong, Vector3, Vector3, float, bool>? contactEmpNose = null)
     {
         _pickupStart = null;
         _pickupEnd = null;
@@ -522,7 +525,7 @@ public sealed class HostVehicleSession
         try
         {
             Items.AdvanceAim(World, Configuration.Configuration.Vehicle, AllowsParticipation, observations);
-            Items.Step(World, hostInput, observations, collide ?? ((_, _) => null), placeOil, placeMine, moveMine, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged), ground, raycastWeapon, placeShield, observeShield, missileTerrain);
+            Items.Step(World, hostInput, observations, collide ?? ((_, _) => null), placeOil, placeMine, moveMine, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged), ground, raycastWeapon, placeShield, observeShield, missileTerrain, oilCollision, raycastEmpClaw, contactEmpNose);
         }
         catch
         {

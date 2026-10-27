@@ -12,45 +12,42 @@ internal sealed class OilTests
 {
     [TestCase(1ul)]
     [TestCase(2ul)]
-    public void AnyVehicleConsumesTwoSeparatePassesButNotContinuousOverlap(ulong vehicle)
+    public void RepeatedContactsNeverConsumeHazardAndContinuousOverlapDoesNotRefresh(ulong vehicle)
     {
-        var host = Create();
-        Deploy(host);
+        var host = Create(); Deploy(host); var patch = host.Items.Patches.Single();
         Step(host, vehicle);
         for (int i = 0; i < 430; i++) { Step(host, vehicle); }
-        Assert.That(host.Items.Patches.Single().PassesUsed, Is.EqualTo(1));
-        Assert.That(host.Items.OilContacts.Single().Vehicle, Is.EqualTo(vehicle));
         Assert.That(host.World.GetVehicle(vehicle).Movement.OilTicks, Is.Zero);
-        Step(host);
-        Assert.That(host.Items.OilContacts, Is.Empty);
-        Assert.That(host.Items.Patches.Single().PassesUsed, Is.EqualTo(1));
-        Step(host, vehicle);
-        Assert.That(host.Items.Patches, Is.Empty);
-        Assert.That(host.Items.OilContacts, Is.Empty);
-        Assert.That(host.World.Events.Entries.Count(e => e.Kind == "Oil triggered"), Is.EqualTo(2));
-        Assert.That(host.World.GetVehicle(vehicle).Movement.OilTicks, Is.EqualTo(420));
+        for (int i = 0; i < 8; i++)
+        {
+            Step(host); Assert.That(host.Items.OilContacts, Is.Empty); Step(host, vehicle);
+            Assert.That(host.Items.Patches.Single(), Is.EqualTo(patch));
+            Assert.That(host.World.GetVehicle(vehicle).Movement.OilTicks, Is.EqualTo(120));
+        }
+        Assert.That(host.World.Events.Entries.Count(e => e.Kind == "Oil triggered"), Is.EqualTo(9));
+        while (host.World.State.Tick < patch.ExpiresAtTick - 1) { Step(host, vehicle); }
+        Assert.That(host.Items.Patches.Single(), Is.EqualTo(patch)); Step(host, vehicle);
+        Assert.That(host.Items.Patches, Is.Empty); Assert.That(host.Items.OilContacts, Is.Empty);
     }
 
-    [TestCase(1ul, 2ul)]
-    [TestCase(2ul, 3ul)]
-    public void DifferentVehiclesCanConsumeBothPassesInOneStep(ulong first, ulong second)
+    [Test]
+    public void AllEightVehiclesCanContactSameHazardInOneStep()
     {
-        var host = Create();
-        Deploy(host);
-        Step(host, first, second);
-        Assert.That(host.Items.Patches, Is.Empty);
-        Assert.That(host.World.GetVehicle(first).Movement.OilTicks, Is.EqualTo(420));
-        Assert.That(host.World.GetVehicle(second).Movement.OilTicks, Is.EqualTo(420));
+        var host = Create(); for (ulong id = 4; id <= 8; id++) { host.JoinPlayer(id * 10, id); }
+        Deploy(host); Step(host, 1, 2, 3, 4, 5, 6, 7, 8);
+        Assert.That(host.Items.Patches.Count, Is.EqualTo(1));
+        Assert.That(host.Items.OilContacts.Count, Is.EqualTo(8));
+        var publication = new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], [], patches: host.Items.Patches, oilContacts: host.Items.OilContacts);
+        Assert.That(ItemCodec.DecodeState(ItemCodec.EncodeState(publication)).OilContacts, Is.EqualTo(publication.OilContacts));
+        Assert.That(host.World.State.Vehicles.All(v => v.Movement.OilTicks == 120), Is.True);
     }
 
     [TestCase(1ul, false)]
     [TestCase(2ul, false)]
     [TestCase(2ul, true)]
-    public void RecoveryRetainsPassCountAndInsideLatchUntilExitOrNewLife(ulong vehicle, bool newLife)
+    public void RecoveryRetainsDeadlineAndInsideLatchUntilExitOrNewLife(ulong vehicle, bool newLife)
     {
-        var host = Create();
-        Deploy(host);
-        Step(host, vehicle);
+        var host = Create(); Deploy(host); Step(host, vehicle);
         var checkpoint = ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(new(
             new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], [], patches: host.Items.Patches, oilContacts: host.Items.OilContacts),
             host.World.State.Match!, null, host.Configuration)));
@@ -58,7 +55,7 @@ internal sealed class OilTests
         Assert.That(restored.Items.Patches, Is.EqualTo(host.Items.Patches));
         Assert.That(restored.Items.OilContacts, Is.EqualTo(host.Items.OilContacts));
         Step(restored, vehicle);
-        Assert.That(restored.Items.Patches.Single().PassesUsed, Is.EqualTo(1), "Restoring while inside never creates another pass.");
+        Assert.That(restored.World.GetVehicle(vehicle).Movement.OilTicks, Is.EqualTo(119));
         if (newLife)
         {
             var input = new InputFrame(restored.World.State.Tick + 1, 0, 0, 0, 0, 0, 0);
@@ -66,9 +63,9 @@ internal sealed class OilTests
                 new VehicleStepRequest(v.VehicleId, input, Observe(v, false), reset: v.VehicleId == vehicle ? Observe(v, false).Physics : null)).ToArray(), (_, _) => null);
         }
         else { Step(restored); }
-        Assert.That(restored.Items.Patches.Single().PassesUsed, Is.EqualTo(1));
         Step(restored, vehicle);
-        Assert.That(restored.Items.Patches, Is.Empty);
+        Assert.That(restored.Items.Patches, Is.EqualTo(host.Items.Patches));
+        Assert.That(restored.World.GetVehicle(vehicle).Movement.OilTicks, Is.EqualTo(120));
     }
 
     [Test]
@@ -102,7 +99,7 @@ internal sealed class OilTests
         Assert.Throws<ArgumentException>(() => ItemCodec.DecodeState(reference));
         Assert.Throws<ArgumentException>(() => ItemCodec.DecodeState(reference, next));
         Assert.That(ItemCodec.DecodeState(ItemCodec.EncodeState(next)).Patches, Is.EqualTo(patches), "A standalone boundary never requires prior state.");
-        var changed = new ItemPublication(3, host.Snapshot(), [], [], [], patches: patches.Select(p => p.Id == 1 ? p with { PassesUsed = 1 } : p), oilContacts: [new(1, 2, 1)]);
+        var changed = new ItemPublication(3, host.Snapshot(), [], [], [], patches: patches, oilContacts: [new(1, 2, 1)]);
         var decoded = ItemCodec.DecodeState(ItemCodec.EncodeState(changed, next));
         Assert.That(decoded.OilContacts, Is.EqualTo(changed.OilContacts), "First enemy contact replaces the full Oil baseline.");
         var removed = new ItemPublication(4, host.Snapshot(), [], [], [], patches: patches.Skip(1));
@@ -113,7 +110,7 @@ internal sealed class OilTests
     public void LargeOilBoundaryRoundTripsResumeWithoutTruncationOrLifetimeRefresh()
     {
         var host = Create();
-        var patches = Enumerable.Range(1, 3000).Select(id => new OilPatch((ulong)id, 1, new(100 + id * 7, 0, 0), Vector3.UnitY, 3) { PassesUsed = 1 }).ToArray();
+        var patches = Enumerable.Range(1, 3000).Select(id => new OilPatch((ulong)id, 1, new(100 + id * 7, 0, 0), Vector3.UnitY, 3)).ToArray();
         OilContact[] contacts = [];
         var publication = new ItemPublication(1, host.Snapshot(), [], [], [], patches: patches, oilContacts: contacts);
         host.Items.Restore(publication, 1, 3000);
@@ -147,17 +144,16 @@ internal sealed class OilTests
     }
 
     [Test]
-    public void CodecAcceptsOwnerLatchAndRejectsDuplicateUncountedOrSpentState()
+    public void CodecAcceptsMultipleVehiclesAndRejectsDuplicateOrExpiredState()
     {
         var host = Create();
         Deploy(host);
-        var patch = host.Items.Patches.Single() with { PassesUsed = 1 };
+        var patch = host.Items.Patches.Single();
         ItemPublication State(params OilContact[] contacts) => new(1, host.Snapshot(), [], [], [], patches: [patch], oilContacts: contacts);
         Assert.DoesNotThrow(() => State(new OilContact(patch.Id, 1, 1)));
-        Assert.Throws<ArgumentException>(() => new ItemPublication(1, host.Snapshot(), [], [], [], patches: [patch with { PassesUsed = 2 }]));
-        Assert.Throws<ArgumentException>(() => new ItemPublication(1, host.Snapshot(), [], [], [], patches: [patch with { PassesUsed = 0 }], oilContacts: [new(patch.Id, 2, 1)]));
         Assert.Throws<ArgumentException>(() => State(new OilContact(patch.Id, 2, 1), new(patch.Id, 2, 2)));
-        Assert.Throws<ArgumentException>(() => State(new OilContact(patch.Id, 2, 1), new(patch.Id, 3, 1)));
+        Assert.DoesNotThrow(() => State(new OilContact(patch.Id, 2, 1), new(patch.Id, 3, 1)));
+        Assert.Throws<ArgumentException>(() => new ItemPublication(1, host.Snapshot(), [], [], [], patches: [patch with { ExpiresAtTick = host.World.State.Tick }]));
         var decoded = ItemCodec.DecodeState(ItemCodec.EncodeState(State(new OilContact(patch.Id, 2, 1))));
         Assert.That(decoded.Patches.Single(), Is.EqualTo(patch));
         Assert.That(decoded.OilContacts.Single().Vehicle, Is.EqualTo(2));
@@ -173,8 +169,7 @@ internal sealed class OilTests
     [TestCase("vehicle.oil_recovery_curve", 4)]
     [TestCase("vehicle.oil_recovery_seconds", 0)]
     [TestCase("vehicle.oil_recovery_seconds", 11)]
-    [TestCase("items.oil_enemy_contacts", 1.5)]
-    [TestCase("items.oil_enemy_contacts", 0)]
+    [TestCase("items.oil_enemy_contacts", 2)]
     [TestCase("items.oil_lifetime_seconds", 0)]
     [TestCase("items.oil_lifetime_seconds", double.NaN)]
     public void UnsafeTuningIsRejected(string key, double value) =>

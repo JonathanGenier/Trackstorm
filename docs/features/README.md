@@ -1,5 +1,8 @@
 # Implemented feature index
 
+The item, vehicle, and Developer Options systems each have smaller topic references linked from their parent documents. For narrow changes, follow those links instead of loading the entire parent document.
+
+
 Start with the system being changed. Read its document and only the integration documents needed for the assignment; this index is not a requirement to load every feature. Documents describe the current implementation and durable design context. Source code supplies low-level implementation details. [Workflow](../workflow.md#feature-documentation) owns feature-document maintenance and authoring requirements.
 
 | System | Read for | Related systems |
@@ -36,7 +39,7 @@ Start with the system being changed. Read its document and only the integration 
 | [Reconnection and session resume](reconnection.md) | Stable identity, retained-match menu choice, abandonment, authenticated rebind and full checkpoint recovery | [Sessions](sessions.md), [vehicle networking](vehicle-networking.md), [EOS P2P](eos-p2p.md) |
 | [Host migration](host-migration.md) | Authority epochs, election, retained checkpoints, restore and failure | [Reconnection](reconnection.md), [sessions](sessions.md), [vehicle networking](vehicle-networking.md), [EOS P2P](eos-p2p.md) |
 | [Authority leases](authority-leases.md) | Cloudflare per-session fencing, short expiry, authentication and service outage policy | [Host migration](host-migration.md), [dashboard deployment](../authority-lease-service.md) |
-| [Held items](items.md) | Generic item registry, production telescoping Missile and flight effects, sustained close-range Machine Gun, arcing Salvo and local impact guide, two-slot authority and selection, Shield rear shield, movable world walls and persistent health/lifecycle, persistent Oil and magnetic Proxy Mine hazards, sustained percentage Nitro rocket thrust, outcomes and local HUD identity | [Pickups](item-spawns.md), [damage](vehicles.md), [lifecycle](death-respawn.md) |
+| [Held items](items.md) | Generic item registry, production telescoping Missile and flight effects, sustained close-range Machine Gun, arcing Salvo and local impact guide, two-slot authority and selection, Shield rear shield, movable world walls and persistent health/lifecycle, rearward ballistic jack-in-the-box Oil and magnetic Proxy Mine hazards, sustained percentage Nitro rocket thrust, outcomes and local HUD identity | [Pickups](item-spawns.md), [damage](vehicles.md), [lifecycle](death-respawn.md) |
 | [Weapon aiming](weapon-aiming.md) | Shared direct-fire intent, authoritative clearance/articulation, car-only sticky assistance, driving-compensated tracking and freely adjustable Machine Gun aim and centered free-aim cursor and hybrid assisted-car marker | [Items](items.md), [camera](camera.md), [input](input.md), [networking](vehicle-networking.md) |
 | [Item spawning](item-spawns.md) | Marker claims, distribution and cooldowns | [Arena](arena.md), [items](items.md) |
 | [Death and respawn](death-respawn.md) | Life boundaries, reset policy and participation | [Vehicles](vehicles.md), [items](items.md), [matches](matches.md) |
@@ -49,6 +52,9 @@ Start with the system being changed. Read its document and only the integration 
 | [Combat HUD](hud.md) | Confirmed HP, speed, inventory, layout and remote vehicle name/HP tags | [Settings](settings.md), [items](items.md), [matches](matches.md), [sessions](sessions.md) |
 
 ## Specialized routes
+
+- [EMP Claw presentation](items-emp-claw.md): normal pickup/Developer Options access,
+  three-shot presentation loads, authored cannon/claw assets, rack handoffs and preview.
 
 - EOS configuration, native prerequisites, portal setup, authenticated checks and export procedures: [EOS development setup](../eos-development.md).
 - Dependency and asset provenance, license records and redistribution: [canonical third-party registry](../../THIRD_PARTY.md).

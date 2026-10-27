@@ -18,17 +18,35 @@ public sealed class ItemPublication
     /// <param name="oilContacts">Current overlap latches; consumed passes are retained on each patch.</param>
     /// <param name="mines">Complete magnetic hazards.</param>
     /// <param name="shields">Complete persistent Shield pools and lifecycle state.</param>
+    /// <param name="empAttachments">Complete independently timed EMP anchors.</param>
     /// <param name="discardRevision">Permanent-deletion watermark retained by recovery boundaries.</param>
-    public ItemPublication(ulong revision, WorldSnapshot world, IEnumerable<ItemSlot> slots, IEnumerable<MissileState> missiles, IEnumerable<ItemEvent> events, IEnumerable<ItemSpawnState>? spawns = null, IEnumerable<OilPatch>? patches = null, IEnumerable<OilContact>? oilContacts = null, IEnumerable<PlayerItemBalance>? balances = null, IEnumerable<ProxyMineState>? mines = null, IEnumerable<ShieldState>? shields = null, ulong discardRevision = 0)
+    public ItemPublication(ulong revision, WorldSnapshot world, IEnumerable<ItemSlot> slots, IEnumerable<MissileState> missiles, IEnumerable<ItemEvent> events, IEnumerable<ItemSpawnState>? spawns = null, IEnumerable<OilPatch>? patches = null, IEnumerable<OilContact>? oilContacts = null, IEnumerable<PlayerItemBalance>? balances = null, IEnumerable<ProxyMineState>? mines = null, IEnumerable<ShieldState>? shields = null, ulong discardRevision = 0, IEnumerable<EmpClawAttachment>? empAttachments = null)
     {
         var inventory = slots.ToArray();
         var projectiles = missiles.ToArray();
         var outcomes = events.ToArray();
+        if (outcomes.Any(outcome => outcome.Item == HeldItem.EmpClaw && (outcome.Tracer ||
+            (!outcome.Impact && Vector3Distance(outcome.Position, outcome.Origin) is < 1 or > 50.01f))))
+        { throw new ArgumentException("Invalid EMP presentation discharge."); }
+        if (outcomes.Any(e => e.EmpPop && (e.Item != HeldItem.EmpClaw || !e.Impact || e.EmpClawContact is not null)))
+        { throw new ArgumentException("Invalid EMP pop outcome."); }
+        foreach (var outcome in outcomes.Where(e => e.EmpClawContact is not null))
+        {
+            var contact = outcome.EmpClawContact!;
+            if (outcome.Item != HeldItem.EmpClaw || !outcome.Impact || contact.Vehicle == 0 || contact.Life == 0 || contact.Vehicle == outcome.Owner ||
+                !VehiclePhysicsState.IsFinite(contact.LocalPosition) || contact.LocalPosition.Length() > 10 || !WeaponAim.IsDirection(contact.LocalNormal))
+            { throw new ArgumentException("Invalid EMP contact handoff."); }
+        }
         foreach (var missile in projectiles)
         {
+            if (missile.EmpClaw is { } emp && (missile.Arc is not null || emp.OwnerLife == 0 || emp.Target == missile.Owner ||
+                (emp.Target == 0) != (emp.TargetLife == 0) || emp.ExpiresAtTick <= world.Tick || emp.ExpiresAtTick - world.Tick != (ulong)missile.RemainingTicks ||
+                missile.Velocity.Length() > 150.01f || !world.Vehicles.Any(v => v.State.VehicleId == missile.Owner && v.State.LifeId == emp.OwnerLife && v.State.CanInteract)))
+            { throw new ArgumentException("Invalid EMP flight continuation."); }
             if (missile.Arc is not { } arc) { continue; }
             arc.Validate();
-            if (missile.RemainingTicks != arc.DurationTicks - arc.ElapsedTicks || Vector3Distance(missile.Position, arc.At(arc.ElapsedTicks)) > 0.01f ||
+            if (missile.RemainingTicks != SalvoFlight.LifetimeTicks - arc.ElapsedTicks || Vector3Distance(missile.Position, arc.At(arc.ElapsedTicks)) > 0.01f ||
+                Vector3Distance(missile.Velocity, arc.VelocityAt(arc.ElapsedTicks)) > 0.01f ||
                 !world.Vehicles.Any(vehicle => vehicle.State.VehicleId == missile.Owner && vehicle.State.LifeId == arc.Life && vehicle.State.CanInteract))
             { throw new ArgumentException("Inconsistent salvo continuation."); }
         }
@@ -43,14 +61,17 @@ public sealed class ItemPublication
                 !ValidAmmo(slot.Item, slot.Ammo) || !ValidAmmo(slot.SecondItem, slot.SecondAmmo) || !ValidCharge(slot.Item, slot.NitroCharge) || !ValidCharge(slot.SecondItem, slot.SecondNitroCharge) ||
                 !ValidSalvo(slot.Item, slot.SalvoShots, slot.SalvoReadyTick, world.Tick) ||
                 !ValidSalvo(slot.SecondItem, slot.SecondSalvoShots, slot.SecondSalvoReadyTick, world.Tick) ||
+                !ValidEmpClaw(slot.Item, slot.Token, slot.EmpClaw, world.Tick) || !ValidEmpClaw(slot.SecondItem, slot.SecondToken, slot.SecondEmpClaw, world.Tick) ||
                 (slot.EngagedToken != 0 && (ItemRegistry.Find(slot.Active.Item)?.Sustained != true || slot.EngagedToken != slot.Active.Token)) ||
                 (slot.Token == 0 && slot.Item != HeldItem.None) || (slot.SecondToken == 0 && slot.SecondItem != HeldItem.None) ||
                 (slot.Item != HeldItem.None && ItemRegistry.Find(slot.Item) is null) || (slot.SecondItem != HeldItem.None && ItemRegistry.Find(slot.SecondItem) is null) ||
                 !world.Vehicles.Any(vehicle => vehicle.State.VehicleId == slot.Vehicle && vehicle.State.LifeId == slot.Life)) ||
             inventory.SelectMany(slot => new[] { slot.Token, slot.SecondToken }).Where(token => token != 0).GroupBy(token => token).Any(group => group.Count() > 1) ||
-            projectiles.Length > ItemAuthority.MaximumProjectiles || projectiles.Select(missile => missile.Id).Distinct().Count() != projectiles.Length ||
-            projectiles.Any(missile => missile.Id == 0 || missile.Owner == 0 || !VehiclePhysicsState.IsFinite(missile.Position) || !VehiclePhysicsState.IsFinite(missile.Velocity) || missile.Velocity.Length() <= 0 || missile.Velocity.Length() > (missile.Arc is null ? 301 : 1000) || missile.RemainingTicks is < 1 or > 3600) ||
-            outcomes.Length > ItemAuthority.MaximumProjectiles * 2 + ItemAuthority.MaximumMines + 16 || outcomes.Any(outcome => outcome.Token == 0 || outcome.Owner == 0 || ItemRegistry.Find(outcome.Item)?.CanUse != true || !VehiclePhysicsState.IsFinite(outcome.Position) || !VehiclePhysicsState.IsFinite(outcome.Origin) || (outcome.Item != HeldItem.MachineGun && (outcome.Origin != System.Numerics.Vector3.Zero || outcome.Tracer)) || (outcome.Item == HeldItem.MachineGun && System.Numerics.Vector3.Distance(outcome.Origin, outcome.Position) > 300.01f) || (outcome.Impact && outcome.Item is not (HeldItem.Missile or HeldItem.Salvo or HeldItem.ProxyMine or HeldItem.MachineGun))))
+            projectiles.Length + inventory.Sum(s => s.ReservedSalvoShots) > ItemAuthority.MaximumProjectiles ||
+            inventory.Any(s => s.ReservedSalvoShots > 0 && !s.Active.SalvoCommitted) ||
+            projectiles.Select(missile => missile.Id).Distinct().Count() != projectiles.Length ||
+            projectiles.Any(missile => missile.Id == 0 || missile.Owner == 0 || !VehiclePhysicsState.IsFinite(missile.Position) || !VehiclePhysicsState.IsFinite(missile.Velocity) || (missile.Arc is null && (missile.Velocity.Length() <= 0 || missile.Velocity.Length() > 301)) || missile.RemainingTicks is < 1 or > 3600) ||
+            outcomes.Length > ItemAuthority.MaximumProjectiles * 2 + ItemAuthority.MaximumMines + 16 + ItemAuthority.MaximumEmpAttachments + 24 || outcomes.Any(outcome => outcome.Token == 0 || outcome.Owner == 0 || ItemRegistry.Find(outcome.Item)?.CanUse != true || !VehiclePhysicsState.IsFinite(outcome.Position) || !VehiclePhysicsState.IsFinite(outcome.Origin) || (outcome.Item is not (HeldItem.MachineGun or HeldItem.EmpClaw) && (outcome.Origin != System.Numerics.Vector3.Zero || outcome.Tracer)) || (outcome.Item == HeldItem.MachineGun && System.Numerics.Vector3.Distance(outcome.Origin, outcome.Position) > 300.01f) || (outcome.Impact && outcome.Item is not (HeldItem.Missile or HeldItem.Salvo or HeldItem.ProxyMine or HeldItem.MachineGun or HeldItem.EmpClaw))))
         {
             throw new ArgumentException("Invalid item publication.");
         }
@@ -69,12 +90,10 @@ public sealed class ItemPublication
         var contacts = oilContacts?.ToArray() ?? [];
         foreach (var patch in oil) { patch.Validate(); }
         var patchIds = new Dictionary<ulong, OilPatch>();
-        var contactCounts = contacts.GroupBy(contact => contact.Patch).ToDictionary(group => group.Key, group => group.Count());
         if (oil.Length > ItemAuthority.MaximumPatches || oil.Any(patch => !patchIds.TryAdd(patch.Id, patch) || patch.ExpiresAtTick <= world.Tick || patch.ExpiresAtTick - world.Tick > 36000) ||
-            contacts.Length > ItemAuthority.MaximumPatches * 6 || contacts.Select(contact => (contact.Patch, contact.Vehicle)).Distinct().Count() != contacts.Length ||
+            contacts.Length > ItemAuthority.MaximumPatches * 8 || contacts.Select(contact => (contact.Patch, contact.Vehicle)).Distinct().Count() != contacts.Length ||
             contacts.Any(contact => contact.Wheels == WheelMask.None || (contact.Wheels & ~WheelMask.All) != 0 || contact.Vehicle == 0 || contact.Life == 0 || !patchIds.ContainsKey(contact.Patch) ||
-                !world.Vehicles.Any(vehicle => vehicle.State.VehicleId == contact.Vehicle && vehicle.State.LifeId == contact.Life && vehicle.State.CanInteract)) ||
-            oil.Any(patch => contactCounts.GetValueOrDefault(patch.Id) > patch.PassesUsed))
+                !world.Vehicles.Any(vehicle => vehicle.State.VehicleId == contact.Vehicle && vehicle.State.LifeId == contact.Life && vehicle.State.CanInteract)))
         {
             throw new ArgumentException("Invalid oil continuation.");
         }
@@ -108,6 +127,14 @@ public sealed class ItemPublication
             (state.Stage == ShieldStage.RearShield) != inventory.Any(slot => slot.Vehicle == state.Owner &&
                 slot.Active.Item == HeldItem.Shield && slot.Active.Token == state.Token)))
         { throw new ArgumentException("Shield exposure must match selected ownership."); }
+        var claws = empAttachments?.ToArray() ?? [];
+        foreach (var claw in claws) { claw.Validate(world.Tick); }
+        if (claws.Length + projectiles.Count(p => p.EmpClaw is not null) > ItemAuthority.MaximumEmpAttachments || claws.Select(c => c.Id).Distinct().Count() != claws.Length ||
+            claws.Any(c => !world.Vehicles.Any(v => v.State.VehicleId == c.Vehicle && v.State.LifeId == c.Life && v.State.CanInteract) ||
+                projectiles.Any(p => p.Id == c.Id) || hazards.Any(p => p.Id == c.Id) || oil.Any(p => p.Id == c.Id) || walls.Any(p => p.Id == c.Id) ||
+                inventory.Any(s => (s.Token == c.Id && s.Item != HeldItem.None) || (s.SecondToken == c.Id && s.SecondItem != HeldItem.None))))
+        { throw new ArgumentException("Invalid EMP attachment membership."); }
+        EmpAttachments = Array.AsReadOnly(claws);
         Shields = Array.AsReadOnly(walls);
         Mines = Array.AsReadOnly(hazards);
         Balances = Array.AsReadOnly(history);
@@ -130,11 +157,14 @@ public sealed class ItemPublication
         return true;
     }
 
+    private static bool ValidEmpClaw(HeldItem item, ulong token, EmpClawLoad? load, ulong tick) =>
+        load is null ? item != HeldItem.EmpClaw : load.Valid(item, token, tick);
+
     private static bool ValidCharge(HeldItem item, double charge) => double.IsFinite(charge) &&
         (item == HeldItem.Nitro ? charge is > 0 and <= 100 : charge == 0);
 
     private static bool ValidSalvo(HeldItem item, int shots, ulong ready, ulong tick) => item == HeldItem.Salvo
-        ? shots is >= 1 and <= 16 && (ready <= tick || ready - tick <= 60)
+        ? shots is >= 1 and <= ItemSlot.SalvoMagazineSize && (ready != 0 || shots == ItemSlot.SalvoMagazineSize) && (ready <= tick || ready - tick <= 180)
         : shots == 0 && ready == 0;
 
     private static float Vector3Distance(System.Numerics.Vector3 a, System.Numerics.Vector3 b) => System.Numerics.Vector3.Distance(a, b);
@@ -148,6 +178,8 @@ public sealed class ItemPublication
     public IReadOnlyList<ProxyMineState> Mines { get; }
     /// <summary>Complete live Shield identities, attachment/world state, health and duplicate-damage memory.</summary>
     public IReadOnlyList<ShieldState> Shields { get; }
+    /// <summary>Complete independently identified, life-scoped EMP attachments.</summary>
+    public IReadOnlyList<EmpClawAttachment> EmpAttachments { get; }
     /// <summary>Per-life entry latches.</summary>
     public IReadOnlyList<OilContact> OilContacts { get; }
     /// <summary>Complete marker state and last claim.</summary>

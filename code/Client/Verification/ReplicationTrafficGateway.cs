@@ -22,7 +22,12 @@ internal sealed class ReplicationTrafficGateway : ITransportGateway
     public ulong Connect(TransportEndpoint endpoint) => _inner.Connect(endpoint);
     public void Disconnect(ulong peerId) => _inner.Disconnect(peerId);
     public void Poll() => _inner.Poll();
-    public bool TryReceive(out TransportMessage message) => _inner.TryReceive(out message);
+    internal Action<TransportMessage>? Received { get; set; }
+    public bool TryReceive(out TransportMessage message)
+    {
+        if (!_inner.TryReceive(out message)) { return false; }
+        Received?.Invoke(message); return true;
+    }
     public void Stop() => _inner.Stop();
     public void ConfigureSimulation(NetworkSimulation simulation) => _inner.ConfigureSimulation(simulation);
     public TransportStatistics GetStatistics(ulong peerId) => _inner.GetStatistics(peerId);

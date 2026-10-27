@@ -1,15 +1,18 @@
 param (
     [Parameter(Mandatory)]
     [string]$GodotPath,
-    [switch]$Visual
+    [switch]$Visual,
+    [switch]$NoBuild
 )
 
 $ErrorActionPreference = 'Stop'
 $checkDirectory = Join-Path $PSScriptRoot ('.godot/settings-checks/' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $checkDirectory -Force | Out-Null
 
-dotnet build Trackstorm.sln -c Debug -warnaserror
-if ($LASTEXITCODE -ne 0) { throw 'Settings verification build failed.' }
+if (-not $NoBuild) {
+    dotnet build Trackstorm.sln -c Debug -warnaserror
+    if ($LASTEXITCODE -ne 0) { throw 'Settings verification build failed.' }
+}
 
 foreach ($phase in @('write', 'read') + $(if ($Visual) { @('visual') } else { @() })) {
     $settingsPath = Join-Path $checkDirectory $(if ($phase -eq 'visual') { 'visual.json' } else { 'restart.json' })

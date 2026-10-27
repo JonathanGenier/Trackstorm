@@ -212,6 +212,7 @@ internal sealed class DeveloperConfigurationTests
         Edit(host, ("items.wrench_heal", 7));
         Assert.That(host.GiveItem(42, HeldItem.Wrench), Is.False);
         Assert.That(host.GiveItem(0, HeldItem.Wrench), Is.True);
+        WrenchTestPreparation.Wait(host);
         Assert.That(host.GiveItem(0, HeldItem.Missile), Is.True);
         MissileTestPreparation.Wait(host);
         Use(host);
@@ -247,7 +248,8 @@ internal sealed class DeveloperConfigurationTests
         Assert.That(host.Spawns.TryPickup(host.World, marker.Id, 1), Is.True);
         Assert.That(host.Items.Slots.Single().Item, Is.EqualTo(HeldItem.Wrench));
         Assert.That(host.Spawns.States.Single(state => state.Id == marker.Id).NextActivationTick, Is.EqualTo(2));
-        Use(host);
+        var pickup = host.Items.Slots.Single();
+        Assert.That(host.DiscardItem(0, host.SessionId, pickup.Life, pickup.Token, pickup.SelectionRevision), Is.True);
         host.Step(default, Observe);
         Assert.That(host.Spawns.States.Single(state => state.Id == marker.Id).Available, Is.False);
         host.Step(default, Observe);

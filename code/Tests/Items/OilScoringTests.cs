@@ -11,15 +11,15 @@ namespace Trackstorm.Core.Tests.Items;
 internal sealed class OilScoringTests
 {
     [Test]
-    public void TwoOwnerPassesRemovePatchWithoutScore()
+    public void OwnerReentriesKeepPatchWithoutScore()
     {
         var host = Create();
         for (int i = 0; i < 130; i++) { Step(host, 1); }
-        Assert.That(host.Items.Patches.Single().PassesUsed, Is.EqualTo(1));
+        Assert.That(host.Items.Patches.Count, Is.EqualTo(1));
         Assert.That(Score(host), Is.Zero);
         Step(host);
         Step(host, 1);
-        Assert.That(host.Items.Patches, Is.Empty);
+        Assert.That(host.Items.Patches.Count, Is.EqualTo(1));
         Assert.That(Score(host), Is.Zero);
     }
 
@@ -60,7 +60,7 @@ internal sealed class OilScoringTests
         Assert.That(host.World.State.Match!.Awards.Single(), Is.EqualTo(new CircusScoreAward(1, CircusScoreCategory.Oil, 50)));
         for (int i = 0; i < 130; i++) { Step(host, 2); }
         Assert.That(Score(host), Is.EqualTo(50));
-        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(290));
+        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.Zero);
         Step(host);
         var w = host.World.State;
         var m = w.Match!;
@@ -70,7 +70,7 @@ internal sealed class OilScoringTests
         Assert.That(Score(host), Is.EqualTo(125), "Second pass by the same enemy uses the owner's current K/D.");
         var decoded = MatchCodec.Decode(MatchCodec.Encode(99, host.World.State.Match!)).State;
         Assert.That(decoded.Players, Is.EqualTo(host.World.State.Match!.Players));
-        Assert.That(host.Items.Patches, Is.Empty);
+        Assert.That(host.Items.Patches.Count, Is.EqualTo(1));
     }
 
     [Test]
@@ -97,7 +97,7 @@ internal sealed class OilScoringTests
         Step(restored);
         Step(restored, 2);
         Assert.That(Score(restored), Is.EqualTo(100), "Retired owner receives the second enemy pass.");
-        Assert.That(restored.Items.Patches, Is.Empty);
+        Assert.That(restored.Items.Patches.Count, Is.EqualTo(1));
     }
 
     [TestCase(false)]
@@ -138,7 +138,7 @@ internal sealed class OilScoringTests
         Assert.That(host.World.GetVehicle(1).LifeId, Is.EqualTo(2));
         Assert.That(host.Items.Patches.Single().Id, Is.EqualTo(patch.Id));
         Step(host, 1, 2);
-        Assert.That(Score(host), Is.EqualTo(50), "Owner consumes the final pass without offensive score.");
+        Assert.That(Score(host), Is.EqualTo(100), "The rival reentry scores again; simultaneous owner entry adds no score.");
     }
 
     [Test]
@@ -151,7 +151,7 @@ internal sealed class OilScoringTests
         host.Step(default, v => Observe(v, false), placeOil: (s, _) => new OilPatch(s.Token, s.Vehicle, Vector3.Zero, Vector3.UnitY, 3));
         Step(host, 2);
         Assert.That(Score(host), Is.EqualTo(100));
-        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(420));
+        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(120));
         Step(host, 2);
         Assert.That(Score(host), Is.EqualTo(100));
     }
@@ -175,7 +175,7 @@ internal sealed class OilScoringTests
     {
         var host = Create(mode, active);
         Step(host, 2);
-        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(420));
+        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(120));
         Assert.That(Score(host), Is.Zero);
     }
 

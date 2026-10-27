@@ -337,7 +337,7 @@ internal sealed class VehicleReplicationTests
         host.Step(Drive(), Observe);
         WorldSnapshot expected = host.Snapshot();
         byte[] bytes = VehicleNetworkCodec.EncodeSnapshot(expected);
-        Assert.That(bytes.Length, Is.EqualTo(1885));
+        Assert.That(bytes.Length, Is.EqualTo(1981));
         WorldSnapshot decoded = VehicleNetworkCodec.DecodeSnapshot(bytes);
         Assert.That(decoded.Tick, Is.EqualTo(expected.Tick));
         Assert.That(decoded.Session, Is.EqualTo(99));

@@ -111,6 +111,16 @@ public sealed partial class WeaponAimChecks : Node
             await Until(() => _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 3), "Three UDP peers initialized", 1200);
             var host = _arenas[0].Driver.Host!;
             Require(host.TryConfigure(0, new Dictionary<string, double> { ["match.minimum_players"] = 1, ["match.countdown_ticks"] = 1 }, out _), "Host tuning applied");
+            if (OS.GetCmdlineUserArgs().Contains("--aim-salvo"))
+            {
+                if (OS.GetCmdlineUserArgs().Contains("--salvo-polish")) { await CheckSalvoAimPolish(); }
+                else { await CheckSalvoAim(); }
+                System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "salvo-evidence.txt"), _evidence);
+                GD.Print($"Weapon aiming integration passed: {_evidence.Count} Salvo checks.");
+                foreach (var arena in _arenas) { arena.QueueFree(); }
+                for (int i = 0; i < 4; i++) { await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); }
+                GetTree().Quit(); return;
+            }
             if (OS.GetCmdlineUserArgs().Contains("--aim-missile"))
             {
                 await CheckMissileAim();

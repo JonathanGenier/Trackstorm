@@ -18,6 +18,15 @@ broken pieces; a real tagged contact takes precedence over that fallback.
 A twelve-tick vehicle-impact cooldown coalesces repeated manifold contacts.
 The existing item transaction supplies committed Missile and Salvo impacts and
 the existing explosion falloff; Proxy Mine remains a vehicle-contact weapon.
+Salvo's small blast measures distance to the intact rock's authored, oriented mesh
+bounds instead of its ground-level origin. Matching-build layout data carries those
+bounds without adding network state. Broken pieces use the imported debris mesh's
+bounds, normalized by its volume-derived diameter and transformed by the existing
+piece size, yaw and authoritative offset. This avoids missing wide debris edges
+with a volume-derived sphere. Bounds remain an approximation, not triangle-level
+damage intersection; native ground-height projection remains presentation behavior.
+Missile distance behavior is unchanged. One accepted Salvo detonation
+supplies one impact even though its presentation contains three colorful bursts.
 Rejected world/item steps do not advance destruction. Dead vehicles cannot crush
 plants or originate environment impact damage.
 

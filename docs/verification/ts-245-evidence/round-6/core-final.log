@@ -1,0 +1,53 @@
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Trackstorm.Core.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Debug\net10.0\Trackstorm.Core.Tests.dll
+Test run for C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Debug\net10.0\Trackstorm.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Debug\net10.0\Trackstorm.Core.Tests.dll
+   NUnit3TestExecutor discovered 28 of 28 NUnit test cases using Current Discovery mode, Non-Explicit run
+0 m/s: previous=2.92 m2, one-second=4.28 m2, ratio=1.466; forty parcels.
+
+10 m/s: previous=35.53 m2, one-second=29.90 m2, ratio=0.842; forty parcels.
+
+  Passed OneSecondDoseRetainsComparableStraightRoadCoverage(0.0f) [367 ms]
+  Passed OneSecondDoseRetainsComparableStraightRoadCoverage(10.0f) [603 ms]
+20 m/s: previous=67.26 m2, one-second=60.15 m2, ratio=0.894; forty parcels.
+
+0 m/s: first impact 2.105 m behind rear bumper at tick 15.
+
+10 m/s: first impact 2.014 m behind rear bumper at tick 15.
+
+20 m/s: first impact 2.210 m behind rear bumper at tick 16.
+
+  Passed OneSecondDoseRetainsComparableStraightRoadCoverage(20.0f) [1 s]
+  Passed AirbornePourIsOneHazardWithFortyRearwardGravityParcelsAndNoPhantomCoverage [31 ms]
+  Passed DefaultSpringHasLargerReboundAndSlowerSettlingThanPriorPolish [19 ms]
+  Passed FirstBallisticImpactIsCloseBehindTheOriginalRackWithoutVehicleIntersection(0.0f) [5 ms]
+  Passed FirstBallisticImpactIsCloseBehindTheOriginalRackWithoutVehicleIntersection(10.0f) [< 1 ms]
+  Passed FirstBallisticImpactIsCloseBehindTheOriginalRackWithoutVehicleIntersection(20.0f) [< 1 ms]
+  Passed FortyEightDelayedImpactsReserveGeometryForEveryParcel [14 ms]
+  Passed FractionalCadenceEmitsExactBoundedQuantity(3.0f,20) [4 ms]
+  Passed FractionalCadenceEmitsExactBoundedQuantity(1.5f,40) [1 ms]
+  Passed FractionalCadenceEmitsExactBoundedQuantity(1.25f,48) [6 ms]
+  Passed ImpactGeometryAndOrganicTireCoverageUseTheActualSurface(0.0f) [29 ms]
+  Passed ImpactGeometryAndOrganicTireCoverageUseTheActualSurface(0.4f) [2 ms]
+  Passed ImpactGeometryAndOrganicTireCoverageUseTheActualSurface(1.5707963f) [< 1 ms]
+  Passed KickbackMovesHeadForwardWithoutTurningAnyParcelForward [5 ms]
+  Passed SpringRemainsBoundedUnderBrakingCorneringAndLandingDiscontinuities [18 ms]
+  Passed StreaksAndSatellitesRemainInsideTheNativeGuaranteedSupportDisk(0.0f) [16 ms]
+  Passed StreaksAndSatellitesRemainInsideTheNativeGuaranteedSupportDisk(0.61f) [< 1 ms]
+  Passed StreaksAndSatellitesRemainInsideTheNativeGuaranteedSupportDisk(1.5707963f) [< 1 ms]
+NUnit Adapter 5.0.0.0: Test execution complete
+  Passed TuningRejectsFractionalDurationThatRoundsPastTheParcelBudget [24 ms]
+  Passed UnsupportedImpactsRetireParcelsAndTurningSpillsRemainBounded [8 ms]
+  Passed BallisticEnvelopeClearsHardwareAcrossThePermittedSpringSphere(18.0f,9.81f,0.0f) [66 ms]
+  Passed BallisticEnvelopeClearsHardwareAcrossThePermittedSpringSphere(18.0f,9.81f,0.8f) [9 ms]
+  Passed BallisticEnvelopeClearsHardwareAcrossThePermittedSpringSphere(1.0f,40.0f,1.57f) [12 ms]
+  Passed BallisticEnvelopeClearsHardwareAcrossThePermittedSpringSphere(30.0f,1.0f,-1.57f) [4 ms]
+  Passed BallisticEnvelopeClearsHardwareAcrossThePermittedSpringSphere(18.0f,9.81f,3.141593f) [40 ms]
+  Passed ExtremeSpringLeanCannotDirectTheJetThroughTheBox [1 ms]
+
+Test Run Successful.
+Total tests: 28
+     Passed: 28
+ Total time: 11.1967 Seconds

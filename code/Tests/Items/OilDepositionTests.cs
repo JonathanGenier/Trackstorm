@@ -1,0 +1,206 @@
+using System.Numerics;
+using Trackstorm.Core.Items;
+using Trackstorm.Core.Vehicles;
+
+namespace Trackstorm.Core.Tests.Items;
+
+[TestFixture]
+internal sealed class OilDepositionTests
+{
+    private static OilPatch Activation() => new(1, 2, new(0, 10, 0), Vector3.UnitY, .65f)
+    { Pour = new() { Life = 1, StartTick = 1 }, ExpiresAtTick = 1801 };
+
+    [Test]
+    public void AirbornePourIsOneHazardWithFortyRearwardGravityParcelsAndNoPhantomCoverage()
+    {
+        var patch = Activation();
+        var pose = new VehiclePhysicsState(new(0, 10, 0), Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+        for (ulong tick = 1; tick <= 60; tick++)
+        {
+            patch = OilDeposition.Advance(patch, tick, pose, null);
+            patch.Validate();
+            Assert.That(patch.Pour!.Deposited, Is.False);
+            Assert.That(patch.Pour.Drops.Drops.All(d => d.Velocity.Z > 0 && d.Velocity.Y < 0), Is.True);
+            Assert.That(patch.Id, Is.EqualTo(1));
+        }
+        Assert.That(patch.Pour!.Emitted, Is.EqualTo(40));
+        Assert.That(patch.Pour.DurationTicks, Is.EqualTo(60), "Same forty parcels in one second.");
+        Assert.That(patch.ExpiresAtTick, Is.EqualTo(1801));
+        for (ulong tick = 61; tick <= 360; tick++) { patch = OilDeposition.Advance(patch, tick, pose, null); }
+        Assert.That(patch.Pour!.Emitted, Is.EqualTo(40));
+        Assert.That(patch.Pour.Drops.Length, Is.Zero);
+    }
+
+    [TestCase(0f)]
+    [TestCase(.4f)]
+    [TestCase(1.5707963f)]
+    public void ImpactGeometryAndOrganicTireCoverageUseTheActualSurface(float slope)
+    {
+        var normal = Vector3.Transform(Vector3.UnitY, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, slope));
+        var patch = Activation();
+        var pose = new VehiclePhysicsState(new(0, 10, 0), Quaternion.Identity, new(2, 0, -12), Vector3.Zero);
+        patch = OilDeposition.Advance(patch, 1, pose, (from, to, r) => new(Vector3.Lerp(from, to, .5f), normal, r));
+        Assert.That(patch.Pour!.Deposited, Is.True);
+        Assert.That(patch.Normal, Is.EqualTo(normal));
+        Assert.That(patch.Position.Y, Is.GreaterThan(12), "Never invent a patch under the airborne car.");
+        var segment = new OilSegment(patch.Position, patch.Position, normal, patch.Radius);
+        Assert.That(segment.Contains(patch.Position), Is.True);
+        Assert.That(segment.Contains(patch.Position + normal * .09f), Is.False);
+        Vector3 tangent = Vector3.Normalize(Vector3.Cross(normal, Math.Abs(normal.Z) < .9f ? Vector3.UnitZ : Vector3.UnitX));
+        float edge = segment.EdgeRadius(0);
+        Assert.That(segment.Contains(patch.Position + tangent * (edge - .001f)), Is.True);
+        Assert.That(segment.Contains(patch.Position + tangent * (edge + .001f)), Is.False);
+    }
+
+    [Test]
+    public void UnsupportedImpactsRetireParcelsAndTurningSpillsRemainBounded()
+    {
+        var patch = Activation();
+        for (ulong tick = 1; tick <= 600; tick++)
+        {
+            var pose = new VehiclePhysicsState(new(tick * .1f, 10, 0), Quaternion.CreateFromAxisAngle(Vector3.UnitY, tick * .01f), new(12, 0, -20), Vector3.Zero);
+            patch = OilDeposition.Advance(patch, tick, pose, (from, to, r) => new(to, Vector3.UnitY, tick % 2 == 0 ? r : 0));
+            patch.Validate();
+            Assert.That(patch.AdditionalSegments.Segments.Count, Is.LessThanOrEqualTo(63));
+            Assert.That(patch.Pour!.Drops.Length, Is.LessThanOrEqualTo(48));
+        }
+        Assert.That(patch.AdditionalSegments.Segments.Count, Is.GreaterThan(10));
+        Assert.That(patch.Pour!.Drops.Length, Is.Zero);
+        Assert.That(patch.ExpiresAtTick, Is.EqualTo(1801));
+    }
+
+    [Test]
+    public void FortyEightDelayedImpactsReserveGeometryForEveryParcel()
+    {
+        var patch = Activation() with { Pour = new() { Life = 1, StartTick = 1, DurationTicks = 96, IntervalTicks = 2, Gravity = 1 } };
+        var pose = new VehiclePhysicsState(new(0, 10, 0), Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+        for (ulong tick = 1; tick <= 400; tick++)
+        {
+            patch = OilDeposition.Advance(patch, tick, pose, (from, to, radius) => tick > 96 ? new(to, Vector3.UnitY, radius) : null);
+        }
+        Assert.That(patch.Pour!.Emitted, Is.EqualTo(48));
+        Assert.That(patch.AdditionalSegments.Segments.Count, Is.EqualTo(63), "One primary, 47 remaining impact pieces and sixteen satellites.");
+        Assert.That(patch.AdditionalSegments.Segments.Count(s => s.Radius > .2f), Is.EqualTo(47), "Every remaining parcel deposits even when all hit after emission finishes.");
+        Assert.That(patch.Pour.Drops.Length, Is.Zero);
+    }
+
+    [TestCase(0f)]
+    [TestCase(.61f)]
+    [TestCase(1.5707963f)]
+    public void StreaksAndSatellitesRemainInsideTheNativeGuaranteedSupportDisk(float slope)
+    {
+        var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, slope);
+        Vector3 normal = Vector3.Transform(Vector3.UnitY, rotation);
+        Vector3 tangent = Vector3.Transform(Vector3.UnitX, rotation);
+        Vector3 impact = new(10, 12, 14);
+        var patch = Activation() with
+        {
+            Position = impact - tangent * 1.2f, Normal = normal, Radius = 1,
+            Pour = new() { Life = 1, StartTick = 1, Cancelled = true, Deposited = true, Emitted = 40,
+                Drops = new OilFlight([new(impact + normal * .01f, -normal * 2, 150)]) }
+        };
+        var result = OilDeposition.Advance(patch, 60, null, (_, _, _) => new(impact, normal, 1.3f));
+        result.Validate();
+        Assert.That(result.AdditionalSegments.Segments.Count, Is.GreaterThan(0));
+        foreach (var piece in result.AdditionalSegments.Segments)
+        {
+            Assert.That(Vector3.Distance(piece.Start, impact) + piece.Radius, Is.LessThanOrEqualTo(1.30001f), "No new footprint may bridge beyond the checked surface disk.");
+            Assert.That(Vector3.Distance(piece.End, impact) + piece.Radius, Is.LessThanOrEqualTo(1.30001f));
+            Assert.That(Math.Abs(Vector3.Dot(piece.Start - impact, normal)), Is.LessThan(.0001f));
+        }
+        Assert.That(result.Id, Is.EqualTo(patch.Id));
+        Assert.That(result.ExpiresAtTick, Is.EqualTo(patch.ExpiresAtTick));
+    }
+
+    [Test]
+    public void SpringRemainsBoundedUnderBrakingCorneringAndLandingDiscontinuities()
+    {
+        Vector3 offset = Vector3.Zero, velocity = Vector3.Zero;
+        for (int i = 0; i < 6000; i++)
+        {
+            (offset, velocity) = OilPour.Spring(offset, velocity, new Vector3(i % 2 == 0 ? 10000 : -10000, i % 60 == 0 ? 9000 : 0, 3000), 100, 1, .5f);
+            Assert.That(offset.Length(), Is.LessThanOrEqualTo(.45001f));
+            Assert.That(velocity.Length(), Is.LessThanOrEqualTo(5.0001f));
+        }
+    }
+
+    [TestCase(0f)]
+    [TestCase(10f)]
+    [TestCase(20f)]
+    public void FirstBallisticImpactIsCloseBehindTheOriginalRackWithoutVehicleIntersection(float speed)
+    {
+        var patch = Activation() with { Pour = new() { Life = 1, StartTick = 1, PreviousVelocity = new(0, 0, -speed) } };
+        for (ulong tick = 1; tick <= 180; tick++)
+        {
+            var position = new Vector3(0, 1.145f, -speed * (tick - 1) / 60);
+            var pose = new VehiclePhysicsState(position, Quaternion.Identity, new(0, 0, -speed), Vector3.Zero);
+            patch = OilDeposition.Advance(patch, tick, pose, (from, to, radius) => from.Y >= 0 && to.Y <= 0
+                ? new OilImpact(Vector3.Lerp(from, to, from.Y / (from.Y - to.Y)), Vector3.UnitY, radius) : null);
+            if (!patch.Pour!.Deposited) { continue; }
+            float rearClearance = patch.Position.Z - position.Z - VehicleDimensions.Length / 2;
+            TestContext.Out.WriteLine($"{speed} m/s: first impact {rearClearance:F3} m behind rear bumper at tick {tick}.");
+            Assert.That(rearClearance, Is.InRange(1f, 3f));
+            Assert.That(patch.Position.Y, Is.EqualTo(0).Within(.001f));
+            return;
+        }
+        Assert.Fail("The shot never reached the actual ground plane.");
+    }
+
+    [Test]
+    public void DefaultSpringHasLargerReboundAndSlowerSettlingThanPriorPolish()
+    {
+        static (float Peak, float Remaining) Response(float stiffness, float damping)
+        {
+            Vector3 offset = Vector3.Zero, velocity = new(1.6f, 0, 0); float peak = 0;
+            for (int i = 0; i < 120; i++)
+            { (offset, velocity) = OilPour.Spring(offset, velocity, Vector3.Zero, stiffness, damping, .44f); peak = Math.Max(peak, offset.Length()); }
+            return (peak, offset.LengthSquared() * stiffness + velocity.LengthSquared());
+        }
+        var prior = Response(26, 4.5f); var current = Response(new OilPour().Stiffness, new OilPour().Damping);
+        Assert.That(current.Peak, Is.GreaterThan(prior.Peak * 1.4f));
+        Assert.That(current.Remaining, Is.GreaterThan(prior.Remaining * 4));
+    }
+
+    [Test]
+    public void KickbackMovesHeadForwardWithoutTurningAnyParcelForward()
+    {
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+        var patch = Activation();
+        for (ulong tick = 1; tick <= 60; tick++)
+        {
+            patch = OilDeposition.Advance(patch, tick, pose, null);
+            Assert.That(patch.Pour!.Drops.Drops.All(d => d.Velocity.Z > 0), Is.True);
+            Assert.That(patch.Pour.HeadOffset.Length(), Is.LessThanOrEqualTo(.45001f));
+            if (tick == 10) { Assert.That(patch.Pour.HeadOffset.Z, Is.LessThan(-.1f)); }
+        }
+        var quiet = OilDeposition.Advance(Activation() with { Pour = new() { Life = 1, StartTick = 1, Kickback = 0 } }, 1, pose, null);
+        Assert.That(quiet.Pour!.HeadOffset, Is.EqualTo(Vector3.Zero));
+    }
+
+    [TestCase(3f, 20)]
+    [TestCase(1.5f, 40)]
+    [TestCase(1.25f, 48)]
+    public void FractionalCadenceEmitsExactBoundedQuantity(float interval, int count)
+    {
+        var patch = Activation() with { Pour = new() { Life = 1, StartTick = 1, IntervalTicks = interval } };
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+        for (ulong tick = 1; tick <= 120; tick++)
+        {
+            patch = OilDeposition.Advance(patch, tick, pose, null); patch.Validate();
+            if (tick == 60) { Assert.That(patch.Pour!.Emitted, Is.EqualTo(count)); }
+        }
+        Assert.That(patch.Pour!.Emitted, Is.EqualTo(count));
+    }
+
+    [Test]
+    public void TuningRejectsFractionalDurationThatRoundsPastTheParcelBudget()
+    {
+        var tuning = new ItemConfiguration { OilFireSeconds = .8f, OilIntervalTicks = 1.005f };
+        Assert.DoesNotThrow(tuning.Validate);
+        Assert.DoesNotThrow(() => new OilPour
+        {
+            Life = 1, DurationTicks = (int)MathF.Ceiling(tuning.OilFireSeconds * 60), IntervalTicks = tuning.OilIntervalTicks
+        }.Validate());
+        Assert.Throws<ArgumentException>(() => (tuning with { OilFireSeconds = .801f }).Validate());
+    }
+}

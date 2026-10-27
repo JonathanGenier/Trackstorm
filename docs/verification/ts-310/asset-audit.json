@@ -1,0 +1,12 @@
+{
+  "sourceMeshes": 774,
+  "packedTextures": 9,
+  "crateGroups": [
+    "CrateLeft",
+    "CrateRight",
+    "CrateTop"
+  ],
+  "manifestHashes": "PASS",
+  "editableUVs": "PASS",
+  "rigidBodies": 0
+}

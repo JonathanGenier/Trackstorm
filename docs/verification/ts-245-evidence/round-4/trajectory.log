@@ -1,0 +1,46 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Trackstorm.Core.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll
+Test run for C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll
+   NUnit3TestExecutor discovered 19 of 19 NUnit test cases using Current Discovery mode, Non-Explicit run
+0 m/s: previous=2.92 m2, one-second=4.23 m2, ratio=1.449; forty parcels.
+
+10 m/s: previous=35.53 m2, one-second=30.15 m2, ratio=0.849; forty parcels.
+
+  Passed OneSecondDoseRetainsComparableStraightRoadCoverage(0.0f) [269 ms]
+  Passed OneSecondDoseRetainsComparableStraightRoadCoverage(10.0f) [609 ms]
+20 m/s: previous=67.26 m2, one-second=61.05 m2, ratio=0.908; forty parcels.
+
+0 m/s: first impact 2.105 m behind rear bumper at tick 15.
+
+10 m/s: first impact 2.014 m behind rear bumper at tick 15.
+
+20 m/s: first impact 2.210 m behind rear bumper at tick 16.
+
+  Passed OneSecondDoseRetainsComparableStraightRoadCoverage(20.0f) [834 ms]
+  Passed AirbornePourIsOneHazardWithFortyRearwardGravityParcelsAndNoPhantomCoverage [41 ms]
+  Passed DefaultSpringHasLargerReboundAndSlowerSettlingThanPriorPolish [6 ms]
+  Passed FirstBallisticImpactIsCloseBehindTheOriginalRackWithoutVehicleIntersection(0.0f) [4 ms]
+  Passed FirstBallisticImpactIsCloseBehindTheOriginalRackWithoutVehicleIntersection(10.0f) [3 ms]
+  Passed FirstBallisticImpactIsCloseBehindTheOriginalRackWithoutVehicleIntersection(20.0f) [< 1 ms]
+  Passed FortyEightDelayedImpactsReserveGeometryForEveryParcel [7 ms]
+  Passed FractionalCadenceEmitsExactBoundedQuantity(3.0f,20) [6 ms]
+  Passed FractionalCadenceEmitsExactBoundedQuantity(1.5f,40) [4 ms]
+  Passed FractionalCadenceEmitsExactBoundedQuantity(1.25f,48) [8 ms]
+  Passed ImpactGeometryAndOrganicTireCoverageUseTheActualSurface(0.0f) [5 ms]
+  Passed ImpactGeometryAndOrganicTireCoverageUseTheActualSurface(0.4f) [< 1 ms]
+  Passed ImpactGeometryAndOrganicTireCoverageUseTheActualSurface(1.5707963f) [< 1 ms]
+  Passed KickbackMovesHeadForwardWithoutTurningAnyParcelForward [1 ms]
+  Passed SpringRemainsBoundedUnderBrakingCorneringAndLandingDiscontinuities [62 ms]
+  Passed TuningRejectsFractionalDurationThatRoundsPastTheParcelBudget [15 ms]
+  Passed UnsupportedImpactsRetireParcelsAndTurningSpillsRemainBounded [2 ms]
+NUnit Adapter 5.0.0.0: Test execution complete
+
+Test Run Successful.
+Total tests: 19
+     Passed: 19
+ Total time: 9.2926 Seconds

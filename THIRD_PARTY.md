@@ -16,6 +16,9 @@ This is the canonical entry point for repository dependency and asset provenance
 | Infield terrain | [Original terrain manifest](assets/maps/infield/terrain-sources.json), [collision bake provenance and audit](assets/maps/infield/collision-audit.json), and [terrain authoring notes](assets/maps/infield/TERRAIN.md); original Blender geometry and vertex colors derived from the retained topology, with no new third-party acquisitions |
 | Infield structures | [Original structural manifest](assets/maps/infield/structures-sources.json) and [authoring notes](assets/maps/infield/STRUCTURES.md); original Blender concrete junction structure, neutral shading and imported collision, with no third-party acquisitions |
 | Modular environment library | [Original-art manifest](assets/environment/library.json) and [authoring notes](assets/environment/README.md); original Blender geometry and generated mineral stone maps plus derivatives of the retained original oval conifers. Concrete reuses the existing CC0 Concrete maps below; no new third-party acquisition |
+| Jack-in-the-box Oil | [Original Blender authoring notes](assets/items/oil/README.md) and [source manifest](assets/items/oil/sources.json); user-approved Jira concept direction, original geometry and procedural patina; no reference pixels or newly acquired third-party assets are distributed |
+| Carnival pickup stack | [Original Blender authoring notes](assets/items/carnival-crate/README.md) and [source manifest](assets/items/carnival-crate/sources.json); original crate geometry, generated wood/metal textures, cosmetic aura and [smash geometry](assets/items/carnival-crate/smash-sources.json). Smash flash reuses the existing licensed Kenney particle texture below. User-supplied approved intact/smash concepts retained in import-excluded source only; no reference pixels in runtime textures and no new third-party acquisition |
+| Wrench robotic repair arm | [Original Blender authoring notes](assets/items/wrench/README.md) and [source manifest](assets/items/wrench/sources.json); user-approved TS-292 concept direction, original geometry and UV patina, no redistributed reference pixels or new third-party acquisitions |
 | Item models/particles | [Record below](#item-combat-assets) and [source manifest](assets/items/sources.json) |
 | Arena audio | [Acquisition, licenses and processing](assets/audio/README.md), [checksummed selection manifest](assets/audio/sources.json), and original notices under `assets/audio/kenney/*/License.txt`. Kenney Impact/Interface/Sci-fi 1.0 are CC0. The ten Freesound placeholders are CC0-1.0 third-party derivatives committed with source; their nine exact recording IDs, authors, source/preview URLs, processing and SHA-256 hashes are in the manifest. Attribution is not required. Three unchanged TS-35 songs are project-provided assets. Python/FFmpeg are external development tools, not distributed runtime dependencies |
 | Startup/frontend media | [Runtime/import notes](assets/frontend/README.md) and [checksummed source/derivative manifest](assets/frontend/sources.json); the TS-85 MOV files and MP3 are project-provided assets with no third-party license asserted. Both unchanged MOV sources are retained through Git LFS. The Splash derivative preserves synchronized embedded audio, while the MenuShell derivative is deliberately silent and uses the unchanged authoritative frontend MP3 separately. Ogg Theora/Vorbis derivatives are required by Godot's built-in video player. FFmpeg is an external authoring tool, not a distributed runtime dependency |
@@ -69,7 +72,7 @@ The upstream glTF API labels shared resolution-independent binary geometry with 
 
 Kenney Weapon Pack (2016-01-20), original author publication at https://opengameart.org/content/weapon-pack, and Particle Pack 1.1 (archive license) from https://kenney.nl/assets/particle-pack are CC0. Only the rocket mesh/material, fire, smoke and spark textures are included. Original licenses and file/archive hashes are under `assets/items`. The original Weapon Pack mirror was approved for acquisition because its old Kenney page is unavailable. Projectile/pickup materials and the damage-flash shader are project-created.
 
-Salvo reuses those rocket/particle assets and the existing arena audio. Its [HUD silhouette](assets/hud/Salvo.svg) and procedural terrain marker are original project work, recorded in [HUD provenance](assets/hud/sources.json); no additional third-party asset or dependency was acquired.
+Salvo uses the original catapult's paper firecracker geometry, existing Kenney smoke/spark textures and existing arena audio. Its flight/explosion smoke shaders, three-burst explosion effect, [HUD silhouette](assets/hud/Salvo.svg) and procedural terrain marker are original project work; HUD provenance is recorded in [its manifest](assets/hud/sources.json). Its [Blender catapult](assets/items/salvo/README.md) and [source manifest](assets/items/salvo/sources.json) retain original geometry, grain/patina and mechanical articulation based on the three user-supplied TS-210 references; reference pixels are not redistributed. No additional third-party asset or dependency was acquired.
 
 Machine Gun reuses the existing Kenney Impact audio already covered by the Arena audio registry. Its [HUD silhouette](assets/hud/MachineGun.svg) and procedural tracer presentation are original project work recorded in [HUD provenance](assets/hud/sources.json); no additional third-party asset or dependency was acquired.
 
@@ -100,6 +103,16 @@ Painted graphics, trim and lamps are original Blender-authored geometry. Impact 
 The [Boost jet](assets/vehicles/boost/README.md), editable Blender source, flame mesh and runtime shaders are original Trackstorm work. [Its manifest](assets/vehicles/boost/sources.json) records source/export hashes, the linked unmodified production Car reference, and the user-approved built-in imagegen concept retained as design reference only. Smoke and sparks reuse the recorded CC0 Kenney `smoke_01` and `spark_01` textures. No new third-party asset or dependency is introduced. See [Boost exhaust](docs/features/boost-exhaust.md).
 
 [Terrain/environment shaders](assets/effects) and infield shader additions are original project-authored runtime code. Tire dust/mud/splash emitters reuse the existing CC0 Kenney smoke_01 particle texture from the item asset manifest. No new third-party acquisition or authored mesh is introduced.
+
+## EMP Claw presentation
+
+The [EMP Claw launcher/device](assets/items/emp-claw/README.md) uses original
+Blender geometry, rigid animation and packed procedural UV patina. Its
+[manifest](assets/items/emp-claw/sources.json) records editable source, runtime
+exports and the unchanged production Car source hash. User-supplied TS-296 Jira
+attachments 10155–10158 supply design direction; their pixels are not redistributed.
+The electrical, pressure-ripple and balloon-fragment effects are original Client
+presentation. No new third-party assets, dependencies or audio are introduced.
 
 ## Missile presentation
 

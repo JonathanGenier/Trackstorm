@@ -14,6 +14,18 @@ function Assert-True {
 . "$PSScriptRoot/fast-check-routes.ps1"
 
 # Route-selection regression coverage.
+foreach ($path in @('assets/items/carnival-crate/CarnivalCrate.glb', 'code/Client/Items/CarnivalPickupAura.cs', 'code/Client/Items/ItemSpawnPresentation.cs', 'code/Client/Items/PickupGroundPose.cs')) {
+    $cratePlan = Get-FastCheckPlan -Paths @($path)
+    Assert-True ($cratePlan.RuntimeScripts -contains 'check-carnival-pickup.ps1') 'Crate changes require intact presentation verification.'
+    Assert-True ($cratePlan.RuntimeScripts -contains 'check-carnival-smash.ps1') 'Crate changes require smash lifecycle verification.'
+    Assert-True ($cratePlan.RuntimeScripts -contains 'check-item-spawns.ps1') 'Crate changes retain multiplayer pickup verification.'
+    Assert-True ($cratePlan.RuntimeScripts -contains 'check-pickup-drive.ps1') 'Crate changes retain drive-through verification.'
+}
+Assert-True ((Get-FastCheckPlan -Paths @('code/Core/Items/EmpClawGeometry.cs')).RuntimeScripts -contains 'check-emp-claw-counterplay.ps1') 'EMP membrane changes retain native nose, ammunition and shield counterplay coverage.'
+Assert-True ((Get-FastCheckPlan -Paths @('code/Core/Items/EmpClawFlight.cs')).RuntimeScripts -contains 'check-emp-claw-flight.ps1') 'EMP flight changes require native homing, collision and multiplayer verification.'
+foreach ($path in @('assets/items/wrench/RepairArm.glb', 'code/Client/Items/WrenchArm.cs', 'check-wrench-arm.ps1')) {
+    Assert-True ((Get-FastCheckPlan -Paths @($path)).RuntimeScripts -contains 'check-wrench-arm.ps1') 'Wrench art and rig changes require native rack/roof/lifecycle verification.'
+}
 foreach ($path in @('code/Core/Vehicles/VehicleCollisionDamage.cs', 'code/Client/Verification/CombatCollisionChecks.cs', 'scenes/verification/combat_collision_checks.tscn')) {
     $combatPlan = Get-FastCheckPlan -Paths @($path)
     Assert-True ($combatPlan.RuntimeScripts -contains 'check-combat-collisions.ps1') 'Combat changes require paired damage, geometry and loaded-drive coverage.'
@@ -53,6 +65,7 @@ foreach ($path in @('assets/environment/ImportAsset.gd', 'code/Client/Verificati
     Assert-True ($rockPlan.ExtendedScripts -contains 'check-rock-collision-network.ps1') 'Rock changes require impaired UDP prediction verification.'
 }
 Assert-True ((Get-FastCheckPlan -Paths @("code/Client/Vehicles/TireFeedback.cs")).RuntimeScripts -contains "check-terrain-effects.ps1") "Surface feedback routes bounded native effects verification."
+Assert-True ((Get-FastCheckPlan -Paths @("code/Client/Vehicles/TireFeedback.Oil.cs")).RuntimeScripts -contains "check-oil-tires.ps1") "Oil feedback routes native per-wheel/UDP/cleanup verification."
 Assert-True ((Get-FastCheckPlan -Paths @("code/Core/Development/EnvironmentPreset.cs")).RuntimeScripts -contains "check-developer-options.ps1") "Environment selection routes authoritative Configs verification."
 Assert-True ((Get-FastCheckPlan -Paths @("scenes/maps/infield_dressing.tscn")).RuntimeScripts -contains "check-dressing.ps1") "Production dressing routes native clearance verification."
 Assert-True ((Get-FastCheckPlan -Paths @("assets/environment/models/BoulderTall.glb")).RuntimeScripts -contains "check-environment.ps1") "Environment assets route their native library verification."
@@ -172,6 +185,7 @@ try {
     Copy-Item "$PSScriptRoot/new-verification-report.ps1" (Join-Path $toolsDir "new-verification-report.ps1")
     Copy-Item "$PSScriptRoot/check-fast.ps1" (Join-Path $toolsDir "check-fast.ps1")
     Copy-Item "$PSScriptRoot/fast-check-routes.ps1" (Join-Path $toolsDir "fast-check-routes.ps1")
+    Copy-Item "$PSScriptRoot/agent-checks.ps1" (Join-Path $toolsDir "agent-checks.ps1")
 
     @"
 # Historical verification evidence
@@ -217,6 +231,9 @@ Assert-True ($startPlan.RuntimeScripts -contains "check-match-start.ps1") "Count
 Assert-True ($playPlan.RuntimeScripts -contains "check-play-menu.ps1") "Play Menu presentation changes must route the runtime interaction harness."
 $salvoPlan = Get-FastCheckPlan -Paths @("code/Client/Items/SalvoMarker.cs")
 Assert-True ($salvoPlan.RuntimeScripts -contains "check-salvo.ps1") "Salvo marker changes must route the native marker privacy harness."
+Assert-True ($salvoPlan.RuntimeScripts -contains "check-salvo-explosion.ps1") "Salvo changes must route native explosions and bounded smoke verification."
+$catapultPlan = Get-FastCheckPlan -Paths @("assets/items/salvo/SalvoCatapult.glb")
+Assert-True ($catapultPlan.RuntimeScripts -contains "check-salvo-catapult.ps1") "Catapult asset changes must exercise deployment and native peer presentation."
 $destructionPlan = Get-FastCheckPlan -Paths @("code/Core/Arenas/EnvironmentAuthority.cs")
 Assert-True ($destructionPlan.RuntimeScripts -contains "check-destructible-environment.ps1") "Destruction changes must route native interaction verification."
 Assert-True ($destructionPlan.ExtendedScripts -contains "check-migration.ps1") "Destruction changes must route recovery verification."
@@ -233,3 +250,5 @@ Assert-True ($shieldPlan.RuntimeScripts -contains 'check-world-wall.ps1') 'Shiel
 
 $missilePlan = Get-FastCheckPlan -Paths @('code/Core/Items/MissileFlight.cs')
 Assert-True ($missilePlan.RuntimeScripts -contains 'check-missile-terrain.ps1') 'Missile changes require native terrain and impaired-peer verification.'
+
+& "$PSScriptRoot/test-agent-tools.ps1"

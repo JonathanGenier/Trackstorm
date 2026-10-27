@@ -4,6 +4,14 @@
 
 ## Behavior and Layout
 
+After an accepted Wrench use, its physical slot continues to represent the spent
+arm installed on the vehicle until the actual repair/rack/trunk lifecycle closes.
+This projection comes from the rack handoff state, not a HUD timer. Incoming
+pickups remain accepted inventory and become visible in that slot when the
+mechanism releases it. Empty is shown only after full stow when no replacement
+exists. Death, life change and reseed clear the presentation normally; use input
+always targets authoritative inventory. See [Wrench](items-wrench.md).
+
 Network starts add a temporary center-screen **5 → 4 → 3 → 2 → 1 → GO** overlay above the existing HUD. Outlined cream numerals, an amber ring/start lights and a mint GO provide contrast over the arena; each value settles with a brief scale animation. The accepted authoritative phase and world tick select the value. Animation time never authorizes gameplay. GO fades and clears within 0.75 seconds, leaving the permanent HUD in place. See [Game Loop](game-loop.md) for the full-roster synchronization gate and timing ownership.
 
 During a production practice or network arena, the HUD shows a bottom-left standing badge and current/max HP, a bottom-right speedometer and two held-item slots, and a top-center timer. Standing uses the same authoritative [match standings](standings.md) rank as the leaderboard during network matches; practice displays `--`. Network Circus matches add a compact upper-left banked total and current K/D multiplier below the arena status strip. The existing top-center timer displays Circus authoritative remaining time as MM:SS: `10:00` by default, through `00:00` at expiry. It rounds remaining ticks up to seconds and reads the accepted Game Loop time boundary plus the latest accepted host world tick, never prediction or a HUD clock. Initialization/countdown show the full configured Active duration. Join/reconnect immediately project the installed checkpoint; migration uses the restored time and recovery debit. Host duration edits update this same display. Untimed FirstToTarget and practice retain `--:--`. The HUD disappears when the local vehicle is unavailable or the arena closes.
@@ -55,3 +63,18 @@ Each held Machine Gun slot projects its authoritative remaining rounds as a perc
 [Out-of-bounds damage](out-of-bounds.md) uses the authored oval perimeter, existing health/lifecycle authority and confirmed HUD feedback. Its life-scoped state survives tuning and checkpoint recovery; prediction never originates it.
 
 Shield uses the same physical-slot adapter and native controls, with a skull-crested armored plate silhouette, whole remaining HP (rounded upward) and a small HP legend. Three pointed armor plates drain continuously; missing portions show fractures. At or below 25% durability, the plates and value turn hot orange. Selection remains the existing yellow perimeter. The projection matches the accepted persistent pool by vehicle, life and the exact physical-slot grant token, whether stored or rear-mounted. It uses `ShieldState.DefaultHP` for the meter capacity and never vehicle HP. World walls, destroyed/missing pools and retired capabilities supply no slot resource; cleared or replaced inventory clears icon, value, HP legend and plates. Fresh HUD reconstruction reads the accepted damaged pool without animation history or refill. No global Shield bar or gameplay authority is added.
+
+## EMP Claw status
+
+EMP Claw uses the existing two physical item slots and confirmed magazine counts:
+3, 2, 1 and Empty on depletion. Selection, replacement and life validation retain
+ordinary item semantics. The launcher independently completes its existing empty return.
+
+A blue status centered above the bottom instruments shows active claw count and up to
+three independent remaining times (rounded up to seconds), with stable per-claw labels
+and an overflow count. It reads accepted attachment membership, target life and host tick,
+never predicted ownership or a local gameplay clock. Removing one claw retains surviving
+labels/deadlines. Brief removal feedback lasts 1.8 seconds; final removal reports
+`EMP CLEARED · POWER RESTORED`. New attachments clear obsolete removal feedback.
+Session/life changes, death or unavailable vehicle clear the projection. See
+[EMP Claw](items-emp-claw.md#effect-controls-and-hud).

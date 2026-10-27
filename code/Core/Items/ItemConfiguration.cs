@@ -3,6 +3,14 @@ namespace Trackstorm.Core.Items;
 /// <summary>Host-owned bounded tuning. Linear falloff reaches zero at the edge.</summary>
 public sealed record ItemConfiguration
 {
+    /// <summary>Guided EMP projectile parameters.</summary>
+    public EmpClawConfiguration EmpClaw { get; init; } = new();
+    /// <summary>Complete EMP presentation deployment (seconds).</summary>
+    public float EmpClawDeploySeconds { get; init; } = 1.2f;
+    /// <summary>Complete EMP presentation return (seconds).</summary>
+    public float EmpClawStowSeconds { get; init; } = .82f;
+    /// <summary>Accepted presentation-shot spacing; default three shots within 1.67 seconds.</summary>
+    public int EmpClawIntervalTicks { get; init; } = 50;
     /// <summary>Expanded wall width, captured at deployment (m).</summary>
     public float ShieldWidth { get; init; } = 6.6f;
     /// <summary>Expanded wall height (m).</summary>
@@ -19,11 +27,11 @@ public sealed record ItemConfiguration
     public float ShieldTipSpeed { get; init; } = 20;
     /// <summary>Shared direct-fire aiming rules.</summary>
     public WeaponAimConfiguration Aim { get; init; } = new();
-    /// <summary>Individually fired shots per pickup.</summary>
+    /// <summary>Fixed physical five-round magazine.</summary>
     public int SalvoCount { get; init; } = 5;
-    /// <summary>Minimum interval between presses accepted as shots, at 60 Hz.</summary>
-    public int SalvoIntervalTicks { get; init; } = 30;
-    /// <summary>Fixed forward range (m).</summary>
+    /// <summary>Automatic launch interval at 60 Hz; default 1.25 seconds.</summary>
+    public int SalvoIntervalTicks { get; init; } = 75;
+    /// <summary>Maximum camera aim range (m).</summary>
     public float SalvoRange { get; init; } = 65;
     /// <summary>Height above vehicle (m).</summary>
     public float SalvoLaunchHeight { get; init; } = 3;
@@ -32,7 +40,7 @@ public sealed record ItemConfiguration
     /// <summary>Mean flight speed (m/s).</summary>
     public float SalvoSpeed { get; init; } = 150;
     /// <summary>Blast radius (m).</summary>
-    public float SalvoBlastRadius { get; init; } = 10;
+    public float SalvoBlastRadius { get; init; } = .9144f;
     /// <summary>Maximum damage per round.</summary>
     public float SalvoDamage { get; init; } = 250;
     /// <summary>Damage and impulse falloff exponent.</summary>
@@ -85,10 +93,31 @@ public sealed record ItemConfiguration
     /// <summary>Fraction of rocket thrust available without driveable wheel support; zero disables airborne thrust.</summary>
     public float NitroAirborneThrustScale { get; init; } = 1;
 
-    /// <summary>Number of successful vehicle passes before removal, including repeated and owner passes.</summary>
-    public int OilPasses { get; init; } = 2;
     /// <summary>Maximum lifetime of new patches in seconds at the authoritative 60 Hz clock.</summary>
     public float OilLifetimeSeconds { get; init; } = 30;
+
+    /// <summary>Oil FireSeconds tuning, captured by an activation where applicable.</summary>
+    public float OilFireSeconds { get; init; } = 1f;
+    /// <summary>Oil Speed tuning, captured by an activation where applicable.</summary>
+    public float OilSpeed { get; init; } = 18f;
+    /// <summary>Oil Gravity tuning, captured by an activation where applicable.</summary>
+    public float OilGravity { get; init; } = 9.81f;
+    /// <summary>Oil Radius tuning, captured by an activation where applicable.</summary>
+    public float OilRadius { get; init; } = 1.3f;
+    /// <summary>Oil SpringStiffness tuning, captured by an activation where applicable.</summary>
+    public float OilSpringStiffness { get; init; } = 12f;
+    /// <summary>Oil SpringDamping tuning, captured by an activation where applicable.</summary>
+    public float OilSpringDamping { get; init; } = 1.8f;
+    /// <summary>Oil SpringReaction tuning, captured by an activation where applicable.</summary>
+    public float OilSpringReaction { get; init; } = 0.44f;
+    /// <summary>Captured head recoil velocity at the start of Oil expulsion.</summary>
+    public float OilKickback { get; init; } = 1.6f;
+    /// <summary>Oil Roughness tuning, captured by an activation where applicable.</summary>
+    public float OilRoughness { get; init; } = 0.16f;
+    /// <summary>Cosmetic liquid diameter at the mouth in metres; does not add projectiles.</summary>
+    public float OilStreamWidth { get; init; } = .24f;
+    /// <summary>Bounded fixed-step parcel emission cadence.</summary>
+    public float OilIntervalTicks { get; init; } = 1.5f;
 
     /// <summary>HP restored to a living vehicle.</summary>
     public float WrenchHeal { get; init; } = 500;
@@ -116,6 +145,9 @@ public sealed record ItemConfiguration
     /// <summary>Rejects nonfinite or excessive host configuration before simulation.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(EmpClawDeploySeconds) || EmpClawDeploySeconds is < .8f or > 4 ||
+            !float.IsFinite(EmpClawStowSeconds) || EmpClawStowSeconds is < .5f or > 3 || EmpClawIntervalTicks is < 15 or > 60)
+        { throw new ArgumentException("Invalid EMP Claw presentation timing."); }
         if (!float.IsFinite(ShieldWidth) || ShieldWidth is < 3 or > 12 ||
             !float.IsFinite(ShieldHeight) || ShieldHeight is < 2 or > 6 ||
             !float.IsFinite(ShieldDepth) || ShieldDepth is < 0.3f or > 2 ||
@@ -130,17 +162,19 @@ public sealed record ItemConfiguration
             !float.IsFinite(MissileStowSeconds) || MissileStowSeconds is < .5f or > 3)
         { throw new ArgumentException("Invalid Missile deployment timing."); }
         ArgumentNullException.ThrowIfNull(MissileTerrain);
+        ArgumentNullException.ThrowIfNull(EmpClaw);
+        EmpClaw.Validate();
         MissileTerrain.Validate();
         if (!float.IsFinite(MissileLifetimeSeconds) || MissileLifetimeSeconds is < 0.05f or > 60 ||
             !float.IsFinite(MissileWorldLimit) || MissileWorldLimit is < 256 or > 16384)
         { throw new ArgumentException("Invalid Missile cleanup bounds."); }
-        if (!double.IsFinite(SalvoCount) || SalvoCount < 1 || SalvoCount > 16) { throw new ArgumentException("Invalid salvo count."); }
-        if (!double.IsFinite(SalvoIntervalTicks) || SalvoIntervalTicks < 1 || SalvoIntervalTicks > 60) { throw new ArgumentException("Invalid salvo interval_ticks."); }
+        if (SalvoCount != ItemSlot.SalvoMagazineSize) { throw new ArgumentException("Salvo magazines contain exactly five rounds."); }
+        if (SalvoIntervalTicks < 30 || SalvoIntervalTicks > 180) { throw new ArgumentException("Salvo interval must allow a complete reload (30–180 ticks)."); }
         if (!double.IsFinite(SalvoRange) || SalvoRange < 25 || SalvoRange > 250) { throw new ArgumentException("Invalid salvo range."); }
         if (!double.IsFinite(SalvoLaunchHeight) || SalvoLaunchHeight < 1 || SalvoLaunchHeight > 10) { throw new ArgumentException("Invalid salvo launch_height."); }
         if (!double.IsFinite(SalvoArcHeight) || SalvoArcHeight < 1 || SalvoArcHeight > 60) { throw new ArgumentException("Invalid salvo arc_height."); }
         if (!double.IsFinite(SalvoSpeed) || SalvoSpeed < 20 || SalvoSpeed > 200) { throw new ArgumentException("Invalid salvo speed."); }
-        if (!double.IsFinite(SalvoBlastRadius) || SalvoBlastRadius < 1 || SalvoBlastRadius > 30) { throw new ArgumentException("Invalid salvo blast_radius."); }
+        if (!double.IsFinite(SalvoBlastRadius) || SalvoBlastRadius < .1f || SalvoBlastRadius > 30) { throw new ArgumentException("Invalid salvo blast_radius."); }
         if (!double.IsFinite(SalvoDamage) || SalvoDamage < 0 || SalvoDamage > 1000) { throw new ArgumentException("Invalid salvo damage."); }
         if (!double.IsFinite(SalvoFalloff) || SalvoFalloff < 0.25 || SalvoFalloff > 4) { throw new ArgumentException("Invalid salvo falloff."); }
         if (!double.IsFinite(SalvoImpulse) || SalvoImpulse < 0 || SalvoImpulse > 50000) { throw new ArgumentException("Invalid salvo impulse."); }
@@ -164,7 +198,18 @@ public sealed record ItemConfiguration
         { throw new ArgumentException("Invalid Proxy Mine tuning."); }
         new Vehicles.NitroState(1, NitroForwardThrust, NitroSpeedMultiplier, NitroAirborneThrustScale).Validate();
         if (!double.IsFinite(NitroConsumptionPerSecond) || NitroConsumptionPerSecond is < 2 or > 6000) { throw new ArgumentException("Nitro consumption must be 2–6000 percentage points per second."); }
-        if (OilPasses is < 1 or > 7 || !float.IsFinite(OilLifetimeSeconds) || OilLifetimeSeconds is < 1 or > 600 ||
+        if (!float.IsFinite(OilFireSeconds) || OilFireSeconds is < .5f or > 4 || !float.IsFinite(OilIntervalTicks) || OilIntervalTicks is < 1 or > 30 ||
+            MathF.Ceiling(MathF.Ceiling(OilFireSeconds * 60) / OilIntervalTicks) > 48 ||
+            !float.IsFinite(OilSpeed) || OilSpeed is < 1 or > 30 || !float.IsFinite(OilGravity) || OilGravity is < 1 or > 40 ||
+            !float.IsFinite(OilRadius) || OilRadius is < .1f or > 1.5f ||
+            !float.IsFinite(OilSpringStiffness) || OilSpringStiffness is < 5 or > 100 ||
+            !float.IsFinite(OilSpringDamping) || OilSpringDamping is < 1 or > 20 ||
+            !float.IsFinite(OilSpringReaction) || OilSpringReaction is < 0 or > .5f ||
+            !float.IsFinite(OilKickback) || OilKickback is < 0 or > 3 ||
+            !float.IsFinite(OilStreamWidth) || OilStreamWidth is < .08f or > .8f ||
+            !float.IsFinite(OilRoughness) || OilRoughness is < .05f or > .6f)
+        { throw new ArgumentException("Invalid Oil physics/presentation tuning."); }
+        if (!float.IsFinite(OilLifetimeSeconds) || OilLifetimeSeconds is < 1 or > 600 ||
             !float.IsFinite(WrenchHeal) || WrenchHeal < 0 || WrenchHeal > 10000 ||
             !float.IsFinite(MissileSpeed) || MissileSpeed <= 0 || MissileSpeed > 300 ||
             MissileLifetimeTicks is < 1 or > 3600 || !float.IsFinite(ExplosionRadius) || ExplosionRadius <= 0 || ExplosionRadius > 100 ||

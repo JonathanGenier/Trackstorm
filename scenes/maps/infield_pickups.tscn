@@ -4,21 +4,29 @@
 
 [node name="item-infield-01-trail" type="Marker3D" parent="."]
 position = Vector3(-70, 0.439, 51)
+rotation = Vector3(0, -1.44681576, 0)
 
 [node name="item-infield-02-north" type="Marker3D" parent="."]
 position = Vector3(70, 0.812, -56)
+rotation = Vector3(0, -1.47849962, 0)
 
 [node name="item-infield-03-tunnel" type="Marker3D" parent="."]
 position = Vector3(0, 0, 0)
+rotation = Vector3(0, 3.14159265, 0)
 
 [node name="item-infield-04-water" type="Marker3D" parent="."]
 position = Vector3(77, 0.101, -43)
+rotation = Vector3(0, -1.57079633, 0)
 
 [node name="item-infield-05-jump" type="Marker3D" parent="."]
 position = Vector3(-74, 10.65, 0)
+rotation = Vector3(0, -1.57079633, 0)
+metadata/pickup_floating = true
 
 [node name="item-infield-06-turn" type="Marker3D" parent="."]
 position = Vector3(-155, 0, 15)
+rotation = Vector3(0, -2.5662185, 0)
 
 [node name="item-infield-07-berm" type="Marker3D" parent="."]
 position = Vector3(126, -0.235, 41)
+rotation = Vector3(0, 2.08045624, 0)

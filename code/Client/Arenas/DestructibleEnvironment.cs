@@ -62,8 +62,23 @@ internal sealed class DestructibleEnvironment
             return Diameter(mesh.Mesh.GetAabb().Size * MapPose(mesh, map).Basis.Scale);
         }
         float smallest = rocks.Where(r => r.Name.ToString().StartsWith("BoulderLow_", StringComparison.Ordinal)).Select(Size).DefaultIfEmpty(0.5f).Min();
+        EnvironmentRockBounds Bounds(Node3D rock)
+        {
+            var mesh = rock.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>().First();
+            var pose = MapPose(mesh, map);
+            var aabb = mesh.Mesh.GetAabb();
+            var rotation = pose.Basis.Orthonormalized().GetRotationQuaternion();
+            return new(VehicleBody.ToCore(pose * aabb.GetCenter()), VehicleBody.ToCore(aabb.Size * pose.Basis.Scale.Abs()),
+                new System.Numerics.Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W));
+        }
+        var debris = Networking.MatchResourceLoader.LoadResource<PackedScene>("res://assets/environment/models/BoulderLow.glb").Instantiate<Node3D>();
+        var debrisBox = debris.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>().First().Mesh.GetAabb();
+        float diameter = Diameter(debrisBox.Size);
+        var debrisBounds = new EnvironmentRockBounds(VehicleBody.ToCore(debrisBox.GetCenter() / diameter),
+            VehicleBody.ToCore(debrisBox.Size / diameter), System.Numerics.Quaternion.Identity);
+        debris.Free();
         return new(rocks.Select(r => VehicleBody.ToCore(MapPose(r, map).Origin)), Plants(map).Select(p => VehicleBody.ToCore((MapPose(p.Batch, map) * p.Pose).Origin)),
-            rocks.Select(r => Math.Max(smallest, Size(r))), smallest);
+            rocks.Select(r => Math.Max(smallest, Size(r))), smallest, rocks.Select(Bounds), debrisBounds, rocks.Select(r => r.Rotation.Y));
     }
 
     private static float Diameter(Vector3 size) => MathF.Cbrt(Math.Abs(size.X * size.Y * size.Z));

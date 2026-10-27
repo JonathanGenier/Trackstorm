@@ -5,7 +5,7 @@ public sealed class OilFootprint : IEquatable<OilFootprint>
 {
     /// <summary>Bounded footprint complexity, excluding the primary patch.</summary>
     public const int MaximumSegments = 63;
-    /// <summary>The current single-puddle weapon needs no additional pieces.</summary>
+    /// <summary>No additional deposited geometry yet.</summary>
     public static OilFootprint Empty { get; } = new([]);
 
     /// <summary>Copies and validates geometry so a published hazard cannot mutate externally.</summary>
@@ -18,7 +18,7 @@ public sealed class OilFootprint : IEquatable<OilFootprint>
         Segments = Array.AsReadOnly(copy);
     }
 
-    /// <summary>Pieces sharing the owning patch's identity, quota, owner and deadline.</summary>
+    /// <summary>Pieces sharing the owning patch's identity, owner and deadline.</summary>
     public IReadOnlyList<OilSegment> Segments { get; }
     public bool Equals(OilFootprint? other) => other is not null && Segments.SequenceEqual(other.Segments);
     public override bool Equals(object? obj) => obj is OilFootprint other && Equals(other);

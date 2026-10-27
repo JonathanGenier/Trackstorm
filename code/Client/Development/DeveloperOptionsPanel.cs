@@ -102,6 +102,17 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
                     AutowrapMode = TextServer.AutowrapMode.WordSmart,
                 });
             }
+            if (group.Key.StartsWith("EMP Claw", StringComparison.Ordinal))
+            {
+                string guidance = group.Key switch
+                {
+                    "EMP Claw presentation" => "Three total rounds per pickup. Reload timing changes future shots; empty launchers retract and require another pickup.",
+                    "EMP Claw flight" => "A captured target stays locked to that life. New shots capture lifetime; speed and guidance edits affect live flight.",
+                    "EMP Claw effect and counterplay" => "Each claw keeps its own deadline. Suppression never stacks. Nose hits pop only that claw or stored round, with no pop damage. Radius changes apply live.",
+                    _ => "Host-validated terrain guidance for EMP flight only.",
+                };
+                section.Body.AddChild(new Label { Text = guidance, AutowrapMode = TextServer.AutowrapMode.WordSmart });
+            }
             var rows = ConfigurationRows(section.Body);
             var entries = new List<(Label Label, Control Editor, string Search)>();
             _sections.Add((section, entries));
@@ -191,6 +202,10 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         }
 
         AddMissileVfxControls(settings);
+        AddSalvoExplosionControls(settings);
+        AddEmpClawControls(settings);
+        AddCrateSmashControls(settings);
+        AddWrenchControls(settings);
         _resetButton = Button(Footer, "Reset to Defaults", Reset);
         DevToolsButtonPresentation.Configure(_resetButton, "reset", DevToolsButtonPresentation.Treatment.Reset);
         Footer.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
@@ -435,6 +450,9 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     private void Reset()
     {
         ResetMissileVfx();
+        ResetSalvoExplosion();
+        ResetCrateSmash();
+        ResetWrench();
         if (LocalSettings is not null) { RenderTireValues(TireEffectSettings.Defaults); UpdateFeedback(); }
         if (Session()?.CanConfigureDeveloperOptions != true)
         {

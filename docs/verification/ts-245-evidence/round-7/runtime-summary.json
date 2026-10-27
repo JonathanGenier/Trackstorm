@@ -1,0 +1,42 @@
+{
+  "fixture": "Godot 4.7.2 Compatibility GTX 1070, 1280x720, four local UDP scenes, 30ms delay/5ms jitter/2% loss",
+  "limitations": "Process intervals with forced rendering, not GPU timings or a controlled benchmark. User applications left running.",
+  "repeated_use": {
+    "samples": 386,
+    "median_render_interval_ms": 29.4165,
+    "p95_render_interval_ms": 72.143,
+    "max_render_interval_ms": 118.232,
+    "peak_hazards": 6,
+    "peak_nodes": 6601,
+    "peak_resources": 592,
+    "peak_static_memory_bytes": 192420265
+  },
+  "final_cleanup": {
+    "stage": 8,
+    "frame": 9830,
+    "tick": 9830,
+    "hazards": 0,
+    "headOffset": null,
+    "emitted": null,
+    "flight": null,
+    "deposited": null,
+    "segments": null,
+    "renderedHead": null,
+    "mouthOpening": null,
+    "meterLevel": null,
+    "hoseError": null,
+    "extension": null,
+    "residues": 0,
+    "forcedRepeatRender": false,
+    "renderMs": 16.666,
+    "grounded": true,
+    "nodes": 6307,
+    "resources": 552,
+    "memory": 180409918,
+    "drawCalls": 552,
+    "rack": 0,
+    "presented": "None"
+  },
+  "peak_flight": 40,
+  "peak_additional_segments": 59
+}
