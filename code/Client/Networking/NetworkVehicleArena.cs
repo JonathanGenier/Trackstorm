@@ -115,6 +115,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _items.EmpAttachments.AcceptedTick = () => _driver.Latest?.Tick ?? 0;
         _driver.Resynchronized += _ => _items.EmpAttachments.Restore();
         _driver.Resynchronized += _ => _items.MachineGunFire.Clear();
+        _driver.Resynchronized += _ => _items.MachineGunImpacts.Clear();
         AddChild(_items);
         AddChild(Walls);
         Walls.MountedPose = owner => _bodies.TryGetValue(owner, out var body)

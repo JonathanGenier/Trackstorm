@@ -14,6 +14,9 @@ function Assert-True {
 . "$PSScriptRoot/fast-check-routes.ps1"
 
 # Route-selection regression coverage.
+foreach ($path in @('code/Client/Items/MachineGunImpactPresentation.cs', 'assets/items/machine-gun/BulletImpact.gdshader', 'scenes/verification/machine_gun_impact_checks.tscn')) {
+    Assert-True ((Get-FastCheckPlan -Paths @($path)).RuntimeScripts -contains 'check-machine-gun-impact.ps1') 'Bullet impact changes retain rendered surface, lifecycle and multi-shooter verification.'
+}
 foreach ($path in @('assets/items/carnival-crate/CarnivalCrate.glb', 'code/Client/Items/CarnivalPickupAura.cs', 'code/Client/Items/ItemSpawnPresentation.cs', 'code/Client/Items/PickupGroundPose.cs')) {
     $cratePlan = Get-FastCheckPlan -Paths @($path)
     Assert-True ($cratePlan.RuntimeScripts -contains 'check-carnival-pickup.ps1') 'Crate changes require intact presentation verification.'

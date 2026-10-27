@@ -131,6 +131,8 @@ public sealed partial class WeaponAimChecks
         Require(rays == released, "Release stops actual firing on both peers");
         Require(_arenas.All(arena => arena.GetChildren().OfType<Items.ItemPresentation>().Single().MachineGunFire.ActiveCount == 0),
             "Native release drains every peer's travelling bullet pool");
+        Require(_arenas.All(arena => arena.GetChildren().OfType<Items.ItemPresentation>().Single().MachineGunImpacts is { MetalCount: > 0, ActiveCount: 0 }),
+            "Native confirmed vehicle impacts receive metal treatment on all three peers and fully drain after release");
 
         // Keep held use active but stop submitting camera aim. Test stale aim independently of release.
         _arenas[1].Driver.RequestItemUse(); _firingPeers.Add(Shooter); await Frames(15);
