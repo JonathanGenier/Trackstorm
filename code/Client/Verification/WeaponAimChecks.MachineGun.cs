@@ -59,10 +59,17 @@ public sealed partial class WeaponAimChecks
             GD.Print($"MG_TARGET_LOADOUT {scenario.Name}: active={host.Items.Slots.FirstOrDefault(slot => slot.Vehicle == 1)?.Active.Item}; attached shields={host.Items.Shields.Count(shield => shield.Owner == 1 && shield.Attached)}");
             host.Items.RemovePlayer(1);
             int before = rays, beforeHits = hits;
+            var fireCounts = _arenas.Select(arena => arena.GetChildren().OfType<Items.ItemPresentation>().Single().MachineGunFire.EmittedCount).ToArray();
             float hp = host.World.GetVehicle(1).Damage.CurrentHP;
             Require(_arenas[1].Driver.RequestItemUse(), "Camera shooter submits ordinary held-use request");
             _firingPeers.Add(Shooter);
             await Frames(20);
+            for (int peer = 0; peer < _arenas.Count; peer++)
+            {
+                var fire = _arenas[peer].GetChildren().OfType<Items.ItemPresentation>().Single().MachineGunFire;
+                Require(fire.EmittedCount > fireCounts[peer] && fire.ActiveCount <= Items.MachineGunFirePresentation.Capacity,
+                    $"{scenario.Name}: confirmed travelling fire reaches peer {peer} within fixed pool");
+            }
             await Capture("mg-" + scenario.Name);
             _firingPeers.Clear(); await Frames(40);
             GD.Print($"MG_DAMAGE {scenario.Name}: hp={hp}->{host.World.GetVehicle(1).Damage.CurrentHP} damage={host.Items.Configuration.MachineGunDamage} range={host.Items.Configuration.MachineGunRange} shields={host.Items.Shields.Count} phase={host.World.State.Match?.Phase}");
@@ -118,6 +125,8 @@ public sealed partial class WeaponAimChecks
         Require(actual.SequenceEqual(remote), $"Observer receives identical ordered firing endpoints/tracers ({actual.Count} rounds)");
         int released = rays; await Frames(40);
         Require(rays == released, "Release stops actual firing on both peers");
+        Require(_arenas.All(arena => arena.GetChildren().OfType<Items.ItemPresentation>().Single().MachineGunFire.ActiveCount == 0),
+            "Native release drains every peer's travelling bullet pool");
 
         // Keep held use active but stop submitting camera aim. Test stale aim independently of release.
         _arenas[1].Driver.RequestItemUse(); _firingPeers.Add(Shooter); await Frames(15);

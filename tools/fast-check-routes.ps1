@@ -341,6 +341,7 @@ function Get-FastCheckPlan {
         if ($path -match '(?i)Shield|ItemAuthority|NetworkVehicleBody|NetworkVehicleArena') { Add-Runtime 'check-rear-shield.ps1' }
         if ($path -match '(?i)MachineGun|machine_gun|machine-gun|TwinFang|twin_fang|check-machine-gun') { Add-Runtime 'check-machine-gun.ps1' }
         if ($path -match '(?i)TwinFang|twin_fang|machine-gun|check-twin-fang') { Add-Runtime 'check-twin-fang.ps1' }
+        if ($path -match '(?i)MachineGunFire|MachineGunFiringSequence|MachineGunVfx|machine_gun_vfx|BulletStreak|check-machine-gun-vfx|TwinFang|ItemPresentation') { Add-Runtime 'check-machine-gun-vfx.ps1' }
 
         if ($path -match '(?i)ProxyMine|proxy-mine|check-mine|mine_checks') { Add-Runtime 'check-mine.ps1' }
 

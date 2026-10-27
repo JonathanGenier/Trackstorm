@@ -148,6 +148,14 @@ public sealed partial class WeaponAimChecks : Node
                 GetTree().Quit(); return;
             }
             await CheckMachineGunFire();
+            if (OS.GetCmdlineUserArgs().Contains("--aim-machine-gun"))
+            {
+                System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "machine-gun-evidence.txt"), _evidence);
+                GD.Print($"Weapon aiming integration passed: {_evidence.Count} Machine Gun checks.");
+                foreach (var arena in _arenas) { arena.QueueFree(); }
+                for (int i = 0; i < 4; i++) { await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); }
+                GetTree().Quit(); return;
+            }
             await CheckAimFreedom();
             Position(new(0, Ground, 35), new(0, Ground, 0), new(6, Ground, 0));
             host.Items.Grant(host.World, Shooter, HeldItem.MachineGun);

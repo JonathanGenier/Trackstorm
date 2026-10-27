@@ -34,7 +34,19 @@ blocked/unready aim, replacement and lifecycle teardown stop emission and feed.
 Smoke reuses the existing licensed Kenney smoke texture. Worn-metal and muzzle
 shaders are original project work.
 
+`BulletStreak.gdshader` is an original procedural project shader with no external
+textures or dependencies. One arena-owned MultiMesh draws travelling dim bullet
+streaks and the existing selected brighter tracers. Each begins at the alternating
+rendered barrel socket and keeps the authoritative hit endpoint. Magazine consumption
+supplies barrel parity for both the rig and flight presentation. The shared central
+ray continues to own collision, spread and damage; barrel sockets are cosmetic.
+
 `check-twin-fang.ps1` renders imported production poses and checks feed/release
 behavior. `check-weapon-aim.ps1` and `check-machine-gun.ps1` cover actual authority
 and UDP peers. The dedicated visual fixture is scripted presentation evidence,
 not proof of network firing or exhaustive mesh clearance.
+
+`check-machine-gun-vfx.ps1 -Motion` checks exact barrel origins, endpoint clipping,
+bounded flight and eight scripted shooters, with rendered 30/60 FPS captures.
+`check-weapon-aim.ps1 -MachineGun -Visual -Impaired` runs the Machine Gun portion
+of the existing three-peer native aiming fixture, including production pool delivery.

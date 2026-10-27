@@ -37,6 +37,10 @@ internal sealed partial class CarRackPresentation : Node
         _previous?.SelectionRevision == inventory.SelectionRevision && _previous.Active.Token == inventory.Active.Token &&
         _previous.Life == inventory.Life;
     internal Items.ShieldRack? ShieldCarrier => _payload as Items.ShieldRack;
+    internal Vector3? MachineGunMuzzle(ItemEvent shot, int side) =>
+        _previous?.Active.Token == shot.Token && !_replace && _mechanism.Progress >= .999f &&
+        _payload is Items.WeaponAimMount { Visible: true, TwinFang: { } fang }
+            ? fang.Muzzle(side) : null;
     internal bool IsWrenchReady(ItemSlot inventory) => _desired == HeldItem.Wrench && !_replace && !_usePending &&
         Progress >= .999f && _payload is Items.WrenchArm { IsReady: true } &&
         _previous?.SelectionRevision == inventory.SelectionRevision && _previous.Active.Token == inventory.Active.Token &&

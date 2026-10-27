@@ -22,7 +22,7 @@ internal sealed partial class TwinFangVisual : Node3D
     private readonly float[] _phase = new float[2];
     private readonly float[] _feed = new float[2];
     private ulong _lastTick;
-    private int _ordinal;
+    private readonly MachineGunFiringSequence _sequence = new();
     private float _heat;
     private float _shotAge = 10;
 
@@ -87,15 +87,22 @@ internal sealed partial class TwinFangVisual : Node3D
     internal bool FlashVisible => _flashes.Any(flash => flash.Visible);
     internal float Pitch => _pitch.Rotation.X;
 
+    internal Vector3 Muzzle(int side) => _guns[side].GlobalTransform * new Vector3(
+        side == 0 ? -.28896f : .28896f, 0, -WeaponAim.MachineGunMuzzleDistance);
+
     internal void Observe(ItemSlot? inventory, IEnumerable<ItemEvent> events, ulong tick)
     {
-        if (inventory?.Active.Item != HeldItem.MachineGun || inventory.EngagedToken != inventory.Active.Token)
+        if (inventory is null)
         { Stop(); return; }
         if (tick <= _lastTick) { return; }
         _lastTick = tick;
-        foreach (var shot in events.Where(shot => shot.Item == HeldItem.MachineGun && shot.Token == inventory.Active.Token))
+        var shots = events.Where(shot => shot.Item == HeldItem.MachineGun && shot.Token == inventory.Active.Token).ToArray();
+        if (shots.Length == 0 && (inventory.Active.Item != HeldItem.MachineGun || inventory.EngagedToken != inventory.Active.Token))
+        { Stop(); return; }
+        int round = _sequence.Observe(inventory, inventory.Active.Token, shots.Length);
+        foreach (var shot in shots)
         {
-            int side = _ordinal++ % 2;
+            int side = round++ % 2;
             _pulse[side] = 1;
             _feed[side] = Math.Min(4, _feed[side] + 1);
             _heat = Math.Min(1, _heat + .018f);
