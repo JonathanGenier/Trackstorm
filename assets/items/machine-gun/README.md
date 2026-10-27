@@ -50,3 +50,11 @@ not proof of network firing or exhaustive mesh clearance.
 bounded flight and eight scripted shooters, with rendered 30/60 FPS captures.
 `check-weapon-aim.ps1 -MachineGun -Visual -Impaired` runs the Machine Gun portion
 of the existing three-peer native aiming fixture, including production pool delivery.
+
+`BulletImpact.gdshader` is original procedural project work with no external
+textures or dependencies. A separate fixed arena MultiMesh draws angular chips,
+soft neutral dust and fine sparks at confirmed contacts, with local material
+interpretation and bounded lifetime. It introduces no fire or explosion effect.
+`check-machine-gun-impact.ps1` renders the surface variants and sustained load;
+[impact presentation](../../../docs/features/items-machine-gun.md#impact-presentation)
+documents pool bounds and the local-probe limitation.

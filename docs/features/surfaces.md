@@ -55,6 +55,8 @@ vertex/triangle hashes before and after authoring.
 
 ## Developer diagnostics and verification
 
+[Machine Gun impacts](items-machine-gun.md#impact-presentation) reuse the resolver at confirmed contact positions for local chip/dust treatment. This cosmetic probe neither changes surface identity nor adds replicated material or damage state; unavailable local geometry uses neutral debris.
+
 [Stats](statistics.md) includes **Local surface / material** in Global/Session,
 showing the current native observation independently of the selected player.
 It is local, read-only and not replicated or authoritative. Client prediction

@@ -162,9 +162,11 @@ public sealed partial class MachineGunIntegrationChecks : Node
                         _nearHitRate = _hits / (double)_shots;
                         foreach (var arena in _arenas)
                         {
-                            int impacts = arena.FindChildren("BulletImpactSparks", "GPUParticles3D", true, false).Count;
-                            Check(impacts > 0 && impacts <= 128, "bounded hit particles on both peers");
-                            GD.Print($"Native impact feedback: {impacts} live spark emitters on peer {arena.Driver.LocalVehicleId}.");
+                            var impacts = arena.GetChildren().OfType<Items.ItemPresentation>().Single().MachineGunImpacts;
+                            Check(impacts.ActiveCount > 0 && impacts.ActiveCount <= Items.MachineGunImpactPresentation.PerShooterCapacity &&
+                                impacts.MetalCount > 0 && impacts.Multimesh.VisibleInstanceCount > 0,
+                                "bounded visible metallic hit fragments on both peers");
+                            GD.Print($"Native impact feedback: {impacts.ActiveCount} live bursts / {impacts.Multimesh.VisibleInstanceCount} particles on peer {arena.Driver.LocalVehicleId}.");
                         }
                     }
                     if (_scenario == 1) { Check(loss > 0 && loss < _nearLoss * 0.5f, $"native falloff {loss}"); Check(_hits / (double)_shots < _nearHitRate * 0.8, "far hit reliability below close range"); }
@@ -178,6 +180,8 @@ public sealed partial class MachineGunIntegrationChecks : Node
                     Next("Released input and allowed delayed commands to settle.");
                     break;
                 case 5 when _frames - _boundary > 60:
+                    Check(_arenas.All(arena => arena.GetChildren().OfType<Items.ItemPresentation>().Single().MachineGunImpacts.ActiveCount == 0),
+                        "release drains both peers' impact pools");
                     Check(host.Items.Slots.Single(s => s.Vehicle == shooterId).Ammo!.Remaining == _remaining, "release preserves exact rounds");
                     Check(_arenas[1].Driver.ItemState!.Slots.Single(s => s.Vehicle == shooterId).Ammo!.Remaining == _remaining, "remote ammo converges");
                     Check(host.Items.Slots.Single(s => s.Vehicle == shooterId).SecondItem == HeldItem.Wrench, "second slot isolated");

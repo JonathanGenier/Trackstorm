@@ -9,10 +9,12 @@ internal sealed partial class ItemPresentation : Node3D
 {
     internal EmpClawAttachments EmpAttachments { get; } = new();
     internal MachineGunFirePresentation MachineGunFire { get; } = new();
+    internal MachineGunImpactPresentation MachineGunImpacts { get; } = new();
     public override void _Ready()
     {
         AddChild(EmpAttachments);
         AddChild(MachineGunFire);
+        AddChild(MachineGunImpacts);
     }
     private SalvoSmokeTrail? _salvoSmoke;
 
@@ -107,6 +109,7 @@ internal sealed partial class ItemPresentation : Node3D
     {
         EmpAttachments.Observe(state);
         MachineGunFire.Observe(state);
+        MachineGunImpacts.Observe(state);
         foreach (ulong id in _mines.Keys.Except(state.Mines.Where(mine => !mine.IsPlacing).Select(mine => mine.Id)).ToArray())
         {
             _mines[id].QueueFree();
@@ -248,7 +251,6 @@ internal sealed partial class ItemPresentation : Node3D
             }
             if (outcome.Item == HeldItem.MachineGun)
             {
-                if (outcome.Impact) { BulletImpact(outcome); }
                 continue;
             }
             // Repair sparks belong to the moving drill contact, not the vehicle's world origin.
@@ -324,33 +326,6 @@ internal sealed partial class ItemPresentation : Node3D
             node.Position = VehicleBody.ToGodot(missile.Position);
             node.Quaternion = new Quaternion(Vector3.Forward, VehicleBody.ToGodot(missile.Velocity).Normalized());
         }
-    }
-
-    private void BulletImpact(ItemEvent outcome)
-    {
-        if (_bursts.Count >= 128) { return; }
-        Vector3 incoming = VehicleBody.ToGodot(outcome.Position - outcome.Origin).Normalized();
-        var root = new Node3D { Position = VehicleBody.ToGodot(outcome.Position) - incoming * 0.025f };
-        AddChild(root);
-        var sparks = Particles("spark_01", true, 0.22f);
-        sparks.Name = "BulletImpactSparks";
-        sparks.Amount = 6;
-        // The publication has a hit point, not a surface normal: scatter back along the incoming ray.
-        var process = (ParticleProcessMaterial)sparks.ProcessMaterial;
-        process.Direction = -incoming;
-        process.Spread = 65;
-        process.InitialVelocityMin = 1.5f;
-        process.InitialVelocityMax = 4;
-        process.Gravity = new Vector3(0, -8, 0);
-        process.ScaleMin = 0.04f;
-        process.ScaleMax = 0.11f;
-        process.ColorRamp = new GradientTexture1D { Gradient = new Gradient
-        {
-            Colors = new[] { new Color(1, 1, 0.8f, 1), new Color(1, 0.6f, 0.15f, 0.9f), new Color(1, 0.25f, 0.02f, 0) },
-            Offsets = new[] { 0f, 0.35f, 1f },
-        } };
-        root.AddChild(sparks);
-        _bursts.Add((root, 0, 0.3f));
     }
 
 }
