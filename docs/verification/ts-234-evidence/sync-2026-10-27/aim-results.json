@@ -1,0 +1,6 @@
+{
+  "Check": "weapon-aim -Visual -Impaired",
+  "Status": "FAIL",
+  "Seconds": 357.58,
+  "Error": "Weapon aiming checks failed: C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\aim-checks\\b9b16f1307ce495f8fa55d11efd04200"
+}
