@@ -110,6 +110,12 @@ internal sealed partial class EmpClawCounterplayTests
             Assert.That(load.RoundMask & (1 << i), Is.Zero);
             Assert.That(load.ShotsFired, Is.Zero);
             Assert.That(_host.Items.Events.Count(e => e.EmpPop), Is.EqualTo(1));
+            var bullet = _host.Items.Events.Single(e => e.Item == HeldItem.MachineGun);
+            Vector3 pivot = Pose(1).Position + WeaponAim.Pivot;
+            Vector3 direction = Vector3.Normalize(bullet.Position - pivot);
+            Assert.That(Vector3.Distance(bullet.Origin, pivot + direction * Math.Min(
+                WeaponAim.MachineGunMuzzleDistance, Vector3.Distance(pivot, bullet.Position))), Is.LessThan(.0001),
+                "Popping an EMP nose retains Twin Fang's clamped presentation muzzle on the pivot-based collision ray.");
             Assert.That(_host.Items.Missiles, Is.Empty);
             Assert.That(_host.World.GetVehicle(2).Damage.CurrentHP, Is.EqualTo(100));
         }

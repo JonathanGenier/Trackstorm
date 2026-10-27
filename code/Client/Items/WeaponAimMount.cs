@@ -7,9 +7,17 @@ namespace Trackstorm.Client.Items;
 internal sealed partial class WeaponAimMount : Node3D
 {
     private readonly Node3D _pitch = new() { Name = "WeaponPitch" };
+    internal TwinFangVisual? TwinFang { get; }
     internal WeaponAimMount(HeldItem item)
     {
         Name = "WeaponYaw";
+        if (item == HeldItem.MachineGun)
+        {
+            AddChild(_pitch);
+            TwinFang = new TwinFangVisual();
+            AddChild(TwinFang);
+            return;
+        }
         AddChild(new MeshInstance3D { Name = "YawPedestal", Position = new(0, -.2f, 0),
             Mesh = new CylinderMesh { Height = .4f, TopRadius = .16f, BottomRadius = .23f },
             MaterialOverride = new StandardMaterial3D { AlbedoColor = new(.23f, .25f, .27f), Metallic = .8f, Roughness = .55f } });
@@ -22,5 +30,6 @@ internal sealed partial class WeaponAimMount : Node3D
         float blend = aim is null ? 1 : 1 - MathF.Exp(-30 * Math.Max(0, delta));
         Rotation = new(0, Mathf.LerpAngle(Rotation.Y, aim?.Yaw ?? 0, blend), 0);
         _pitch.Rotation = new(Mathf.LerpAngle(_pitch.Rotation.X, aim?.Pitch ?? 0, blend), 0, 0);
+        TwinFang?.Present(_pitch.Rotation.X, Math.Max(0, delta), aim?.Ready == true);
     }
 }

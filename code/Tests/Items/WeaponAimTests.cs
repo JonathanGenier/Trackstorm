@@ -275,7 +275,7 @@ internal sealed class WeaponAimTests
         var pose = new VehiclePhysicsState(new Vector3(40, 8, 10), Quaternion.CreateFromAxisAngle(Vector3.UnitY, 1), Vector3.Zero, Vector3.Zero);
         host.Step(default, _ => new VehicleObservation(pose, Vector3.UnitY));
         var accepted = host.Items.Aims.Single();
-        Assert.That(accepted.Origin, Is.EqualTo(pose.Position + Vector3.Transform(WeaponAim.Pivot, pose.Orientation)));
+        Assert.That(accepted.Origin, Is.EqualTo(pose.Position + Vector3.Transform(WeaponAim.Pivot, pose.Orientation) + accepted.Direction * WeaponAim.MachineGunMuzzleDistance));
         Assert.That(host.Items.RequestUse(host.World, 1, slot.Life, slot.Token), Is.True);
         Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["items.machine_gun_fire_rate"] = 60 }, out _), Is.True);
         var firing = new Trackstorm.Core.Input.InputFrame(0, 0, 0, 0, Trackstorm.Core.Input.InputButtons.UseItem, 0, 0);

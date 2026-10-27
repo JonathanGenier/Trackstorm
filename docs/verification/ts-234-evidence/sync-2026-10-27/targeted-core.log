@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\Trackstorm.Core.csproj (in 131 ms).
+C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Trackstorm.Core.Tests.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+  Restored C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Trackstorm.Core.Tests.csproj (in 6.05 sec).
+C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Trackstorm.Core.Tests.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Trackstorm.Core.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll
+Test run for C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    68, Skipped:     0, Total:    68, Duration: 3 s - Trackstorm.Core.Tests.dll (net10.0)

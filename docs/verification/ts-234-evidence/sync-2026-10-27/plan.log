@@ -1,0 +1,81 @@
+Plan only; no verification executed. Area: Auto; changed paths: 142
+  CoreTests
+  TransportTests
+  ClientBuild
+  VersionChecks
+  WorkflowTests
+  runtime:check-car-rack.ps1
+  runtime:check-emp-claw-attachments.ps1
+  runtime:check-emp-claw-counterplay.ps1
+  runtime:check-emp-claw-flight.ps1
+  runtime:check-emp-claw.ps1
+  runtime:check-environment-collisions.ps1
+  runtime:check-items.ps1
+  runtime:check-landing.ps1
+  runtime:check-machine-gun.ps1
+  runtime:check-missile-presentation.ps1
+  runtime:check-missile-terrain.ps1
+  runtime:check-network-vehicles.ps1
+  runtime:check-nitro.ps1
+  runtime:check-oil-handling.ps1
+  runtime:check-oil-jack.ps1
+  runtime:check-oil.ps1
+  runtime:check-rear-shield.ps1
+  runtime:check-terrain-handling.ps1
+  runtime:check-trophy-truck.ps1
+  runtime:check-twin-fang.ps1
+  runtime:check-vehicle.ps1
+  runtime:check-weapon-aim.ps1
+  runtime:check-world-wall.ps1
+  runtime:check-wrench-arm.ps1
+  extended:check-environment-collision-network.ps1
+  manual:Drive all normal surfaces and transitions; restart uphill on infield grades; verify host tuning and client prediction.
+  manual:Drive/playtest the affected vehicle behavior, including multiple cars when collisions or shared physics are material.
+  manual:Exercise multiple peers/cars under representative latency when synchronization, prediction or reconciliation changed.
+  manual:Inspect aiming while driving, close/airborne/crossing targets, mouse and physical controller feel, and impaired remote articulation with check-weapon-aim.ps1 -Visual -Impaired.
+  manual:Inspect EMP cannon deployment, actual attachment faces, three independent noses, electricity while driving/rolling, reduced acceleration and Nitro, and staggered deflation/release in rendered gameplay.
+  manual:Inspect selected rack payloads, two-slot switching, sustained use and remote visibility.
+  manual:Measure actual 200 m grouping with check-weapon-aim.ps1 -Accuracy -Impaired; inspect retention/breakaway with -Sticky -Visual -Impaired and driving/placement freedom with -Freedom -Visual -Impaired -Oval.
+  manual:Observe heavy missile pitch response, banks/ramps, cliff departure, reacquisition and repeated firing under latency with the rendered missile harness.
+  manual:Run check-reconnect.ps1 -EmpClaw for active attachment recovery and offline expiry over impaired UDP.
+  manual:Run check-world-wall.ps1 -ProductionMap -Impaired -Visual for production oval/infield deployment, then inspect upright sliding and yaw after vehicle impacts.
+ClientBuild <- assets/items/machine-gun/Cartridge.glb, assets/items/machine-gun/MuzzleFlash.gdshader, assets/items/machine-gun/README.md, assets/items/machine-gun/reference/.gdignore, assets/items/machine-gun/reference/ApprovedTwinFang.png, assets/items/machine-gun/source/.gdignore, assets/items/machine-gun/source/BuildTwinFang.py, assets/items/machine-gun/source/TwinFang.blend, assets/items/machine-gun/sources.json, assets/items/machine-gun/TwinFang.glb, assets/items/machine-gun/WornMetal.gdshader, code/Client/Items/TwinFangVisual.cs, code/Client/Items/WeaponAimMount.cs, code/Client/Networking/MatchResourceLoader.cs, code/Client/Vehicles/CarRackPresentation.cs, code/Client/Verification/TwinFangChecks.cs, code/Client/Verification/WeaponAimChecks.cs, code/Client/Verification/WeaponAimChecks.MachineGun.cs, code/Core/Items/ItemAuthority.Aiming.cs, code/Core/Items/ItemAuthority.cs, code/Core/Items/WeaponAim.cs, code/Tests/Items/EmpClawCounterplayTests.cs, code/Tests/Items/MachineGunAimTests.cs, code/Tests/Items/WeaponAimTests.cs, Directory.Build.props, scenes/verification/twin_fang_checks.tscn
+runtime:check-machine-gun.ps1 <- assets/items/machine-gun/Cartridge.glb, assets/items/machine-gun/MuzzleFlash.gdshader, assets/items/machine-gun/README.md, assets/items/machine-gun/reference/.gdignore, assets/items/machine-gun/reference/ApprovedTwinFang.png, assets/items/machine-gun/source/.gdignore, assets/items/machine-gun/source/BuildTwinFang.py, assets/items/machine-gun/source/TwinFang.blend, assets/items/machine-gun/sources.json, assets/items/machine-gun/TwinFang.glb, assets/items/machine-gun/WornMetal.gdshader, code/Client/Items/TwinFangVisual.cs, code/Client/Verification/TwinFangChecks.cs, code/Client/Verification/WeaponAimChecks.MachineGun.cs, code/Tests/Items/MachineGunAimTests.cs, docs/verification/ts-234-evidence/bulk-refinement/machine-gun-after-use.png, docs/verification/ts-234-evidence/bulk-refinement/machine-gun-equipped.png, docs/verification/ts-234-evidence/ts234-machine-gun-final.log, scenes/verification/twin_fang_checks.tscn
+runtime:check-twin-fang.ps1 <- assets/items/machine-gun/Cartridge.glb, assets/items/machine-gun/MuzzleFlash.gdshader, assets/items/machine-gun/README.md, assets/items/machine-gun/reference/.gdignore, assets/items/machine-gun/reference/ApprovedTwinFang.png, assets/items/machine-gun/source/.gdignore, assets/items/machine-gun/source/BuildTwinFang.py, assets/items/machine-gun/source/TwinFang.blend, assets/items/machine-gun/sources.json, assets/items/machine-gun/TwinFang.glb, assets/items/machine-gun/WornMetal.gdshader, check-twin-fang.ps1, code/Client/Items/TwinFangVisual.cs, code/Client/Verification/TwinFangChecks.cs, docs/verification/ts-234-evidence/bulk-refinement/machine-gun-after-use.png, docs/verification/ts-234-evidence/bulk-refinement/machine-gun-equipped.png, docs/verification/ts-234-evidence/ts234-machine-gun-final.log, scenes/verification/twin_fang_checks.tscn
+runtime:check-items.ps1 <- code/Client/Items/TwinFangVisual.cs, code/Client/Items/WeaponAimMount.cs, code/Core/Items/ItemAuthority.Aiming.cs, code/Core/Items/ItemAuthority.cs, code/Core/Items/WeaponAim.cs, docs/features/items.md
+runtime:check-nitro.ps1 <- code/Client/Items/TwinFangVisual.cs, code/Client/Items/WeaponAimMount.cs, code/Core/Items/ItemAuthority.Aiming.cs, code/Core/Items/ItemAuthority.cs, code/Core/Items/WeaponAim.cs, docs/features/items.md
+runtime:check-oil-handling.ps1 <- code/Client/Items/TwinFangVisual.cs, code/Client/Items/WeaponAimMount.cs, code/Core/Items/ItemAuthority.Aiming.cs, code/Core/Items/ItemAuthority.cs, code/Core/Items/WeaponAim.cs, docs/features/items.md
+runtime:check-oil-jack.ps1 <- code/Client/Items/TwinFangVisual.cs, code/Client/Items/WeaponAimMount.cs, code/Core/Items/ItemAuthority.Aiming.cs, code/Core/Items/ItemAuthority.cs, code/Core/Items/WeaponAim.cs, docs/features/items.md
+runtime:check-oil.ps1 <- code/Client/Items/TwinFangVisual.cs, code/Client/Items/WeaponAimMount.cs, code/Core/Items/ItemAuthority.Aiming.cs, code/Core/Items/ItemAuthority.cs, code/Core/Items/WeaponAim.cs, docs/features/items.md
+runtime:check-weapon-aim.ps1 <- code/Client/Items/WeaponAimMount.cs, code/Client/Verification/WeaponAimChecks.cs, code/Client/Verification/WeaponAimChecks.MachineGun.cs, code/Core/Items/ItemAuthority.Aiming.cs, code/Core/Items/WeaponAim.cs, code/Tests/Items/WeaponAimTests.cs, docs/features/weapon-aiming.md
+manual:Inspect aiming while driving, close/airborne/crossing targets, mouse and physical controller feel, and impaired remote articulation with check-weapon-aim.ps1 -Visual -Impaired. <- code/Client/Items/WeaponAimMount.cs, code/Client/Verification/WeaponAimChecks.cs, code/Client/Verification/WeaponAimChecks.MachineGun.cs, code/Core/Items/ItemAuthority.Aiming.cs, code/Core/Items/WeaponAim.cs, code/Tests/Items/WeaponAimTests.cs, docs/features/weapon-aiming.md
+manual:Measure actual 200 m grouping with check-weapon-aim.ps1 -Accuracy -Impaired; inspect retention/breakaway with -Sticky -Visual -Impaired and driving/placement freedom with -Freedom -Visual -Impaired -Oval. <- code/Client/Items/WeaponAimMount.cs, code/Client/Verification/WeaponAimChecks.cs, code/Client/Verification/WeaponAimChecks.MachineGun.cs, code/Core/Items/ItemAuthority.Aiming.cs, code/Core/Items/WeaponAim.cs, code/Tests/Items/WeaponAimTests.cs, docs/features/weapon-aiming.md
+TransportTests <- code/Client/Networking/MatchResourceLoader.cs
+runtime:check-network-vehicles.ps1 <- code/Client/Networking/MatchResourceLoader.cs
+manual:Exercise multiple peers/cars under representative latency when synchronization, prediction or reconciliation changed. <- code/Client/Networking/MatchResourceLoader.cs
+runtime:check-car-rack.ps1 <- code/Client/Vehicles/CarRackPresentation.cs
+runtime:check-environment-collisions.ps1 <- code/Client/Vehicles/CarRackPresentation.cs
+runtime:check-landing.ps1 <- code/Client/Vehicles/CarRackPresentation.cs
+runtime:check-missile-presentation.ps1 <- code/Client/Vehicles/CarRackPresentation.cs, docs/verification/ts-234-evidence/ts234-baseline-missile.log, docs/verification/ts-234-evidence/ts234-missile.log
+runtime:check-terrain-handling.ps1 <- code/Client/Vehicles/CarRackPresentation.cs
+runtime:check-trophy-truck.ps1 <- code/Client/Vehicles/CarRackPresentation.cs
+runtime:check-vehicle.ps1 <- code/Client/Vehicles/CarRackPresentation.cs
+runtime:check-wrench-arm.ps1 <- code/Client/Vehicles/CarRackPresentation.cs
+extended:check-environment-collision-network.ps1 <- code/Client/Vehicles/CarRackPresentation.cs
+manual:Drive all normal surfaces and transitions; restart uphill on infield grades; verify host tuning and client prediction. <- code/Client/Vehicles/CarRackPresentation.cs
+manual:Drive/playtest the affected vehicle behavior, including multiple cars when collisions or shared physics are material. <- code/Client/Vehicles/CarRackPresentation.cs
+manual:Inspect selected rack payloads, two-slot switching, sustained use and remote visibility. <- code/Client/Vehicles/CarRackPresentation.cs
+CoreTests <- code/Core/Items/ItemAuthority.Aiming.cs, code/Core/Items/ItemAuthority.cs, code/Core/Items/WeaponAim.cs, code/Tests/Items/EmpClawCounterplayTests.cs, code/Tests/Items/MachineGunAimTests.cs, code/Tests/Items/WeaponAimTests.cs
+runtime:check-rear-shield.ps1 <- code/Core/Items/ItemAuthority.Aiming.cs, code/Core/Items/ItemAuthority.cs
+runtime:check-world-wall.ps1 <- code/Core/Items/ItemAuthority.Aiming.cs, code/Core/Items/ItemAuthority.cs
+manual:Run check-world-wall.ps1 -ProductionMap -Impaired -Visual for production oval/infield deployment, then inspect upright sliding and yaw after vehicle impacts. <- code/Core/Items/ItemAuthority.Aiming.cs, code/Core/Items/ItemAuthority.cs
+runtime:check-emp-claw-attachments.ps1 <- code/Tests/Items/EmpClawCounterplayTests.cs
+runtime:check-emp-claw-counterplay.ps1 <- code/Tests/Items/EmpClawCounterplayTests.cs
+runtime:check-emp-claw-flight.ps1 <- code/Tests/Items/EmpClawCounterplayTests.cs
+runtime:check-emp-claw.ps1 <- code/Tests/Items/EmpClawCounterplayTests.cs
+manual:Inspect EMP cannon deployment, actual attachment faces, three independent noses, electricity while driving/rolling, reduced acceleration and Nitro, and staggered deflation/release in rendered gameplay. <- code/Tests/Items/EmpClawCounterplayTests.cs
+manual:Run check-reconnect.ps1 -EmpClaw for active attachment recovery and offline expiry over impaired UDP. <- code/Tests/Items/EmpClawCounterplayTests.cs
+VersionChecks <- Directory.Build.props, export_presets.cfg
+runtime:check-missile-terrain.ps1 <- docs/verification/ts-234-evidence/ts234-baseline-missile.log, docs/verification/ts-234-evidence/ts234-missile.log
+manual:Observe heavy missile pitch response, banks/ramps, cliff departure, reacquisition and repeated firing under latency with the rendered missile harness. <- docs/verification/ts-234-evidence/ts234-baseline-missile.log, docs/verification/ts-234-evidence/ts234-missile.log
+WorkflowTests <- tools/fast-check-routes.ps1

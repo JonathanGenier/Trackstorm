@@ -277,7 +277,7 @@ public sealed partial class WeaponAimChecks : Node
                 }
                 if (i % 30 == 0) { await Capture("06d-crossing-" + i); }
             }
-            Require(crossingDrift < .5f, "Fast crossing attraction stays bounded rather than following unlimited target travel");
+            Require(crossingDrift < .5f, $"Fast crossing attraction stays bounded rather than following unlimited target travel (drift={crossingDrift:F5} radians)");
             Require(crossingFrames > 0 && misplacedBrackets == 0,
                 $"Crossing-car brackets identify the car receiving assistance under interpolation ({crossingFrames} bracket frames, {misplacedBrackets} invalid identities)");
             await CheckAssistanceAndOutage();

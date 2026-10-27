@@ -1,0 +1,56 @@
+C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\assets\items\machine-gun\source\BuildTwinFang.py:15: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.diffuse_color=(*color,1); m.use_nodes=True
+00:03.594  image.write      | ERROR OpenImageIO write failed: Could not open file "C:\Users\j_gen\.thumbnails\large\blender_10860_530baf47961cb29b55b824931a1bd24b.png.png"
+Info: Saved as "TwinFang.blend"
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+17:58:41 | INFO: Starting glTF 2.0 export
+17:58:41 | INFO: Extracting primitive: Cylinder.072
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Extracting primitive: Cylinder.068
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Extracting primitive: Cube.015
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Extracting primitive: Cylinder.020
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Extracting primitive: Cylinder.016
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Extracting primitive: Cube.002
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Extracting primitive: Cube.020
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Extracting primitive: Barrel.001
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Extracting primitive: Cube.022
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Extracting primitive: Cooling shroud.001
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Extracting primitive: Cube.007
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Extracting primitive: Barrel
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Extracting primitive: Cube.009
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Extracting primitive: Cooling shroud
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Extracting primitive: Cylinder.015
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Extracting primitive: Cylinder.014
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Extracting primitive: Cube
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Extracting primitive: Cylinder
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Finished glTF 2.0 export in 0.09477663040161133 s
+
+17:58:41 | INFO: Starting glTF 2.0 export
+17:58:41 | INFO: Extracting primitive: Cylinder.118
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Extracting primitive: Cube.026
+17:58:41 | INFO: Primitives created: 1
+17:58:41 | INFO: Finished glTF 2.0 export in 0.01859450340270996 s
+
+TWIN_FANG_AUTHORING_COMPLETE
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

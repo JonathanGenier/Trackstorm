@@ -438,8 +438,13 @@ public sealed partial class ItemAuthority
                     var pose = request.Observation.Physics;
                     Vector3 direction = MachineGunShot.Direction(slot.Token, ammo.Capacity - remainingRounds, aim.Direction, pose.Orientation, Configuration.MachineGunSpread);
                     phase = Math.Max(0, phase - 1);
-                    Vector3 end = aim.Origin + direction * Configuration.MachineGunRange;
-                    var hit = raycastWeapon(slot.Vehicle, aim.Origin, end);
+                    // Keep the complete pivot-to-range collision segment: the production
+                    // muzzle must never skip cover between the pivot and the barrel tips.
+                    // Presentation begins at the muzzle plane, while range/falloff and
+                    // authoritative target-centred sampling retain their existing origin.
+                    Vector3 rayOrigin = pose.Position + Vector3.Transform(WeaponAim.Pivot, pose.Orientation);
+                    Vector3 end = rayOrigin + direction * Configuration.MachineGunRange;
+                    var hit = raycastWeapon(slot.Vehicle, rayOrigin, end);
                     if (hit is not null && (!float.IsFinite(hit.Fraction) || hit.Fraction is < 0 or > 1 || hit.Vehicle == slot.Vehicle ||
                         (hit.Vehicle != 0 && !effects.ContainsKey(hit.Vehicle)))) { throw new ArgumentException("Invalid host weapon ray observation."); }
                     // Native queries exclude the owner. A spread sample may still strike
@@ -449,16 +454,17 @@ public sealed partial class ItemAuthority
                     if (bodyDistance is { } distance && distance <= Configuration.MachineGunRange &&
                         (hit is null || distance / Configuration.MachineGunRange < hit.Fraction))
                     { hit = new(distance / Configuration.MachineGunRange, 0); }
-                    var noseHit = IntersectEmpNoses(aim.Origin, end, slot.Vehicle, requests, slots, attachments);
-                    var shieldHit = shields.Intersect(aim.Origin, end, slot.Vehicle);
+                    var noseHit = IntersectEmpNoses(rayOrigin, end, slot.Vehicle, requests, slots, attachments);
+                    var shieldHit = shields.Intersect(rayOrigin, end, slot.Vehicle);
                     if (noseHit is not null && (hit is null || noseHit.Fraction < hit.Fraction) &&
                         (shieldHit is null || noseHit.Fraction < shieldHit.Value.Fraction))
                     {
-                        end = Vector3.Lerp(aim.Origin, end, noseHit.Fraction);
+                        end = Vector3.Lerp(rayOrigin, end, noseHit.Fraction);
                         if (Configuration.MachineGunDamage * MachineGunShot.Falloff(noseHit.Fraction * Configuration.MachineGunRange, Configuration) > 0)
                         { PopEmpNose(noseHit, end, slots, attachments, events); }
                         events.Add(new(slot.Token, slot.Vehicle, HeldItem.MachineGun, end, true)
-                        { Origin = aim.Origin, Tracer = (ammo.Capacity - remainingRounds) % Configuration.MachineGunTracerEvery == 0 });
+                        { Origin = rayOrigin + direction * Math.Min(WeaponAim.MachineGunMuzzleDistance, Vector3.Distance(rayOrigin, end)),
+                            Tracer = (ammo.Capacity - remainingRounds) % Configuration.MachineGunTracerEvery == 0 });
                         remainingRounds--;
                         continue;
                     }
@@ -466,12 +472,12 @@ public sealed partial class ItemAuthority
                     {
                         float fade = MachineGunShot.Falloff(blocked.Fraction * Configuration.MachineGunRange, Configuration);
                         shields.Damage(blocked.State.Id, Configuration.MachineGunDamage * fade, new("machine-gun", slot.Vehicle, "bullet"));
-                        end = Vector3.Lerp(aim.Origin, end, blocked.Fraction);
+                        end = Vector3.Lerp(rayOrigin, end, blocked.Fraction);
                         hit = new WeaponRayHit(blocked.Fraction, 0);
                     }
                     else if (hit is not null)
                     {
-                        end = Vector3.Lerp(aim.Origin, end, hit.Fraction);
+                        end = Vector3.Lerp(rayOrigin, end, hit.Fraction);
                         if (hit.Vehicle != 0 && world.GetVehicle(hit.Vehicle).CanInteract && !requests.Single(value => value.VehicleId == hit.Vehicle).Reset.HasValue)
                         {
                             float fade = MachineGunShot.Falloff(hit.Fraction * Configuration.MachineGunRange, Configuration);
@@ -483,7 +489,8 @@ public sealed partial class ItemAuthority
                         }
                     }
                     events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, end, hit is not null)
-                    { Origin = aim.Origin, Tracer = (ammo.Capacity - remainingRounds) % Configuration.MachineGunTracerEvery == 0 });
+                    { Origin = rayOrigin + direction * Math.Min(WeaponAim.MachineGunMuzzleDistance, Vector3.Distance(rayOrigin, end)),
+                        Tracer = (ammo.Capacity - remainingRounds) % Configuration.MachineGunTracerEvery == 0 });
                     remainingRounds--;
                 }
                 MachineGunAmmo? remainingAmmo = remainingRounds == 0 ? null : ammo with { Remaining = remainingRounds, Phase = phase };

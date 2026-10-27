@@ -16,6 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Twin Fang Machine Gun model, animated feeds and firing VFX | [TS-234 implementation and runtime evidence](ts-234.md) |
 | Carnival crate single-unit smash, gold VFX and cleanup | [TS-311 verification evidence](ts-311.md) |
 | Carnival crate intact pickup | [TS-310 verification evidence](ts-310.md) |
 | Salvo firework projectile, ballistic lifetime and persistent smoke | [TS-212 verification evidence](ts-212.md) |

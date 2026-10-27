@@ -1,0 +1,13 @@
+{
+  "authoring": "Original Blender 5.2 game geometry; built-in imagegen approved reference; no external acquisition",
+  "car_source_sha256": "be3c808a8d32fd995e2eab1cce24f5bf7139e3b686108b3b2a1d786985c0fbee",
+  "sha256": {
+    "source/TwinFang.blend": "297eccc2374dbfae0ff044014b61ad3e16815a6dd385e6d2fcef22de02ce6115",
+    "source/BuildTwinFang.py": "f15cc286106bb22771a8b39a12120d19ee2a8d8ab2183fe0477bc43819c9a1bc",
+    "TwinFang.glb": "d983a3ab1ccd2467f14943a29e009386fd917a3ce405f0bec9d1a87e7481502a",
+    "Cartridge.glb": "b2cf6eedce70586df78efe88e65b1ec24d899e107cbb7de4d0c0fdce9a56f531",
+    "reference/ApprovedTwinFang.png": "8ac1eb7711abec12378b49370182ef17d63976d82b9ca13b1f7c7b5fd38e639f",
+    "MuzzleFlash.gdshader": "38ea79a546be3b4c9533ae5d04c818d6799ea6060c84c72cf60b69d195190230",
+    "WornMetal.gdshader": "d4ad3a5466dc93cbae828d188694860f1d4610834c592beb66f8f2d238549234"
+  }
+}

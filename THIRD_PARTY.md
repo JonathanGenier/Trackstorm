@@ -76,6 +76,12 @@ Salvo uses the original catapult's paper firecracker geometry, existing Kenney s
 
 Machine Gun reuses the existing Kenney Impact audio already covered by the Arena audio registry. Its [HUD silhouette](assets/hud/MachineGun.svg) and procedural tracer presentation are original project work recorded in [HUD provenance](assets/hud/sources.json); no additional third-party asset or dependency was acquired.
 
+The [Twin Fang production model](assets/items/machine-gun/README.md), editable Blender
+source, instanced ammunition feeds and weapon shaders are original project work.
+Its [manifest](assets/items/machine-gun/sources.json) records the exports, unchanged
+Car source and user-approved built-in-imagegen design reference. Smoke reuses the
+existing Kenney particle texture. No new third-party acquisition is introduced.
+
 ## Infield material field
 
 The original material control field and UV pass are recorded in [surface-sources.json](assets/maps/infield/surface-sources.json). Runtime shading reuses the existing original oval grass and CC0 Poly Haven Asphalt 04 detail and Concrete material listed above. No new third-party assets were acquired. The Jira concept is an art-direction reference and is not redistributed as a runtime asset.
