@@ -125,7 +125,7 @@ public static class GameplayOptions
         new("items.machine_gun_falloff", "Machine Gun", "Falloff", false, c => c.Items.MachineGunFalloff, (c, v) => c with { Items = c.Items with { MachineGunFalloff = checked((float)v) } }),
         new("items.machine_gun_spread", "Machine Gun", "Scatter half-angle (degrees, 0–30)", false, c => c.Items.MachineGunSpread, (c, v) => c with { Items = c.Items with { MachineGunSpread = checked((float)v) } }),
         new("items.machine_gun_knockback", "Machine Gun", "Knockback", false, c => c.Items.MachineGunKnockback, (c, v) => c with { Items = c.Items with { MachineGunKnockback = checked((float)v) } }),
-        new("items.machine_gun_tracer_every", "Machine Gun", "Tracer interval per barrel (1–25)", true, c => c.Items.MachineGunTracerEvery, (c, v) => c with { Items = c.Items with { MachineGunTracerEvery = checked((int)v) } }),
+        new("items.machine_gun_tracer_every", "Machine Gun", "Colored round interval per gun (1–25)", true, c => c.Items.MachineGunTracerEvery, (c, v) => c with { Items = c.Items with { MachineGunTracerEvery = checked((int)v) } }),
         new("items.shield_width", "Shield", "Wall width (m)", false, c => c.Items.ShieldWidth, (c, v) => c with { Items = c.Items with { ShieldWidth = checked((float)v) } }),
         new("items.shield_height", "Shield", "Wall height (m)", false, c => c.Items.ShieldHeight, (c, v) => c with { Items = c.Items with { ShieldHeight = checked((float)v) } }),
         new("items.shield_depth", "Shield", "Wall depth (m)", false, c => c.Items.ShieldDepth, (c, v) => c with { Items = c.Items with { ShieldDepth = checked((float)v) } }),

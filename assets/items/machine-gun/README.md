@@ -19,7 +19,7 @@ swept envelope for overhead clearance. Suspended drums are 30% larger than the
 initial model. The barrel section ahead of Z -0.18 remains lengthened 75.5%; the
 bulk refinement does not extend the muzzle farther. Feed guides sit forward of
 the pitch cheeks, and the animated feeds retain the concealed central route.
-Individual barrel flashes alternate cosmetically; there are no extra shots.
+Each individual barrel flashes for its own alternating authoritative round; there are no extra shots.
 
 The unchanged rack's crossmembers prevent the sketch's exposed feeds from crossing
 the entire deck at arbitrary headings. Runtime curves therefore route through a
@@ -35,9 +35,9 @@ Smoke reuses the existing licensed Kenney smoke texture. Worn-metal and muzzle
 shaders are original project work.
 
 `BulletStreak.gdshader` is an original procedural project shader with no external
-textures or dependencies. One arena-owned MultiMesh draws travelling dim bullet
-streaks and selected brighter tracers with restrained occasional red/green accents. Each begins at the alternating
-rendered barrel socket and keeps the authoritative hit endpoint. The authoritative actual-round ordinal
+textures or dependencies. One arena-owned MultiMesh draws travelling gold bullet
+streaks and brighter tracers. Each gun repeats gold, gold, colored: left red, right green. Each begins at its
+rendered barrel socket after that frame's vehicle pose, aim and recoil updates and keeps the authoritative hit endpoint. The authoritative actual-round ordinal
 supplies barrel parity for the rig and flight presentation, independent of ammo-cost tuning. The shared central
 ray continues to own collision, spread and damage; barrel sockets are cosmetic.
 

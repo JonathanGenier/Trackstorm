@@ -21,9 +21,8 @@ internal sealed partial class DeveloperOptionsPanel
         Add("BulletLength", "Ordinary bullet length (m)", .4, 2, .1, s => s.BulletLength, (s, v) => s with { BulletLength = v });
         Add("TracerLength", "Tracer length (m)", 1, 6, .1, s => s.TracerLength, (s, v) => s with { TracerLength = v });
         Add("Width", "Streak width multiplier", .5, 2, .1, s => s.Width, (s, v) => s with { Width = v });
-        Add("Brightness", "Streak brightness multiplier", .25, 1.5, .05, s => s.Brightness, (s, v) => s with { Brightness = v });
-        Add("Red", "Red share of tracers (%)", 0, 25, 1, s => s.RedPercent, (s, v) => s with { RedPercent = v });
-        Add("Green", "Green share of tracers (%)", 0, 25, 1, s => s.GreenPercent, (s, v) => s with { GreenPercent = v });
+        Add("BulletBrightness", "Gold bullet intensity", .25, 2.5, .05, s => s.BulletBrightness, (s, v) => s with { BulletBrightness = v });
+        Add("TracerBrightness", "Red / green tracer intensity", 1, 4, .1, s => s.TracerBrightness, (s, v) => s with { TracerBrightness = v });
         Add("Flash", "Muzzle flash scale (0 hides)", 0, 1.5, .1, s => s.FlashScale, (s, v) => s with { FlashScale = v });
         Add("Smoke", "Muzzle smoke intensity (0 hides)", 0, 2, .1, s => s.SmokeIntensity, (s, v) => s with { SmokeIntensity = v });
 

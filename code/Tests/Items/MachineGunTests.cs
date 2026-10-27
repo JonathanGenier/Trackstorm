@@ -274,7 +274,7 @@ internal sealed partial class MachineGunTests
         Assert.That(ends[0], Is.Not.EqualTo(ends[1]));
         Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(798));
         Assert.That(host.World.GetVehicle(2).Damage.CurrentHP, Is.EqualTo(995.5));
-        Assert.That(host.Items.Events.Select(e => e.Tracer), Is.EqualTo(new[] { true, false }));
+        Assert.That(host.Items.Events.Select(e => e.Tracer), Is.EqualTo(new[] { false, false }));
         var publication = new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], host.Items.Events);
         Assert.That(ItemCodec.DecodeState(ItemCodec.EncodeState(publication)).Events, Is.EqualTo(publication.Events));
     }

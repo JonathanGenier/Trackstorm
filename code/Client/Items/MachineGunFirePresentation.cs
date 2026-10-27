@@ -24,6 +24,10 @@ internal sealed partial class MachineGunFirePresentation : MultiMeshInstance3D
     internal MachineGunFirePresentation()
     {
         Name = "MachineGunFire";
+        // Arena pose, rack aiming and recoil run first. Network receipt is not a
+        // render pose: reserve now, capture the physical muzzle on first display.
+        ProcessPriority = 100;
+        TopLevel = true;
         PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off;
         CastShadow = ShadowCastingSetting.Off;
         Multimesh = new MultiMesh { TransformFormat = MultiMesh.TransformFormatEnum.Transform3D, UseCustomData = true,
@@ -48,7 +52,7 @@ internal sealed partial class MachineGunFirePresentation : MultiMeshInstance3D
             if (inventory is null || vehicle is not { CanInteract: true } || inventory.Life != vehicle.LifeId) { continue; }
             foreach (var shot in group)
             {
-                if (Muzzle?.Invoke(shot, shot.MachineGunBarrel) is { } muzzle) { Emit(shot, muzzle); }
+                Reserve(shot);
             }
         }
     }
@@ -60,23 +64,23 @@ internal sealed partial class MachineGunFirePresentation : MultiMeshInstance3D
         _revision = 0;
     }
 
-    private void Emit(ItemEvent shot, Vector3 muzzle)
+    private void Reserve(ItemEvent shot)
     {
         Vector3 origin = VehicleBody.ToGodot(shot.Origin), end = VehicleBody.ToGodot(shot.Position);
         Vector3 accepted = end - origin;
         // Cover inside the muzzle plane publishes a zero-length ray. Never turn
         // that into a sideways/backward flash or extend a streak beyond its hit.
-        if (accepted.LengthSquared() < .0001f || (end - muzzle).Dot(accepted) <= 0) { return; }
+        if (accepted.LengthSquared() < .0001f) { return; }
         int owned = 0;
         for (int i = 0; i < ActiveCount; i++) { if (_streaks[i].Owner == shot.Owner) { owned++; } }
         if (ActiveCount == Capacity || owned >= PerShooterCapacity) { DroppedCount++; return; }
-        _streaks[ActiveCount++] = new(shot.Owner, muzzle, end, shot.Tracer, MachineGunVfxSettings.Current, shot.MachineGunRound, shot.Token);
+        _streaks[ActiveCount++] = new(shot, end, MachineGunVfxSettings.Current);
         PeakCount = Math.Max(PeakCount, ActiveCount);
-        EmittedCount++;
-        _barrelEmissions[shot.MachineGunBarrel]++;
     }
 
     public override void _Process(double delta) => Advance((float)delta);
+
+    internal ItemEvent? NewlyPresentedRound(int index) => _streaks[index].NewlyPresented ? _streaks[index].Shot : null;
 
     internal void Advance(float seconds)
     {
@@ -85,6 +89,18 @@ internal sealed partial class MachineGunFirePresentation : MultiMeshInstance3D
         for (int i = 0; i < ActiveCount;)
         {
             ref var streak = ref _streaks[i];
+            streak.NewlyPresented = !streak.Started;
+            if (!streak.Started)
+            {
+                var shot = streak.Shot;
+                if (Muzzle?.Invoke(shot, shot.MachineGunBarrel) is not { } muzzle ||
+                    (streak.End - muzzle).Dot(streak.End - VehicleBody.ToGodot(shot.Origin)) <= 0)
+                { _streaks[i] = _streaks[--ActiveCount]; continue; }
+                streak.Start = muzzle;
+                streak.Started = true;
+                EmittedCount++;
+                _barrelEmissions[shot.MachineGunBarrel]++;
+            }
             float distance = streak.Start.DistanceTo(streak.End);
             float length = streak.Tracer ? streak.Settings.TracerLength : streak.Settings.BulletLength;
             float head = length + streak.Age * streak.Settings.Speed;
@@ -103,7 +119,8 @@ internal sealed partial class MachineGunFirePresentation : MultiMeshInstance3D
             float width = streak.Tracer ? Math.Clamp(camera.DistanceTo(middle) * .001f, .045f, .16f) : .025f;
             var basis = new Basis(across * width * streak.Settings.Width, direction * from.DistanceTo(to), across.Cross(direction));
             Multimesh.SetInstanceTransform(i, new(basis, middle));
-            Multimesh.SetInstanceCustomData(i, new(streak.Tracer ? 1 : 0, streak.Color / 2f, streak.Settings.Brightness, 0));
+            Multimesh.SetInstanceCustomData(i, new(streak.Tracer ? 1 : 0, streak.Color / 2f,
+                streak.Tracer ? streak.Settings.TracerBrightness : streak.Settings.BulletBrightness, 0));
             bounds = i == 0 ? new(from, Vector3.Zero) : bounds.Expand(from);
             bounds = bounds.Expand(to);
             // Newly received rounds are rendered once at the actual muzzle even
@@ -115,14 +132,17 @@ internal sealed partial class MachineGunFirePresentation : MultiMeshInstance3D
         CustomAabb = bounds.Grow(.2f);
     }
 
-    private struct Streak(ulong owner, Vector3 start, Vector3 end, bool tracer, MachineGunVfxSettings settings, int round, ulong token)
+    private struct Streak(ItemEvent shot, Vector3 end, MachineGunVfxSettings settings)
     {
-        internal ulong Owner { get; } = owner;
-        internal Vector3 Start { get; } = start;
+        internal ItemEvent Shot { get; } = shot;
+        internal ulong Owner => Shot.Owner;
+        internal Vector3 Start { get; set; }
+        internal bool Started { get; set; }
+        internal bool NewlyPresented { get; set; }
         internal Vector3 End { get; } = end;
-        internal bool Tracer { get; } = tracer;
+        internal bool Tracer => Shot.Tracer;
         internal MachineGunVfxSettings Settings { get; } = settings;
-        internal int Color { get; } = tracer ? settings.TracerColor(token, round) : 0;
+        internal int Color => Tracer ? Shot.MachineGunBarrel + 1 : 0;
         internal float Age { get; set; }
     }
 }

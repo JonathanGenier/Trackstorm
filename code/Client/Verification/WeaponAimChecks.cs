@@ -592,5 +592,5 @@ public sealed partial class WeaponAimChecks : Node
         if (!condition) { throw new InvalidOperationException(message); }
         _evidence.Add(message); GD.Print(message);
     }
-    public override void _ExitTree() { foreach (var wire in _wires) { wire.Dispose(); } }
+    public override void _ExitTree() { StopMuzzleObservation(); foreach (var wire in _wires) { wire.Dispose(); } }
 }

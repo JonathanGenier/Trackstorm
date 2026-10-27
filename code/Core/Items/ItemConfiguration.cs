@@ -72,7 +72,7 @@ public sealed record ItemConfiguration
     /// <summary>Near-range central impulse per round in Newton seconds.</summary>
     public float MachineGunKnockback { get; init; } = 8;
     /// <summary>Render one tracer per this many rounds, including the first.</summary>
-    public int MachineGunTracerEvery { get; init; } = 2;
+    public int MachineGunTracerEvery { get; init; } = 3;
     /// <summary>Contact damage, applied once through vehicle health authority.</summary>
     public float MineDamage { get; init; } = 250;
     /// <summary>Invisible magnetic field extent in metres.</summary>

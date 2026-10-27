@@ -11,6 +11,7 @@ public sealed partial class WeaponAimChecks
 
     private async Task CheckMachineGunFire()
     {
+        BeginMuzzleObservation();
         var host = _arenas[0].Driver.Host!;
         Position(new(0, Ground, 35), new(0, Ground, 0), new(70, Ground, 0));
         host.Items.Grant(host.World, Shooter, HeldItem.MachineGun);
@@ -148,6 +149,9 @@ public sealed partial class WeaponAimChecks
         _arenas[1].Driver.RequestItemSwitch(); await Frames(180);
         Require(rays == suppressed, "Switch back does not replay earlier sustained activation");
 
+        await CheckMovingMachineGun();
+        FinishMuzzleObservation();
+        Require(actual.SequenceEqual(remote), $"Moving observer retains identical ordered events ({actual.Count} rounds)");
         _arenas[0].Driver.RaycastWeapon = raycast;
         _arenas[0].Driver.ItemsReceived -= HostEvents;
         _arenas[2].Driver.ItemsReceived -= RemoteEvents;

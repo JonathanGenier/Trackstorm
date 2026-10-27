@@ -20,8 +20,10 @@ internal sealed partial class MachineGunTests
         Assert.That(shots.Select(s => s.MachineGunBarrel), Is.EqualTo(Enumerable.Range(0, 80).Select(i => i % 2)));
         foreach (int barrel in new[] { 0, 1 })
         {
+            Assert.That(shots.Where(s => s.MachineGunBarrel == barrel).Select(s => s.Tracer),
+                Is.EqualTo(Enumerable.Range(1, 40).Select(n => n % 3 == 0)));
             Assert.That(shots.Count(s => s.MachineGunBarrel == barrel && s.Impact), Is.EqualTo(40));
-            Assert.That(shots.Count(s => s.MachineGunBarrel == barrel && s.Tracer), Is.EqualTo(20));
+            Assert.That(shots.Count(s => s.MachineGunBarrel == barrel && s.Tracer), Is.EqualTo(13));
         }
         Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(720));
         Assert.That(host.World.GetVehicle(2).Damage.CurrentHP, Is.EqualTo(820));

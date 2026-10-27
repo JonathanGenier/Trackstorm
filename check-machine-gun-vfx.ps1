@@ -4,7 +4,7 @@ if (-not $NoBuild) {
     dotnet build Trackstorm.Client.csproj -c Debug -warnaserror -m:1 -nr:false
     if ($LASTEXITCODE -ne 0) { throw 'Machine Gun VFX build failed.' }
 }
-$outputDirectory = Join-Path $PSScriptRoot '.godot/ts235-round2-vfx'
+$outputDirectory = Join-Path $PSScriptRoot '.godot/ts235-round3-vfx'
 New-Item -ItemType Directory -Force $outputDirectory | Out-Null
 $arguments = @('--path', $PSScriptRoot, '--resolution', '1440x900', 'res://scenes/verification/machine_gun_vfx_checks.tscn')
 if ($Motion) { $arguments += @('--', '--vfx-motion') }

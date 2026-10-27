@@ -11,7 +11,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Rendered production barrels and fixed-pool behavior with explicitly scripted confirmed outcomes.</summary>
 public sealed partial class MachineGunVfxChecks : Node3D
 {
-    private const string Output = "res://.godot/ts235-round2-vfx/";
+    private const string Output = "res://.godot/ts235-round3-vfx/";
     private readonly List<Node3D> _cars = [];
     private readonly List<WeaponAimMount> _mounts = [];
     private readonly List<string> _checks = [];
@@ -27,6 +27,7 @@ public sealed partial class MachineGunVfxChecks : Node3D
     {
         try
         {
+            PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off;
             Engine.MaxFps = 60;
             System.IO.Directory.CreateDirectory(ProjectSettings.GlobalizePath(Output));
             AddChild(new WorldEnvironment { Environment = new Godot.Environment { BackgroundMode = Godot.Environment.BGMode.Color,
@@ -54,6 +55,7 @@ public sealed partial class MachineGunVfxChecks : Node3D
                 return muzzle;
             };
             await Frame();
+            await CheckMovingOrigins();
             await CheckOriginsAndBounds();
             await CheckIndependentMuzzlesAndTuning();
             bool motion = OS.GetCmdlineUserArgs().Contains("--vfx-motion");
@@ -113,6 +115,49 @@ public sealed partial class MachineGunVfxChecks : Node3D
         catch (Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }
     }
 
+    private async Task CheckMovingOrigins()
+    {
+        var car = _cars[0]; var mount = _mounts[0];
+        float maximumError = 0;
+        foreach (int fps in new[] { 30, 60 })
+        {
+            Engine.MaxFps = fps;
+            for (int frame = 0; frame < fps * 2; frame++)
+            {
+                _fire.Clear();
+                Vector3 oldMuzzle = mount.TwinFang!.Muzzle(0);
+                var slot = new ItemSlot(1, 1, 1, HeldItem.MachineGun) { Ammo = new(800, 800), EngagedToken = 1 };
+                var shots = new[] { Shot(0, frame * 2, oldMuzzle, oldMuzzle + Vector3.Forward * 225),
+                    Shot(0, frame * 2 + 1, oldMuzzle, oldMuzzle + Vector3.Forward * 225) };
+                // Production receives confirmed rounds before the current display pose and recoil are installed.
+                _fire.Observe(Publication([slot], shots));
+                mount.TwinFang.Observe(slot, shots, _tick);
+                float time = (frame + 1f) / fps;
+                car.Position = new(12 * MathF.Sin(time * 2), MathF.Sin(time), 12 * (MathF.Cos(time * 2) - 1));
+                car.Rotation = new(.15f * MathF.Sin(time * 4), time * 2, .12f * MathF.Cos(time * 3));
+                var aim = new WeaponAimSolution(1, 1, 1, _tick, MathF.Sin(time * 8) * 2.5f, MathF.Sin(time * 7) * .8f,
+                    WeaponAim.Pivot, -N.Vector3.UnitZ, true) { Ready = true };
+                mount.Present(aim, 1f / fps);
+                _fire.Advance(1f / fps);
+                Check(_fire.ActiveCount == 2, "Moving pair retains exactly two actual confirmed rounds");
+                for (int side = 0; side < 2; side++)
+                {
+                    var transform = _fire.Multimesh.GetInstanceTransform(side);
+                    Vector3 birth = transform.Origin - transform.Basis.Y * .5f;
+                    float error = birth.DistanceTo(mount.TwinFang.Muzzle(side));
+                    maximumError = Math.Max(maximumError, error);
+                    Check(error < .0001f, $"Moving/rapid aim {fps} FPS frame {frame} barrel {side} origin error {error:F6} m");
+                }
+                _camera.Position = car.Position + new Vector3(4, 4, 8); _camera.LookAt(car.Position + new Vector3(0, 2, -6));
+                await Frame();
+                if (frame == fps) { await Capture($"moving-rapid-aim-{fps}"); }
+            }
+        }
+        GD.Print($"Moving muzzle alignment: 360 new flights at 30/60 FPS, maximum first-frame endpoint error={maximumError:F6} m.");
+        _fire.Clear(); car.Transform = Transform3D.Identity; mount.TwinFang!.Stop();
+        Engine.MaxFps = 60;
+    }
+
     private async Task CheckOriginsAndBounds()
     {
         foreach (var pose in new[] { (0f, 0f), (MathF.PI / 2, .3f), (MathF.PI, .4f), (0f, MathF.PI / 2) })
@@ -139,6 +184,17 @@ public sealed partial class MachineGunVfxChecks : Node3D
             _fire.Advance(.01f); _fire.Advance(0);
             Check(_fire.Multimesh.GetInstanceTransform(0).Origin.DistanceTo(_lastMuzzles[0]) > 4.2f, "Visible streak advances away from the barrel");
         }
+        _fire.Clear();
+        var born = _mounts[0].TwinFang!.Muzzle(0);
+        var endpoint = born + Vector3.Forward * 100;
+        _fire.Observe(Publication([new ItemSlot(1, 1, 1, HeldItem.MachineGun) { Ammo = new(799, 800) }], [Shot(0, 0, born, endpoint)]));
+        _fire.Advance(.01f);
+        _cars[0].Position += Vector3.Right * 10;
+        _fire.Advance(0);
+        var flight = _fire.Multimesh.GetInstanceTransform(0);
+        Check((flight.Origin - flight.Basis.Y * .5f).DistanceTo(born + Vector3.Forward * 6) < .0001f,
+            "An already launched round stays in world space when its car moves again");
+        _cars[0].Position -= Vector3.Right * 10;
         _fire.Clear();
         var forward = new WeaponAimSolution(1, 1, 1, _tick, 0, 0, WeaponAim.Pivot, -N.Vector3.UnitZ, true) { Ready = true };
         for (int i = 0; i < 30; i++) { _mounts[0].Present(forward, .1f); }
@@ -198,12 +254,12 @@ public sealed partial class MachineGunVfxChecks : Node3D
         }
         _fire.Clear();
         var settings = new MachineGunVfxSettings { Speed = 750, BulletLength = 1.5f, TracerLength = 5, Width = 1.5f,
-            Brightness = .5f, RedPercent = 25, GreenPercent = 25, FlashScale = 0, SmokeIntensity = 0 };
-        MachineGunVfxSettings.Current = settings; Array.Clear(_rounds);
+            BulletBrightness = .5f, TracerBrightness = 3, FlashScale = 0, SmokeIntensity = 0 };
+        MachineGunVfxSettings.Current = settings; Array.Clear(_rounds); _rounds[0] = 4;
         Publish(1, 2, 225, 0); _fire.Advance(0);
         var trace = _fire.Multimesh.GetInstanceTransform(0);
         var data = _fire.Multimesh.GetInstanceCustomData(0);
-        Check(Math.Abs(trace.Basis.Y.Length() - 5) < .001f && Math.Abs(data.B - .5f) < .001f,
+        Check(Math.Abs(trace.Basis.Y.Length() - 5) < .001f && Math.Abs(data.B - 3) < .001f,
             "Live VFX settings change actual streak length and shader brightness for new rounds");
         _fire.Advance(.02f); _fire.Advance(0);
         Check(Math.Abs(_fire.Multimesh.GetInstanceTransform(0).Origin.DistanceTo(trace.Origin) - 15) < .001f,
@@ -212,21 +268,25 @@ public sealed partial class MachineGunVfxChecks : Node3D
         Check(flashes.All(f => !f.Visible) && smoke.All(s => !s.Emitting), "Zero flash and smoke controls hide real muzzle effects");
         MachineGunVfxSettings.Current = new(); _fire.Clear(); fang.Stop(); Array.Clear(_rounds);
         var colors = new int[2, 3];
-        for (int round = 0; round < 200; round++)
+        for (int round = 0; round < 60; round++)
         {
-            if ((round / 2 + round % 2) % 2 != 0) { continue; }
             _fire.Clear();
             var origin = fang.Muzzle(round % 2);
             _fire.Observe(Publication([slot], [Shot(0, round, origin, origin + Vector3.Forward * 30)])); _fire.Advance(0);
-            colors[round % 2, (int)MathF.Round(_fire.Multimesh.GetInstanceCustomData(0).G * 2)]++;
+            var custom = _fire.Multimesh.GetInstanceCustomData(0);
+            int color = (int)MathF.Round(custom.G * 2);
+            int expected = round % 6 >= 4 ? round % 2 + 1 : 0;
+            Check(color == expected && custom.R == (expected == 0 ? 0 : 1), $"Round {round} follows independent gold/gold/colored sequence");
+            Check(Math.Abs(custom.B - (expected == 0 ? 1.35f : 2.5f)) < .001f, "Gold and colored intensities reach the renderer");
+            colors[round % 2, color]++;
         }
         for (int side = 0; side < 2; side++)
         {
-            Check(colors[side, 0] == 40 && colors[side, 1] is >= 4 and <= 6 && colors[side, 2] is >= 4 and <= 6,
-                $"Barrel {side}: {colors[side, 0]} warm, {colors[side, 1]} red and {colors[side, 2]} green among 50 selected tracers");
+            Check(colors[side, 0] == 20 && colors[side, side + 1] == 10 && colors[side, 2 - side] == 0,
+                $"Barrel {side}: {colors[side, 0]} warm, {colors[side, 1]} red and {colors[side, 2]} green among 30 actual rounds");
         }
         _fire.Clear();
-        Publish(1, 8, 225, 0); _fire.Advance(0); await Capture("restrained-color-mix");
+        Publish(1, 8, 225, 0); _fire.Advance(0); await Capture("gold-red-green-sequence");
         _fire.Clear(); fang.Stop();
     }
 
@@ -270,7 +330,7 @@ public sealed partial class MachineGunVfxChecks : Node3D
 
     private static ItemEvent Shot(int car, int round, Vector3 start, Vector3 end) =>
         new((ulong)car + 1, (ulong)car + 1, HeldItem.MachineGun, VehicleBody.ToCore(end), false)
-            { Origin = VehicleBody.ToCore(start), MachineGunRound = round, Tracer = (round / 2 + round % 2) % 2 == 0 };
+            { Origin = VehicleBody.ToCore(start), MachineGunRound = round, Tracer = (round / 2 + 1) % 3 == 0 };
 
     private void Check(bool condition, string message)
     { if (!condition) { throw new InvalidOperationException(message); } _checks.Add(message); }

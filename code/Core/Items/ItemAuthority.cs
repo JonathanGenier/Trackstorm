@@ -465,7 +465,7 @@ public sealed partial class ItemAuthority
                         { PopEmpNose(noseHit, end, slots, attachments, events); }
                         events.Add(new(slot.Token, slot.Vehicle, HeldItem.MachineGun, end, true)
                         { Origin = rayOrigin + direction * Math.Min(WeaponAim.MachineGunMuzzleDistance, Vector3.Distance(rayOrigin, end)),
-                            MachineGunRound = round, Tracer = (round / 2 + round % 2) % Configuration.MachineGunTracerEvery == 0 });
+                            MachineGunRound = round, Tracer = (round / 2 + 1) % Configuration.MachineGunTracerEvery == 0 });
                         remainingRounds = Math.Max(0, remainingRounds - Configuration.MachineGunAmmoPerRound);
                         round++;
                         continue;
@@ -492,7 +492,7 @@ public sealed partial class ItemAuthority
                     }
                     events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, end, hit is not null)
                     { Origin = rayOrigin + direction * Math.Min(WeaponAim.MachineGunMuzzleDistance, Vector3.Distance(rayOrigin, end)),
-                        MachineGunRound = round, Tracer = (round / 2 + round % 2) % Configuration.MachineGunTracerEvery == 0 });
+                        MachineGunRound = round, Tracer = (round / 2 + 1) % Configuration.MachineGunTracerEvery == 0 });
                     remainingRounds = Math.Max(0, remainingRounds - Configuration.MachineGunAmmoPerRound);
                     round++;
                 }
