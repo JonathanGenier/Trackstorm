@@ -31,8 +31,8 @@ preserves each round through shooting, destruction and recovery. Shot count and
 last-fired socket are separate from depletion, so destruction never replays firing. The same magazine stays mounted.
 Both the host deployment/accepted aim and local mechanical readiness gate use.
 Three default shots fit within two seconds; an empty slot can receive a fresh pickup.
-Switching preserves its load. Inventory TI32, movement version 15, configuration TC55 (284 values,
-2293 bytes), and discovery bucket `trackstorm-lobby-24` exclude older layouts.
+Switching preserves its load. Inventory TI33, movement version 15, configuration TC56 (285 values,
+2301 bytes), and discovery bucket `trackstorm-lobby-25` exclude older layouts.
 
 ## Guided flight
 

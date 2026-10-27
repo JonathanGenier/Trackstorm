@@ -19,7 +19,7 @@ swept envelope for overhead clearance. Suspended drums are 30% larger than the
 initial model. The barrel section ahead of Z -0.18 remains lengthened 75.5%; the
 bulk refinement does not extend the muzzle farther. Feed guides sit forward of
 the pitch cheeks, and the animated feeds retain the concealed central route.
-Individual barrel flashes alternate cosmetically; there are no extra shots.
+Each individual barrel flashes for its own alternating authoritative round; there are no extra shots.
 
 The unchanged rack's crossmembers prevent the sketch's exposed feeds from crossing
 the entire deck at arbitrary headings. Runtime curves therefore route through a
@@ -34,7 +34,19 @@ blocked/unready aim, replacement and lifecycle teardown stop emission and feed.
 Smoke reuses the existing licensed Kenney smoke texture. Worn-metal and muzzle
 shaders are original project work.
 
+`BulletStreak.gdshader` is an original procedural project shader with no external
+textures or dependencies. One arena-owned MultiMesh draws travelling gold bullet
+streaks (3.2 m) and brighter tracers (6 m), clipped at the accepted endpoint. Camera-projected width, a luminous emission core and at least 90 ms of cosmetic travel for short paths keep shots readable at driving distance. These defaults add no bloom or lights and do not delay authoritative hits. Each gun repeats gold, gold, colored: left red, right green. Each begins at its
+rendered barrel socket after that frame's vehicle pose, aim and recoil updates and keeps the authoritative hit endpoint. The authoritative actual-round ordinal
+supplies barrel parity for the rig and flight presentation, independent of ammo-cost tuning. The shared central
+ray continues to own collision, spread and damage; barrel sockets are cosmetic.
+
 `check-twin-fang.ps1` renders imported production poses and checks feed/release
 behavior. `check-weapon-aim.ps1` and `check-machine-gun.ps1` cover actual authority
 and UDP peers. The dedicated visual fixture is scripted presentation evidence,
 not proof of network firing or exhaustive mesh clearance.
+
+`check-machine-gun-vfx.ps1 -Motion` checks exact barrel origins, endpoint clipping,
+bounded flight and eight scripted shooters, with rendered 30/60 FPS captures.
+`check-weapon-aim.ps1 -MachineGun -Visual -Impaired` runs the Machine Gun portion
+of the existing three-peer native aiming fixture, including production pool delivery.

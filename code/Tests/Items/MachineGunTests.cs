@@ -9,7 +9,7 @@ namespace Trackstorm.Core.Tests.Items;
 
 /// <summary>Observable ammunition, hit authority, lifecycle and recovery invariants.</summary>
 [TestFixture]
-internal sealed class MachineGunTests
+internal sealed partial class MachineGunTests
 {
     [Test]
     public void EightHundredActualRoundsExhaustInTenSecondsAndCannotRepeat()
@@ -158,7 +158,7 @@ internal sealed class MachineGunTests
         var host = Create();
         Grant(host); Step(host, true);
         var ammo = host.Items.Slots.Single().Ammo;
-        var values = new Dictionary<string, double> { ["items.machine_gun_capacity"] = 100, ["items.machine_gun_fire_rate"] = 60,
+        var values = new Dictionary<string, double> { ["items.machine_gun_capacity"] = 100, ["items.machine_gun_ammo_per_round"] = 3, ["items.machine_gun_fire_rate"] = 60,
             ["items.machine_gun_range"] = 9, ["items.machine_gun_damage"] = 4, ["items.machine_gun_falloff_start"] = 4,
             ["items.machine_gun_falloff"] = 2, ["items.machine_gun_spread"] = 2, ["items.machine_gun_knockback"] = 5, ["items.machine_gun_tracer_every"] = 3 };
         Assert.That(host.TryConfigure(0, values, out _), Is.True);
@@ -274,7 +274,7 @@ internal sealed class MachineGunTests
         Assert.That(ends[0], Is.Not.EqualTo(ends[1]));
         Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(798));
         Assert.That(host.World.GetVehicle(2).Damage.CurrentHP, Is.EqualTo(995.5));
-        Assert.That(host.Items.Events.Select(e => e.Tracer), Is.EqualTo(new[] { true, false }));
+        Assert.That(host.Items.Events.Select(e => e.Tracer), Is.EqualTo(new[] { false, false }));
         var publication = new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], host.Items.Events);
         Assert.That(ItemCodec.DecodeState(ItemCodec.EncodeState(publication)).Events, Is.EqualTo(publication.Events));
     }

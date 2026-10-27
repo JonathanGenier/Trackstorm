@@ -22,9 +22,8 @@ internal sealed partial class TwinFangVisual : Node3D
     private readonly float[] _phase = new float[2];
     private readonly float[] _feed = new float[2];
     private ulong _lastTick;
-    private int _ordinal;
-    private float _heat;
-    private float _shotAge = 10;
+    private readonly float[] _heat = new float[2];
+    private readonly float[] _shotAge = [10, 10];
 
     internal TwinFangVisual()
     {
@@ -45,7 +44,7 @@ internal sealed partial class TwinFangVisual : Node3D
         _guns = new[] { "Gun_-1", "Gun_1" }.Select(name => (Node3D)model.FindChild(name, true, false)).ToArray();
         _flashes = _guns.Select((gun, index) =>
         {
-            var flash = new MeshInstance3D { Name = "MuzzleFlash", Position = new(index == 0 ? -.28896f : .28896f, 0, -WeaponAim.MachineGunMuzzleDistance - .02f), Visible = false,
+            var flash = new MeshInstance3D { Name = "MuzzleFlash", Position = new(index == 0 ? -.28896f : .28896f, 0, -WeaponAim.MachineGunMuzzleDistance), Visible = false,
                 Mesh = new QuadMesh { Size = new(.32f, .32f) },
                 MaterialOverride = new ShaderMaterial { Shader = Networking.MatchResourceLoader.LoadResource<Shader>(FlashShaderPath) },
                 CastShadow = GeometryInstance3D.ShadowCastingSetting.Off };
@@ -87,19 +86,25 @@ internal sealed partial class TwinFangVisual : Node3D
     internal bool FlashVisible => _flashes.Any(flash => flash.Visible);
     internal float Pitch => _pitch.Rotation.X;
 
+    internal Vector3 Muzzle(int side) => _guns[side].GlobalTransform * new Vector3(
+        side == 0 ? -.28896f : .28896f, 0, -WeaponAim.MachineGunMuzzleDistance);
+
     internal void Observe(ItemSlot? inventory, IEnumerable<ItemEvent> events, ulong tick)
     {
-        if (inventory?.Active.Item != HeldItem.MachineGun || inventory.EngagedToken != inventory.Active.Token)
+        if (inventory is null)
         { Stop(); return; }
         if (tick <= _lastTick) { return; }
         _lastTick = tick;
-        foreach (var shot in events.Where(shot => shot.Item == HeldItem.MachineGun && shot.Token == inventory.Active.Token))
+        var shots = events.Where(shot => shot.Item == HeldItem.MachineGun && shot.Token == inventory.Active.Token).ToArray();
+        if (shots.Length == 0 && (inventory.Active.Item != HeldItem.MachineGun || inventory.EngagedToken != inventory.Active.Token))
+        { Stop(); return; }
+        foreach (var shot in shots)
         {
-            int side = _ordinal++ % 2;
+            int side = shot.MachineGunBarrel;
             _pulse[side] = 1;
             _feed[side] = Math.Min(4, _feed[side] + 1);
-            _heat = Math.Min(1, _heat + .018f);
-            _shotAge = 0;
+            _heat[side] = Math.Min(1, _heat[side] + .036f);
+            _shotAge[side] = 0;
         }
     }
 
@@ -109,31 +114,33 @@ internal sealed partial class TwinFangVisual : Node3D
         foreach (var flash in _flashes) { flash.Visible = false; }
         foreach (var smoke in _smoke) { smoke.Emitting = false; smoke.Visible = false; }
         foreach (var gun in _guns) { gun.Position = Vector3.Zero; }
-        _shotAge = 10;
-        _heat = 0;
+        Array.Fill(_shotAge, 10);
+        Array.Clear(_heat);
     }
 
     internal void Present(float pitch, float delta, bool ready)
     {
         _pitch.Rotation = new(pitch, 0, 0);
         if (!ready) { Stop(); }
-        _heat = Math.Max(0, _heat - delta * .3f);
+        var settings = MachineGunVfxSettings.Current;
         for (int side = 0; side < 2; side++)
         {
+            _heat[side] = Math.Max(0, _heat[side] - delta * .3f);
             // Spread confirmed rounds across frames: advancing exactly one
             // identical cartridge per frame would make the belt look stationary.
             float advance = _feed[side] * (1 - MathF.Exp(-delta * 30));
             _feed[side] -= advance;
             _phase[side] = (_phase[side] + advance) % Links;
             _guns[side].Position = new(0, 0, .025f * _pulse[side]);
-            _flashes[side].Visible = ready && _pulse[side] > .12f && _shotAge < .045f;
-            _flashes[side].Scale = Vector3.One * (.75f + _pulse[side] * .5f);
-            _smoke[side].Visible = _smoke[side].Emitting = ready && _shotAge < .06f && _heat > .35f;
+            _flashes[side].Visible = ready && _pulse[side] > .12f && _shotAge[side] < .045f && settings.FlashScale > 0;
+            _flashes[side].Scale = Vector3.One * (.75f + _pulse[side] * .5f) * settings.FlashScale;
+            _smoke[side].Visible = _smoke[side].Emitting = ready && _shotAge[side] < .06f && _heat[side] > .35f && settings.SmokeIntensity > 0;
+            ((ParticleProcessMaterial)_smoke[side].ProcessMaterial).Color = new(1, 1, 1, settings.SmokeIntensity);
             // Render a newly confirmed pulse once even when a frame exceeds its
             // envelope; decay afterward so 30 FPS cannot erase every shot.
             _pulse[side] = Math.Max(0, _pulse[side] - delta * 32);
+            _shotAge[side] += delta;
         }
-        _shotAge += delta;
         foreach (var (mesh, source, side) in _belts)
         {
             int sign = side == 0 ? -1 : 1;

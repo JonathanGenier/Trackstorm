@@ -5,12 +5,15 @@ param (
     [switch]$OilOnly,
     [switch]$WrenchOnly,
     [switch]$EmpClawOnly,
+    [switch]$MachineGunOnly,
+    [switch]$MachineGunReadability,
     [switch]$SalvoOnly,
     [switch]$CratesOnly,
     [switch]$NoBuild
 )
 
 $ErrorActionPreference = 'Stop'
+if ($MachineGunReadability -and (-not $MachineGunOnly -or -not $Visual)) { throw 'Readability requires -MachineGunOnly -Visual.' }
 $checkDirectory = Join-Path $PSScriptRoot ('.godot/developer-options-checks/' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $checkDirectory -Force | Out-Null
 if (-not $NoBuild) {
@@ -23,6 +26,8 @@ foreach ($phase in @('write', 'read')) {
     $checkOptions = @("--dev-output=$checkDirectory", "--phase=$phase")
     if ($OilOnly) { $checkOptions += '--oil-options-only' }
     if ($WrenchOnly) { $checkOptions += '--wrench-options-only' }
+    if ($MachineGunOnly) { $checkOptions += '--machine-gun-options-only' }
+    if ($MachineGunReadability) { $checkOptions += '--machine-gun-readability' }
     if ($EmpClawOnly) { $checkOptions += '--emp-claw-options-only' }
     if ($SalvoOnly) { $checkOptions += '--salvo-options-only' }
     if ($CratesOnly) { $checkOptions += '--crate-options-only' }

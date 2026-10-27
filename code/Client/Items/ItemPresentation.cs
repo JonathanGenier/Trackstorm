@@ -8,7 +8,12 @@ namespace Trackstorm.Client.Items;
 internal sealed partial class ItemPresentation : Node3D
 {
     internal EmpClawAttachments EmpAttachments { get; } = new();
-    public override void _Ready() => AddChild(EmpAttachments);
+    internal MachineGunFirePresentation MachineGunFire { get; } = new();
+    public override void _Ready()
+    {
+        AddChild(EmpAttachments);
+        AddChild(MachineGunFire);
+    }
     private SalvoSmokeTrail? _salvoSmoke;
 
     internal Func<ulong, Vector3?>? OilMouth { get; set; }
@@ -101,6 +106,7 @@ internal sealed partial class ItemPresentation : Node3D
     internal void Apply(ItemPublication state, float missileBlastRadius = Trackstorm.Core.Vehicles.VehicleDimensions.Length)
     {
         EmpAttachments.Observe(state);
+        MachineGunFire.Observe(state);
         foreach (ulong id in _mines.Keys.Except(state.Mines.Where(mine => !mine.IsPlacing).Select(mine => mine.Id)).ToArray())
         {
             _mines[id].QueueFree();
@@ -242,7 +248,6 @@ internal sealed partial class ItemPresentation : Node3D
             }
             if (outcome.Item == HeldItem.MachineGun)
             {
-                if (outcome.Tracer) { Tracer(outcome); }
                 if (outcome.Impact) { BulletImpact(outcome); }
                 continue;
             }
@@ -319,27 +324,6 @@ internal sealed partial class ItemPresentation : Node3D
             node.Position = VehicleBody.ToGodot(missile.Position);
             node.Quaternion = new Quaternion(Vector3.Forward, VehicleBody.ToGodot(missile.Velocity).Normalized());
         }
-    }
-
-    private void Tracer(ItemEvent outcome)
-    {
-        Vector3 start = VehicleBody.ToGodot(outcome.Origin);
-        Vector3 end = VehicleBody.ToGodot(outcome.Position);
-        Vector3 segment = end - start;
-        // Bounded presentation only: delivery catch-up cannot create an unbounded burst pool.
-        if (_bursts.Count >= 128) { return; }
-        var root = new Node3D();
-        AddChild(root);
-        var material = new StandardMaterial3D { ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded, AlbedoColor = new Color(1, 0.76f, 0.25f), EmissionEnabled = true, Emission = new Color(1, 0.4f, 0.08f) };
-        if (segment.Length() > 0.01f)
-        {
-            root.AddChild(new MeshInstance3D { Position = (start + end) / 2, Quaternion = new Quaternion(Vector3.Up, segment.Normalized()),
-                Mesh = new CylinderMesh { TopRadius = 0.018f, BottomRadius = 0.018f, Height = segment.Length(), RadialSegments = 6 }, MaterialOverride = material,
-                CastShadow = GeometryInstance3D.ShadowCastingSetting.Off });
-        }
-        root.AddChild(new MeshInstance3D { Position = start + segment.Normalized() * Math.Min(2.2f, segment.Length()), Mesh = new SphereMesh { Radius = 0.10f, Height = 0.20f }, MaterialOverride = material });
-        if (outcome.Impact) { root.AddChild(new MeshInstance3D { Position = end, Mesh = new SphereMesh { Radius = 0.07f, Height = 0.14f }, MaterialOverride = material }); }
-        _bursts.Add((root, 0, 0.055f));
     }
 
     private void BulletImpact(ItemEvent outcome)

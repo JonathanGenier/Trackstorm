@@ -27,7 +27,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
     public override void _Ready() => CallDeferred(MethodName.Run);
 
     /// <inheritdoc/>
-    public override void _PhysicsProcess(double delta) { _client?.Advance(default); _lateClient?.Advance(default); }
+    public override void _PhysicsProcess(double delta) { AdvanceReadability(); _client?.Advance(default); _lateClient?.Advance(default); }
 
     /// <summary>Exercises actual UI commands and exits nonzero on any missing gameplay or persistence boundary.</summary>
     public async void Run()
@@ -63,6 +63,13 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 return;
             }
             await CheckInitialAccordionState();
+            if (args.Contains("--machine-gun-options-only"))
+            {
+                await CheckMachineGunOptions(phase, endpoint);
+                _bootstrap.QueueFree(); await Frames(3);
+                GD.Print($"Developer Options integration passed: {phase}; Machine Gun controls; {_assertions} assertions.");
+                GetTree().Quit(); return;
+            }
             if (args.Contains("--crate-options-only"))
             {
                 await CheckCrateOptions();

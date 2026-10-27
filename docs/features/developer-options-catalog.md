@@ -411,3 +411,8 @@ actual engine/reverse/Nitro force; the attached/stored nose-radius keys drive ex
 membrane queries. EMP cosmetics use the local VFX accordion and never enter the
 configuration codec. The fixed three-round load, preserved target identity and
 zero-damage one-hit pop remain documented invariants.
+
+
+## Machine Gun gameplay and local VFX
+
+[Machine Gun tuning and accounting](items-machine-gun.md#tuning-and-ammunition-accounting) owns the controls, units, bounds and live/captured behavior. Shared ammo usage joins the existing gameplay allowlist; local streak and muzzle cosmetics use the established session-local accordion and category reset. Defaults remain 800 units per physical item, 80 aggregate rounds/s, one unit per real round, 225 m range and 0.42° scatter half-angle. Capacity changes do not refill existing items. The numeric ammo HUD is independent of these controls.

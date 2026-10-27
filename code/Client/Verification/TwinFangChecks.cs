@@ -50,7 +50,7 @@ public sealed partial class TwinFangChecks : Node3D
             Transform3D previousLink = Transform3D.Identity;
             for (int i = 0; i < 180; i++)
             {
-                mount.TwinFang.Observe(inventory, new[] { new ItemEvent(1, 1, HeldItem.MachineGun, new(0, 2, -20), false) }, ++tick);
+                mount.TwinFang.Observe(inventory, new[] { new ItemEvent(1, 1, HeldItem.MachineGun, new(0, 2, -20), false) { MachineGunRound = (int)tick } }, ++tick);
                 mount.Present(forward, 1f / 60);
                 if (i == 80) { previousLink = belt.GetInstanceTransform(4); }
                 if (i == 81 && previousLink.Origin.DistanceTo(belt.GetInstanceTransform(4).Origin) < .0001f)
@@ -69,7 +69,7 @@ public sealed partial class TwinFangChecks : Node3D
             }
             if (mount.TwinFang.FlashVisible || mount.TwinFang.FeedPhase != stopped) { throw new InvalidOperationException("Release did not stop effects"); }
             await Capture("released");
-            mount.TwinFang.Observe(inventory, new[] { new ItemEvent(1, 1, HeldItem.MachineGun, new(0, 2, -20), false) }, ++tick);
+            mount.TwinFang.Observe(inventory, new[] { new ItemEvent(1, 1, HeldItem.MachineGun, new(0, 2, -20), false) { MachineGunRound = (int)tick } }, ++tick);
             mount.Present(forward, .1f);
             if (!mount.TwinFang.FlashVisible) { throw new InvalidOperationException("Long render frame erased new flash"); }
             mount.Present(forward, .1f);
@@ -98,7 +98,7 @@ public sealed partial class TwinFangChecks : Node3D
             {
                 foreach (var weapon in mounts)
                 {
-                    weapon.TwinFang!.Observe(inventory, new[] { new ItemEvent(1, 1, HeldItem.MachineGun, new(0, 2, -20), false) }, ++tick);
+                    weapon.TwinFang!.Observe(inventory, new[] { new ItemEvent(1, 1, HeldItem.MachineGun, new(0, 2, -20), false) { MachineGunRound = (int)tick } }, ++tick);
                     weapon.Present(forward with { Yaw = MathF.Sin(frame / 60f) * .45f }, 1f / 60);
                 }
                 await Frame();

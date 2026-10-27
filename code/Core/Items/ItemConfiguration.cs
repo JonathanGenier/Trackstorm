@@ -57,6 +57,8 @@ public sealed record ItemConfiguration
     public int MachineGunCapacity { get; init; } = 800;
     /// <summary>Rounds per second, bounded to two rounds per fixed step.</summary>
     public double MachineGunFireRate { get; init; } = 80;
+    /// <summary>Resource units consumed per actual round; final partial cost exhausts the item.</summary>
+    public int MachineGunAmmoPerRound { get; init; } = 1;
     /// <summary>Maximum damaging ray length in metres.</summary>
     public float MachineGunRange { get; init; } = 225;
     /// <summary>Near-range HP per round.</summary>
@@ -70,7 +72,7 @@ public sealed record ItemConfiguration
     /// <summary>Near-range central impulse per round in Newton seconds.</summary>
     public float MachineGunKnockback { get; init; } = 8;
     /// <summary>Render one tracer per this many rounds, including the first.</summary>
-    public int MachineGunTracerEvery { get; init; } = 2;
+    public int MachineGunTracerEvery { get; init; } = 3;
     /// <summary>Contact damage, applied once through vehicle health authority.</summary>
     public float MineDamage { get; init; } = 250;
     /// <summary>Invisible magnetic field extent in metres.</summary>
@@ -181,7 +183,7 @@ public sealed record ItemConfiguration
         if (!double.IsFinite(SalvoMarkerScale) || SalvoMarkerScale < 0.5 || SalvoMarkerScale > 2) { throw new ArgumentException("Invalid salvo marker_scale."); }
         if (!double.IsFinite(SalvoMarkerWidth) || SalvoMarkerWidth < 0.1 || SalvoMarkerWidth > 2) { throw new ArgumentException("Invalid salvo marker_width."); }
         if (!double.IsFinite(SalvoMarkerLift) || SalvoMarkerLift < 0.02 || SalvoMarkerLift > 0.5) { throw new ArgumentException("Invalid salvo marker_lift."); }
-        if (MachineGunCapacity is < 1 or > 10000 || !double.IsFinite(MachineGunFireRate) || MachineGunFireRate is < 1 or > 120 ||
+        if (MachineGunCapacity is < 1 or > 10000 || MachineGunAmmoPerRound is < 1 or > 10 || !double.IsFinite(MachineGunFireRate) || MachineGunFireRate is < 1 or > 120 ||
             !float.IsFinite(MachineGunRange) || MachineGunRange is < 1 or > 300 ||
             !float.IsFinite(MachineGunDamage) || MachineGunDamage is < 0 or > 1000 ||
             !float.IsFinite(MachineGunFalloffStart) || MachineGunFalloffStart < 0 || MachineGunFalloffStart >= MachineGunRange ||

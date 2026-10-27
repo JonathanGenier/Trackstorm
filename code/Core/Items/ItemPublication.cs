@@ -25,6 +25,8 @@ public sealed class ItemPublication
         var inventory = slots.ToArray();
         var projectiles = missiles.ToArray();
         var outcomes = events.ToArray();
+        if (outcomes.Any(e => e.MachineGunRound is < 0 or >= 10000 || (e.Item != HeldItem.MachineGun && e.MachineGunRound != 0)))
+        { throw new ArgumentException("Invalid Machine Gun round identity."); }
         if (outcomes.Any(outcome => outcome.Item == HeldItem.EmpClaw && (outcome.Tracer ||
             (!outcome.Impact && Vector3Distance(outcome.Position, outcome.Origin) is < 1 or > 50.01f))))
         { throw new ArgumentException("Invalid EMP presentation discharge."); }
