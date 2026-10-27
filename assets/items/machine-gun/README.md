@@ -36,9 +36,9 @@ shaders are original project work.
 
 `BulletStreak.gdshader` is an original procedural project shader with no external
 textures or dependencies. One arena-owned MultiMesh draws travelling dim bullet
-streaks and the existing selected brighter tracers. Each begins at the alternating
-rendered barrel socket and keeps the authoritative hit endpoint. Magazine consumption
-supplies barrel parity for both the rig and flight presentation. The shared central
+streaks and selected brighter tracers with restrained occasional red/green accents. Each begins at the alternating
+rendered barrel socket and keeps the authoritative hit endpoint. The authoritative actual-round ordinal
+supplies barrel parity for the rig and flight presentation, independent of ammo-cost tuning. The shared central
 ray continues to own collision, spread and damage; barrel sockets are cosmetic.
 
 `check-twin-fang.ps1` renders imported production poses and checks feed/release

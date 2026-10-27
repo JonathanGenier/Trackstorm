@@ -59,6 +59,7 @@ public sealed partial class WeaponAimChecks
             GD.Print($"MG_TARGET_LOADOUT {scenario.Name}: active={host.Items.Slots.FirstOrDefault(slot => slot.Vehicle == 1)?.Active.Item}; attached shields={host.Items.Shields.Count(shield => shield.Owner == 1 && shield.Attached)}");
             host.Items.RemovePlayer(1);
             int before = rays, beforeHits = hits;
+            var barrelCounts = _arenas.Select(arena => arena.GetChildren().OfType<Items.ItemPresentation>().Single().MachineGunFire).Select(fire => new[] { fire.EmittedFromBarrel(0), fire.EmittedFromBarrel(1) }).ToArray();
             var fireCounts = _arenas.Select(arena => arena.GetChildren().OfType<Items.ItemPresentation>().Single().MachineGunFire.EmittedCount).ToArray();
             float hp = host.World.GetVehicle(1).Damage.CurrentHP;
             Require(_arenas[1].Driver.RequestItemUse(), "Camera shooter submits ordinary held-use request");
@@ -67,6 +68,8 @@ public sealed partial class WeaponAimChecks
             for (int peer = 0; peer < _arenas.Count; peer++)
             {
                 var fire = _arenas[peer].GetChildren().OfType<Items.ItemPresentation>().Single().MachineGunFire;
+                Require(fire.EmittedFromBarrel(0) > barrelCounts[peer][0] && fire.EmittedFromBarrel(1) > barrelCounts[peer][1],
+                    $"Both real Machine Gun barrels present on peer {peer} during {scenario.Name}");
                 Require(fire.EmittedCount > fireCounts[peer] && fire.ActiveCount <= Items.MachineGunFirePresentation.Capacity,
                     $"{scenario.Name}: confirmed travelling fire reaches peer {peer} within fixed pool");
             }

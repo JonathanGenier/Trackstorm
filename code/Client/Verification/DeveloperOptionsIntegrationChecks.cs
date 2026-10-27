@@ -63,6 +63,13 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 return;
             }
             await CheckInitialAccordionState();
+            if (args.Contains("--machine-gun-options-only"))
+            {
+                await CheckMachineGunOptions(phase, endpoint);
+                _bootstrap.QueueFree(); await Frames(3);
+                GD.Print($"Developer Options integration passed: {phase}; Machine Gun controls; {_assertions} assertions.");
+                GetTree().Quit(); return;
+            }
             if (args.Contains("--crate-options-only"))
             {
                 await CheckCrateOptions();

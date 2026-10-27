@@ -5,6 +5,7 @@ param (
     [switch]$OilOnly,
     [switch]$WrenchOnly,
     [switch]$EmpClawOnly,
+    [switch]$MachineGunOnly,
     [switch]$SalvoOnly,
     [switch]$CratesOnly,
     [switch]$NoBuild
@@ -23,6 +24,7 @@ foreach ($phase in @('write', 'read')) {
     $checkOptions = @("--dev-output=$checkDirectory", "--phase=$phase")
     if ($OilOnly) { $checkOptions += '--oil-options-only' }
     if ($WrenchOnly) { $checkOptions += '--wrench-options-only' }
+    if ($MachineGunOnly) { $checkOptions += '--machine-gun-options-only' }
     if ($EmpClawOnly) { $checkOptions += '--emp-claw-options-only' }
     if ($SalvoOnly) { $checkOptions += '--salvo-options-only' }
     if ($CratesOnly) { $checkOptions += '--crate-options-only' }

@@ -102,6 +102,11 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
                     AutowrapMode = TextServer.AutowrapMode.WordSmart,
                 });
             }
+            if (group.Key == "Machine Gun")
+            {
+                section.Body.AddChild(new Label { Text = "Host-validated gameplay. Alternating left/right rounds share the total fire rate; default 80 rounds/s, 800 ammo per item, 1 unit per round. Capacity affects new pickups only. Usage edits affect future rounds; the final partial cost empties the item. Apply affects every shooter. Tracers alternate between barrels.",
+                    AutowrapMode = TextServer.AutowrapMode.WordSmart });
+            }
             if (group.Key.StartsWith("EMP Claw", StringComparison.Ordinal))
             {
                 string guidance = group.Key switch
@@ -204,6 +209,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         AddMissileVfxControls(settings);
         AddSalvoExplosionControls(settings);
         AddEmpClawControls(settings);
+        AddMachineGunControls(settings);
         AddCrateSmashControls(settings);
         AddWrenchControls(settings);
         _resetButton = Button(Footer, "Reset to Defaults", Reset);

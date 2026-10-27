@@ -33,7 +33,7 @@ Every accordion contains **Reset to Defaults** inside its body. Search matches l
 
 ## Authority and runtime application
 
-Core `GameplayConfiguration` composes the existing vehicle, digital-input shaping, damage, item, spawn, respawn and match records plus destruction tuning and the shared environment identity. `GameplayOptions` is the explicit 263-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
+Core `GameplayConfiguration` composes the existing vehicle, digital-input shaping, damage, item, spawn, respawn and match records plus destruction tuning and the shared environment identity. `GameplayOptions` is the explicit 285-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
 
 Live scalar tuning additionally rejects positive values below 0.0001: subnormal mass/axle lengths can overflow fixed-step divisions despite passing older positive-only checks. Zero remains allowed where the owning rule explicitly supports it. Collision/respawn timers are bounded to one hour and the simulation clock remains fixed at 60 Hz.
 
@@ -51,7 +51,7 @@ Complete session publications reach lobby clients and late arrivals even before 
 
 The reliable version-fifty-four `TC` message carries arena generation, configuration revision and all 280 values (2261 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
 
-The host sends configuration before its reliable world boundary on admission or edits. Version-fourteen `TS` world snapshots include the configuration revision; clients reject world/item boundaries for a different revision, preventing mismatched simulation. Subsequent unreliable snapshots recover normal movement after an ordered tuning change. EOS lobby metadata does not store gameplay tuning. Discovery compatibility is `trackstorm-lobby-21`.
+The host sends configuration before its reliable world boundary on admission or edits. Version-fourteen `TS` world snapshots include the configuration revision; clients reject world/item boundaries for a different revision, preventing mismatched simulation. Subsequent unreliable snapshots recover normal movement after an ordered tuning change. EOS lobby metadata does not store gameplay tuning. Discovery compatibility is `trackstorm-lobby-25`.
 
 Version-three `TR` resume checkpoints include and cross-validate the entire configuration and revision against vehicles and match target. Resume installs tuning before reconstructing prediction, resets history, and updates native bodies. Joining clients never inject their own host-local file into this path. See [reconnection](reconnection.md).
 
@@ -597,7 +597,7 @@ to receive EMP from normal markers. The EMP Claw presentation category adds
 `items.emp_claw_stow_seconds` (0.82 s, 0.5–3), and
 `items.emp_claw_interval_ticks` (50 ticks, 15–60). Timings support deployment and
 repeated three-shot tests. Flight, terrain, effect and counterplay use separate EMP categories.
-TC55 carries 284 values / 2293 bytes. These fields use the same staged transaction,
+TC56 carries 285 values / 2301 bytes. These fields use the same staged transaction,
 host validation, explicit config export/import and replication as existing settings.
 Shared tuning is session-only; restarting restores canonical defaults.
 See [EMP presentation](items-emp-claw.md) for the playable and fixture boundaries.
@@ -605,3 +605,8 @@ See [EMP presentation](items-emp-claw.md) for the playable and fixture boundarie
 EMP Claw exposes independent authoritative [flight and terrain controls](items-emp-claw.md#flight-tuning) alongside its presentation controls.
 
 [EMP effect, counterplay and local VFX controls](items-emp-claw.md#effect-controls-and-hud) extend the existing host configuration and device-local cosmetic patterns.
+
+
+## Machine Gun controls
+
+The shared Machine Gun category exposes aggregate rounds/s, range, scatter half-angle, capacity for new pickups, ammo units per actual round, damage/falloff/knockback and staggered per-barrel tracer interval. The normal draft/Apply/Cancel/Reset and host validation paths own these settings. The **Machine Gun � Local VFX** category exposes session-local speed, streak sizes/brightness, restrained color shares and muzzle flash/smoke controls. These apply without a shared transaction. See [Machine Gun tuning and accounting](items-machine-gun.md#tuning-and-ammunition-accounting) for bounds, capture timing, defaults and protocol compatibility. `check-developer-options.ps1 -MachineGunOnly -Visual` covers actual controls and two-peer configuration convergence.

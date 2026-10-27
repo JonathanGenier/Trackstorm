@@ -433,10 +433,11 @@ public sealed partial class ItemAuthority
                 var ammo = slot.Ammo!;
                 double phase = ammo.Phase + Configuration.MachineGunFireRate / 60;
                 int remainingRounds = ammo.Remaining;
+                int round = ammo.RoundsFired;
                 while (remainingRounds > 0 && phase >= 1 - 1e-12)
                 {
                     var pose = request.Observation.Physics;
-                    Vector3 direction = MachineGunShot.Direction(slot.Token, ammo.Capacity - remainingRounds, aim.Direction, pose.Orientation, Configuration.MachineGunSpread);
+                    Vector3 direction = MachineGunShot.Direction(slot.Token, round, aim.Direction, pose.Orientation, Configuration.MachineGunSpread);
                     phase = Math.Max(0, phase - 1);
                     // Keep the complete pivot-to-range collision segment: the production
                     // muzzle must never skip cover between the pivot and the barrel tips.
@@ -464,8 +465,9 @@ public sealed partial class ItemAuthority
                         { PopEmpNose(noseHit, end, slots, attachments, events); }
                         events.Add(new(slot.Token, slot.Vehicle, HeldItem.MachineGun, end, true)
                         { Origin = rayOrigin + direction * Math.Min(WeaponAim.MachineGunMuzzleDistance, Vector3.Distance(rayOrigin, end)),
-                            Tracer = (ammo.Capacity - remainingRounds) % Configuration.MachineGunTracerEvery == 0 });
-                        remainingRounds--;
+                            MachineGunRound = round, Tracer = (round / 2 + round % 2) % Configuration.MachineGunTracerEvery == 0 });
+                        remainingRounds = Math.Max(0, remainingRounds - Configuration.MachineGunAmmoPerRound);
+                        round++;
                         continue;
                     }
                     if (shieldHit is { } blocked && (hit is null || blocked.Fraction <= hit.Fraction))
@@ -490,10 +492,11 @@ public sealed partial class ItemAuthority
                     }
                     events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, end, hit is not null)
                     { Origin = rayOrigin + direction * Math.Min(WeaponAim.MachineGunMuzzleDistance, Vector3.Distance(rayOrigin, end)),
-                        Tracer = (ammo.Capacity - remainingRounds) % Configuration.MachineGunTracerEvery == 0 });
-                    remainingRounds--;
+                        MachineGunRound = round, Tracer = (round / 2 + round % 2) % Configuration.MachineGunTracerEvery == 0 });
+                    remainingRounds = Math.Max(0, remainingRounds - Configuration.MachineGunAmmoPerRound);
+                    round++;
                 }
-                MachineGunAmmo? remainingAmmo = remainingRounds == 0 ? null : ammo with { Remaining = remainingRounds, Phase = phase };
+                MachineGunAmmo? remainingAmmo = remainingRounds == 0 ? null : ammo with { Remaining = remainingRounds, Phase = phase, RoundsFired = round };
                 var remainingItem = remainingAmmo is null ? HeldItem.None : HeldItem.MachineGun;
                 slots[request.VehicleId] = inventory.ActiveSlot == 0
                     ? inventory with { Ammo = remainingAmmo, Item = remainingItem, EngagedToken = remainingAmmo is null ? 0 : inventory.EngagedToken }

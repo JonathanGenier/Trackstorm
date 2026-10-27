@@ -4,7 +4,7 @@ using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-thirty-one item protocol. Reliable outcomes and replaceable aim share existing item ownership.</summary>
+/// <summary>Bounded version-thirty-three item protocol. Reliable outcomes and replaceable aim share existing item ownership.</summary>
 public static partial class ItemCodec
 {
     /// <summary>Accommodates the maximum lifetime-derived Oil set and its pass counts and overlap latches.</summary>
@@ -274,6 +274,7 @@ public static partial class ItemCodec
             Vector(writer, outcome.Position);
             writer.Write(outcome.Impact);
             Vector(writer, outcome.Origin);
+            writer.Write(outcome.MachineGunRound);
             writer.Write(outcome.Tracer); writer.Write(outcome.EmpPop);
             writer.Write(outcome.EmpClawContact is not null);
             if (outcome.EmpClawContact is { } contact)
@@ -392,7 +393,7 @@ public static partial class ItemCodec
             var item = (HeldItem)reader.ReadByte();
             Vector3 position = Vector(reader);
             bool impact = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid impact flag.") };
-            events[i] = new(token, owner, item, position, impact) { Origin = Vector(reader), Tracer = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid tracer flag.") } };
+            events[i] = new(token, owner, item, position, impact) { Origin = Vector(reader), MachineGunRound = reader.ReadInt32(), Tracer = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid tracer flag.") } };
             events[i] = events[i] with { EmpPop = Flag(reader) };
             if (Flag(reader)) { events[i] = events[i] with { EmpClawContact = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader)) }; }
         }
@@ -404,7 +405,7 @@ public static partial class ItemCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 32, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 33, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {
@@ -416,7 +417,7 @@ public static partial class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 32 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 33 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }
@@ -447,6 +448,7 @@ public static partial class ItemCodec
         writer.Write(ammo.Remaining);
         writer.Write(ammo.Capacity);
         writer.Write(ammo.Phase);
+        writer.Write(ammo.RoundsFired);
     }
 
     private static void EmpClaw(BinaryWriter writer, EmpClawLoad? load)
@@ -466,7 +468,7 @@ public static partial class ItemCodec
     private static MachineGunAmmo? Ammo(BinaryReader reader) => reader.ReadByte() switch
     {
         0 => null,
-        1 => new(reader.ReadInt32(), reader.ReadInt32(), reader.ReadDouble()),
+        1 => new(reader.ReadInt32(), reader.ReadInt32(), reader.ReadDouble()) { RoundsFired = reader.ReadInt32() },
         _ => throw new ArgumentException("Invalid ammunition flag."),
     };
 
