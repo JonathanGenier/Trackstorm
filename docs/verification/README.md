@@ -16,6 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Shield full-footprint terrain placement and upright native stability | [TS-315 verification evidence](ts-315.md) |
 | Shield deployed angled wings, matching collision and repeated-use multiplayer verification | [TS-314 verification evidence](ts-314.md) |
 | Machine Gun count HUD, cartridge belt and 500-round default | [TS-178 verification evidence](ts-178.md) |
 | Machine Gun non-explosive impact VFX | [TS-236 verification evidence](ts-236.md) |

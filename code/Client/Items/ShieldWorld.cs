@@ -96,24 +96,19 @@ internal sealed partial class ShieldWorld : Node3D
         back = back.Normalized();
         var rear = VehicleBody.ToGodot(vehicle.Position) + back * (VehicleDimensions.Length / 2 + tuning.ShieldClearance + tuning.ShieldDepth / 2);
         using var shape = new BoxShape3D { Size = new(tuning.ShieldWidth, tuning.ShieldHeight, tuning.ShieldDepth) };
-        if (ShieldGround.Seat(GetWorld3D().DirectSpaceState, rear, back, shape.Size) is not { } seat) { return null; }
-        using var query = new PhysicsShapeQueryParameters3D { Shape = shape, CollisionMask = 3 | 32, Margin = 0.01f };
-        for (int attempt = 0; attempt <= 10; attempt++)
+        if (new ShieldGround(shape.Size).Seat(GetWorld3D().DirectSpaceState, rear, back) is not { } seat) { return null; }
+        using var query = new PhysicsShapeQueryParameters3D { Shape = shape, CollisionMask = 3 | 32, Margin = 0.003f };
+        query.Transform = seat;
+        foreach (var corners in ShieldGeometry.DeployedCorners(VehicleBody.ToCore(shape.Size)))
         {
-            query.Transform = new(seat.Basis, seat.Origin + Vector3.Up * (attempt * 0.1f));
-            bool blocked = false;
-            foreach (var corners in ShieldGeometry.DeployedCorners(VehicleBody.ToCore(shape.Size)))
-            {
-                using var panel = new ConvexPolygonShape3D { Points = corners.Select(VehicleBody.ToGodot).ToArray() };
-                query.Shape = panel;
-                if (GetWorld3D().DirectSpaceState.IntersectShape(query, 1).Count != 0) { blocked = true; break; }
-            }
-            if (blocked) { continue; }
-            var rotation = seat.Basis.GetRotationQuaternion();
-            return new(VehicleBody.ToCore(query.Transform.Origin), new(rotation.X, rotation.Y, rotation.Z, rotation.W),
-                new(vehicle.LinearVelocity.X, 0, vehicle.LinearVelocity.Z), System.Numerics.Vector3.Zero);
+            using var panel = new ConvexPolygonShape3D { Points = corners.Select(VehicleBody.ToGodot).ToArray() };
+            query.Shape = panel;
+            // Never lift above an obstacle to manufacture clearance: that creates an
+            // unsupported spawn which the ground follower would pull back into it.
+            if (GetWorld3D().DirectSpaceState.IntersectShape(query, 1).Count != 0) { return null; }
         }
-        // Constrained rear space retains the selected shield and its capability for a later press.
-        return null;
+        var rotation = seat.Basis.GetRotationQuaternion();
+        return new(VehicleBody.ToCore(seat.Origin), new(rotation.X, rotation.Y, rotation.Z, rotation.W),
+            new(vehicle.LinearVelocity.X, 0, vehicle.LinearVelocity.Z), System.Numerics.Vector3.Zero);
     }
 }

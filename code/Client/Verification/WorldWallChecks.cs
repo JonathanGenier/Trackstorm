@@ -82,6 +82,7 @@ public sealed partial class WorldWallChecks : Node
         // Keep map pickups from refilling a just-cleared slot during deployment assertions.
         var arena = new NetworkVehicleArena { PrototypeMapForVerification = !ProductionMap, SpawnConfiguration = new() { PickupRadius = 0.01f } };
         arena.Initialize(wire, index == 0 ? 98ul : 0, server); view.AddChild(arena);
+        if (TerrainStability) { AddTerrainFixtures(arena); }
         foreach (int slope in new[] { 0, 1 })
         {
             var floor = new StaticBody3D { Position = new(slope * 100, 200, 0), Rotation = new(0, 0, slope * 0.12f), CollisionLayer = 1 };
@@ -101,6 +102,7 @@ public sealed partial class WorldWallChecks : Node
         _frame++; int elapsed = _frame - _boundary;
         try
         {
+            if (TerrainStability) { AdvanceTerrain(); return; }
             var host = _arenas[0].Driver.Host!;
             foreach (var wall in host.Items.Shields.Where(s => !s.Attached && !s.Tipping))
             {

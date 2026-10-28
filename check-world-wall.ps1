@@ -3,6 +3,7 @@ param(
     [switch]$Impaired,
     [switch]$Visual,
     [switch]$ProductionMap,
+    [switch]$TerrainStability,
     [switch]$NoBuild
 )
 $ErrorActionPreference = 'Stop'
@@ -12,9 +13,10 @@ if (-not $NoBuild) {
 }
 $arguments = @('--path', $PSScriptRoot, 'res://scenes/verification/world_wall_checks.tscn')
 if (-not $Visual) { $arguments = @('--headless') + $arguments }
-if ($Impaired -or $ProductionMap) { $arguments += '--' }
+if ($Impaired -or $ProductionMap -or $TerrainStability) { $arguments += '--' }
 if ($Impaired) { $arguments += '--world-wall-impaired' }
 if ($ProductionMap) { $arguments += '--world-wall-production' }
+if ($TerrainStability) { $arguments += '--world-wall-terrain' }
 $log = & $GodotPath @arguments 2>&1
 $exitCode = $LASTEXITCODE
 $outputDirectory = if ($ProductionMap) { '.godot/world-wall-production-checks' } else { '.godot/world-wall-checks' }
