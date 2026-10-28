@@ -9,7 +9,7 @@ namespace Trackstorm.Client.Items;
 internal sealed partial class ShieldWallBody : RigidBody3D
 {
     internal ShieldVisual Visual { get; private set; } = null!;
-    private Vector3 _size;
+    private ShieldGround _ground = null!;
     private bool _tipping;
     private Vector3? _groundContact;
     internal ulong Identity { get; private set; }
@@ -19,7 +19,7 @@ internal sealed partial class ShieldWallBody : RigidBody3D
         Identity = state.Id;
         Name = $"Shield_{state.Id}";
         Mass = state.WallMass;
-        _size = VehicleBody.ToGodot(state.WallSize);
+        _ground = new ShieldGround(VehicleBody.ToGodot(state.WallSize));
         CollisionLayer = 32;
         CollisionMask = 3 | 32;
         ContinuousCd = true;
@@ -84,7 +84,7 @@ internal sealed partial class ShieldWallBody : RigidBody3D
         }
         if (_tipping) { return; }
         var pose = state.Transform;
-        if (ShieldGround.Seat(state.GetSpaceState(), pose.Origin, pose.Basis.Z, _size) is not { } seat ||
+        if (_ground.Seat(state.GetSpaceState(), pose.Origin, pose.Basis.Z) is not { } seat ||
             Math.Abs(seat.Origin.Y - pose.Origin.Y) > 0.6f || state.LinearVelocity.Dot(seat.Basis.Y) > 2) { return; }
         // Terrain owns pitch/roll; native contact torque may still change yaw. This
         // follows the ground as the wall slides without letting gravity topple it.

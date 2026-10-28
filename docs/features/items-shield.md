@@ -74,13 +74,20 @@ Attached Shields follow existing inventory policy: ordinary death/reset/permanen
 ## Movable Shield world walls
 
 Normal use asks the host native adapter for rear ground and full three-panel clearance. The
-adapter projects behind the current heading, samples the center and four footprint ends,
-and fits the standing wall to their support plane without changing its horizontal heading.
-It searches up to one metre upward for clear panels. Its clearance query synchronously
+adapter projects behind the current heading and samples the bottom faces of all three
+angled panels at intervals no greater than 0.45 m, using the captured dimensions.
+It fits a least-squares support plane without changing horizontal heading, then resamples
+the tilted footprint. Four bounded passes account for the feet moving horizontally when
+the wall tilts. The final pose clears the highest sampled foot by 2 cm; a native query
+checks each complete panel volume. It never raises the wall above an obstruction to
+manufacture clearance. Its clearance query synchronously
 places the deploying car's native proxy at the current observed pose and excludes only its
 consumed mounted armor panels, then restores both pose and panels. This
 avoids rejecting fast forward deployment against the car's preceding-frame collider while
-still checking the actual chassis and other obstructions. A missing/steep support or blocked volume rejects that use
+still checking the actual chassis and other obstructions. Support must be authored static
+driveable terrain (`landing_terrain` or legacy `SurfaceBody`). A small edge overhang is
+allowed when at least 75% of the footprint samples have support. Slopes above 40 degrees,
+average footing gaps above 0.35 m, missing support or a blocked volume reject that use
 without consuming the shield. Core also rejects overlapping wall candidates within the same batch, before either native body exists. Deployment retains the entity ID, exact HP, damage sequence and
 collision cooldown. It captures horizontal vehicle velocity, wall dimensions and mass; it does
 not retain an attachment or dependency on the former owner's vehicle life. The Blender visual
@@ -223,4 +230,20 @@ angle. Native convex colliders, placement clearance, Core segment intersections,
 closest-surface queries and same-batch overlap rejection use that geometry. Captured
 nonuniform dimensions scale the same authored shape on all peers, including recovery;
 no additional replicated fields are required. The former straight wing footprint is
-open. Mounted geometry, support sampling and terrain stabilization are unchanged.
+open. Mounted geometry is unchanged. Standing native walls reuse the same full-footprint
+terrain fit while translating or yawing; pitch/roll remain constrained to support.
+Only the host queries terrain and advances physics. Frozen replicas install its accepted
+pose, so differing local terrain query results cannot independently rotate or settle a wall.
+The existing mass, friction, damping, contact damage and explicit hard-impact tipping
+transition are retained. A rigid wall cannot conform to arbitrary cliffs, deep holes or
+narrow protrusions; unsupported or obstructed deployment keeps the selected item.
+
+`check-world-wall.ps1 -TerrainStability -Impaired -Visual -GodotPath <exe>` exercises
+two production UDP peers on flat, 20-degree slope, 30/35-degree bank, compound slope,
+wing-only rise, partial edge and uneven footing fixtures. It deploys sixteen walls through
+ordinary use and holds them for another 1800 physics frames, checking drift, velocity,
+upright orientation, complete native panel clearance and exact accepted-state agreement.
+It also checks nine captured-size/heading combinations, inverted-vehicle placement and
+missing, too-steep and excessively unsupported terrain rejection. Cars are parked clear
+after release to isolate footing from contact response; the ordinary world-wall run owns
+vehicle push, sliding, impact and lifecycle regression coverage.
