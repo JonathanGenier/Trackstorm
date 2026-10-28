@@ -101,7 +101,14 @@ internal sealed partial class ShieldWorld : Node3D
         for (int attempt = 0; attempt <= 10; attempt++)
         {
             query.Transform = new(seat.Basis, seat.Origin + Vector3.Up * (attempt * 0.1f));
-            if (GetWorld3D().DirectSpaceState.IntersectShape(query, 1).Count != 0) { continue; }
+            bool blocked = false;
+            foreach (var corners in ShieldGeometry.DeployedCorners(VehicleBody.ToCore(shape.Size)))
+            {
+                using var panel = new ConvexPolygonShape3D { Points = corners.Select(VehicleBody.ToGodot).ToArray() };
+                query.Shape = panel;
+                if (GetWorld3D().DirectSpaceState.IntersectShape(query, 1).Count != 0) { blocked = true; break; }
+            }
+            if (blocked) { continue; }
             var rotation = seat.Basis.GetRotationQuaternion();
             return new(VehicleBody.ToCore(query.Transform.Origin), new(rotation.X, rotation.Y, rotation.Z, rotation.W),
                 new(vehicle.LinearVelocity.X, 0, vehicle.LinearVelocity.Z), System.Numerics.Vector3.Zero);

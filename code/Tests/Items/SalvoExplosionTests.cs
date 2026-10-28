@@ -105,7 +105,8 @@ internal sealed class SalvoExplosionTests
         var shield = _host.Items.Shields.Single();
         _host.Items.TransitionShield(_host.World, shield.Id, ShieldStage.RearShield, ShieldStage.WorldWall,
             new VehiclePhysicsState(new(0, 0, 8), Quaternion.Identity, default, default));
-        Seed(new Vector3(3.2f, 0, 8)); Step((_, _) => 1);
+        // Strike the actual angled right-wing tip, rather than the former flat footprint.
+        Seed(new Vector3(2.75f, 0, 7.1f)); Step((_, _) => 1);
         Assert.That(_host.Items.Shields.Single().HP, Is.EqualTo(750).Within(.001));
         Assert.That(_host.World.GetVehicle(2).Damage.CurrentHP, Is.EqualTo(1000));
     }

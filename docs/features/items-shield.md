@@ -73,10 +73,10 @@ Attached Shields follow existing inventory policy: ordinary death/reset/permanen
 
 ## Movable Shield world walls
 
-Normal use asks the host native adapter for rear ground and full expanded-box clearance. The
+Normal use asks the host native adapter for rear ground and full three-panel clearance. The
 adapter projects behind the current heading, samples the center and four footprint ends,
 and fits the standing wall to their support plane without changing its horizontal heading.
-It searches up to one metre upward for a clear box. Its clearance query synchronously
+It searches up to one metre upward for clear panels. Its clearance query synchronously
 places the deploying car's native proxy at the current observed pose and excludes only its
 consumed mounted armor panels, then restores both pose and panels. This
 avoids rejecting fast forward deployment against the car's preceding-frame collider while
@@ -85,7 +85,7 @@ without consuming the shield. Core also rejects overlapping wall candidates with
 collision cooldown. It captures horizontal vehicle velocity, wall dimensions and mass; it does
 not retain an attachment or dependency on the former owner's vehicle life. The Blender visual
 releases from the displayed mounted pose over 0.18 seconds while its full-height hinged wings
-open from 90 degrees to a flat wall over 0.42 seconds. The full collision envelope remains active
+open from 90 degrees to outward-flared 45-degree wings over 0.42 seconds. The full collision envelope remains active
 immediately. Captured dimensions scale the installed visual; configured sizes preserve the
 same silhouette rather than authoring a separate model for each tuning combination.
 
@@ -178,7 +178,7 @@ recovery cannot restart it. Expiry atomically removes the independent wall and r
 Expired event without touching the former owner's new inventory. Held/rear shields have
 no deployment timer.
 
-Core oriented-box intersections stop Machine Gun, Missile and Salvo segments at the closest
+Core three-panel intersections stop Machine Gun, Missile and Salvo segments at the closest
 wall, comparing against native terrain/chassis hits. Native weapon queries omit layer 32 so
 same-step destruction cannot leave phantom cover. Bullets damage the struck pool. Explosions
 damage/impulse each wall once independently of the number of vehicles in the blast; the
@@ -216,3 +216,11 @@ UDP convergence. That fixture suppresses pickup acquisition to isolate exact-slo
 `check-migration.ps1` compare complete retained wall state against the exact selected host
 boundary; deterministic tests additionally exercise Missile/Salvo wall damage and impulse.
 These fixtures do not establish Internet/EOS multi-PC performance, final art or balance.
+
+The deployed central face remains straight; both wings point outward and toward the
+former vehicle position. `ShieldGeometry` owns the three panel corners and final hinge
+angle. Native convex colliders, placement clearance, Core segment intersections,
+closest-surface queries and same-batch overlap rejection use that geometry. Captured
+nonuniform dimensions scale the same authored shape on all peers, including recovery;
+no additional replicated fields are required. The former straight wing footprint is
+open. Mounted geometry, support sampling and terrain stabilization are unchanged.

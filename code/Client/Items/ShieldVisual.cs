@@ -158,12 +158,12 @@ internal sealed partial class ShieldVisual : Node3D
             float centerFold = _world ? _releaseCenterFold * Mathf.SmoothStep(0, 1, _release) : _centerFold;
             _panels[i].Position = new(0, 0, .32f);
             _panels[i].Rotation = new(0, -side * MathF.PI / 2 * centerFold, 0);
-            // Open the forward-wrapping side panels outward to the same plane.
+            // Open the carried U into the approved outward-flared deployed wings.
             float fold = _world ? _releaseFold * Mathf.SmoothStep(0, 1, _release) : _fold;
             // The folding hinge slides the nested wing behind the central plate,
             // avoiding coplanar overlapping armor in the compact rack pose.
             _wings[i].Position = new(side * 1.85f, 0, -.32f - 1.2f * fold);
-            _wings[i].Rotation = new(0, side * MathF.PI / 2 * (1 + fold) * (1 - expansion), 0);
+            _wings[i].Rotation = new(0, side * (MathF.PI / 2 * (1 + fold) * (1 - expansion) + ShieldGeometry.DeployedWingAngle * expansion), 0);
         }
         for (int i = 0; i < _tops.Length; i++)
         { _tops[i].Rotation = new((i < 2 ? -1 : 1) * MathF.PI * HorizontalFold, 0, 0); }

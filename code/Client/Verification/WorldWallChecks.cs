@@ -198,6 +198,21 @@ public sealed partial class WorldWallChecks : Node
                         }
                     }
                     Check(_arenas.All(a => a.Walls.Bodies.Count == 2 && a.Bodies.Values.All(b => !b.HasRearShield)), "Native shield-to-world transition on both peers");
+                    foreach (var arena in _arenas)
+                    foreach (var body in arena.Walls.Bodies.Values)
+                    {
+                        Check(body.GetChildren().OfType<CollisionShape3D>().Count() == 3, "Every peer reconstructs exactly three collision panels");
+                        var wall = arena.Driver.ItemState!.Shields.Single(s => s.Id == body.Identity);
+                        var scale = Trackstorm.Client.Vehicles.VehicleBody.ToGodot(ShieldGeometry.DeployedScale(wall.WallSize));
+                        foreach (int side in new[] { -1, 1 })
+                        {
+                            using var empty = PhysicsRayQueryParameters3D.Create(body.ToGlobal(new Vector3(side * 2.7f, 0, -.1f) * scale), body.ToGlobal(new Vector3(side * 2.7f, 0, .1f) * scale), 32);
+                            empty.HitFromInside = true;
+                            Check(body.GetWorld3D().DirectSpaceState.IntersectRay(empty).Count == 0, "Former straight-wall wing footprint is empty on every peer");
+                            using var wing = PhysicsRayQueryParameters3D.Create(body.ToGlobal(new Vector3(side * 2.4f, 0, -2) * scale), body.ToGlobal(new Vector3(side * 2.4f, 0, 1) * scale), 32);
+                            Check(body.GetWorld3D().DirectSpaceState.IntersectRay(wing).Count != 0, "Both native angled wings intercept on every peer");
+                        }
+                    }
                     _seeds = host.Items.Shields.ToArray(); Capture($"{_scenario}-expanded.png"); Next(3); break;
                 case 3 when elapsed >= 90:
                     // Straight-line driving is valid on the grid/platforms. Infield pickup
@@ -229,14 +244,17 @@ public sealed partial class WorldWallChecks : Node
                     Record($"Bank slide follows elevation: {_groundStart.Y:F2} -> {grounded.Position.Y:F2} m; both ends remain terrain-aligned.");
                     RestWall();
                     _groundStart = grounded.Position;
-                    _arenas[0].Walls.Bodies[grounded.Id].ApplyCentralImpulse(new(grounded.WallMass * 30, 0, 0));
+                    // Exercise uphill support following with a tangent impulse. A horizontal
+                    // impulse drives into the bank and mixes this assertion with
+                    // shape-dependent contact friction from the new wing manifolds.
+                    _arenas[0].Walls.Bodies[grounded.Id].ApplyCentralImpulse(new(grounded.WallMass * 30, grounded.WallMass * 30 * MathF.Tan(0.12f), 0));
                     Next(16); break;
                 case 16:
                     var uphill = host.Items.Shields.Last();
                     float expectedHeight = _groundStart.Y + (uphill.Position.X - _groundStart.X) * MathF.Tan(0.12f);
                     Check(Math.Abs(uphill.Position.Y - expectedHeight) < 0.03f, "Fast uphill slide follows support rather than being classified as airborne");
                     if (elapsed < 30) { break; }
-                    Check(uphill.Position.Y > _groundStart.Y + 1, "Fast slide gains terrain elevation");
+                    Check(uphill.Position.Y > _groundStart.Y + 1, $"Fast slide gains terrain elevation: start {_groundStart}, end {uphill.Position}, velocity {uphill.LinearVelocity}");
                     Record($"Fast uphill slide follows elevation: {_groundStart.Y:F2} -> {uphill.Position.Y:F2} m.");
                     RestWall();
                     Position(2, uphill.Position + new N.Vector3(2, 0, 8), new(0, 0, -18));
