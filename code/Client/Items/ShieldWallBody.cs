@@ -26,7 +26,7 @@ internal sealed partial class ShieldWallBody : RigidBody3D
         MaxContactsReported = 8;
         AxisLockAngularX = true;
         AxisLockAngularZ = true;
-        LinearDamp = 2;
+        LinearDamp = 5;
         AngularDamp = 1.5f;
         PhysicsMaterialOverride = new PhysicsMaterial { Friction = 0.6f, Rough = false, Bounce = 0 };
         foreach (var corners in ShieldGeometry.DeployedCorners(state.WallSize))
@@ -52,7 +52,7 @@ internal sealed partial class ShieldWallBody : RigidBody3D
         {
             // Extra sliding resistance belongs to the standing wall. Preserve
             // the established fall/ground-contact response once it is knocked over.
-            LinearDamp = state.Tipping ? 0.2f : 2;
+            LinearDamp = state.Tipping ? 0.2f : 5;
             PhysicsMaterialOverride!.Friction = state.Tipping ? 0.08f : 0.6f;
         }
         _tipping = state.Tipping;

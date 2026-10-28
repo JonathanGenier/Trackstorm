@@ -23,7 +23,7 @@ public sealed record ShieldState(ulong Id, ulong Owner, ulong Life, ulong Token,
     /// <summary>Dimensions captured on deployment; live tuning never resizes an installed collider.</summary>
     public Vector3 WallSize { get; init; } = new(6.6f, 2.5f, 0.6f);
     /// <summary>Physical mass captured on deployment in kilograms.</summary>
-    public float WallMass { get; init; } = 250;
+    public float WallMass { get; init; } = 18000;
     /// <summary>Captured absolute simulation deadline; zero only while held or attached.</summary>
     public ulong ExpiresAtTick { get; init; }
     /// <summary>A strong impact released pitch/roll constraints; retained through recovery.</summary>
@@ -41,7 +41,7 @@ public sealed record ShieldState(ulong Id, ulong Owner, ulong Life, ulong Token,
             !VehiclePhysicsState.IsFinite(LinearVelocity) || !VehiclePhysicsState.IsFinite(AngularVelocity) ||
             (Attached && (LinearVelocity != Vector3.Zero || AngularVelocity != Vector3.Zero)) ||
             !VehiclePhysicsState.IsFinite(WallSize) || WallSize.X is < 3 or > 12 || WallSize.Y is < 2 or > 6 || WallSize.Z is < 0.3f or > 2 ||
-            !float.IsFinite(WallMass) || WallMass is < 50 or > 2000 ||
+            !float.IsFinite(WallMass) || WallMass is < 50 or > 60000 ||
             !VehiclePhysicsState.IsFinite(Position) || !float.IsFinite(Orientation.X) || !float.IsFinite(Orientation.Y) ||
             !float.IsFinite(Orientation.Z) || !float.IsFinite(Orientation.W) || Math.Abs(Orientation.LengthSquared() - 1) > 0.001f)
         { throw new ArgumentException("Invalid Shield continuation."); }

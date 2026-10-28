@@ -13,6 +13,7 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("spawns.shield_weight", 1d)]
     [TestCase("items.shield_lifetime", 120d)]
     [TestCase("items.shield_tip_speed", 20d)]
+    [TestCase("items.shield_mass", 18000d)]
     [TestCase("vehicle.wall_drag", (double)0.18f)]
     [TestCase("vehicle.crash_dissipation", (double)0.95f)]
     [TestCase("vehicle.crash_rotation", (double)0.08f)]

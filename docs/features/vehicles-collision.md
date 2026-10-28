@@ -10,6 +10,11 @@ Static obstacle severity uses pre-solver normal approach speed, weighted continu
 
 ### Static environment response
 
+Deployed Shield contacts use the same incidence-weighted severity on the contact's relative
+velocity and horizontal side normal. Vehicle authority retains strongest-contact selection,
+the ordinary HP cap and cooldown. Shield momentum remains owned by item authority; the
+native adapter excludes it from generic movable-prop impulses. See [Shield](items-shield.md).
+
 Rock tops can supply downward wheel-ray support at the ordinary support-normal
 threshold while their side faces retain the anti-climb obstacle response. Chassis
 landings on a rock top retain the existing inelastic lever-arm response with the

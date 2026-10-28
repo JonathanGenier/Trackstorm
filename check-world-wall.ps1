@@ -4,6 +4,8 @@ param(
     [switch]$Visual,
     [switch]$ProductionMap,
     [switch]$TerrainStability,
+    [switch]$Profile,
+    [switch]$Heavy,
     [switch]$NoBuild
 )
 $ErrorActionPreference = 'Stop'
@@ -13,7 +15,9 @@ if (-not $NoBuild) {
 }
 $arguments = @('--path', $PSScriptRoot, 'res://scenes/verification/world_wall_checks.tscn')
 if (-not $Visual) { $arguments = @('--headless') + $arguments }
-if ($Impaired -or $ProductionMap -or $TerrainStability) { $arguments += '--' }
+if ($Impaired -or $ProductionMap -or $TerrainStability -or $Profile -or $Heavy) { $arguments += '--' }
+if ($Heavy) { $arguments += '--world-wall-heavy' }
+if ($Profile) { $arguments += '--world-wall-profile' }
 if ($Impaired) { $arguments += '--world-wall-impaired' }
 if ($ProductionMap) { $arguments += '--world-wall-production' }
 if ($TerrainStability) { $arguments += '--world-wall-terrain' }

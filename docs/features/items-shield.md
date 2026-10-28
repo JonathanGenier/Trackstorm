@@ -133,11 +133,13 @@ rear-shield, world-wall, vehicle/articulation and recovery checks; it does not e
 controller ergonomics, real WAN behavior or final competitive balance.
 
 Host Configs exposes `items.shield_width` (6.6 m), `height` (2.5 m), `depth` (0.6 m),
-`mass` (250 kg), and `clearance` (1 m behind the chassis envelope). Bounds are respectively
-3–12 m, 2–6 m, 0.3–2 m, 50–2000 kg, and 0.5–5 m. Dimensions and mass are captured at
+`mass` (18000 kg), and `clearance` (1 m behind the chassis envelope). Bounds are respectively
+3–12 m, 2–6 m, 0.3–2 m, 50–60000 kg, and 0.5–5 m. Dimensions and mass are captured at
 deployment, so later tuning cannot resize an installed collider. Configuration protocol 41
 carries these values through the existing validation, publication and recovery path. These
-are operational defaults verified on flat/banked native fixtures, not final balance.
+are operational defaults verified on flat/banked native fixtures. The wall has six times
+the default vehicle mass. Existing saved mass overrides remain effective; reset the Shield
+category or set wall mass to 18000 for the current heavy behavior.
 
 `ShieldWorld` reconstructs one rigid body per accepted wall. Only the active host runs its
 native solver; Core commits observed pose, linear/angular velocity and independent HP.
@@ -145,6 +147,9 @@ Frozen replicas receive the complete accepted state. Vehicle collision queries i
 layer 32 and retain normal vehicle collision damage. For wall contacts only, Core shares
 contact-normal momentum using the car and captured wall masses plus the wall box inertia, so a car pushes the
 wall while slowing instead of retaining the generic sweep's stationary-obstacle stop.
+All cars use the same incoming wall boundary; earlier cars' impulses change the wall's
+remaining relative velocity without manufacturing a faster incoming velocity for later cars.
+Native generic-prop impulses exclude Shields because Core already owns that response.
 Distinct manifold points form one contact centroid per wall; the contact offset produces
 angular momentum as well as translation. Duplicate points cannot add duplicate torque.
 Unrelated blocking contacts keep their resolved motion. Shield contacts bypass the
@@ -155,14 +160,19 @@ so a banked side face cannot turn a sustained push into vertical lift. Top conta
 terrain support retain their existing normals.
 General car handling, suspension, tuning and other collision responses are unchanged. Writing an unchanged host
 observation back to the solver is skipped to preserve pending contact impulses.
-Standing walls use friction 0.6 and linear damping 2 so they settle after an unpowered push rather
+Standing walls use friction 0.6 and linear damping 5 so they settle after an unpowered push rather
 than coasting across the arena. Their captured mass and contact momentum sharing remain
 unchanged, allowing a moving car to keep pushing them. Before a strong vehicle impact,
 native pitch/roll torque is constrained;
 terrain support controls their slope-relative orientation and height as they slide. Horizontal
 heading is preserved through ground alignment, while contact torque may rotate yaw freely.
 Unsupported or airborne walls retain gravity. A rigid base cannot bend around a crest: it
-rests above the highest sampled support, and placement requires all five supported samples.
+rests above the highest sampled support, with at least 75% of the complete footprint supported.
+The fitted static-terrain seat is reused while horizontal position and heading remain unchanged
+(0.1 mm position tolerance); movement, rotation or a vertical displacement of 10 cm refits it.
+The iterative fit stops when the support basis converges. This avoids repeating hundreds of
+native rays per settled wall per physics tick. The cache is local reconstructable adapter state;
+peers still install only the accepted host pose. Maps must keep eligible authored support static.
 Walls collide with
 terrain/vehicles/other walls and survive the deployer's death, respawn or departure until
 expiry/destruction. Inactive authority freezes the bodies.
@@ -191,7 +201,10 @@ same-step destruction cannot leave phantom cover. Bullets damage the struck pool
 damage/impulse each wall once independently of the number of vehicles in the blast; the
 existing non-occluded vehicle radial explosion rule is preserved. Vehicle contacts name the
 struck wall; strongest manifold severity damages it once, with the shared default collision
-cooldown on the independent pool. Lethal damage journals one destruction and removes the
+cooldown on the independent pool. Vehicle damage uses the existing solid-obstacle incidence
+weighting on relative approach velocity and the normal shared vehicle threshold, cap and
+12-tick cooldown. Glancing scrapes and resting pressure cannot produce repeated damage.
+Lethal damage journals one destruction and removes the
 body through complete-state absence, without touching the former owner's new inventory.
 
 Item protocol 21 and nested checkpoints retain dimensions, mass, pose, both velocities,
@@ -212,7 +225,7 @@ capture expanded, pushed, destroyed and stress states. Every live wall is checke
 orientation before tipping throughout the run. An off-centre vehicle strike must rotate
 the wall without artificial torque. A hard native vehicle strike must tip it and break it
 on ground contact. Ordinary banked contact and five hard strikes (host/remote, centred/offset,
-40/60 m/s setup speeds, reverse-facing and banked) measure support-relative car rise and
+60/80 m/s setup speeds, reverse-facing and banked) measure support-relative car rise and
 upward speed; hard strikes continue for three seconds without resetting the car. A short
 configured lifetime verifies exact expiry and peer cleanup. Missile/Salvo target fixtures reposition the surviving
 wall onto level support after the motion test; they do not establish moving-target accuracy.
@@ -234,8 +247,9 @@ open. Mounted geometry is unchanged. Standing native walls reuse the same full-f
 terrain fit while translating or yawing; pitch/roll remain constrained to support.
 Only the host queries terrain and advances physics. Frozen replicas install its accepted
 pose, so differing local terrain query results cannot independently rotate or settle a wall.
-The existing mass, friction, damping, contact damage and explicit hard-impact tipping
-transition are retained. A rigid wall cannot conform to arbitrary cliffs, deep holes or
+The explicit hard-impact tipping/destruction transition remains available at its configured
+impulse-per-mass threshold; ordinary impacts against the heavy default stay upright.
+A rigid wall cannot conform to arbitrary cliffs, deep holes or
 narrow protrusions; unsupported or obstructed deployment keeps the selected item.
 
 `check-world-wall.ps1 -TerrainStability -Impaired -Visual -GodotPath <exe>` exercises
@@ -246,4 +260,14 @@ upright orientation, complete native panel clearance and exact accepted-state ag
 It also checks nine captured-size/heading combinations, inverted-vehicle placement and
 missing, too-steep and excessively unsupported terrain rejection. Cars are parked clear
 after release to isolate footing from contact response; the ordinary world-wall run owns
-vehicle push, sliding, impact and lifecycle regression coverage.
+vehicle push, sliding, impact and lifecycle regression coverage. The terrain test repeats
+two full sixteen-wall cycles, verifies cleanup of native bodies and visual debris, and rejects
+orphan nodes. Add `-ProductionMap` to perform the same soak on actual grid/infield locations.
+Add `-Profile` for render FPS, Godot process/physics monitors, terrain-fit timing/ray counts,
+active bodies and node counts; settled fitting work is regression-checked when profiling.
+
+`check-world-wall.ps1 -Heavy -Impaired -Visual -GodotPath <exe>` checks casual contact,
+18/40 m/s center strikes, both wings, banked contact, two opposing cars and five seconds
+of engine pressure. It checks wall motion, upright stability, vehicle damage/cooldowns and
+accepted UDP state/HP agreement. The ordinary tipping regression retains its original
+250 kg fixture to exercise preserved breakage; heavy-default stress uses the terrain mode.

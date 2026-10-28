@@ -7,10 +7,16 @@ namespace Trackstorm.Client.Items;
 /// <summary>Fits the complete angled panel footing to static terrain, preserving projected heading.</summary>
 internal sealed class ShieldGround
 {
+    internal static bool Profile { get; set; }
+    internal static long Fits { get; private set; }
+    internal static long Rays { get; private set; }
+    internal static double Milliseconds { get; private set; }
     private readonly Vector3[] _feet;
     private readonly Vector3[] _support;
     private readonly bool[] _supported;
     private readonly float _height;
+    private Transform3D? _seat;
+    private Vector3 _center, _heading;
 
     internal ShieldGround(Vector3 size)
     {
@@ -35,6 +41,24 @@ internal sealed class ShieldGround
 
     internal Transform3D? Seat(PhysicsDirectSpaceState3D space, Vector3 center, Vector3 heading)
     {
+        // Only authored static support is eligible. An unchanged footprint cannot
+        // acquire a different fit every physics tick. Vertical tolerance permits
+        // gravity's sub-step while a drop/teleport still queries the new surface.
+        if (_seat.HasValue && Math.Abs(center.Y - _center.Y) < .1f &&
+            new Vector2(center.X - _center.X, center.Z - _center.Z).LengthSquared() < .00000001f &&
+            heading.DistanceSquaredTo(_heading) < .0000000001f) { return _seat; }
+        long start = Profile ? System.Diagnostics.Stopwatch.GetTimestamp() : 0;
+        try
+        {
+            if (Profile) { Fits++; }
+            _center = center; _heading = heading;
+            return _seat = Fit(space, center, heading);
+        }
+        finally { if (Profile) { Milliseconds += System.Diagnostics.Stopwatch.GetElapsedTime(start).TotalMilliseconds; } }
+    }
+
+    private Transform3D? Fit(PhysicsDirectSpaceState3D space, Vector3 center, Vector3 heading)
+    {
         heading.Y = 0;
         if (heading.LengthSquared() < .01f) { return null; }
         heading = heading.Normalized();
@@ -53,6 +77,7 @@ internal sealed class ShieldGround
                 ray.From = new(point.X, center.Y + _height / 2 + 2, point.Z);
                 ray.To = new(point.X, center.Y - _height / 2 - 8, point.Z);
                 using var hit = space.IntersectRay(ray);
+                if (Profile) { Rays++; }
                 _supported[i] = hit.Count > 0 && hit["collider"].AsGodotObject() is StaticBody3D terrain &&
                     (terrain.IsInGroup("landing_terrain") || terrain is SurfaceBody) && hit["normal"].AsVector3().Y >= .55f;
                 if (!_supported[i]) { continue; }
@@ -79,7 +104,7 @@ internal sealed class ShieldGround
             var up = new Vector3(-slope.X, 1, -slope.Y).Normalized();
             var back = new Vector3(heading.X, -up.Dot(heading) / up.Y, heading.Z).Normalized();
             var fitted = new Basis(up.Cross(back).Normalized(), up, back);
-            if (iteration < 3) { basis = fitted; continue; }
+            if (iteration < 3 && !basis.IsEqualApprox(fitted)) { basis = fitted; continue; }
             // Use the footprint we actually queried. The small residual plane-fit
             // difference is handled by lifting to the highest foot, never burying it.
             float lift = float.NegativeInfinity;

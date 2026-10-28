@@ -9,7 +9,9 @@ internal static class VehicleCrash
         ? (support.Compression.X > 0 ? 1 : 0) + (support.Compression.Y > 0 ? 1 : 0) +
           (support.Compression.Z > 0 ? 1 : 0) + (support.Compression.W > 0 ? 1 : 0) : 0;
 
-    internal static float Severity(VehicleContact contact, Vector3 support, float mass) => contact.StaticObstacle
+    internal static float Severity(VehicleContact contact, Vector3 support, float mass) => contact.Shield != 0
+        ? EnvironmentCollision.Severity(contact.RelativeVelocity, contact.Normal)
+        : contact.StaticObstacle
         ? EnvironmentCollision.Severity(contact.RelativeVelocity, EnvironmentCollision.ResponseNormal(contact.Normal, support))
         : VehicleDamageMath.CollisionSeverity(contact.RelativeVelocity, contact.Normal, contact.Impulse, mass);
 
