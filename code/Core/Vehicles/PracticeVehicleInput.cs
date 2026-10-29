@@ -5,10 +5,13 @@ namespace Trackstorm.Core.Vehicles;
 
 /// <summary>Host-owned practice driving intent using ordinary steering, throttle and brakes.</summary>
 /// <param name="oval">Production oval route; false uses the smaller prototype perimeter.</param>
-public sealed class PracticeVehicleInput(bool oval = true)
+/// <param name="followingDistance">Desired separation from the preceding car along the route, in metres.</param>
+public sealed class PracticeVehicleInput(bool oval = true, float followingDistance = 10)
 {
     private float _integral;
     private ulong _life;
+    private readonly float _followingDistance = float.IsFinite(followingDistance) && followingDistance > 0
+        ? followingDistance : throw new ArgumentOutOfRangeException(nameof(followingDistance));
     /// <summary>Nominal cruise speed in metres per second.</summary>
     public const float Speed = 50f / 3.6f;
     private const float Radius = 91;
@@ -18,11 +21,13 @@ public sealed class PracticeVehicleInput(bool oval = true)
     /// <summary>Initial practice formation on the same driving route; never used to reposition a live car.</summary>
     public static VehiclePhysicsState InitialPose(bool oval, int index, float height)
     {
-        if (index is < 0 or > 1) { throw new ArgumentOutOfRangeException(nameof(index)); }
+        if (index < 0 || index > (oval ? 2 : 1)) { throw new ArgumentOutOfRangeException(nameof(index)); }
         float phase = -index * 10f / 28;
-        Vector3 position = oval ? Point(100 - index * 10) : new(28 * MathF.Sin(phase), 0, 28 * MathF.Cos(phase));
+        float distance = index == 2 ? -10 : 100 - index * 10;
+        Vector3 position = oval ? Point(distance) : new(28 * MathF.Sin(phase), 0, 28 * MathF.Cos(phase));
         position.Y = height;
         float yaw = oval ? -MathF.PI / 2 : MathF.Atan2(-MathF.Cos(phase), MathF.Sin(phase));
+        if (oval && index == 2) { yaw -= 10 / Radius; }
         return new(position, Quaternion.CreateFromAxisAngle(Vector3.UnitY, yaw), Vector3.Zero, Vector3.Zero);
     }
 
@@ -50,7 +55,7 @@ public sealed class PracticeVehicleInput(bool oval = true)
             float gap = MathF.IEEERemainder((Nearest(leader.Movement.Physics.Position) - nearest) * length / _route.Length, length);
             // Ten metres centre-to-centre leaves about one car length of clear road.
             // Bounded speed corrections settle back to the leader's ordinary speed.
-            desiredSpeed = Math.Clamp(Speed + (gap - 10) * .5f, 0, Speed + 4);
+            desiredSpeed = Math.Clamp(Speed + (gap - _followingDistance) * .5f, 0, Speed + 4);
         }
         float error = desiredSpeed - state.Speed;
         _integral = Math.Clamp(_integral + error / configuration.TicksPerSecond * .08f, 0, .7f);
@@ -73,6 +78,8 @@ public sealed class PracticeVehicleInput(bool oval = true)
 
     private static Vector3 Point(float distance)
     {
+        float length = 2 * Straight + MathF.Tau * Radius;
+        if (distance < 0 || distance >= length) { distance = (distance % length + length) % length; }
         if (distance < Straight) { return new(-107 + distance, 0, Radius); }
         distance -= Straight;
         if (distance < MathF.PI * Radius)

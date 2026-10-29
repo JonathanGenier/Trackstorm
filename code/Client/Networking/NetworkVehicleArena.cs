@@ -339,7 +339,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
             MapConfiguration = Arenas.ActiveMap.ReadConfiguration(Map);
         }
 
-        _driver = new VehicleNetworkDriver(gateway, session, serverPeer, lobby, configuration: configuration ?? Core.Development.GameplayConfiguration.HostedDefaults, arena: MapConfiguration, applicationEntry: ApplicationEntry);
+        _driver = new VehicleNetworkDriver(gateway, session, serverPeer, lobby, configuration: configuration ?? Core.Development.GameplayConfiguration.HostedDefaults, arena: MapConfiguration, applicationEntry: ApplicationEntry,
+            placePractice: pose => Arenas.ActiveMap.PlacePracticeCar(Map, pose));
         _driver.ConfigurationChanged += accepted =>
         {
             _items.OilRoughness = accepted.Items.OilRoughness;

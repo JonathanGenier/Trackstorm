@@ -15,6 +15,26 @@ internal static class ActiveMap
     /// <returns>The scene-owned foundation.</returns>
     internal static Node3D Load() => Networking.MatchResourceLoader.LoadResource<PackedScene>(ScenePath).Instantiate<Node3D>();
 
+    // Entry constructs authority before the map joins the physics world. Intersect
+    // the existing collision resource once, without new geometry or live repositioning.
+    internal static VehiclePhysicsState PlacePracticeCar(Node3D map, VehiclePhysicsState pose)
+    {
+        var shape = map.GetNode<CollisionShape3D>("Collision/Track/Shape");
+        var faces = ((ConcavePolygonShape3D)shape.Shape).GetFaces();
+        Vector3 point = VehicleBody.ToGodot(pose.Position);
+        for (int index = 0; index < faces.Length; index += 3)
+        {
+            var hit = Geometry3D.SegmentIntersectsTriangle(point + Vector3.Up * 50, point + Vector3.Down * 50,
+                faces[index], faces[index + 1], faces[index + 2]);
+            if (hit.VariantType == Variant.Type.Vector3)
+            {
+                point.Y = hit.AsVector3().Y + VehicleDimensions.RideHeight + .15f;
+                return new(VehicleBody.ToCore(point), pose.Orientation, pose.LinearVelocity, pose.AngularVelocity);
+            }
+        }
+        throw new InvalidOperationException("The practice route must start over the authored track collision.");
+    }
+
     /// <summary>Reads the actual scene markers in stable slot order, without duplicating their coordinates in code.</summary>
     /// <param name="map">An identity-transform foundation instance.</param>
     /// <returns>Validated plain-data contract consumed by the single Core simulation.</returns>

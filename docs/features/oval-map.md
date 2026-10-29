@@ -67,15 +67,41 @@ practice reset and death/respawn use the same eight grid transforms.
 `VehicleNetworkDriver` retains the contract when restoring migrated authority;
 resume checkpoints retain existing vehicle poses without resetting the map slots.
 
-Normal hosted matches automatically include two practice cars, following the oval in
+Normal hosted matches automatically include three moving practice cars, following the oval in
 the grid's racing direction and targeting 50 km/h after acceleration, with the second
-car following about 10 m behind. Core supplies
+car following about 10 m behind. The third follows the second approximately 100 m
+behind along the same route, lane and direction, including across the lap seam.
+The original pair's initial poses and driving parameters are unchanged. On initial
+entry, the third car's height is seated above the existing bank collision triangles;
+recovery retains its checkpoint pose. Core supplies
 ordinary steering and speed-controlled throttle/brake inputs; it never teleports the
 car or overrides velocity. Banking, collisions and handling changes can temporarily
 change speed. Death and respawn retain normal lifecycle rules, and driving resumes
 from the new spawn. Old Map uses a smaller 28 m radius route around its central
-obstacles. This is route following without dynamic obstacle avoidance. The pair occupies
-two of the eight roster slots and replicates through the ordinary vehicle path; see
+obstacles and retains only the original pair. This is route following without dynamic obstacle avoidance.
+New Map's fourth practice car starts 6.096 m (20 feet) behind the unchanged
+`item-infield-04-water` marker, facing along the marker heading. It uses ordinary
+steering and pedals to drive the short straight to that original pickup point,
+then reverses to its starting position and parks with the acquired item. Initial
+home placement includes 0.3 m suspension clearance for the slightly uphill dirt;
+native terrain support determines its settled height and orientation.
+
+Core owns one bounded trip per vehicle life. If the crate is unavailable, the car
+stops at the approach point until normal pickup succeeds. A full inventory returns
+home without further pickup attempts. After parking, use/discard does not restart
+the trip; only destruction and ordinary respawn begin another. The car does not
+auto-fire or discard items. The normal three-metre pickup sphere may award the item
+before the car reaches the approach point; an ordinary single pickup completes the
+approach before reversing. Crate position, breaking, cooldown and inventory rules
+are unchanged, and the respawned crate is visibly separate from the parked car.
+
+Stopped waiting/inspection poses are anchored against drift and impulses while
+retaining health, targeting and inventory. Moving segments retain normal vehicle
+physics. Death follows normal timing; home respawn waits for clearance. The existing
+host migration supplement retains trip phase, life and acquired-item latch, so
+recovery cannot restart a completed trip or lose a pending return after discard.
+Fresh matches reconstruct all four targets once. The four targets occupy four
+of the eight roster slots and replicate through the ordinary vehicle path; see
 [session ownership](sessions.md). Local-only practice retains stationary targets.
 
 The map contains 27 scene-authored item markers. Twenty remain on the oval: five transverse rows with pickups at 3, 9 and 15 m across the 18 m surface, plus five singles. Locations follow the Jira placement reference relative to the grid, projected onto actual master sections; its legacy dimensions are not used. The existing network arena registers, observes, distributes and replicates these markers through the existing pickup system. Optional old-map prop snapshots remain absent. Local rigid-body practice retains its existing driving-only role; pickup acquisition and inventory remain owned by hosted gameplay. Old Map retains its own eight pickups.
@@ -225,10 +251,17 @@ The two kicker-to-tabletop fills continue from the unchanged 4.8 m lips to the u
 
 ## Integrated production validation
 
-`check-hosted-practice.ps1` checks the automatic practice pair through ordinary hosted lobby,
-loading and gameplay with impaired local UDP, two oval laps with measured following separation/speed, remote snapshots,
-out-of-bounds death/respawn, late join and repeat matches. `-OldMap` checks the smaller
-route and the same session transitions, omitting the oval-specific boundary probe.
+`check-hosted-practice.ps1` checks all four automatic targets through ordinary hosted
+lobby, loading and gameplay with impaired local UDP. It measures both following
+gaps over two oval laps, verifies the parked pose, repeated pickups, four-sided
+target rays and native ram collision, then checks remote snapshots, out-of-bounds
+death/respawn, late join and repeat matches. `-Visual` captures the rendered targets.
+`-Aim -Visual` exercises the existing assisted Missile aim, target switching, lock
+markers and remote launch for all four cars, including downward aim at the pond.
+`-Pond -Visual` runs the focused Car 4 pickup, reverse, full-inventory parking,
+contended cooldown wait, three destruction/respawn cycles and collision checks.
+`-OldMap` checks the original pair on the smaller route and the same session
+transitions, omitting the oval-specific target probes.
 
 `check-oval.ps1` drives three continuous full-throttle laps from rest, with no Nitro,
 wall assistance or speed override, and requires reaching at least 99% of the configured

@@ -22,15 +22,15 @@ internal sealed class PracticeCarTests
     }
 
     [Test]
-    public void PracticePairReservesTwoSlotsWithoutTransportOrIdentity()
+    public void PracticeTargetsReserveFourSlotsWithoutTransportOrIdentity()
     {
         var lobby = new LobbyAuthority(100, "Host");
         lobby.AddPracticeCar(); lobby.AddPracticeCar();
-        Assert.That(lobby.State.Players.Count, Is.EqualTo(3));
+        Assert.That(lobby.State.Players.Count, Is.EqualTo(5));
         Assert.That(lobby.State.CanStart, Is.True);
         Assert.That(lobby.Capture("host").Subjects.Keys, Is.EqualTo(new[] { 1UL }));
-        Assert.That(LobbyCodec.DecodeState(LobbyCodec.EncodeState(lobby.State, 1)).State.Players.Count(player => player.PracticeCar), Is.EqualTo(2));
-        for (ulong peer = 10; peer < 15; peer++) { Assert.That(lobby.Join(peer, GameVersion.Current.ToString(), "Human", "subject" + peer), Is.Not.Zero); }
+        Assert.That(LobbyCodec.DecodeState(LobbyCodec.EncodeState(lobby.State, 1)).State.Players.Count(player => player.PracticeCar), Is.EqualTo(4));
+        for (ulong peer = 10; peer < 13; peer++) { Assert.That(lobby.Join(peer, GameVersion.Current.ToString(), "Human", "subject" + peer), Is.Not.Zero); }
         Assert.That(lobby.Join(15, GameVersion.Current.ToString(), "Overflow"), Is.Zero);
         Assert.That(lobby.Peers.Values, Does.Not.Contain(2UL));
     }
@@ -64,17 +64,18 @@ internal sealed class PracticeCarTests
         host.DrivePracticeCar(2, true);
         Assert.That(host.World.State.Vehicles.Count, Is.EqualTo(2));
         host.DrivePracticeCar(3, true);
-        Assert.Throws<InvalidOperationException>(() => host.DrivePracticeCar(4, true));
+        host.DrivePracticeCar(4, true);
         Assert.That(host.ResumePlayer(20, 2), Is.False);
         Assert.That(host.Receive(20, 100, []), Is.False);
         host.ExpirePlayer(2);
-        Assert.That(host.World.State.Vehicles.Count, Is.EqualTo(2));
+        Assert.That(host.World.State.Vehicles.Count, Is.EqualTo(3));
     }
 
     [Test]
     public void RestoredArenaPreservesCarAndResumesHostDriving()
     {
         var lobby = new LobbyAuthority(100, "Host");
+        lobby.SelectMap(0, MatchMap.OldMap);
         lobby.AddPracticeCar();
         ulong human = lobby.Join(10, GameVersion.Current.ToString(), "Successor", "successor");
         lobby.SetReady(10, true); lobby.Start(0, [10]);

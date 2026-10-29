@@ -50,6 +50,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
     private bool _disposed;
     private Trackstorm.Core.Arenas.EnvironmentSnapshot? _publishedEnvironment;
     private readonly Func<bool>? _admissionOpen;
+    private readonly Func<VehiclePhysicsState, VehiclePhysicsState>? _placePractice;
     private readonly Func<ulong, bool>? _activateJoin;
 
     /// <summary>Creates a host or connects a client driver to an already-open transport.</summary>
@@ -62,8 +63,10 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
     /// <param name="arena">Active map's validated player and optional pickup markers.</param>
     /// <param name="applicationEntry">Require the application loading barrier before simulation.</param>
     /// <param name="seconds">Optional controlled monotonic presentation clock for tests.</param>
-    internal VehicleNetworkDriver(ITransportGateway gateway, ulong hostSession, ulong serverPeer = 0, LobbyNetworkDriver? lobby = null, DamageConfiguration? damageConfiguration = null, GameplayConfiguration? configuration = null, Trackstorm.Core.Arenas.ArenaConfiguration? arena = null, bool applicationEntry = false, Func<double>? seconds = null)
+    /// <param name="placePractice">Map collision placement for the added moving practice car.</param>
+    internal VehicleNetworkDriver(ITransportGateway gateway, ulong hostSession, ulong serverPeer = 0, LobbyNetworkDriver? lobby = null, DamageConfiguration? damageConfiguration = null, GameplayConfiguration? configuration = null, Trackstorm.Core.Arenas.ArenaConfiguration? arena = null, bool applicationEntry = false, Func<double>? seconds = null, Func<VehiclePhysicsState, VehiclePhysicsState>? placePractice = null)
     {
+        _placePractice = placePractice;
         _seconds = seconds ?? (() => (double)Stopwatch.GetTimestamp() / Stopwatch.Frequency);
         _lastSnapshotSeconds = _seconds();
         _applicationEntry = applicationEntry;
@@ -128,9 +131,9 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
             _awaitingCheckpoint = Host is null && (applicationEntry || lobby.NeedsArenaCheckpoint);
             if (Host is not null)
             {
-                foreach (var player in lobby.State.Players.Where(player => player.PracticeCar))
+                foreach (var player in lobby.State.Players.Where(player => player.PracticeCar).OrderBy(player => player.Id))
                 {
-                    Host.DrivePracticeCar(player.Id, lobby.State.Map == MatchMap.NewMap);
+                    Host.DrivePracticeCar(player.Id, lobby.State.Map == MatchMap.NewMap, _placePractice);
                 }
                 foreach (var peer in lobby.Authority!.Peers)
                 {
@@ -841,9 +844,9 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         Host = host ? HostVehicleSession.Restore(checkpoint.Arena, checkpoint.Host!, _lobby!.LocalPlayerId, _lobby.Authority!.Events, _arena, requireActiveMatch: _applicationEntry) : null;
         if (Host is not null)
         {
-            foreach (var player in checkpoint.Lobby.State.Players.Where(player => player.PracticeCar))
+            foreach (var player in checkpoint.Lobby.State.Players.Where(player => player.PracticeCar).OrderBy(player => player.Id))
             {
-                Host.DrivePracticeCar(player.Id, checkpoint.Lobby.State.Map == MatchMap.NewMap);
+                Host.DrivePracticeCar(player.Id, checkpoint.Lobby.State.Map == MatchMap.NewMap, _placePractice);
             }
         }
         _itemPublication = checkpoint.Arena.Items.Revision;

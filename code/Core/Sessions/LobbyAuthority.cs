@@ -44,16 +44,17 @@ public sealed class LobbyAuthority
     /// <summary>Fresh admission counts every roster slot, including pending and retained participants.</summary>
     public bool CanJoin => AdmissionOpen && State.Players.Count < 8 && State.Players.Count + State.Departed.Count < Matches.MatchState.MaximumPlayers;
 
-    /// <summary>Reserves a pair of host-driven practice cars; never grants network identities.</summary>
+    /// <summary>Reserves map-specific practice targets; never grants network identities.</summary>
     public void AddPracticeCar()
     {
         int count = State.Players.Count(player => player.PracticeCar);
-        if (count == 2) { return; }
-        if (State.Phase != SessionPhase.Lobby || State.Players.Count + 2 - count > 8 || !CanJoin)
-        { throw new InvalidOperationException("Practice pair requires two free lobby slots."); }
+        int desired = State.Map == MatchMap.NewMap ? 4 : 2;
+        if (count == desired) { return; }
+        if (State.Phase != SessionPhase.Lobby || State.Players.Count + desired - count > 8 || !CanJoin)
+        { throw new InvalidOperationException("Practice targets require free lobby slots."); }
         var players = State.Players.ToList();
-        for (int index = count; index < 2; index++)
-        { players.Add(new SessionPlayer(checked(++_nextId), index == 0 ? "Practice Car" : "Practice Car 2", true, PracticeCar: true)); }
+        for (int index = count; index < desired; index++)
+        { players.Add(new SessionPlayer(checked(++_nextId), index == 0 ? "Practice Car" : $"Practice Car {index + 1}", true, PracticeCar: true)); }
         Publish(players);
     }
 
@@ -524,7 +525,13 @@ public sealed class LobbyAuthority
 
         if (State.Map != map)
         {
-            State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, State.Phase, State.Players, State.CurrentHostId, State.AuthorityEpoch, State.Departed, map);
+            var cars = State.Players.Where(player => player.PracticeCar).OrderBy(player => player.Id).ToArray();
+            int desired = cars.Length == 0 ? 0 : map == MatchMap.NewMap ? 4 : 2;
+            if (State.Players.Count - cars.Length + desired > 8) { return false; }
+            var players = State.Players.Where(player => !player.PracticeCar || cars.Take(desired).Contains(player)).ToList();
+            for (int index = cars.Length; index < desired; index++)
+            { players.Add(new SessionPlayer(checked(++_nextId), $"Practice Car {index + 1}", true, PracticeCar: true)); }
+            State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, State.Phase, players, State.CurrentHostId, State.AuthorityEpoch, State.Departed, map);
         }
 
         return true;

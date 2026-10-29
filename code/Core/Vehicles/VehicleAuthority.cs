@@ -35,13 +35,18 @@ internal sealed class VehicleAuthority
     /// <param name="arena">Validated spawn contract.</param>
     /// <param name="vehicles">Authoritative roster with earlier candidate respawns reserved.</param>
     /// <param name="impacts">Symmetric vehicle impacts from the complete incoming boundary.</param>
-    internal VehicleStepResult Prepare(VehicleStepRequest request, RespawnConfiguration? respawn, Arenas.ArenaConfiguration arena, IReadOnlyList<VehicleSnapshot> vehicles, IReadOnlyList<VehicleImpactDamage> impacts)
+    /// <param name="anchor">Optional fixed practice-target pose, preserving health and item lifecycle.</param>
+    /// <param name="practiceSpawn">Car 4's home respawn, independent of its current trip/parking pose.</param>
+    internal VehicleStepResult Prepare(VehicleStepRequest request, RespawnConfiguration? respawn, Arenas.ArenaConfiguration arena, IReadOnlyList<VehicleSnapshot> vehicles, IReadOnlyList<VehicleImpactDamage> impacts, VehiclePhysicsState? anchor = null, VehiclePhysicsState? practiceSpawn = null)
     {
         VehicleSnapshot previous = Snapshot;
         if (!request.Reset.HasValue && !previous.CanInteract)
         {
             VehiclePhysicsState? spawn = respawn is not null && previous.RespawnAtTick is ulong deadline && request.Input.Tick >= deadline
-                ? arena.SelectRespawn(previous.VehicleId, checked(previous.LifeId + 1), vehicles) : null;
+                ? practiceSpawn is { } parked
+                    ? vehicles.Any(vehicle => vehicle.VehicleId != previous.VehicleId && vehicle.CanInteract &&
+                        Vector3.DistanceSquared(vehicle.Movement.Physics.Position, parked.Position) < VehicleDimensions.SpawnClearance * VehicleDimensions.SpawnClearance) ? null : parked
+                    : arena.SelectRespawn(previous.VehicleId, checked(previous.LifeId + 1), vehicles) : null;
             bool ready = spawn.HasValue;
             ulong life = ready ? checked(previous.LifeId + 1) : previous.LifeId;
             VehiclePhysicsState pose = ready ? spawn!.Value
@@ -51,6 +56,10 @@ internal sealed class VehicleAuthority
         }
 
         VehicleObservation observed = request.Reset is VehiclePhysicsState reset ? new VehicleObservation(reset, Vector3.Zero) : request.Observation;
+        if (anchor is { } fixedPose)
+        {
+            observed = new(fixedPose, observed.Support, observed.Contacts, observed.Surface, observed.Wheels, observed.TerrainSupport, observed.WaterDepth);
+        }
         var movement = new VehicleMovement(_movementConfiguration, observed.Physics);
         var health = new VehicleHealth(_damageConfiguration);
         if (request.Reset.HasValue)
@@ -132,6 +141,14 @@ internal sealed class VehicleAuthority
         health.Repair(request.Repair);
         VehicleState next = movement.Step(request.Input, observed.Physics, observed.Support, !health.State.Destroyed, observed.Surface, observed.Wheels, request.Reset.HasValue ? WheelMask.None : request.OilContact, request.Reset.HasValue ? default : request.Nitro, request.ClearNitro || request.Reset.HasValue, observed.WaterDepth, observed.Contacts, request.Reset.HasValue ? 0 : request.EmpUntilTick);
         IReadOnlyList<VehicleEffectRequest> acceptedEffects = health.State.Destroyed ? Array.Empty<VehicleEffectRequest>() : request.Effects;
+        if (anchor is { } parkedPose)
+        {
+            next = new VehicleState(request.Input.Tick, parkedPose, observed.Support != Vector3.Zero, false, 0, 0, observed.Surface,
+                wheels: observed.Wheels ?? default, oil: next.Oil, nitro: next.Nitro,
+                empUntilTick: next.EmpUntilTick, empSuppression: next.EmpSuppression);
+            // Damage remains ordinary, but the next native step must not apply knockback.
+            acceptedEffects = Array.Empty<VehicleEffectRequest>();
+        }
         if (health.State.Destroyed)
         {
             var stationary = new VehiclePhysicsState(observed.Physics.Position, observed.Physics.Orientation, Vector3.Zero, Vector3.Zero);
