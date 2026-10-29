@@ -7,7 +7,12 @@ public sealed partial class WeaponAimChecks
     private async Task CheckAimDeath()
     {
         var host = _arenas[0].Driver.Host!;
-        Position(new(0, Ground, 35), new(0, Ground, 45), new(80, Ground, 0));
+        // The deployed straight-launch pivot is above a level car's roof. Hold
+        // this damage-fixture victim slightly higher so the unchanged forward
+        // Missile ray intersects its real hull rather than passing overhead.
+        _heldShooter = new(0, Ground + 1.51f, 35);
+        _heldTargets = (new(0, Ground, 45), new(80, Ground, 0));
+        Position(_heldShooter.Value, _heldTargets.Value.First, _heldTargets.Value.Second);
         host.Items.Grant(host.World, Shooter, HeldItem.MachineGun);
         await Until(() => _arenas[1].AimOverlay.Marker.HasValue, "Fresh weapon restores aiming before lethal damage");
         Require(host.TryConfigure(0, new Dictionary<string, double> { ["items.maximum_damage"] = 10000, ["respawn.delay_ticks"] = 120 }, out _), "Lethal damage and timed respawn fixture tuning accepted");
@@ -19,6 +24,8 @@ public sealed partial class WeaponAimChecks
         ulong lifeBeforeDeath = host.World.GetVehicle(Shooter).LifeId;
         Require(_arenas[0].Driver.RequestItemUse(), "Real host missile use accepted");
         await Until(() => !host.World.GetVehicle(Shooter).CanInteract, "Actual missile explosion kills the aiming vehicle");
+        _heldShooter = null;
+        _heldTargets = null;
         Require(host.World.GetVehicle(Shooter).Damage.LastDamage?.Attribution.Source == "missile", "Death carries authoritative missile attribution");
         Require(!host.Items.Aims.Any(aim => aim.Vehicle == Shooter), "Actual death immediately clears authoritative aim");
         await Until(() => _arenas[1].LocalState is { CanInteract: false } && !_arenas[1].AimOverlay.Marker.HasValue,

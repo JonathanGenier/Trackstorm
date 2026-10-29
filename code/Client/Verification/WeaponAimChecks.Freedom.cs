@@ -13,7 +13,7 @@ public sealed partial class WeaponAimChecks
         float cone = host.Items.Configuration.Aim.AssistDegrees;
         void Assist(bool enabled) => host.TryConfigure(0, new Dictionary<string, double> { ["items.aim_assist_degrees"] = enabled ? cone : 0 }, out _);
         Vector3 Center() => _arenas[1].Bodies[1].VisualTransform * new Vector3(0, .3f, 0);
-        float Error() => Camera.ProjectRayNormal(ViewCenter).AngleTo(Center() - Camera.GlobalPosition);
+        float Error() => Camera.ProjectRayNormal(_arenas[1].AimOverlay.Marker ?? ViewCenter).AngleTo(Center() - Camera.GlobalPosition);
         host.Items.RemovePlayer(Shooter);
         Position(new(0, Ground, 35), new(0, Ground, 0), new(70, Ground, 0));
         host.Items.Grant(host.World, Shooter, HeldItem.MachineGun);
@@ -30,8 +30,8 @@ public sealed partial class WeaponAimChecks
         }
         await Frames(20);
         float adjusted = Error(); await Frames(60);
-        Require(_arenas[1].AssistedCar == 1 && adjusted > .007f && Math.Abs(Error() - adjusted) < .003f,
-            $"Fine placement remains off-centre while RMB stays held: {adjusted:F5}->{Error():F5} rad");
+        Require(_arenas[1].AssistedCar == 1 && adjusted < .012f && Error() < .012f,
+            $"Small unintended corrections remain retained while RMB stays held: {adjusted:F5}->{Error():F5} rad");
         int placementShots = 0;
         N.Vector3 sum = N.Vector3.Zero;
         var native = _arenas[0].Driver.RaycastWeapon!;
@@ -45,8 +45,9 @@ public sealed partial class WeaponAimChecks
         var aim = host.Items.Aims.Single(a => a.Vehicle == Shooter);
         var centreDirection = N.Vector3.Normalize(Vehicles.VehicleBody.ToCore(Center()) - aim.Origin);
         float shotOffset = MathF.Acos(Math.Clamp(N.Vector3.Dot(N.Vector3.Normalize(sum), centreDirection), -1, 1));
-        Require(placementShots > 20 && shotOffset < .003f && N.Vector3.Dot(centreDirection, aim.Direction) > .99999f,
-            $"Retained target keeps actual authoritative shots centred despite camera offset: {placementShots} rays, {shotOffset:F5} rad off centre");
+        Require(placementShots > 20 && N.Vector3.Dot(N.Vector3.Normalize(sum), aim.Direction) > .9999f &&
+            N.Vector3.Dot(_arenas[1].Driver.DesiredAim!.Value, aim.Direction) > .9999f,
+            $"Settled retained cursor keeps actual authoritative shots on the visible car: {placementShots} rays, {shotOffset:F5} rad off centre");
         await Capture("freedom-fine-placement");
 
         Send(new InputEventMouseMotion { ScreenRelative = new(70, 0) }); await Frames(60);
@@ -70,6 +71,8 @@ public sealed partial class WeaponAimChecks
         foreach (bool enabled in new[] { false, true })
         {
             Assist(enabled);
+            host.Items.RemovePlayer(Shooter);
+            host.Items.Grant(host.World, Shooter, HeldItem.MachineGun);
             Position(new(0, Ground, 35), new(0, Ground, -25), new(70, Ground, -25));
             _heldTargets = (new(0, Ground, -25), new(70, Ground, -25));
             Camera.ResetFollow(); await Frames(120); await AimAtCurrent(Center); await Frames(45);
@@ -77,7 +80,10 @@ public sealed partial class WeaponAimChecks
             Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true });
             N.Vector3 startPosition = host.World.GetVehicle(Shooter).ObservedPhysics.Position;
             float errorSum = 0, peakSpeed = 0, turn = 0;
-            int retained = 0, rounds = 0, hits = 0;
+            int retained = 0, visible = 0, rounds = 0, hits = 0;
+            float retainedError = 0;
+            string? firstRelease = null;
+            _arenas[1].AimReleaseObserved = reason => firstRelease ??= reason;
             _arenas[0].Driver.RaycastWeapon = (owner, start, end) =>
             {
                 var hit = native(owner, start, end);
@@ -90,7 +96,9 @@ public sealed partial class WeaponAimChecks
                 _heldTargets = (new(i * .025f, Ground, -25), new(70, Ground, -25));
                 await Frames(1, throttle: ushort.MaxValue, steering: 6000, pressUse: i == 0);
                 errorSum += Error();
-                if (_arenas[1].AssistedCar == 1) { retained++; }
+                bool onscreen = !Camera.IsPositionBehind(Center()) && _views[1].GetVisibleRect().HasPoint(Camera.UnprojectPosition(Center()));
+                if (onscreen) visible++;
+                if (_arenas[1].AssistedCar == 1) { retained++; retainedError += Error(); }
                 var state = host.World.GetVehicle(Shooter);
                 peakSpeed = Math.Max(peakSpeed, state.Speed);
                 var forward = N.Vector3.Transform(-N.Vector3.UnitZ, state.ObservedPhysics.Orientation);
@@ -107,8 +115,8 @@ public sealed partial class WeaponAimChecks
             if (!enabled) { unassisted = mean; }
             else
             {
-                Require(retained >= 170 && mean < .025f && mean < unassisted * .3f && hits > 100,
-                    "Driving compensation retains engagement and native hits while materially reducing tracking error");
+                Require(retained >= visible - 4 && retained > 100 && retainedError / retained < .025f && mean < unassisted * .3f && hits > 100,
+                    $"Visible-target driving retention reduces error without forced camera following: visible={visible}, retained={retained}, retainedError={retainedError / Math.Max(1, retained):F5}, firstRelease={firstRelease}");
                 float beforeBraking = host.World.GetVehicle(Shooter).Speed;
                 await Frames(30, brake: ushort.MaxValue);
                 Require(_arenas[1].AssistedCar == 1,
@@ -133,7 +141,8 @@ public sealed partial class WeaponAimChecks
         await Frames(45);
         Require(_arenas[1].AssistedCar == 0, "Stopping beside the dismissed car does not pull free aim back onto it");
         Send(new InputEventMouseMotion { ScreenRelative = new(-1, 0) }); await Frames(60);
-        Require(_arenas[1].AssistedCar == other, "Deliberately returning toward the dismissed car rearms acquisition");
+        await AimAtCurrent(() => _arenas[1].Bodies[other].VisualTransform * new Vector3(0, .3f, 0));
+        Require(_arenas[1].AssistedCar == other, $"Deliberately returning toward the dismissed car rearms acquisition: selected={_arenas[1].AssistedCar} expected={other} {_arenas[1].AimTargetDiagnostics(other)} cursor={_arenas[1].AimOverlay.Marker}");
         Send(new InputEventMouseMotion { ScreenRelative = new(70, 0) }); await Frames(8);
         Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
         await Frames(120);

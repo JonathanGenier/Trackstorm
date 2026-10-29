@@ -141,10 +141,11 @@ public sealed partial class WeaponAimChecks : Node
                 for (int i = 0; i < 4; i++) { await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); }
                 GetTree().Quit(); return;
             }
-            if (OS.GetCmdlineUserArgs().Contains("--aim-surfaces") || OS.GetCmdlineUserArgs().Contains("--aim-marker") || OS.GetCmdlineUserArgs().Contains("--aim-look") || OS.GetCmdlineUserArgs().Contains("--aim-death") || OS.GetCmdlineUserArgs().Contains("--aim-close") || OS.GetCmdlineUserArgs().Contains("--aim-road") || OS.GetCmdlineUserArgs().Contains("--aim-accuracy") || OS.GetCmdlineUserArgs().Contains("--aim-sticky") || OS.GetCmdlineUserArgs().Contains("--aim-freedom") || OS.GetCmdlineUserArgs().Contains("--aim-recovery"))
+            if (OS.GetCmdlineUserArgs().Contains("--aim-magnetic") || OS.GetCmdlineUserArgs().Contains("--aim-surfaces") || OS.GetCmdlineUserArgs().Contains("--aim-marker") || OS.GetCmdlineUserArgs().Contains("--aim-look") || OS.GetCmdlineUserArgs().Contains("--aim-death") || OS.GetCmdlineUserArgs().Contains("--aim-close") || OS.GetCmdlineUserArgs().Contains("--aim-road") || OS.GetCmdlineUserArgs().Contains("--aim-accuracy") || OS.GetCmdlineUserArgs().Contains("--aim-sticky") || OS.GetCmdlineUserArgs().Contains("--aim-freedom") || OS.GetCmdlineUserArgs().Contains("--aim-recovery"))
             {
                 if (OS.GetCmdlineUserArgs().Contains("--aim-accuracy")) { await CheckAccuracy(); }
-                if (OS.GetCmdlineUserArgs().Contains("--aim-surfaces")) { await CheckMarkerSurfaces(); }
+                if (OS.GetCmdlineUserArgs().Contains("--aim-magnetic")) { await CheckMagneticDeparture(); }
+                else if (OS.GetCmdlineUserArgs().Contains("--aim-surfaces")) { await CheckMarkerSurfaces(); }
                 else if (OS.GetCmdlineUserArgs().Contains("--aim-marker")) { await CheckTargetMarker(); }
                 else if (OS.GetCmdlineUserArgs().Contains("--aim-look")) { await CheckAimLook(); }
                 else if (OS.GetCmdlineUserArgs().Contains("--aim-death")) { await CheckAimDeath(); }
@@ -176,12 +177,12 @@ public sealed partial class WeaponAimChecks : Node
             await Capture("01-forward-default");
             await AimAt(_arenas[1].Bodies[1].VisualPosition + Vector3.Up * 1.0f);
             await Capture("02-two-forward-targets");
-            Require(_arenas[1].AimOverlay.Bounds is { } forwardBounds && forwardBounds.HasPoint(ViewCenter),
-                "Center-ray car intersection replaces square with disconnected brackets");
-            RequireCentered("Camera intent stays at viewport center while car brackets are shown");
+            Require(_arenas[1].AimOverlay.Bounds is { } forwardBounds && forwardBounds.HasPoint(_arenas[1].AimOverlay.Marker ?? ViewCenter),
+                "Visible cursor remains on the retained car alongside separate target feedback");
+            RequireVisibleCursor("Square remains visible while target feedback is shown");
             await AimAt(_arenas[1].Bodies[1].VisualPosition + new Vector3(-12, .35f, 0));
             Require(_arenas[1].AimOverlay.Bounds is null, "A deliberate miss outside both acquisition regions returns to the free-aim square");
-            RequireCentered("Small square is centered when aiming beside a rival");
+            RequireVisibleCursor("Small square is visible when aiming beside a rival");
             await Capture("02a-near-miss-square");
             await AimAt(_arenas[1].Bodies[1].VisualPosition + Vector3.Up);
             Vector3 coverPosition = Camera.GlobalPosition.Lerp(_arenas[1].Bodies[1].VisualPosition + Vector3.Up, .7f);
@@ -190,7 +191,7 @@ public sealed partial class WeaponAimChecks : Node
             _arenas[1].AddChild(cover);
             await Frames(8);
             Require(_arenas[1].AimOverlay.Bounds is null, "Intervening native cover prevents car brackets");
-            RequireCentered("Covered car leaves the small square at camera center");
+            RequireVisibleCursor("Covered car leaves the small square visible");
             cover.Free(); await Frames(8);
             Require(_arenas[1].AimOverlay.Bounds.HasValue, "Removing cover restores brackets on the directly intersected car");
             var solution = host.Items.Aims.Single(aim => aim.Vehicle == Shooter);
@@ -198,10 +199,10 @@ public sealed partial class WeaponAimChecks : Node
             float rackYaw = _arenas[1].Bodies[Shooter].Rack.GetParent<Node3D>().GetNode<Node3D>("WeaponRack").Rotation.Y;
             Send(new InputEventMouseMotion { ScreenRelative = new(520, -80) });
             await Frames(4);
-            RequireCentered("Square remains centered immediately after mouse yaw and upward tilt under network impairment");
+            RequireVisibleCursor("Square remains visible immediately after mouse yaw and upward tilt under network impairment");
             Require(_arenas[1].AimOverlay.Bounds is null, "Looking away from a car removes its brackets immediately");
             _views[1].Size = new(960, 600); await Frames(4);
-            RequireCentered("Cursor follows the new viewport center after resizing");
+            RequireVisibleCursor("Cursor follows the resized viewport after resizing");
             _views[1].Size = new(1280, 800); await Frames(4);
             await MotionFrames(70, "side-turn"); await Capture("03-side-elevated");
             solution = host.Items.Aims.Single(aim => aim.Vehicle == Shooter);
@@ -215,7 +216,7 @@ public sealed partial class WeaponAimChecks : Node
             RequireObserverMount("rear");
             Send(new InputEventMouseMotion { ScreenRelative = new(-1040, 500) });
             await Frames(70); await Capture("05-self-clearance");
-            RequireCentered("Downward tilt and weapon self-clearance limits cannot displace the camera cursor");
+            RequireVisibleCursor("Downward tilt and weapon self-clearance limits cannot displace the camera cursor");
             solution = host.Items.Aims.Single(aim => aim.Vehicle == Shooter);
             Require(!WeaponAim.IntersectsBody(WeaponAim.Pivot, WeaponAim.Direction(solution.Yaw, solution.Pitch)), "Downward articulation cannot enter owner envelope");
             Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
@@ -224,7 +225,7 @@ public sealed partial class WeaponAimChecks : Node
             float chaseYaw = before;
             Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = .35f });
             await Frames(60);
-            RequireCentered("Fine controller camera rotation retains a centered cursor");
+            RequireVisibleCursor("Fine controller camera rotation retains a visible cursor");
             float fine = Math.Abs(Mathf.AngleDifference(before, Camera.Rotation.Y));
             before = Camera.Rotation.Y;
             Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = 1 });
@@ -233,7 +234,7 @@ public sealed partial class WeaponAimChecks : Node
             Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = 0 });
             Require(fine > .01f && fast > fine * 3, $"Native stick fine/full turn separation: fine={fine:0.000}, full={fast:0.000} rad");
             float heldYaw = Camera.Rotation.Y; await MotionFrames(30, "stick-recenter");
-            RequireCentered("Ordinary camera recentering retains a centered cursor");
+            RequireVisibleCursor("Ordinary camera recentering retains a visible cursor");
             Require(Math.Abs(Mathf.AngleDifference(chaseYaw, Camera.Rotation.Y)) < Math.Abs(Mathf.AngleDifference(chaseYaw, heldYaw)) * .2f,
                 "Neutral stick restores the original chase view with a weapon selected");
             Position(new(0, Ground, 35), new(0, Ground, 25), new(7, Ground, 25));
@@ -241,20 +242,20 @@ public sealed partial class WeaponAimChecks : Node
             await AimAtCurrent(() => _arenas[1].Bodies[1].VisualPosition + Vector3.Up * .9f);
             await Frames(30); await Capture("06-close-brackets");
             LogTargetGeometry("close", 1);
-            Require(_arenas[1].AimOverlay.Bounds is { } closeBounds && closeBounds.HasPoint(ViewCenter),
-                "Directly intersected close car receives brackets instead of a distance-based square fallback");
+            Require(_arenas[1].AimOverlay.Bounds is { } closeBounds && closeBounds.HasPoint(_arenas[1].AimOverlay.Marker ?? ViewCenter),
+                "Directly intersected close car receives brackets alongside the persistent square");
             Position(new(0, Ground, 35), new(-3.7f, Ground, 35), new(7, Ground, 25));
             Camera.ResetFollow(); await Frames(20);
             await AimAtCurrent(() => _arenas[1].Bodies[1].VisualPosition + Vector3.Up * .9f);
             await Frames(35); await Capture("06b-alongside-brackets");
             LogTargetGeometry("alongside", 1);
             GD.Print($"ALONGSIDE target={_arenas[1].AssistedCar} {_arenas[1].AimTargetDiagnostics(1)}");
-            Require(_arenas[1].AimOverlay.Bounds is { } alongsideBounds && alongsideBounds.HasPoint(ViewCenter),
+            Require(_arenas[1].AimOverlay.Bounds is { } alongsideBounds && alongsideBounds.HasPoint(_arenas[1].AimOverlay.Marker ?? ViewCenter),
                 "Directly intersected side-by-side car receives onscreen corner brackets");
             solution = host.Items.Aims.Single(aim => aim.Vehicle == Shooter);
             Require(new Rect2(Vector2.Zero, _views[1].Size).HasPoint(_arenas[1].AimOverlay.Marker!.Value) &&
                 !WeaponAim.IntersectsBody(WeaponAim.Pivot, WeaponAim.Direction(solution.Yaw, solution.Pitch)),
-                "Alongside camera cursor stays centered while the accepted weapon ray remains chassis-safe");
+                "Alongside camera cursor stays visible while the accepted weapon ray remains chassis-safe");
             Require(solution.Clear || !solution.Ready, "A camera ray blocked by the owner cannot mark the weapon ready");
             Position(new(0, Ground, 35), new(0, Ground + 10, 0), new(5, Ground, 0));
             _heldTargets = (new(0, Ground + 10, 0), new(5, Ground, 0));
@@ -273,8 +274,8 @@ public sealed partial class WeaponAimChecks : Node
                 "Elevated rivals can be aimed at above the horizon");
             Require(Camera.GlobalPosition.Y - _arenas[1].Bodies[Shooter].VisualPosition.Y >= elevatedChaseHeight - .15f,
                 "Upward aiming does not lower the grounded chase camera relative to the car");
-            RequireCentered("Upward aiming retains the centered shared aiming cue");
-            Require(_arenas[1].AimOverlay.Bounds is { } elevatedBounds && elevatedBounds.HasPoint(ViewCenter), "The upward camera ray actually intersects the elevated rival");
+            RequireVisibleCursor("Upward aiming retains the visible shared aiming cue");
+            Require(_arenas[1].AimOverlay.Bounds is { } elevatedBounds && elevatedBounds.HasPoint(_arenas[1].AimOverlay.Marker ?? ViewCenter), "The upward camera ray actually intersects the elevated rival");
             Require(host.Items.Aims.Any(aim => aim.Vehicle == Shooter && aim.Pitch > .1f) &&
                 _arenas[2].Driver.AcceptedAims.Any(aim => aim.Vehicle == Shooter && aim.Pitch > .1f), "Upward desired aim reaches authority and observer");
             _heldTargets = null;
@@ -326,7 +327,7 @@ public sealed partial class WeaponAimChecks : Node
             Send(new InputEventMouseMotion { ScreenRelative = new(60, -90) });
             await Frames(8);
             Require(Camera.Rotation.X > .1f, "Airborne shooter can aim above the horizon");
-            RequireCentered("Airborne camera input retains the centered shared aiming cursor");
+            RequireVisibleCursor("Airborne camera input retains the visible shared aiming cursor");
             float airborneYaw = Camera.Rotation.Y;
             await Frames(20);
             Require(Math.Abs(Mathf.AngleDifference(airborneYaw, Camera.Rotation.Y)) < .01f, "Aerial pullback cannot drift held camera aim");
@@ -334,7 +335,7 @@ public sealed partial class WeaponAimChecks : Node
             await Capture("07a-airborne-shooter");
             await Frames(180);
             Require(Camera.AerialMotion.Pullback < .1f, "Aiming survives landing and smooth chase recovery");
-            RequireCentered("Landing retains camera-relative aiming presentation");
+            RequireVisibleCursor("Landing retains camera-relative aiming presentation");
             _input.Adapter.GameplaySuppressed = true; await Frames(3);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
@@ -444,6 +445,8 @@ public sealed partial class WeaponAimChecks : Node
         _arenas[1].CameraSettings = null; settings.QueueFree(); Camera.ResetFollow(); await Frames(6);
         GD.Print("Camera preference aiming matrix passed: 164 low/default/high ground/air upward/downward cases through three real UDP peers.");
     }
+    private void RequireVisibleCursor(string evidence) => Require(_arenas[1].AimOverlay.Marker is Vector2 marker && _views[1].GetVisibleRect().HasPoint(marker), evidence);
+
     private void RequireCentered(string evidence) => Require(_arenas[1].AimOverlay.Marker is Vector2 marker && marker.DistanceTo(ViewCenter) < .01f, evidence);
 
     private void LogTargetGeometry(string phase, ulong target)
@@ -486,7 +489,7 @@ public sealed partial class WeaponAimChecks : Node
             "Fresh accepted aim resumes after packet delivery recovers (not authenticated reconnect)");
         await Until(() => _arenas[1].AssistedCar == 1 && _arenas[1].Driver.AcceptedAims.Any(aim => aim.Vehicle == Shooter && aim.Tick > beforeTick),
             "Held intent reacquires on the shooter only after fresh accepted aim arrives");
-        RequireCentered("Camera-intent cursor remains centered after transient packet recovery");
+        RequireVisibleCursor("Visible cursor survives transient packet recovery and reacquisition");
     }
 
     private Task AimAt(Vector3 point) => AimAtCurrent(() => point);
@@ -503,7 +506,9 @@ public sealed partial class WeaponAimChecks : Node
             point = resolvePoint();
             Vector3 direction = (point - Camera.GlobalPosition).Normalized();
             float yaw = MathF.Atan2(-direction.X, -direction.Z), pitch = MathF.Asin(direction.Y);
-            Send(new InputEventMouseMotion { ScreenRelative = new(-Mathf.AngleDifference(Camera.Rotation.Y, yaw) / .003f, -(pitch - Camera.Rotation.X) / .003f) });
+            Vector3 cursorRay = Camera.ProjectRayNormal(_arenas[1].AimOverlay.Marker ?? ViewCenter);
+            float cursorYaw = MathF.Atan2(-cursorRay.X, -cursorRay.Z), cursorPitch = MathF.Asin(cursorRay.Y);
+            Send(new InputEventMouseMotion { ScreenRelative = new(-Mathf.AngleDifference(cursorYaw, yaw) / .003f, -(pitch - cursorPitch) / .003f) });
             await Frames(15);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);

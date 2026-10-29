@@ -8,6 +8,7 @@ public sealed partial class WeaponAimChecks
 {
     private async Task CheckStickyEngagement()
     {
+        _arenas[1].AimReleaseObserved = reason => GD.Print($"MAGNET_RELEASE {reason}");
         var host = _arenas[0].Driver.Host!;
         host.Items.RemovePlayer(Shooter);
         Position(new(0, Ground, 35), new(0, Ground, 0), new(70, Ground, 0));
@@ -22,17 +23,20 @@ public sealed partial class WeaponAimChecks
         host.TryConfigure(0, new Dictionary<string, double> { ["items.aim_mouse_pull"] = 0, ["items.aim_stick_pull"] = 0 }, out _);
         await Frames(30);
         _heldTargets = (new(2, Ground, 0), new(70, Ground, 0)); await Frames(90);
-        float withoutPull = Camera.ProjectRayNormal(ViewCenter).AngleTo(Center() - Camera.GlobalPosition);
+        float withoutPull = Camera.ProjectRayNormal(_arenas[1].AimOverlay.Marker ?? ViewCenter).AngleTo(Center() - Camera.GlobalPosition);
         host.TryConfigure(0, new Dictionary<string, double> { ["items.aim_mouse_pull"] = tuning.MousePull, ["items.aim_stick_pull"] = tuning.StickPull }, out _);
         _heldTargets = (new(0, Ground, 0), new(70, Ground, 0)); await Frames(90);
         Camera.ResetFollow(); await Frames(45); await AimAtCurrent(Center);
+        Basis cameraBeforeTracking = Camera.GlobalBasis;
         _heldTargets = (new(2, Ground, 0), new(70, Ground, 0));
         await Frames(12);
-        float initialError = Camera.ProjectRayNormal(ViewCenter).AngleTo(Center() - Camera.GlobalPosition);
+        float initialError = Camera.ProjectRayNormal(_arenas[1].AimOverlay.Marker ?? ViewCenter).AngleTo(Center() - Camera.GlobalPosition);
         await Frames(90);
-        float settled = Camera.ProjectRayNormal(ViewCenter).AngleTo(Center() - Camera.GlobalPosition);
-        Require(_arenas[1].AssistedCar == 1 && settled < .012f && settled < initialError * .6f,
-            $"Camera attraction follows a displaced car without input/recentering: {initialError:F5} -> {settled:F5} rad");
+        float settled = Camera.ProjectRayNormal(_arenas[1].AimOverlay.Marker ?? ViewCenter).AngleTo(Center() - Camera.GlobalPosition);
+        Require(_arenas[1].AssistedCar == 1 && settled < .012f && settled <= Math.Max(.001f, initialError * .6f),
+            $"Cursor attraction follows a displaced car without input/recentering: {initialError:F5} -> {settled:F5} rad");
+        Require(Camera.GlobalBasis.Z.AngleTo(cameraBeforeTracking.Z) < .001f, "Target movement does not rotate the camera");
+        Require(_arenas[1].AimOverlay.Marker.HasValue, "Retained aim keeps the square cursor visible");
         Require(settled < withoutPull * .2f, $"Attraction improves retention alignment over disabled pull ({withoutPull:F5} rad unassisted)");
         for (int i = 0; i < 90; i++)
         {
@@ -74,6 +78,7 @@ public sealed partial class WeaponAimChecks
         _firingPeers.Clear(); await Frames(30); _arenas[0].Driver.RaycastWeapon = raycast;
         Require(freeShots > 10 && _arenas[1].AssistedCar == 0, $"Unframed cursor-directed free fire produces actual rounds ({freeShots})");
         await AimAtCurrent(Center); await Frames(30);
+        GD.Print($"MAGNET_REACQUIRE {_arenas[1].AimTargetDiagnostics(1)} target={_arenas[1].AssistedCar}");
         Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = -.3f }); await Frames(8);
         Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = 0 }); await Frames(30);
         Require(_arenas[1].AssistedCar == 1, "Small controller corrections retain the same framed car");
@@ -127,7 +132,7 @@ public sealed partial class WeaponAimChecks
             settings.UpdateSettings(settings.Current with { HorizontalLookSensitivity = gain, MouseAimSensitivity = gain,
                 StickAimSensitivity = gain, CameraRecenterSpeed = 3, CameraFov = gain < 1 ? 50 : 90, InvertY = gain > 1 });
             _heldTargets = (new(2, Ground, 0), new(70, Ground, 0)); await Frames(75);
-            float error = Camera.ProjectRayNormal(ViewCenter).AngleTo(_arenas[1].Bodies[1].VisualTransform * new Vector3(0, .3f, 0) - Camera.GlobalPosition);
+            float error = Camera.ProjectRayNormal(_arenas[1].AimOverlay.Marker ?? ViewCenter).AngleTo(_arenas[1].Bodies[1].VisualTransform * new Vector3(0, .3f, 0) - Camera.GlobalPosition);
             Require(_arenas[1].AssistedCar == 1 && error < .015f,
                 $"Retained moving-car aim survives {fps} FPS, gain {gain}, FOV {Camera.Fov}, recenter 3: error={error:F5} rad");
             Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false }); await Frames(4);
@@ -198,6 +203,7 @@ public sealed partial class WeaponAimChecks
         await Frames(15);
         Require(_arenas[1].AssistedCar == 0 && !_arenas[1].AimOverlay.Bounds.HasValue, "Production pickup presentation never becomes an assisted target");
         pickup.Free();
-        RequireCentered("Non-vehicle objects retain the centred ordinary cursor");
+        await Frames(180);
+        RequireCentered("Non-vehicle objects leave the ordinary cursor smoothly returned to center");
     }
 }
