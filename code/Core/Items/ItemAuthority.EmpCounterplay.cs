@@ -73,7 +73,7 @@ public sealed partial class ItemAuthority
     {
         // Every damaging projectile uses the existing shared blast contract. Check the
         // nearest membrane point, not the car or metal body; no secondary blast is created.
-        bool Reaches(Vector3 point) => Explosion(center, point, missile.Item).Damage > 0 && shields.Intersect(center, point) is null;
+        bool Reaches(Vector3 point) => Explosion(center, point, missile.Item).Damage > 0 && !shields.Occludes(center, point);
         claws.RemoveAll(claw =>
         {
             var pose = requests.Single(r => r.VehicleId == claw.Vehicle).Observation.Physics;

@@ -37,17 +37,17 @@ public sealed partial class ItemAuthority
             AttachedOwnerCanInteract(_world, s) && _slots.TryGetValue(s.Owner, out var slot) && slot.Active.Item == HeldItem.Shield && slot.Active.Token == s.Token &&
             _requests.Any(r => r.VehicleId == s.Owner && !r.Reset.HasValue));
 
-        internal (ShieldState State, float Fraction)? Intersect(Vector3 start, Vector3 end, ulong excludedOwner = 0, ulong onlyOwner = 0)
+        internal (ShieldState State, float Fraction)? Intersect(Vector3 start, Vector3 end, ulong excludedOwner = 0)
         {
             (ShieldState State, float Fraction)? closest = null;
             foreach (var state in Active().OrderBy(s => s.Id))
             {
-                if (state.Owner == excludedOwner || (onlyOwner != 0 && state.Owner != onlyOwner)) { continue; }
+                if (state.Owner == excludedOwner) { continue; }
                 var pose = _requests.Single(r => r.VehicleId == state.Owner).Observation.Physics;
                 if (ShieldGeometry.Intersect(pose, start, end) is float fraction && (closest is null || fraction < closest.Value.Fraction))
                 { closest = (state, fraction); }
             }
-            if (onlyOwner == 0 && _world.State.Match is not { Phase: not Matches.MatchPhase.Active })
+            if (_world.State.Match is not { Phase: not Matches.MatchPhase.Active })
             {
                 foreach (var wall in States.Where(s => !s.Attached).OrderBy(s => s.Id))
                 {
@@ -56,6 +56,15 @@ public sealed partial class ItemAuthority
                 }
             }
             return closest;
+        }
+
+        internal bool Occludes(Vector3 start, Vector3 end)
+        {
+            var direction = end - start;
+            float distance = direction.Length();
+            // A blast on a panel face can propagate away from that face. Move only
+            // the query start past contact-rounding tolerance, not through a panel.
+            return distance > .002f && Intersect(start + direction * (.002f / distance), end) is not null;
         }
 
         internal bool Deploy(ItemSlot slot, VehiclePhysicsState pose, ItemConfiguration configuration)
@@ -93,19 +102,23 @@ public sealed partial class ItemAuthority
             }
         }
 
-        internal void BlastWalls(ItemAuthority items, Vector3 center, MissileState missile)
+        internal void BlastArmor(ItemAuthority items, Vector3 center, MissileState missile)
         {
-            foreach (var wall in States.Where(s => !s.Attached).ToArray())
+            foreach (var wall in Active().Concat(States.Where(s => !s.Attached)).ToArray())
             {
-                Vector3 target = missile.Item == HeldItem.Salvo ? ShieldGeometry.ClosestPoint(wall, default, center) : wall.Position;
-                var effect = items.Explosion(center, wall.Position, missile.Item, target);
-                Damage(wall.Id, effect.Damage, new(missile.Arc is null ? "missile" : "salvo", missile.Owner, "world-wall-blast"));
+                var pose = wall.Attached ? _requests.Single(r => r.VehicleId == wall.Owner).Observation.Physics : default;
+                Vector3 target = ShieldGeometry.ClosestPoint(wall, pose, center);
+                var effect = items.Explosion(center, target, missile.Item);
+                Damage(wall.Id, effect.Damage, new(missile.Arc is null ? "missile" : "salvo", missile.Owner,
+                    wall.Attached ? "rear-shield-blast" : "world-wall-blast"));
                 int index = States.FindIndex(s => s.Id == wall.Id);
-                if (index >= 0) { States[index] = States[index] with { LinearVelocity = States[index].LinearVelocity + effect.Impulse / wall.WallMass }; }
+                if (index >= 0 && !wall.Attached)
+                {
+                    var impulse = items.Explosion(center, wall.Position, missile.Item, target).Impulse;
+                    States[index] = States[index] with { LinearVelocity = States[index].LinearVelocity + impulse / wall.WallMass };
+                }
             }
         }
-
-        internal ShieldState? RearShield(ulong owner) => Active().SingleOrDefault(s => s.Owner == owner);
 
         internal void Damage(ulong id, float amount, DamageContext context, bool collision = false)
         {

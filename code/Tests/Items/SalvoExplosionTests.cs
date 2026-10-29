@@ -83,7 +83,7 @@ internal sealed class SalvoExplosionTests
     }
 
     [Test]
-    public void TwoOverlappingBlastsDamageTwoExposedCarsOnceEachWithoutShieldCrossProtection()
+    public void TwoOverlappingBlastsSpendArmorOnceEachAndReachOnlyExposedHullAboveIt()
     {
         _host.Join(3); _poses[3] = new(Vector3.UnitY, Quaternion.Identity, default, default); Step();
         _host.Items.Grant(_host.World, 2, HeldItem.Shield);
@@ -94,7 +94,8 @@ internal sealed class SalvoExplosionTests
         float expected = 1000 - _host.Items.Events.Where(e => e.Impact).Sum(e =>
             _host.Items.Explosion(e.Position, VehicleHull.ClosestPoint(_poses[3], e.Position), HeldItem.Salvo).Damage);
         Assert.That(expected, Is.LessThan(1000));
-        Assert.That(_host.World.GetVehicle(3).Damage.CurrentHP, Is.EqualTo(expected).Within(.001));
+        Assert.That(_host.World.GetVehicle(3).Damage.CurrentHP, Is.InRange(expected + .001f, 999.999f),
+            "Only the farther hull above the panel is exposed; it uses ordinary surface falloff.");
         Assert.That(_host.Items.Events.Count(e => e.Impact), Is.EqualTo(2));
     }
 

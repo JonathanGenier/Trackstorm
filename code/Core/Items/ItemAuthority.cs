@@ -594,7 +594,7 @@ public sealed partial class ItemAuthority
                 Vector3 outward = contact.Observation.Physics.Position - motion.State.Position;
                 outward.Y = Math.Max(0.7f, outward.Y);
                 var effect = new DamageEffect(Configuration.MineDamage, Vector3.Normalize(outward) * Configuration.MineKnockback, Vector3.Zero);
-                var blocked = shields.Intersect(mine.Position, contact.Observation.Physics.Position, onlyOwner: contact.VehicleId);
+                var blocked = shields.Intersect(motion.State.Position, VehicleHull.ClosestPoint(contact.Observation.Physics, motion.State.Position));
                 if (blocked is { } shield) { shields.Damage(shield.State.Id, effect.Damage, new("proxy-mine", mine.Owner, "contact-detonation")); }
                 else { effects[contact.VehicleId].Add(new VehicleEffectRequest(effect, new DamageContext("proxy-mine", mine.Owner, "contact-detonation"))); }
                 events.Add(new ItemEvent(mine.Id, mine.Owner, HeldItem.ProxyMine, motion.State.Position, true));
@@ -683,41 +683,7 @@ public sealed partial class ItemAuthority
                 }
                 events.Add(new ItemEvent(missile.Id, missile.Owner, missile.Item, center, true));
                 BlastEmpNoses(center, missile, requests, slots, attachments, events, shields);
-                shields.BlastWalls(this, center, missile);
-                foreach (VehicleStepRequest request in requests)
-                {
-                    if (missile.Item == HeldItem.Salvo)
-                    {
-                        // Cover is still the existing target-center path, evaluated before this
-                        // explosion can destroy its shield. Range uses actual physical extents.
-                        var pose = request.Observation.Physics;
-                        var armor = shields.RearShield(request.VehicleId);
-                        bool covered = directShield is { } contact && contact.State.Attached && contact.State.Owner == request.VehicleId ||
-                            shields.Intersect(center, pose.Position, onlyOwner: request.VehicleId) is not null;
-                        var salvoContext = new DamageContext("salvo", missile.Owner, $"radial-explosion:{missile.Id}");
-                        if (armor is not null)
-                        {
-                            var armorEffect = Explosion(center, ShieldGeometry.ClosestPoint(armor, pose, center), HeldItem.Salvo);
-                            shields.Damage(armor.Id, armorEffect.Damage, salvoContext);
-                        }
-                        if (!covered)
-                        {
-                            var vehicleEffect = Explosion(center, pose.Position, HeldItem.Salvo, VehicleHull.ClosestPoint(pose, center));
-                            if (vehicleEffect.Damage > 0 || vehicleEffect.Impulse != Vector3.Zero)
-                            { effects[request.VehicleId].Add(new VehicleEffectRequest(vehicleEffect, salvoContext)); }
-                        }
-                        continue;
-                    }
-                    DamageEffect effect = Explosion(center, request.Observation.Physics.Position, missile.Item);
-                    if (effect.Damage > 0 || effect.Impulse != Vector3.Zero)
-                    {
-                        var context = new DamageContext(missile.Arc is null ? "missile" : "salvo", missile.Owner, missile.Arc is null ? "radial-explosion" : $"radial-explosion:{missile.Id}");
-                        var blocked = directShield is { } directHit && directHit.State.Attached && directHit.State.Owner == request.VehicleId
-                            ? directShield : shields.Intersect(center, request.Observation.Physics.Position, onlyOwner: request.VehicleId);
-                        if (blocked is { } shield) { shields.Damage(shield.State.Id, effect.Damage, context); }
-                        else { effects[request.VehicleId].Add(new VehicleEffectRequest(effect, context)); }
-                    }
-                }
+                BlastVehicles(center, missile, requests, effects, shields, directShield?.State);
             }
             else if (missile.RemainingTicks > 1)
             {
