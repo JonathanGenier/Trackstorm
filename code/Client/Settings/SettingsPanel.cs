@@ -192,6 +192,8 @@ internal sealed partial class SettingsPanel : CanvasLayer
             "Base field of view in degrees. Speed/Boost adds its existing bounded expansion. Default: 65.", value => _settings.Current with { CameraFov = value });
         ControllerSlider(column, "Camera Height", "CameraHeight", _settings.Current.CameraHeight, .5, 3, .05,
             "Follow height above the car's deployed rack reference in metres. Default: 1.25.", value => _settings.Current with { CameraHeight = value });
+        ControllerSlider(column, "Camera Angle", "CameraDownAngle", _settings.Current.CameraDownAngle, 0, 55, .5,
+            "Downward angle in degrees. Higher rotates the view and boom toward a bird's-eye view. Default: 3.5.", value => _settings.Current with { CameraDownAngle = value });
         AimPreference(column, "Mouse aim sensitivity", _settings.Current.MouseAimSensitivity, .25, 3, value => _settings.Current with { MouseAimSensitivity = value });
         AimPreference(column, "Stick aim response curve", _settings.Current.StickAimCurve, 1, 3, value => _settings.Current with { StickAimCurve = value });
         column = Page(MenuPage.Interface);

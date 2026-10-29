@@ -13,13 +13,14 @@ internal sealed class PlayerSettingsTests
         foreach (double value in new[] { -10d, .25, 1, 3, 100, double.NaN, double.PositiveInfinity })
         {
             var settings = new PlayerSettings { HorizontalLookSensitivity = value, VerticalLookSensitivity = value,
-                CameraRecenterSpeed = value, CameraFov = value, CameraHeight = value, InvertY = true };
+                CameraRecenterSpeed = value, CameraFov = value, CameraHeight = value, CameraDownAngle = value, InvertY = true };
             var saved = PlayerSettingsJson.Deserialize(PlayerSettingsJson.Serialize(settings));
             Assert.That(saved.HorizontalLookSensitivity, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, .25, 3) : 1));
             Assert.That(saved.VerticalLookSensitivity, Is.EqualTo(saved.HorizontalLookSensitivity));
             Assert.That(saved.CameraRecenterSpeed, Is.EqualTo(saved.HorizontalLookSensitivity));
             Assert.That(saved.CameraFov, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, 50, 90) : 65));
             Assert.That(saved.CameraHeight, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, .5, 3) : 1.25));
+            Assert.That(saved.CameraDownAngle, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, 0, 55) : 3.5));
             Assert.That(saved.InvertY, Is.True);
         }
         foreach (string json in new[] { "{}", "{\"horizontalLookSensitivity\":null,\"verticalLookSensitivity\":\"bad\",\"cameraRecenterSpeed\":1e999,\"cameraFov\":false,\"cameraHeight\":[],\"invertY\":1}" })
@@ -30,6 +31,7 @@ internal sealed class PlayerSettingsTests
             Assert.That(saved.CameraRecenterSpeed, Is.EqualTo(1));
             Assert.That(saved.CameraFov, Is.EqualTo(65));
             Assert.That(saved.CameraHeight, Is.EqualTo(1.25));
+            Assert.That(saved.CameraDownAngle, Is.EqualTo(3.5));
             Assert.That(saved.InvertY, Is.False);
         }
         var legacy = PlayerSettingsJson.Deserialize("{\"mouseAimSensitivity\":2,\"stickAimSensitivity\":0.4,\"cameraInertia\":0.8}");

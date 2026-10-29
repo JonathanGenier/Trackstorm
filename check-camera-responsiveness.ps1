@@ -1,7 +1,8 @@
 param(
     [Parameter(Mandatory)][string]$GodotPath,
     [switch]$NoBuild,
-    [switch]$Visual
+    [switch]$Visual,
+    [switch]$Orbit
 )
 $ErrorActionPreference = 'Stop'
 if (-not $NoBuild) {
@@ -14,6 +15,7 @@ $arguments = @('--path', $PSScriptRoot, '--resolution', '1280x720', '--fixed-fps
 if (-not $Visual) { $arguments = @('--headless') + $arguments }
 $arguments += @('--', "--camera-output=$outputDirectory")
 if ($Visual) { $arguments += '--camera-captures' }
+if ($Orbit) { $arguments += '--camera-orbit' }
 $output = & $GodotPath @arguments 2>&1
 $exitCode = $LASTEXITCODE
 $output | Set-Content (Join-Path $outputDirectory 'playtest.log')

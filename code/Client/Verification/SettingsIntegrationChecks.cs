@@ -117,6 +117,7 @@ public sealed partial class SettingsIntegrationChecks : Node
             CameraRecenterSpeed = .7,
             CameraFov = 87,
             CameraHeight = 2.3,
+            CameraDownAngle = 42,
             Fullscreen = true,
             WindowWidth = 960,
             WindowHeight = 540,
@@ -146,7 +147,7 @@ public sealed partial class SettingsIntegrationChecks : Node
         Check(settings.CameraShakeIntensity == 0.35, "camera shake intensity survives process restart");
         Check(settings.CameraDistance == 1.2 && settings.CameraInertia == .3 && settings.CameraAerialPullback == 1.4, "camera preferences survive process restart independently");
         Check(settings.HorizontalLookSensitivity == .4 && settings.VerticalLookSensitivity == 2.6 && settings.StickAimSensitivity == 1.7 && settings.InvertY &&
-            settings.CameraRecenterSpeed == .7 && settings.CameraFov == 87 && settings.CameraHeight == 2.3, "all new camera controls survive separate-process restart");
+            settings.CameraRecenterSpeed == .7 && settings.CameraFov == 87 && settings.CameraHeight == 2.3 && settings.CameraDownAngle == 42, "all new camera controls survive separate-process restart");
         Check(settings.MasterVolume == 0 && settings.MusicVolume == 0.25 && settings.SfxVolume == 0.75, "audio gains survive process restart");
         Check(settings.Fullscreen && settings.WindowWidth == 960 && settings.WindowHeight == 540, "display preferences survive process restart");
         Check(settings.SpeedUnit == SpeedUnit.MilesPerHour && settings.ShowFps && !settings.ShowPing, "independent HUD preferences survive process restart");
@@ -263,7 +264,7 @@ public sealed partial class SettingsIntegrationChecks : Node
         Press(panel, "Back");
         Press(panel, "Camera");
         Check(panel.CurrentPage == MenuPage.Camera, "dedicated Camera page navigates through existing hierarchy");
-        foreach (string name in new[] { "HorizontalLookSensitivity", "VerticalLookSensitivity", "StickAimSensitivity", "CameraRecenterSpeed", "CameraFov", "CameraHeight" })
+        foreach (string name in new[] { "HorizontalLookSensitivity", "VerticalLookSensitivity", "StickAimSensitivity", "CameraRecenterSpeed", "CameraFov", "CameraHeight", "CameraDownAngle" })
         {
             var slider = Descendants(panel).OfType<HSlider>().Single(control => control.Name == name && control.IsVisibleInTree());
             foreach (double value in new[] { slider.MinValue, slider.MaxValue })

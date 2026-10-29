@@ -20,7 +20,8 @@ public sealed partial class CameraIntegrationChecks : Node3D
             var input = new PlayerInput();
             AddChild(input);
             input.SetPhysicsProcess(false);
-            var camera = new VehicleChaseCamera();
+            // Isolate existing look/physics assertions from the independently tested framing transition.
+            var camera = new VehicleChaseCamera { AimElevation = 0, AimPullback = 0 };
             AddChild(camera);
             var simulation = new Core.Simulation.Simulation(new Core.Simulation.SimulationConfiguration(60));
             simulation.AddVehicle(1, new VehicleConfiguration(), new DamageConfiguration(), new VehiclePhysicsState(System.Numerics.Vector3.Zero, System.Numerics.Quaternion.Identity, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero));
@@ -185,9 +186,10 @@ public sealed partial class CameraIntegrationChecks : Node3D
             VerifyFramingSettings(camera, input, state);
             VerifyUpwardFraming(camera, input, state);
             VerifyLookSettings(camera, input, state);
+            VerifyTacticalFraming(camera, input, state);
             camera.QueueFree();
             input.QueueFree();
-            GD.Print("Camera integration passed: armed/unarmed chase framing, upward/downward 85-degree tilt bounds, fixed-height upward aim, RMB orbit/hold/release, controller/dead-zone return, suppression, identity/life/reseed resets, 30/60/144 FPS, unchanged gameplay input, heading/inertia/feedback regressions.");
+            GD.Print("Camera integration passed: armed/unarmed framing, upward 90/downward 85-degree bounds, fixed-height upward look, RMB orbit/hold/release, controller/dead-zone return, suppression, identity/life/reseed resets, 30/60/144 FPS, unchanged gameplay input, heading/inertia/feedback regressions.");
             GetTree().Quit();
         }
         catch (Exception exception)
@@ -226,6 +228,7 @@ public sealed partial class CameraIntegrationChecks : Node3D
             Send(new InputEventMouseMotion { ScreenRelative = new(10, -10) });
             camera.Follow(Transform3D.Identity, state, 1f / fps);
             float expectedPitch = -Mathf.DegToRad(camera.ViewDownAngle) + .03f * (float)gain * (invert ? -1 : 1);
+            for (int i = 0; i < fps / 5; i++) camera.Follow(Transform3D.Identity, state, 1f / fps);
             Require(Math.Abs(camera.Rotation.Y + .03f * gain) < .0001 && Math.Abs(camera.Rotation.X - expectedPitch) < .0001,
                 "Native mouse axis sensitivity and inversion apply equally armed/unarmed");
             Basis held = camera.GlobalBasis;
@@ -239,7 +242,8 @@ public sealed partial class CameraIntegrationChecks : Node3D
             float raw = input.Adapter.CameraIntent.Y;
             for (int i = 0; i < fps / 10; i++) camera.Follow(Transform3D.Identity, state, 1f / fps);
             float shaped = armed ? raw * Math.Abs(raw) : raw;
-            float stickPitch = -Mathf.DegToRad(camera.ViewDownAngle) - shaped * 2.2f * (fps / 10) / fps * (float)(gain * gain) * (invert ? -1 : 1);
+            float elapsed = (float)(fps / 10) / fps;
+            float stickPitch = -Mathf.DegToRad(camera.ViewDownAngle) - shaped * 2.2f * (elapsed - (1 - MathF.Exp(-60 * elapsed)) / 60) * (float)(gain * gain) * (invert ? -1 : 1);
             Require(Math.Abs(camera.Rotation.X - stickPitch) < .0002, "Native controller sensitivity and inversion honor radial shaping");
             Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightY, AxisValue = 0 });
         }
@@ -420,6 +424,7 @@ public sealed partial class CameraIntegrationChecks : Node3D
                 camera.Follow(Transform3D.Identity, state, 1f / fps);
             }
 
+            for (int i = 0; i < fps / 5; i++) camera.Follow(Transform3D.Identity, state, 1f / fps);
             RequireHeading(camera, -0.9f);
             Require(camera.GlobalPosition.DistanceTo(baseline.Origin) > 5, "Mouse orbits the vehicle, not only the viewing direction.");
             Vector3 pivot = VehicleBody.ToGodot(WeaponAim.Pivot);
@@ -439,7 +444,7 @@ public sealed partial class CameraIntegrationChecks : Node3D
 
             Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = 1 });
             for (int i = 0; i < fps; i++) camera.Follow(Transform3D.Identity, state, 1f / fps);
-            RequireHeading(camera, -2.2f);
+            RequireHeading(camera, -2.2f * (1 - 1f / 60));
             input.Adapter.DeadZone = 0;
             Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = 0.1f });
             for (int i = 0; i < fps * 3; i++) camera.Follow(Transform3D.Identity, state, 1f / fps);
@@ -449,10 +454,11 @@ public sealed partial class CameraIntegrationChecks : Node3D
 
             foreach (float direction in new[] { -1f, 1f })
             {
-                float expectedPitch = -direction * 85 * MathF.PI / 180;
+                float expectedPitch = (direction < 0 ? 90 : -85) * MathF.PI / 180;
                 Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true });
                 Send(new InputEventMouseMotion { ScreenRelative = new Vector2(0, direction * 1000) });
                 camera.Follow(Transform3D.Identity, state, 1f / fps);
+                for (int i = 0; i < fps / 5; i++) camera.Follow(Transform3D.Identity, state, 1f / fps);
                 Require(Math.Abs(camera.Rotation.X - expectedPitch) < .00001f && camera.GlobalTransform.IsFinite(), "Mouse reaches the wider vertical limit without flipping.");
                 if (direction < 0) Require(camera.GlobalPosition.DistanceTo(baseline.Origin) < .001f, "Upward mouse aim tilts the view without lowering or moving the chase lens.");
                 Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });

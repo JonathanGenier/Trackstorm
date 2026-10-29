@@ -23,6 +23,7 @@ public sealed record PlayerSettings
     private double _cameraRecenterSpeed = 1;
     private double _cameraFov = 65;
     private double _cameraHeight = 1.25;
+    private double _cameraDownAngle = 3.5;
     private SpeedUnit _speedUnit;
     private int _windowWidth = 1280;
     private int _windowHeight = 720;
@@ -70,6 +71,8 @@ public sealed record PlayerSettings
     public double CameraFov { get => _cameraFov; init => _cameraFov = double.IsFinite(value) ? Math.Clamp(value, 50, 90) : 65; }
     /// <summary>Lens follow height above the deployed rack reference in metres [0.5,3].</summary>
     public double CameraHeight { get => _cameraHeight; init => _cameraHeight = double.IsFinite(value) ? Math.Clamp(value, .5, 3) : 1.25; }
+    /// <summary>Local downward viewing angle in degrees [0,55]; default preserves the original chase view.</summary>
+    public double CameraDownAngle { get => _cameraDownAngle; init => _cameraDownAngle = double.IsFinite(value) ? Math.Clamp(value, 0, 55) : 3.5; }
 
     /// <summary>Whether to request fullscreen; defaults to a recoverable window.</summary>
     public bool Fullscreen { get; init; }

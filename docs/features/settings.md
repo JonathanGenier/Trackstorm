@@ -31,6 +31,7 @@ The Main Menu and joined Lobby each provide a **Settings** entry. The joined Lob
 | Camera Recenter Speed | 1× | Camera slider 0.25–3× scales the existing 6/s neutral-input return. Active input/RMB hold never recenters. |
 | FOV | 65° | Camera slider 50–90° sets base FOV before the existing bounded speed/Boost expansion. |
 | Camera Height | 1.25 m | Camera slider 0.5–3 m sets lens height above the deployed rack reference on the car; independent of vertical input sensitivity. |
+| Camera Angle | 3.5° | Camera slider 0–55° rotates the driving boom and view toward a bird's-eye perspective. Saved locally as `cameraDownAngle`; missing/invalid values retain 3.5°. |
 | Input bindings | Input-system defaults | Saved overrides restore physical keys, mouse buttons, gamepad buttons, signed axes, and exact gamepad device IDs. |
 
 Display changes use a 15-second preview. **Keep** commits the requested mode and window size; **Revert**, timeout, or closing the settings editor restores the last confirmed display preferences. Unconfirmed changes never enter the saved snapshot. Resolution selection is disabled in fullscreen because fullscreen uses the desktop mode. Headless runs retain the preferences but do not call native window APIs.

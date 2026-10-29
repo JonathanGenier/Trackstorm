@@ -139,7 +139,11 @@ public sealed partial class WeaponAimChecks
         _arenas[1].CameraInput = null; await Frames(50);
         int expired = rays; await Frames(30);
         Require(rays == expired && !host.Items.Aims.Any(a => a.Vehicle == Shooter), "Aim expiry stops held fire without stale-forward fallback");
-        _arenas[1].CameraInput = _input.Adapter; await Frames(60);
+        _arenas[1].CameraInput = _input.Adapter;
+        // Input removal now exits tactical framing. Re-aim after its return before
+        // asserting firing readiness; the authority must still reject self-blocked rays.
+        await AimAtCurrent(() => _arenas[1].Bodies[1].VisualPosition + Vector3.Up);
+        await Frames(60);
         Require(rays > expired, "Fresh camera intent resumes held fire after aim expiry");
         _firingPeers.Clear(); await Frames(40);
         _input.Adapter.GameplaySuppressed = true; await Frames(30);

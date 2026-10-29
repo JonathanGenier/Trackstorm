@@ -111,6 +111,17 @@ public sealed partial class WeaponAimChecks : Node
             await Until(() => _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 3), "Three UDP peers initialized", 1200);
             var host = _arenas[0].Driver.Host!;
             Require(host.TryConfigure(0, new Dictionary<string, double> { ["match.minimum_players"] = 1, ["match.countdown_ticks"] = 1 }, out _), "Host tuning applied");
+            if (OS.GetCmdlineUserArgs().Contains("--aim-camera-settings"))
+            {
+                _arenas[0].Driver.Host!.Items.Grant(_arenas[0].Driver.Host!.World, Shooter, HeldItem.MachineGun);
+                await Frames(180);
+                await CheckCameraPreferences();
+                System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "camera-evidence.txt"), _evidence);
+                GD.Print($"Weapon aiming integration passed: {_evidence.Count} camera preference checks; three native UDP peers.");
+                foreach (var arena in _arenas) { arena.QueueFree(); }
+                for (int i = 0; i < 4; i++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                GetTree().Quit(); return;
+            }
             if (OS.GetCmdlineUserArgs().Contains("--aim-salvo"))
             {
                 if (OS.GetCmdlineUserArgs().Contains("--salvo-polish")) { await CheckSalvoAimPolish(); }
@@ -377,6 +388,7 @@ public sealed partial class WeaponAimChecks : Node
             ("HorizontalLookSensitivity", [.25, 1, 3]), ("VerticalLookSensitivity", [.25, 1, 3]),
             ("StickAimSensitivity", [.25, 1, 3]), ("CameraRecenterSpeed", [.25, 1, 3]),
             ("CameraFov", [50, 65, 90]), ("CameraHeight", [.5, 1.25, 3]),
+            ("CameraDownAngle", [0, 3.5, 55]),
             ("InvertY", [0, 1]), ("MouseAimSensitivity", [.25, 1, 3]), ("StickAimCurve", [1, 2, 3]),
         };
         foreach (var option in cases)
@@ -426,11 +438,11 @@ public sealed partial class WeaponAimChecks : Node
             RequireObserverMount(phase);
             Require(host.Configuration.Configuration == configuration && _arenas[2].GetNode<VehicleChaseCamera>("ChaseCamera").Fov == observerFov,
                 "Local preference leaves host tuning and peer camera unchanged: " + phase);
-            if (option.Name is "CameraFov" or "CameraHeight") await Capture("settings-" + option.Name + "-" + value + "-" + airborne + "-" + upward);
+            if (option.Name is "CameraFov" or "CameraHeight" or "CameraDownAngle") await Capture("settings-" + option.Name + "-" + value + "-" + airborne + "-" + upward);
             Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
         }
         _arenas[1].CameraSettings = null; settings.QueueFree(); Camera.ResetFollow(); await Frames(6);
-        GD.Print("Camera preference aiming matrix passed: 152 low/default/high ground/air upward/downward cases through three real UDP peers.");
+        GD.Print("Camera preference aiming matrix passed: 164 low/default/high ground/air upward/downward cases through three real UDP peers.");
     }
     private void RequireCentered(string evidence) => Require(_arenas[1].AimOverlay.Marker is Vector2 marker && marker.DistanceTo(ViewCenter) < .01f, evidence);
 
