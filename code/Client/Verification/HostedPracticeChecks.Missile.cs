@@ -10,20 +10,35 @@ namespace Trackstorm.Client.Verification;
 
 public sealed partial class HostedPracticeChecks
 {
+    private PlayerInput? _aimInput;
+    private bool _aimMouseHeld;
+
+    public override void _Process(double delta)
+    {
+        if (_aimInput is not { } input || input.Adapter.Enabled) { return; }
+        // As in WeaponAimChecks, scripted input owns its focus during automation.
+        // This does not exercise or alter the production OS focus behavior.
+        input.Adapter.Enabled = true;
+        using var mouse = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = _aimMouseHeld };
+        input._Input(mouse);
+    }
+
     private async Task CheckMissilePracticePair(DevelopmentSession session, DevelopmentSession remote, ulong[] cars)
     {
         var arena = session.Arena!;
         var host = arena.Driver.Host!;
         var input = new PlayerInput(); AddChild(input); input.SetPhysicsProcess(false); input.SetProcessInput(false);
+        _aimInput = input;
         input.GameplayAvailable = () => true;
         arena.CameraInput = input.Adapter;
         var camera = arena.GetNode<VehicleChaseCamera>("ChaseCamera");
         var view = (SubViewport)session.GetParent();
         view.Size = new(1280, 800); view.RenderTargetUpdateMode = SubViewport.UpdateMode.Always;
-        string output = ProjectSettings.GlobalizePath("res://.godot/ts263/lobby");
+        string output = ProjectSettings.GlobalizePath("res://.godot/hosted-practice-aim");
         System.IO.Directory.CreateDirectory(output);
         void Send(InputEvent value)
         {
+            if (value is InputEventMouseButton { ButtonIndex: MouseButton.Right } mouse) { _aimMouseHeld = mouse.Pressed; }
             input.Adapter.Enabled = true;
             Godot.Input.ParseInputEvent(value); Godot.Input.FlushBufferedEvents(); input._Input(value); value.Dispose();
         }
@@ -49,14 +64,14 @@ public sealed partial class HostedPracticeChecks
                 using var image = view.GetTexture().GetImage(); image.SavePng(System.IO.Path.Combine(output, "lobby-car-" + target + ".png"));
             }
         }
-        for (int pass = 0; pass < 2; pass++)
+        for (int pass = 0; pass < cars.Length; pass++)
         {
             host.Items.RemovePlayer(arena.Driver.LocalVehicleId);
             await Frames(100);
             // Place only the human shooter beside the real route-driven pair. Their
             // ordinary lobby identities, input, physics and route remain untouched.
             var state = host.World.State;
-            var leader = host.World.GetVehicle(cars[0]).ObservedPhysics;
+            var leader = host.World.GetVehicle(cars[pass < 2 ? 0 : pass]).ObservedPhysics;
             var right = N.Vector3.Transform(N.Vector3.UnitX, leader.Orientation);
             var forward = N.Vector3.Transform(-N.Vector3.UnitZ, leader.Orientation);
             N.Vector3 placement = leader.Position - right * 20 - forward * 5;
@@ -75,7 +90,7 @@ public sealed partial class HostedPracticeChecks
             Require(arena.Driver.GiveDeveloperItem(HeldItem.Missile), "lobby shooter acquires Missile");
             Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false }); camera.ResetFollow();
             await Until(() => arena.Driver.LocalItem?.Active.Item == HeldItem.Missile && arena.Driver.MissileReady?.Invoke(arena.Driver.LocalItem) == true, "lobby Missile deployment");
-            foreach (ulong target in new[] { cars[pass], cars[1 - pass], cars[pass] }) { await Look(target); }
+            foreach (ulong target in pass < 2 ? new[] { cars[pass], cars[1 - pass], cars[pass] } : new[] { cars[pass] }) { await Look(target); }
             ulong token = arena.Driver.LocalItem!.Active.Token;
             var aim = host.Items.Aims.Single(a => a.Vehicle == arena.Driver.LocalVehicleId);
             var toward = N.Vector3.Normalize(VehicleBody.ToCore(arena.Bodies[cars[pass]].VisualTransform * new Vector3(0, .3f, 0)) - aim.Origin);
@@ -89,6 +104,7 @@ public sealed partial class HostedPracticeChecks
             GD.Print($"LOBBY_MISSILE target={cars[pass]} token={token} direction={aim.Direction} speed={host.World.GetVehicle(cars[pass]).Speed:F3}");
         }
         arena.CameraInput = null;
+        _aimInput = null;
         input.QueueFree();
     }
 }

@@ -17,7 +17,7 @@ public sealed partial class MigrationIntegrationChecks : Node
     private ulong _firingOilDeadline;
     private bool _oilMigrationObserved;
     private bool PracticeCar => OS.GetCmdlineUserArgs().Contains("--practice-car" );
-    private int VehicleCount => _players + (PracticeCar ? 2 : 0);
+    private int VehicleCount => _players + (PracticeCar ? 4 : 0);
     private IReadOnlyList<ShieldState> _shields = [];
     private readonly Dictionary<ulong, Core.Items.ItemPublication> _salvoBoundaries = new();
     private OilPatch? _oil;
@@ -45,6 +45,7 @@ public sealed partial class MigrationIntegrationChecks : Node
     private ulong _randomState;
     private ulong _nitroOwner;
     private ulong _machineGunOwner;
+    private ulong _parkedTarget;
     private Core.Matches.MatchPhase _matchPhase;
     private ulong? _countdownAtTick;
     private ulong _remainingMatchTicks;
@@ -140,6 +141,7 @@ public sealed partial class MigrationIntegrationChecks : Node
     {
         if (!condition)
         {
+            GD.PrintErr("Migration assertion: " + message);
             throw new InvalidOperationException(message);
         }
     }
@@ -190,7 +192,7 @@ public sealed partial class MigrationIntegrationChecks : Node
 
     private void Scenario()
     {
-        if (_stage == 0 && _drivers[1]!.State?.Players.Count == 2 + (PracticeCar ? 2 : 0))
+        if (_stage == 0 && _drivers[1]!.State?.Players.Count == 2 + (PracticeCar ? 4 : 0))
         {
             if (_players == 3)
             {
@@ -291,6 +293,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             arena.Driver.Match?.Phase == (_players == 2 ? Core.Matches.MatchPhase.Countdown : Core.Matches.MatchPhase.Active)))
         {
             int nextHost = _players == 2 ? 0 : 2;
+            _parkedTarget = PracticeCar ? _drivers[1]!.State!.Players.Where(player => player.PracticeCar).Max(player => player.Id) : 0;
             _categoryHistory = CategoryBalanceRecoveryFixture.Seed(_arenas[1]!);
             _shields = ShieldRecoveryFixture.Seed(_arenas[1]!);
             GD.Print("Category pickup history before migration: " + _categoryHistory);
@@ -317,6 +320,7 @@ public sealed partial class MigrationIntegrationChecks : Node
                 var boundary = world.State;
                 var vehicles = boundary.Vehicles.Select(vehicle =>
                 {
+                    if (vehicle.VehicleId == _parkedTarget) { return vehicle; }
                     var pose = new Core.Vehicles.VehiclePhysicsState(vehicle.ObservedPhysics.Position + new System.Numerics.Vector3(0, 500, 0),
                         System.Numerics.Quaternion.Identity, new System.Numerics.Vector3(0, 0, -10), System.Numerics.Vector3.Zero);
                     arena.Bodies[vehicle.VehicleId].Apply(pose);
@@ -328,7 +332,7 @@ public sealed partial class MigrationIntegrationChecks : Node
                     Core.Matches.MatchPhase.Active, null, null, boundary.Match.Players.Select(row => row with
                     {
                         Kills = 1, Deaths = 1, ProcessedLife = 1, CircusScore = 125.25 + row.Player, KillStreak = 1,
-                        Stunts = new Core.Matches.StuntState { Life = world.GetVehicle(row.Player).LifeId, Tick = boundary.Tick,
+                        Stunts = row.Player == _parkedTarget ? null : new Core.Matches.StuntState { Life = world.GetVehicle(row.Player).LifeId, Tick = boundary.Tick,
                             Airtime = new(1, 0.5), JumpOrigin = world.GetVehicle(row.Player).ObservedPhysics.Position },
                     }));
                 world.Restore(new Core.Simulation.SimulationState(boundary.Tick, boundary.LastInput, vehicles, match));
@@ -384,7 +388,8 @@ public sealed partial class MigrationIntegrationChecks : Node
                 {
                     var restored = _arenas[survivor]!.Driver.Match!;
                     Require(_circusBoundaries.TryGetValue(restored.Revision, out var original) && restored.Players.SequenceEqual(original.Players), "Selected checkpoint restores exact Circus score, K/D, streak and pending flight state.");
-                    Require(restored.Mode == Core.Matches.MatchMode.Circus && restored.Players.All(row => row.CircusScore > 0 && row.Stunts is not null), "Migration retains the configured Circus mode and unbanked stunts.");
+                    Require(restored.Mode == Core.Matches.MatchMode.Circus && restored.Players.All(row => row.CircusScore > 0 &&
+                        (row.Player == _parkedTarget ? row.Stunts is null : row.Stunts is not null)), "Migration retains Circus scores and the airborne fixtures' unbanked stunts while the parked target stays grounded.");
                     Require(_arenas[survivor]!.Driver.LocalState is not null &&
                         _arenas[survivor]!.Driver.ItemState!.Slots.Single(s => s.Vehicle == _nitroOwner).NitroCharge == 37.5,
                         "Partial Nitro charge survives selected checkpoint installation.");
@@ -408,6 +413,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             int survivor = _players == 2 ? 0 : 2;
             var arena = _arenas[survivor]!;
             ulong successor = _drivers[survivor]!.LocalPlayerId;
+            VerifyParkedTarget(arena);
             Require(_drivers.Take(_players).Where((_, index) => index != 1).All(driver => driver!.State!.CurrentHostId == successor), "Second election converges on the lowest eligible stable ID.");
             Require(_arenas[0]!.Bodies.Count == VehicleCount && arena.Bodies.Count == VehicleCount && arena.Bodies[_drivers[survivor]!.LocalPlayerId] == _retainedBody, "No duplicate or replaced surviving vehicles.");
             Require(arena.Driver.LocalItem?.Item == (_players == 3 ? HeldItem.None : HeldItem.Wrench) && arena.Driver.ItemState!.Spawns.Count == 27 && arena.Driver.Match!.Players.Count == VehicleCount, "Complete gameplay continuation preserves discarded first slot with twenty-seven map pickups.");
@@ -454,6 +460,7 @@ public sealed partial class MigrationIntegrationChecks : Node
         else if (_stage == 9)
         {
             int host = _players == 2 ? 0 : 2;
+            VerifyParkedTarget(_arenas[host]!);
             if (OilFiringRecovery)
             {
                 var authority = _arenas[host]!.Driver.Host!;
@@ -485,6 +492,9 @@ public sealed partial class MigrationIntegrationChecks : Node
             if (_arenas[host]!.Driver.LocalItem?.Item == HeldItem.Wrench)
             {
                 if (_arenas[host]!.Driver.LocalItem!.ActiveSlot == 1) { Require(_arenas[host]!.Driver.RequestItemSwitch(), "Replacement switches normally after recovery."); return; }
+                var driver = _arenas[host]!.Driver;
+                if (driver.WrenchReturning?.Invoke() == true || driver.WrenchReady?.Invoke(driver.LocalItem!) == false ||
+                    !driver.Host!.Items.WrenchReady(driver.LocalItem!)) { return; }
                 Require(_arenas[host]!.Driver.RequestItemUse(), "Normal use clears the replacement slot.");
                 return;
             }
@@ -494,6 +504,16 @@ public sealed partial class MigrationIntegrationChecks : Node
             _finished = true;
             _boundary = _frames;
         }
+    }
+
+    private void VerifyParkedTarget(NetworkVehicleArena arena)
+    {
+        if (_parkedTarget == 0) { return; }
+        var marker = arena.MapConfiguration.Items.Single(item => item.Id == "item-infield-04-water");
+        var vehicle = arena.Driver.Host!.World.GetVehicle(_parkedTarget);
+        var expected = marker.Position + System.Numerics.Vector3.UnitY * Core.Vehicles.VehicleDimensions.RideHeight;
+        Require(vehicle.ObservedPhysics.Position == expected && vehicle.ObservedPhysics.LinearVelocity == System.Numerics.Vector3.Zero &&
+            vehicle.ObservedPhysics.AngularVelocity == System.Numerics.Vector3.Zero, "Migrated fourth target remains anchored over the pond pickup with zero velocity.");
     }
 
     private void Cleanup()

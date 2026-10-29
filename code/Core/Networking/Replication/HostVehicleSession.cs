@@ -19,6 +19,7 @@ public sealed class HostVehicleSession
     private readonly Dictionary<ulong, (ulong Vehicle, HostInputBuffer Inputs, int SpawnSlot)> _peers = new();
     private readonly Dictionary<ulong, (HostInputBuffer Inputs, int SpawnSlot)> _disconnected = new();
     private readonly Dictionary<ulong, PracticeVehicleInput> _practice = new();
+    private readonly HashSet<ulong> _parkedPractice = new();
     private readonly bool _requireActiveMatch;
     private ulong _nextVehicle = 1;
     private ulong? _lastUseRejection;
@@ -395,14 +396,26 @@ public sealed class HostVehicleSession
     /// <summary>Creates or reattaches a trusted lobby-owned practice car; it has no input peer.</summary>
     /// <param name="playerId">Explicit practice identity from the validated lobby roster.</param>
     /// <param name="oval">Whether the selected map is the production oval.</param>
-    public void DrivePracticeCar(ulong playerId, bool oval)
+    /// <param name="placeThird">Optional scene-grounded placement of the new moving car, used only on initial creation.</param>
+    public void DrivePracticeCar(ulong playerId, bool oval, Func<VehiclePhysicsState, VehiclePhysicsState>? placeThird = null)
     {
-        if (_practice.ContainsKey(playerId)) { return; }
-        if (_practice.Count == 2) { throw new InvalidOperationException("Only two practice cars are supported."); }
+        if (_practice.ContainsKey(playerId) || _parkedPractice.Contains(playerId)) { return; }
+        int index = _practice.Count + _parkedPractice.Count;
+        if (index >= (oval ? 4 : 2)) { throw new InvalidOperationException("Practice target capacity exceeded."); }
+        bool parked = oval && index == 3;
+        VehiclePhysicsState pose;
+        if (parked)
+        {
+            var marker = World.Arena.Items.Single(item => item.Id == "item-infield-04-water");
+            pose = new(marker.Position + System.Numerics.Vector3.UnitY * VehicleDimensions.RideHeight,
+                System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitY, marker.Yaw), System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero);
+        }
+        else { pose = PracticeVehicleInput.InitialPose(oval, index, Spawn(1).Position.Y); }
         if (!World.State.Vehicles.Any(vehicle => vehicle.VehicleId == playerId))
-        { ReservePlayer(playerId, PracticeVehicleInput.InitialPose(oval, _practice.Count, Spawn(1).Position.Y)); }
+        { ReservePlayer(playerId, index == 2 && placeThird is not null ? placeThird(pose) : pose); }
         if (!_disconnected.ContainsKey(playerId)) { throw new ArgumentException("Practice car cannot own a transport peer."); }
-        _practice.Add(playerId, new PracticeVehicleInput(oval));
+        if (parked) { _parkedPractice.Add(playerId); World.AnchorVehicle(playerId, pose); }
+        else { _practice.Add(playerId, new PracticeVehicleInput(oval, index == 2 ? 100 : 10)); }
     }
 
     /// <summary>Releases gameplay ownership; stale input can no longer target the departed vehicle.</summary>
@@ -434,7 +447,7 @@ public sealed class HostVehicleSession
     /// <param name="player">Stable lobby player.</param>
     public bool ResumePlayer(ulong peer, ulong player)
     {
-        if (peer == 0 || _practice.ContainsKey(player) || _peers.ContainsKey(peer) || !_disconnected.Remove(player, out var entry))
+        if (peer == 0 || _practice.ContainsKey(player) || _parkedPractice.Contains(player) || _peers.ContainsKey(peer) || !_disconnected.Remove(player, out var entry))
         {
             return false;
         }
@@ -450,6 +463,7 @@ public sealed class HostVehicleSession
         if (_disconnected.Remove(player))
         {
             _practice.Remove(player);
+            _parkedPractice.Remove(player);
             World.LeaveVehicle(player);
             Items.RemovePlayer(player);
             Spawns?.RemovePlayer(player);
@@ -513,7 +527,7 @@ public sealed class HostVehicleSession
         {
             inputs.Add(player, AllowsParticipation && _practice.TryGetValue(player, out var driver)
                 ? driver.Capture(World.GetVehicle(player), Configuration.Configuration.Vehicle, tick,
-                    player == _practice.Keys.Min() ? null : World.GetVehicle(_practice.Keys.Min()))
+                    _practice.Keys.Where(id => id < player).Order().LastOrDefault() is var leader && leader != 0 ? World.GetVehicle(leader) : null)
                 : new InputFrame(tick, 0, 0, 0, 0, 0, 0));
         }
 

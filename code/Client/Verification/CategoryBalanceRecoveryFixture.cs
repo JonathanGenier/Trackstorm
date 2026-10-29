@@ -11,12 +11,14 @@ internal static class CategoryBalanceRecoveryFixture
     {
         var host = arena.Driver.Host!;
         var boundary = host.World.State;
-        int marker = 0;
         foreach (var vehicle in boundary.Vehicles)
         {
+            // Hosted practice targets may already own items and have consumed a
+            // marker before this recovery-only seeding boundary.
+            host.Items.RemovePlayer(vehicle.VehicleId);
             for (int i = 0; i < 3; i++)
             {
-                var spawn = arena.MapConfiguration.Items[marker++];
+                var spawn = arena.MapConfiguration.Items.First(marker => host.Spawns!.States.Single(state => state.Id == marker.Id).Available);
                 var pose = new VehiclePhysicsState(spawn.Position, vehicle.ObservedPhysics.Orientation, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero);
                 host.World.Restore(new(boundary.Tick, boundary.LastInput, boundary.Vehicles.Select(v => v.VehicleId == vehicle.VehicleId
                     ? new VehicleSnapshot(v.VehicleId, v.LifeId, new VehicleState(boundary.Tick, pose, false, false, 0, 0), v.Damage, pose) : v), boundary.Match));

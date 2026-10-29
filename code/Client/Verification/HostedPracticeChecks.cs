@@ -40,8 +40,10 @@ public sealed partial class HostedPracticeChecks : Node
             reservation.Close();
             var host = AddPeer(true);
             var remote = AddPeer(false);
-            await Until(() => _sessions.All(session => session.Lobby?.State?.Players.Count == 4), "host, practice pair and observer roster");
+            await Until(() => _sessions.All(session => session.Lobby?.State?.Players.Count == 6), "host, four practice targets and observer roster");
             if (OS.GetCmdlineUserArgs().Contains("--old-map")) { host.Lobby!.Authority!.SelectMap(0, MatchMap.OldMap); }
+            int targetCount = OS.GetCmdlineUserArgs().Contains("--old-map") ? 2 : 4;
+            await Until(() => _sessions.All(session => session.Lobby?.State?.Players.Count == targetCount + 2), "map target roster converged");
             remote.Lobby!.Request(LobbyCommand.Ready, true);
             await Until(() => host.Lobby!.State!.CanStart, "ready");
             Require(host.StartFromLobby(), "ordinary host Start accepted");
@@ -57,13 +59,15 @@ public sealed partial class HostedPracticeChecks : Node
                 _done = true;
                 foreach (var session in _sessions) { session.GetParent().QueueFree(); }
                 await Frames(4);
-                GD.Print("Hosted Missile aiming passed: both lobby practice cars, switching, lock markers and remote launch.");
+                GD.Print("Hosted Missile aiming passed: all lobby practice cars, switching, lock markers and remote launch.");
                 GetTree().Quit(); return;
             }
             var authority = host.Arena!.Driver.Host!;
+            var parkedPose = targetCount == 4 ? authority.World.GetVehicle(cars[3]).Movement.Physics : default;
             var previous = authority.World.GetVehicle(car).Movement.Physics.Position;
             float travel = 0, min = float.MaxValue, max = 0;
             float minGap = float.MaxValue, maxGap = 0, followerMin = float.MaxValue, followerMax = 0;
+            float farMin = float.MaxValue, farMax = 0;
             int frames = OS.GetCmdlineUserArgs().Contains("--old-map") ? 2400 : 9000;
             for (int frame = 0; frame < frames; frame++)
             {
@@ -76,6 +80,14 @@ public sealed partial class HostedPracticeChecks : Node
                 float gap = System.Numerics.Vector3.Distance(state.Movement.Physics.Position, following.Movement.Physics.Position);
                 minGap = Math.Min(minGap, gap); maxGap = Math.Max(maxGap, gap);
                 followerMin = Math.Min(followerMin, following.Speed); followerMax = Math.Max(followerMax, following.Speed);
+                if (targetCount == 4)
+                {
+                    var third = authority.World.GetVehicle(cars[2]);
+                    float routeGap = RouteGap(third.Movement.Physics.Position, following.Movement.Physics.Position);
+                    farMin = Math.Min(farMin, routeGap); farMax = Math.Max(farMax, routeGap);
+                    Require(authority.World.GetVehicle(cars[3]).Movement.Physics == parkedPose, "parked pose and zero velocities remain exact");
+                    Require(third.Damage.CurrentHP == third.Damage.MaxHP, $"third car takes no route collision damage: {third.Damage.CurrentHP}, {third.Damage.LastDamage}, pose={third.Movement.Physics.Position}, tick={authority.World.State.Tick}");
+                }
             }
             GD.Print($"HOSTED_PRACTICE frames={frames} travel={travel:F2}m speed={min:F2}..{max:F2}m/s HP={authority.World.GetVehicle(car).Damage.CurrentHP:F2}");
             Require(travel > frames / 60f * 12 && min > 11 && max < 17, "steady native driving");
@@ -83,6 +95,13 @@ public sealed partial class HostedPracticeChecks : Node
             Require(minGap > 6 && maxGap < 15 && followerMin > 10 && followerMax < 18,
                 "second car follows closely at matching speed without overtaking or touching");
             Require(remote.Arena!.Bodies.ContainsKey(follower), "remote receives second target");
+            if (targetCount == 4)
+            {
+                GD.Print($"PRACTICE_THIRD routeGap={farMin:F3}..{farMax:F3}m parked={parkedPose.Position}");
+                Require(farMin > 94 && farMax < 106, "third car stays approximately 100 route metres behind second across full oval laps");
+                if (OS.GetCmdlineUserArgs().Contains("--visual")) { await CaptureTargets(host, cars); }
+                await CheckParkedTarget(host, remote, cars[3]);
+            }
             Require(remote.Arena!.Bodies.ContainsKey(car) && remote.Arena.Driver.Latest!.Vehicles.Single(vehicle => vehicle.State.VehicleId == car).State.Speed > 11, "remote receives moving car");
             if (!OS.GetCmdlineUserArgs().Contains("--old-map"))
             {
@@ -98,7 +117,8 @@ public sealed partial class HostedPracticeChecks : Node
             }
             var late = AddPeer(false);
             await Until(() => late.Arena?.Driver.EntryReady == true && late.Arena.Bodies.ContainsKey(car), "late join receives existing practice car");
-            Require(host.Lobby.State.Players.Count(player => player.PracticeCar) == 2 && authority.World.State.Vehicles.Count == 5, "late join never duplicates pair");
+            Require(host.Lobby.State.Players.Count(player => player.PracticeCar) == targetCount && authority.World.State.Vehicles.Count == targetCount + 3, "late join never duplicates targets");
+            Require(cars.All(id => late.Arena!.Bodies.ContainsKey(id)), "late join receives every target");
             host.Lobby.Request(LobbyCommand.Return);
             await Until(() => _sessions.All(session => session.Lobby?.State?.Phase == SessionPhase.Lobby && session.Arena is null), "return");
             foreach (var session in _sessions.Skip(1)) { session.Lobby!.Request(LobbyCommand.Ready, true); }
@@ -107,6 +127,7 @@ public sealed partial class HostedPracticeChecks : Node
             await Until(() => _sessions.All(session => session.Arena?.Driver.Match?.Phase == MatchPhase.Active), "repeat active");
             await Frames(600);
             Require(host.Arena!.Driver.Host!.World.GetVehicle(car).Speed > 11, "car drives in next match");
+            if (targetCount == 4) { Require(host.Arena.Driver.Host.World.GetVehicle(cars[3]).Movement.Physics == parkedPose, "repeat start reconstructs parked target"); }
             foreach (var session in _sessions) { session.Leave(); }
             await Until(() => _sessions.All(session => session.LeaveComplete), "clean session departure");
             _done = true;
