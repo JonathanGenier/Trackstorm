@@ -27,4 +27,6 @@ public sealed record HostRestoreState
     public ulong RandomState { get; init; }
     /// <summary>Highest allocated vehicle identity.</summary>
     public ulong NextVehicle { get; init; }
+    /// <summary>Optional fourth practice car trip; ordinary vehicles have no such continuation.</summary>
+    public PondPracticeState? PondPractice { get; init; }
 }

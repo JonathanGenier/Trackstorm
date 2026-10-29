@@ -10,7 +10,7 @@ namespace Trackstorm.Core.Simulation;
 public sealed class Simulation
 {
     private Dictionary<ulong, VehicleAuthority> _vehicles = new();
-    private readonly Dictionary<ulong, VehiclePhysicsState> _stationary = new();
+    private readonly Dictionary<ulong, (VehiclePhysicsState Spawn, VehiclePhysicsState? Anchor)> _practicePoses = new();
 
     private bool _developmentStart;
     private readonly bool _synchronizedStart;
@@ -158,18 +158,18 @@ public sealed class Simulation
         State = new SimulationState(State.Tick, State.LastInput, _vehicles.Values.Select(vehicle => vehicle.Snapshot), match);
     }
 
-    /// <summary>Match composition reinstalls these map-owned poses after authority recovery.</summary>
-    internal void AnchorVehicle(ulong vehicle, VehiclePhysicsState pose)
+    /// <summary>Car 4 composition supplies its home respawn and optional stopped pose.</summary>
+    internal void SetPracticeVehiclePose(ulong vehicle, VehiclePhysicsState spawn, VehiclePhysicsState? anchor)
     {
         _ = GetVehicle(vehicle);
-        _stationary[vehicle] = new(pose.Position, pose.Orientation, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero);
+        _practicePoses[vehicle] = (spawn, anchor is { } pose ? new(pose.Position, pose.Orientation, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero) : null);
     }
 
     /// <summary>Removes a departed vehicle at a fixed boundary.</summary>
     /// <param name="vehicleId">Departed identity.</param>
     public void LeaveVehicle(ulong vehicleId)
     {
-        _stationary.Remove(vehicleId);
+        _practicePoses.Remove(vehicleId);
         if (_vehicles.Remove(vehicleId))
         {
             Events.Record(EventCategory.Lifecycle, "Despawned", target: vehicleId, tick: State.Tick);
@@ -245,8 +245,9 @@ public sealed class Simulation
         {
             var observation = new VehicleObservation(request.Observation.Physics, request.Observation.Support, request.Observation.Contacts.Where(contact => !resetting.Contains(contact.OtherVehicleId) && Participates(contact.OtherVehicleId)), request.Observation.Surface, request.Observation.Wheels, request.Observation.TerrainSupport, request.Observation.WaterDepth);
             var filtered = new VehicleStepRequest(request.VehicleId, request.Input, observation, request.Effects.Where(effect => Participates(effect.Attribution.InstigatorId)), request.Reset, request.Repair, request.RepairCause, request.OilContact, request.Nitro, request.ClearNitro || State.Match is { Phase: not Matches.MatchPhase.Active }, State.Match is { Phase: not Matches.MatchPhase.Active } ? 0 : request.EmpUntilTick);
+            _practicePoses.TryGetValue(request.VehicleId, out var practice);
             VehicleStepResult candidate = _vehicles[request.VehicleId].Prepare(filtered, Respawn, Arena, reserved.Values.ToArray(), impacts[request.VehicleId],
-                _stationary.TryGetValue(request.VehicleId, out var anchor) ? anchor : null);
+                practice.Anchor, _practicePoses.ContainsKey(request.VehicleId) ? practice.Spawn : null);
             reserved[request.VehicleId] = candidate.Snapshot;
             return candidate;
         }).ToArray();

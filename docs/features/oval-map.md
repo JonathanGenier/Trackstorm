@@ -79,17 +79,28 @@ car or overrides velocity. Banking, collisions and handling changes can temporar
 change speed. Death and respawn retain normal lifecycle rules, and driving resumes
 from the new spawn. Old Map uses a smaller 28 m radius route around its central
 obstacles and retains only the original pair. This is route following without dynamic obstacle avoidance.
-New Map also includes a fourth, stationary practice car at the unchanged
-`item-infield-04-water` marker. Its center uses the marker's X/Z, heading and height
-plus the production ride height. Core anchors its pose and zero velocities through
-impacts, item effects and resets, retaining ordinary health, targeting and inventory.
-Death follows normal timing; respawn returns to the anchor once its clearance is
-available. Authority recovery reconstructs the anchor from the map contract and
-stable practice roster order. Fresh matches reconstruct all four targets once.
+New Map's fourth practice car starts 6.096 m (20 feet) behind the unchanged
+`item-infield-04-water` marker, facing along the marker heading. It uses ordinary
+steering and pedals to drive the short straight to that original pickup point,
+then reverses to its starting position and parks with the acquired item. Initial
+home placement includes 0.3 m suspension clearance for the slightly uphill dirt;
+native terrain support determines its settled height and orientation.
 
-The parked car fills its two slots through normal pickup cooldowns. Full inventory
-leaves the crate available; use/discard or a new life frees capacity for another
-pickup. It does not automatically fire or discard. The four targets occupy four
+Core owns one bounded trip per vehicle life. If the crate is unavailable, the car
+stops at the approach point until normal pickup succeeds. A full inventory returns
+home without further pickup attempts. After parking, use/discard does not restart
+the trip; only destruction and ordinary respawn begin another. The car does not
+auto-fire or discard items. The normal three-metre pickup sphere may award the item
+before the car reaches the approach point; an ordinary single pickup completes the
+approach before reversing. Crate position, breaking, cooldown and inventory rules
+are unchanged, and the respawned crate is visibly separate from the parked car.
+
+Stopped waiting/inspection poses are anchored against drift and impulses while
+retaining health, targeting and inventory. Moving segments retain normal vehicle
+physics. Death follows normal timing; home respawn waits for clearance. The existing
+host migration supplement retains trip phase, life and acquired-item latch, so
+recovery cannot restart a completed trip or lose a pending return after discard.
+Fresh matches reconstruct all four targets once. The four targets occupy four
 of the eight roster slots and replicate through the ordinary vehicle path; see
 [session ownership](sessions.md). Local-only practice retains stationary targets.
 
@@ -247,6 +258,8 @@ target rays and native ram collision, then checks remote snapshots, out-of-bound
 death/respawn, late join and repeat matches. `-Visual` captures the rendered targets.
 `-Aim -Visual` exercises the existing assisted Missile aim, target switching, lock
 markers and remote launch for all four cars, including downward aim at the pond.
+`-Pond -Visual` runs the focused Car 4 pickup, reverse, full-inventory parking,
+contended cooldown wait, three destruction/respawn cycles and collision checks.
 `-OldMap` checks the original pair on the smaller route and the same session
 transitions, omitting the oval-specific target probes.
 

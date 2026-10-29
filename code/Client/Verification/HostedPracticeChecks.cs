@@ -50,6 +50,16 @@ public sealed partial class HostedPracticeChecks : Node
             await Until(() => _sessions.All(session => session.Arena?.Driver.Match?.Phase == MatchPhase.Active), "active gameplay");
             ulong[] cars = host.Lobby!.State!.Players.Where(player => player.PracticeCar).Select(player => player.Id).Order().ToArray();
             ulong car = cars[0], follower = cars[1];
+            if (targetCount == 4) { await WaitForPondTrip(host, cars[3]); }
+            if (OS.GetCmdlineUserArgs().Contains("--pond-cycle"))
+            {
+                await CheckParkedTarget(host, remote, cars[3]);
+                if (OS.GetCmdlineUserArgs().Contains("--visual")) { await CaptureTargets(host, [cars[3]]); }
+                foreach (var session in _sessions) { session.Leave(); }
+                await Until(() => _sessions.All(session => session.LeaveComplete), "pond check departure");
+                _done = true; GD.Print("Hosted practice passed: pond pickup, wait, reverse, park and repeated lives.");
+                GetTree().Quit(); return;
+            }
             await Frames(600);
             if (OS.GetCmdlineUserArgs().Contains("--missile-aim"))
             {
@@ -127,7 +137,11 @@ public sealed partial class HostedPracticeChecks : Node
             await Until(() => _sessions.All(session => session.Arena?.Driver.Match?.Phase == MatchPhase.Active), "repeat active");
             await Frames(600);
             Require(host.Arena!.Driver.Host!.World.GetVehicle(car).Speed > 11, "car drives in next match");
-            if (targetCount == 4) { Require(host.Arena.Driver.Host.World.GetVehicle(cars[3]).Movement.Physics == parkedPose, "repeat start reconstructs parked target"); }
+            if (targetCount == 4)
+            {
+                await Until(() => host.Arena.Driver.Host.CaptureAuthority().PondPractice?.Phase == Core.Vehicles.PondPracticePhase.Parked, "repeat match pond trip");
+                Require(System.Numerics.Vector3.Distance(host.Arena.Driver.Host.World.GetVehicle(cars[3]).Movement.Physics.Position, parkedPose.Position) < .3f, "repeat start returns pond target home");
+            }
             foreach (var session in _sessions) { session.Leave(); }
             await Until(() => _sessions.All(session => session.LeaveComplete), "clean session departure");
             _done = true;

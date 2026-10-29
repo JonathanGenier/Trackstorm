@@ -1,4 +1,4 @@
-param([Parameter(Mandatory)][string]$GodotPath, [switch]$NoBuild, [switch]$OldMap, [switch]$Visual, [switch]$Aim)
+param([Parameter(Mandatory)][string]$GodotPath, [switch]$NoBuild, [switch]$OldMap, [switch]$Visual, [switch]$Aim, [switch]$Pond)
 $ErrorActionPreference = 'Stop'
 if (-not $NoBuild) {
     dotnet build Trackstorm.Client.csproj -c Debug -warnaserror -m:1 -nr:false
@@ -10,6 +10,7 @@ $arguments += '--'
 if ($OldMap) { $arguments += '--old-map' }
 if ($Visual) { $arguments += '--visual' }
 if ($Aim) { $arguments += '--missile-aim' }
+if ($Pond) { $arguments += '--pond-cycle' }
 $log = & $GodotPath @arguments 2>&1
 $result = $LASTEXITCODE
 $log | ForEach-Object { Write-Host $_ }

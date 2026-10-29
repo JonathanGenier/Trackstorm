@@ -36,13 +36,14 @@ internal sealed class VehicleAuthority
     /// <param name="vehicles">Authoritative roster with earlier candidate respawns reserved.</param>
     /// <param name="impacts">Symmetric vehicle impacts from the complete incoming boundary.</param>
     /// <param name="anchor">Optional fixed practice-target pose, preserving health and item lifecycle.</param>
-    internal VehicleStepResult Prepare(VehicleStepRequest request, RespawnConfiguration? respawn, Arenas.ArenaConfiguration arena, IReadOnlyList<VehicleSnapshot> vehicles, IReadOnlyList<VehicleImpactDamage> impacts, VehiclePhysicsState? anchor = null)
+    /// <param name="practiceSpawn">Car 4's home respawn, independent of its current trip/parking pose.</param>
+    internal VehicleStepResult Prepare(VehicleStepRequest request, RespawnConfiguration? respawn, Arenas.ArenaConfiguration arena, IReadOnlyList<VehicleSnapshot> vehicles, IReadOnlyList<VehicleImpactDamage> impacts, VehiclePhysicsState? anchor = null, VehiclePhysicsState? practiceSpawn = null)
     {
         VehicleSnapshot previous = Snapshot;
         if (!request.Reset.HasValue && !previous.CanInteract)
         {
             VehiclePhysicsState? spawn = respawn is not null && previous.RespawnAtTick is ulong deadline && request.Input.Tick >= deadline
-                ? anchor is { } parked
+                ? practiceSpawn is { } parked
                     ? vehicles.Any(vehicle => vehicle.VehicleId != previous.VehicleId && vehicle.CanInteract &&
                         Vector3.DistanceSquared(vehicle.Movement.Physics.Position, parked.Position) < VehicleDimensions.SpawnClearance * VehicleDimensions.SpawnClearance) ? null : parked
                     : arena.SelectRespawn(previous.VehicleId, checked(previous.LifeId + 1), vehicles) : null;

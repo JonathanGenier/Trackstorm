@@ -295,6 +295,12 @@ public sealed partial class MigrationIntegrationChecks : Node
             int nextHost = _players == 2 ? 0 : 2;
             _parkedTarget = PracticeCar ? _drivers[1]!.State!.Players.Where(player => player.PracticeCar).Max(player => player.Id) : 0;
             _categoryHistory = CategoryBalanceRecoveryFixture.Seed(_arenas[1]!);
+            if (_parkedTarget != 0)
+            {
+                var host = _arenas[1]!.Driver.Host!;
+                Require(host.Items.Grant(host.World, _parkedTarget, HeldItem.Wrench) && host.Items.Grant(host.World, _parkedTarget, HeldItem.Oil),
+                    "Full pond inventory returns home without consuming recovery fixture markers.");
+            }
             _shields = ShieldRecoveryFixture.Seed(_arenas[1]!);
             GD.Print("Category pickup history before migration: " + _categoryHistory);
             _arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _drivers[nextHost]!.LocalPlayerId, HeldItem.Wrench);
@@ -511,9 +517,12 @@ public sealed partial class MigrationIntegrationChecks : Node
         if (_parkedTarget == 0) { return; }
         var marker = arena.MapConfiguration.Items.Single(item => item.Id == "item-infield-04-water");
         var vehicle = arena.Driver.Host!.World.GetVehicle(_parkedTarget);
-        var expected = marker.Position + System.Numerics.Vector3.UnitY * Core.Vehicles.VehicleDimensions.RideHeight;
-        Require(vehicle.ObservedPhysics.Position == expected && vehicle.ObservedPhysics.LinearVelocity == System.Numerics.Vector3.Zero &&
-            vehicle.ObservedPhysics.AngularVelocity == System.Numerics.Vector3.Zero, "Migrated fourth target remains anchored over the pond pickup with zero velocity.");
+        var forward = System.Numerics.Vector3.Transform(-System.Numerics.Vector3.UnitZ, System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitY, marker.Yaw));
+        var expected = marker.Position - forward * 6.096f;
+        Require(new System.Numerics.Vector2(vehicle.ObservedPhysics.Position.X - expected.X, vehicle.ObservedPhysics.Position.Z - expected.Z).Length() < .3f &&
+            vehicle.ObservedPhysics.LinearVelocity == System.Numerics.Vector3.Zero && vehicle.ObservedPhysics.AngularVelocity == System.Numerics.Vector3.Zero &&
+            arena.Driver.Host.CaptureAuthority().PondPractice?.Phase == Core.Vehicles.PondPracticePhase.Parked,
+            "Migrated fourth target retains its parked trip behind the pond pickup with zero velocity.");
     }
 
     private void Cleanup()

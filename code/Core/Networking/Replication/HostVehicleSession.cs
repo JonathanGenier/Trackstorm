@@ -20,6 +20,8 @@ public sealed class HostVehicleSession
     private readonly Dictionary<ulong, (HostInputBuffer Inputs, int SpawnSlot)> _disconnected = new();
     private readonly Dictionary<ulong, PracticeVehicleInput> _practice = new();
     private readonly HashSet<ulong> _parkedPractice = new();
+    private PondPracticeDriver? _pondPractice;
+    private PondPracticeState? _restoredPondPractice;
     private readonly bool _requireActiveMatch;
     private ulong _nextVehicle = 1;
     private ulong? _lastUseRejection;
@@ -137,6 +139,13 @@ public sealed class HostVehicleSession
         if ((result.Environment is null) != (checkpoint.Environment is null)) { throw new ArgumentException("Missing environment recovery state."); }
         if (checkpoint.Environment is { } environment) { result.Environment!.Restore(environment); }
         result._nextVehicle = continuation.NextVehicle;
+        if (continuation.PondPractice is { } pond)
+        {
+            var vehicle = world.Vehicles.SingleOrDefault(v => v.State.VehicleId == pond.Vehicle)?.State;
+            if (vehicle is null || pond.Vehicle == host || pond.Life > vehicle.LifeId || !Enum.IsDefined(pond.Phase))
+                throw new ArgumentException("Invalid pond practice continuation.");
+            result._restoredPondPractice = pond;
+        }
         result.World.Events = events ?? new EventStream();
         return result;
     }
@@ -155,6 +164,7 @@ public sealed class HostVehicleSession
         SpawnRevision = Spawns?.Revision ?? 0,
         RandomState = Spawns?.RandomState ?? ItemSelectionRandom.State,
         NextVehicle = _nextVehicle,
+        PondPractice = _pondPractice?.State ?? _restoredPondPractice,
     };
 
     /// <summary>The host validates requests from its local user or an admitted connected peer.</summary>
@@ -407,14 +417,16 @@ public sealed class HostVehicleSession
         if (parked)
         {
             var marker = World.Arena.Items.Single(item => item.Id == "item-infield-04-water");
-            pose = new(marker.Position + System.Numerics.Vector3.UnitY * VehicleDimensions.RideHeight,
-                System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitY, marker.Yaw), System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero);
+            if (_restoredPondPractice is { } restored && restored.Vehicle != playerId)
+                throw new ArgumentException("Pond practice identity differs from the lobby roster.");
+            _pondPractice = new(playerId, marker, _restoredPondPractice);
+            pose = _pondPractice.Home;
         }
         else { pose = PracticeVehicleInput.InitialPose(oval, index, Spawn(1).Position.Y); }
         if (!World.State.Vehicles.Any(vehicle => vehicle.VehicleId == playerId))
         { ReservePlayer(playerId, index == 2 && placeThird is not null ? placeThird(pose) : pose); }
         if (!_disconnected.ContainsKey(playerId)) { throw new ArgumentException("Practice car cannot own a transport peer."); }
-        if (parked) { _parkedPractice.Add(playerId); World.AnchorVehicle(playerId, pose); }
+        if (parked) { _parkedPractice.Add(playerId); World.SetPracticeVehiclePose(playerId, pose, null); }
         else { _practice.Add(playerId, new PracticeVehicleInput(oval, index == 2 ? 100 : 10)); }
     }
 
@@ -464,6 +476,7 @@ public sealed class HostVehicleSession
         {
             _practice.Remove(player);
             _parkedPractice.Remove(player);
+            if (_pondPractice?.State.Vehicle == player) { _pondPractice = null; _restoredPondPractice = null; }
             World.LeaveVehicle(player);
             Items.RemovePlayer(player);
             Spawns?.RemovePlayer(player);
@@ -525,6 +538,16 @@ public sealed class HostVehicleSession
         var inputs = _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.Consume(tick));
         foreach (ulong player in _disconnected.Keys)
         {
+            if (_pondPractice is { } pond && pond.State.Vehicle == player)
+            {
+                var vehicle = World.GetVehicle(player);
+                var slot = Items.Slots.SingleOrDefault(s => s.Vehicle == player && s.Life == vehicle.LifeId);
+                var intent = pond.Capture(vehicle, Configuration.Configuration.Vehicle, tick,
+                    slot is not null && (slot.Item != HeldItem.None || slot.SecondItem != HeldItem.None), slot?.Full == true);
+                World.SetPracticeVehiclePose(player, pond.Home, AllowsParticipation ? intent.Anchor : vehicle.Movement.Physics);
+                inputs.Add(player, AllowsParticipation ? intent.Input : new InputFrame(tick, 0, 0, 0, 0, 0, 0));
+                continue;
+            }
             inputs.Add(player, AllowsParticipation && _practice.TryGetValue(player, out var driver)
                 ? driver.Capture(World.GetVehicle(player), Configuration.Configuration.Vehicle, tick,
                     _practice.Keys.Where(id => id < player).Order().LastOrDefault() is var leader && leader != 0 ? World.GetVehicle(leader) : null)
