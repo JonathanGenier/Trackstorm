@@ -21,7 +21,8 @@ public sealed partial class SalvoExplosionChecks : Node
     private readonly List<ItemEvent>[] _impacts = [[], [], []];
     private readonly List<string> _evidence = [];
     private readonly Dictionary<ulong, N.Vector3> _positions = new() { [1] = new(-10, 101.2f, 20), [2] = new(0, 101.2f, 0), [3] = new(15, 101.2f, 20) };
-    private readonly string _output = ProjectSettings.GlobalizePath("res://.godot/ts-213/polish1/explosions");
+    private readonly string _output = ProjectSettings.GlobalizePath(OS.GetCmdlineUserArgs().Contains("--shield-interception")
+        ? "res://.godot/shield-interception-checks" : "res://.godot/ts-213/polish1/explosions");
     private List<double>? _times;
     private Core.Networking.Replication.HostVehicleSession Host => _arenas[0].Driver.Host!;
 
@@ -58,6 +59,10 @@ public sealed partial class SalvoExplosionChecks : Node
             Check(Host.TryConfigure(0, new Dictionary<string, double> { ["match.countdown_ticks"] = 1, ["match.minimum_players"] = 1 }, out _), "Active fixture configuration");
             await Frames(120);
             Check(Host.Items.Configuration.SalvoBlastRadius == .9144f, "Production default blast radius is three feet");
+            if (OS.GetCmdlineUserArgs().Contains("--shield-interception"))
+            { await ShieldInterception(); }
+            else
+            {
             await TerrainContacts();
             await MarkerDimensions();
             Focus(VehicleBody.ToGodot(_positions[2]), new(7, 5, 9));
@@ -67,8 +72,11 @@ public sealed partial class SalvoExplosionChecks : Node
             await TerrainVolleys();
             await RockDamage();
             await CosmeticChecks();
+            }
             System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
-            GD.Print($"Salvo explosion integration passed: {_evidence.Count} checks; native impacts, shield coverage, repeated volleys, impaired UDP, three bursts and smoke budget.");
+            GD.Print(OS.GetCmdlineUserArgs().Contains("--shield-interception")
+                ? $"Shield interception integration passed: {_evidence.Count} checks; native impacts, directional cover and impaired UDP."
+                : $"Salvo explosion integration passed: {_evidence.Count} checks; native impacts, shield coverage, repeated volleys, impaired UDP, three bursts and smoke budget.");
             foreach (var arena in _arenas) { arena.QueueFree(); }
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             foreach (var gateway in _gateways) { gateway.Dispose(); }
@@ -227,7 +235,7 @@ public sealed partial class SalvoExplosionChecks : Node
             // Fixed fixture poses isolate the collision/damage boundary; native sweeps remain production.
             Host.World.Restore(new(state.Tick, state.LastInput, state.Vehicles.Select(v =>
             {
-                var pose = new VehiclePhysicsState(_positions[v.VehicleId], N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero);
+                var pose = new VehiclePhysicsState(_positions[v.VehicleId], v.VehicleId == 2 ? _shieldOrientation : N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero);
                 if (_arenas[0].Bodies.TryGetValue(v.VehicleId, out var body)) { body.Apply(pose); }
                 return new VehicleSnapshot(v.VehicleId, v.LifeId, new VehicleState(state.Tick, pose, true, false, 0, 0), v.Damage, pose,
                     lifecycle: v.Lifecycle, respawnAtTick: v.RespawnAtTick);

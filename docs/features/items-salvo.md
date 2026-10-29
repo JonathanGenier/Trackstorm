@@ -111,15 +111,15 @@ Three quick visual bursts never create additional damage, scoring or impact even
 Salvo falloff measures the nearest point in the existing oriented chassis hull,
 attached shield panels, detached wall or rock bounds, so small blasts can reach
 large objects without reaching their distant origins. Vehicle/wall impulse still
-points away from the blast toward the body center. Missile behavior is unchanged.
+points away from the blast toward the body center. Missile vehicle falloff remains center-based.
 
-[Rear-shield coverage](items-shield.md) retains the existing blast-to-victim-center
-intersection rule, evaluated before that hit can destroy armor. A covered vehicle
-takes neither damage nor weapon impulse from that hit. An exposed front can take
-damage while rear armor remains intact; when both exposed bodywork and armor are
-inside the radius, each receives its own single damage application. Other vehicles
-retain their own coverage tests. Detached walls receive one blast application each,
-independent of vehicle count; explosions gain no new general wall occlusion.
+[Shield coverage](items-shield.md#directional-blast-coverage) checks the physical
+hull against all live mounted and deployed Shield panels before armor damage.
+A covered vehicle takes neither damage nor weapon impulse from that blast,
+including the hit that destroys cover. The nearest exposed hull candidate supplies
+Salvo's existing falloff distance; exposed upper bodywork and armor can each take
+one application. Armor takes damage once per explosion regardless of vehicle count.
+Unrelated scenery does not acquire a general blast-occlusion rule.
 
 Eligible attached [EMP noses](items-emp-claw.md#nose-shield-and-stored-ammunition-counterplay)
 retain their membrane-distance and shield-interception rules. Cosmetic pops add

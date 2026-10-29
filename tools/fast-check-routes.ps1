@@ -340,6 +340,7 @@ function Get-FastCheckPlan {
         if ($path -match '(?i)Shield') { Add-Runtime 'check-shield.ps1'; Add-Runtime 'check-shield-presentation.ps1'; Add-Manual 'Run check-world-wall.ps1 -TerrainStability -Impaired -Visual for full-footprint terrain, repeated deployment and sixteen-wall stability.' }
         if ($path -match '(?i)Shield|WorldWall|world.wall') { Add-Manual 'Run check-world-wall.ps1 -Heavy -Impaired -Visual for heavy multi-car contact, then -TerrainStability -Profile -ProductionMap -Impaired -Visual for cumulative performance and cleanup.' }
         if ($path -match '(?i)Shield|ItemAuthority|NetworkVehicleBody|NetworkVehicleArena') { Add-Runtime 'check-rear-shield.ps1' }
+        if ($path -match '(?i)Shield|ItemAuthority|VehicleHull|SalvoExplosion') { Add-Runtime 'check-shield-interception.ps1' }
         if ($path -match '(?i)MachineGun|machine_gun|machine-gun|TwinFang|twin_fang|check-machine-gun') { Add-Runtime 'check-machine-gun.ps1' }
         if ($path -match '(?i)TwinFang|twin_fang|machine-gun|check-twin-fang') { Add-Runtime 'check-twin-fang.ps1' }
         if ($path -match '(?i)MachineGunFire|MachineGunFiringSequence|MachineGunVfx|machine_gun_vfx|BulletStreak|check-machine-gun-vfx|TwinFang|ItemPresentation') { Add-Runtime 'check-machine-gun-vfx.ps1' }

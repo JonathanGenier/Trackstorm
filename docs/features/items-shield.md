@@ -30,7 +30,7 @@ with 30 ms delay, 5 ms jitter and 2% loss.
 
 Slot selection atomically exposes the selected Shield as `RearShield` and stows unselected Shields as `Held`. Acquisition into the selected slot exposes it immediately; acquisition into the other slot stores it. No use press is required. Switching away removes rear protection and presents the newly selected item; switching back exposes the same identity with its existing HP and damage/collision watermarks. Both states reserve the physical slot. One normal use press while selected deploys that same pool as a world wall and immediately clears its exact physical slot. Switching away before the use commits stows it and cancels deployment; failed native placement retains the rear shield and capability for a later press.
 
-`ShieldGeometry` defines three full-height armor boxes: a 3.7 × 2.5 × 0.28 m rear panel centered at local `(0, .25, 3.25)`, plus 0.28 × 2.5 × 1.45 m side wings centered at `(±1.85, .25, 2.525)`. The wings wrap forward around the rear quarters; the interior and forward sides remain open. The panels follow the complete authoritative orientation, including pitch/roll. Core tests segments against their union using the current observation batch; native world/chassis hits still win when closer. Machine Gun rounds stop at the first shield. Missile/Salvo segments can impact it, and each radial target's center path is tested against its own shield before applying that target's radial damage. Proxy Mine contact paths likewise test the attached shield. An intercepted hit spends shield HP and suppresses that target's vehicle damage/weapon impulse, including the lethal shield hit; subsequent hits reach the now-exposed car. Other blast targets retain their ordinary damage. This is finite spatial cover, not a rear-angle immunity rule, and does not add general wall occlusion to explosions.
+`ShieldGeometry` defines three full-height armor boxes: a 3.7 × 2.5 × 0.28 m rear panel centered at local `(0, .25, 3.25)`, plus 0.28 × 2.5 × 1.45 m side wings centered at `(±1.85, .25, 2.525)`. The wings wrap forward around the rear quarters; the interior and forward sides remain open. The panels follow the complete authoritative orientation, including pitch/roll. Core tests segments against their union using the current observation batch; native world/chassis hits still win when closer. Machine Gun rounds stop at the first shield. Missile/Salvo segments can impact it, and each radial target is tested against live mounted and deployed panels before applying vehicle damage. Proxy Mine contact paths test live panels from the current native contact position to the nearest chassis point; mines retain contact-only damage and impulse. An intercepted hit spends shield HP and suppresses that target's vehicle damage/weapon impulse, including the lethal shield hit; subsequent hits reach the now-exposed car. Other blast targets receive their own geometry tests. This is finite spatial cover, not a rear-angle immunity rule; only Shield panels add blast occlusion, not arbitrary scenery.
 
 Salvo's small blast uses the nearest physical armor/chassis extent for falloff. Coverage is evaluated before damaging armor, including a lethal hit. Exposed front bodywork remains vulnerable; if both uncovered bodywork and armor intersect the blast, each takes one application. Detached walls use their oriented extent and are damaged once per explosion, independently of vehicle count. See [Salvo explosion behavior](items-salvo.md#explosion-damage-and-destruction).
 
@@ -68,6 +68,40 @@ Complete item protocol version twenty-one publishes health, stage, entity ID, at
 Attached Shields follow existing inventory policy: ordinary death/reset/permanent departure removes them, temporary disconnect retains them, and optional retained respawn changes life/capability while preserving ID, HP, stage and watermark. Released walls survive owner death/departure. Finished clears all live Shields and attached Shield slots; new matches start empty.
 
 `check-shield.ps1 -GodotPath <exe> [-Impaired]` runs production drivers over three real local UDP peers, exercising four independent pools, state/slot transitions, repeated damage/destruction, late admission and full authority restoration. Impairment is 30 ms outbound delay, 5 ms jitter and 2% native packet loss. The production reconnect fixture retains a damaged rear shield and world wall; migration retains two damaged world walls. These preserve exact ownership/pose and replay memory. The separate rear-shield harness exercises native blocking and temporary presentation; these checks do not establish remote EOS, independent-device performance or competitive balance.
+
+## Directional blast coverage
+
+Core resolves every vehicle against the same live armor set before applying an
+explosion's armor damage. Mounted panels use the current complete observation pose;
+deployed panels use their accepted world pose and captured dimensions. A lethal
+hit protects through that explosion; a later explosion in the same tick sees the
+removed pool. Each active armor pool receives one existing radial damage
+evaluation at its closest physical point, independent of vehicle count. Deployed
+wall impulses retain their existing center-directed calculation. Stored armor
+does not intercept or receive blast damage.
+
+Vehicle exposure uses the existing convex chassis envelope: its nearest point,
+projected face/edge points and vertices are tested against the actual three-panel
+geometry. Salvo uses the nearest exposed candidate's existing distance falloff;
+Missile keeps vehicle-center falloff once exposure exists. There is no percentage
+split or added damage multiplier. Upper/rear blasts can reach exposed bodywork
+while also damaging armor. Direct hits on mounted armor still fully protect its
+car from that projectile. A 2 mm query-start tolerance lets blasts exactly on a
+panel surface propagate outward without treating that surface touch as penetration.
+This bounded hull-candidate model is not a continuous visible-area integration;
+very narrow openings between sampled hull paths can remain classified as cover.
+Cosmetic bodywork and tires do not add blast targets.
+
+`check-shield-interception.ps1 -GodotPath <exe> [-Visual]` exercises native Missile
+and Salvo impacts from front, rear and above, rotated/pitched mounted armor,
+simultaneous EMP rear/wing contacts, rear/front mine contacts, damaged deployed-wall
+destruction and subsequent chassis hits. Three production arenas communicate over
+local UDP with 60 ms delay, 12 ms jitter and 3% loss. Seeded projectile/mine positions,
+fixed car poses, health resets and the installed world wall are explicit fixtures;
+native collision, authoritative damage, presentation and peer convergence are real.
+The existing rear-shield harness covers sustained Machine Gun fire, moving cars,
+selection/stow and destruction. Physical remote machines, EOS and human driving
+acceptance remain separate checks.
 
 <a id="movable-shield-world-walls"></a>
 
@@ -199,7 +233,7 @@ Core three-panel intersections stop Machine Gun, Missile and Salvo segments at t
 wall, comparing against native terrain/chassis hits. Native weapon queries omit layer 32 so
 same-step destruction cannot leave phantom cover. Bullets damage the struck pool. Explosions
 damage/impulse each wall once independently of the number of vehicles in the blast; the
-existing non-occluded vehicle radial explosion rule is preserved. Vehicle contacts name the
+vehicle radial damage is gated by actual Shield cover. Vehicle contacts name the
 struck wall; strongest manifold severity damages it once, with the shared default collision
 cooldown on the independent pool. Vehicle damage uses the existing solid-obstacle incidence
 weighting on relative approach velocity and the normal shared vehicle threshold, cap and

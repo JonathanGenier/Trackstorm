@@ -32,6 +32,28 @@ public static class VehicleHull
         return pose.Position + Vector3.Transform(closest, pose.Orientation);
     }
 
+    /// <summary>Bounded physical hull candidates for blast exposure: nearest surface,
+    /// face projections, edge projections and vertices. No cosmetic mesh or damage weights.</summary>
+    public static IEnumerable<Vector3> BlastSurfacePoints(VehiclePhysicsState pose, Vector3 point)
+    {
+        yield return ClosestPoint(pose, point);
+        var local = Vector3.Transform(point - pose.Position, Quaternion.Conjugate(pose.Orientation));
+        var yz = new Vector2(local.Z, local.Y);
+        float half = VehicleDimensions.Width / 2;
+        float x = Math.Clamp(local.X, -half, half);
+        for (int i = 0; i < Profile.Length; i++)
+        {
+            var a = Profile[i];
+            var edge = Profile[(i + 1) % Profile.Length] - a;
+            var nearest = a + edge * Math.Clamp(Vector2.Dot(yz - a, edge) / edge.LengthSquared(), 0, 1);
+            foreach (float side in new[] { -half, x, half })
+            {
+                yield return pose.Position + Vector3.Transform(new Vector3(side, nearest.Y, nearest.X), pose.Orientation);
+                yield return pose.Position + Vector3.Transform(new Vector3(side, a.Y, a.X), pose.Orientation);
+            }
+        }
+    }
+
     private static Vector2[] CreateProfile()
     {
         float centerY = .02975f * VehicleDimensions.Scale + VehicleDimensions.OriginShift;
