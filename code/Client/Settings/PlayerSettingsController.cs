@@ -112,6 +112,16 @@ public sealed partial class PlayerSettingsController : Node
     /// <summary>Captures remaps through the input system's own serialization boundary.</summary>
     internal void CaptureInput() => UpdateSettings(InputBindingPreferences.Capture(_input, Current));
 
+    /// <summary>Restores player preferences while retaining developer-only local tuning.</summary>
+    internal void ResetUserSettings()
+    {
+        var defaults = new PlayerSettings { TireEffects = Current.TireEffects };
+        _input.Bindings.RestoreDefaults();
+        UpdateSettings(defaults);
+        ApplyDisplay(Current);
+        Flush();
+    }
+
     private static void SetBus(string name, double volume)
     {
         int index = AudioServer.GetBusIndex(name);

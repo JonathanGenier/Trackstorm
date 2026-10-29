@@ -9,6 +9,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
 {
     private readonly ChaseCameraMotion _motion = new();
     private readonly CameraFreeLook _look = new();
+    private readonly CameraLookFilter _lookFilter = new();
     private readonly CameraObstruction _obstruction = new();
     private readonly BoostCameraMotion _boost = new();
     private readonly AerialCameraMotion _aerial = new();
@@ -25,6 +26,10 @@ public sealed partial class VehicleChaseCamera : Camera3D
     private float _airSeconds;
     private bool _recoveringHeading;
     private float _aimHeadingWeight;
+    private float _viewAngle;
+    private float _height;
+    private float _preferredFov;
+    private float _previousBasePitch;
 
     /// <summary>Horizontal chase distance behind the deployed weapon attachment in metres.</summary>
     [Export(PropertyHint.Range, "2,25,0.1")]
@@ -100,6 +105,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
         _aerial.Reset();
         if (IsNodeReady()) { Fov = (float)(SettingsSource?.Current.CameraFov ?? _baseFov); _streaks.Reset(); _streaks.Hide(); }
         _look.Reset();
+        _lookFilter.Reset();
         InputSource?.ResetCameraMotion();
     }
 
@@ -145,6 +151,9 @@ public sealed partial class VehicleChaseCamera : Camera3D
         var preferences = SettingsSource?.Current;
         float inertia = (float)(preferences?.CameraInertia ?? .5) * 2;
         float distanceScale = (float)(preferences?.CameraDistance ?? 1.15);
+        float wantedAngle = (float)(preferences?.CameraDownAngle ?? ViewDownAngle);
+        float wantedHeight = (float)(preferences?.CameraHeight ?? CameraHeight);
+        float wantedFov = (float)(preferences?.CameraFov ?? _baseFov);
         // Use the shared deployed attachment, not animated rack travel or accepted weapon
         // rotation. Camera input drives weapon intent; following its rotation would feed back.
         Basis pivotBasis = pose.Basis.IsFinite() ? pose.Basis : Basis.FromEuler(new Vector3(0, _heading, 0));
@@ -156,6 +165,11 @@ public sealed partial class VehicleChaseCamera : Camera3D
         if (reset)
         {
             _look.Reset();
+            _lookFilter.Reset();
+            _viewAngle = wantedAngle;
+            _height = wantedHeight;
+            _preferredFov = wantedFov;
+            _previousBasePitch = -Mathf.DegToRad(wantedAngle);
             _aimHeadingWeight = 0;
             _boost.Reset();
             _aerial.Reset();
@@ -223,7 +237,11 @@ public sealed partial class VehicleChaseCamera : Camera3D
             _boost.Advance(reset ? 0 : delta, state.Movement.Nitro.Active, state.Speed);
         }
         else { _boost.Reset(); }
-        Fov = Math.Clamp((float)(preferences?.CameraFov ?? _baseFov) + _boost.FovExpansion, 1, 110);
+        float preferenceBlend = ChaseCameraMotion.Blend(8, delta);
+        _viewAngle = Mathf.Lerp(_viewAngle, wantedAngle, preferenceBlend);
+        _height = Mathf.Lerp(_height, wantedHeight, preferenceBlend);
+        _preferredFov = Mathf.Lerp(_preferredFov, wantedFov, preferenceBlend);
+        Fov = Math.Clamp(_preferredFov + _boost.FovExpansion, 1, 110);
         if (ShakeIntensity == 0)
         {
             _motion.ClearShake();
@@ -237,8 +255,8 @@ public sealed partial class VehicleChaseCamera : Camera3D
         Vector3 backward = new(MathF.Sin(_heading), 0, MathF.Cos(_heading));
         Vector3 right = new(MathF.Cos(_heading), 0, -MathF.Sin(_heading));
         float distance = Math.Max(2, FollowDistance) * _distanceScale + _aerial.Pullback;
-        float height = Math.Max(0, (float)(preferences?.CameraHeight ?? CameraHeight));
-        float basePitch = -Mathf.DegToRad(Math.Clamp(ViewDownAngle, 0, 30));
+        float height = Math.Max(0, _height);
+        float basePitch = -Mathf.DegToRad(_viewAngle);
         Vector2 mouse = InputSource?.ConsumeCameraMotion() ?? Vector2.Zero;
         Vector2 stick = InputSource is { CameraEnabled: true } source ? source.CameraIntent.LimitLength() : Vector2.Zero;
         if (!reset)
@@ -258,18 +276,35 @@ public sealed partial class VehicleChaseCamera : Camera3D
             // Engaged aim is world-relative: steering is not a request to look away.
             // Breakaway fades compensation; releasing aim intent stops it immediately.
             bool aimHeld = InputSource?.CameraAimActive == true;
+            // Framing is not player aim-away input. Keep an acquired bearing (or a
+            // held pitch limit) stable as the baseline changes; final-lens tracking
+            // continues to account for translation through the existing owner.
+            float previousViewPitch = _previousBasePitch + _look.Pitch;
+            if ((aimHeld && attraction.Item2) || InputSource?.MouseLookHeld == true || stick != Vector2.Zero)
+            {
+                if ((aimHeld && attraction.Item2) || previousViewPitch >= Mathf.Pi / 2 - .00001f || previousViewPitch <= -Mathf.DegToRad(85) + .00001f)
+                    _look.Attract(new(0, basePitch - _previousBasePitch), basePitch);
+            }
             _aimHeadingWeight = !aimHeld ? 0 : attraction.Item2 ? 1 : _aimHeadingWeight * MathF.Exp(-8 * delta);
             _look.Attract(new(Mathf.AngleDifference(previousHeading, _heading) * _aimHeadingWeight, 0), basePitch);
-            _look.Advance(new(mouse.X, mouse.Y), InputSource?.MouseLookHeld == true || (aimHeld && attraction.Item2), new(stick.X, stick.Y), delta, basePitch, WeaponAiming,
-                friction.Item1 * mouseGain, friction.Item2 * stickGain, (float)(preferences?.StickAimCurve ?? 2), axisGain.X, axisGain.Y,
-                (float)(preferences?.CameraRecenterSpeed ?? 1));
+            if (InputSource?.CameraEnabled != true) _lookFilter.Reset();
+            var mouseMovement = CameraFreeLook.InputMovement(new(mouse.X, mouse.Y), default, 1, WeaponAiming,
+                friction.Item1 * mouseGain, 1, 2, axisGain.X, axisGain.Y);
+            var stickVelocity = CameraFreeLook.InputMovement(default, new(stick.X, stick.Y), 1, WeaponAiming,
+                1, friction.Item2 * stickGain, (float)(preferences?.StickAimCurve ?? 2), axisGain.X, axisGain.Y);
+            var filtered = _lookFilter.Advance(mouseMovement, stickVelocity, delta, InputSource?.MouseLookHeld == true);
+            _look.Advance(default, InputSource?.MouseLookHeld == true || (aimHeld && attraction.Item2) || stick != Vector2.Zero || filtered.LengthSquared() > 1e-12f,
+                default, delta, basePitch, recenterScale: (float)(preferences?.CameraRecenterSpeed ?? 1));
+            _look.Attract(filtered, basePitch);
             _look.Attract(new(attraction.Item1.X, attraction.Item1.Y), basePitch);
         }
 
         GlobalBasis = Basis.FromEuler(new Vector3(basePitch + _look.Pitch, _heading + _look.Yaw, 0));
+        _previousBasePitch = basePitch;
         // Looking up tilts the view without lowering the lens around the car.
         // Downward look keeps the existing elevated orbit and obstruction path.
-        Basis orbit = Basis.FromEuler(new Vector3(Math.Min(0, _look.Pitch), _heading + _look.Yaw, 0));
+        float framingAngle = -basePitch - Mathf.DegToRad(ViewDownAngle);
+        Basis orbit = Basis.FromEuler(new Vector3(Math.Min(0, _look.Pitch) - framingAngle, _heading + _look.Yaw, 0));
         Vector3 boostBoom = orbit * new Vector3(0, -MathF.Sin(basePitch), MathF.Cos(basePitch));
         System.Numerics.Vector2 shake = _motion.ShakeOffset * Math.Clamp(MaximumShakeMetres, 0, 0.65f) * ShakeIntensity;
         Vector3 intent = _anchor + orbit * new Vector3(0, height, distance) + boostBoom * _boost.PullBack

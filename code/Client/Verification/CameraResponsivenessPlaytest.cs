@@ -29,10 +29,14 @@ public sealed partial class CameraResponsivenessPlaytest : Node3D
     private float _maximumPullback;
     private int _smallJumpAirFrames;
     private float _smallJumpPullback;
+    private bool _orbit;
+    private int _mouseAimFrames;
+    private int _stickAimFrames;
 
     public override void _Ready()
     {
         Engine.MaxFps = 60;
+        _orbit = OS.GetCmdlineUserArgs().Contains("--camera-orbit");
         _output = OS.GetCmdlineUserArgs().First(value => value.StartsWith("--camera-output="))[16..];
         Directory.CreateDirectory(_output);
         AddChild(new DirectionalLight3D { RotationDegrees = new(-50, -25, 0), LightEnergy = 1.4f });
@@ -48,6 +52,7 @@ public sealed partial class CameraResponsivenessPlaytest : Node3D
             car.Initialize(_world); AddChild(car); _cars.Add(car);
         }
         _input = new PlayerInput(); AddChild(_input); _input.SetPhysicsProcess(false);
+        if (_orbit) _input.SetProcessInput(false);
         _input.GameplayAvailable = () => true;
         _settings = new PlayerSettingsController(); _settings.Initialize(_input.Adapter, _output + "/settings.json"); AddChild(_settings);
         _camera = new VehicleChaseCamera { Current = true, Fov = 65, Far = 1000, SettingsSource = _settings, InputSource = _input.Adapter }; AddChild(_camera);
@@ -83,8 +88,9 @@ public sealed partial class CameraResponsivenessPlaytest : Node3D
             if (phase >= Phases.Length) { Finish(); return; }
             if (local == 0)
             {
-                _settings.UpdateSettings(_settings.Current with { CameraDistance = phase == 12 ? 1.5 : 1.15, CameraInertia = phase == 11 ? 0 : phase == 12 ? 1 : .5, CameraAerialPullback = phase == 11 ? 0 : phase == 12 ? 1.5 : 1,
-                    CameraFov = phase == 11 ? 50 : phase == 12 ? 90 : 65, CameraHeight = phase == 11 ? .5 : phase == 12 ? 3 : 1.25 });
+                _settings.UpdateSettings(_settings.Current with { CameraDistance = phase == 12 ? 1.5 : 1.2, CameraInertia = phase == 11 ? 0 : phase == 12 ? 1 : .5, CameraAerialPullback = phase == 11 ? 0 : phase == 12 ? 1.5 : 1,
+                    CameraFov = phase == 11 ? 50 : phase == 12 ? 90 : 70, CameraHeight = phase == 11 ? .5 : phase == 12 ? 3 : .6,
+                    CameraDownAngle = _orbit && phase == 12 ? 55 : 5 });
                 for (int i = 0; i < _cars.Count; i++) _cars[i].ResetBody(Pose(i, phase));
             }
             if (phase == 15 && local % 90 == 0 && local > 0) _cars[0].ResetBody(Pose(0, phase));
@@ -114,7 +120,27 @@ public sealed partial class CameraResponsivenessPlaytest : Node3D
             int phase = Math.Min(Phases.Length - 1, (_frame - 1) / 360);
             var state = _cars[0].Snapshot;
             Transform3D pose = _cars[0].GetGlobalTransformInterpolated();
+            if (_orbit)
+            {
+                _input.Adapter.Enabled = true; _input.Adapter.CameraAvailable = true;
+                int local = (_frame - 1) % 360;
+                bool active = local < 240 && (phase != 10 || local % 30 < 15);
+                using var held = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = active && phase % 2 == 0 };
+                Godot.Input.ParseInputEvent(held); Godot.Input.FlushBufferedEvents(); _input._Input(held);
+                using var axis = new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = active && phase % 2 != 0 ? .8f : 0 };
+                Godot.Input.ParseInputEvent(axis); Godot.Input.FlushBufferedEvents(); _input._Input(axis);
+                if (active && phase % 2 == 0)
+                {
+                    using var mouse = new InputEventMouseMotion { ScreenRelative = new((float)delta * 650, 0) };
+                    _input._Input(mouse);
+                }
+            }
             _camera.Follow(pose, state, (float)delta, _cars[0].GetRid());
+            if (_orbit)
+            {
+                if (_input.Adapter.MouseLookHeld) _mouseAimFrames++;
+                if (_input.Adapter.CameraIntent != Vector2.Zero) _stickAimFrames++;
+            }
             Require(_camera.GlobalTransform.IsFinite(), "Finite camera throughout native motion");
             Require(Math.Abs(_camera.Motion.Offset.X) <= .241f && Math.Abs(_camera.Motion.Offset.Y) <= .401f, "Inertia remains tight at every supported setting");
             using var sphere = new SphereShape3D { Radius = .2f };
@@ -129,7 +155,7 @@ public sealed partial class CameraResponsivenessPlaytest : Node3D
                 if (!state.Movement.Grounded) _smallJumpAirFrames++;
                 _smallJumpPullback = Math.Max(_smallJumpPullback, _camera.AerialMotion.Pullback);
             }
-            _label.Text = $"TS-279 | {Phases[phase]}\n{state.Speed * 3.6:F0} km/h | air {state.Movement.Air.Seconds:F2}s | pullback {_camera.AerialMotion.Pullback:F2}m\nDistance {_settings.Current.CameraDistance:F2} / inertia {_settings.Current.CameraInertia:F2} / aerial {_settings.Current.CameraAerialPullback:F2}";
+            _label.Text = $"Camera | {Phases[phase]} | orbit={_orbit}\n{state.Speed * 3.6:F0} km/h | air {state.Movement.Air.Seconds:F2}s | pullback {_camera.AerialMotion.Pullback:F2}m\nDistance {_settings.Current.CameraDistance:F2} / angle {_settings.Current.CameraDownAngle:F1} / aerial {_settings.Current.CameraAerialPullback:F2}";
             Vector3 p = _camera.GlobalPosition;
             _trace.Add(FormattableString.Invariant($"{_frame},{Phases[phase]},{state.Speed},{state.Movement.Grounded},{state.Movement.Air.Seconds},{pose.Basis.Y.Y},{_camera.AerialMotion.Pullback},{_camera.Motion.Offset.X},{_camera.Motion.Offset.Y},{p.X},{p.Y},{p.Z}"));
             if (_frame % 15 == 0 && OS.GetCmdlineUserArgs().Contains("--camera-captures")) Capture(_frame);
@@ -151,6 +177,8 @@ public sealed partial class CameraResponsivenessPlaytest : Node3D
         Require(new[] { 7, 8, 9 }.All(_inverted.Contains), "Front flip, barrel roll and backflip reached inverted poses");
         Require(_maximumPullback > 5, "Maximum aerial setting exercised");
         Require(_smallJumpAirFrames > 30 && _smallJumpPullback < .6f, "Native small jumps exercise airtime without a large zoom-out");
+        if (_orbit) Require(_mouseAimFrames > 1000 && _stickAimFrames > 1000, "Both native input paths sustained tactical orbit");
+        GD.Print($"Tactical orbit coverage: mouse={_mouseAimFrames}, controller={_stickAimFrames} rendered frames.");
         GD.Print($"Camera responsiveness playtest passed: ground={_groundFrames}, air={_airFrames}, slide={_slidingFrames}, inverted={string.Join(',', _inverted)}, maxPullback={_maximumPullback:F3}m.");
         GD.Print($"Small-jump framing: air={_smallJumpAirFrames}, maximum pullback={_smallJumpPullback:F3}m.");
         _done = true; GetTree().Quit();

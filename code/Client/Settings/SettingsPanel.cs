@@ -36,6 +36,8 @@ internal sealed partial class SettingsPanel : CanvasLayer
     private PlayerInputAdapter _input = null!;
     private InputAction? _capture;
     private PlayerSettings? _preview;
+    private bool _resetPending;
+    private readonly List<Action> _refreshPreferences = new();
     private double _seconds;
     private SettingsHud _hud = null!;
     private bool _wasArena;
@@ -130,10 +132,11 @@ internal sealed partial class SettingsPanel : CanvasLayer
         var retry = new Button { Text = "Save now / retry" };
         retry.Pressed += () => _settings.Flush();
         column.AddChild(retry);
+        AddButton(column, "Reset User Settings", ConfirmUserReset);
         column = Page(MenuPage.Audio);
-        Volume(column, "Master", _settings.Current.MasterVolume, value => _settings.Current with { MasterVolume = value });
-        Volume(column, "Music", _settings.Current.MusicVolume, value => _settings.Current with { MusicVolume = value });
-        Volume(column, "SFX", _settings.Current.SfxVolume, value => _settings.Current with { SfxVolume = value });
+        Volume(column, "Master", () => _settings.Current.MasterVolume, value => _settings.Current with { MasterVolume = value });
+        Volume(column, "Music", () => _settings.Current.MusicVolume, value => _settings.Current with { MusicVolume = value });
+        Volume(column, "SFX", () => _settings.Current.SfxVolume, value => _settings.Current with { SfxVolume = value });
         column = Page(MenuPage.Video);
         _mode.AddItem("Windowed");
         _mode.AddItem("Fullscreen");
@@ -169,47 +172,51 @@ internal sealed partial class SettingsPanel : CanvasLayer
         units.AddItem("km/h");
         units.AddItem("mph");
         units.Selected = (int)_settings.Current.SpeedUnit;
+        _refreshPreferences.Add(() => units.Select((int)_settings.Current.SpeedUnit));
         units.ItemSelected += index => _settings.UpdateSettings(_settings.Current with { SpeedUnit = (SpeedUnit)index });
         Row(column, "Speed units", units);
         column = Page(MenuPage.Camera);
-        ControllerSlider(column, "Chase distance", "CameraDistance", _settings.Current.CameraDistance, 1.15, 1.5, .05,
-            "Distance multiplier. 1.15 is the default close aiming view; higher gives more space.", value => _settings.Current with { CameraDistance = value });
-        ControllerSlider(column, "Camera inertia", "CameraInertia", _settings.Current.CameraInertia, 0, 1, .05,
+        ControllerSlider(column, "Chase distance", "CameraDistance", () => _settings.Current.CameraDistance, 1.15, 1.5, .05,
+            "Distance multiplier. 1.2 is the default close aiming view; higher gives more space.", value => _settings.Current with { CameraDistance = value });
+        ControllerSlider(column, "Camera inertia", "CameraInertia", () => _settings.Current.CameraInertia, 0, 1, .05,
             "0 gives immediate follow; higher adds a small amount of weight. Default: 0.50.", value => _settings.Current with { CameraInertia = value });
-        ControllerSlider(column, "Aerial pullback", "CameraAerialPullback", _settings.Current.CameraAerialPullback, 0, 1.5, .05,
+        ControllerSlider(column, "Aerial pullback", "CameraAerialPullback", () => _settings.Current.CameraAerialPullback, 0, 1.5, .05,
             "Extra distance during sustained flight. 0 disables pullback; default: 1.", value => _settings.Current with { CameraAerialPullback = value });
-        Volume(column, "Camera shake", _settings.Current.CameraShakeIntensity, value => _settings.Current with { CameraShakeIntensity = value });
-        ControllerSlider(column, "Horizontal Look Sensitivity", "HorizontalLookSensitivity", _settings.Current.HorizontalLookSensitivity, .25, 3, .05,
+        Volume(column, "Camera shake", () => _settings.Current.CameraShakeIntensity, value => _settings.Current with { CameraShakeIntensity = value });
+        ControllerSlider(column, "Horizontal Look Sensitivity", "HorizontalLookSensitivity", () => _settings.Current.HorizontalLookSensitivity, .25, 3, .05,
             "Horizontal mouse and controller look gain. Default: 1.", value => _settings.Current with { HorizontalLookSensitivity = value });
-        ControllerSlider(column, "Vertical Look Sensitivity", "VerticalLookSensitivity", _settings.Current.VerticalLookSensitivity, .25, 3, .05,
+        ControllerSlider(column, "Vertical Look Sensitivity", "VerticalLookSensitivity", () => _settings.Current.VerticalLookSensitivity, .25, 3, .05,
             "Vertical mouse and controller look gain. Does not change camera height. Default: 1.", value => _settings.Current with { VerticalLookSensitivity = value });
-        ControllerSlider(column, "Controller Camera Sensitivity", "StickAimSensitivity", _settings.Current.StickAimSensitivity, .25, 3, .05,
-            "Controller look speed, applied with the horizontal/vertical gains. Default: 1.", value => _settings.Current with { StickAimSensitivity = value });
-        Toggle(column, "Invert Y", _settings.Current.InvertY, value => _settings.Current with { InvertY = value });
-        ControllerSlider(column, "Camera Recenter Speed", "CameraRecenterSpeed", _settings.Current.CameraRecenterSpeed, .25, 3, .05,
+
+        Toggle(column, "Invert Y", () => _settings.Current.InvertY, value => _settings.Current with { InvertY = value });
+        ControllerSlider(column, "Camera Recenter Speed", "CameraRecenterSpeed", () => _settings.Current.CameraRecenterSpeed, .25, 3, .05,
             "Return speed when look input is released. Holding RMB retains the view. Default: 1.", value => _settings.Current with { CameraRecenterSpeed = value });
-        ControllerSlider(column, "FOV", "CameraFov", _settings.Current.CameraFov, 50, 90, 1,
-            "Base field of view in degrees. Speed/Boost adds its existing bounded expansion. Default: 65.", value => _settings.Current with { CameraFov = value });
-        ControllerSlider(column, "Camera Height", "CameraHeight", _settings.Current.CameraHeight, .5, 3, .05,
-            "Follow height above the car's deployed rack reference in metres. Default: 1.25.", value => _settings.Current with { CameraHeight = value });
-        AimPreference(column, "Mouse aim sensitivity", _settings.Current.MouseAimSensitivity, .25, 3, value => _settings.Current with { MouseAimSensitivity = value });
-        AimPreference(column, "Stick aim response curve", _settings.Current.StickAimCurve, 1, 3, value => _settings.Current with { StickAimCurve = value });
+        ControllerSlider(column, "FOV", "CameraFov", () => _settings.Current.CameraFov, 50, 90, 1,
+            "Base field of view in degrees. Speed/Boost adds its existing bounded expansion. Default: 70.", value => _settings.Current with { CameraFov = value });
+        ControllerSlider(column, "Camera Height", "CameraHeight", () => _settings.Current.CameraHeight, .5, 3, .05,
+            "Follow height above the car's deployed rack reference in metres. Default: 0.6.", value => _settings.Current with { CameraHeight = value });
+        ControllerSlider(column, "Camera Angle", "CameraDownAngle", () => _settings.Current.CameraDownAngle, 0, 55, .5,
+            "Downward angle in degrees. Higher rotates the view and boom toward a bird's-eye view. Default: 5.", value => _settings.Current with { CameraDownAngle = value });
+        AimPreference(column, "Mouse aim sensitivity", () => _settings.Current.MouseAimSensitivity, .25, 3, value => _settings.Current with { MouseAimSensitivity = value });
+        AimPreference(column, "Stick aim response curve", () => _settings.Current.StickAimCurve, 1, 3, value => _settings.Current with { StickAimCurve = value });
         column = Page(MenuPage.Interface);
-        Toggle(column, "Show FPS", _settings.Current.ShowFps, value => _settings.Current with { ShowFps = value });
-        Toggle(column, "Show Ping", _settings.Current.ShowPing, value => _settings.Current with { ShowPing = value });
+        Toggle(column, "Show FPS", () => _settings.Current.ShowFps, value => _settings.Current with { ShowFps = value });
+        Toggle(column, "Show Ping", () => _settings.Current.ShowPing, value => _settings.Current with { ShowPing = value });
         column = Page(MenuPage.Controls);
-        Toggle(column, "Invert steering axis", _settings.Current.InvertSteering, value => _settings.Current with { InvertSteering = value });
+        Toggle(column, "Invert steering axis", () => _settings.Current.InvertSteering, value => _settings.Current with { InvertSteering = value });
         column.AddChild(new Label { Text = "Controller tuning" });
-        ControllerSlider(column, "Controller Deadzone", "ControllerDeadzone", _settings.Current.DeadZone, 0, 0.95, 0.01,
+        ControllerSlider(column, "Camera Sensitivity", "StickAimSensitivity", () => _settings.Current.StickAimSensitivity, .25, 3, .05,
+            "Controller look speed, applied with the horizontal/vertical gains. Controller only. Default: 1.25.", value => _settings.Current with { StickAimSensitivity = value });
+        ControllerSlider(column, "Controller Deadzone", "ControllerDeadzone", () => _settings.Current.DeadZone, 0, 0.95, 0.01,
             "Stick movement ignored near center. Ground and air use separate response curves.", value => _settings.Current with { DeadZone = value });
-        ControllerSlider(column, "Controller Steering Sensitivity", "SteeringSensitivity", _settings.Current.SteeringSensitivity, 0.1, 3, 0.1,
+        ControllerSlider(column, "Controller Steering Sensitivity", "SteeringSensitivity", () => _settings.Current.SteeringSensitivity, 0.1, 3, 0.1,
             "Ground steering response after the precision curve. Does not change aerial control.", value => _settings.Current with { SteeringSensitivity = value });
-        ControllerSlider(column, "Controller Aerial Sensitivity", "AerialSensitivity", _settings.Current.AerialSensitivity, 0.1, 3, 0.1,
+        ControllerSlider(column, "Controller Aerial Sensitivity", "AerialSensitivity", () => _settings.Current.AerialSensitivity, 0.1, 3, 0.1,
             "Controller pitch, yaw and roll response as soon as the wheels leave the ground.", value => _settings.Current with { AerialSensitivity = value });
         column.AddChild(new Label { Text = "Keyboard / Mouse tuning" });
-        ControllerSlider(column, "Keyboard/Mouse Steering Sensitivity", "KeyboardSteeringSensitivity", _settings.Current.KeyboardSteeringSensitivity, 0.1, 3, 0.1,
+        ControllerSlider(column, "Keyboard/Mouse Steering Sensitivity", "KeyboardSteeringSensitivity", () => _settings.Current.KeyboardSteeringSensitivity, 0.1, 3, 0.1,
             "Keyboard/mouse steering buildup, return and reversal speed. Full steering range is retained.", value => _settings.Current with { KeyboardSteeringSensitivity = value });
-        ControllerSlider(column, "Keyboard/Mouse Aerial Sensitivity", "KeyboardAerialSensitivity", _settings.Current.KeyboardAerialSensitivity, 0.1, 1, 0.1,
+        ControllerSlider(column, "Keyboard/Mouse Aerial Sensitivity", "KeyboardAerialSensitivity", () => _settings.Current.KeyboardAerialSensitivity, 0.1, 1, 0.1,
             "Keyboard/mouse pitch, yaw and roll strength. 1 gives full aerial rotation speed.", value => _settings.Current with { KeyboardAerialSensitivity = value });
         column.AddChild(new Label { Text = "Button / key bindings" });
         var airHint = new Label { Text = "Air control is immediate when the wheels leave the ground. W / RT: nose up; S / LT: nose down. A/D or left stick: turn. Hold Shift / LB to barrel roll. Release all air inputs to hold your chosen angle. Impacts restore natural tumbling.", AutowrapMode = TextServer.AutowrapMode.WordSmart };
@@ -466,18 +473,20 @@ internal sealed partial class SettingsPanel : CanvasLayer
         parent.AddChild(row);
     }
 
-    private void AimPreference(VBoxContainer parent, string title, double value, double min, double max, Func<double, PlayerSettings> change)
+    private void AimPreference(VBoxContainer parent, string title, Func<double> read, double min, double max, Func<double, PlayerSettings> change)
     {
-        var control = new SpinBox { MinValue = min, MaxValue = max, Step = .05, Value = value };
+        var control = new SpinBox { MinValue = min, MaxValue = max, Step = .05, Value = read() };
+        _refreshPreferences.Add(() => control.SetValueNoSignal(read()));
         control.ValueChanged += next => _settings.UpdateSettings(change(next));
         Row(parent, title, control);
     }
 
-    private void ControllerSlider(VBoxContainer parent, string title, string name, double value, double minimum, double maximum, double step, string hint, Func<double, PlayerSettings> change)
+    private void ControllerSlider(VBoxContainer parent, string title, string name, Func<double> read, double minimum, double maximum, double step, string hint, Func<double, PlayerSettings> change)
     {
         var row = new HBoxContainer();
-        var slider = new HSlider { Name = name, MinValue = minimum, MaxValue = maximum, Step = step, Value = value, TooltipText = hint, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-        var amount = new Label { Text = $"{value:0.00}", CustomMinimumSize = new Vector2(50, 0) };
+        var slider = new HSlider { Name = name, MinValue = minimum, MaxValue = maximum, Step = step, Value = read(), TooltipText = hint, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        var amount = new Label { Text = $"{read():0.00}", CustomMinimumSize = new Vector2(50, 0) };
+        _refreshPreferences.Add(() => { slider.SetValueNoSignal(read()); amount.Text = $"{read():0.00}"; });
         slider.ValueChanged += current => { amount.Text = $"{current:0.00}"; _settings.UpdateSettings(change(current)); };
         row.AddChild(slider);
         row.AddChild(amount);
@@ -488,11 +497,12 @@ internal sealed partial class SettingsPanel : CanvasLayer
         parent.AddChild(tuningRow);
     }
 
-    private void Volume(VBoxContainer parent, string title, double value, Func<double, PlayerSettings> change)
+    private void Volume(VBoxContainer parent, string title, Func<double> read, Func<double, PlayerSettings> change)
     {
         var row = new HBoxContainer();
-        var slider = new HSlider { MinValue = 0, MaxValue = 100, Step = 1, Value = value * 100, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-        var percent = new Label { Text = $"{value * 100:0}%", CustomMinimumSize = new Vector2(50, 0) };
+        var slider = new HSlider { MinValue = 0, MaxValue = 100, Step = 1, Value = read() * 100, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        var percent = new Label { Text = $"{read() * 100:0}%", CustomMinimumSize = new Vector2(50, 0) };
+        _refreshPreferences.Add(() => { slider.SetValueNoSignal(read() * 100); percent.Text = $"{read() * 100:0}%"; });
         slider.ValueChanged += amount =>
         {
             percent.Text = $"{amount:0}%";
@@ -503,9 +513,10 @@ internal sealed partial class SettingsPanel : CanvasLayer
         Row(parent, title, row);
     }
 
-    private void Toggle(VBoxContainer parent, string text, bool value, Func<bool, PlayerSettings> change)
+    private void Toggle(VBoxContainer parent, string text, Func<bool> read, Func<bool, PlayerSettings> change)
     {
-        var toggle = new CheckButton { Text = text, ButtonPressed = value };
+        var toggle = new CheckButton { Text = text, ButtonPressed = read() };
+        _refreshPreferences.Add(() => toggle.SetPressedNoSignal(read()));
         toggle.Toggled += enabled => _settings.UpdateSettings(change(enabled));
         parent.AddChild(toggle);
     }
@@ -524,6 +535,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
 
     private void KeepDisplay()
     {
+        if (_resetPending) { ResetUserSettings(); return; }
         if (_preview is PlayerSettings preview)
         {
             _settings.UpdateSettings(_settings.Current with { Fullscreen = preview.Fullscreen, WindowWidth = preview.WindowWidth, WindowHeight = preview.WindowHeight });
@@ -540,6 +552,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
 
     private void RevertDisplay()
     {
+        if (_resetPending) { EndUserReset(); return; }
         if (_preview is not null)
         {
             PlayerSettingsController.ApplyDisplay(_settings.Current);

@@ -70,7 +70,7 @@ internal sealed partial class SettingsPanel
             return;
         }
 
-        if (_preview is not null)
+        if (_preview is not null || _resetPending)
         {
             RevertDisplay();
             return;

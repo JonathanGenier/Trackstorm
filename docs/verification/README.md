@@ -16,6 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Smooth orbit, camera settings and tactical aim transition | [TS-304 verification evidence](ts-304.md) |
 | Four-car camera and weapon test setup | [TS-303 verification evidence](ts-303.md) |
 | Shield weapon interception and directional blast protection | [TS-317 verification evidence](ts-317.md) |
 | Shield heavy physics, contact damage and performance | [TS-316 verification evidence](ts-316.md) |

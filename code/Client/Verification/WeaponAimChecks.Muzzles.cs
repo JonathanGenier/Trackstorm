@@ -71,7 +71,10 @@ public sealed partial class WeaponAimChecks
         Require(host.Items.Grant(host.World, Shooter, HeldItem.MachineGun), "Fresh item deploys again before rapid moving aim");
         Camera.ResetFollow(); await Frames(180);
         Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true });
-        Send(new InputEventMouseMotion { ScreenRelative = new(0, -130) }); await Frames(60);
+        await Frames(30);
+        // Stage the same upward firing bearing independently of the driving/aim
+        // framing offset. These measured bursts exercise actual rendered muzzles.
+        Send(new InputEventMouseMotion { ScreenRelative = new(0, -(.33f - Camera.Rotation.X) / .003f) }); await Frames(60);
         var start = host.World.GetVehicle(Shooter).ObservedPhysics.Position;
         int before = _muzzleSamples[2, 0] + _muzzleSamples[2, 1];
         float speed = 0, turn = 0, yawRange = 0, pitchRange = 0;

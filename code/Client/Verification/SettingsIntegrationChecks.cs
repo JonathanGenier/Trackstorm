@@ -117,6 +117,7 @@ public sealed partial class SettingsIntegrationChecks : Node
             CameraRecenterSpeed = .7,
             CameraFov = 87,
             CameraHeight = 2.3,
+            CameraDownAngle = 42,
             Fullscreen = true,
             WindowWidth = 960,
             WindowHeight = 540,
@@ -146,7 +147,7 @@ public sealed partial class SettingsIntegrationChecks : Node
         Check(settings.CameraShakeIntensity == 0.35, "camera shake intensity survives process restart");
         Check(settings.CameraDistance == 1.2 && settings.CameraInertia == .3 && settings.CameraAerialPullback == 1.4, "camera preferences survive process restart independently");
         Check(settings.HorizontalLookSensitivity == .4 && settings.VerticalLookSensitivity == 2.6 && settings.StickAimSensitivity == 1.7 && settings.InvertY &&
-            settings.CameraRecenterSpeed == .7 && settings.CameraFov == 87 && settings.CameraHeight == 2.3, "all new camera controls survive separate-process restart");
+            settings.CameraRecenterSpeed == .7 && settings.CameraFov == 87 && settings.CameraHeight == 2.3 && settings.CameraDownAngle == 42, "all new camera controls survive separate-process restart");
         Check(settings.MasterVolume == 0 && settings.MusicVolume == 0.25 && settings.SfxVolume == 0.75, "audio gains survive process restart");
         Check(settings.Fullscreen && settings.WindowWidth == 960 && settings.WindowHeight == 540, "display preferences survive process restart");
         Check(settings.SpeedUnit == SpeedUnit.MilesPerHour && settings.ShowFps && !settings.ShowPing, "independent HUD preferences survive process restart");
@@ -261,9 +262,22 @@ public sealed partial class SettingsIntegrationChecks : Node
         Press(panel, "Gameplay");
         Check(!Descendants(panel).OfType<HSlider>().Any(control => control.IsVisibleInTree()), "Gameplay contains no camera sliders");
         Press(panel, "Back");
+        var beforeReset = _settings.Current;
+        Press(panel, "Reset User Settings");
+        Press(panel, "Cancel");
+        Check(_settings.Current == beforeReset, "Cancelled reset preserves preferences");
+        Press(panel, "Reset User Settings");
+        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        using (Image resetImage = GetViewport().GetTexture().GetImage())
+            Check(resetImage.SavePng(path + ".reset.png") == Error.Ok, "Reset confirmation capture saved");
+        Press(panel, "Reset");
+        var resetSaved = new PlayerSettingsStore(path).Load();
+        Check(resetSaved.CameraDownAngle == 5 && resetSaved.CameraFov == 70 && resetSaved.CameraDistance == 1.2 && resetSaved.CameraHeight == .6 && resetSaved.StickAimSensitivity == 1.25 && resetSaved.MasterVolume == 1 && !resetSaved.InvertY,
+            "Confirmed reset applies and persists established player defaults");
+        Check(resetSaved.TireEffects.Values.OrderBy(pair => pair.Key).SequenceEqual(beforeReset.TireEffects.Values.OrderBy(pair => pair.Key)), "Reset preserves developer tuning");
         Press(panel, "Camera");
         Check(panel.CurrentPage == MenuPage.Camera, "dedicated Camera page navigates through existing hierarchy");
-        foreach (string name in new[] { "HorizontalLookSensitivity", "VerticalLookSensitivity", "StickAimSensitivity", "CameraRecenterSpeed", "CameraFov", "CameraHeight" })
+        foreach (string name in new[] { "HorizontalLookSensitivity", "VerticalLookSensitivity", "CameraRecenterSpeed", "CameraFov", "CameraHeight", "CameraDownAngle" })
         {
             var slider = Descendants(panel).OfType<HSlider>().Single(control => control.Name == name && control.IsVisibleInTree());
             foreach (double value in new[] { slider.MinValue, slider.MaxValue })
@@ -302,13 +316,13 @@ public sealed partial class SettingsIntegrationChecks : Node
         await ToSignal(GetTree().CreateTimer(0.4), SceneTreeTimer.SignalName.Timeout);
         Check(new PlayerSettingsStore(path).Load().CameraShakeIntensity == 0.35, "camera shake UI value persists after normal debounce");
         Press(panel, "Controls");
-        foreach (string name in new[] { "ControllerDeadzone", "SteeringSensitivity", "AerialSensitivity", "KeyboardSteeringSensitivity", "KeyboardAerialSensitivity" })
+        foreach (string name in new[] { "StickAimSensitivity", "ControllerDeadzone", "SteeringSensitivity", "AerialSensitivity", "KeyboardSteeringSensitivity", "KeyboardAerialSensitivity" })
         {
             var slider = Descendants(panel).OfType<HSlider>().Single(control => control.Name == name);
             foreach (double value in new[] { slider.MinValue, (slider.MinValue + slider.MaxValue) / 2, slider.MaxValue })
             {
                 slider.Value = value;
-                double actual = name == "ControllerDeadzone" ? _player.Adapter.DeadZone : name == "SteeringSensitivity" ? _player.Adapter.SteeringSensitivity : name == "AerialSensitivity" ? _player.Adapter.AerialSensitivity : name == "KeyboardSteeringSensitivity" ? _player.Adapter.KeyboardSteeringSensitivity : _player.Adapter.KeyboardAerialSensitivity;
+                double actual = name == "StickAimSensitivity" ? _settings.Current.StickAimSensitivity : name == "ControllerDeadzone" ? _player.Adapter.DeadZone : name == "SteeringSensitivity" ? _player.Adapter.SteeringSensitivity : name == "AerialSensitivity" ? _player.Adapter.AerialSensitivity : name == "KeyboardSteeringSensitivity" ? _player.Adapter.KeyboardSteeringSensitivity : _player.Adapter.KeyboardAerialSensitivity;
                 Check(Math.Abs(actual - slider.Value) < 0.0001, name + " applies immediately across UI range");
             }
         }
