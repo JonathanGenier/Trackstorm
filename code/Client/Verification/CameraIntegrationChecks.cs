@@ -227,7 +227,7 @@ public sealed partial class CameraIntegrationChecks : Node3D
             Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true });
             Send(new InputEventMouseMotion { ScreenRelative = new(10, -10) });
             camera.Follow(Transform3D.Identity, state, 1f / fps);
-            float expectedPitch = -Mathf.DegToRad(camera.ViewDownAngle) + .03f * (float)gain * (invert ? -1 : 1);
+            float expectedPitch = -Mathf.DegToRad((float)settings.Current.CameraDownAngle) + .03f * (float)gain * (invert ? -1 : 1);
             for (int i = 0; i < fps / 5; i++) camera.Follow(Transform3D.Identity, state, 1f / fps);
             Require(Math.Abs(camera.Rotation.Y + .03f * gain) < .0001 && Math.Abs(camera.Rotation.X - expectedPitch) < .0001,
                 "Native mouse axis sensitivity and inversion apply equally armed/unarmed");
@@ -243,14 +243,14 @@ public sealed partial class CameraIntegrationChecks : Node3D
             for (int i = 0; i < fps / 10; i++) camera.Follow(Transform3D.Identity, state, 1f / fps);
             float shaped = armed ? raw * Math.Abs(raw) : raw;
             float elapsed = (float)(fps / 10) / fps;
-            float stickPitch = -Mathf.DegToRad(camera.ViewDownAngle) - shaped * 2.2f * (elapsed - (1 - MathF.Exp(-60 * elapsed)) / 60) * (float)(gain * gain) * (invert ? -1 : 1);
+            float stickPitch = -Mathf.DegToRad((float)settings.Current.CameraDownAngle) - shaped * 2.2f * (elapsed - (1 - MathF.Exp(-60 * elapsed)) / 60) * (float)(gain * gain) * (invert ? -1 : 1);
             Require(Math.Abs(camera.Rotation.X - stickPitch) < .0002, "Native controller sensitivity and inversion honor radial shaping");
             Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightY, AxisValue = 0 });
         }
         foreach (double fov in new[] { 50d, 65, 90 })
         foreach (double height in new[] { .5, 1.25, 3 })
         {
-            settings.UpdateSettings(new() { CameraFov = fov, CameraHeight = height });
+            settings.UpdateSettings(new() { CameraFov = fov, CameraHeight = height, CameraDownAngle = camera.ViewDownAngle });
             camera.ResetFollow(); camera.Follow(Transform3D.Identity, state, 1f / 60);
             Require(Math.Abs(camera.Fov - fov) < .001 && Math.Abs(camera.GlobalPosition.Y - WeaponAim.Pivot.Y - height) < .001,
                 "FOV and vertical follow height apply independently of look sensitivity");
@@ -273,7 +273,7 @@ public sealed partial class CameraIntegrationChecks : Node3D
         foreach (double inertia in new[] { 0d, .5, 1 })
         foreach (double aerial in new[] { 0d, 1, 1.5 })
         {
-            settings.UpdateSettings(settings.Current with { CameraDistance = distance, CameraInertia = inertia, CameraAerialPullback = aerial, CameraShakeIntensity = 0 });
+            settings.UpdateSettings(settings.Current with { CameraDistance = distance, CameraInertia = inertia, CameraAerialPullback = aerial, CameraShakeIntensity = 0, CameraDownAngle = camera.ViewDownAngle });
             camera.ResetFollow();
             var physics = state.ObservedPhysics;
             VehicleSnapshot Snapshot(bool grounded, float seconds) => new(state.VehicleId, state.LifeId, new VehicleState(state.Movement.Tick, physics, grounded, false, 0, 0, air: new(seconds, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero)), state.Damage, physics);

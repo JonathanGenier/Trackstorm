@@ -15,10 +15,10 @@ public sealed partial class CameraIntegrationChecks
         void Send(InputEvent value) { using (value) { Godot.Input.ParseInputEvent(value); Godot.Input.FlushBufferedEvents(); } }
         foreach (int fps in new[] { 30, 60, 144 })
         foreach (bool controller in new[] { false, true })
-        foreach (double angle in new[] { 0d, 3.5, 55 })
+        foreach (double angle in new[] { 0d, 5, 55 })
         {
-            settings.UpdateSettings(new() { CameraDownAngle = angle, CameraFov = angle == 55 ? 90 : 65,
-                CameraHeight = angle == 55 ? 3 : 1.25, CameraDistance = angle == 55 ? 1.5 : 1.15 });
+            settings.UpdateSettings(new() { CameraDownAngle = angle, CameraFov = angle == 55 ? 90 : 70,
+                CameraHeight = angle == 55 ? 3 : .6, CameraDistance = angle == 55 ? 1.5 : 1.2 });
             camera.ResetFollow(); camera.WeaponAiming = true;
             camera.Follow(Transform3D.Identity, state, 1f / fps);
             Transform3D driving = camera.GlobalTransform;
@@ -35,13 +35,15 @@ public sealed partial class CameraIntegrationChecks
                 Vector3 facing = -camera.GlobalBasis.Z;
                 float yaw = MathF.Atan2(-facing.X, -facing.Z);
                 float step = Mathf.AngleDifference(lastYaw, yaw);
-                Require(step < 0 && Math.Abs(step) <= 2.21f / fps, "Orbit moves every rendered frame through the wrap without a spike");
+                Require(step < 0 && Math.Abs(step) <= (controller ? 2.76f : 2.21f) / fps, "Orbit moves every rendered frame through the wrap without a spike");
                 Require(camera.GlobalPosition.DistanceTo(previousPosition) < 50f / fps, "Tactical entry retains bounded lens motion");
                 Require(Math.Abs(camera.Rotation.X + Mathf.DegToRad((float)angle)) < .0001, "Horizontal armed input cannot introduce vertical pitch");
                 yawTravel += Math.Abs(step); lastYaw = yaw;
                 Vector2 center = camera.GetViewport().GetVisibleRect().GetCenter();
                 Require(camera.ProjectRayNormal(center).Dot(-camera.GlobalBasis.Z) > .99999f, "Transition keeps final projection aligned with center aim ray");
             }
+            if (controller) Require(Math.Abs(yawTravel - 2.75f * (7 - 1f / 60)) < .002f,
+                "New default controller gain delivers 25 percent faster full-stick orbit at every render rate");
             Require(yawTravel > Mathf.Tau * 2, "Both devices complete two continuous full orbits");
             Require(Math.Abs(camera.GlobalPosition.Y - driving.Origin.Y) < .001,
                 "Horizontal armed orbit preserves configured lens height");

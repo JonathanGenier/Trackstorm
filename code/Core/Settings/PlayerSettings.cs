@@ -12,18 +12,18 @@ public sealed record PlayerSettings
     private double _musicVolume = 1;
     private double _sfxVolume = 1;
     private double _cameraShakeIntensity = 1;
-    private double _cameraDistance = 1.15;
+    private double _cameraDistance = 1.2;
     private double _cameraInertia = .5;
     private double _cameraAerialPullback = 1;
     private double _mouseAimSensitivity = 1;
-    private double _stickAimSensitivity = 1;
+    private double _stickAimSensitivity = 1.25;
     private double _stickAimCurve = 2;
     private double _horizontalLookSensitivity = 1;
     private double _verticalLookSensitivity = 1;
     private double _cameraRecenterSpeed = 1;
-    private double _cameraFov = 65;
-    private double _cameraHeight = 1.25;
-    private double _cameraDownAngle = 3.5;
+    private double _cameraFov = 70;
+    private double _cameraHeight = .6;
+    private double _cameraDownAngle = 5;
     private SpeedUnit _speedUnit;
     private int _windowWidth = 1280;
     private int _windowHeight = 720;
@@ -47,7 +47,7 @@ public sealed record PlayerSettings
     /// <summary>Local collision/damage camera feedback scale in [0,1]; zero disables shake.</summary>
     public double CameraShakeIntensity { get => _cameraShakeIntensity; init => _cameraShakeIntensity = double.IsFinite(value) ? Math.Clamp(value, 0, 1) : 1; }
     /// <summary>Local chase framing multiplier, bounded to 1.15–1.5.</summary>
-    public double CameraDistance { get => _cameraDistance; init => _cameraDistance = double.IsFinite(value) ? Math.Clamp(value, 1.15, 1.5) : 1.15; }
+    public double CameraDistance { get => _cameraDistance; init => _cameraDistance = double.IsFinite(value) ? Math.Clamp(value, 1.15, 1.5) : 1.2; }
     /// <summary>Local bounded follow weight in [0,1]; zero disables positional inertia.</summary>
     public double CameraInertia { get => _cameraInertia; init => _cameraInertia = double.IsFinite(value) ? Math.Clamp(value, 0, 1) : .5; }
     /// <summary>Local aerial distance multiplier in [0,1.5]; zero disables aerial pullback.</summary>
@@ -55,7 +55,7 @@ public sealed record PlayerSettings
     /// <summary>Local direct-fire mouse sensitivity multiplier.</summary>
     public double MouseAimSensitivity { get => _mouseAimSensitivity; init => _mouseAimSensitivity = double.IsFinite(value) ? Math.Clamp(value, .25, 3) : 1; }
     /// <summary>Local controller camera turn-speed multiplier, shared by armed and unarmed views.</summary>
-    public double StickAimSensitivity { get => _stickAimSensitivity; init => _stickAimSensitivity = double.IsFinite(value) ? Math.Clamp(value, .25, 3) : 1; }
+    public double StickAimSensitivity { get => _stickAimSensitivity; init => _stickAimSensitivity = double.IsFinite(value) ? Math.Clamp(value, .25, 3) : 1.25; }
     /// <summary>Radial stick response exponent after the existing dead zone.</summary>
     public double StickAimCurve { get => _stickAimCurve; init => _stickAimCurve = double.IsFinite(value) ? Math.Clamp(value, 1, 3) : 2; }
 
@@ -68,11 +68,11 @@ public sealed record PlayerSettings
     /// <summary>Neutral-input recenter rate multiplier in [0.25,3]; default retains 6/s.</summary>
     public double CameraRecenterSpeed { get => _cameraRecenterSpeed; init => _cameraRecenterSpeed = LookGain(value); }
     /// <summary>Local base field of view in degrees [50,90], before bounded speed feedback.</summary>
-    public double CameraFov { get => _cameraFov; init => _cameraFov = double.IsFinite(value) ? Math.Clamp(value, 50, 90) : 65; }
+    public double CameraFov { get => _cameraFov; init => _cameraFov = double.IsFinite(value) ? Math.Clamp(value, 50, 90) : 70; }
     /// <summary>Lens follow height above the deployed rack reference in metres [0.5,3].</summary>
-    public double CameraHeight { get => _cameraHeight; init => _cameraHeight = double.IsFinite(value) ? Math.Clamp(value, .5, 3) : 1.25; }
-    /// <summary>Local downward viewing angle in degrees [0,55]; default preserves the original chase view.</summary>
-    public double CameraDownAngle { get => _cameraDownAngle; init => _cameraDownAngle = double.IsFinite(value) ? Math.Clamp(value, 0, 55) : 3.5; }
+    public double CameraHeight { get => _cameraHeight; init => _cameraHeight = double.IsFinite(value) ? Math.Clamp(value, .5, 3) : .6; }
+    /// <summary>Local downward viewing angle in degrees [0,55]; default is the player-approved five-degree view.</summary>
+    public double CameraDownAngle { get => _cameraDownAngle; init => _cameraDownAngle = double.IsFinite(value) ? Math.Clamp(value, 0, 55) : 5; }
 
     /// <summary>Whether to request fullscreen; defaults to a recoverable window.</summary>
     public bool Fullscreen { get; init; }

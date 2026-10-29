@@ -177,7 +177,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
         Row(column, "Speed units", units);
         column = Page(MenuPage.Camera);
         ControllerSlider(column, "Chase distance", "CameraDistance", () => _settings.Current.CameraDistance, 1.15, 1.5, .05,
-            "Distance multiplier. 1.15 is the default close aiming view; higher gives more space.", value => _settings.Current with { CameraDistance = value });
+            "Distance multiplier. 1.2 is the default close aiming view; higher gives more space.", value => _settings.Current with { CameraDistance = value });
         ControllerSlider(column, "Camera inertia", "CameraInertia", () => _settings.Current.CameraInertia, 0, 1, .05,
             "0 gives immediate follow; higher adds a small amount of weight. Default: 0.50.", value => _settings.Current with { CameraInertia = value });
         ControllerSlider(column, "Aerial pullback", "CameraAerialPullback", () => _settings.Current.CameraAerialPullback, 0, 1.5, .05,
@@ -187,17 +187,16 @@ internal sealed partial class SettingsPanel : CanvasLayer
             "Horizontal mouse and controller look gain. Default: 1.", value => _settings.Current with { HorizontalLookSensitivity = value });
         ControllerSlider(column, "Vertical Look Sensitivity", "VerticalLookSensitivity", () => _settings.Current.VerticalLookSensitivity, .25, 3, .05,
             "Vertical mouse and controller look gain. Does not change camera height. Default: 1.", value => _settings.Current with { VerticalLookSensitivity = value });
-        ControllerSlider(column, "Controller Camera Sensitivity", "StickAimSensitivity", () => _settings.Current.StickAimSensitivity, .25, 3, .05,
-            "Controller look speed, applied with the horizontal/vertical gains. Default: 1.", value => _settings.Current with { StickAimSensitivity = value });
+
         Toggle(column, "Invert Y", () => _settings.Current.InvertY, value => _settings.Current with { InvertY = value });
         ControllerSlider(column, "Camera Recenter Speed", "CameraRecenterSpeed", () => _settings.Current.CameraRecenterSpeed, .25, 3, .05,
             "Return speed when look input is released. Holding RMB retains the view. Default: 1.", value => _settings.Current with { CameraRecenterSpeed = value });
         ControllerSlider(column, "FOV", "CameraFov", () => _settings.Current.CameraFov, 50, 90, 1,
-            "Base field of view in degrees. Speed/Boost adds its existing bounded expansion. Default: 65.", value => _settings.Current with { CameraFov = value });
+            "Base field of view in degrees. Speed/Boost adds its existing bounded expansion. Default: 70.", value => _settings.Current with { CameraFov = value });
         ControllerSlider(column, "Camera Height", "CameraHeight", () => _settings.Current.CameraHeight, .5, 3, .05,
-            "Follow height above the car's deployed rack reference in metres. Default: 1.25.", value => _settings.Current with { CameraHeight = value });
+            "Follow height above the car's deployed rack reference in metres. Default: 0.6.", value => _settings.Current with { CameraHeight = value });
         ControllerSlider(column, "Camera Angle", "CameraDownAngle", () => _settings.Current.CameraDownAngle, 0, 55, .5,
-            "Downward angle in degrees. Higher rotates the view and boom toward a bird's-eye view. Default: 3.5.", value => _settings.Current with { CameraDownAngle = value });
+            "Downward angle in degrees. Higher rotates the view and boom toward a bird's-eye view. Default: 5.", value => _settings.Current with { CameraDownAngle = value });
         AimPreference(column, "Mouse aim sensitivity", () => _settings.Current.MouseAimSensitivity, .25, 3, value => _settings.Current with { MouseAimSensitivity = value });
         AimPreference(column, "Stick aim response curve", () => _settings.Current.StickAimCurve, 1, 3, value => _settings.Current with { StickAimCurve = value });
         column = Page(MenuPage.Interface);
@@ -206,6 +205,8 @@ internal sealed partial class SettingsPanel : CanvasLayer
         column = Page(MenuPage.Controls);
         Toggle(column, "Invert steering axis", () => _settings.Current.InvertSteering, value => _settings.Current with { InvertSteering = value });
         column.AddChild(new Label { Text = "Controller tuning" });
+        ControllerSlider(column, "Camera Sensitivity", "StickAimSensitivity", () => _settings.Current.StickAimSensitivity, .25, 3, .05,
+            "Controller look speed, applied with the horizontal/vertical gains. Controller only. Default: 1.25.", value => _settings.Current with { StickAimSensitivity = value });
         ControllerSlider(column, "Controller Deadzone", "ControllerDeadzone", () => _settings.Current.DeadZone, 0, 0.95, 0.01,
             "Stick movement ignored near center. Ground and air use separate response curves.", value => _settings.Current with { DeadZone = value });
         ControllerSlider(column, "Controller Steering Sensitivity", "SteeringSensitivity", () => _settings.Current.SteeringSensitivity, 0.1, 3, 0.1,

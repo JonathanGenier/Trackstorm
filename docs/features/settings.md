@@ -13,7 +13,7 @@ The Main Menu and joined Lobby each provide a **Settings** entry. The joined Lob
 | Window resolution | 1280 Ã— 720 | The editor offers common sizes fitting the current screen; runtime sizing also bounds the window to the usable screen. |
 | Speed units | km/h | mph is a presentation conversion; simulation speeds remain metres per second. |
 | Camera shake | 100% | Camera page slider scales collision/damage camera feedback from 0â€“100%; zero disables it immediately. Follow, heading and inertia are unchanged. |
-| Chase distance | 1.15× | Camera slider 1.15–1.5× gives a 7.36–9.6 m chase view. Older saved values below the minimum clamp to 1.15. Live edits blend smoothly. |
+| Chase distance | 1.2× | Camera slider 1.15–1.5× gives a 7.36–9.6 m chase view. Older saved values below the minimum clamp to 1.15. Live edits blend smoothly. |
 | Camera inertia | 0.5 | Camera slider 0–1 scales restrained positional weight; zero removes it. No horizontal translation lag is added. |
 | Aerial pullback | 1× | Camera slider 0–1.5× adds up to 5.4 m during sustained flight. Zero disables the extra distance. |
 | Show FPS / Show Ping | Both off | Independent flags update diagnostics visibility immediately. |
@@ -26,12 +26,12 @@ The Main Menu and joined Lobby each provide a **Settings** entry. The joined Lob
 | Mouse aim sensitivity | 1× | Camera page retains the existing armed-only mouse multiplier from 0.25–3×. |
 | Stick aim response curve | 2 | Camera page sets the armed radial exponent from 1–3 after the existing dead zone. |
 | Horizontal / Vertical Look Sensitivity | 1× each | Camera sliders 0.25–3× independently scale mouse and controller axes in armed and unarmed views. |
-| Controller Camera Sensitivity | 1× | Camera slider 0.25–3× uses the existing `stickAimSensitivity` persistence field; applies with axis gains. |
+| Camera Sensitivity | 1.25× | Controls slider 0.25–3× uses the existing `stickAimSensitivity` persistence field; applies with axis gains. |
 | Invert Y | Off | Camera toggle reverses vertical mouse/controller look, including the direction seen by input friction. |
 | Camera Recenter Speed | 1× | Camera slider 0.25–3× scales the existing 6/s neutral-input return. Active input/RMB hold never recenters. |
-| FOV | 65° | Camera slider 50–90° sets base FOV before the existing bounded speed/Boost expansion. |
-| Camera Height | 1.25 m | Camera slider 0.5–3 m sets lens height above the deployed rack reference on the car; independent of vertical input sensitivity. |
-| Camera Angle | 3.5° | Camera slider 0–55° rotates the driving boom and view toward a bird's-eye perspective. Saved locally as `cameraDownAngle`; missing/invalid values retain 3.5°. |
+| FOV | 70° | Camera slider 50–90° sets base FOV before the existing bounded speed/Boost expansion. |
+| Camera Height | 0.6 m | Camera slider 0.5–3 m sets lens height above the deployed rack reference on the car; independent of vertical input sensitivity. |
+| Camera Angle | 5° | Camera slider 0–55° rotates the driving boom and view toward a bird's-eye perspective. Saved locally as `cameraDownAngle`; missing/invalid values use 5°. |
 | Input bindings | Input-system defaults | Saved overrides restore physical keys, mouse buttons, gamepad buttons, signed axes, and exact gamepad device IDs. |
 
 Display changes use a 15-second preview. **Keep** commits the requested mode and window size; **Revert**, timeout, or closing the settings editor restores the last confirmed display preferences. Unconfirmed changes never enter the saved snapshot. Resolution selection is disabled in fullscreen because fullscreen uses the desktop mode. Headless runs retain the preferences but do not call native window APIs.
@@ -42,7 +42,7 @@ The control editor replaces keyboard/mouse bindings when a key or mouse button i
 
 ## Ownership and Persistence
 
-The dedicated **Camera** page contains all camera controls. Gameplay retains speed units; Controls retains driving/air gains, deadzone and bindings. Existing distance, inertia, pullback, shake, armed mouse sensitivity and armed stick curve retain their saved keys. Controller Camera Sensitivity replaces the old stick-aim label without another preference or persistence path. New optional version-one fields are `horizontalLookSensitivity`, `verticalLookSensitivity`, `invertY`, `cameraRecenterSpeed`, `cameraFov` and `cameraHeight`. Missing, invalid or nonfinite fields default independently; finite numeric values clamp to the supported ranges above. Old files retain their preferences and new fields preserve accepted default behavior. The legacy armed-only mouse multiplier/curve remain available on Camera; axis gains and controller camera sensitivity apply to both views.
+The **Camera** page contains framing and shared look controls; controller-only **Camera Sensitivity** lives under **Controls**. Gameplay retains speed units; Controls retains driving/air gains, deadzone and bindings. Existing distance, inertia, pullback, shake, armed mouse sensitivity and armed stick curve retain their saved keys. Controls - Camera Sensitivity uses the existing stick-aim field without another preference or persistence path. New optional version-one fields are `horizontalLookSensitivity`, `verticalLookSensitivity`, `invertY`, `cameraRecenterSpeed`, `cameraFov` and `cameraHeight`. Missing, invalid or nonfinite fields default independently; finite numeric values clamp to the supported ranges above. Old files retain their preferences and new fields preserve accepted default behavior. The legacy armed-only mouse multiplier/curve remain available on Camera; axis gains and controller camera sensitivity apply to both views.
 
 The optional version-one `tireEffects` object stores the allowlisted local
 [tire-effect Configs controls](terrain-effects.md#local-configs-tuning). Missing
@@ -63,7 +63,7 @@ Absent, inaccessible, corrupt, oversized, or unsupported-version documents load 
 
 ## Diagnostics and Integration Limits
 
-`cameraDistance`, `cameraInertia`, and `cameraAerialPullback` are optional version-one numbers, clamped respectively to [1.15,1.5], [0,1], and [0,1.5]. Missing, incorrectly typed or nonfinite values independently default to 1.15, 0.5, and 1. They use the same immediate controller snapshot, debounce, retry, close flush and restart path as other local preferences. The shared [camera](camera.md) supplies smooth transitions; neither host configuration nor gameplay/network state owns these values.
+`cameraDistance`, `cameraInertia`, and `cameraAerialPullback` are optional version-one numbers, clamped respectively to [1.15,1.5], [0,1], and [0,1.5]. Missing, incorrectly typed or nonfinite values independently default to 1.2, 0.5, and 1. They use the same immediate controller snapshot, debounce, retry, close flush and restart path as other local preferences. The shared [camera](camera.md) supplies smooth transitions; neither host configuration nor gameplay/network state owns these values.
 
 `cameraShakeIntensity` is an optional version-one JSON number in [0,1]. Missing, wrongly typed or nonfinite values default to 1; finite out-of-range values clamp. The shared practice/network camera reads the current local controller snapshot supplied by application composition. It never reads the file, enters DevTools Configs or synchronizes to peers. Setting zero clears pending feedback without resetting inertia or contact cooldown; disabled damage sequences are still consumed, so re-enabling cannot replay them. See [camera](camera.md).
 
@@ -76,3 +76,5 @@ The diagnostics display consumes a fresh provider-neutral connection projection 
 Controls separates controller tuning, keyboard/mouse tuning and button/key rebinding. It explains immediate activation without tire support, W/RT nose-up, S/LT nose-down, A/D or left-stick yaw, and Shift/LB horizontal roll modification. After using aerial controls, releasing all axes holds the chosen orientation while travel continues. Non-wheel contact cancels the hold. The retired Air Control action is absent from the binding editor; Air Roll defaults to Shift/LB. Normal remapping, explicit unbinding and persistence remain supported. See [input](input.md).
 
 `steeringSensitivity` and `aerialSensitivity` are optional version-one JSON fields. Missing, wrongly typed or nonfinite values default independently to 1; finite values clamp to 0.1–3. `deadZone` remains the existing field. These and the optional `keyboardSteeringSensitivity` (0.1-3) and `keyboardAerialSensitivity` (0.1-1) fields default independently to 1 when absent/invalid. Existing controller field names retain saved values. All five apply immediately, save through the existing debounce/retry path, and survive restart. Restore default bindings leaves scalar tuning intact.
+
+New/reset player defaults are distance 1.2, FOV 70 degrees, height 0.6 m, angle 5 degrees and controller Camera Sensitivity 1.25x. Explicit saved values, including legacy defaults, are retained until the player changes or resets them. Full-stick speed at default axis gains is 2.75 rad/s (25% above the previous 2.2); mouse gain and filtering are unchanged.

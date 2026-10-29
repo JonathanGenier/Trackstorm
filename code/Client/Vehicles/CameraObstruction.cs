@@ -89,7 +89,18 @@ internal sealed class CameraObstruction : IDisposable
         // the rack/chassis. The final lens must still clear that body, especially
         // when a low orbit crosses an overturned car during recovery.
         _query.Exclude = new();
-        return ClearPivot(space, resolved);
+        resolved = ClearPivot(space, resolved);
+        // Opposing contacts can trap the lens between an overturned chassis and
+        // ground. Do not alternate separation through those two solids forever:
+        // search a bounded vertical escape, accepting only an empty lens volume.
+        for (int step = 0; step <= 8; step++)
+        {
+            Vector3 candidate = resolved + Vector3.Up * (step * radius * 2);
+            _query.Transform = new(Basis.Identity, candidate);
+            _query.Motion = Vector3.Zero;
+            if (space.IntersectShape(_query, 1).Count == 0) return candidate;
+        }
+        return resolved;
     }
 
     private Vector3 ResolveRollover(PhysicsDirectSpaceState3D space, Vector3 pivot, Vector3 desired, Vector3 resolved, bool rolled, float delta)

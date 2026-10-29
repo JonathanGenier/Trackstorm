@@ -8,6 +8,26 @@ namespace Trackstorm.Core.Tests.Settings;
 internal sealed class PlayerSettingsTests
 {
     [Test]
+    public void ApprovedDefaultsPreserveExplicitSavedPreferences()
+    {
+        foreach (var settings in new[] { new PlayerSettings(), PlayerSettingsJson.Deserialize("{}") })
+        {
+            Assert.That(settings.CameraDistance, Is.EqualTo(1.2));
+            Assert.That(settings.CameraFov, Is.EqualTo(70));
+            Assert.That(settings.CameraHeight, Is.EqualTo(.6));
+            Assert.That(settings.CameraDownAngle, Is.EqualTo(5));
+            Assert.That(settings.StickAimSensitivity, Is.EqualTo(1.25));
+            Assert.That(settings.MouseAimSensitivity, Is.EqualTo(1));
+        }
+        var legacy = PlayerSettingsJson.Deserialize("""{"cameraDistance":1.15,"cameraFov":65,"cameraHeight":1.25,"cameraDownAngle":3.5,"stickAimSensitivity":1}""");
+        Assert.That(legacy.CameraDistance, Is.EqualTo(1.15));
+        Assert.That(legacy.CameraFov, Is.EqualTo(65));
+        Assert.That(legacy.CameraHeight, Is.EqualTo(1.25));
+        Assert.That(legacy.CameraDownAngle, Is.EqualTo(3.5));
+        Assert.That(legacy.StickAimSensitivity, Is.EqualTo(1));
+    }
+
+    [Test]
     public void NewCameraPreferencesClampDefaultAndRoundTripIndependently()
     {
         foreach (double value in new[] { -10d, .25, 1, 3, 100, double.NaN, double.PositiveInfinity })
@@ -18,9 +38,9 @@ internal sealed class PlayerSettingsTests
             Assert.That(saved.HorizontalLookSensitivity, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, .25, 3) : 1));
             Assert.That(saved.VerticalLookSensitivity, Is.EqualTo(saved.HorizontalLookSensitivity));
             Assert.That(saved.CameraRecenterSpeed, Is.EqualTo(saved.HorizontalLookSensitivity));
-            Assert.That(saved.CameraFov, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, 50, 90) : 65));
-            Assert.That(saved.CameraHeight, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, .5, 3) : 1.25));
-            Assert.That(saved.CameraDownAngle, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, 0, 55) : 3.5));
+            Assert.That(saved.CameraFov, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, 50, 90) : 70));
+            Assert.That(saved.CameraHeight, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, .5, 3) : .6));
+            Assert.That(saved.CameraDownAngle, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, 0, 55) : 5));
             Assert.That(saved.InvertY, Is.True);
         }
         foreach (string json in new[] { "{}", "{\"horizontalLookSensitivity\":null,\"verticalLookSensitivity\":\"bad\",\"cameraRecenterSpeed\":1e999,\"cameraFov\":false,\"cameraHeight\":[],\"invertY\":1}" })
@@ -29,16 +49,16 @@ internal sealed class PlayerSettingsTests
             Assert.That(saved.HorizontalLookSensitivity, Is.EqualTo(1));
             Assert.That(saved.VerticalLookSensitivity, Is.EqualTo(1));
             Assert.That(saved.CameraRecenterSpeed, Is.EqualTo(1));
-            Assert.That(saved.CameraFov, Is.EqualTo(65));
-            Assert.That(saved.CameraHeight, Is.EqualTo(1.25));
-            Assert.That(saved.CameraDownAngle, Is.EqualTo(3.5));
+            Assert.That(saved.CameraFov, Is.EqualTo(70));
+            Assert.That(saved.CameraHeight, Is.EqualTo(.6));
+            Assert.That(saved.CameraDownAngle, Is.EqualTo(5));
             Assert.That(saved.InvertY, Is.False);
         }
         var legacy = PlayerSettingsJson.Deserialize("{\"mouseAimSensitivity\":2,\"stickAimSensitivity\":0.4,\"cameraInertia\":0.8}");
         Assert.That(legacy.MouseAimSensitivity, Is.EqualTo(2));
         Assert.That(legacy.StickAimSensitivity, Is.EqualTo(.4));
         Assert.That(legacy.CameraInertia, Is.EqualTo(.8));
-        Assert.That(legacy.CameraHeight, Is.EqualTo(1.25));
+        Assert.That(legacy.CameraHeight, Is.EqualTo(.6));
     }
 
     [Test]
@@ -48,7 +68,7 @@ internal sealed class PlayerSettingsTests
         {
             var settings = new PlayerSettings { CameraDistance = value, CameraInertia = value, CameraAerialPullback = value, ShowFps = true };
             var saved = PlayerSettingsJson.Deserialize(PlayerSettingsJson.Serialize(settings));
-            Assert.That(saved.CameraDistance, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, 1.15, 1.5) : 1.15));
+            Assert.That(saved.CameraDistance, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, 1.15, 1.5) : 1.2));
             Assert.That(saved.CameraInertia, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, 0, 1) : .5));
             Assert.That(saved.CameraAerialPullback, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, 0, 1.5) : 1));
             Assert.That(saved.ShowFps, Is.True);
@@ -56,7 +76,7 @@ internal sealed class PlayerSettingsTests
         foreach (string json in new[] { "{}", "{\"cameraDistance\":null,\"cameraInertia\":\"bad\",\"cameraAerialPullback\":1e999}" })
         {
             var settings = PlayerSettingsJson.Deserialize(json);
-            Assert.That(settings.CameraDistance, Is.EqualTo(1.15));
+            Assert.That(settings.CameraDistance, Is.EqualTo(1.2));
             Assert.That(settings.CameraInertia, Is.EqualTo(.5));
             Assert.That(settings.CameraAerialPullback, Is.EqualTo(1));
         }
