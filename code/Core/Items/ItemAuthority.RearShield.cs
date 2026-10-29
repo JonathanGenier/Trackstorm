@@ -196,6 +196,7 @@ public sealed partial class ItemAuthority
         {
             var observations = _requests.ToDictionary(r => r.VehicleId, r => r.Observation);
             if (_world.State.Match is { Phase: not Matches.MatchPhase.Active }) { return observations; }
+            var incomingWalls = States.Where(s => !s.Attached).ToDictionary(s => s.Id);
             foreach (var request in _requests.Where(r => !r.Reset.HasValue && _world.GetVehicle(r.VehicleId).CanInteract).OrderBy(r => r.VehicleId))
             {
                 var observation = observations[request.VehicleId];
@@ -208,11 +209,14 @@ public sealed partial class ItemAuthority
                     var wall = States[index];
                     var contact = group.OrderBy(c => Vector3.Dot(c.RelativeVelocity, c.Normal)).First();
                     var normal = Vector3.Normalize(new Vector3(contact.Normal.X, 0, contact.Normal.Z));
-                    float relative = Vector3.Dot(contact.RelativeVelocity, normal);
                     var points = group.Select(c => observation.Physics.Position + Vector3.Transform(c.LocalPosition, observation.Physics.Orientation)).Distinct().ToArray();
                     var arm = points.Aggregate(Vector3.Zero, (sum, p) => sum + p) / points.Length - wall.Position;
-                    float incoming = Vector3.Dot(wall.LinearVelocity + Vector3.Cross(wall.AngularVelocity, arm), normal) + relative;
-                    if (incoming >= 0) { continue; }
+                    // All native observations refer to the same pre-impact wall.
+                    // Reconstruct that car's incoming velocity before accounting for
+                    // impulses already received from other cars in this batch.
+                    var before = incomingWalls[wall.Id];
+                    float incoming = Vector3.Dot(before.LinearVelocity + Vector3.Cross(before.AngularVelocity, arm) + contact.RelativeVelocity, normal);
+                    float relative = incoming - Vector3.Dot(wall.LinearVelocity + Vector3.Cross(wall.AngularVelocity, arm), normal);
                     yielded = true;
                     float mass = _world.MovementTuning(request.VehicleId).Mass;
                     float impulse = Math.Max(0, -relative) / (1 / mass + 1 / wall.WallMass);

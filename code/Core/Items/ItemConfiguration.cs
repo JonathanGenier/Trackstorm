@@ -18,7 +18,7 @@ public sealed record ItemConfiguration
     /// <summary>Expanded wall depth (m).</summary>
     public float ShieldDepth { get; init; } = 0.6f;
     /// <summary>Deployed rigid-body mass (kg).</summary>
-    public float ShieldMass { get; init; } = 250;
+    public float ShieldMass { get; init; } = 18000;
     /// <summary>Clearance behind the chassis before ground queries (m).</summary>
     public float ShieldClearance { get; init; } = 1;
     /// <summary>Lifetime captured on successful deployment, in simulation seconds.</summary>
@@ -153,7 +153,7 @@ public sealed record ItemConfiguration
         if (!float.IsFinite(ShieldWidth) || ShieldWidth is < 3 or > 12 ||
             !float.IsFinite(ShieldHeight) || ShieldHeight is < 2 or > 6 ||
             !float.IsFinite(ShieldDepth) || ShieldDepth is < 0.3f or > 2 ||
-            !float.IsFinite(ShieldMass) || ShieldMass is < 50 or > 2000 ||
+            !float.IsFinite(ShieldMass) || ShieldMass is < 50 or > 60000 ||
             !float.IsFinite(ShieldClearance) || ShieldClearance is < 0.5f or > 5 ||
             !float.IsFinite(ShieldLifetimeSeconds) || ShieldLifetimeSeconds is < 1 or > 600 ||
             !float.IsFinite(ShieldTipSpeed) || ShieldTipSpeed is < 1 or > 100)

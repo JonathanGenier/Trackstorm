@@ -306,7 +306,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                 Vector3 relative = other is null ? velocity + angular.Cross(point - transform.Origin) - result.GetColliderVelocity(i) :
                     incomingVelocity + incomingAngular.Cross(point - initialTransform.Origin) -
                     VehicleBody.ToGodot(other._current.LinearVelocity + Numerics.Vector3.Cross(other._current.AngularVelocity, VehicleBody.ToCore(point) - other._current.Position));
-                if (PushProps && result.GetCollider(i) is RigidBody3D prop && !prop.Freeze && pushed.Add(prop.GetInstanceId()))
+                if (PushProps && wall is null && result.GetCollider(i) is RigidBody3D prop && !prop.Freeze && pushed.Add(prop.GetInstanceId()))
                 {
                     float closing = Math.Max(0, -relative.Dot(normal));
                     prop.ApplyCentralImpulse(-normal * Math.Min(1800, closing * prop.Mass));

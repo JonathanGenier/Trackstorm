@@ -13,6 +13,8 @@ public sealed partial class WorldWallChecks
     private bool TerrainStability => OS.GetCmdlineUserArgs().Contains("--world-wall-terrain");
     private readonly Dictionary<ulong, N.Vector3> _settled = new();
     private float _peakDrift, _peakSpeed;
+    private long _soakFits;
+    private int _terrainCycles;
     private static Vector3 TerrainOrigin(int scenario, int player) => new(300 + scenario * 45 + player * 16, 200, 0);
 
     private static void AddTerrainFixtures(NetworkVehicleArena arena)
@@ -88,10 +90,10 @@ public sealed partial class WorldWallChecks
         {
             case 0 when _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 2):
                 Check(host.TryConfigure(0, new Dictionary<string, double> { ["match.countdown_ticks"] = 1, ["match.minimum_players"] = 1,
-                    ["items.shield_lifetime"] = 120 }, out _), "Configure terrain fixture");
+                    ["items.shield_lifetime"] = 120, ["damage.max_hp"] = 100000 }, out _), "Configure terrain fixture with long-lived setup vehicles");
                 Next(1); break;
             case 1 when host.World.State.Match?.Phase == Core.Matches.MatchPhase.Active:
-                if (_scenario == 0) { VerifyTerrainBoundaries(); }
+                if (_scenario == 0 && !ProductionMap) { VerifyTerrainBoundaries(); }
                 for (ulong id = 1; id <= 2; id++)
                 {
                     host.Items.RemovePlayer(id);
@@ -99,7 +101,7 @@ public sealed partial class WorldWallChecks
                     PositionTerrainVehicle(id);
                 }
                 var camera = _arenas[0].GetNode<Camera3D>("WallCamera");
-                var target = TerrainOrigin(_scenario, 0);
+                var target = ProductionMap ? VehicleBody.ToGodot(host.World.GetVehicle(1).ObservedPhysics.Position) : TerrainOrigin(_scenario, 0);
                 camera.Position = target + new Vector3(10, 7, 10); camera.LookAt(target + Vector3.Up);
                 Next(10); break;
             case 10 when elapsed > 100 && _arenas.All(a => a.Driver.LocalItem is { } inventory && a.Bodies[a.Driver.LocalVehicleId].CanDeployShield(inventory)):
@@ -119,12 +121,22 @@ public sealed partial class WorldWallChecks
                 }
                 VerifyBoundaries(); Capture($"terrain-{_scenario}.png");
                 Record($"Terrain {_scenario}: two normal-use deployments, full panel footing clear, upright, exact UDP state.");
-                if (++_scenario < 8) { Next(1); } else { Next(3); }
+                if (++_scenario < 8) { Next(1); } else { _soakFits = ShieldGround.Fits; Next(3); }
                 break;
             case 3 when elapsed >= 1800:
                 Check(_arenas.All(a => a.Walls.Bodies.Count == 16), "All sixteen terrain walls survive the soak on both peers");
                 VerifyBoundaries();
                 Record($"Sixteen varied-terrain walls, 1800-frame final soak; peak settled drift {_peakDrift:F6} m, speed {_peakSpeed:F6} m/s.");
+                if (ShieldGround.Profile) { Check(ShieldGround.Fits - _soakFits < 32, "Settled walls do not repeat terrain fitting every tick"); }
+                foreach (var wall in host.Items.Shields.ToArray())
+                { host.Items.DamageShield(host.World, wall.Id, wall.DamageSequence + 1, 1000, new("world", 0, "fixture-cleanup")); }
+                Next(4); break;
+            case 4 when elapsed >= 180:
+                Check(_arenas.All(a => a.Walls.Bodies.Count == 0 && a.Walls.GetChildCount() == 0), "All wall bodies, shapes, visuals and timed debris are released");
+                Check(Performance.GetMonitor(Performance.Monitor.ObjectOrphanNodeCount) == 0, "No orphan nodes after repeated wall destruction");
+                Record($"Cycle {_terrainCycles + 1}: all sixteen walls and destruction effects removed on both peers; zero orphan nodes.");
+                _settled.Clear();
+                if (++_terrainCycles < 2) { _scenario = 0; Next(1); break; }
                 System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "terrain-evidence.txt"), _evidence);
                 GD.Print("World wall integration passed: varied terrain, repeated deployment, sixteen-wall stability soak and UDP convergence.");
                 Finish(0); break;
@@ -168,11 +180,20 @@ public sealed partial class WorldWallChecks
     private void PositionTerrainVehicle(ulong id)
     {
         var point = TerrainOrigin(_scenario, (int)id - 1) + new Vector3(0, 0, -4.4f);
+        if (ProductionMap)
+        {
+            var markers = _arenas[0].MapConfiguration.Items.Where(s => s.Id.StartsWith("item-infield-", StringComparison.Ordinal)).ToArray();
+            var spawn = _scenario < 4 ? _arenas[0].MapConfiguration.Players[_scenario * 2 + (int)id - 1] : markers[((_scenario - 4) * 2 + (int)id - 1) % markers.Length];
+            point = VehicleBody.ToGodot(spawn.Position);
+        }
         using var ray = PhysicsRayQueryParameters3D.Create(point + Vector3.Up * 10, point - Vector3.Up * 10, 1);
         using var hit = _arenas[0].GetWorld3D().DirectSpaceState.IntersectRay(ray);
         Check(hit.Count != 0, "Vehicle test support exists");
         var normal = hit["normal"].AsVector3();
-        var back = new Vector3(0, -normal.Z / normal.Y, 1).Normalized();
+        // The map has seven infield markers. The sixteenth accumulated wall
+        // uses the opposite side of the repeated marker, avoiding an existing wall.
+        float direction = ProductionMap && _scenario == 7 && id == 2 ? -1 : 1;
+        var back = new Vector3(0, -direction * normal.Z / normal.Y, direction).Normalized();
         var rotation = new Basis(normal.Cross(back), normal, back).GetRotationQuaternion();
         Position(id, VehicleBody.ToCore(hit["position"].AsVector3() + Vector3.Up * (Core.Vehicles.VehicleDimensions.RideHeight / normal.Y)),
             N.Vector3.Zero, new(rotation.X, rotation.Y, rotation.Z, rotation.W));

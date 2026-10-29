@@ -103,6 +103,7 @@ public sealed partial class WorldWallChecks : Node
         try
         {
             if (TerrainStability) { AdvanceTerrain(); return; }
+            if (Heavy) { AdvanceHeavy(); return; }
             var host = _arenas[0].Driver.Host!;
             foreach (var wall in host.Items.Shields.Where(s => !s.Attached && !s.Tipping))
             {
@@ -141,7 +142,7 @@ public sealed partial class WorldWallChecks : Node
             if (_stage == 4 && _impactSpeed is null && host.Items.Shields.Last().HP < 875)
             {
                 _impactSpeed = host.World.GetVehicle(2).ObservedPhysics.LinearVelocity.Length();
-                Check(_impactSpeed > incomingSpeed * 0.65f && _impactSpeed < incomingSpeed, $"Wall slows the car without stopping it: {incomingSpeed:F2} -> {_impactSpeed:F2} m/s");
+                Check(_impactSpeed > 0 && _impactSpeed < incomingSpeed * 0.65f, $"Heavy wall strongly slows the car: {incomingSpeed:F2} -> {_impactSpeed:F2} m/s");
                 Record($"First wall contact: car {incomingSpeed:F2} -> {_impactSpeed:F2} m/s, ordinary collision damage retained.");
             }
             if (_stage == 4) { ObserveRam(host.World.GetVehicle(2).ObservedPhysics); }
@@ -241,7 +242,7 @@ public sealed partial class WorldWallChecks : Node
                     Next(15); break;
                 case 15 when elapsed >= 60:
                     var grounded = host.Items.Shields.Last();
-                    Check(grounded.Position.X < _groundStart.X - 1 && grounded.Position.Y < _groundStart.Y - 0.1f, "Sliding wall follows changing ground elevation");
+                    Check(grounded.Position.X < _groundStart.X - .5f && grounded.Position.Y < _groundStart.Y - 0.05f, "Damped heavy wall still follows changing ground elevation");
                     Check(N.Vector3.Dot(new(-MathF.Sin(0.12f), MathF.Cos(0.12f), 0), N.Vector3.Transform(N.Vector3.UnitY, grounded.Orientation)) > 0.9999f, "Sliding wall stays aligned to the bank");
                     Record($"Bank slide follows elevation: {_groundStart.Y:F2} -> {grounded.Position.Y:F2} m; both ends remain terrain-aligned.");
                     RestWall();
@@ -256,7 +257,7 @@ public sealed partial class WorldWallChecks : Node
                     float expectedHeight = _groundStart.Y + (uphill.Position.X - _groundStart.X) * MathF.Tan(0.12f);
                     Check(Math.Abs(uphill.Position.Y - expectedHeight) < 0.03f, "Fast uphill slide follows support rather than being classified as airborne");
                     if (elapsed < 30) { break; }
-                    Check(uphill.Position.Y > _groundStart.Y + 1, $"Fast slide gains terrain elevation: start {_groundStart}, end {uphill.Position}, velocity {uphill.LinearVelocity}");
+                    Check(uphill.Position.Y > _groundStart.Y + .5f, $"Fast slide gains terrain elevation: start {_groundStart}, end {uphill.Position}, velocity {uphill.LinearVelocity}");
                     Record($"Fast uphill slide follows elevation: {_groundStart.Y:F2} -> {uphill.Position.Y:F2} m.");
                     RestWall();
                     Position(2, uphill.Position + new N.Vector3(2, 0, 8), new(0, 0, -18));
@@ -313,6 +314,9 @@ public sealed partial class WorldWallChecks : Node
                 case 13 when _weaponFiredAt > 0 && _frame - _weaponFiredAt > 120:
                     Check(host.Items.Shields.Single().HP < _weaponHP, "Native Salvo sweep/blast damages wall");
                     Record($"Native Salvo wall damage: {_weaponHP:F1} -> {host.Items.Shields.Single().HP:F1} HP.");
+                    // Retain the original lightweight native fall/breakage fixture.
+                    // Heavy-default stress and ordinary impacts have dedicated modes.
+                    Check(host.TryConfigure(0, new Dictionary<string, double> { ["items.shield_mass"] = 250 }, out _), "Legacy tipping fixture mass");
                     host.Items.RemovePlayer(1); StressGrant(); break;
                 case 8 when elapsed >= 30 && host.Items.Shields.Count(s => !s.Attached) >= _stressCount + 1:
                     Check(host.Items.Shields.Count(s => !s.Attached) == _stressCount + 1, "Stress use commits one independent wall");
@@ -416,7 +420,9 @@ public sealed partial class WorldWallChecks : Node
         _ramStart = new(banked ? 100 : _ramCase == 1 ? 2 : 0, 201.7f, -50);
         if (banked)
         { _arenas[0].Walls.Bodies[_impactWall].GlobalTransform = new(new Basis(Vector3.Back, 0.12f), new(100, 201.765f, -60)); }
-        Position(RammingVehicle, _ramStart, new(0, 0, _ramCase == 2 ? -60 : -40),
+        // The old fixture also received a generic native prop impulse. Exercise
+        // genuine high-energy tipping using only the authoritative collision now.
+        Position(RammingVehicle, _ramStart, new(0, 0, _ramCase == 2 ? -80 : -60),
             banked ? N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, 0.12f) :
             _ramCase == 3 ? N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitY, MathF.PI) : N.Quaternion.Identity);
         var camera = _arenas[0].GetNode<Camera3D>("WallCamera");
