@@ -55,26 +55,4 @@ internal sealed class CameraTransitionTests
         Assert.That(filter.Advance(default, default, 1f / fps, false), Is.EqualTo(Vector2.Zero));
     }
 
-    [TestCase(30)]
-    [TestCase(60)]
-    [TestCase(144)]
-    public void TacticalFramingEntersReturnsAndSurvivesRepeatedReversals(int fps)
-    {
-        var transition = new CameraAimTransition();
-        transition.Advance(true, 1f / fps);
-        Assert.That(transition.Amount, Is.InRange(.001f, .11f));
-        for (int i = 1; i < fps; i++) transition.Advance(true, 1f / fps);
-        Assert.That(transition.Amount, Is.GreaterThan(.999f));
-        for (int i = 0; i < fps; i++) transition.Advance(false, 1f / fps);
-        Assert.That(transition.Amount, Is.LessThan(.00001f));
-        for (int i = 0; i < fps * 10; i++)
-        {
-            float previous = transition.Amount;
-            transition.Advance(i % 10 < 5, 1f / fps);
-            Assert.That(transition.Amount, Is.InRange(0f, 1f));
-            Assert.That(Math.Abs(transition.Amount - previous), Is.LessThan(6f / fps));
-        }
-        transition.Reset();
-        Assert.That(transition.Amount, Is.Zero);
-    }
 }

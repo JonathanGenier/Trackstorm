@@ -9,7 +9,6 @@ public sealed partial class CameraIntegrationChecks
 {
     private void VerifyTacticalFraming(VehicleChaseCamera camera, PlayerInput input, VehicleSnapshot state)
     {
-        camera.AimElevation = 22; camera.AimPullback = 2;
         var settings = new Settings.PlayerSettingsController();
         settings.Initialize(input.Adapter, ProjectSettings.GlobalizePath($"res://.godot/camera-checks/{Guid.NewGuid():N}.tactical.json"));
         AddChild(settings); camera.SettingsSource = settings; camera.InputSource = input.Adapter;
@@ -20,7 +19,7 @@ public sealed partial class CameraIntegrationChecks
         {
             settings.UpdateSettings(new() { CameraDownAngle = angle, CameraFov = angle == 55 ? 90 : 65,
                 CameraHeight = angle == 55 ? 3 : 1.25, CameraDistance = angle == 55 ? 1.5 : 1.15 });
-            camera.ResetFollow(); camera.WeaponAiming = false;
+            camera.ResetFollow(); camera.WeaponAiming = true;
             camera.Follow(Transform3D.Identity, state, 1f / fps);
             Transform3D driving = camera.GlobalTransform;
             Require(Math.Abs(camera.Rotation.X + Mathf.DegToRad((float)angle)) < .0001, "Configured downward angle applies at spawn");
@@ -38,13 +37,14 @@ public sealed partial class CameraIntegrationChecks
                 float step = Mathf.AngleDifference(lastYaw, yaw);
                 Require(step < 0 && Math.Abs(step) <= 2.21f / fps, "Orbit moves every rendered frame through the wrap without a spike");
                 Require(camera.GlobalPosition.DistanceTo(previousPosition) < 50f / fps, "Tactical entry retains bounded lens motion");
+                Require(Math.Abs(camera.Rotation.X + Mathf.DegToRad((float)angle)) < .0001, "Horizontal armed input cannot introduce vertical pitch");
                 yawTravel += Math.Abs(step); lastYaw = yaw;
                 Vector2 center = camera.GetViewport().GetVisibleRect().GetCenter();
                 Require(camera.ProjectRayNormal(center).Dot(-camera.GlobalBasis.Z) > .99999f, "Transition keeps final projection aligned with center aim ray");
             }
             Require(yawTravel > Mathf.Tau * 2, "Both devices complete two continuous full orbits");
-            Require(camera.AimTransitionAmount > .999f && camera.GlobalPosition.Y > driving.Origin.Y + 1,
-                "Aim mode visibly elevates the lens above the configured driving view");
+            Require(Math.Abs(camera.GlobalPosition.Y - driving.Origin.Y) < .001,
+                "Horizontal armed orbit preserves configured lens height");
             Send(controller ? new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = 0 }
                 : new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
             for (int frame = 0; frame < fps * 3; frame++) camera.Follow(Transform3D.Identity, state, 1f / fps);
@@ -60,11 +60,11 @@ public sealed partial class CameraIntegrationChecks
             {
                 Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = frame % 10 < 5 });
                 camera.Follow(Transform3D.Identity, state, 1f / fps);
-                Require(camera.GlobalTransform.IsFinite() && camera.AimTransitionAmount is >= 0 and <= 1, "Repeated toggles stay bounded");
+                Require(camera.GlobalTransform.IsFinite(), "Repeated toggles stay bounded");
             }
             input.Adapter.GameplaySuppressed = true;
             camera.ResetFollow(); camera.Follow(Transform3D.Identity, state, 1f / fps);
-            Require(camera.AimTransitionAmount == 0 && camera.GlobalTransform.IsEqualApprox(driving), "Suppression and reseed discard transition history");
+            Require(camera.GlobalTransform.IsEqualApprox(driving), "Suppression and reseed discard transition history");
             input.Adapter.GameplaySuppressed = false;
             Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
             camera.WeaponAiming = true;
@@ -76,8 +76,8 @@ public sealed partial class CameraIntegrationChecks
                 Require(Math.Abs(camera.Rotation.X + Mathf.DegToRad((float)angle)) < .0001,
                     "Tactical framing cannot rotate away from an existing acquired bearing");
             }
-            Require(camera.GlobalPosition.Y > driving.Origin.Y + 1, "Engaged bearing compensation retains tactical lens elevation");
-            camera.AimAttraction = null; camera.WeaponAiming = false;
+            Require(camera.GlobalPosition.DistanceTo(driving.Origin) < .001, "Engagement preserves configured lens position");
+            camera.AimAttraction = null; camera.WeaponAiming = true;
             Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
         }
         camera.SettingsSource = null; camera.InputSource = null; camera.ResetFollow(); settings.QueueFree();

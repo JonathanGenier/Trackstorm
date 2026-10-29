@@ -262,6 +262,19 @@ public sealed partial class SettingsIntegrationChecks : Node
         Press(panel, "Gameplay");
         Check(!Descendants(panel).OfType<HSlider>().Any(control => control.IsVisibleInTree()), "Gameplay contains no camera sliders");
         Press(panel, "Back");
+        var beforeReset = _settings.Current;
+        Press(panel, "Reset User Settings");
+        Press(panel, "Cancel");
+        Check(_settings.Current == beforeReset, "Cancelled reset preserves preferences");
+        Press(panel, "Reset User Settings");
+        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        using (Image resetImage = GetViewport().GetTexture().GetImage())
+            Check(resetImage.SavePng(path + ".reset.png") == Error.Ok, "Reset confirmation capture saved");
+        Press(panel, "Reset");
+        var resetSaved = new PlayerSettingsStore(path).Load();
+        Check(resetSaved.CameraDownAngle == 3.5 && resetSaved.CameraFov == 65 && resetSaved.MasterVolume == 1 && !resetSaved.InvertY,
+            "Confirmed reset applies and persists established player defaults");
+        Check(resetSaved.TireEffects.Values.OrderBy(pair => pair.Key).SequenceEqual(beforeReset.TireEffects.Values.OrderBy(pair => pair.Key)), "Reset preserves developer tuning");
         Press(panel, "Camera");
         Check(panel.CurrentPage == MenuPage.Camera, "dedicated Camera page navigates through existing hierarchy");
         foreach (string name in new[] { "HorizontalLookSensitivity", "VerticalLookSensitivity", "StickAimSensitivity", "CameraRecenterSpeed", "CameraFov", "CameraHeight", "CameraDownAngle" })

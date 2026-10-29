@@ -21,7 +21,7 @@ public sealed partial class CameraIntegrationChecks : Node3D
             AddChild(input);
             input.SetPhysicsProcess(false);
             // Isolate existing look/physics assertions from the independently tested framing transition.
-            var camera = new VehicleChaseCamera { AimElevation = 0, AimPullback = 0 };
+            var camera = new VehicleChaseCamera();
             AddChild(camera);
             var simulation = new Core.Simulation.Simulation(new Core.Simulation.SimulationConfiguration(60));
             simulation.AddVehicle(1, new VehicleConfiguration(), new DamageConfiguration(), new VehiclePhysicsState(System.Numerics.Vector3.Zero, System.Numerics.Quaternion.Identity, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero));

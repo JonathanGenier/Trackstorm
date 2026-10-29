@@ -84,7 +84,12 @@ internal sealed class CameraObstruction : IDisposable
             if (_releaseDelay == 0) _shortening = Mathf.Lerp(_shortening, shortening, ChaseCameraMotion.Blend(5, delta));
         }
         Vector3 resolved = pivot + motion / length * Math.Max(0, length - _shortening);
-        return ResolveRollover(space, originalPivot, originalDesired, resolved, rolled, delta);
+        resolved = ResolveRollover(space, originalPivot, originalDesired, resolved, rolled, delta);
+        // The pivot sweep excludes the followed body because its start is inside
+        // the rack/chassis. The final lens must still clear that body, especially
+        // when a low orbit crosses an overturned car during recovery.
+        _query.Exclude = new();
+        return ClearPivot(space, resolved);
     }
 
     private Vector3 ResolveRollover(PhysicsDirectSpaceState3D space, Vector3 pivot, Vector3 desired, Vector3 resolved, bool rolled, float delta)

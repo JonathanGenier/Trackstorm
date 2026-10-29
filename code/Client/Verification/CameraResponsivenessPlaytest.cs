@@ -136,7 +136,7 @@ public sealed partial class CameraResponsivenessPlaytest : Node3D
                 }
             }
             _camera.Follow(pose, state, (float)delta, _cars[0].GetRid());
-            if (_orbit && _camera.AimTransitionAmount > .95f)
+            if (_orbit)
             {
                 if (_input.Adapter.MouseLookHeld) _mouseAimFrames++;
                 if (_input.Adapter.CameraIntent != Vector2.Zero) _stickAimFrames++;
@@ -155,7 +155,7 @@ public sealed partial class CameraResponsivenessPlaytest : Node3D
                 if (!state.Movement.Grounded) _smallJumpAirFrames++;
                 _smallJumpPullback = Math.Max(_smallJumpPullback, _camera.AerialMotion.Pullback);
             }
-            _label.Text = $"Camera | {Phases[phase]} | orbit={_orbit} tactical={_camera.AimTransitionAmount:F2}\n{state.Speed * 3.6:F0} km/h | air {state.Movement.Air.Seconds:F2}s | pullback {_camera.AerialMotion.Pullback:F2}m\nDistance {_settings.Current.CameraDistance:F2} / angle {_settings.Current.CameraDownAngle:F1} / aerial {_settings.Current.CameraAerialPullback:F2}";
+            _label.Text = $"Camera | {Phases[phase]} | orbit={_orbit}\n{state.Speed * 3.6:F0} km/h | air {state.Movement.Air.Seconds:F2}s | pullback {_camera.AerialMotion.Pullback:F2}m\nDistance {_settings.Current.CameraDistance:F2} / angle {_settings.Current.CameraDownAngle:F1} / aerial {_settings.Current.CameraAerialPullback:F2}";
             Vector3 p = _camera.GlobalPosition;
             _trace.Add(FormattableString.Invariant($"{_frame},{Phases[phase]},{state.Speed},{state.Movement.Grounded},{state.Movement.Air.Seconds},{pose.Basis.Y.Y},{_camera.AerialMotion.Pullback},{_camera.Motion.Offset.X},{_camera.Motion.Offset.Y},{p.X},{p.Y},{p.Z}"));
             if (_frame % 15 == 0 && OS.GetCmdlineUserArgs().Contains("--camera-captures")) Capture(_frame);

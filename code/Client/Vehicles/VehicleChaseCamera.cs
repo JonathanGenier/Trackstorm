@@ -10,7 +10,6 @@ public sealed partial class VehicleChaseCamera : Camera3D
     private readonly ChaseCameraMotion _motion = new();
     private readonly CameraFreeLook _look = new();
     private readonly CameraLookFilter _lookFilter = new();
-    private readonly CameraAimTransition _aimTransition = new();
     private readonly CameraObstruction _obstruction = new();
     private readonly BoostCameraMotion _boost = new();
     private readonly AerialCameraMotion _aerial = new();
@@ -31,14 +30,6 @@ public sealed partial class VehicleChaseCamera : Camera3D
     private float _height;
     private float _preferredFov;
     private float _previousBasePitch;
-
-    /// <summary>Additional aim-mode boom distance; tune independently from the player's driving view.</summary>
-    [Export(PropertyHint.Range, "0,5,0.1")]
-    public float AimPullback { get; set; } = 2;
-    /// <summary>Additional downward tactical orbit angle in degrees.</summary>
-    [Export(PropertyHint.Range, "0,30,0.5")]
-    public float AimElevation { get; set; } = 22;
-    internal float AimTransitionAmount => _aimTransition.Amount;
 
     /// <summary>Horizontal chase distance behind the deployed weapon attachment in metres.</summary>
     [Export(PropertyHint.Range, "2,25,0.1")]
@@ -115,7 +106,6 @@ public sealed partial class VehicleChaseCamera : Camera3D
         if (IsNodeReady()) { Fov = (float)(SettingsSource?.Current.CameraFov ?? _baseFov); _streaks.Reset(); _streaks.Hide(); }
         _look.Reset();
         _lookFilter.Reset();
-        _aimTransition.Reset();
         InputSource?.ResetCameraMotion();
     }
 
@@ -176,7 +166,6 @@ public sealed partial class VehicleChaseCamera : Camera3D
         {
             _look.Reset();
             _lookFilter.Reset();
-            _aimTransition.Reset();
             _viewAngle = wantedAngle;
             _height = wantedHeight;
             _preferredFov = wantedFov;
@@ -287,8 +276,6 @@ public sealed partial class VehicleChaseCamera : Camera3D
             // Engaged aim is world-relative: steering is not a request to look away.
             // Breakaway fades compensation; releasing aim intent stops it immediately.
             bool aimHeld = InputSource?.CameraAimActive == true;
-            _aimTransition.Advance(InputSource?.MouseLookHeld == true || stick != Vector2.Zero || (aimHeld && attraction.Item2), delta);
-            basePitch = -Mathf.DegToRad(Math.Min(80, _viewAngle + AimElevation * _aimTransition.Amount));
             // Framing is not player aim-away input. Keep an acquired bearing (or a
             // held pitch limit) stable as the baseline changes; final-lens tracking
             // continues to account for translation through the existing owner.
@@ -316,7 +303,6 @@ public sealed partial class VehicleChaseCamera : Camera3D
         _previousBasePitch = basePitch;
         // Looking up tilts the view without lowering the lens around the car.
         // Downward look keeps the existing elevated orbit and obstruction path.
-        distance += AimPullback * _aimTransition.Amount;
         float framingAngle = -basePitch - Mathf.DegToRad(ViewDownAngle);
         Basis orbit = Basis.FromEuler(new Vector3(Math.Min(0, _look.Pitch) - framingAngle, _heading + _look.Yaw, 0));
         Vector3 boostBoom = orbit * new Vector3(0, -MathF.Sin(basePitch), MathF.Cos(basePitch));
