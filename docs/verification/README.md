@@ -16,6 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Story verification | [TS-306 verification evidence](ts-306.md) |
 | Magnetic acquisition, retention and persistent cursor | [TS-305 verification evidence](ts-305.md) |
 | Smooth orbit, camera settings and tactical aim transition | [TS-304 verification evidence](ts-304.md) |
 | Four-car camera and weapon test setup | [TS-303 verification evidence](ts-303.md) |

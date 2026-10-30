@@ -6,6 +6,26 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class MagneticAimCursorTests
 {
+    [TestCase(30)]
+    [TestCase(60)]
+    [TestCase(144)]
+    public void RearmingRequiresPlayerReturnTravelRatherThanTargetMotionOrMomentaryReversal(int fps)
+    {
+        float travel = 0;
+        float dt = 1f / fps;
+        for (int i = 0; i < fps * 5; i++)
+            travel = MagneticAimCursor.ReturnTravel(travel, Vector2.Zero, new(-.1f, 0), Vector2.UnitX, dt);
+        Assert.That(travel, Is.Zero);
+        travel = MagneticAimCursor.ReturnTravel(travel, new(-.001f, 0), new(-.1f, 0), Vector2.UnitX, dt);
+        Assert.That(travel, Is.LessThan(.012f));
+        for (int i = 0; i < fps; i++)
+            travel = MagneticAimCursor.ReturnTravel(travel, new(.1f * dt, 0), new(-.1f, 0), Vector2.UnitX, dt);
+        Assert.That(travel, Is.LessThan(.00001f));
+        for (int i = 0; i < fps / 2; i++)
+            travel = MagneticAimCursor.ReturnTravel(travel, new(-.1f * dt, 0), new(-.1f, 0), Vector2.UnitX, dt);
+        Assert.That(travel, Is.GreaterThan(.012f));
+    }
+
     [TestCase(30, false)]
     [TestCase(60, false)]
     [TestCase(144, false)]

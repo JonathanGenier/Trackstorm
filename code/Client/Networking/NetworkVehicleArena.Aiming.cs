@@ -22,6 +22,7 @@ internal sealed partial class NetworkVehicleArena
     private ulong _aimDismissed;
     private ulong _aimDismissedLife;
     private Vector2 _aimDismissedDirection;
+    private float _aimReturnTravel;
     private ulong _aimIntentRevision;
     private float _aimRecoverySeconds;
     private System.Numerics.Vector2 _aimGesture;
@@ -112,6 +113,7 @@ internal sealed partial class NetworkVehicleArena
         _controllerResumeTarget = 0;
         _aimDismissed = 0;
         _aimDismissedDirection = default;
+        _aimReturnTravel = 0;
         _magneticCursor.Reset();
         _cursorInput = default;
         _aimGesture = default;
@@ -274,7 +276,7 @@ internal sealed partial class NetworkVehicleArena
             if (_aimGesture.Length() > .045f && System.Numerics.Vector2.Dot(_aimGesture, new(toward.X, toward.Y)) <= 0) { continue; }
             if (pair.Key == _aimDismissed)
             {
-                if (state.LifeId != _aimDismissedLife || (gap > allowance && _aimGesture.Length() <= .045f)) { _aimDismissed = 0; }
+                if (state.LifeId != _aimDismissedLife) { _aimDismissed = 0; }
                 else { continue; }
             }
             float score = gap + angle * .01f;
@@ -327,16 +329,19 @@ internal sealed partial class NetworkVehicleArena
         if (_aimTarget == 0)
         {
             // A gentle deliberate exit stays free even if the player stops beside the
-            // car. Moving back toward it, or leaving its acquisition region, rearms it.
+            // car. Only deliberate return travel rearms the same living car.
             if (_aimDismissed != 0 && _bodies.TryGetValue(_aimDismissed, out var dismissed))
             {
                 Vector2 toward = AimBearing(_camera.GlobalBasis.Inverse() * (AimBodyCenter(dismissed) - _camera.GlobalPosition))
                     - new Vector2(_magneticCursor.Offset.X, _magneticCursor.Offset.Y);
                 // Rotating past the rear of the car during the same sweep is not a
                 // reversal. Require actual input reversal before rearming nearby.
-                if (lookInput.Dot(_aimDismissedDirection) < 0 && lookInput.Dot(toward) > 0) { _aimDismissed = 0; }
+                _aimReturnTravel = MagneticAimCursor.ReturnTravel(_aimReturnTravel,
+                    new(lookInput.X, lookInput.Y), new(toward.X, toward.Y),
+                    new(_aimDismissedDirection.X, _aimDismissedDirection.Y), delta);
+                if (_aimReturnTravel >= .012f) { _aimDismissed = 0; _aimReturnTravel = 0; }
             }
-            return (Vector2.Zero, _aimController && _controllerCapabilityHold > 0);
+            return (Vector2.Zero, _aimController && (_aimDismissed != 0 || _controllerCapabilityHold > 0));
         }
         // Intent retains a physical-input floor so a low sensitivity preference
         // cannot make a deliberate sweep or full-stick release inescapable.
@@ -368,7 +373,7 @@ internal sealed partial class NetworkVehicleArena
         ValidateStickyTarget(finalView: true);
         if (_aimTarget == 0)
         {
-            _magneticCursor.Recover(delta);
+            if (_aimDismissed == 0) _magneticCursor.Recover(delta);
             _cursorInput = default;
             return;
         }
@@ -381,6 +386,7 @@ internal sealed partial class NetworkVehicleArena
             _aimDismissed = _aimTarget;
             _aimDismissedLife = _aimTargetLife;
             _aimDismissedDirection = _cursorInput.Normalized();
+            _aimReturnTravel = 0;
             ReleaseAim("deliberate magnetic cursor departure");
             // The dismissed identity remains excluded; adjacent controller targets
             // need not wait through the longer mouse re-acquisition pause.
@@ -408,12 +414,6 @@ internal sealed partial class NetworkVehicleArena
         return false;
     }
 
-    private bool WithinAimReach(Vector3 point, Vector3 lens)
-    {
-        if (_driver.LocalItem?.Active.Item != HeldItem.Salvo || _driver.LocalState is not { } local)
-        { return point.DistanceSquaredTo(lens) <= 90000; }
-        var pivot = local.ObservedPhysics.Position + System.Numerics.Vector3.Transform(WeaponAim.Pivot, local.ObservedPhysics.Orientation);
-        float range = SalvoFlight.AimRange(_driver.Configuration.Configuration.Items, true);
-        return point.DistanceSquaredTo(VehicleBody.ToGodot(pivot)) <= range * range;
-    }
+    // Acquisition is a viewing aid, not a promise that the selected projectile can reach.
+    private static bool WithinAimReach(Vector3 point, Vector3 lens) => point.DistanceSquaredTo(lens) <= 90000;
 }

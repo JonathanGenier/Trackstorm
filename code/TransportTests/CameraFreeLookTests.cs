@@ -6,6 +6,31 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class CameraFreeLookTests
 {
+    [TestCase(false)]
+    [TestCase(true)]
+    public void FineStickResponseIsProgressiveAndPreservesFullSpeed(bool aiming)
+    {
+        float previous = 0;
+        for (int i = 1; i <= 100; i++)
+        {
+            float magnitude = i / 100f;
+            float response = magnitude * CameraFreeLook.FineStickGain(magnitude, aiming);
+            Assert.That(response, Is.GreaterThan(previous));
+            previous = response;
+        }
+        Assert.That(CameraFreeLook.FineStickGain(.2f, aiming), Is.LessThan(.7f));
+        Assert.That(CameraFreeLook.FineStickGain(1, aiming), Is.EqualTo(1));
+    }
+
+    [Test]
+    public void FineMouseAdjustmentIsModestAndLeavesFastSweepsUnchanged()
+    {
+        Assert.That(CameraFreeLook.FineMouseGain(30), Is.EqualTo(.9f));
+        Assert.That(CameraFreeLook.FineMouseGain(200), Is.InRange(.9f, 1f));
+        Assert.That(CameraFreeLook.FineMouseGain(300), Is.EqualTo(1));
+        Assert.That(CameraFreeLook.FineMouseGain(1000), Is.EqualTo(1));
+    }
+
     [TestCase(30)]
     [TestCase(60)]
     [TestCase(144)]

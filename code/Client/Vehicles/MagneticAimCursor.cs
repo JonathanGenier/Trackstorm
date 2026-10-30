@@ -49,4 +49,13 @@ internal sealed class MagneticAimCursor
     }
 
     internal void Recover(float delta) => Offset *= MathF.Exp(-Math.Max(0, delta) * 4);
+
+    // Only deliberate player travel can rearm a dismissed car. Target motion and
+    // a single reverse nudge must not end a manually held lead between shots.
+    internal static float ReturnTravel(float previous, Vector2 input, Vector2 toward, Vector2 departure, float delta)
+    {
+        if (Vector2.Dot(input, departure) < 0 && Vector2.Dot(input, toward) > 0)
+            return previous + input.Length();
+        return previous * MathF.Exp(-20 * Math.Max(0, delta));
+    }
 }

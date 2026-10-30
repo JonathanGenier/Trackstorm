@@ -267,6 +267,8 @@ public sealed partial class VehicleChaseCamera : Camera3D
             Vector2 axisGain = new((float)(preferences?.HorizontalLookSensitivity ?? 1), (float)(preferences?.VerticalLookSensitivity ?? 1));
             float mouseGain = WeaponAiming ? (float)(preferences?.MouseAimSensitivity ?? 1) : 1;
             float stickGain = (float)(preferences?.StickAimSensitivity ?? 1);
+            if (WeaponAiming) mouseGain *= CameraFreeLook.FineMouseGain(mouse.Length() / Math.Max(delta, .001f));
+            stickGain *= CameraFreeLook.FineStickGain(stick.Length(), WeaponAiming);
             var friction = WeaponAiming ? AimFriction?.Invoke(mouse * axisGain * mouseGain, (stick * axisGain * stickGain).LimitLength(), delta) ?? (1f, 1f) : (1f, 1f);
             // Breakaway measures deliberate physical input after inversion. Low sensitivity
             // must never turn full stick or a mouse sweep into an inescapable fine correction.

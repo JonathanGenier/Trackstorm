@@ -74,9 +74,18 @@ public sealed partial class HostedPracticeChecks
                 {
                     ulong target = cars[index];
                     int frames = 0;
+                    int retainedFrames = 0;
                     float maximumStick = 0, initialError = 0;
-                    for (; frames < 900 && arena.AssistedCar != target; frames++)
+                    for (; frames < 900 && retainedFrames < 20; frames++)
                     {
+                        if (arena.AssistedCar == target)
+                        {
+                            Stick(Vector2.Zero);
+                            await Frames(1);
+                            retainedFrames = arena.AssistedCar == target ? retainedFrames + 1 : 0;
+                            continue;
+                        }
+                        retainedFrames = 0;
                         Vector3 local = camera.GlobalBasis.Inverse() * (arena.Bodies[target].VisualTransform * new Vector3(0, .3f, 0) - camera.GlobalPosition);
                         Vector3 cursor = camera.GlobalBasis.Inverse() * camera.ProjectRayNormal(arena.AimOverlay.Marker ?? view.GetVisibleRect().GetCenter());
                         Vector2 error = new(Mathf.AngleDifference(MathF.Atan2(cursor.X, -cursor.Z), MathF.Atan2(local.X, -local.Z)),
@@ -95,8 +104,7 @@ public sealed partial class HostedPracticeChecks
                     GD.Print($"CONTROLLER_EMP sequence={sequence} car={index + 1} id={target} frames={frames} initialError={initialError:F4} peakStick={maximumStick:F3} range={position.DistanceTo(arena.Bodies[target].VisualPosition):F2} selected={arena.AssistedCar} {arena.AimTargetDiagnostics(target)}");
                     Require(arena.AssistedCar == target, "controller acquires requested practice car");
                     Require(index == 0 || frames > 0, "switching to the next car requires directional controller input");
-                    await Frames(20);
-                    Require(arena.AssistedCar == target && arena.AimOverlay.Marker.HasValue && arena.TargetIndicator.Target == target,
+                    Require(retainedFrames == 20 && arena.AssistedCar == target && arena.AimOverlay.Marker.HasValue && arena.TargetIndicator.Target == target,
                         "neutral controller retains requested car with persistent square and separate feedback");
                     if (index == 2 && !testedRelease)
                     {

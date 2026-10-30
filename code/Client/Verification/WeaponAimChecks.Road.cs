@@ -73,24 +73,33 @@ public sealed partial class WeaponAimChecks
             var errors = new List<float>();
             var acceptedErrors = new List<float>();
             var readyErrors = new List<float>();
+            var requestedDirections = new List<N.Vector3>();
             int restricted = 0;
             for (int tick = 0; tick < 360; tick++)
             {
                 var state = host.World.GetVehicle(Shooter);
                 _heldTargets = (GroundAt(state.ObservedPhysics.Position.X + distance, 48), GroundAt(150, 65));
                 if (mode == 1 && tick % 24 == 0 && tick < 288) { Send(new InputEventMouseMotion { ScreenRelative = new(0, tick < 144 ? 1.5f : -1.5f) }); }
-                if (mode == 1 && tick % 60 == 0 && tick < 240) { Send(new InputEventMouseMotion { ScreenRelative = new(16, 0) }); }
-                if (mode == 1 && tick % 60 == 30 && tick < 270) { Send(new InputEventMouseMotion { ScreenRelative = new(-16, 0) }); }
+                // Fine corrections stay below deliberate departure travel. The
+                // magnetic/Salvo probes separately require larger sweeps to release.
+                if (mode == 1 && tick % 60 == 0 && tick < 240) { Send(new InputEventMouseMotion { ScreenRelative = new(4, 0) }); }
+                if (mode == 1 && tick % 60 == 30 && tick < 270) { Send(new InputEventMouseMotion { ScreenRelative = new(-4, 0) }); }
                 await Frames(1, throttle: 20000);
                 float y = state.ObservedPhysics.Position.Y;
                 minY = Math.Min(minY, y); maxY = Math.Max(maxY, y);
                 maxHeave = Math.Max(maxHeave, Math.Abs(state.ObservedPhysics.LinearVelocity.Y));
-                float error = Camera.ProjectRayNormal(ViewCenter).AngleTo(Center() - Camera.GlobalPosition);
+                float error = Camera.ProjectRayNormal(arena.AimOverlay.Marker ?? ViewCenter).AngleTo(Center() - Camera.GlobalPosition);
                 errors.Add(error); maxError = Math.Max(maxError, error);
                 if (host.Items.Aims.FirstOrDefault(a => a.Vehicle == Shooter) is { } accepted)
                 {
-                    var to = N.Vector3.Normalize(VehicleBody.ToCore(Center()) - accepted.Origin);
-                    acceptedErrors.Add(MathF.Acos(Math.Clamp(N.Vector3.Dot(to, accepted.Direction), -1, 1)));
+                    // Intent uses the viewed hull intersection and rack parallax,
+                    // not a hidden correction toward the rival's body center. UDP
+                    // acceptance trails local presentation: compare recent submitted
+                    // rays within 15 physics ticks, below the 300 ms expiry window.
+                    RequireShot(arena.Driver.DesiredAim.HasValue, "Road tracking publishes visible-cursor intent");
+                    requestedDirections.Add(arena.Driver.DesiredAim!.Value);
+                    acceptedErrors.Add(requestedDirections.TakeLast(15).Min(to =>
+                        MathF.Acos(Math.Clamp(N.Vector3.Dot(to, accepted.Direction), -1, 1))));
                     if (accepted.Ready) { readyErrors.Add(acceptedErrors[^1]); }
                     else { restricted++; }
                     RequireShot(!WeaponAim.IntersectsBody(WeaponAim.Pivot, WeaponAim.Direction(accepted.Yaw, accepted.Pitch)), "Road tracking preserves authoritative self-clearance");
@@ -106,7 +115,7 @@ public sealed partial class WeaponAimChecks
             Require(markerFrames == 360 && ringFrames > 0, "Hybrid marker stays on the assisted production-road rival and samples real terrain support");
             Require(retained == 360 && releases.Count == 0, "Visible moving rival survives repeated authored rollers and small corrections without replacement");
             Require(errors.TakeLast(60).Average() < .006f && readyError < .03f,
-                "Camera and unrestricted accepted aim recover alignment; self-blocked close aim remains restricted");
+                "Visible cursor and unrestricted accepted aim recover alignment; self-blocked close aim remains restricted");
             await Capture($"road-{distance}-{mode}");
             Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
             // Capture can leave catch-up physics ticks before camera presentation.
