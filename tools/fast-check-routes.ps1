@@ -107,6 +107,7 @@ function Get-FastCheckPlan {
         }
         if ($path -match 'WeaponAim|Aiming|CameraAimAttraction|MagneticAimCursor|weapon_aim|check-weapon-aim') {
             Add-Runtime 'check-weapon-aim.ps1'
+            Add-Manual 'Run check-hosted-practice.ps1 -DrivingMachineGun -Visual for native normal-driving hits and suspension/bank cursor stability.'
             Add-Manual 'Run check-hosted-practice.ps1 -ControllerEmp -Visual for scripted tabletop EMP transitions; then repeat Car 1/2/3 with a physical controller.'
             Add-Manual 'Inspect aiming while driving, close/airborne/crossing targets, mouse and physical controller feel, and impaired remote articulation with check-weapon-aim.ps1 -Visual -Impaired.'
             Add-Manual 'Measure actual 200 m grouping with check-weapon-aim.ps1 -Accuracy -Impaired; inspect retention/breakaway with -Sticky -Visual -Impaired and driving/placement freedom with -Freedom -Visual -Impaired -Oval.'

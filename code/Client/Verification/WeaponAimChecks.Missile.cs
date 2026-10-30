@@ -99,7 +99,7 @@ public sealed partial class WeaponAimChecks
             if (shot.Aiming) { await AimAt(Camera.GlobalPosition + shot.Offset); }
             await Frames(70);
             Require(_arenas[1].AssistedCar == 0 && !_arenas[1].TargetIndicator.ChevronVisible, shot.Name + ": unlocked aim has no lock marker");
-            if (!shot.Aiming) { Require(N.Vector3.Dot(driver.DesiredAim!.Value, -N.Vector3.UnitZ) > .99999f, "RMB-up driving intent is chassis-forward"); }
+            if (!shot.Aiming) { Require(N.Vector3.Dot(driver.DesiredAim!.Value, DrivingWeaponAim.Direction(-N.Vector3.UnitZ, N.Vector3.UnitY)) > .99999f, "RMB-up driving intent is road-forward"); }
             await Fire(shot.Name);
         }
         // The same two rival identities exercise acquisition, retained marker and switching.
@@ -125,7 +125,7 @@ public sealed partial class WeaponAimChecks
         await AimAtCurrent(() => _arenas[1].Bodies[1].VisualTransform * new Vector3(0, .3f, 0));
         await Frames(40);
         Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false }); await Frames(75);
-        Require(_arenas[1].AssistedCar == 0 && N.Vector3.Dot(driver.DesiredAim!.Value, -N.Vector3.UnitZ) > .99999f,
+        Require(_arenas[1].AssistedCar == 0 && N.Vector3.Dot(driver.DesiredAim!.Value, DrivingWeaponAim.Direction(-N.Vector3.UnitZ, N.Vector3.UnitY)) > .99999f,
             "Releasing camera aim clears lock and restores normal forward intent");
         await Fire("released-forward");
         await Equip(); Camera.ResetFollow(); await Frames(10);

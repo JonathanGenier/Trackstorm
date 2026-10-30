@@ -62,6 +62,7 @@ public sealed partial class HostedPracticeChecks
             GD.Print($"CONTROLLER_TABLETOP position={position}; synthetic stick capped at .65; no mouse events or direct camera aim writes");
             for (int sequence = 0; sequence < 2; sequence++)
             {
+                int deferred = 0;
                 bool testedRelease = false;
                 host.Items.RemovePlayer(owner);
                 await Frames(100);
@@ -124,6 +125,22 @@ public sealed partial class HostedPracticeChecks
                     await Until(() => arena.Driver.LocalItem is { } slot && arena.Bodies[owner].Rack.IsEmpClawReady(slot) &&
                         host.Items.EmpClawReady(slot) && host.World.State.Tick >= slot.Active.EmpClaw!.ReadyTick, "EMP interval ready");
                     ulong token = arena.Driver.LocalItem!.Active.Token;
+                    var accepted = host.Items.AcceptedAim(owner, arena.Driver.LocalItem.Life, token);
+                    var targetPosition = host.World.GetVehicle(target).ObservedPhysics.Position;
+                    var sight = accepted is null ? null : arena.Driver.RaycastWeapon!(owner, accepted.Origin, targetPosition);
+                    float cone = accepted is null ? -1 : N.Vector3.Dot(accepted.Direction, N.Vector3.Normalize(targetPosition - accepted.Origin));
+                    bool visible = sight is null || sight.Vehicle == target;
+                    GD.Print($"EMP_FIRE_CHECK target={target} retained={arena.AssistedCar} candidate={arena.Driver.DesiredAimTarget} ready={accepted?.Ready} cone={cone:F5} hit={sight?.Vehicle} visible={visible}");
+                    // Retention was sampled before a deliberate wait and native rendering.
+                    // A moving rival can become occluded during that interval. Seek a
+                    // fresh firing opportunity instead of asserting stale lock ownership.
+                    if (arena.AssistedCar != target || arena.Driver.DesiredAimTarget != target || accepted?.Ready != true ||
+                        !visible || cone < MathF.Cos(host.Items.Configuration.EmpClaw.AcquisitionDegrees * MathF.PI / 180))
+                    {
+                        Require(++deferred <= 12, "bounded reacquisition after changed firing-time visibility");
+                        GD.Print("EMP_DEFER changed firing-time sight/cone/retention; ammo preserved");
+                        index--; continue;
+                    }
                     Basis beforeShot = camera.GlobalBasis;
                     Require(arena.Driver.RequestItemUse(), "ordinary EMP use accepted");
                     await Until(() => events.Any(e => e.Token == token && !e.Impact), "real EMP launch committed");

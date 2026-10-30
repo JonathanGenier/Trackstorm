@@ -13,11 +13,12 @@ public sealed partial class HostedPracticeChecks : Node
     private readonly List<DevelopmentSession> _sessions = new();
     private string _endpoint = string.Empty;
     private bool _done;
+    private Func<DevelopmentSession, Core.Input.InputFrame>? _drivingInput;
 
     public override void _Ready() { Engine.MaxFps = 60; CallDeferred(MethodName.Run); }
     public override void _PhysicsProcess(double delta)
     {
-        if (!_done) { foreach (var session in _sessions) { session.Advance(default); } }
+        if (!_done) { foreach (var session in _sessions) { session.Advance(_drivingInput?.Invoke(session) ?? default); } }
     }
 
     private DevelopmentSession AddPeer(bool host)
@@ -61,6 +62,15 @@ public sealed partial class HostedPracticeChecks : Node
                 GetTree().Quit(); return;
             }
             await Frames(600);
+            if (OS.GetCmdlineUserArgs().Contains("--driving-mg"))
+            {
+                await CheckDrivingMachineGun(host, cars[2]);
+                foreach (var session in _sessions) session.Leave();
+                await Until(() => _sessions.All(session => session.LeaveComplete), "driving check departure");
+                _done = true;
+                GD.Print("Hosted driving Machine Gun passed.");
+                GetTree().Quit(); return;
+            }
             if (OS.GetCmdlineUserArgs().Contains("--controller-emp"))
             {
                 await CheckControllerEmp(host, remote, cars);
