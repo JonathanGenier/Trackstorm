@@ -11,21 +11,19 @@ internal sealed partial class NetworkVehicleArena
     private readonly AssistedTargetIndicator _targetIndicator = new();
     internal AssistedTargetIndicator TargetIndicator => _targetIndicator;
     private ulong _aimTarget;
-    private float _aimTargetAngle;
-    private Vector2 _aimTargetOffset;
+    private readonly MagneticAimCursor _magneticCursor = new();
+    private Vector2 _cursorInput;
     private ulong _aimTargetLife;
     private (ulong Life, ulong Token, ulong Selection) _aimCapability;
     private float _aimReleaseSeconds;
+    private float _controllerCapabilityHold;
+    private ulong _controllerResumeTarget;
     private bool _aimController;
-    private bool _aimAdjusted;
-    private Vector2 _aimBearing;
     private ulong _aimDismissed;
     private ulong _aimDismissedLife;
     private Vector2 _aimDismissedDirection;
     private ulong _aimIntentRevision;
     private float _aimRecoverySeconds;
-    private Vector2 _aimPlacement;
-    private Vector2 _aimDeparture;
     private System.Numerics.Vector2 _aimGesture;
     internal ulong AssistedCar => StickyAiming ? _aimTarget : 0;
     private bool StickyAiming => WeaponAim.SupportsArticulation(_driver.LocalItem?.Active.Item ?? HeldItem.None);
@@ -45,6 +43,7 @@ internal sealed partial class NetworkVehicleArena
         if (_aimTarget != 0) { AimReleaseObserved?.Invoke($"target={_aimTarget} reason={reason}"); }
         _aimTarget = 0;
         _aimRecoverySeconds = 0;
+        _magneticCursor.End();
     }
 
     private void InitializeAiming()
@@ -56,7 +55,7 @@ internal sealed partial class NetworkVehicleArena
         _aimOverlay.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         _camera.AimFriction = AimFriction;
         _camera.AimAttraction = AimAttraction;
-        _camera.AimTracking = TrackAim;
+        _camera.AimTracking = null;
         _camera.AimReset = () => ResetAiming("camera presentation reset");
     }
 
@@ -72,7 +71,17 @@ internal sealed partial class NetworkVehicleArena
         // local assisted target; it does not simulate a player selection change.
         if (current.Active.SalvoCommitted && _aimCapability.Life == current.Life && _aimCapability.Selection == current.SelectionRevision)
         { capability = (current.Life, _aimCapability.Token, current.SelectionRevision); }
-        if (_aimCapability != capability) { ReleaseAim("capability changed"); _aimDismissed = 0; _aimReleaseSeconds = 0; _aimCapability = capability; }
+        if (_aimCapability != capability)
+        {
+            // A shot can rotate its capability token without a player selection.
+            // Preserve only controller framing briefly while fresh accepted aim
+            // arrives; target eligibility and firing authority still reset normally.
+            if (_aimController && _aimTarget != 0 && _aimCapability.Life == current.Life &&
+                _aimCapability.Selection == current.SelectionRevision)
+            { _controllerCapabilityHold = .25f; _controllerResumeTarget = _aimTarget; }
+            else { _controllerCapabilityHold = 0; _controllerResumeTarget = 0; }
+            ReleaseAim("capability changed"); _aimDismissed = 0; _aimReleaseSeconds = 0; _aimCapability = capability;
+        }
         if (CameraInput is { } input && (_aimIntentRevision != input.CameraAimRevision || !input.CameraAimActive))
         {
             ResetAssistance($"input boundary revision={_aimIntentRevision}->{input.CameraAimRevision} active={input.CameraAimActive}");
@@ -99,12 +108,12 @@ internal sealed partial class NetworkVehicleArena
         _aimTargetLife = 0;
         _aimReleaseSeconds = 0;
         _aimController = false;
+        _controllerCapabilityHold = 0;
+        _controllerResumeTarget = 0;
         _aimDismissed = 0;
         _aimDismissedDirection = default;
-        _aimAdjusted = false;
-        _aimBearing = default;
-        _aimPlacement = default;
-        _aimDeparture = default;
+        _magneticCursor.Reset();
+        _cursorInput = default;
         _aimGesture = default;
     }
 
@@ -118,12 +127,13 @@ internal sealed partial class NetworkVehicleArena
             pair.Value.Rack.ObserveAim(state is { CanInteract: true } && inventory is not null && WeaponAim.SupportsArticulation(inventory.Active.Item) ? aim : null);
         }
         if (!_camera.WeaponAiming || _driver.LocalState is not { } local || _driver.LocalItem is not { } slot || slot.Life != local.LifeId) { return; }
-        Vector2 center = _camera.GetViewport().GetVisibleRect().GetCenter();
+        UpdateMagneticCursor(delta);
+        Vector2 center = AimCursorPosition();
         Vector3 lens = _camera.ProjectRayOrigin(center);
         float rayLength = slot.Active.Item == HeldItem.Salvo && CameraInput?.CameraAimActive == true
             ? Math.Max(300, SalvoFlight.AimRange(_driver.Configuration.Configuration.Items, true) + lens.DistanceTo(VehicleBody.ToGodot(local.ObservedPhysics.Position))) : 300;
         Vector3 rayEnd = lens + _camera.ProjectRayNormal(center) * rayLength;
-        // Free aim always resolves the actual centred ray. Assistance may acquire nearby cars.
+        // Aim always resolves the visible cursor ray. Assistance may acquire nearby cars.
         var hit = TraceViewedAim(lens, rayEnd);
         if (StickyAiming)
         {
@@ -132,12 +142,12 @@ internal sealed partial class NetworkVehicleArena
             {
                 _aimTarget = acquired.VehicleId;
                 _aimTargetLife = _driver.Latest!.Vehicles.Single(v => v.State.VehicleId == _aimTarget).State.LifeId;
-                _aimAdjusted = false;
-                _aimPlacement = default;
-                _aimDeparture = default;
+
                 _aimGesture = default;
                 _aimRecoverySeconds = 0;
-                _aimBearing = AimBearing(AimBodyCenter(acquired) - lens);
+                Vector2 bearing = AimBearing(_camera.GlobalBasis.Inverse() * (AimBodyCenter(acquired) - lens));
+                _magneticCursor.Begin(new(bearing.X, bearing.Y));
+                _controllerResumeTarget = 0;
                 ValidateStickyTarget();
             }
         }
@@ -145,16 +155,10 @@ internal sealed partial class NetworkVehicleArena
         _driver.DesiredAimTarget = slot.Active.Item == HeldItem.EmpClaw && CameraInput?.CameraAimActive == true ? framed?.VehicleId ?? 0 : 0;
         _driver.DesiredAimTargetLife = _driver.Latest?.Vehicles.FirstOrDefault(v => v.State.VehicleId == _driver.DesiredAimTarget)?.State.LifeId ?? 0;
         Vector3 desiredPoint = hit.Point;
-        if (StickyAiming && framed is not null)
-        {
-            // Retained assistance owns shot placement until target loss; camera look
-            // remains free to depart without moving shots away before disengagement.
-            desiredPoint = AimBodyCenter(framed);
-        }
         Vector3 origin = VehicleBody.ToGodot(local.ObservedPhysics.Position + System.Numerics.Vector3.Transform(WeaponAim.Pivot, local.ObservedPhysics.Orientation));
         // An unobstructed sky ray has no finite convergence surface. Preserve its
         // direction from the weapon pivot, including exactly vertical free aim.
-        if (framed is null && hit.Point == rayEnd) { desiredPoint = origin + _camera.ProjectRayNormal(center) * 300; }
+        if (hit.Point == rayEnd) { desiredPoint = origin + _camera.ProjectRayNormal(center) * 300; }
         if (origin.DistanceSquaredTo(desiredPoint) > .001f) { _driver.DesiredAim = VehicleBody.ToCore((desiredPoint - origin).Normalized()); }
         // Missile driving fire keeps its chassis-forward intent. Explicit camera
         // input selects the same free/assisted solution as every direct-fire weapon.
@@ -232,7 +236,7 @@ internal sealed partial class NetworkVehicleArena
     // receives a margin. Rendered corners, native collision and spread stay unchanged.
     private float AimFrameGap(Rect2 frame)
     {
-        Vector2 cursor = _camera.GetViewport().GetVisibleRect().GetCenter();
+        Vector2 cursor = AimCursorPosition();
         Vector2 nearest = cursor.Clamp(frame.Position, frame.End);
         return _camera.ProjectRayNormal(cursor).AngleTo(_camera.ProjectRayNormal(nearest));
     }
@@ -240,7 +244,7 @@ internal sealed partial class NetworkVehicleArena
     private float AcquisitionMargin(Rect2 frame, float cone)
     {
         float apparentSize = _camera.ProjectRayNormal(frame.Position).AngleTo(_camera.ProjectRayNormal(frame.End)) * .5f;
-        return CameraAimAttraction.AcquisitionMargin(apparentSize, cone);
+        return CameraAimAttraction.AcquisitionMargin(apparentSize, cone, _aimController);
     }
 
     private NetworkVehicleBody? FindAcquisition(Vector3 lens)
@@ -252,15 +256,19 @@ internal sealed partial class NetworkVehicleArena
         foreach (var pair in _bodies)
         {
             var state = _driver.Latest?.Vehicles.FirstOrDefault(v => v.State.VehicleId == pair.Key)?.State;
+            // A neutral stick must not switch rivals just because a shot rotated
+            // its token. Fresh directional input immediately removes this preference.
+            if (_controllerCapabilityHold > 0 && _controllerResumeTarget != 0 &&
+                (pair.Key != _controllerResumeTarget || state?.LifeId != _aimTargetLife)) { continue; }
             Vector3 point = AimBodyCenter(pair.Value), to = point - lens;
             if (pair.Key == _driver.LocalVehicleId || state is not { CanInteract: true } || !pair.Value.IsPresented ||
                 !WithinAimReach(point, lens) || _camera.IsPositionBehind(point) ||
                 !_camera.GetViewport().GetVisibleRect().HasPoint(_camera.UnprojectPosition(point))) { continue; }
-            float angle = (-_camera.GlobalBasis.Z).AngleTo(to);
+            float angle = _camera.ProjectRayNormal(AimCursorPosition()).AngleTo(to);
             if (ProjectAimBounds(pair.Value) is not { } frame) { continue; }
             float gap = AimFrameGap(frame);
             float allowance = AcquisitionMargin(frame, cone);
-            Vector2 toward = AimBearing(_camera.GlobalBasis.Inverse() * to);
+            Vector2 toward = AimBearing(_camera.GlobalBasis.Inverse() * to) - new Vector2(_magneticCursor.Offset.X, _magneticCursor.Offset.Y);
             // An approach may acquire while the mouse/stick is still moving. Only
             // a sweep away from this candidate suppresses acquisition.
             if (_aimGesture.Length() > .045f && System.Numerics.Vector2.Dot(_aimGesture, new(toward.X, toward.Y)) <= 0) { continue; }
@@ -291,7 +299,6 @@ internal sealed partial class NetworkVehicleArena
         // Only validate spatial visibility against this frame's resolved camera.
         if (delta <= 0 && !finalView) { return; }
         Vector3 center = AimBodyCenter(body);
-        Vector2 viewportCenter = _camera.GetViewport().GetVisibleRect().GetCenter();
         if (_camera.IsPositionBehind(center) || !_camera.GetViewport().GetVisibleRect().HasPoint(_camera.UnprojectPosition(center)))
         { ReleaseAim("offscreen"); return; }
         if (!WithinAimReach(center, _camera.GlobalPosition)) { ReleaseAim("range"); return; }
@@ -306,16 +313,16 @@ internal sealed partial class NetworkVehicleArena
             if (gap > Math.Min(cone * 3, Mathf.DegToRad(20)) || _aimRecoverySeconds > .45f)
             { ReleaseAim($"angular recovery exhausted gap={gap:F5} seconds={_aimRecoverySeconds:F3}"); return; }
         }
-        _aimTargetAngle = gap;
-        _aimTargetOffset = _camera.UnprojectPosition(center) - viewportCenter;
+
     }
 
     private (Vector2 Pull, bool Engaged) AimAttraction(Vector2 mouse, Vector2 stick, Vector2 lookInput, float delta)
     {
         _aimReleaseSeconds = Math.Max(0, _aimReleaseSeconds - delta);
+        _controllerCapabilityHold = Math.Max(0, _controllerCapabilityHold - delta);
         if (!StickyAiming || CameraInput?.CameraAimActive != true || _driver.Configuration.Configuration.Items.Aim.AssistDegrees <= 0) { return (Vector2.Zero, false); }
-        if (stick.LengthSquared() > .001f) { _aimController = true; }
-        if (mouse.LengthSquared() > .001f) { _aimController = false; }
+        if (stick.LengthSquared() > .001f) { _aimController = true; _controllerResumeTarget = 0; }
+        if (mouse.LengthSquared() > .001f) { _aimController = false; _controllerCapabilityHold = 0; _controllerResumeTarget = 0; }
         _aimGesture = CameraAimAttraction.Gesture(_aimGesture, new(mouse.X, mouse.Y), new(stick.X, stick.Y), delta);
         if (_aimTarget == 0)
         {
@@ -323,85 +330,63 @@ internal sealed partial class NetworkVehicleArena
             // car. Moving back toward it, or leaving its acquisition region, rearms it.
             if (_aimDismissed != 0 && _bodies.TryGetValue(_aimDismissed, out var dismissed))
             {
-                Vector2 toward = AimBearing(_camera.GlobalBasis.Inverse() * (AimBodyCenter(dismissed) - _camera.GlobalPosition));
+                Vector2 toward = AimBearing(_camera.GlobalBasis.Inverse() * (AimBodyCenter(dismissed) - _camera.GlobalPosition))
+                    - new Vector2(_magneticCursor.Offset.X, _magneticCursor.Offset.Y);
                 // Rotating past the rear of the car during the same sweep is not a
                 // reversal. Require actual input reversal before rearming nearby.
                 if (lookInput.Dot(_aimDismissedDirection) < 0 && lookInput.Dot(toward) > 0) { _aimDismissed = 0; }
             }
-            return (Vector2.Zero, false);
+            return (Vector2.Zero, _aimController && _controllerCapabilityHold > 0);
         }
-        Vector3 local = _camera.GlobalBasis.Inverse() * (AimBodyCenter(_bodies[_aimTarget]) - _camera.GlobalPosition);
-        var error = new System.Numerics.Vector2(MathF.Atan2(local.X, -local.Z), -MathF.Atan2(local.Y, new Vector2(local.X, local.Z).Length()));
-        Vector2 bearing = AimBearing(AimBodyCenter(_bodies[_aimTarget]) - _camera.GlobalPosition);
-        var motion = CameraAimAttraction.Motion(new(_aimBearing.X, _aimBearing.Y), new(bearing.X, bearing.Y), delta);
-        bool fineInput = mouse.LengthSquared() > .25f || stick.LengthSquared() > .0225f;
-        // Deliberate departure is measured in accumulated look space, independent
-        // of the tiny distant frame and of involuntary camera/vehicle displacement.
-        // Initial acquisition error and involuntary motion are not player departure.
-        // Count only actual look displacement, even before fine placement engages.
-        _aimDeparture -= lookInput;
-        float cone = _driver.Configuration.Configuration.Items.Aim.AssistDegrees * MathF.PI / 180;
-        Vector2 outward = new(error.X - motion.X - lookInput.X, error.Y - motion.Y - lookInput.Y);
-        // A purposeful sweep is directional relative to the current target, not
-        // cancelled by earlier approach input on the other side of the accumulator.
-        bool sweep = _aimGesture.Length() > CameraAimAttraction.ReleaseGesture && lookInput.Dot(outward) < 0;
-        // At close range, centre-relative input may still aim squarely onto the
-        // visible body. Test the cursor after this look displacement, not its old
-        // pixel position. Far targets still retain the independent angular allowance.
-        Vector3 nextRay = new(MathF.Sin(lookInput.X) * MathF.Cos(lookInput.Y), -MathF.Sin(lookInput.Y), -MathF.Cos(lookInput.X) * MathF.Cos(lookInput.Y));
-        Vector2 nextCursor = _camera.UnprojectPosition(_camera.GlobalPosition + _camera.GlobalBasis * nextRay * 10);
-        Rect2? bodyFrame = ProjectAimBounds(_bodies[_aimTarget]);
-        bool leavesBody = nextRay.Z >= 0 || bodyFrame is not { } visibleBody || !visibleBody.HasPoint(nextCursor);
-        // A stronger physical sweep can still exit immediately at low sensitivity,
-        // even before the scaled cursor clears the body. Ordinary close corrections
-        // use the body edge instead of treating every outward centre error as escape.
-        float bodyGesture = bodyFrame is { } bounds ? Math.Max(CameraAimAttraction.ReleaseGesture,
-            _camera.ProjectRayNormal(bounds.Position).AngleTo(_camera.ProjectRayNormal(bounds.End)) * .5f) : CameraAimAttraction.ReleaseGesture;
-        bool decisiveSweep = sweep && (leavesBody || stick.LengthSquared() > .81f || _aimGesture.Length() > bodyGesture);
-        if (decisiveSweep || (leavesBody && CameraAimAttraction.Breakaway(new(_aimDeparture.X, _aimDeparture.Y), System.Numerics.Vector2.Zero, new(lookInput.X, lookInput.Y), cone)))
-        { _aimDismissed = _aimTarget; _aimDismissedLife = _aimTargetLife; _aimDismissedDirection = lookInput.Normalized(); ReleaseAim($"deliberate accumulated look sweep={sweep} gesture={_aimGesture.Length():F5} departure={_aimDeparture.Length():F5}"); _aimReleaseSeconds = .18f; return (Vector2.Zero, false); }
-        // After an intentional fine adjustment, transport the selected offset with the
-        // target instead of repeatedly pulling it back to centre. Actual input stays direct.
-        // Approaching the car with small input must not cancel acquisition pull.
-        // A distant body's tiny outline must not disable fine tracking. Use a
-        // bounded angular neighborhood as well as the visible body at close range.
-        if (!_aimAdjusted && fineInput && (error.Length() <= cone * .3f ||
-            ProjectAimBounds(_bodies[_aimTarget]) is { } adjustedFrame && adjustedFrame.HasPoint(_camera.GetViewport().GetVisibleRect().GetCenter())))
-        { _aimAdjusted = true; _aimPlacement = new(error.X - motion.X, error.Y - motion.Y); }
-        if (_aimAdjusted) { _aimPlacement -= lookInput; }
+        // Intent retains a physical-input floor so a low sensitivity preference
+        // cannot make a deliberate sweep or full-stick release inescapable.
+        Vector2 physical = mouse * .003f + stick * stick.Length() * (2.2f * delta);
+        _cursorInput = physical.LengthSquared() > lookInput.LengthSquared() ? physical : lookInput;
         return (Vector2.Zero, true);
     }
 
-    private Vector2 TrackAim(float delta)
+    private Vector2 AimCursorPosition()
     {
-        if (!StickyAiming) { return Vector2.Zero; }
-        ValidateStickyTarget(finalView: true);
-        if (_aimTarget == 0) { return Vector2.Zero; }
-        Vector3 direction = AimBodyCenter(_bodies[_aimTarget]) - _camera.GlobalPosition;
-        Vector2 local = AimBearing(_camera.GlobalBasis.Inverse() * direction);
-        var error = new System.Numerics.Vector2(local.X, local.Y);
-        Vector2 bearing = AimBearing(direction);
-        var motion = CameraAimAttraction.Motion(new(_aimBearing.X, _aimBearing.Y), new(bearing.X, bearing.Y), delta);
-        // Keep unapplied bearing motion for the next frame instead of discarding a jolt
-        // exceeding the existing 180-degree/s compensation cap.
-        _aimBearing += new Vector2(motion.X, motion.Y);
-        var tuning = _driver.Configuration.Configuration.Items.Aim;
-        float strength = _aimController ? tuning.StickPull : tuning.MousePull;
-        var pull = strength <= 0 ? System.Numerics.Vector2.Zero : motion +
-            CameraAimAttraction.Pull(error - motion - new System.Numerics.Vector2(_aimPlacement.X, _aimPlacement.Y), strength, delta);
-        return new(pull.X, pull.Y);
+        var offset = _magneticCursor.Offset;
+        Vector3 ray = new(MathF.Sin(offset.X) * MathF.Cos(offset.Y), -MathF.Sin(offset.Y), -MathF.Cos(offset.X) * MathF.Cos(offset.Y));
+        Rect2 viewport = _camera.GetViewport().GetVisibleRect().Grow(-8);
+        return _camera.UnprojectPosition(_camera.GlobalPosition + _camera.GlobalBasis * ray * 10).Clamp(viewport.Position, viewport.End);
     }
 
     private (float Mouse, float Stick) AimFriction(Vector2 mouse, Vector2 stick, float delta)
     {
-        if (_aimTarget == 0) { return (1, 1); }
+        if (_aimTarget == 0) return (1, 1);
         var tuning = _driver.Configuration.Configuration.Items.Aim;
-        float weight = 1 - Mathf.Clamp(_aimTargetAngle / Math.Max(.0001f, tuning.AssistDegrees * MathF.PI / 180), 0, 1);
-        // Only deliberate movement toward the target is slowed. Outward input stays
-        // direct; the separate departure classifier decides when engagement ends.
-        float mouseWeight = mouse.Dot(_aimTargetOffset) > 0 ? weight * (1 - Mathf.SmoothStep(180, 900, mouse.Length() / Math.Max(.001f, delta))) : 0;
-        float stickWeight = stick.Dot(_aimTargetOffset) > 0 ? weight * (1 - Mathf.SmoothStep(.55f, .9f, stick.Length())) : 0;
+        float retention = _magneticCursor.Retention;
+        float mouseWeight = retention * (1 - Mathf.SmoothStep(180, 900, mouse.Length() / Math.Max(.001f, delta)));
+        float stickWeight = retention * (1 - Mathf.SmoothStep(.55f, .9f, stick.Length()));
         return (1 - tuning.MouseFriction * mouseWeight, 1 - tuning.StickFriction * stickWeight);
+    }
+
+    private void UpdateMagneticCursor(float delta)
+    {
+        ValidateStickyTarget(finalView: true);
+        if (_aimTarget == 0)
+        {
+            _magneticCursor.Recover(delta);
+            _cursorInput = default;
+            return;
+        }
+        Vector2 target = AimBearing(_camera.GlobalBasis.Inverse() * (AimBodyCenter(_bodies[_aimTarget]) - _camera.GlobalPosition));
+        var tuning = _driver.Configuration.Configuration.Items.Aim;
+        _magneticCursor.Advance(new(target.X, target.Y), new(_cursorInput.X, _cursorInput.Y), _aimController,
+            _aimController ? tuning.StickPull : tuning.MousePull, delta);
+        if (_magneticCursor.Released)
+        {
+            _aimDismissed = _aimTarget;
+            _aimDismissedLife = _aimTargetLife;
+            _aimDismissedDirection = _cursorInput.Normalized();
+            ReleaseAim("deliberate magnetic cursor departure");
+            // The dismissed identity remains excluded; adjacent controller targets
+            // need not wait through the longer mouse re-acquisition pause.
+            _aimReleaseSeconds = _aimController ? .06f : .18f;
+        }
+        _cursorInput = default;
     }
 
     private bool HasAimSight(ulong target, Vector3 from, Vector3 to)

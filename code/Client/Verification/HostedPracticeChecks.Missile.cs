@@ -12,6 +12,7 @@ public sealed partial class HostedPracticeChecks
 {
     private PlayerInput? _aimInput;
     private bool _aimMouseHeld;
+    private Action? _restoreControllerInput;
 
     public override void _Process(double delta)
     {
@@ -21,6 +22,7 @@ public sealed partial class HostedPracticeChecks
         input.Adapter.Enabled = true;
         using var mouse = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = _aimMouseHeld };
         input._Input(mouse);
+        _restoreControllerInput?.Invoke();
     }
 
     private async Task CheckMissilePracticePair(DevelopmentSession session, DevelopmentSession remote, ulong[] cars)

@@ -34,11 +34,11 @@ internal sealed partial class WeaponAimOverlay : Control
     public override void _Draw()
     {
         float scale = Math.Max(.7f, GetViewportRect().Size.Y / 1080);
-        if (!_targetMarked && _marker is Vector2 marker)
+        if (_marker is Vector2 marker)
         {
             var rect = new Rect2(marker - Vector2.One * (4 * scale), Vector2.One * (8 * scale));
             DrawRect(rect.Grow(scale), new Color(0, 0, 0, .8f), false, 3 * scale);
-            DrawRect(rect, _ready ? Colors.White : new Color(1, .35f, .2f, .85f), false, 1.5f * scale);
+            DrawRect(rect, _targetMarked ? Colors.LimeGreen : _ready ? Colors.White : new Color(1, .35f, .2f, .85f), false, 1.5f * scale);
         }
     }
 }
