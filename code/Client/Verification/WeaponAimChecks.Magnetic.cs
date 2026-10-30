@@ -27,24 +27,34 @@ public sealed partial class WeaponAimChecks
                 arena.Driver.MissileReady?.Invoke(item) == true, "Magnetic fixture waits for actual Missile deployment", 1200);
             await AimAtCurrent(() => arena.Bodies[1].VisualTransform * new Vector3(0, .3f, 0));
             Require(arena.AssistedCar == 1, "Magnetic lead fixture acquired");
+            await Frames(30);
             Vector2 previous = arena.AimOverlay.Marker!.Value;
             bool departingWhileRetained = false;
+            float retainedGap = 0;
+            arena.AimReleaseObserved = reason => GD.Print("MAGNETIC_RELEASE " + reason);
             for (int frame = 0; frame < 50; frame++)
             {
                 if (controller) Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = sign * .6f });
                 else Send(new InputEventMouseMotion { ScreenRelative = new(sign * 1.5f, 0) });
-                await Frames(2);
+                // Advance the fixture's network simulation as well as presentation;
+                // render-only waits would expire accepted aim and fake a breakaway.
+                await Frames(1);
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 await ToSignal(GetTree().CreateTimer(0), SceneTreeTimer.SignalName.Timeout);
                 RequireShot(arena.AimOverlay.Marker is not null, "Square persists throughout gradual departure");
                 Vector2 cursor = arena.AimOverlay.Marker!.Value;
                 RequireShot(cursor.DistanceTo(previous) < 35, "Gradual departure has no cursor teleport");
                 Vector2 target = Camera.UnprojectPosition(arena.Bodies[1].VisualTransform * new Vector3(0, .3f, 0));
-                if (arena.AssistedCar == 1 && cursor.DistanceTo(target) > 2) departingWhileRetained = true;
+                if (arena.AssistedCar == 1)
+                {
+                    retainedGap = Math.Max(retainedGap, cursor.DistanceTo(target));
+                    if (cursor.DistanceTo(target) > 2) departingWhileRetained = true;
+                }
                 previous = cursor;
             }
             Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = 0 });
             Require(departingWhileRetained && arena.AssistedCar == 0,
-                $"Progressive {(controller ? "controller" : "mouse")} departure sign={sign} moves visibly before release; moved={departingWhileRetained} target={arena.AssistedCar}");
+                $"Progressive {(controller ? "controller" : "mouse")} departure sign={sign} moves visibly before release; moved={departingWhileRetained} gap={retainedGap:F3} target={arena.AssistedCar}");
             await Frames(30);
             await ToSignal(GetTree().CreateTimer(0), SceneTreeTimer.SignalName.Timeout);
             Vector2 marker = arena.AimOverlay.Marker!.Value;
@@ -68,5 +78,6 @@ public sealed partial class WeaponAimChecks
         }
         _heldTargets = null;
         _heldShooter = null;
+        arena.AimReleaseObserved = null;
     }
 }

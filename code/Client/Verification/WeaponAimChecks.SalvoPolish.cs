@@ -29,6 +29,7 @@ public sealed partial class WeaponAimChecks
         var launches = new Dictionary<ulong, (ulong Tick, SalvoFlight Arc)>();
         var launchTargets = new List<ulong>();
         var unaimedTargets = new Dictionary<ulong, N.Vector3>();
+        var acceptedTargets = new Dictionary<ulong, N.Vector3>();
         bool verifyUnaimed = false;
         var events = new List<ItemEvent>(); var remote = new List<ItemEvent>();
         _arenas[0].Driver.ItemsReceived += p => events.AddRange(p.Events.Where(e => e.Item == HeldItem.Salvo));
@@ -49,6 +50,10 @@ public sealed partial class WeaponAimChecks
                 {
                     launches.Add(missile.Id, (host.World.State.Tick + 1, arc));
                     launchTargets.Add(_arenas[1].AssistedCar);
+                    var shotPose = host.World.GetVehicle(Shooter).ObservedPhysics;
+                    var shotDirection = host.Items.Aims.FirstOrDefault(a => a.Vehicle == Shooter)?.Direction ?? -N.Vector3.UnitZ;
+                    acceptedTargets.Add(missile.Id, SalvoFlight.ResolveTarget(shotPose, shotDirection, verifyUnaimed ? 65 : 130,
+                        _arenas[0].Driver.ProjectSalvoGround, (from, to) => _arenas[0].Driver.RaycastWeapon!(Shooter, from, to)));
                     if (verifyUnaimed)
                     {
                         var pose = host.World.GetVehicle(Shooter).ObservedPhysics;
@@ -128,6 +133,8 @@ public sealed partial class WeaponAimChecks
             await Frames(30);
         }
 
+        if (!OS.GetCmdlineUserArgs().Contains("--salvo-switch-only"))
+        {
         await Equip();
         await AimAtCurrent(() => _arenas[1].Bodies[1].VisualTransform * new Vector3(0, .3f, 0));
         await Frames(40);
@@ -177,10 +184,37 @@ public sealed partial class WeaponAimChecks
                 "All five authoritative arcs reach the 120 m target at bearing " + degrees);
         }
 
+        }
+        _heldTargets = (_heldShooter.Value + new N.Vector3(0, 0, -200), _heldShooter.Value + new N.Vector3(180, 0, 180));
+        Position(_heldShooter.Value, _heldTargets.Value.First, _heldTargets.Value.Second);
+        await Equip();
+        await AimAtCurrent(() => _arenas[1].Bodies[1].VisualTransform * new Vector3(0, .3f, 0));
+        await Frames(50);
+        Require(_arenas[1].AssistedCar == 1 && _arenas[1].TargetIndicator.Target == 1,
+            "Salvo acquires and visibly locks a car at 200 m beyond projectile reach");
+        int distantStart = launches.Count;
+        await Frames(90);
+        Require(launches.Count == distantStart, "Out-of-range lock never fires automatically");
+        Require(driver.RequestItemUse(), "Player may commit a volley while locked beyond reach");
+        await Until(() => launches.Count == distantStart + 5, "Out-of-range lock preserves five-shot ammunition behavior");
+        Require(launches.Values.Skip(distantStart).All(v =>
+            new N.Vector2(v.Arc.Target.X - _heldShooter.Value.X, v.Arc.Target.Z - _heldShooter.Value.Z).Length() <= 131),
+            "Out-of-range lock does not extend projectile reach");
         _heldTargets = (_heldShooter.Value + new N.Vector3(0, 0, -120), _heldShooter.Value + new N.Vector3(70, 0, -90));
         Position(_heldShooter.Value, _heldTargets.Value.First, _heldTargets.Value.Second);
         await Equip();
         await CheckAcceptedAimOutage();
+        // A reacquired identity precedes progressive cursor attraction. This is a
+        // hit-on-car scenario, so wait for the actual accepted ray, not just green.
+        await Until(() =>
+        {
+            var aim = host.Items.Aims.FirstOrDefault(a => a.Vehicle == Shooter);
+            if (aim is null) return false;
+            var pose = host.World.GetVehicle(Shooter).ObservedPhysics;
+            var endpoint = SalvoFlight.ResolveTarget(pose, aim.Direction, 130, _arenas[0].Driver.ProjectSalvoGround,
+                (from, to) => _arenas[0].Driver.RaycastWeapon!(Shooter, from, to));
+            return N.Vector3.Distance(endpoint, _heldTargets.Value.First) < 3;
+        }, "Recovered accepted ray converges onto the first car before the hit volley");
         int switchedStart = launches.Count;
         releases.Clear();
         Require(driver.RequestItemUse(), "Target-switching volley accepts one activation");
@@ -193,6 +227,8 @@ public sealed partial class WeaponAimChecks
             "Deliberate camera switching is independently sampled between consecutive launches");
         var destinations = new[] { _heldTargets.Value.First, _heldTargets.Value.Second, _heldTargets.Value.Second,
             _heldTargets.Value.First, _heldTargets.Value.First };
+        foreach (var pair in launches.Values.Skip(switchedStart).Zip(destinations))
+            GD.Print($"SWITCH_ENDPOINT actual={pair.First.Arc.Target} expected={pair.Second} error={N.Vector3.Distance(pair.First.Arc.Target, pair.Second):F4}");
         Require(launches.Values.Skip(switchedStart).Zip(destinations).All(p => N.Vector3.Distance(p.First.Arc.Target, p.Second) < 4),
             "All switched authoritative arcs reach their newly selected rival; old arcs remain unchanged");
         Require(releases.Count >= 2 && releases.All(r => !r.Contains("accepted aim expired")),
@@ -234,6 +270,8 @@ public sealed partial class WeaponAimChecks
             "All repeated polish volleys finish flight and fully stow", 1900);
         await Frames(120);
         Require(events.SequenceEqual(remote), "Observer receives the same ordered authoritative launch/impact outcomes for every polish volley");
+        Require(launches.All(p => N.Vector3.Distance(p.Value.Arc.Target, acceptedTargets[p.Key]) < .1f),
+            "Every locked, switched and manually led shot snapshots its accepted direction independently");
         Require(_arenas.All(a => a.Bodies[Shooter].Rack.Catapult is null && !a.SalvoMarker.Visible),
             "Owner and observers clean up the exhausted magazine and targeting circles");
         _arenas[1].AimReleaseObserved = null;

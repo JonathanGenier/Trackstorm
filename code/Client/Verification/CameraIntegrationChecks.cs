@@ -242,6 +242,9 @@ public sealed partial class CameraIntegrationChecks : Node3D
             float raw = input.Adapter.CameraIntent.Y;
             for (int i = 0; i < fps / 10; i++) camera.Follow(Transform3D.Identity, state, 1f / fps);
             float shaped = armed ? raw * Math.Abs(raw) : raw;
+            float magnitude = Math.Abs(raw);
+            float fineMinimum = armed ? .65f : .25f;
+            shaped *= fineMinimum + (1 - fineMinimum) * magnitude * magnitude * (3 - 2 * magnitude);
             float elapsed = (float)(fps / 10) / fps;
             float stickPitch = -Mathf.DegToRad((float)settings.Current.CameraDownAngle) - shaped * 2.2f * (elapsed - (1 - MathF.Exp(-60 * elapsed)) / 60) * (float)(gain * gain) * (invert ? -1 : 1);
             Require(Math.Abs(camera.Rotation.X - stickPitch) < .0002, "Native controller sensitivity and inversion honor radial shaping");

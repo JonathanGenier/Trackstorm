@@ -10,6 +10,20 @@ internal sealed class CameraFreeLook
 
     internal void Reset() => (Yaw, Pitch) = (0, 0);
 
+    internal static float FineStickGain(float magnitude, bool aiming)
+    {
+        float t = Math.Clamp(magnitude, 0, 1);
+        float blend = t * t * (3 - 2 * t);
+        float minimum = aiming ? .65f : .25f;
+        return minimum + (1 - minimum) * blend;
+    }
+
+    internal static float FineMouseGain(float speed)
+    {
+        float t = Math.Clamp((speed - 120) / 180, 0, 1);
+        return .9f + .1f * t * t * (3 - 2 * t);
+    }
+
     internal static Vector2 InputMovement(Vector2 mouse, Vector2 stick, float delta, bool weaponAiming,
         float mouseScale, float stickScale, float stickCurve, float horizontalScale, float verticalScale)
     {

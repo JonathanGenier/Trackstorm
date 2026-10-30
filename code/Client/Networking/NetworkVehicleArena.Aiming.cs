@@ -414,12 +414,6 @@ internal sealed partial class NetworkVehicleArena
         return false;
     }
 
-    private bool WithinAimReach(Vector3 point, Vector3 lens)
-    {
-        if (_driver.LocalItem?.Active.Item != HeldItem.Salvo || _driver.LocalState is not { } local)
-        { return point.DistanceSquaredTo(lens) <= 90000; }
-        var pivot = local.ObservedPhysics.Position + System.Numerics.Vector3.Transform(WeaponAim.Pivot, local.ObservedPhysics.Orientation);
-        float range = SalvoFlight.AimRange(_driver.Configuration.Configuration.Items, true);
-        return point.DistanceSquaredTo(VehicleBody.ToGodot(pivot)) <= range * range;
-    }
+    // Acquisition is a viewing aid, not a promise that the selected projectile can reach.
+    private static bool WithinAimReach(Vector3 point, Vector3 lens) => point.DistanceSquaredTo(lens) <= 90000;
 }
