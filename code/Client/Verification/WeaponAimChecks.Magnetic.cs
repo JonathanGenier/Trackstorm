@@ -44,7 +44,7 @@ public sealed partial class WeaponAimChecks
             }
             Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = 0 });
             Require(departingWhileRetained && arena.AssistedCar == 0,
-                $"Progressive {(controller ? "controller" : "mouse")} departure sign={sign} moves visibly before release");
+                $"Progressive {(controller ? "controller" : "mouse")} departure sign={sign} moves visibly before release; moved={departingWhileRetained} target={arena.AssistedCar}");
             await Frames(30);
             await ToSignal(GetTree().CreateTimer(0), SceneTreeTimer.SignalName.Timeout);
             Vector2 marker = arena.AimOverlay.Marker!.Value;

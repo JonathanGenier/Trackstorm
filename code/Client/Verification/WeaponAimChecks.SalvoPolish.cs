@@ -134,6 +134,33 @@ public sealed partial class WeaponAimChecks
         Require(_arenas[1].AssistedCar == 1, "Near target acquired before retention regression");
         await HoldVolley("Near moving target", moving: true);
 
+        foreach (float sign in new[] { -1f, 1f })
+        {
+            await Equip();
+            await AimAtCurrent(() => _arenas[1].Bodies[1].VisualTransform * new Vector3(0, .3f, 0));
+            Require(_arenas[1].AssistedCar == 1, "Manual lead starts from acquired car");
+            for (int i = 0; i < 40; i++)
+            {
+                Send(new InputEventMouseMotion { ScreenRelative = new(sign * 1.5f, 0) });
+                await Frames(2);
+            }
+            Require(_arenas[1].AssistedCar == 0, "Manual lead releases before first Salvo shot");
+            int start = launches.Count;
+            Require(driver.RequestItemUse(), "Manual lead volley commits");
+            for (int i = 0; i < 900 && launches.Count < start + 5; i++)
+            {
+                if (_heldTargets is { } targets)
+                    _heldTargets = (targets.First + new N.Vector3(sign * .01f, 0, 0), targets.Second);
+                if (i % 8 == 0) Send(new InputEventMouseMotion { ScreenRelative = new(sign * .3f, 0) });
+                await Frames(1);
+                RequireShot(_arenas[1].AssistedCar == 0, "Manual lead remains free between Salvo shots");
+                RequireShot(_arenas[1].AimOverlay.Marker is not null, "Manual lead square stays visible");
+            }
+            Require(launches.Count == start + 5 && launchTargets.Skip(start).All(t => t == 0),
+                "All five manual Salvo shots remain unassisted");
+            await Frames(30);
+        }
+
         foreach (float degrees in new[] { 0f, 90f, 180f, -90f })
         {
             var offset = new N.Vector3(-MathF.Sin(Mathf.DegToRad(degrees)), 0, -MathF.Cos(Mathf.DegToRad(degrees))) * 120;
@@ -218,7 +245,9 @@ public sealed partial class WeaponAimChecks
             {
                 Vector3 direction = (_arenas[1].Bodies[target].VisualTransform * new Vector3(0, .3f, 0) - Camera.GlobalPosition).Normalized();
                 float yaw = MathF.Atan2(-direction.X, -direction.Z), pitch = MathF.Asin(direction.Y);
-                Send(new InputEventMouseMotion { ScreenRelative = new(-Mathf.AngleDifference(Camera.Rotation.Y, yaw) / .003f, -(pitch - Camera.Rotation.X) / .003f) });
+                Vector3 cursorRay = Camera.ProjectRayNormal(_arenas[1].AimOverlay.Marker!.Value);
+                float cursorYaw = MathF.Atan2(-cursorRay.X, -cursorRay.Z), cursorPitch = MathF.Asin(cursorRay.Y);
+                Send(new InputEventMouseMotion { ScreenRelative = new(-Mathf.AngleDifference(cursorYaw, yaw) / .003f, -(pitch - cursorPitch) / .003f) });
                 await Frames(12);
             }
             Require(_arenas[1].AssistedCar == target, "Camera deliberately acquires rival " + target + " before the next shot");
