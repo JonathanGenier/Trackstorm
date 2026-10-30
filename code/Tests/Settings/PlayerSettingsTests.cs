@@ -8,6 +8,20 @@ namespace Trackstorm.Core.Tests.Settings;
 internal sealed class PlayerSettingsTests
 {
     [Test]
+    public void CrosshairScaleDefaultsClampsAndPersistsIndependently()
+    {
+        foreach (string json in new[] { "{}", "{\"crosshairSize\":null}", "{\"crosshairSize\":\"large\"}" })
+            Assert.That(PlayerSettingsJson.Deserialize(json).CrosshairSize, Is.EqualTo(1));
+        foreach (double value in new[] { -1d, .5, 1, 1.25, 3, 9, double.NaN, double.PositiveInfinity })
+        {
+            var settings = new PlayerSettings { CrosshairSize = value, CameraFov = 80 };
+            var restored = PlayerSettingsJson.Deserialize(PlayerSettingsJson.Serialize(settings));
+            Assert.That(restored.CrosshairSize, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, .5, 3) : 1));
+            Assert.That(restored.CameraFov, Is.EqualTo(80));
+        }
+    }
+
+    [Test]
     public void ApprovedDefaultsPreserveExplicitSavedPreferences()
     {
         foreach (var settings in new[] { new PlayerSettings(), PlayerSettingsJson.Deserialize("{}") })

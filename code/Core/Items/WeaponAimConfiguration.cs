@@ -8,7 +8,7 @@ public sealed record WeaponAimConfiguration
     /// <summary>Maximum upward elevation relative to the chassis.</summary>
     public float UpDegrees { get; init; } = 90;
     /// <summary>Maximum downward elevation, further restricted by chassis clearance.</summary>
-    public float DownDegrees { get; init; } = 40;
+    public float DownDegrees { get; init; } = 60;
     /// <summary>Near-target assistance cone in degrees; zero disables assistance.</summary>
     public float AssistDegrees { get; init; } = 5;
     /// <summary>Maximum mouse slowdown; fast deliberate motion bypasses it.</summary>

@@ -13,6 +13,8 @@ internal sealed partial class NetworkVehicleArena
     private ulong _aimTarget;
     private readonly MagneticAimCursor _magneticCursor = new();
     private Vector2 _cursorInput;
+    private Vector3 _drivingNormal = Vector3.Up;
+    private float? _drivingElevation;
     private ulong _aimTargetLife;
     private (ulong Life, ulong Token, ulong Selection) _aimCapability;
     private float _aimReleaseSeconds;
@@ -95,6 +97,8 @@ internal sealed partial class NetworkVehicleArena
 
     private void ResetAiming(string reason)
     {
+        _drivingNormal = Vector3.Up;
+        _drivingElevation = null;
         _driver.DesiredAim = null;
         _driver.DesiredAimTarget = _driver.DesiredAimTargetLife = 0;
         _camera.WeaponAiming = false;
@@ -162,17 +166,53 @@ internal sealed partial class NetworkVehicleArena
         // direction from the weapon pivot, including exactly vertical free aim.
         if (hit.Point == rayEnd) { desiredPoint = origin + _camera.ProjectRayNormal(center) * 300; }
         if (origin.DistanceSquaredTo(desiredPoint) > .001f) { _driver.DesiredAim = VehicleBody.ToCore((desiredPoint - origin).Normalized()); }
-        // Missile driving fire keeps its chassis-forward intent. Explicit camera
-        // input selects the same free/assisted solution as every direct-fire weapon.
-        if (slot.Active.Item == HeldItem.Missile && CameraInput?.CameraAimActive != true)
-        { _driver.DesiredAim = System.Numerics.Vector3.Transform(-System.Numerics.Vector3.UnitZ, local.ObservedPhysics.Orientation); }
+        // Road-relative intent removes suspension pitch from both the shot and its
+        // projected cursor. It is not target seeking and never bypasses host clearance.
+        if (CameraInput?.CameraAimActive != true)
+        {
+            Vector3 position = VehicleBody.ToGodot(local.ObservedPhysics.Position);
+            using var query = PhysicsRayQueryParameters3D.Create(position + Vector3.Up * 2, position - Vector3.Up * 5, 1);
+            using var support = GetWorld3D().DirectSpaceState.IntersectRay(query);
+            Vector3 normal = support.Count > 0 && support["normal"].AsVector3().Y >= .55f
+                ? support["normal"].AsVector3() : Vector3.Up;
+            _drivingNormal = _drivingNormal.Lerp(normal, 1 - MathF.Exp(-8 * Math.Max(0, delta))).Normalized();
+            Transform3D displayed = _bodies[local.VehicleId].VisualTransform;
+            Vector3 forward = -displayed.Basis.Z;
+            _driver.DesiredAim = DrivingWeaponAim.Direction(VehicleBody.ToCore(forward), VehicleBody.ToCore(_drivingNormal));
+            // The lens follows the interpolated body. Project from that same rendered
+            // muzzle frame, as projectile presentation does, rather than mixing a
+            // fixed-tick pivot with a render-time camera. Authority retains its own pose.
+            Vector3 forwardPoint = displayed * VehicleBody.ToGodot(WeaponAim.Pivot) + VehicleBody.ToGodot(_driver.DesiredAim.Value) * 60;
+            Vector3 viewPoint = _camera.ToLocal(forwardPoint);
+            float horizontalDistance = new Vector2(viewPoint.X, viewPoint.Z).Length();
+            float elevation = MathF.Atan2(viewPoint.Y, horizontalDistance);
+            _drivingElevation = _drivingElevation is float previous
+                ? Mathf.Lerp(previous, elevation, 1 - MathF.Exp(-6 * Math.Max(0, delta))) : elevation;
+            viewPoint.Y = MathF.Tan(_drivingElevation.Value) * horizontalDistance;
+            forwardPoint = _camera.ToGlobal(viewPoint);
+            // Stabilize the requested convergence point, not only the drawing. The
+            // authoritative ray and visible square consume this same moving point.
+            _driver.DesiredAim = VehicleBody.ToCore((forwardPoint - origin).Normalized());
+            if (!_camera.IsPositionBehind(forwardPoint)) { center = _camera.UnprojectPosition(forwardPoint); }
+        }
+        else { _drivingElevation = null; }
         var accepted = _driver.PresentedAim(slot);
         Rect2? bounds = null;
         if (framed is { } target)
         {
             bounds = ProjectAimBounds(target);
         }
-        _aimOverlay.Present(center, accepted?.Ready == true, bounds, StickyAiming && framed is not null);
+        _aimOverlay.SizeMultiplier = (float)(CameraSettings?.Current.CrosshairSize ?? 1);
+        bool ready = accepted?.Ready == true && _driver.WrenchReturning?.Invoke() != true;
+        ready &= slot.Active.Item switch
+        {
+            HeldItem.Missile => _driver.MissileReady?.Invoke(slot) != false,
+            HeldItem.EmpClaw => _driver.EmpClawReady?.Invoke(slot) != false &&
+                slot.Active.EmpClaw is { Remaining: > 0 } load && (_driver.Latest?.Tick ?? 0) >= load.ReadyTick,
+            HeldItem.Salvo => _driver.SalvoReady?.Invoke(slot) != false,
+            _ => true,
+        };
+        _aimOverlay.Present(center, ready, bounds, StickyAiming && framed is not null);
         if (StickyAiming && framed is not null)
         {
             bool grounded = _driver.Latest?.Vehicles.FirstOrDefault(v => v.State.VehicleId == framed.VehicleId)?.State.Movement.Grounded == true;

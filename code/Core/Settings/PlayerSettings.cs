@@ -24,6 +24,7 @@ public sealed record PlayerSettings
     private double _cameraFov = 70;
     private double _cameraHeight = .6;
     private double _cameraDownAngle = 5;
+    private double _crosshairSize = 1;
     private SpeedUnit _speedUnit;
     private int _windowWidth = 1280;
     private int _windowHeight = 720;
@@ -73,6 +74,9 @@ public sealed record PlayerSettings
     public double CameraHeight { get => _cameraHeight; init => _cameraHeight = double.IsFinite(value) ? Math.Clamp(value, .5, 3) : .6; }
     /// <summary>Local downward viewing angle in degrees [0,55]; default is the player-approved five-degree view.</summary>
     public double CameraDownAngle { get => _cameraDownAngle; init => _cameraDownAngle = double.IsFinite(value) ? Math.Clamp(value, 0, 55) : 5; }
+
+    /// <summary>Cosmetic square cursor scale in [0.5,3]; one preserves the original size.</summary>
+    public double CrosshairSize { get => _crosshairSize; init => _crosshairSize = double.IsFinite(value) ? Math.Clamp(value, .5, 3) : 1; }
 
     /// <summary>Whether to request fullscreen; defaults to a recoverable window.</summary>
     public bool Fullscreen { get; init; }

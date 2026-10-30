@@ -175,6 +175,8 @@ internal sealed partial class SettingsPanel : CanvasLayer
         _refreshPreferences.Add(() => units.Select((int)_settings.Current.SpeedUnit));
         units.ItemSelected += index => _settings.UpdateSettings(_settings.Current with { SpeedUnit = (SpeedUnit)index });
         Row(column, "Speed units", units);
+        ControllerSlider(column, "Crosshair Size", "CrosshairSize", () => _settings.Current.CrosshairSize, .5, 3, .05,
+            "Square cursor size. Default: 1. Changes appearance only.", value => _settings.Current with { CrosshairSize = value });
         column = Page(MenuPage.Camera);
         ControllerSlider(column, "Chase distance", "CameraDistance", () => _settings.Current.CameraDistance, 1.15, 1.5, .05,
             "Distance multiplier. 1.2 is the default close aiming view; higher gives more space.", value => _settings.Current with { CameraDistance = value });
