@@ -159,6 +159,12 @@ public sealed partial class WeaponAimChecks : Node
                 for (int i = 0; i < 4; i++) { await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); }
                 GetTree().Quit(); return;
             }
+            if (OS.GetCmdlineUserArgs().Contains("--aim-driving"))
+            {
+                await CheckDrivingFire();
+                GD.Print($"Weapon aiming integration passed: {_evidence.Count} driving checks.");
+                GetTree().Quit(); return;
+            }
             await CheckMachineGunFire();
             if (OS.GetCmdlineUserArgs().Contains("--aim-machine-gun"))
             {

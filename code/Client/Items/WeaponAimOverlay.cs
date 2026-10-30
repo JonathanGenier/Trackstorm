@@ -9,6 +9,7 @@ internal sealed partial class WeaponAimOverlay : Control
     private Rect2? _bounds;
     private bool _ready;
     private bool _targetMarked;
+    internal float SizeMultiplier { get; set; } = 1;
 
     internal Vector2? Marker => _marker;
     // Undrawn production-body reference. Decorative marker sizes never enter accuracy.
@@ -33,7 +34,7 @@ internal sealed partial class WeaponAimOverlay : Control
 
     public override void _Draw()
     {
-        float scale = Math.Max(.7f, GetViewportRect().Size.Y / 1080);
+        float scale = Math.Max(.7f, GetViewportRect().Size.Y / 1080) * SizeMultiplier;
         if (_marker is Vector2 marker)
         {
             var rect = new Rect2(marker - Vector2.One * (4 * scale), Vector2.One * (8 * scale));

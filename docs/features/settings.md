@@ -11,6 +11,7 @@ The Main Menu and joined Lobby each provide a **Settings** entry. The joined Lob
 | Master, Music, SFX | 100% each | Independent linear gains, clamped to 0â€“100%; zero mutes the corresponding bus. |
 | Display mode | Windowed | Fullscreen uses the desktop resolution. |
 | Window resolution | 1280 Ã— 720 | The editor offers common sizes fitting the current screen; runtime sizing also bounds the window to the usable screen. |
+| Crosshair Size | 1× | Gameplay slider 0.5–3× in 0.05 steps; square appearance only. Persists as crosshairSize; global reset restores 1×. |
 | Speed units | km/h | mph is a presentation conversion; simulation speeds remain metres per second. |
 | Camera shake | 100% | Camera page slider scales collision/damage camera feedback from 0â€“100%; zero disables it immediately. Follow, heading and inertia are unchanged. |
 | Chase distance | 1.2× | Camera slider 1.15–1.5× gives a 7.36–9.6 m chase view. Older saved values below the minimum clamp to 1.15. Live edits blend smoothly. |
@@ -42,7 +43,7 @@ The control editor replaces keyboard/mouse bindings when a key or mouse button i
 
 ## Ownership and Persistence
 
-The **Camera** page contains framing and shared look controls; controller-only **Camera Sensitivity** lives under **Controls**. Gameplay retains speed units; Controls retains driving/air gains, deadzone and bindings. Existing distance, inertia, pullback, shake, armed mouse sensitivity and armed stick curve retain their saved keys. Controls - Camera Sensitivity uses the existing stick-aim field without another preference or persistence path. New optional version-one fields are `horizontalLookSensitivity`, `verticalLookSensitivity`, `invertY`, `cameraRecenterSpeed`, `cameraFov` and `cameraHeight`. Missing, invalid or nonfinite fields default independently; finite numeric values clamp to the supported ranges above. Old files retain their preferences and new fields preserve accepted default behavior. The legacy armed-only mouse multiplier/curve remain available on Camera; axis gains and controller camera sensitivity apply to both views.
+The **Camera** page contains framing and shared look controls; controller-only **Camera Sensitivity** lives under **Controls**. Gameplay contains speed units and Crosshair Size; Controls retains driving/air gains, deadzone and bindings. Existing distance, inertia, pullback, shake, armed mouse sensitivity and armed stick curve retain their saved keys. Controls - Camera Sensitivity uses the existing stick-aim field without another preference or persistence path. New optional version-one fields are `horizontalLookSensitivity`, `verticalLookSensitivity`, `invertY`, `cameraRecenterSpeed`, `cameraFov` and `cameraHeight`. Missing, invalid or nonfinite fields default independently; finite numeric values clamp to the supported ranges above. Old files retain their preferences and new fields preserve accepted default behavior. The legacy armed-only mouse multiplier/curve remain available on Camera; axis gains and controller camera sensitivity apply to both views.
 
 The optional version-one `tireEffects` object stores the allowlisted local
 [tire-effect Configs controls](terrain-effects.md#local-configs-tuning). Missing

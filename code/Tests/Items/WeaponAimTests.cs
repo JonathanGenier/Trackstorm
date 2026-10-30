@@ -8,6 +8,24 @@ namespace Trackstorm.Core.Tests.Items;
 [TestFixture]
 internal sealed class WeaponAimTests
 {
+    [Test]
+    public void DownwardArticulationUsesSupportedRangeWithoutBypassingBodySafety()
+    {
+        var state = Create().World.GetVehicle(1);
+        var direction = WeaponAim.Direction(MathF.PI, -MathF.PI / 3);
+        WeaponAimSolution? arc = null, direct = null;
+        for (ulong tick = 1; tick <= 90; tick++)
+        {
+            arc = WeaponAim.Solve(state, 1, direction, arc, new(), tick, arcing: true);
+            direct = WeaponAim.Solve(state, 1, direction, direct, new(), tick);
+        }
+        Assert.That(arc!.Pitch, Is.EqualTo(-MathF.PI / 3).Within(.0001));
+        Assert.That(arc.Clear, Is.True);
+        Assert.That(direct!.Clear, Is.False);
+        Assert.That(WeaponAim.IntersectsBody(WeaponAim.Pivot, WeaponAim.Direction(direct.Yaw, direct.Pitch)), Is.False);
+        Assert.That(ItemCodec.DecodeAims(ItemCodec.EncodeAims(99, 90, 0, [arc])).Aims.Single(), Is.EqualTo(arc));
+    }
+
     [TestCase(0)]
     [TestCase(90)]
     [TestCase(180)]

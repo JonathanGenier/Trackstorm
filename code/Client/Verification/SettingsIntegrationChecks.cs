@@ -118,6 +118,7 @@ public sealed partial class SettingsIntegrationChecks : Node
             CameraFov = 87,
             CameraHeight = 2.3,
             CameraDownAngle = 42,
+            CrosshairSize = 1.75,
             Fullscreen = true,
             WindowWidth = 960,
             WindowHeight = 540,
@@ -141,6 +142,7 @@ public sealed partial class SettingsIntegrationChecks : Node
 
     private void VerifyRestart()
     {
+        Check(_settings.Current.CrosshairSize == 1.75, "Crosshair size survives separate-process restart");
         PlayerSettings settings = _settings.Current;
         Check(Math.Abs(_player.Adapter.SteeringSensitivity - 2.3f) < 0.001f && Math.Abs(_player.Adapter.AerialSensitivity - 0.4f) < 0.001f, "independent controller settings survive process restart and apply");
         Check(Math.Abs(_player.Adapter.KeyboardSteeringSensitivity - 0.3f) < 0.001f && Math.Abs(_player.Adapter.KeyboardAerialSensitivity - 0.6f) < 0.001f, "keyboard/mouse settings independently survive restart and apply");
@@ -260,7 +262,9 @@ public sealed partial class SettingsIntegrationChecks : Node
 
         Press(panel, "Back");
         Press(panel, "Gameplay");
-        Check(!Descendants(panel).OfType<HSlider>().Any(control => control.IsVisibleInTree()), "Gameplay contains no camera sliders");
+        var crosshair = Descendants(panel).OfType<HSlider>().Single(control => control.Name == "CrosshairSize" && control.IsVisibleInTree());
+        crosshair.Value = 2;
+        Check(_settings.Current.CrosshairSize == 2, "Gameplay crosshair size applies immediately");
         Press(panel, "Back");
         var beforeReset = _settings.Current;
         Press(panel, "Reset User Settings");
@@ -272,7 +276,7 @@ public sealed partial class SettingsIntegrationChecks : Node
             Check(resetImage.SavePng(path + ".reset.png") == Error.Ok, "Reset confirmation capture saved");
         Press(panel, "Reset");
         var resetSaved = new PlayerSettingsStore(path).Load();
-        Check(resetSaved.CameraDownAngle == 5 && resetSaved.CameraFov == 70 && resetSaved.CameraDistance == 1.2 && resetSaved.CameraHeight == .6 && resetSaved.StickAimSensitivity == 1.25 && resetSaved.MasterVolume == 1 && !resetSaved.InvertY,
+        Check(resetSaved.CrosshairSize == 1 && resetSaved.CameraDownAngle == 5 && resetSaved.CameraFov == 70 && resetSaved.CameraDistance == 1.2 && resetSaved.CameraHeight == .6 && resetSaved.StickAimSensitivity == 1.25 && resetSaved.MasterVolume == 1 && !resetSaved.InvertY,
             "Confirmed reset applies and persists established player defaults");
         Check(resetSaved.TireEffects.Values.OrderBy(pair => pair.Key).SequenceEqual(beforeReset.TireEffects.Values.OrderBy(pair => pair.Key)), "Reset preserves developer tuning");
         Press(panel, "Camera");

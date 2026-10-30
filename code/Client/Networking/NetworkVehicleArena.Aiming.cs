@@ -162,17 +162,31 @@ internal sealed partial class NetworkVehicleArena
         // direction from the weapon pivot, including exactly vertical free aim.
         if (hit.Point == rayEnd) { desiredPoint = origin + _camera.ProjectRayNormal(center) * 300; }
         if (origin.DistanceSquaredTo(desiredPoint) > .001f) { _driver.DesiredAim = VehicleBody.ToCore((desiredPoint - origin).Normalized()); }
-        // Missile driving fire keeps its chassis-forward intent. Explicit camera
-        // input selects the same free/assisted solution as every direct-fire weapon.
-        if (slot.Active.Item == HeldItem.Missile && CameraInput?.CameraAimActive != true)
-        { _driver.DesiredAim = System.Numerics.Vector3.Transform(-System.Numerics.Vector3.UnitZ, local.ObservedPhysics.Orientation); }
+        // Ordinary driving uses the chassis line for every articulated weapon.
+        // Project that line into the view instead of aiming down the chase-camera ray.
+        if (CameraInput?.CameraAimActive != true)
+        {
+            _driver.DesiredAim = System.Numerics.Vector3.Transform(-System.Numerics.Vector3.UnitZ, local.ObservedPhysics.Orientation);
+            Vector3 forwardPoint = origin + VehicleBody.ToGodot(_driver.DesiredAim.Value) * 300;
+            if (!_camera.IsPositionBehind(forwardPoint)) { center = _camera.UnprojectPosition(forwardPoint); }
+        }
         var accepted = _driver.PresentedAim(slot);
         Rect2? bounds = null;
         if (framed is { } target)
         {
             bounds = ProjectAimBounds(target);
         }
-        _aimOverlay.Present(center, accepted?.Ready == true, bounds, StickyAiming && framed is not null);
+        _aimOverlay.SizeMultiplier = (float)(CameraSettings?.Current.CrosshairSize ?? 1);
+        bool ready = accepted?.Ready == true && _driver.WrenchReturning?.Invoke() != true;
+        ready &= slot.Active.Item switch
+        {
+            HeldItem.Missile => _driver.MissileReady?.Invoke(slot) != false,
+            HeldItem.EmpClaw => _driver.EmpClawReady?.Invoke(slot) != false &&
+                slot.Active.EmpClaw is { Remaining: > 0 } load && (_driver.Latest?.Tick ?? 0) >= load.ReadyTick,
+            HeldItem.Salvo => _driver.SalvoReady?.Invoke(slot) != false,
+            _ => true,
+        };
+        _aimOverlay.Present(center, ready, bounds, StickyAiming && framed is not null);
         if (StickyAiming && framed is not null)
         {
             bool grounded = _driver.Latest?.Vehicles.FirstOrDefault(v => v.State.VehicleId == framed.VehicleId)?.State.Movement.Grounded == true;
