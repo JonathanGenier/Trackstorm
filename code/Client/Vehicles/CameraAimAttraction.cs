@@ -9,8 +9,8 @@ internal static class CameraAimAttraction
     // smaller direction guard. A roughly 30-pixel sweep still releases promptly.
     internal const float ReleaseGesture = .085f;
 
-    internal static float AcquisitionMargin(float apparentRadius, float cone) =>
-        cone * (.5f + .5f * Math.Clamp(1 - apparentRadius / Math.Max(.0001f, cone * .5f), 0, 1));
+    internal static float AcquisitionMargin(float apparentRadius, float cone, bool controller = false) =>
+        cone * (.5f + .5f * Math.Clamp(1 - apparentRadius / Math.Max(.0001f, cone * .5f), 0, 1)) * (controller ? 1.6f : 1);
 
     internal static Vector2 Motion(Vector2 previous, Vector2 current, float delta)
     {

@@ -16,6 +16,8 @@ internal sealed partial class NetworkVehicleArena
     private ulong _aimTargetLife;
     private (ulong Life, ulong Token, ulong Selection) _aimCapability;
     private float _aimReleaseSeconds;
+    private float _controllerCapabilityHold;
+    private ulong _controllerResumeTarget;
     private bool _aimController;
     private ulong _aimDismissed;
     private ulong _aimDismissedLife;
@@ -69,7 +71,17 @@ internal sealed partial class NetworkVehicleArena
         // local assisted target; it does not simulate a player selection change.
         if (current.Active.SalvoCommitted && _aimCapability.Life == current.Life && _aimCapability.Selection == current.SelectionRevision)
         { capability = (current.Life, _aimCapability.Token, current.SelectionRevision); }
-        if (_aimCapability != capability) { ReleaseAim("capability changed"); _aimDismissed = 0; _aimReleaseSeconds = 0; _aimCapability = capability; }
+        if (_aimCapability != capability)
+        {
+            // A shot can rotate its capability token without a player selection.
+            // Preserve only controller framing briefly while fresh accepted aim
+            // arrives; target eligibility and firing authority still reset normally.
+            if (_aimController && _aimTarget != 0 && _aimCapability.Life == current.Life &&
+                _aimCapability.Selection == current.SelectionRevision)
+            { _controllerCapabilityHold = .25f; _controllerResumeTarget = _aimTarget; }
+            else { _controllerCapabilityHold = 0; _controllerResumeTarget = 0; }
+            ReleaseAim("capability changed"); _aimDismissed = 0; _aimReleaseSeconds = 0; _aimCapability = capability;
+        }
         if (CameraInput is { } input && (_aimIntentRevision != input.CameraAimRevision || !input.CameraAimActive))
         {
             ResetAssistance($"input boundary revision={_aimIntentRevision}->{input.CameraAimRevision} active={input.CameraAimActive}");
@@ -96,6 +108,8 @@ internal sealed partial class NetworkVehicleArena
         _aimTargetLife = 0;
         _aimReleaseSeconds = 0;
         _aimController = false;
+        _controllerCapabilityHold = 0;
+        _controllerResumeTarget = 0;
         _aimDismissed = 0;
         _aimDismissedDirection = default;
         _magneticCursor.Reset();
@@ -133,6 +147,7 @@ internal sealed partial class NetworkVehicleArena
                 _aimRecoverySeconds = 0;
                 Vector2 bearing = AimBearing(_camera.GlobalBasis.Inverse() * (AimBodyCenter(acquired) - lens));
                 _magneticCursor.Begin(new(bearing.X, bearing.Y));
+                _controllerResumeTarget = 0;
                 ValidateStickyTarget();
             }
         }
@@ -229,7 +244,7 @@ internal sealed partial class NetworkVehicleArena
     private float AcquisitionMargin(Rect2 frame, float cone)
     {
         float apparentSize = _camera.ProjectRayNormal(frame.Position).AngleTo(_camera.ProjectRayNormal(frame.End)) * .5f;
-        return CameraAimAttraction.AcquisitionMargin(apparentSize, cone);
+        return CameraAimAttraction.AcquisitionMargin(apparentSize, cone, _aimController);
     }
 
     private NetworkVehicleBody? FindAcquisition(Vector3 lens)
@@ -241,6 +256,10 @@ internal sealed partial class NetworkVehicleArena
         foreach (var pair in _bodies)
         {
             var state = _driver.Latest?.Vehicles.FirstOrDefault(v => v.State.VehicleId == pair.Key)?.State;
+            // A neutral stick must not switch rivals just because a shot rotated
+            // its token. Fresh directional input immediately removes this preference.
+            if (_controllerCapabilityHold > 0 && _controllerResumeTarget != 0 &&
+                (pair.Key != _controllerResumeTarget || state?.LifeId != _aimTargetLife)) { continue; }
             Vector3 point = AimBodyCenter(pair.Value), to = point - lens;
             if (pair.Key == _driver.LocalVehicleId || state is not { CanInteract: true } || !pair.Value.IsPresented ||
                 !WithinAimReach(point, lens) || _camera.IsPositionBehind(point) ||
@@ -300,9 +319,10 @@ internal sealed partial class NetworkVehicleArena
     private (Vector2 Pull, bool Engaged) AimAttraction(Vector2 mouse, Vector2 stick, Vector2 lookInput, float delta)
     {
         _aimReleaseSeconds = Math.Max(0, _aimReleaseSeconds - delta);
+        _controllerCapabilityHold = Math.Max(0, _controllerCapabilityHold - delta);
         if (!StickyAiming || CameraInput?.CameraAimActive != true || _driver.Configuration.Configuration.Items.Aim.AssistDegrees <= 0) { return (Vector2.Zero, false); }
-        if (stick.LengthSquared() > .001f) { _aimController = true; }
-        if (mouse.LengthSquared() > .001f) { _aimController = false; }
+        if (stick.LengthSquared() > .001f) { _aimController = true; _controllerResumeTarget = 0; }
+        if (mouse.LengthSquared() > .001f) { _aimController = false; _controllerCapabilityHold = 0; _controllerResumeTarget = 0; }
         _aimGesture = CameraAimAttraction.Gesture(_aimGesture, new(mouse.X, mouse.Y), new(stick.X, stick.Y), delta);
         if (_aimTarget == 0)
         {
@@ -316,7 +336,7 @@ internal sealed partial class NetworkVehicleArena
                 // reversal. Require actual input reversal before rearming nearby.
                 if (lookInput.Dot(_aimDismissedDirection) < 0 && lookInput.Dot(toward) > 0) { _aimDismissed = 0; }
             }
-            return (Vector2.Zero, false);
+            return (Vector2.Zero, _aimController && _controllerCapabilityHold > 0);
         }
         // Intent retains a physical-input floor so a low sensitivity preference
         // cannot make a deliberate sweep or full-stick release inescapable.
@@ -362,7 +382,9 @@ internal sealed partial class NetworkVehicleArena
             _aimDismissedLife = _aimTargetLife;
             _aimDismissedDirection = _cursorInput.Normalized();
             ReleaseAim("deliberate magnetic cursor departure");
-            _aimReleaseSeconds = .18f;
+            // The dismissed identity remains excluded; adjacent controller targets
+            // need not wait through the longer mouse re-acquisition pause.
+            _aimReleaseSeconds = _aimController ? .06f : .18f;
         }
         _cursorInput = default;
     }

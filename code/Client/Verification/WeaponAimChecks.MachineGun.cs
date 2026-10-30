@@ -69,6 +69,7 @@ public sealed partial class WeaponAimChecks
             for (int peer = 0; peer < _arenas.Count; peer++)
             {
                 var fire = _arenas[peer].GetChildren().OfType<Items.ItemPresentation>().Single().MachineGunFire;
+                GD.Print($"MG_BARRELS {scenario.Name} peer={peer} left={fire.EmittedFromBarrel(0) - barrelCounts[peer][0]} right={fire.EmittedFromBarrel(1) - barrelCounts[peer][1]} rays={rays - before} hits={hits - beforeHits} dropped={fire.DroppedCount} ready={host.Items.Aims.Single(a => a.Vehicle == Shooter).Ready}");
                 Require(fire.EmittedFromBarrel(0) > barrelCounts[peer][0] && fire.EmittedFromBarrel(1) > barrelCounts[peer][1],
                     $"Both real Machine Gun barrels present on peer {peer} during {scenario.Name}");
                 Require(fire.EmittedCount > fireCounts[peer] && fire.ActiveCount <= Items.MachineGunFirePresentation.Capacity,

@@ -239,14 +239,17 @@ public sealed partial class WeaponAimChecks : Node
                 "Neutral stick restores the original chase view with a weapon selected");
             Position(new(0, Ground, 35), new(0, Ground, 25), new(7, Ground, 25));
             Camera.ResetFollow(); await Frames(20);
-            await AimAtCurrent(() => _arenas[1].Bodies[1].VisualPosition + Vector3.Up * .9f);
+            // This measures retained body bounds, not deliberate roof placement.
+            // Repeatedly steering above the magnetic reference can correctly break
+            // retention; that behavior has its own departure/placement checks.
+            await AimAtCurrent(() => _arenas[1].Bodies[1].VisualTransform * new Vector3(0, .3f, 0));
             await Frames(30); await Capture("06-close-brackets");
             LogTargetGeometry("close", 1);
             Require(_arenas[1].AimOverlay.Bounds is { } closeBounds && closeBounds.HasPoint(_arenas[1].AimOverlay.Marker ?? ViewCenter),
                 "Directly intersected close car receives brackets alongside the persistent square");
             Position(new(0, Ground, 35), new(-3.7f, Ground, 35), new(7, Ground, 25));
             Camera.ResetFollow(); await Frames(20);
-            await AimAtCurrent(() => _arenas[1].Bodies[1].VisualPosition + Vector3.Up * .9f);
+            await AimAtCurrent(() => _arenas[1].Bodies[1].VisualTransform * new Vector3(0, .3f, 0));
             await Frames(35); await Capture("06b-alongside-brackets");
             LogTargetGeometry("alongside", 1);
             GD.Print($"ALONGSIDE target={_arenas[1].AssistedCar} {_arenas[1].AimTargetDiagnostics(1)}");

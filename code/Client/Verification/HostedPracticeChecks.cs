@@ -61,6 +61,17 @@ public sealed partial class HostedPracticeChecks : Node
                 GetTree().Quit(); return;
             }
             await Frames(600);
+            if (OS.GetCmdlineUserArgs().Contains("--controller-emp"))
+            {
+                await CheckControllerEmp(host, remote, cars);
+                foreach (var session in _sessions) { session.Leave(); }
+                await Until(() => _sessions.All(session => session.LeaveComplete), "clean departure after controller EMP");
+                _done = true;
+                foreach (var session in _sessions) { session.GetParent().QueueFree(); }
+                await Frames(4);
+                GD.Print("Hosted controller EMP passed: repeated tabletop three-car acquisition, switching, actual shots and deliberate release; SCRIPTED input, not physical-controller evidence.");
+                GetTree().Quit(); return;
+            }
             if (OS.GetCmdlineUserArgs().Contains("--missile-aim"))
             {
                 await CheckMissilePracticePair(host, remote, cars);

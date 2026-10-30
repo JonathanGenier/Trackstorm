@@ -43,6 +43,40 @@ internal sealed class MagneticAimCursorTests
     }
 
     [Test]
+    public void ControllerAcquisitionReachesDistantMissesOutsideUnchangedMouseEnvelope()
+    {
+        float cone = MathF.PI / 36;
+        foreach (float radius in new[] { 0f, .01f, .1f })
+        {
+            float mouse = CameraAimAttraction.AcquisitionMargin(radius, cone);
+            Assert.That(CameraAimAttraction.AcquisitionMargin(radius, cone, false), Is.EqualTo(mouse));
+            Assert.That(CameraAimAttraction.AcquisitionMargin(radius, cone, true), Is.GreaterThan(mouse));
+        }
+        Assert.That(CameraAimAttraction.AcquisitionMargin(.01f, cone, true), Is.GreaterThan(MathF.PI / 30));
+        Assert.That(CameraAimAttraction.AcquisitionMargin(.01f, 0, true), Is.Zero);
+    }
+
+    [TestCase(30)]
+    [TestCase(60)]
+    [TestCase(144)]
+    public void ModerateStickCanPassThroughAcquisitionTowardAnotherTarget(int fps)
+    {
+        var cursor = new MagneticAimCursor();
+        cursor.Begin(new(.12f, 0));
+        float dt = 1f / fps;
+        float maximumStep = 0;
+        for (int i = 0; i < fps && !cursor.Released; i++)
+        {
+            var before = cursor.Offset;
+            cursor.Advance(new(.12f, 0), new(.15f * dt, 0), true, 24, dt);
+            maximumStep = Math.Max(maximumStep, Vector2.Distance(before, cursor.Offset));
+        }
+        Assert.That(cursor.Released, Is.True, "Approach must not indefinitely cancel directional switch intent");
+        Assert.That(maximumStep, Is.LessThanOrEqualTo(MathF.PI / 5 * dt + .00001f));
+        Assert.That(cursor.Retention, Is.Zero);
+    }
+
+    [Test]
     public void DisabledPullAndResetNeverManufactureAnAimCorrection()
     {
         var cursor = new MagneticAimCursor();

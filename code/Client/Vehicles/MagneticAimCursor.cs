@@ -22,17 +22,20 @@ internal sealed class MagneticAimCursor
         _age += delta;
         // Opposing nudges cancel. Sustained directional travel progressively removes
         // resistance, even at low sensitivity; a reversal must earn a new gesture.
-        if (Vector2.Dot(input, _previousTarget - Offset) > 0 && (_previousTarget - Offset).Length() > .005f)
+        // Stick velocity must eventually release even while moving toward a car
+        // that shares the direction of the next target. Only initial acquisition
+        // gets approach grace; the human-approved mouse classifier is unchanged.
+        if ((!controller || _age < .18f) && Vector2.Dot(input, _previousTarget - Offset) > 0 && (_previousTarget - Offset).Length() > .005f)
             _intent *= MathF.Exp(-20 * delta);
         else
         {
             if (Vector2.Dot(input, _intent) < 0) _intent *= MathF.Exp(-20 * delta);
             _intent += input;
         }
-        float threshold = controller ? .065f : .05f;
+        float threshold = controller ? .045f : .05f;
         float release = Math.Clamp((_intent.Length() - .008f) / threshold, 0, 1);
         release = release * release * (3 - 2 * release);
-        Retention = (1 - MathF.Exp(-_age * (controller ? 10 : 8))) * (1 - release);
+        Retention = (1 - MathF.Exp(-_age * (controller ? 12 : 8))) * (1 - release);
         Vector2 motion = new(MathF.IEEERemainder(target.X - _previousTarget.X, MathF.Tau), target.Y - _previousTarget.Y);
         _previousTarget = target;
         if (strength > 0)
@@ -40,7 +43,7 @@ internal sealed class MagneticAimCursor
             // Camera-relative target movement includes camera input. Following only
             // the retained portion absorbs noise while deliberate input wins smoothly.
             Offset += motion * Retention;
-            Offset += CameraAimAttraction.Pull(target - Offset, strength * Retention, delta);
+            Offset += CameraAimAttraction.Pull(target - Offset, strength * (controller ? 1.5f : 1) * Retention, delta);
         }
         Released = release >= 1;
     }
