@@ -175,6 +175,7 @@ public sealed partial class InputIntegrationChecks : Node
     {
         foreach (InputAction action in Enum.GetValues<InputAction>())
         {
+            if (action >= InputAction.FreeCamera) { continue; } // Contextual photo actions are exercised by CameraIntegrationChecks.
             if (action >= InputAction.AirPitchDown && action <= InputAction.AirRollRight) { continue; } // Contextual aerial mappings are exercised together below.
             var bindings = InputMap.ActionGetEvents(PlayerInputBindings.Name(action));
             Check(bindings.Count == ((action >= InputAction.CameraLeft && action <= InputAction.CameraDown) ? 1 : 2), $"{action} has keyboard and gamepad defaults");

@@ -3,7 +3,7 @@ using Trackstorm.Core.Input;
 namespace Trackstorm.Client.Input;
 
 /// <summary>Converts physical binding strengths to conditioned Core frames. Call Observe after events and Capture once per tick.</summary>
-internal sealed class PlayerInputAdapter
+internal sealed partial class PlayerInputAdapter
 {
     private static readonly (InputAction Action, InputButtons Button)[] DigitalActions =
     [
@@ -56,7 +56,7 @@ internal sealed class PlayerInputAdapter
     public float CaptureInterval { get; set; } = 1f / 60;
 
     /// <summary>Local remappable camera intent; camera behavior is owned by presentation.</summary>
-    public Godot.Vector2 CameraIntent => Enabled && !GameplaySuppressed && !DiagnosticSuppressed ? new(Bindings.Strength(InputAction.CameraRight, Math.Max(0.15f, DeadZone)) - Bindings.Strength(InputAction.CameraLeft, Math.Max(0.15f, DeadZone)), Bindings.Strength(InputAction.CameraDown, Math.Max(0.15f, DeadZone)) - Bindings.Strength(InputAction.CameraUp, Math.Max(0.15f, DeadZone))) : Godot.Vector2.Zero;
+    public Godot.Vector2 CameraIntent => (FreeCameraActive || !_resumeNeedsRelease) && Enabled && !GameplaySuppressed && !DiagnosticSuppressed ? new(Bindings.Strength(InputAction.CameraRight, Math.Max(0.15f, DeadZone)) - Bindings.Strength(InputAction.CameraLeft, Math.Max(0.15f, DeadZone)), Bindings.Strength(InputAction.CameraDown, Math.Max(0.15f, DeadZone)) - Bindings.Strength(InputAction.CameraUp, Math.Max(0.15f, DeadZone))) : Godot.Vector2.Zero;
 
     /// <summary>Runtime remapping entry point.</summary>
     public PlayerInputBindings Bindings { get; }
@@ -148,17 +148,23 @@ internal sealed class PlayerInputAdapter
     internal bool CameraAvailable
     {
         get => _cameraAvailable;
-        set { _cameraAvailable = value; if (!value) { ResetCameraEngagement(); } }
+        set { _cameraAvailable = value; if (!value) { EndFreeCamera(); ResetCameraEngagement(); } }
     }
     internal bool CameraEnabled => CameraAvailable && Enabled && !GameplaySuppressed && !DiagnosticSuppressed;
     internal bool MouseLookHeld => CameraEnabled && _mouseAimHeld && Godot.Input.IsMouseButtonPressed(Godot.MouseButton.Right);
     // Mouse intent is held, while the existing remappable camera axis initiates controller
     // engagement. Neither firing nor driving input grants aiming intent.
-    internal bool CameraAimActive => CameraEnabled && (MouseLookHeld || _controllerAiming);
+    internal bool CameraAimActive => !FreeCameraActive && !_resumeNeedsRelease && CameraEnabled && (MouseLookHeld || _controllerAiming);
     internal ulong CameraAimRevision { get; private set; }
 
     internal void ObserveCamera(Godot.InputEvent input)
     {
+        if (FreeCameraActive)
+        {
+            if (CameraEnabled && input is Godot.InputEventMouseMotion freeMotion) _cameraMotion += freeMotion.ScreenRelative;
+            return;
+        }
+        if (_resumeNeedsRelease) return;
         if (input is Godot.InputEventMouseButton { ButtonIndex: Godot.MouseButton.Right } button)
         {
             if (_mouseAimHeld != button.Pressed || _controllerAiming) { CameraAimRevision++; }
@@ -194,8 +200,9 @@ internal sealed class PlayerInputAdapter
     /// <summary>Samples aggregate digital state; preserves press/release transitions until capture.</summary>
     public void Observe()
     {
+        ObserveFreeCamera();
         InputButtons held = InputButtons.None;
-        if (!Enabled || GameplaySuppressed || DiagnosticSuppressed)
+        if (!Enabled || GameplaySuppressed || DiagnosticSuppressed || FreeCameraActive || _resumeNeedsRelease)
         {
             _itemNeedsRelease = true;
             _switchNeedsRelease = true;
@@ -206,6 +213,7 @@ internal sealed class PlayerInputAdapter
         {
             foreach ((InputAction action, InputButtons button) in DigitalActions)
             {
+                if ((FreeCameraActive || _resumeNeedsRelease) && action is not (InputAction.Leaderboard or InputAction.Pause or InputAction.MenuCancel)) continue;
                 float strength = Bindings.Strength(action, DeadZone);
                 if (action == InputAction.DiscardItem)
                 {
@@ -242,7 +250,7 @@ internal sealed class PlayerInputAdapter
     public InputFrame Capture(ulong tick)
     {
         Observe();
-        bool active = Enabled && !GameplaySuppressed && !DiagnosticSuppressed;
+        bool active = Enabled && !GameplaySuppressed && !DiagnosticSuppressed && !FreeCameraActive && !_resumeNeedsRelease && !_photoBoundary;
         if (!active)
         {
             _throttle = _brake = _steering = 0;
@@ -285,7 +293,8 @@ internal sealed class PlayerInputAdapter
                 frame.Held, frame.Pressed & ~InputButtons.SwitchItem, frame.Released,
                 frame.AirPitch, frame.AirYaw, frame.AirRoll);
         }
-        return active ? frame : new InputFrame(tick, 0, 0, 0, InputButtons.None, InputButtons.None, frame.Released);
+        _photoBoundary = false;
+        return active ? frame : new InputFrame(tick, 0, 0, 0, frame.Held & (InputButtons.Leaderboard | InputButtons.Pause | InputButtons.MenuCancel), frame.Pressed & (InputButtons.Leaderboard | InputButtons.Pause | InputButtons.MenuCancel), frame.Released);
     }
 
     private short AirAxis(InputAction positive, InputAction negative, bool active, bool yaw = false, bool roll = false)
@@ -311,6 +320,7 @@ internal sealed class PlayerInputAdapter
         if (state != value)
         {
             state = value;
+            EndFreeCamera();
             ResetCameraMotion();
             ResetCameraEngagement();
             ControlStateChanged?.Invoke();

@@ -132,6 +132,14 @@ public sealed partial class WeaponAimChecks : Node
                 for (int i = 0; i < 4; i++) { await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); }
                 GetTree().Quit(); return;
             }
+            if (OS.GetCmdlineUserArgs().Contains("--photo-camera"))
+            {
+                await CheckPhotoCamera();
+                GD.Print($"Weapon aiming integration passed: {_evidence.Count} photo camera checks.");
+                foreach (var arena in _arenas) arena.QueueFree();
+                for (int i = 0; i < 4; i++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                GetTree().Quit(); return;
+            }
             if (OS.GetCmdlineUserArgs().Contains("--aim-missile"))
             {
                 await CheckMissileAim();

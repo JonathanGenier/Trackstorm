@@ -233,7 +233,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _countdown.Refresh(_driver.Match, _driver.Latest?.Tick ?? 0, _driver.EntryReady && _driver.IsActive, delta);
         _environment.Apply(_driver.Configuration.Configuration.Environment);
         _salvoMarker.Refresh(delta, _driver.LocalState, _driver.LocalItem, _driver.ItemState,
-            _driver.Configuration.Configuration.Items, _driver.IsActive && (!ApplicationEntry || _driver.EntryReady) &&
+            _driver.Configuration.Configuration.Items, CameraInput?.FreeCameraActive != true && _driver.IsActive && (!ApplicationEntry || _driver.EntryReady) &&
             _driver.Match?.Phase is not (Core.Matches.MatchPhase.Finished or Core.Matches.MatchPhase.Waiting or Core.Matches.MatchPhase.Countdown), SalvoGround,
             _driver.PresentedAim(_driver.LocalItem),
             (from, to) => RaycastWeapon(_driver.LocalVehicleId, from, to), CameraInput?.CameraAimActive == true);
@@ -389,6 +389,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
     /// <param name="input">Immediately captured local logical input.</param>
     internal void Advance(InputFrame input)
     {
+        if (CameraInput?.FreeCameraActive == true) ResetAiming();
         // The held input bit travels with ordinary ordered/redundant vehicle input.
         // It changes Salvo reach only; the separate accepted direction still owns aim.
         var aimHeld = CameraInput?.CameraAimActive == true && _driver.LocalItem?.Active.Item == HeldItem.Salvo

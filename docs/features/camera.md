@@ -103,3 +103,9 @@ Synthetic inputs and sampled recordings do not establish prolonged human driving
 [Feature index](README.md)
 
 Final lens clearance includes the followed chassis. If contact separation remains trapped between an overturned car and ground, the solver tests up to eight upward positions, two lens radii apart, accepting only a clear world/chassis volume. This safety fallback does not alter unobstructed configured framing.
+
+## Cinematic free camera
+
+C or D-pad Up toggles the existing local chase camera into free translation during gameplay. D-pad Up remains menu navigation while an overlay owns input; Tab and Select/View retain leaderboard behavior. WASD/left stick translates, mouse/right stick looks, and E/Q or right/left triggers moves vertically in world space. Shift/RB selects 40 m/s travel, Ctrl/LB selects 0.6 m/s detail movement, and normal speed is 6 m/s. Translation eases at 18/s; moving forward/backward provides close or wide framing without changing saved FOV. Axis gains and invert-Y reuse Camera preferences. The free lens has a 2.5 cm near plane and intentionally permits travel through scenery for photo placement.
+
+The same camera node retains its entry pose, with no chassis following, shake, speed streaks or targeting during free movement. Gameplay frames retain leaderboard/pause access while movement and weapons are neutral. Existing authority continues simulation: the car may coast, collide, take damage or respawn. Focus loss, menu/diagnostic suppression, arena teardown, recovery and life changes exit free camera. Exit resets chase memory and restores configured framing and the original near plane. Held movement/fire/look controls must return to neutral before gameplay resumes; queued weapon presses cannot cross the photo boundary.

@@ -65,7 +65,7 @@ internal sealed partial class NetworkVehicleArena
     private void PrepareAiming()
     {
         bool enabled = _driver.IsActive && _driver.AllowsParticipation && _driver.LocalState is { CanInteract: true } &&
-            _driver.LocalItem is { } slot && WeaponAim.SupportsArticulation(slot.Active.Item) && CameraInput?.CameraEnabled == true;
+            _driver.LocalItem is { } slot && WeaponAim.SupportsArticulation(slot.Active.Item) && CameraInput is { CameraEnabled: true, FreeCameraActive: false };
         _camera.WeaponAiming = enabled;
         if (!enabled) { ResetAiming(); return; }
         var current = _driver.LocalItem!;

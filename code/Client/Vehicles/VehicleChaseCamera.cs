@@ -98,6 +98,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
     /// <summary>Clears presentation memory at a restored/reassigned display boundary, even for the same life.</summary>
     internal void ResetFollow()
     {
+        ResetFreeCamera();
         AimReset?.Invoke();
         _initialized = false;
         _aimHeadingWeight = 0;
@@ -123,7 +124,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
     }
 
     /// <inheritdoc/>
-    public override void _ExitTree() => _obstruction.Dispose();
+    public override void _ExitTree() { ResetFreeCamera(); _obstruction.Dispose(); }
 
     /// <summary>Coalesces existing native contacts into presentation feedback.</summary>
     /// <param name="observation">Native contact data.</param>
@@ -146,6 +147,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
     /// <param name="followedBody">Native body excluded from presentation queries.</param>
     internal void Follow(Transform3D pose, VehicleSnapshot state, float delta, Rid followedBody = default)
     {
+        if (PresentFreeCamera(state, delta)) return;
         bool reset = !_initialized || state.VehicleId != _vehicle || state.LifeId != _life;
         float previousHeading = _heading;
         var preferences = SettingsSource?.Current;
