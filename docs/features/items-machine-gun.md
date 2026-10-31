@@ -11,6 +11,10 @@ artwork is mapped in imported rest coordinates by `TwinFangVisual.Skin` and
 `Harlequin.gdshader`; cylindrical shell mapping and planar receiver mapping
 preserve paint placement during yaw, pitch and recoil. The skin adds no geometry
 and does not replace the separate animated cartridge/link materials.
+Dark frontal star panels and top framing separate the patterned surfaces;
+drum ribs retain red paint against dark end faces and brass rims. Weathering
+is concentrated near panel boundaries and shell rims, with fine scratches
+attenuated at distance to preserve the livery's contrast.
 
 Every newly acquired Machine Gun starts with the configured discrete ammunition capacity (500 rounds by default) in its physical held slot. Holding **UseItem** after an accepted capability-bound use sustains fire; releasing, switching slots, losing input ownership or disconnecting stops further shots while preserving the exact remaining rounds and fractional firing phase. At the default 80 rounds/second (4,800 RPM), 500 rounds deplete in approximately 6.25 seconds of actual firing. Exhaustion clears only that physical slot through the ordinary item lifecycle.
 

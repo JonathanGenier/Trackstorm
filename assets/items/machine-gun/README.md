@@ -9,6 +9,9 @@ Receiver faces use planar mapping; shrouds and both drum shells use cylindrical
 mapping. Paint chips and roughness variation remain attached during articulation.
 The runtime skin preserves the production GLB, Blender source, cartridge belts
 and unrelated car/rack materials. See `sources.json` for artwork checksums.
+The palette uses deep red, charcoal and warm aged cream, with dark frontal
+star panels, restrained top ribbons, brass rims and red drum spokes. Wear is
+biased toward panel boundaries and drum edges; fine scratches fade at distance.
 
 Original Blender-authored production geometry based on the user-approved
 `reference/ApprovedTwinFang.png` (built-in imagegen, October 11, 2026).

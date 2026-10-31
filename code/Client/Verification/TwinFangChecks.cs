@@ -85,20 +85,31 @@ public sealed partial class TwinFangChecks : Node3D
             }
             // Inspect the production material on both drums and all receiver faces,
             // at close range as well as the established full-vehicle views above.
-            mount.Present(forward, 1f / 60);
+            for (int frame = 0; frame < 60; frame++) { mount.Present(forward, 1f / 60); await Frame(); }
+            Vector3 skinCenter = mount.GlobalPosition + new Vector3(0, -.35f, -.5f);
             foreach (var view in new[]
             {
-                ("skin-front", new Vector3(2.1f, 2.7f, -3.1f)),
-                ("skin-rear", new Vector3(-2.1f, 2.6f, 2.8f)),
-                ("skin-left", new Vector3(-2.7f, 2.2f, 0)),
-                ("skin-right", new Vector3(2.7f, 2.2f, 0)),
-                ("skin-top", new Vector3(.1f, 5f, .1f)),
+                ("skin-front", new Vector3(2.2f, 1.3f, -3.3f)),
+                ("skin-rear", new Vector3(-2.2f, .9f, 3.2f)),
+                ("skin-left", new Vector3(-3.2f, .6f, 0)),
+                ("skin-right", new Vector3(3.2f, .6f, 0)),
+                ("skin-top", new Vector3(.05f, 4.2f, .05f)),
             })
             {
-                camera.Position = view.Item2;
-                camera.LookAt(new(0, 1.8f, -.3f));
-                await Frame();
+                camera.GlobalPosition = skinCenter + view.Item2;
+                camera.LookAt(skinCenter);
+                camera.ResetPhysicsInterpolation();
+                for (int frame = 0; frame < 12; frame++) { await Frame(); }
                 await Capture(view.Item1);
+            }
+            Vector3 drumCenter = mount.GlobalPosition + new Vector3(0, -.8f, 0);
+            foreach (int side in new[] { -1, 1 })
+            {
+                camera.GlobalPosition = drumCenter + new Vector3(side * 1.1f, .25f, 1.1f);
+                camera.LookAt(drumCenter);
+                camera.ResetPhysicsInterpolation();
+                for (int frame = 0; frame < 12; frame++) { await Frame(); }
+                await Capture("skin-drum-" + side);
             }
             model.Visible = false;
             var mounts = new List<WeaponAimMount>();
