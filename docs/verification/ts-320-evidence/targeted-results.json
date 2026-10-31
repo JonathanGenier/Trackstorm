@@ -1,0 +1,54 @@
+{
+  "SchemaVersion": 1,
+  "Area": "Client",
+  "Status": "PASS",
+  "Scope": "Targeted iteration only; not final Story verification",
+  "Context": {
+    "Head": "d4d2bf8803d8cc50c30a9cc40f5763641b6b32ac",
+    "Branch": "ts-320-pg",
+    "Dirty": true,
+    "Fingerprint": "91786463CFF2AAB57052A085DBA2519FC65C6B579523271B4EF9054ECAA42458",
+    "PowerShell": "7.6.5",
+    "OS": "Microsoft Windows NT 10.0.19045.0"
+  },
+  "GodotPath": null,
+  "Paths": [],
+  "Plan": {
+    "HasProductionChanges": false,
+    "WorkflowTests": false,
+    "CoreTests": false,
+    "TransportTests": false,
+    "ServiceTests": false,
+    "ClientBuild": true,
+    "VersionChecks": false,
+    "MediaChecks": false,
+    "RuntimeScripts": [],
+    "ExtendedScripts": [],
+    "ManualScenarios": []
+  },
+  "Reasons": null,
+  "Checks": [
+    {
+      "Name": "Client Debug build",
+      "Executable": "dotnet",
+      "Arguments": [
+        "build",
+        "Trackstorm.Client.csproj",
+        "-c",
+        "Debug",
+        "-warnaserror"
+      ],
+      "Parameters": {},
+      "StartedUtc": "2026-10-31T13:40:23.8188449Z",
+      "Status": "PASS",
+      "ExitCode": 0,
+      "DurationSeconds": 8.172,
+      "StdoutLog": "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\fast-checks\\5a8e2a9c51f846658143c85a39bb1059\\Client-Debug-build-11bfb01ae27744a08c1828fd0adfb250.stdout.log",
+      "StderrLog": "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\fast-checks\\5a8e2a9c51f846658143c85a39bb1059\\Client-Debug-build-11bfb01ae27744a08c1828fd0adfb250.stderr.log",
+      "Error": null
+    }
+  ],
+  "Pending": [],
+  "Unexecuted": [],
+  "Error": null
+}

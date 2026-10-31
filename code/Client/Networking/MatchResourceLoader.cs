@@ -19,6 +19,8 @@ internal sealed class MatchResourceLoader
         Items.TwinFangVisual.CartridgePath,
         Items.TwinFangVisual.FlashShaderPath,
         Items.TwinFangVisual.MetalShaderPath,
+        Items.TwinFangVisual.SkinShaderPath,
+        Items.TwinFangVisual.SkinArtworkPath,
         Items.MachineGunFirePresentation.ShaderPath,
         Items.MachineGunImpactPresentation.ShaderPath,
         Items.MissileLauncher.AssetPath,

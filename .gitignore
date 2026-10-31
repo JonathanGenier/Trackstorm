@@ -5,6 +5,7 @@
 !assets/maps/oval/oval_foundation.glb.import
 !assets/environment/models/*.glb.import
 !assets/vehicles/TrackstormCar.glb.import
+!assets/items/machine-gun/Harlequin.svg.import
 .export/
 .godot/
 *.translation

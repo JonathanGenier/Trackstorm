@@ -4,6 +4,18 @@ Read the [shared system contract](items.md) first. This reference contains only 
 
 ## Sustained Machine Gun resource
 
+The production weapon's Harlequin material uses red, charcoal and aged-cream
+diamonds, gold scrollwork, scalloped trim and star accents. Both lower drum
+shells share the livery, with brass rims and dark end faces. Original vector
+artwork is mapped in imported rest coordinates by `TwinFangVisual.Skin` and
+`Harlequin.gdshader`; cylindrical shell mapping and planar receiver mapping
+preserve paint placement during yaw, pitch and recoil. The skin adds no geometry
+and does not replace the separate animated cartridge/link materials.
+Dark frontal star panels and top framing separate the patterned surfaces;
+drum ribs retain red paint against dark end faces and brass rims. Weathering
+is concentrated near panel boundaries and shell rims, with fine scratches
+attenuated at distance to preserve the livery's contrast.
+
 Every newly acquired Machine Gun starts with the configured discrete ammunition capacity (500 rounds by default) in its physical held slot. Holding **UseItem** after an accepted capability-bound use sustains fire; releasing, switching slots, losing input ownership or disconnecting stops further shots while preserving the exact remaining rounds and fractional firing phase. At the default 80 rounds/second (4,800 RPM), 500 rounds deplete in approximately 6.25 seconds of actual firing. Exhaustion clears only that physical slot through the ordinary item lifecycle.
 
 The host consumes the current ready [accepted weapon aim](weapon-aiming.md#machine-gun-firing-consumer), adds deterministic spread and queries the Client host's closest native hit over the full pivot-to-range segment. Missing, expired, deploying or self-blocked aim pauses ammunition consumption without catch-up fire. Static geometry and owner-envelope intersections stop the ray; valid living rival hits stage damage and impulse through the existing authority transaction. Defaults remain 225 m range, falloff beginning at 12 m, 2.25 HP per round and 8 N·s knockback. The fixed 0.42-degree cone half-angle targets approximately 80% frame inclusion at 200 m; frame inclusion is distinct from native collision and damage. There is no homing, forced hit quota or visual resampling. Exponent-1.5 falloff reaches zero at 225 m. Perfect close-range hits total 1125 HP per default magazine against a 1000 HP vehicle. Applied rival HP loss uses the shared Circus scoring authority.
