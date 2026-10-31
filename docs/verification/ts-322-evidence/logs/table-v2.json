@@ -1,0 +1,101 @@
+[
+  {
+    "scenario": "combat-machine-gun",
+    "beforeFps": "92.6, 82.3, 80.2",
+    "afterFps": "62.0, 57.1, 77.5",
+    "beforeP95": "13.27, 14.55, 18.80",
+    "afterP95": "24.92, 24.55, 15.31",
+    "beforeStutters": "0, 0, 0",
+    "afterStutters": "2, 2, 0"
+  },
+  {
+    "scenario": "crate-cleanup",
+    "beforeFps": "272.9, 268.3, 266.5",
+    "afterFps": "250.4, 261.6, 239.3",
+    "beforeP95": "3.94, 4.01, 4.05",
+    "afterP95": "4.45, 4.19, 4.76",
+    "beforeStutters": "0, 0, 0",
+    "afterStutters": "0, 0, 0"
+  },
+  {
+    "scenario": "crate-pressure",
+    "beforeFps": "206.0, 200.3, 192.9",
+    "afterFps": "163.8, 201.0, 185.5",
+    "beforeP95": "5.34, 5.52, 7.07",
+    "afterP95": "7.95, 5.72, 6.01",
+    "beforeStutters": "2, 2, 2",
+    "afterStutters": "7, 3, 6"
+  },
+  {
+    "scenario": "driving-one",
+    "beforeFps": "168.0, 170.4, 181.1",
+    "afterFps": "149.3, 135.0, 178.1",
+    "beforeP95": "7.73, 7.47, 6.98",
+    "afterP95": "9.47, 9.76, 7.46",
+    "beforeStutters": "0, 0, 1",
+    "afterStutters": "1, 1, 0"
+  },
+  {
+    "scenario": "five-cars-application-roster",
+    "beforeFps": "83.8, 75.0, 77.5",
+    "afterFps": "68.9, 60.0, 73.9",
+    "beforeP95": "13.43, 14.84, 14.75",
+    "afterP95": "18.55, 21.43, 17.78",
+    "beforeStutters": "0, 0, 0",
+    "afterStutters": "0, 0, 0"
+  },
+  {
+    "scenario": "four-cars",
+    "beforeFps": "100.7, 93.8, 101.5",
+    "afterFps": "75.8, 72.6, 100.7",
+    "beforeP95": "12.56, 14.46, 14.04",
+    "afterP95": "17.87, 18.35, 12.80",
+    "beforeStutters": "2, 1, 2",
+    "afterStutters": "4, 2, 2"
+  },
+  {
+    "scenario": "idle-one",
+    "beforeFps": "193.3, 189.5, 190.5",
+    "afterFps": "168.4, 191.6, 175.0",
+    "beforeP95": "6.12, 6.16, 6.21",
+    "afterP95": "7.36, 6.32, 6.78",
+    "beforeStutters": "0, 0, 0",
+    "afterStutters": "0, 0, 0"
+  },
+  {
+    "scenario": "map-only",
+    "beforeFps": "269.6, 258.4, 262.9",
+    "afterFps": "199.2, 265.6, 239.3",
+    "beforeP95": "4.00, 4.63, 4.24",
+    "afterP95": "6.38, 4.25, 5.20",
+    "beforeStutters": "0, 0, 0",
+    "afterStutters": "0, 0, 0"
+  },
+  {
+    "scenario": "map-pickups",
+    "beforeFps": "246.2, 234.9, 232.4",
+    "afterFps": "197.2, 239.7, 219.4",
+    "beforeP95": "4.37, 4.66, 4.77",
+    "afterP95": "6.62, 4.61, 5.02",
+    "beforeStutters": "0, 0, 0",
+    "afterStutters": "0, 0, 0"
+  },
+  {
+    "scenario": "sustained-four-cars",
+    "beforeFps": "95.9, 79.1, 86.3",
+    "afterFps": "74.6, 52.3, 81.9",
+    "beforeP95": "12.59, 16.47, 16.33",
+    "afterP95": "15.75, 23.28, 14.33",
+    "beforeStutters": "0, 0, 0",
+    "afterStutters": "0, 1, 0"
+  },
+  {
+    "scenario": "three-cars-prior-roster",
+    "beforeFps": "142.3, 140.1, 151.5",
+    "afterFps": "119.2, 100.0, 143.2",
+    "beforeP95": "8.51, 8.74, 8.12",
+    "afterP95": "11.37, 13.17, 8.70",
+    "beforeStutters": "0, 0, 0",
+    "afterStutters": "0, 0, 0"
+  }
+]

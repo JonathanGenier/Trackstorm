@@ -1,0 +1,78 @@
+[
+  {
+    "Name": "startup",
+    "Script": "./check-startup.ps1",
+    "Options": {
+      "SkipBuild": true,
+      "SkipMediaCheck": true
+    },
+    "Status": "PASS",
+    "Seconds": 24.9913428,
+    "Error": "",
+    "Log": ".godot/ts-322/final-startup.log"
+  },
+  {
+    "Name": "network-two",
+    "Script": "./check-network-vehicles.ps1",
+    "Options": {
+      "Players": 2,
+      "Loss": 2,
+      "Latency": 30,
+      "ApplicationEntry": true,
+      "Jitter": 5
+    },
+    "Status": "PASS",
+    "Seconds": 41.1431757,
+    "Error": "",
+    "Log": ".godot/ts-322/final-network-two.log"
+  },
+  {
+    "Name": "carnival-pickup",
+    "Script": "./check-carnival-pickup.ps1",
+    "Options": {},
+    "Status": "PASS",
+    "Seconds": 3.0208273,
+    "Error": "",
+    "Log": ".godot/ts-322/final-carnival-pickup.log"
+  },
+  {
+    "Name": "carnival-smash",
+    "Script": "./check-carnival-smash.ps1",
+    "Options": {},
+    "Status": "PASS",
+    "Seconds": 75.722172,
+    "Error": "",
+    "Log": ".godot/ts-322/final-carnival-smash.log"
+  },
+  {
+    "Name": "item-spawns",
+    "Script": "./check-item-spawns.ps1",
+    "Options": {
+      "Impaired": true
+    },
+    "Status": "PASS",
+    "Seconds": 20.1860151,
+    "Error": "",
+    "Log": ".godot/ts-322/final-item-spawns.log"
+  },
+  {
+    "Name": "salvo",
+    "Script": "./check-salvo.ps1",
+    "Options": {
+      "Impaired": true
+    },
+    "Status": "FAIL",
+    "Seconds": 340.5154977,
+    "Error": "Salvo aiming polish integration failed.",
+    "Log": ".godot/ts-322/final-salvo.log"
+  },
+  {
+    "Name": "reconnect-default",
+    "Script": "./check-reconnect.ps1",
+    "Options": {},
+    "Status": "PASS",
+    "Seconds": 155.1234218,
+    "Error": "",
+    "Log": ".godot/ts-322/final-reconnect-default.log"
+  }
+]

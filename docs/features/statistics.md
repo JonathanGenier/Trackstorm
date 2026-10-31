@@ -1,5 +1,7 @@
 # Runtime Statistic Panel
 
+For repeatable frame-time, CPU, rendering and memory captures outside this live panel, use the [performance benchmark procedure](../performance.md).
+
 F2 opens or selects the read-only Stats tab in the full-window [DevTools shell](devtools.md), including
 local practice, multiplayer lobby and arena states. Escape and the shell's persistent Close button dismiss DevTools.
 Stats is available in Debug and exported Release without the mutating Dev

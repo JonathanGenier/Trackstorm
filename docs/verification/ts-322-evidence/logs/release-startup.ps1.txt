@@ -1,0 +1,8 @@
+$ErrorActionPreference = 'Stop'
+$exe = (Resolve-Path '.godot/ts-322/export/Trackstorm.exe').Path
+$p = Start-Process -FilePath $exe -ArgumentList @('--headless','--max-fps','60','--quit-after','3600','--','--startup-check') -WorkingDirectory (Get-Location).Path -WindowStyle Hidden -PassThru -RedirectStandardOutput .godot/ts-322/release-startup.log -RedirectStandardError .godot/ts-322/release-startup-error.log
+if (-not $p.WaitForExit(90000)) { $p.Kill(); throw 'Release startup timed out.' }
+$log = Get-Content .godot/ts-322/release-startup.log,.godot/ts-322/release-startup-error.log
+if ($p.ExitCode -ne 0 -or $log -match 'ERROR:|WARNING:' -or -not ($log -match 'Startup integration passed:')) { throw "Release startup failed: exit=$($p.ExitCode)" }
+Write-Host 'Release startup PASS'
+

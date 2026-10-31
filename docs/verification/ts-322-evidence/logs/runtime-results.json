@@ -1,0 +1,133 @@
+[
+  {
+    "Name": "carnival-pickup",
+    "Script": "./check-carnival-pickup.ps1",
+    "Options": {},
+    "Status": "PASS",
+    "Seconds": 2.8818016,
+    "Error": "",
+    "Log": ".godot/ts-322/carnival-pickup.log"
+  },
+  {
+    "Name": "carnival-smash",
+    "Script": "./check-carnival-smash.ps1",
+    "Options": {},
+    "Status": "PASS",
+    "Seconds": 75.6086152,
+    "Error": "",
+    "Log": ".godot/ts-322/carnival-smash.log"
+  },
+  {
+    "Name": "item-spawns",
+    "Script": "./check-item-spawns.ps1",
+    "Options": {
+      "Impaired": true
+    },
+    "Status": "FAIL",
+    "Seconds": 12.2403414,
+    "Error": "Item spawn integration failed. Artifacts: C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\spawn-checks\\71e17ea671914a329bf19c76d07a308f",
+    "Log": ".godot/ts-322/item-spawns.log"
+  },
+  {
+    "Name": "pickup-drive",
+    "Script": "./check-pickup-drive.ps1",
+    "Options": {
+      "Impaired": true
+    },
+    "Status": "PASS",
+    "Seconds": 312.5531609,
+    "Error": "",
+    "Log": ".godot/ts-322/pickup-drive.log"
+  },
+  {
+    "Name": "world-wall-terrain",
+    "Script": "./check-world-wall.ps1",
+    "Options": {
+      "TerrainStability": true,
+      "ProductionMap": true,
+      "Profile": true,
+      "Impaired": true
+    },
+    "Status": "PASS",
+    "Seconds": 132.6366271,
+    "Error": "",
+    "Log": ".godot/ts-322/world-wall-terrain.log"
+  },
+  {
+    "Name": "world-wall-heavy",
+    "Script": "./check-world-wall.ps1",
+    "Options": {
+      "Impaired": true,
+      "Profile": true,
+      "Heavy": true
+    },
+    "Status": "PASS",
+    "Seconds": 72.5500891,
+    "Error": "",
+    "Log": ".godot/ts-322/world-wall-heavy.log"
+  },
+  {
+    "Name": "machine-gun",
+    "Script": "./check-machine-gun.ps1",
+    "Options": {
+      "Impaired": true
+    },
+    "Status": "PASS",
+    "Seconds": 46.5860309,
+    "Error": "",
+    "Log": ".godot/ts-322/machine-gun.log"
+  },
+  {
+    "Name": "death-respawn",
+    "Script": "./check-death-respawn.ps1",
+    "Options": {
+      "Impaired": true
+    },
+    "Status": "FAIL",
+    "Seconds": 19.2448458,
+    "Error": "Death/respawn integration failed. Artifacts: C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\death-checks\\2c85d0a330a84f46985c828fc9ea7c30",
+    "Log": ".godot/ts-322/death-respawn.log"
+  },
+  {
+    "Name": "reconnect",
+    "Script": "./check-reconnect.ps1",
+    "Options": {
+      "Shield": true
+    },
+    "Status": "FAIL",
+    "Seconds": 189.2206787,
+    "Error": "Reconnect integration failed; inspect .godot/reconnect-checks/runtime.log.",
+    "Log": ".godot/ts-322/reconnect.log"
+  },
+  {
+    "Name": "post-match",
+    "Script": "./check-post-match.ps1",
+    "Options": {
+      "Cycles": 3
+    },
+    "Status": "FAIL",
+    "Seconds": 28.5899791,
+    "Error": "Post-match integration failed. Artifacts: C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\post-match-checks\\e7418141772b4777854486fde0e441ae",
+    "Log": ".godot/ts-322/post-match.log"
+  },
+  {
+    "Name": "machine-gun-vfx",
+    "Script": "./check-machine-gun-vfx.ps1",
+    "Options": {},
+    "Status": "PASS",
+    "Seconds": 24.960466,
+    "Error": "",
+    "Log": ".godot/ts-322/machine-gun-vfx.log"
+  },
+  {
+    "Name": "salvo",
+    "Script": "./check-salvo.ps1",
+    "Options": {
+      "Impaired": true
+    },
+    "Status": "FAIL",
+    "Seconds": 293.6247509,
+    "Error": "Salvo aiming polish integration failed.",
+    "Log": ".godot/ts-322/salvo.log"
+  }
+]

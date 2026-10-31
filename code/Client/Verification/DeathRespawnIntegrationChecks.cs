@@ -124,6 +124,16 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
         try
         {
             _elapsed += delta;
+            if (!Water && !OutOfBounds && _cycle % 2 == 0 && _stage is 1 or 2)
+            {
+                var world = _arenas[0].Driver.Host!.World;
+                var shooter = _arenas[2].Driver;
+                var pose = world.GetVehicle(shooter.LocalVehicleId).ObservedPhysics;
+                var origin = pose.Position + Numerics.Vector3.Transform(WeaponAim.Pivot, pose.Orientation);
+                // This fixture has no camera input. Supply ordinary aim intent at
+                // the current native target instead of relying on a level-road fallback.
+                shooter.DesiredAim = Numerics.Vector3.Normalize(world.GetVehicle(_victim).ObservedPhysics.Position + Numerics.Vector3.UnitY * .3f - origin);
+            }
             foreach (var arena in _arenas)
             {
                 // Actively try driving/using during the wait; authority and prediction must suppress it.
@@ -132,7 +142,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
                 Require(arena.Driver.Failure.Length == 0, $"stage={_stage}, elapsed={_elapsed:F2}, peer={_arenas.IndexOf(arena)}: {arena.Driver.Failure}");
             }
 
-            Require(_elapsed - _started < 20, $"Death stage {_stage}, cycle {_cycle} timed out.");
+            Require(_elapsed - _started < 20, $"Death stage {_stage}, cycle {_cycle} timed out; match={_arenas[0].Driver.Match?.Phase}, shooter={_arenas[2].Driver.LocalItem?.Active.Item}.");
             Scenario();
         }
         catch (Exception exception)
@@ -163,7 +173,8 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
         }
         switch (_stage)
         {
-            case 0 when _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 8 && arena.Driver.LocalState is not null && arena.Driver.ItemState is not null):
+            case 0 when _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 8 && arena.Driver.LocalState is not null &&
+                arena.Driver.ItemState is not null && arena.Driver.Match?.Phase == Core.Matches.MatchPhase.Active):
                 foreach (var arena in _arenas)
                 {
                     OvalGameplayAssertions.Verify(arena);
@@ -179,6 +190,12 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
                     Require(_arenas.All(arena => arena.Driver.ItemState!.DiscardRevision >= (ulong)(_cycle + 1) && arena.Driver.ItemState.Slots.Where(slot => slot.Vehicle == _victim).All(slot => slot.SecondItem == HeldItem.None)), "Discarded second slot replicates through native death, including an already-cleared inventory.");
                     if (!Water && !OutOfBounds && _cycle % 2 == 0)
                     {
+                        // Grant replication can finish before the production rack has
+                        // deployed. Exercise its readiness gate instead of tapping early.
+                        var shooter = _arenas[2].Driver;
+                        if (shooter.LocalItem is not { } inventory || shooter.MissileReady?.Invoke(inventory) != true) break;
+                        var issued = host.Items.Slots.Single(slot => slot.Vehicle == shooter.LocalVehicleId);
+                        if (issued.MissileReadyTick == 0 || host.World.State.Tick < issued.MissileReadyTick) break;
                         Require(_arenas[2].Driver.RequestItemUse(), "Remote shooter submits its issued missile.");
                     }
 
@@ -190,7 +207,8 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
             case 2 when _boundaries.All(outcomes => outcomes.Any(state => state.LifeId == _life && state.Lifecycle == VehicleLifecycle.Dead)):
                 VehicleSnapshot death = _boundaries[0].Single(state => state.LifeId == _life && state.Lifecycle == VehicleLifecycle.Dead);
                 _deadline = death.RespawnAtTick!.Value;
-                Require(death.Damage.LastDamage!.Attribution.Source == Cause, "Production damage source causes the death.");
+                Require(death.Damage.LastDamage!.Attribution.Source == Cause,
+                    $"Production damage source causes the death: expected={Cause}, actual={death.Damage.LastDamage.Attribution.Source}, pose={death.ObservedPhysics.Position}.");
                 foreach (var arena in _arenas)
                 {
                     VehicleSnapshot state = arena.Driver.Latest!.Vehicles.Single(vehicle => vehicle.State.VehicleId == _victim).State;
@@ -281,15 +299,17 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
         var states = host.World.State.Vehicles.Select(state =>
         {
             VehiclePhysicsState pose = host.World.Arena.Spawn((int)(state.VehicleId - 1));
-            if (state.VehicleId == _victim)
+            // Missile cases use the authored, unobstructed grid. The old infield
+            // coordinates can obstruct the current aimed missile's muzzle/solution.
+            if (state.VehicleId == _victim && _cycle % 2 != 0)
             {
-                pose = new VehiclePhysicsState(_cycle % 2 == 0 ? new Numerics.Vector3(-40, 0.6f, -5) : new Numerics.Vector3(-57.5f, 0.6f, -35), Numerics.Quaternion.Identity, _cycle % 2 == 0 ? Numerics.Vector3.Zero : new Numerics.Vector3(-60, 0, 0), Numerics.Vector3.Zero);
+                pose = new VehiclePhysicsState(new Numerics.Vector3(-57.5f, 0.6f, -35), Numerics.Quaternion.Identity, new Numerics.Vector3(-60, 0, 0), Numerics.Vector3.Zero);
             }
             if (Water && state.VehicleId == _victim)
             {
                 pose = new VehiclePhysicsState(new Numerics.Vector3(77, -0.75f, -35), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero);
             }
-            else if (state.VehicleId == shooter)
+            else if (state.VehicleId == shooter && _cycle % 2 != 0)
             {
                 pose = new VehiclePhysicsState(new Numerics.Vector3(-40, 0.6f, 5), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero);
             }
@@ -298,8 +318,13 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
             {
                 pose = new VehiclePhysicsState(new Numerics.Vector3(state.VehicleId == _victim ? 350 : -350, _cycle % 2 == 0 ? 20 : -60, 0), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero);
             }
+            if (!Water && !OutOfBounds && (state.VehicleId == _victim || state.VehicleId == shooter))
+                pose = PlaceAboveGround(pose);
             return new VehicleSnapshot(state.VehicleId, state.LifeId, new VehicleState(host.World.State.Tick, pose, false, false, 0, 0), new VehicleDamageState(state.Damage.MaxHP, state.VehicleId == _victim && !Water && !OutOfBounds ? 20 : state.Damage.MaxHP, null, null), pose);
         }).ToArray();
+        if (!Water && !OutOfBounds && _cycle % 2 != 0)
+            foreach (var arena in _arenas)
+                arena.GetNode<StaticBody3D>("LethalImpactFixture").Position = new Vector3(-60, states.Single(state => state.VehicleId == _victim).ObservedPhysics.Position.Y + 1, -35);
         host.World.Restore(new SimulationState(host.World.State.Tick, host.World.State.LastInput, states, host.World.State.Match));
         Require(host.Items.Grant(host.World, _victim, HeldItem.Wrench), "Victim holds an item before death.");
         Require(host.Items.Grant(host.World, _victim, HeldItem.Missile), "Seed second physical slot for discard/respawn isolation.");
@@ -318,6 +343,18 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
         _stage = 1;
         _started = _elapsed;
         _captured = false;
+    }
+
+    private VehiclePhysicsState PlaceAboveGround(VehiclePhysicsState pose)
+    {
+        // Legacy 0.6 m origins place the current chassis through the terrain and
+        // accidentally test out-of-bounds death instead of missile/wall damage.
+        using var ray = PhysicsRayQueryParameters3D.Create(new Vector3(pose.Position.X, 100, pose.Position.Z),
+            new Vector3(pose.Position.X, -100, pose.Position.Z), 1);
+        using var hit = _arenas[0].GetWorld3D().DirectSpaceState.IntersectRay(ray);
+        Require(hit.Count != 0, "Damage fixture has native ground support.");
+        float height = hit["position"].AsVector3().Y + VehicleDimensions.RideHeight + .15f;
+        return new(new Numerics.Vector3(pose.Position.X, height, pose.Position.Z), pose.Orientation, pose.LinearVelocity, pose.AngularVelocity);
     }
 
     private void Capture(string name)

@@ -19,6 +19,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
 {
     private IReadOnlyList<ShieldState> _shields = [];
     private readonly Dictionary<ulong, ItemPublication> _salvoBoundaries = new();
+    private readonly Dictionary<ulong, IReadOnlyList<ShieldState>> _shieldBoundaries = new();
     private readonly List<ReplicationTrafficGateway> _gateways = new();
     private readonly List<SubViewport> _views = new();
     private readonly List<NetworkVehicleArena> _arenas = new();
@@ -43,6 +44,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
     private int _cleanup;
     private MatchStandings _board = null!;
     private double _resumeAt;
+    private string _reconnectError = string.Empty;
     private PlayerScore? _retainedScore;
     private int _retainedRank;
     private Input.PlayerInput _cameraInput = null!;
@@ -107,7 +109,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
         try
         {
             _elapsed += delta;
-            Require(_elapsed < 170, $"Reconnect stage {_stage} timed out: {_client.Failure}");
+            Require(_elapsed < 170, $"Reconnect stage {_stage} timed out: {_client.Failure}; resume={_client.ResumeStatus}; fixture={_reconnectError}");
             if (_arenas.Count == 0)
             {
                 _host.Pump(delta);
@@ -118,6 +120,10 @@ public sealed partial class ReconnectIntegrationChecks : Node
                 foreach (var arena in _arenas)
                 {
                     arena.Advance(default);
+                    // A resume can capture a quiet tick with no item publication.
+                    // Record committed shield state independently of weapon activity.
+                    if (arena.Driver.Host is { } host)
+                        _shieldBoundaries[host.World.State.Tick] = host.Items.Shields;
                     if (OilFiringRecovery && arena.Driver.Host is not null) { CaptureOilBoundary(); }
                 }
             }
@@ -197,8 +203,9 @@ public sealed partial class ReconnectIntegrationChecks : Node
                 Require(_arenas[1].Pickups.SmashCount == _smashesBeforeResume && _arenas[1].Pickups.ActiveSmashCount == 0,
                     "Native recovery clears transient crate fragments without replaying historical pickup tokens.");
                 GD.Print($"Carnival smash reconnect {_resyncs}: no historical bursts, zero retained debris after checkpoint.");
-                SalvoRecoveryFixture.Verify(_arenas[1].Driver.ItemState!, _salvoBoundaries);
-                ShieldRecoveryFixture.Verify(_arenas[1].Driver.ItemState!.Shields, _shields, _salvoBoundaries[world.Tick].Shields, world.Tick);
+                if (!OS.GetCmdlineUserArgs().Contains("--shield-recovery"))
+                    SalvoRecoveryFixture.Verify(_arenas[1].Driver.ItemState!, _salvoBoundaries);
+                ShieldRecoveryFixture.Verify(_arenas[1].Driver.ItemState!.Shields, _shields, _shieldBoundaries[world.Tick], world.Tick);
                 if (_resyncs <= 3)
                 {
                     Require(_arenas[1].Driver.ItemState!.Mines.Single().Id == _mine, "Mine identity restored exactly once.");
@@ -307,8 +314,8 @@ public sealed partial class ReconnectIntegrationChecks : Node
             _mine = ProxyMineRecoveryFixture.Seed(_arenas[0], _arenas);
             Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["match.nitro_points_per_second"] = 0 }, out _), "Disable overspeed score only in the retention fixture to preserve its fixed rank assertions.");
             NitroRecoveryFixture.Seed(_arenas[0], _player);
-            // The optional shield occupies the slot otherwise used by Machine Gun; Salvo
-            // fills the other slot at resume. Keep the default recovery regression intact.
+            // The focused Shield case must retain its selected rear shield. The default
+            // case instead exercises Machine Gun and committed Salvo recovery.
             if (!OS.GetCmdlineUserArgs().Contains("--shield-recovery")) { MachineGunRecoveryFixture.Seed(_arenas[0], 1); }
             _originalBody = _arenas[1].Bodies[_player];
             SetScores(false);
@@ -484,8 +491,17 @@ public sealed partial class ReconnectIntegrationChecks : Node
     private ulong Reconnect()
     {
         if (_elapsed < _resumeAt) { throw new InvalidOperationException("Simulated interrupted route"); }
-        if (OilFiringRecovery) { StartOilAtReconnect(); }
-        else if (!EmpRecovery && _arenas.Count > 0) { SalvoRecoveryFixture.Seed(_arenas[0]); }
+        try
+        {
+            if (OilFiringRecovery) { StartOilAtReconnect(); }
+            else if (!EmpRecovery && _arenas.Count > 0 && !OS.GetCmdlineUserArgs().Contains("--shield-recovery"))
+                SalvoRecoveryFixture.Seed(_arenas[0]);
+        }
+        catch (Exception error)
+        {
+            _reconnectError = error.ToString();
+            throw;
+        }
         return _gateways[1].Connect(TransportEndpoint.DirectIp(_endpoint));
     }
 

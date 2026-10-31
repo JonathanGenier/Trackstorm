@@ -1,0 +1,24 @@
+[
+  {
+    "Name": "post-match",
+    "Script": "./check-post-match.ps1",
+    "Options": {
+      "Cycles": 3
+    },
+    "Status": "FAIL",
+    "Seconds": 59.4566853,
+    "Error": "Post-match integration failed. Artifacts: C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\post-match-checks\\5bd8bb7470954c218d69ce22dece19bb",
+    "Log": ".godot/ts-322/post-match-corrected.log"
+  },
+  {
+    "Name": "reconnect",
+    "Script": "./check-reconnect.ps1",
+    "Options": {
+      "Shield": true
+    },
+    "Status": "FAIL",
+    "Seconds": 215.6695155,
+    "Error": "Reconnect integration failed; inspect .godot/reconnect-checks/runtime.log.",
+    "Log": ".godot/ts-322/reconnect-corrected.log"
+  }
+]

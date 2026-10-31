@@ -1,0 +1,22 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Carnival smash checks passed: 18/18 authoritative swept crossings at lower-left/lower-right/upper-crate heights, 8/40/65 m/s, centre and glancing offsets; one grant and one codec-delivered smash each. Controlled observations, not native driving; pickup-drive covers native cars.
+Weapon queries leave collection availability and inventory unchanged
+Duplicate and unrelated publications produce exactly one smash
+A claim hides every crate and aura of exactly one stack
+A newer claim while already unavailable still emits a smash
+Recovery restores active visibility and label
+Intact stack and smash contain no physics bodies, areas or shapes
+Exactly 72 visibly sized wood instances in three batches
+344 wood/foil/star/coin/bolt/spark instances use eight render batches and zero per-piece nodes
+Twelve stars, twelve rimmed coins and twelve lightning bolts use three distinct solid meshes
+Imported plank masters have long grain-oriented faces and more than 7 cm of modelled thickness before instance scale
+Recovery clears transient debris and restores availability without replay
+Outcomes already older than the effect lifetime do not start late debris
+Missing state hides the stack and clears the cooldown label
+Availability after missing state restores every stack and its active label
+Synthetic publication pressure: 8 waves of 27 claims over 4.02s; peak 54 bursts; frame median=16.67ms, p95=16.94ms, max=23.09ms. Whole-map timings, 60 FPS cap; not actual inventory grants.
+All debris/effects removed within 12.5 real seconds while paused; node count returns to intact baseline
+Native resource/orphan counts after warmup vs after pressure, expiry and managed finalization: resources 565->565, orphans 0->0.
+Match owner teardown frees all active burst nodes
+Carnival smash artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-311\af2723c023384771b0bcf41188fb40df

@@ -1,0 +1,358 @@
+diff --git a/code/Client/Bootstrap/SimulationBootstrap.cs b/code/Client/Bootstrap/SimulationBootstrap.cs
+index 33a33348..7e52075f 100644
+--- a/code/Client/Bootstrap/SimulationBootstrap.cs
++++ b/code/Client/Bootstrap/SimulationBootstrap.cs
+@@ -59,6 +59,14 @@ public sealed partial class SimulationBootstrap : Node
+ 
+         ProjectSettings.SetSetting("application/config/version", canonicalVersion);
+ 
++        if (OS.GetCmdlineUserArgs().Contains("--performance-benchmark"))
++        {
++            // Release templates reject scene-path overrides; use the same opt-in
++            // entry-point pattern as the other exported verification harnesses.
++            GetTree().CallDeferred(SceneTree.MethodName.ChangeSceneToFile, "res://scenes/verification/performance_benchmark.tscn");
++            return;
++        }
++
+         if (OnlineEnabled && OS.GetCmdlineUserArgs().Contains("--statistics-check"))
+         {
+             // Replace the scene so the normal input owner exits before the verification scene creates its own.
+diff --git a/code/Client/Items/ItemSpawnPresentation.cs b/code/Client/Items/ItemSpawnPresentation.cs
+index cfd4e4fb..1ae2bec8 100644
+--- a/code/Client/Items/ItemSpawnPresentation.cs
++++ b/code/Client/Items/ItemSpawnPresentation.cs
+@@ -11,6 +11,7 @@ internal sealed partial class ItemSpawnPresentation : Node3D
+     internal const string AssetPath = "res://assets/items/carnival-crate/CarnivalCrate.glb";
+     private readonly Dictionary<string, Node3D> _models = new(StringComparer.Ordinal);
+     private readonly Dictionary<string, Label3D> _labels = new(StringComparer.Ordinal);
++    private readonly Dictionary<string, bool?> _availability = new(StringComparer.Ordinal);
+     private readonly HashSet<string> _floating = new(StringComparer.Ordinal);
+     private readonly Dictionary<string, (Vector3 Point, Vector3 Normal)> _floors = new(StringComparer.Ordinal);
+     private readonly List<CarnivalSmash> _smashes = [];
+@@ -121,14 +122,20 @@ internal sealed partial class ItemSpawnPresentation : Node3D
+         }
+         foreach (var pair in _models)
+         {
+-            bool active = state.Spawns.Any(spawn => spawn.Id == pair.Key && spawn.Available);
++            var spawn = state.Spawns.SingleOrDefault(spawn => spawn.Id == pair.Key);
++            bool? availability = spawn?.Available;
++            // Complete item publications also arrive for weapon activity. Only an
++            // availability transition changes these native properties. Claim tokens
++            // are still processed below, including a new claim while already hidden.
++            if (!seed && _availability.TryGetValue(pair.Key, out var previous) && previous == availability) continue;
++            _availability[pair.Key] = availability;
++            bool active = availability == true;
+             pair.Value.Visible = active;
+             foreach (var particles in pair.Value.GetChildren().OfType<GpuParticles3D>())
+             {
+                 particles.Emitting = active;
+             }
+ 
+-            var spawn = state.Spawns.SingleOrDefault(spawn => spawn.Id == pair.Key);
+             _labels[pair.Key].Text = active ? "ITEM" : spawn is null ? string.Empty : "RECHARGING";
+         }
+         foreach (var claim in claims)
+diff --git a/code/Client/Verification/CarnivalSmashChecks.cs b/code/Client/Verification/CarnivalSmashChecks.cs
+index a8d1af74..83eff433 100644
+--- a/code/Client/Verification/CarnivalSmashChecks.cs
++++ b/code/Client/Verification/CarnivalSmashChecks.cs
+@@ -55,6 +55,13 @@ public sealed partial class CarnivalSmashChecks : Node3D
+             presentation.Apply(Publication(501));
+             Check(presentation.SmashCount == before+1 && presentation.ActiveSmashCount == 1, "Duplicate and unrelated publications produce exactly one smash");
+             Check(!intact.Visible && presentation.ActiveCount == 26, "A claim hides every crate and aura of exactly one stack");
++            presentation.Apply(Publication(503));
++            Check(presentation.SmashCount == before+2 && !intact.Visible,
++                "A newer claim while already unavailable still emits a smash");
++            presentation.Apply(Publication(0), seed: true);
++            Check(intact.Visible && presentation.GetNode<Node3D>(marker.Id).GetChildren().OfType<Label3D>().Single().Text == "ITEM",
++                "Recovery restores active visibility and label");
++            presentation.Apply(Publication(501));
+             Check(!Descendants(presentation).Any(n => n is CollisionObject3D or CollisionShape3D), "Intact stack and smash contain no physics bodies, areas or shapes");
+             var burst = Descendants(presentation).OfType<CarnivalSmash>().Single();
+             var batches = burst.GetChildren().OfType<MultiMeshInstance3D>().ToArray();
+@@ -69,6 +76,12 @@ public sealed partial class CarnivalSmashChecks : Node3D
+             Check(presentation.ActiveSmashCount == 0 && !intact.Visible, "Recovery clears transient debris and restores availability without replay");
+             presentation.Apply(Publication(502), observedTick: 1200);
+             Check(presentation.ActiveSmashCount == 0, "Outcomes already older than the effect lifetime do not start late debris");
++            presentation.Apply(new ItemPublication(++_revision, host.Snapshot(), [], [], [], []));
++            Check(presentation.ActiveCount == 0 && presentation.GetNode<Node3D>(marker.Id).GetChildren().OfType<Label3D>().Single().Text.Length == 0,
++                "Missing state hides the stack and clears the cooldown label");
++            presentation.Apply(Publication(0));
++            Check(presentation.ActiveCount == config.Items.Count && presentation.GetNode<Node3D>(marker.Id).GetChildren().OfType<Label3D>().Single().Text == "ITEM",
++                "Availability after missing state restores every stack and its active label");
+ 
+             if (DisplayServer.GetName() != "headless")
+             {
+diff --git a/code/Client/Verification/DeathRespawnIntegrationChecks.cs b/code/Client/Verification/DeathRespawnIntegrationChecks.cs
+index 4db36ff0..aed50e98 100644
+--- a/code/Client/Verification/DeathRespawnIntegrationChecks.cs
++++ b/code/Client/Verification/DeathRespawnIntegrationChecks.cs
+@@ -124,6 +124,16 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
+         try
+         {
+             _elapsed += delta;
++            if (!Water && !OutOfBounds && _cycle % 2 == 0 && _stage is 1 or 2)
++            {
++                var world = _arenas[0].Driver.Host!.World;
++                var shooter = _arenas[2].Driver;
++                var pose = world.GetVehicle(shooter.LocalVehicleId).ObservedPhysics;
++                var origin = pose.Position + Numerics.Vector3.Transform(WeaponAim.Pivot, pose.Orientation);
++                // This fixture has no camera input. Supply ordinary aim intent at
++                // the current native target instead of relying on a level-road fallback.
++                shooter.DesiredAim = Numerics.Vector3.Normalize(world.GetVehicle(_victim).ObservedPhysics.Position + Numerics.Vector3.UnitY * .3f - origin);
++            }
+             foreach (var arena in _arenas)
+             {
+                 // Actively try driving/using during the wait; authority and prediction must suppress it.
+@@ -132,7 +142,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
+                 Require(arena.Driver.Failure.Length == 0, $"stage={_stage}, elapsed={_elapsed:F2}, peer={_arenas.IndexOf(arena)}: {arena.Driver.Failure}");
+             }
+ 
+-            Require(_elapsed - _started < 20, $"Death stage {_stage}, cycle {_cycle} timed out.");
++            Require(_elapsed - _started < 20, $"Death stage {_stage}, cycle {_cycle} timed out; match={_arenas[0].Driver.Match?.Phase}, shooter={_arenas[2].Driver.LocalItem?.Active.Item}.");
+             Scenario();
+         }
+         catch (Exception exception)
+@@ -163,7 +173,8 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
+         }
+         switch (_stage)
+         {
+-            case 0 when _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 8 && arena.Driver.LocalState is not null && arena.Driver.ItemState is not null):
++            case 0 when _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 8 && arena.Driver.LocalState is not null &&
++                arena.Driver.ItemState is not null && arena.Driver.Match?.Phase == Core.Matches.MatchPhase.Active):
+                 foreach (var arena in _arenas)
+                 {
+                     OvalGameplayAssertions.Verify(arena);
+@@ -179,6 +190,12 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
+                     Require(_arenas.All(arena => arena.Driver.ItemState!.DiscardRevision >= (ulong)(_cycle + 1) && arena.Driver.ItemState.Slots.Where(slot => slot.Vehicle == _victim).All(slot => slot.SecondItem == HeldItem.None)), "Discarded second slot replicates through native death, including an already-cleared inventory.");
+                     if (!Water && !OutOfBounds && _cycle % 2 == 0)
+                     {
++                        // Grant replication can finish before the production rack has
++                        // deployed. Exercise its readiness gate instead of tapping early.
++                        var shooter = _arenas[2].Driver;
++                        if (shooter.LocalItem is not { } inventory || shooter.MissileReady?.Invoke(inventory) != true) break;
++                        var issued = host.Items.Slots.Single(slot => slot.Vehicle == shooter.LocalVehicleId);
++                        if (issued.MissileReadyTick == 0 || host.World.State.Tick < issued.MissileReadyTick) break;
+                         Require(_arenas[2].Driver.RequestItemUse(), "Remote shooter submits its issued missile.");
+                     }
+ 
+@@ -190,7 +207,8 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
+             case 2 when _boundaries.All(outcomes => outcomes.Any(state => state.LifeId == _life && state.Lifecycle == VehicleLifecycle.Dead)):
+                 VehicleSnapshot death = _boundaries[0].Single(state => state.LifeId == _life && state.Lifecycle == VehicleLifecycle.Dead);
+                 _deadline = death.RespawnAtTick!.Value;
+-                Require(death.Damage.LastDamage!.Attribution.Source == Cause, "Production damage source causes the death.");
++                Require(death.Damage.LastDamage!.Attribution.Source == Cause,
++                    $"Production damage source causes the death: expected={Cause}, actual={death.Damage.LastDamage.Attribution.Source}, pose={death.ObservedPhysics.Position}.");
+                 foreach (var arena in _arenas)
+                 {
+                     VehicleSnapshot state = arena.Driver.Latest!.Vehicles.Single(vehicle => vehicle.State.VehicleId == _victim).State;
+@@ -281,15 +299,17 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
+         var states = host.World.State.Vehicles.Select(state =>
+         {
+             VehiclePhysicsState pose = host.World.Arena.Spawn((int)(state.VehicleId - 1));
+-            if (state.VehicleId == _victim)
++            // Missile cases use the authored, unobstructed grid. The old infield
++            // coordinates can obstruct the current aimed missile's muzzle/solution.
++            if (state.VehicleId == _victim && _cycle % 2 != 0)
+             {
+-                pose = new VehiclePhysicsState(_cycle % 2 == 0 ? new Numerics.Vector3(-40, 0.6f, -5) : new Numerics.Vector3(-57.5f, 0.6f, -35), Numerics.Quaternion.Identity, _cycle % 2 == 0 ? Numerics.Vector3.Zero : new Numerics.Vector3(-60, 0, 0), Numerics.Vector3.Zero);
++                pose = new VehiclePhysicsState(new Numerics.Vector3(-57.5f, 0.6f, -35), Numerics.Quaternion.Identity, new Numerics.Vector3(-60, 0, 0), Numerics.Vector3.Zero);
+             }
+             if (Water && state.VehicleId == _victim)
+             {
+                 pose = new VehiclePhysicsState(new Numerics.Vector3(77, -0.75f, -35), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero);
+             }
+-            else if (state.VehicleId == shooter)
++            else if (state.VehicleId == shooter && _cycle % 2 != 0)
+             {
+                 pose = new VehiclePhysicsState(new Numerics.Vector3(-40, 0.6f, 5), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero);
+             }
+@@ -298,8 +318,13 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
+             {
+                 pose = new VehiclePhysicsState(new Numerics.Vector3(state.VehicleId == _victim ? 350 : -350, _cycle % 2 == 0 ? 20 : -60, 0), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero);
+             }
++            if (!Water && !OutOfBounds && (state.VehicleId == _victim || state.VehicleId == shooter))
++                pose = PlaceAboveGround(pose);
+             return new VehicleSnapshot(state.VehicleId, state.LifeId, new VehicleState(host.World.State.Tick, pose, false, false, 0, 0), new VehicleDamageState(state.Damage.MaxHP, state.VehicleId == _victim && !Water && !OutOfBounds ? 20 : state.Damage.MaxHP, null, null), pose);
+         }).ToArray();
++        if (!Water && !OutOfBounds && _cycle % 2 != 0)
++            foreach (var arena in _arenas)
++                arena.GetNode<StaticBody3D>("LethalImpactFixture").Position = new Vector3(-60, states.Single(state => state.VehicleId == _victim).ObservedPhysics.Position.Y + 1, -35);
+         host.World.Restore(new SimulationState(host.World.State.Tick, host.World.State.LastInput, states, host.World.State.Match));
+         Require(host.Items.Grant(host.World, _victim, HeldItem.Wrench), "Victim holds an item before death.");
+         Require(host.Items.Grant(host.World, _victim, HeldItem.Missile), "Seed second physical slot for discard/respawn isolation.");
+@@ -320,6 +345,18 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
+         _captured = false;
+     }
+ 
++    private VehiclePhysicsState PlaceAboveGround(VehiclePhysicsState pose)
++    {
++        // Legacy 0.6 m origins place the current chassis through the terrain and
++        // accidentally test out-of-bounds death instead of missile/wall damage.
++        using var ray = PhysicsRayQueryParameters3D.Create(new Vector3(pose.Position.X, 100, pose.Position.Z),
++            new Vector3(pose.Position.X, -100, pose.Position.Z), 1);
++        using var hit = _arenas[0].GetWorld3D().DirectSpaceState.IntersectRay(ray);
++        Require(hit.Count != 0, "Damage fixture has native ground support.");
++        float height = hit["position"].AsVector3().Y + VehicleDimensions.RideHeight + .15f;
++        return new(new Numerics.Vector3(pose.Position.X, height, pose.Position.Z), pose.Orientation, pose.LinearVelocity, pose.AngularVelocity);
++    }
++
+     private void Capture(string name)
+     {
+         if (DisplayServer.GetName() != "headless")
+diff --git a/code/Client/Verification/ItemSpawnIntegrationChecks.cs b/code/Client/Verification/ItemSpawnIntegrationChecks.cs
+index 5973ff44..03052e96 100644
+--- a/code/Client/Verification/ItemSpawnIntegrationChecks.cs
++++ b/code/Client/Verification/ItemSpawnIntegrationChecks.cs
+@@ -198,8 +198,9 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
+                 Require(_arenas.All(arena =>
+                 {
+                     var presentation = arena.GetChildren().OfType<Items.ItemPresentation>().Single();
+-                    return presentation.GetChildren().SequenceEqual(new Node[] { presentation.EmpAttachments }) && presentation.EmpAttachments.GetChildCount() == 0;
+-                }), "Held inventory creates no projectile/effect visuals; only the existing empty EMP attachment owner remains.");
++                    return presentation.GetChildren().SequenceEqual(new Node[] { presentation.EmpAttachments, presentation.MachineGunFire, presentation.MachineGunImpacts }) &&
++                        presentation.EmpAttachments.GetChildCount() == 0 && presentation.MachineGunFire.ActiveCount == 0 && presentation.MachineGunImpacts.ActiveCount == 0;
++                }), "Held inventory creates no projectile/effect visuals; the persistent EMP and Machine Gun owners remain empty.");
+                 Capture("occupied-slots.png");
+                 _evidence.Add($"All {PickupCount} pickups are available after cooldown, including under occupied vehicles. No duplicate awards or overwritten grants.");
+                 Require(host.TryConfigure(0, new Dictionary<string, double> { ["spawns.cooldown_ticks"] = 1 }, out _), "Repeated pickup fixture configures a one-tick cooldown.");
+diff --git a/code/Client/Verification/PostMatchIntegrationChecks.cs b/code/Client/Verification/PostMatchIntegrationChecks.cs
+index 7d5f6ad4..b25025ac 100644
+--- a/code/Client/Verification/PostMatchIntegrationChecks.cs
++++ b/code/Client/Verification/PostMatchIntegrationChecks.cs
+@@ -64,7 +64,8 @@ public sealed partial class PostMatchIntegrationChecks : Node
+             _client = new DevelopmentSession();
+             view.AddChild(_client);
+             _client.Open(false, _endpoint, "Podium challenger");
+-            await Until(() => _host.Lobby?.State?.Players.Count == 2 && _client.Lobby?.State?.Players.Count == 2, "Two production sessions admitted");
++            await Until(() => _host.Lobby?.State?.Players.Count(player => !player.PracticeCar) == 2 &&
++                _client.Lobby?.State?.Players.Count(player => !player.PracticeCar) == 2, "Two production participants admitted alongside practice cars");
+             Check(!_host.NavigatePostMatch(PostMatchDestination.Rematch), "Rematch rejected before Finished");
+             await Start();
+ 
+@@ -178,7 +179,7 @@ public sealed partial class PostMatchIntegrationChecks : Node
+             KeyEvent(Key.F8);
+             navigation.Bindings.RestoreDefaults();
+             await Until(() => _host.Stage == ApplicationStage.Lobby && _client.Stage == ApplicationStage.Lobby, "Return to Lobby reaches joined state on both peers");
+-            Check(_host.Lobby!.State!.Players.All(player => !player.Ready) && _host.Arena is null && _client.Arena is null, "Return clears readiness and all match runtime");
++            Check(_host.Lobby!.State!.Players.All(player => player.Ready == player.PracticeCar) && _host.Arena is null && _client.Arena is null, "Return clears human readiness and all match runtime; practice cars stay ready");
+             await Start();
+             await FinishMatch();
+             Press(_host, "End Match");
+@@ -292,9 +293,11 @@ public sealed partial class PostMatchIntegrationChecks : Node
+         }
+         else
+         {
+-            // Solo quit-navigation fixture: no opponent exists for an attributed completion.
++            // No remote human remains; automatic practice cars can still be present.
++            // A detached quit-navigation result has exactly one winning participant.
+             var final = new MatchState(state.Tick, match.Revision + 1, match.KillTarget, MatchPhase.Finished, null, winner,
+-                match.Players.Select(row => new PlayerScore(row.Player, match.KillTarget, match.KillTarget, 1, (ulong)match.KillTarget) { CircusScore = 1375.5 }));
++                match.Players.Select(row => new PlayerScore(row.Player, match.KillTarget, match.KillTarget, row.Player == winner ? 1 : 0, (ulong)match.KillTarget)
++                    { CircusScore = row.Player == winner ? 1375.5 : 125.25 }));
+             world.Restore(new SimulationState(state.Tick, state.LastInput, state.Vehicles, final));
+         }
+         await Until(() => _host.Stage == ApplicationStage.Podium && (!withClient || _client?.Stage == ApplicationStage.Podium), "Authoritative Finished transitions to dedicated Podium");
+@@ -382,12 +385,14 @@ public sealed partial class PostMatchIntegrationChecks : Node
+             foreach (int participants in new[] { 8, 10 })
+             {
+                 var roster = original.Roster;
+-                var history = Enumerable.Range(3, participants - 2).Select(id => new MatchParticipant((ulong)id,
+-                    id == 3 ? "WWWWWWWWWWWWWWWWWWWWWWWW" : $"Retained player {id}"));
++                var connected = roster.Players.Where(player => !player.PracticeCar).ToArray();
++                ulong firstRetained = connected.Max(player => player.Id) + 1;
++                var history = Enumerable.Range(0, participants - connected.Length).Select(offset => new MatchParticipant(firstRetained + (ulong)offset,
++                    offset == 0 ? "WWWWWWWWWWWWWWWWWWWWWWWW" : $"Retained player {offset}"));
+                 var fixtureRoster = new LobbySnapshot(roster.Session, roster.Revision, roster.Match, roster.Phase,
+-                    roster.Players, roster.CurrentHostId, roster.AuthorityEpoch, history, roster.Map);
+-                ulong[] ids = new[] { 3UL, 1UL, 2UL }.Concat(Enumerable.Range(4, participants - 3).Select(id => (ulong)id)).ToArray();
+-                var results = new FinalMatchResults(original.Results.Tick, new MatchOutcome("layout fixture", 3),
++                    connected, roster.CurrentHostId, roster.AuthorityEpoch, history, roster.Map);
++                ulong[] ids = new[] { firstRetained }.Concat(connected.Select(player => player.Id)).Concat(history.Skip(1).Select(player => player.Id)).ToArray();
++                var results = new FinalMatchResults(original.Results.Tick, new MatchOutcome("layout fixture", firstRetained),
+                     ids.Select((id, index) => new FinalMatchStanding(id, index + 1, 1234567.89 - index * 100, index == 0 ? 5 : 0, 0, index == 0 ? 1 : 0)));
+                 handoff.SetValue(_host, new PostMatchContext(fixtureRoster, results));
+                 foreach (var size in new[] { new Vector2I(1280, 720), new Vector2I(640, 360) })
+diff --git a/code/Client/Verification/ReconnectIntegrationChecks.cs b/code/Client/Verification/ReconnectIntegrationChecks.cs
+index 36c8538b..98431eaf 100644
+--- a/code/Client/Verification/ReconnectIntegrationChecks.cs
++++ b/code/Client/Verification/ReconnectIntegrationChecks.cs
+@@ -19,6 +19,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
+ {
+     private IReadOnlyList<ShieldState> _shields = [];
+     private readonly Dictionary<ulong, ItemPublication> _salvoBoundaries = new();
++    private readonly Dictionary<ulong, IReadOnlyList<ShieldState>> _shieldBoundaries = new();
+     private readonly List<ReplicationTrafficGateway> _gateways = new();
+     private readonly List<SubViewport> _views = new();
+     private readonly List<NetworkVehicleArena> _arenas = new();
+@@ -43,6 +44,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
+     private int _cleanup;
+     private MatchStandings _board = null!;
+     private double _resumeAt;
++    private string _reconnectError = string.Empty;
+     private PlayerScore? _retainedScore;
+     private int _retainedRank;
+     private Input.PlayerInput _cameraInput = null!;
+@@ -107,7 +109,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
+         try
+         {
+             _elapsed += delta;
+-            Require(_elapsed < 170, $"Reconnect stage {_stage} timed out: {_client.Failure}");
++            Require(_elapsed < 170, $"Reconnect stage {_stage} timed out: {_client.Failure}; resume={_client.ResumeStatus}; fixture={_reconnectError}");
+             if (_arenas.Count == 0)
+             {
+                 _host.Pump(delta);
+@@ -118,6 +120,10 @@ public sealed partial class ReconnectIntegrationChecks : Node
+                 foreach (var arena in _arenas)
+                 {
+                     arena.Advance(default);
++                    // A resume can capture a quiet tick with no item publication.
++                    // Record committed shield state independently of weapon activity.
++                    if (arena.Driver.Host is { } host)
++                        _shieldBoundaries[host.World.State.Tick] = host.Items.Shields;
+                     if (OilFiringRecovery && arena.Driver.Host is not null) { CaptureOilBoundary(); }
+                 }
+             }
+@@ -197,8 +203,9 @@ public sealed partial class ReconnectIntegrationChecks : Node
+                 Require(_arenas[1].Pickups.SmashCount == _smashesBeforeResume && _arenas[1].Pickups.ActiveSmashCount == 0,
+                     "Native recovery clears transient crate fragments without replaying historical pickup tokens.");
+                 GD.Print($"Carnival smash reconnect {_resyncs}: no historical bursts, zero retained debris after checkpoint.");
+-                SalvoRecoveryFixture.Verify(_arenas[1].Driver.ItemState!, _salvoBoundaries);
+-                ShieldRecoveryFixture.Verify(_arenas[1].Driver.ItemState!.Shields, _shields, _salvoBoundaries[world.Tick].Shields, world.Tick);
++                if (!OS.GetCmdlineUserArgs().Contains("--shield-recovery"))
++                    SalvoRecoveryFixture.Verify(_arenas[1].Driver.ItemState!, _salvoBoundaries);
++                ShieldRecoveryFixture.Verify(_arenas[1].Driver.ItemState!.Shields, _shields, _shieldBoundaries[world.Tick], world.Tick);
+                 if (_resyncs <= 3)
+                 {
+                     Require(_arenas[1].Driver.ItemState!.Mines.Single().Id == _mine, "Mine identity restored exactly once.");
+@@ -307,8 +314,8 @@ public sealed partial class ReconnectIntegrationChecks : Node
+             _mine = ProxyMineRecoveryFixture.Seed(_arenas[0], _arenas);
+             Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["match.nitro_points_per_second"] = 0 }, out _), "Disable overspeed score only in the retention fixture to preserve its fixed rank assertions.");
+             NitroRecoveryFixture.Seed(_arenas[0], _player);
+-            // The optional shield occupies the slot otherwise used by Machine Gun; Salvo
+-            // fills the other slot at resume. Keep the default recovery regression intact.
++            // The focused Shield case must retain its selected rear shield. The default
++            // case instead exercises Machine Gun and committed Salvo recovery.
+             if (!OS.GetCmdlineUserArgs().Contains("--shield-recovery")) { MachineGunRecoveryFixture.Seed(_arenas[0], 1); }
+             _originalBody = _arenas[1].Bodies[_player];
+             SetScores(false);
+@@ -484,8 +491,17 @@ public sealed partial class ReconnectIntegrationChecks : Node
+     private ulong Reconnect()
+     {
+         if (_elapsed < _resumeAt) { throw new InvalidOperationException("Simulated interrupted route"); }
+-        if (OilFiringRecovery) { StartOilAtReconnect(); }
+-        else if (!EmpRecovery && _arenas.Count > 0) { SalvoRecoveryFixture.Seed(_arenas[0]); }
++        try
++        {
++            if (OilFiringRecovery) { StartOilAtReconnect(); }
++            else if (!EmpRecovery && _arenas.Count > 0 && !OS.GetCmdlineUserArgs().Contains("--shield-recovery"))
++                SalvoRecoveryFixture.Seed(_arenas[0]);
++        }
++        catch (Exception error)
++        {
++            _reconnectError = error.ToString();
++            throw;
++        }
+         return _gateways[1].Connect(TransportEndpoint.DirectIp(_endpoint));
+     }
+ 

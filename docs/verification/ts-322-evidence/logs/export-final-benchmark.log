@@ -1,0 +1,49 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+BENCHMARK map-only: 1001 frames, mean FPS 200.7
+BENCHMARK map-pickups: 1044 frames, mean FPS 209.1
+BENCHMARK crate-pressure: 833 frames, mean FPS 167.1
+BENCHMARK crate-cleanup: 1317 frames, mean FPS 263.8
+BENCHMARK idle-one: 964 frames, mean FPS 193.0
+BENCHMARK driving-one: 840 frames, mean FPS 168.3
+BENCHMARK three-cars-prior-roster: 698 frames, mean FPS 140.0
+BENCHMARK four-cars: 487 frames, mean FPS 94.5
+BENCHMARK combat-machine-gun: 296 frames, mean FPS 59.5
+BENCHMARK sustained-four-cars: 317 frames, mean FPS 63.7
+BENCHMARK five-cars-application-roster: 378 frames, mean FPS 75.8
+Performance benchmark completed in 107.5s: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\performance\export-v2-final-20261031-155821\run-1
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+BENCHMARK map-only: 999 frames, mean FPS 200.4
+BENCHMARK map-pickups: 995 frames, mean FPS 199.3
+BENCHMARK crate-pressure: 882 frames, mean FPS 178.3
+BENCHMARK crate-cleanup: 1127 frames, mean FPS 225.7
+BENCHMARK idle-one: 884 frames, mean FPS 177.1
+BENCHMARK driving-one: 800 frames, mean FPS 158.7
+BENCHMARK three-cars-prior-roster: 621 frames, mean FPS 124.5
+BENCHMARK four-cars: 459 frames, mean FPS 92.0
+BENCHMARK combat-machine-gun: 365 frames, mean FPS 73.3
+BENCHMARK sustained-four-cars: 370 frames, mean FPS 74.2
+BENCHMARK five-cars-application-roster: 464 frames, mean FPS 93.1
+Performance benchmark completed in 107.0s: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\performance\export-v2-final-20261031-155821\run-2
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+BENCHMARK map-only: 1359 frames, mean FPS 272.2
+BENCHMARK map-pickups: 1194 frames, mean FPS 239.0
+BENCHMARK crate-pressure: 1069 frames, mean FPS 215.5
+BENCHMARK crate-cleanup: 1362 frames, mean FPS 272.6
+BENCHMARK idle-one: 913 frames, mean FPS 182.8
+BENCHMARK driving-one: 756 frames, mean FPS 151.6
+BENCHMARK three-cars-prior-roster: 606 frames, mean FPS 121.4
+BENCHMARK four-cars: 340 frames, mean FPS 68.2
+BENCHMARK combat-machine-gun: 340 frames, mean FPS 68.1
+BENCHMARK sustained-four-cars: 429 frames, mean FPS 86.1
+BENCHMARK five-cars-application-roster: 364 frames, mean FPS 73.0
+Performance benchmark completed in 106.3s: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\performance\export-v2-final-20261031-155821\run-3
+
+Benchmark evidence: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\performance\export-v2-final-20261031-155821

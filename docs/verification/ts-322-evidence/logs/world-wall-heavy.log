@@ -1,0 +1,34 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+PROFILE walls=1 fps=56.9 physics_ms=42.018 process_ms=12.888 ground_ms/frame=0.011 fits=2 rays=80 nodes=2279 orphans=0 bodies=4
+PROFILE walls=1 fps=59.3 physics_ms=17.290 process_ms=3.031 ground_ms/frame=0.090 fits=55 rays=2200 nodes=2127 orphans=0 bodies=4
+Heavy case 0: drift 0.085 m, car damage 0.0, wall HP 1000.0, final speed 0.000 m/s.
+PROFILE walls=0 fps=60.0 physics_ms=27.224 process_ms=5.480 ground_ms/frame=0.000 fits=0 rays=0 nodes=2273 orphans=0 bodies=3
+PROFILE walls=1 fps=60.0 physics_ms=13.137 process_ms=9.235 ground_ms/frame=0.003 fits=2 rays=80 nodes=2279 orphans=0 bodies=4
+PROFILE walls=1 fps=59.9 physics_ms=19.647 process_ms=6.324 ground_ms/frame=0.287 fits=78 rays=3120 nodes=2127 orphans=0 bodies=4
+Heavy case 1: drift 0.489 m, car damage 62.7, wall HP 937.3, final speed 0.000 m/s.
+PROFILE walls=0 fps=60.1 physics_ms=19.873 process_ms=6.489 ground_ms/frame=0.000 fits=0 rays=0 nodes=2273 orphans=0 bodies=3
+PROFILE walls=1 fps=60.0 physics_ms=12.577 process_ms=13.115 ground_ms/frame=0.003 fits=2 rays=80 nodes=2133 orphans=0 bodies=4
+PROFILE walls=1 fps=59.9 physics_ms=18.353 process_ms=2.765 ground_ms/frame=0.144 fits=89 rays=3560 nodes=2127 orphans=0 bodies=4
+Heavy case 2: drift 1.141 m, car damage 100.0, wall HP 900.0, final speed 0.000 m/s.
+PROFILE walls=0 fps=60.1 physics_ms=20.534 process_ms=9.945 ground_ms/frame=0.000 fits=0 rays=0 nodes=2273 orphans=0 bodies=3
+PROFILE walls=1 fps=60.0 physics_ms=14.431 process_ms=9.205 ground_ms/frame=0.003 fits=2 rays=80 nodes=2127 orphans=0 bodies=4
+PROFILE walls=1 fps=59.9 physics_ms=17.749 process_ms=2.590 ground_ms/frame=0.267 fits=164 rays=6560 nodes=2127 orphans=0 bodies=4
+Heavy case 3: drift 0.485 m, car damage 63.1, wall HP 936.9, final speed 0.000 m/s.
+PROFILE walls=0 fps=60.1 physics_ms=23.579 process_ms=6.494 ground_ms/frame=0.196 fits=120 rays=4800 nodes=2137 orphans=0 bodies=3
+PROFILE walls=1 fps=60.0 physics_ms=11.315 process_ms=13.423 ground_ms/frame=0.003 fits=2 rays=80 nodes=2127 orphans=0 bodies=4
+PROFILE walls=1 fps=59.8 physics_ms=20.611 process_ms=6.923 ground_ms/frame=0.303 fits=177 rays=7080 nodes=2127 orphans=0 bodies=4
+Heavy case 4: drift 0.484 m, car damage 63.1, wall HP 936.9, final speed 0.000 m/s.
+PROFILE walls=0 fps=60.2 physics_ms=23.791 process_ms=13.689 ground_ms/frame=0.178 fits=107 rays=4280 nodes=2135 orphans=0 bodies=3
+PROFILE walls=1 fps=59.8 physics_ms=14.461 process_ms=13.180 ground_ms/frame=0.045 fits=11 rays=1280 nodes=2133 orphans=0 bodies=4
+PROFILE walls=1 fps=60.2 physics_ms=20.447 process_ms=2.531 ground_ms/frame=0.780 fits=164 rays=17920 nodes=2127 orphans=0 bodies=4
+Heavy case 5: drift 0.492 m, car damage 62.7, wall HP 937.3, final speed 0.000 m/s.
+PROFILE walls=0 fps=60.0 physics_ms=13.786 process_ms=8.253 ground_ms/frame=0.000 fits=0 rays=0 nodes=2135 orphans=0 bodies=3
+PROFILE walls=1 fps=60.0 physics_ms=12.849 process_ms=6.525 ground_ms/frame=0.021 fits=13 rays=520 nodes=2131 orphans=0 bodies=4
+PROFILE walls=1 fps=60.0 physics_ms=14.507 process_ms=2.543 ground_ms/frame=0.000 fits=0 rays=0 nodes=2127 orphans=0 bodies=4
+Heavy case 6: drift 0.005 m, car damage 62.7, wall HP 937.3, final speed 0.000 m/s.
+PROFILE walls=0 fps=60.0 physics_ms=11.857 process_ms=8.080 ground_ms/frame=0.000 fits=0 rays=0 nodes=2135 orphans=0 bodies=3
+PROFILE walls=1 fps=60.0 physics_ms=13.798 process_ms=6.876 ground_ms/frame=0.078 fits=48 rays=1920 nodes=2127 orphans=0 bodies=4
+PROFILE walls=1 fps=59.9 physics_ms=23.476 process_ms=6.158 ground_ms/frame=0.497 fits=180 rays=7200 nodes=2127 orphans=0 bodies=4
+Heavy case 7: drift 2.604 m, car damage 0.0, wall HP 1000.0, final speed 0.640 m/s.
+World wall integration passed: heavy center/wings/bank, simultaneous cars, repeated use, sustained push and authoritative damage.

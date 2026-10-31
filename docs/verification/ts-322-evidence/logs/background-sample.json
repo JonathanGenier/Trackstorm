@@ -1,0 +1,74 @@
+[
+  {
+    "Name": "firefox",
+    "Id": 14204,
+    "CpuSeconds": 3.125,
+    "WorkingSetMB": 1014.1
+  },
+  {
+    "Name": "OneDrive.Sync.Service",
+    "Id": 17240,
+    "CpuSeconds": 1.578125,
+    "WorkingSetMB": 53.7
+  },
+  {
+    "Name": "codex-computer-use",
+    "Id": 16672,
+    "CpuSeconds": 0.4375,
+    "WorkingSetMB": 133.2
+  },
+  {
+    "Name": "pwsh",
+    "Id": 16140,
+    "CpuSeconds": 0.390625,
+    "WorkingSetMB": 98.0
+  },
+  {
+    "Name": "pwsh",
+    "Id": 11880,
+    "CpuSeconds": 0.109375,
+    "WorkingSetMB": 77.3
+  },
+  {
+    "Name": "Godot_v4.7.2-stable_mono_win64",
+    "Id": 15860,
+    "CpuSeconds": 0.09375,
+    "WorkingSetMB": 866.7
+  },
+  {
+    "Name": "Discord",
+    "Id": 1996,
+    "CpuSeconds": 0.078125,
+    "WorkingSetMB": 168.8
+  },
+  {
+    "Name": "ChatGPT",
+    "Id": 1280,
+    "CpuSeconds": 0.046875,
+    "WorkingSetMB": 418.8
+  },
+  {
+    "Name": "GameInputRawInputProxy",
+    "Id": 7044,
+    "CpuSeconds": 0.015625,
+    "WorkingSetMB": 4.4
+  },
+  {
+    "Name": "codex",
+    "Id": 12000,
+    "CpuSeconds": 0.015625,
+    "WorkingSetMB": 645.9
+  },
+  {
+    "Name": "XboxService",
+    "Id": 5672,
+    "CpuSeconds": 0.015625,
+    "WorkingSetMB": 14.4
+  },
+  {
+    "Name": "audiodg",
+    "Id": 9928,
+    "CpuSeconds": 0.015625,
+    "WorkingSetMB": 18.0
+  }
+]

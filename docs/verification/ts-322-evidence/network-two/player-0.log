@@ -1,0 +1,9 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+NETWORK_CONNECTION {"RemotePeerId":1,"State":1,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":1,"State":2,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":1,"State":0,"Reason":2,"Detail":"Transport stopped"}
+Network vehicle metrics: host=True, entry=True, maximum=0, startup=0, steady=0, snaps=0; full report: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\network-vehicle-checks\ed3d81b2d48240a2a47f7494bd16ee71\player-0.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":40.1529691,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TD","delivery":"Reliable","bytes":4664,"messages":2,"peak":2332},{"peer":1,"protocol":"TE","delivery":"Reliable","bytes":10397,"messages":8,"peak":4329},{"peer":1,"protocol":"TG","delivery":"Reliable","bytes":16975,"messages":11,"peak":10880},{"peer":1,"protocol":"TG","delivery":"Unreliable","bytes":1114337,"messages":650,"peak":6868},{"peer":1,"protocol":"TL","delivery":"Reliable","bytes":330,"messages":3,"peak":110},{"peer":1,"protocol":"TP","delivery":"Reliable","bytes":1904,"messages":28,"peak":68}]}

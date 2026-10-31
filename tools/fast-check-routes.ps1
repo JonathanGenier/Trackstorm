@@ -359,6 +359,9 @@ function Get-FastCheckPlan {
         }
 
         # Items and lifecycle.
+        if ($path -match '(?i)PerformanceBenchmark|performance_benchmark|benchmark-performance') {
+            Add-Manual 'Run tools/benchmark-performance.ps1 with matched before/after parameters; inspect per-trial results, rendered captures and the human PC controls in docs/performance.md.'
+        }
         if ($path -match '(?i)CarnivalPickup|CarnivalSmash|PickupSmash|carnival.crate|carnival.pickup|carnival.smash|ItemSpawnPresentation|PickupGroundPose') {
             Add-Runtime 'check-carnival-pickup.ps1'
             Add-Runtime 'check-carnival-smash.ps1'

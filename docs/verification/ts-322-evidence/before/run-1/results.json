@@ -1,0 +1,719 @@
+[
+  {
+    "scenario": "map-only",
+    "seconds": 4.9933184,
+    "renderSamples": 1402,
+    "simulationSamples": 0,
+    "fpsFromIntervals": 280.98859805589115,
+    "frameMs": {
+      "count": 1402,
+      "mean": 3.5588632667617746,
+      "median": 3.5269,
+      "p95": 3.7841,
+      "p99": 3.9816,
+      "max": 5.1165
+    },
+    "framesOver33Ms": 0,
+    "framesOver50Ms": 0,
+    "godotPhysicsMs": {
+      "count": 1402,
+      "mean": 1.149873751783167,
+      "median": 0.07200000000000001,
+      "p95": 5.460999999999999,
+      "p99": 5.460999999999999,
+      "max": 5.460999999999999
+    },
+    "godotProcessMs": {
+      "count": 1402,
+      "mean": 4.955480028530822,
+      "median": 4.88,
+      "p95": 5.55,
+      "p99": 5.55,
+      "max": 5.55
+    },
+    "advanceCpuMs": {
+      "count": 0
+    },
+    "drawCalls": {
+      "count": 1402,
+      "mean": 861,
+      "median": 861,
+      "p95": 861,
+      "p99": 861,
+      "max": 861
+    },
+    "cpuCoreEquivalent": 0.998208926552731,
+    "machineGunRounds": 0,
+    "vehicles": 0,
+    "before": {
+      "managed": 13922528,
+      "privateBytes": 505270272,
+      "nodes": 1728,
+      "resources": 521,
+      "orphans": 0,
+      "engineBytes": 57749288,
+      "videoBytes": 54313551,
+      "gen0": 2,
+      "gen1": 1,
+      "gen2": 1
+    },
+    "after": {
+      "managed": 14520736,
+      "privateBytes": 446922752,
+      "nodes": 1728,
+      "resources": 521,
+      "orphans": 0,
+      "engineBytes": 57749448,
+      "videoBytes": 54313551,
+      "gen0": 2,
+      "gen1": 1,
+      "gen2": 1
+    },
+    "shieldFits": 0,
+    "shieldRays": 0
+  },
+  {
+    "scenario": "map-pickups",
+    "seconds": 4.9986326,
+    "renderSamples": 1243,
+    "simulationSamples": 0,
+    "fpsFromIntervals": 248.8733874160764,
+    "frameMs": {
+      "count": 1243,
+      "mean": 4.018107401448112,
+      "median": 3.9916,
+      "p95": 4.2841,
+      "p99": 4.4701,
+      "max": 5.8457
+    },
+    "framesOver33Ms": 0,
+    "framesOver50Ms": 0,
+    "godotPhysicsMs": {
+      "count": 1243,
+      "mean": 0.41917055510860923,
+      "median": 0.082,
+      "p95": 1.7570000000000001,
+      "p99": 1.7570000000000001,
+      "max": 1.7570000000000001
+    },
+    "godotProcessMs": {
+      "count": 1243,
+      "mean": 5.4158777152050535,
+      "median": 5.644,
+      "p95": 5.805000000000001,
+      "p99": 5.805000000000001,
+      "max": 5.805000000000001
+    },
+    "advanceCpuMs": {
+      "count": 0
+    },
+    "drawCalls": {
+      "count": 1243,
+      "mean": 1314,
+      "median": 1314,
+      "p95": 1314,
+      "p99": 1314,
+      "max": 1314
+    },
+    "cpuCoreEquivalent": 0.9940218450941964,
+    "machineGunRounds": 0,
+    "vehicles": 0,
+    "before": {
+      "managed": 15732960,
+      "privateBytes": 529580032,
+      "nodes": 2107,
+      "resources": 568,
+      "orphans": 0,
+      "engineBytes": 62387007,
+      "videoBytes": 87631609,
+      "gen0": 2,
+      "gen1": 1,
+      "gen2": 1
+    },
+    "after": {
+      "managed": 16157024,
+      "privateBytes": 522215424,
+      "nodes": 2107,
+      "resources": 568,
+      "orphans": 0,
+      "engineBytes": 62387007,
+      "videoBytes": 87631609,
+      "gen0": 2,
+      "gen1": 1,
+      "gen2": 1
+    },
+    "shieldFits": 0,
+    "shieldRays": 0
+  },
+  {
+    "scenario": "pickup-publication-cpu",
+    "calls": 10000,
+    "milliseconds": {
+      "count": 10,
+      "mean": 0.14383504,
+      "median": 0.1433115,
+      "p95": 0.1480508,
+      "p99": 0.1480508,
+      "max": 0.1480508
+    },
+    "bytesPerCall": {
+      "count": 10,
+      "mean": 12067.8184,
+      "median": 11944,
+      "p95": 13181.976,
+      "p99": 13181.976,
+      "max": 13181.976
+    }
+  },
+  {
+    "scenario": "crate-pressure",
+    "seconds": 4.998977,
+    "renderSamples": 1030,
+    "simulationSamples": 0,
+    "fpsFromIntervals": 207.81826014714045,
+    "frameMs": {
+      "count": 1030,
+      "mean": 4.81189669902912,
+      "median": 4.2863,
+      "p95": 5.3103,
+      "p99": 24.472,
+      "max": 33.3223
+    },
+    "framesOver33Ms": 0,
+    "framesOver50Ms": 0,
+    "godotPhysicsMs": {
+      "count": 1030,
+      "mean": 21.88976019417513,
+      "median": 21.2,
+      "p95": 40.255,
+      "p99": 40.255,
+      "max": 40.255
+    },
+    "godotProcessMs": {
+      "count": 1030,
+      "mean": 22.810975728155405,
+      "median": 27.768,
+      "p95": 32.811,
+      "p99": 32.811,
+      "max": 32.811
+    },
+    "advanceCpuMs": {
+      "count": 0
+    },
+    "drawCalls": {
+      "count": 1030,
+      "mean": 1026.3844660194175,
+      "median": 989,
+      "p95": 1106,
+      "p99": 1106,
+      "max": 1106
+    },
+    "cpuCoreEquivalent": 1.0189584789047839,
+    "machineGunRounds": 0,
+    "vehicles": 0,
+    "before": {
+      "managed": 5954368,
+      "privateBytes": 535592960,
+      "nodes": 2107,
+      "resources": 565,
+      "orphans": 0,
+      "engineBytes": 62269799,
+      "videoBytes": 87631609,
+      "gen0": 38,
+      "gen1": 18,
+      "gen2": 5
+    },
+    "after": {
+      "managed": 14136584,
+      "privateBytes": 563716096,
+      "nodes": 2377,
+      "resources": 566,
+      "orphans": 0,
+      "engineBytes": 70871099,
+      "videoBytes": 88691195,
+      "gen0": 45,
+      "gen1": 23,
+      "gen2": 7
+    },
+    "shieldFits": 0,
+    "shieldRays": 0
+  },
+  {
+    "scenario": "crate-cleanup",
+    "seconds": 4.9989788,
+    "renderSamples": 1369,
+    "simulationSamples": 0,
+    "fpsFromIntervals": 274.05515082652283,
+    "frameMs": {
+      "count": 1369,
+      "mean": 3.648900584368148,
+      "median": 3.6154,
+      "p95": 3.9693,
+      "p99": 4.5055,
+      "max": 5.9602
+    },
+    "framesOver33Ms": 0,
+    "framesOver50Ms": 0,
+    "godotPhysicsMs": {
+      "count": 1369,
+      "mean": 0.399919649379108,
+      "median": 0.076,
+      "p95": 1.668,
+      "p99": 1.668,
+      "max": 1.668
+    },
+    "godotProcessMs": {
+      "count": 1369,
+      "mean": 5.0153316289262335,
+      "median": 5.001,
+      "p95": 5.312,
+      "p99": 5.312,
+      "max": 5.312
+    },
+    "advanceCpuMs": {
+      "count": 0
+    },
+    "drawCalls": {
+      "count": 1369,
+      "mean": 885,
+      "median": 885,
+      "p95": 885,
+      "p99": 885,
+      "max": 885
+    },
+    "cpuCoreEquivalent": 0.968947897918671,
+    "machineGunRounds": 0,
+    "vehicles": 0,
+    "before": {
+      "managed": 15341568,
+      "privateBytes": 561242112,
+      "nodes": 2107,
+      "resources": 565,
+      "orphans": 0,
+      "engineBytes": 66682719,
+      "videoBytes": 88096763,
+      "gen0": 54,
+      "gen1": 32,
+      "gen2": 7
+    },
+    "after": {
+      "managed": 15799648,
+      "privateBytes": 561180672,
+      "nodes": 2107,
+      "resources": 565,
+      "orphans": 0,
+      "engineBytes": 66682719,
+      "videoBytes": 88096763,
+      "gen0": 54,
+      "gen1": 32,
+      "gen2": 7
+    },
+    "shieldFits": 0,
+    "shieldRays": 0
+  },
+  {
+    "scenario": "idle-one",
+    "seconds": 4.9966247,
+    "renderSamples": 977,
+    "simulationSamples": 300,
+    "fpsFromIntervals": 195.7598222140151,
+    "frameMs": {
+      "count": 977,
+      "mean": 5.108300511770728,
+      "median": 4.8014,
+      "p95": 6.0176,
+      "p99": 6.6778,
+      "max": 14.008
+    },
+    "framesOver33Ms": 0,
+    "framesOver50Ms": 0,
+    "godotPhysicsMs": {
+      "count": 977,
+      "mean": 5.9400716479017905,
+      "median": 6.563000000000001,
+      "p95": 8.585,
+      "p99": 8.585,
+      "max": 8.585
+    },
+    "godotProcessMs": {
+      "count": 977,
+      "mean": 7.074058341862856,
+      "median": 6.28,
+      "p95": 10.027,
+      "p99": 10.027,
+      "max": 10.027
+    },
+    "advanceCpuMs": {
+      "count": 300,
+      "mean": 0.9068843333333338,
+      "median": 0.8136,
+      "p95": 0.91,
+      "p99": 6.096,
+      "max": 8.4079
+    },
+    "drawCalls": {
+      "count": 977,
+      "mean": 924,
+      "median": 924,
+      "p95": 924,
+      "p99": 924,
+      "max": 924
+    },
+    "cpuCoreEquivalent": 0.9819128500885809,
+    "machineGunRounds": 0,
+    "vehicles": 1,
+    "before": {
+      "managed": 40208568,
+      "privateBytes": 848048128,
+      "nodes": 2664,
+      "resources": 850,
+      "orphans": 0,
+      "engineBytes": 192877363,
+      "videoBytes": 132425763,
+      "gen0": 63,
+      "gen1": 40,
+      "gen2": 11
+    },
+    "after": {
+      "managed": 38503832,
+      "privateBytes": 837468160,
+      "nodes": 2664,
+      "resources": 850,
+      "orphans": 0,
+      "engineBytes": 192851851,
+      "videoBytes": 132425763,
+      "gen0": 69,
+      "gen1": 46,
+      "gen2": 11
+    },
+    "shieldFits": 0,
+    "shieldRays": 0
+  },
+  {
+    "scenario": "driving-one",
+    "seconds": 5.0001351,
+    "renderSamples": 994,
+    "simulationSamples": 300,
+    "fpsFromIntervals": 199.02561543766024,
+    "frameMs": {
+      "count": 994,
+      "mean": 5.024478873239434,
+      "median": 4.5705,
+      "p95": 6.5939,
+      "p99": 10.1327,
+      "max": 26.6949
+    },
+    "framesOver33Ms": 0,
+    "framesOver50Ms": 0,
+    "godotPhysicsMs": {
+      "count": 994,
+      "mean": 13.835733400402283,
+      "median": 8.148000000000001,
+      "p95": 42.241,
+      "p99": 42.241,
+      "max": 42.241
+    },
+    "godotProcessMs": {
+      "count": 994,
+      "mean": 15.577158953722064,
+      "median": 10.083,
+      "p95": 31.204,
+      "p99": 31.204,
+      "max": 31.204
+    },
+    "advanceCpuMs": {
+      "count": 300,
+      "mean": 1.4677246666666666,
+      "median": 1.5419,
+      "p95": 1.867,
+      "p99": 7.8451,
+      "max": 9.4174
+    },
+    "drawCalls": {
+      "count": 994,
+      "mean": 853.5070422535211,
+      "median": 836,
+      "p95": 957,
+      "p99": 966,
+      "max": 969
+    },
+    "cpuCoreEquivalent": 0.9905982340357165,
+    "machineGunRounds": 0,
+    "vehicles": 1,
+    "before": {
+      "managed": 36090352,
+      "privateBytes": 847740928,
+      "nodes": 2741,
+      "resources": 952,
+      "orphans": 0,
+      "engineBytes": 193715404,
+      "videoBytes": 135111111,
+      "gen0": 73,
+      "gen1": 50,
+      "gen2": 11
+    },
+    "after": {
+      "managed": 36089072,
+      "privateBytes": 863834112,
+      "nodes": 2750,
+      "resources": 948,
+      "orphans": 0,
+      "engineBytes": 198128396,
+      "videoBytes": 135134807,
+      "gen0": 80,
+      "gen1": 57,
+      "gen2": 11
+    },
+    "shieldFits": 0,
+    "shieldRays": 0
+  },
+  {
+    "scenario": "four-cars",
+    "seconds": 5.0004636,
+    "renderSamples": 718,
+    "simulationSamples": 300,
+    "fpsFromIntervals": 143.83041344573186,
+    "frameMs": {
+      "count": 718,
+      "mean": 6.9526324512534785,
+      "median": 5.8481,
+      "p95": 8.9111,
+      "p99": 16.847,
+      "max": 17.9838
+    },
+    "framesOver33Ms": 0,
+    "framesOver50Ms": 0,
+    "godotPhysicsMs": {
+      "count": 718,
+      "mean": 11.230385793871848,
+      "median": 11.348,
+      "p95": 11.749,
+      "p99": 11.749,
+      "max": 11.749
+    },
+    "godotProcessMs": {
+      "count": 718,
+      "mean": 8.671927576601657,
+      "median": 7.181,
+      "p95": 14.694,
+      "p99": 14.694,
+      "max": 14.694
+    },
+    "advanceCpuMs": {
+      "count": 300,
+      "mean": 2.2583313333333335,
+      "median": 1.9176,
+      "p95": 2.5856,
+      "p99": 10.7085,
+      "max": 11.5097
+    },
+    "drawCalls": {
+      "count": 718,
+      "mean": 941.9442896935933,
+      "median": 942,
+      "p95": 960,
+      "p99": 963,
+      "max": 963
+    },
+    "cpuCoreEquivalent": 1.0280296810879697,
+    "machineGunRounds": 0,
+    "vehicles": 4,
+    "before": {
+      "managed": 36708496,
+      "privateBytes": 872181760,
+      "nodes": 3747,
+      "resources": 950,
+      "orphans": 0,
+      "engineBytes": 204657527,
+      "videoBytes": 135171407,
+      "gen0": 87,
+      "gen1": 64,
+      "gen2": 11
+    },
+    "after": {
+      "managed": 38931992,
+      "privateBytes": 872800256,
+      "nodes": 3737,
+      "resources": 950,
+      "orphans": 0,
+      "engineBytes": 204771447,
+      "videoBytes": 135169727,
+      "gen0": 98,
+      "gen1": 75,
+      "gen2": 11
+    },
+    "shieldFits": 0,
+    "shieldRays": 0
+  },
+  {
+    "scenario": "combat-machine-gun",
+    "seconds": 4.9956873,
+    "renderSamples": 531,
+    "simulationSamples": 300,
+    "fpsFromIntervals": 106.52884816254678,
+    "frameMs": {
+      "count": 531,
+      "mean": 9.387128625235414,
+      "median": 10.0688,
+      "p95": 12.4613,
+      "p99": 19.029,
+      "max": 21.8279
+    },
+    "framesOver33Ms": 0,
+    "framesOver50Ms": 0,
+    "godotPhysicsMs": {
+      "count": 531,
+      "mean": 12.67306403013187,
+      "median": 12.007,
+      "p95": 14.383,
+      "p99": 14.383,
+      "max": 14.383
+    },
+    "godotProcessMs": {
+      "count": 531,
+      "mean": 8.763457627118601,
+      "median": 7.96,
+      "p95": 11.736,
+      "p99": 11.736,
+      "max": 11.736
+    },
+    "advanceCpuMs": {
+      "count": 300,
+      "mean": 3.4158690000000007,
+      "median": 2.9547,
+      "p95": 5.8365,
+      "p99": 11.1932,
+      "max": 13.9626
+    },
+    "drawCalls": {
+      "count": 531,
+      "mean": 1017.9830508474577,
+      "median": 872,
+      "p95": 1550,
+      "p99": 1591,
+      "max": 1594
+    },
+    "cpuCoreEquivalent": 1.0853111242571167,
+    "machineGunRounds": 347,
+    "vehicles": 4,
+    "before": {
+      "managed": 37818792,
+      "privateBytes": 910495744,
+      "nodes": 3721,
+      "resources": 908,
+      "orphans": 0,
+      "engineBytes": 205226349,
+      "videoBytes": 139866303,
+      "gen0": 106,
+      "gen1": 83,
+      "gen2": 11
+    },
+    "after": {
+      "managed": 14458952,
+      "privateBytes": 887611392,
+      "nodes": 3758,
+      "resources": 913,
+      "orphans": 0,
+      "engineBytes": 206464521,
+      "videoBytes": 141263411,
+      "gen0": 120,
+      "gen1": 97,
+      "gen2": 12
+    },
+    "shieldFits": 0,
+    "shieldRays": 0
+  },
+  {
+    "scenario": "sustained-four-cars",
+    "seconds": 5.0009214,
+    "renderSamples": 556,
+    "simulationSamples": 300,
+    "fpsFromIntervals": 111.61984465127429,
+    "frameMs": {
+      "count": 556,
+      "mean": 8.958980395683463,
+      "median": 9.709,
+      "p95": 10.6661,
+      "p99": 18.9443,
+      "max": 20.5483
+    },
+    "framesOver33Ms": 0,
+    "framesOver50Ms": 0,
+    "godotPhysicsMs": {
+      "count": 556,
+      "mean": 11.976588129496356,
+      "median": 11.686,
+      "p95": 13.495,
+      "p99": 13.495,
+      "max": 13.495
+    },
+    "godotProcessMs": {
+      "count": 556,
+      "mean": 11.661399280575603,
+      "median": 9.276,
+      "p95": 16.297,
+      "p99": 16.297,
+      "max": 16.297
+    },
+    "advanceCpuMs": {
+      "count": 300,
+      "mean": 2.4481153333333308,
+      "median": 2.1367,
+      "p95": 2.3975,
+      "p99": 11.469,
+      "max": 11.7344
+    },
+    "drawCalls": {
+      "count": 556,
+      "mean": 1471.023381294964,
+      "median": 1473,
+      "p95": 1488,
+      "p99": 1489,
+      "max": 1493
+    },
+    "cpuCoreEquivalent": 1.034184420494991,
+    "machineGunRounds": 0,
+    "vehicles": 4,
+    "before": {
+      "managed": 15264584,
+      "privateBytes": 887586816,
+      "nodes": 3756,
+      "resources": 911,
+      "orphans": 0,
+      "engineBytes": 206516033,
+      "videoBytes": 141263411,
+      "gen0": 127,
+      "gen1": 104,
+      "gen2": 12
+    },
+    "after": {
+      "managed": 14504304,
+      "privateBytes": 891822080,
+      "nodes": 3756,
+      "resources": 911,
+      "orphans": 0,
+      "engineBytes": 206454961,
+      "videoBytes": 141261731,
+      "gen0": 139,
+      "gen1": 116,
+      "gen2": 12
+    },
+    "shieldFits": 0,
+    "shieldRays": 0
+  },
+  {
+    "scenario": "arena-teardown",
+    "memory": {
+      "managed": 15027104,
+      "privateBytes": 725729280,
+      "nodes": 2,
+      "resources": 239,
+      "orphans": 0,
+      "engineBytes": 106997044,
+      "videoBytes": 78615816,
+      "gen0": 139,
+      "gen1": 116,
+      "gen2": 12
+    }
+  }
+]

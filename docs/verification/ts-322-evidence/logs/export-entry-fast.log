@@ -1,0 +1,22 @@
+PASS: tools/test-workflow-tools.ps1 (14.938s); log: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-322\export-entry-fast\tools-test-workflow-tools.ps1-694fa680c9e94f598c75d89c3de53bab.stdout.log
+PASS: Client Debug build (16.8s); log: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-322\export-entry-fast\Client-Debug-build-bc4d61d6511447b58b05c389e390bf85.stdout.log
+PENDING: Manual: Inspect the intact stack and gold smash in all environment presets at driving distances; confirm one unobstructed authoritative collectible, consistent peer bursts and complete debris cleanup.
+PENDING: Manual: Run tools/benchmark-performance.ps1 with matched before/after parameters; inspect per-trial results, rendered captures and the human PC controls in docs/performance.md.
+PENDING: Runtime: check-carnival-pickup.ps1 (Godot unavailable)
+PENDING: Runtime: check-carnival-smash.ps1 (Godot unavailable)
+PENDING: Runtime: check-death-respawn.ps1 (Godot unavailable)
+PENDING: Runtime: check-item-spawns.ps1 (Godot unavailable)
+PENDING: Runtime: check-items.ps1 (Godot unavailable)
+PENDING: Runtime: check-machine-gun.ps1 (Godot unavailable)
+PENDING: Runtime: check-nitro.ps1 (Godot unavailable)
+PENDING: Runtime: check-oil-handling.ps1 (Godot unavailable)
+PENDING: Runtime: check-oil-jack.ps1 (Godot unavailable)
+PENDING: Runtime: check-oil.ps1 (Godot unavailable)
+PENDING: Runtime: check-pickup-drive.ps1 (Godot unavailable)
+PENDING: Runtime: check-post-match.ps1 (Godot unavailable)
+PENDING: Runtime: check-reconnect.ps1 (Godot unavailable)
+PENDING: Runtime: check-startup.ps1 (Godot unavailable)
+PENDING: Runtime: check-statistics.ps1 (Godot unavailable)
+PENDING: Runtime: check-twin-fang.ps1 (Godot unavailable)
+Targeted result: COMPLETED_WITH_PENDING. Evidence: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-322\export-entry-fast\results.json
+Run ./check.ps1 and applicable runtime/native checks before final Story handoff.
