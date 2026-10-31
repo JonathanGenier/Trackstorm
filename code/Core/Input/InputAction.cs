@@ -58,4 +58,18 @@ public enum InputAction
     AirRollRight,
     /// <summary>Permanently delete the selected held item.</summary>
     DiscardItem,
+    /// <summary>Toggle local photo camera; never recorded in gameplay frames.</summary>
+    FreeCamera,
+    /// <summary>Local photo-camera forward translation.</summary>
+    CameraForward,
+    /// <summary>Local photo-camera backward translation.</summary>
+    CameraBackward,
+    /// <summary>Local photo-camera ascent.</summary>
+    CameraRise,
+    /// <summary>Local photo-camera descent.</summary>
+    CameraLower,
+    /// <summary>Local photo-camera fast travel.</summary>
+    CameraFast,
+    /// <summary>Local photo-camera precision travel.</summary>
+    CameraSlow,
 }

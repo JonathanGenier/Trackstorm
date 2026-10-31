@@ -36,6 +36,13 @@ internal sealed class PlayerInputBindings : IDisposable
     public void RestoreDefaults(int gamepadDevice = 0)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(gamepadDevice);
+        Set(InputAction.FreeCamera, Key.C, Button(JoyButton.DpadUp, gamepadDevice));
+        Set(InputAction.CameraForward, Key.W, Axis(JoyAxis.LeftY, -1, gamepadDevice));
+        Set(InputAction.CameraBackward, Key.S, Axis(JoyAxis.LeftY, 1, gamepadDevice));
+        Set(InputAction.CameraRise, Key.E, Axis(JoyAxis.TriggerRight, 1, gamepadDevice));
+        Set(InputAction.CameraLower, Key.Q, Axis(JoyAxis.TriggerLeft, 1, gamepadDevice));
+        Set(InputAction.CameraFast, Key.Shift, Button(JoyButton.RightShoulder, gamepadDevice));
+        Set(InputAction.CameraSlow, Key.Ctrl, Button(JoyButton.LeftShoulder, gamepadDevice));
         Set(InputAction.Accelerate, Key.W, Axis(JoyAxis.TriggerRight, 1, gamepadDevice));
         Set(InputAction.Brake, Key.S, Axis(JoyAxis.TriggerLeft, 1, gamepadDevice));
         Set(InputAction.SteerLeft, Key.A, Axis(JoyAxis.LeftX, -1, gamepadDevice));

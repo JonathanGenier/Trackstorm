@@ -65,6 +65,11 @@ public sealed partial class MenuIntegrationChecks : Node
             OvalGameplayAssertions.Verify(_session.Arena!);
             CheckCursor(true, "gameplay captures mouse");
             VerifyFocus(true);
+            Joy(JoyButton.DpadUp);
+            Check(_player.Adapter.FreeCameraActive, "D-pad Up toggles photo camera in gameplay");
+            Joy(JoyButton.DpadUp);
+            Check(!_player.Adapter.FreeCameraActive, "Second D-pad Up restores gameplay camera");
+            _player.Adapter.Capture(0);
             VerifyMouseItem();
             Check(_session.Arena!.Driver.Match?.Phase == MatchPhase.Countdown, "synchronized solo match starts Countdown");
             Tap(Key.Escape);
@@ -72,6 +77,8 @@ public sealed partial class MenuIntegrationChecks : Node
             Check(_menu.CurrentPage == MenuPage.Game, "ESC opens during solo Countdown");
             Check(!_menu.GetTree().Paused, "menu does not pause tree");
             Check(_player.Adapter.GameplaySuppressed, "local gameplay suppressed");
+            Joy(JoyButton.DpadUp);
+            Check(!_player.Adapter.FreeCameraActive, "D-pad Up remains navigation while menu owns input");
             CheckCursor(false, "ESC releases mouse immediately");
             VerifyFocus(false);
             Check(!Buttons(_session).Any(button => button.IsVisibleInTree() && (button.Text.Contains("Leave", StringComparison.OrdinalIgnoreCase) || button.Text.Contains("Return", StringComparison.OrdinalIgnoreCase))), "legacy session buttons absent in arena");
@@ -283,7 +290,7 @@ public sealed partial class MenuIntegrationChecks : Node
         await Until(() => _session.Lobby?.State is not null, "host starts");
         CheckCursor(false, "lobby pointer");
         var lobby = _session.JoinedLobby;
-        var visual = lobby.Cars.Values.Single().Root;
+        var visual = lobby.Cars[_session.Lobby!.LocalPlayerId].Root;
         for (int visit = 0; visit < 2; visit++)
         {
             lobby.FindChildren("*", "Button", true, false).Cast<Button>().Single(button => button.Text == "Settings").EmitSignal(BaseButton.SignalName.Pressed);
@@ -292,14 +299,14 @@ public sealed partial class MenuIntegrationChecks : Node
             Check(lobby.FindChildren("*", "Button", true, false).Cast<Button>().Where(button => button.IsVisibleInTree()).All(button => button.Disabled), "Settings blocks lobby actions");
             Press("Back");
             await Frames(2);
-            Check(_session.Stage == ApplicationStage.Lobby && lobby.Cars.Values.Single().Root == visual, "Settings returns to same authority and showcase");
+            Check(_session.Stage == ApplicationStage.Lobby && lobby.Cars[_session.Lobby!.LocalPlayerId].Root == visual, "Settings returns to same authority and showcase");
         }
         var remoteWorld = new SubViewport { Size = new Vector2I(1280, 720), OwnWorld3D = true, RenderTargetUpdateMode = SubViewport.UpdateMode.Disabled };
         AddChild(remoteWorld);
         _remote = new DevelopmentSession();
         remoteWorld.AddChild(_remote);
         _remote.Open(false, _endpoint, "Kick confirmation target");
-        await Until(() => _session.Lobby?.State?.Players.Count == 2 && _remote.Lobby?.State?.Players.Count == 2, "lobby participant admitted for input verification");
+        await Until(() => _session.Lobby?.State?.Players.Count(player => !player.PracticeCar) == 2 && _remote.Lobby?.State?.Players.Count(player => !player.PracticeCar) == 2, "lobby participant admitted for input verification");
         await Frames(3);
         ulong targetId = _remote.Lobby!.LocalPlayerId;
         var target = lobby.Cars[targetId].Target;
@@ -312,11 +319,11 @@ public sealed partial class MenuIntegrationChecks : Node
         Tap(Key.Enter);
         await Frames(2);
         Check(Buttons(lobby).Any(button => button.Text == "Confirm Kick" && button.IsVisibleInTree()), "keyboard opens identified confirmation");
-        Check(_session.Lobby!.State!.Players.Count == 2, "confirmation alone preserves membership");
+        Check(_session.Lobby!.State!.Players.Count(player => !player.PracticeCar) == 2, "confirmation alone preserves membership");
         Joy(JoyButton.B);
         await Frames(2);
         Check(!Buttons(lobby).Any(button => button.Text == "Confirm Kick" && button.IsVisibleInTree()), "controller cancel dismisses confirmation");
-        Check(_session.Lobby.State.Players.Count == 2, "controller cancel preserves membership");
+        Check(_session.Lobby.State.Players.Count(player => !player.PracticeCar) == 2, "controller cancel preserves membership");
         target.GrabFocus();
         Joy(JoyButton.A);
         await Frames(2);
@@ -326,13 +333,13 @@ public sealed partial class MenuIntegrationChecks : Node
         await Capture("lobby-kick-confirmation");
         Buttons(lobby).Single(button => button.Text == "Confirm Kick" && button.IsVisibleInTree()).GrabFocus();
         Joy(JoyButton.A);
-        await Until(() => _remote.Lobby is null && _session.Lobby.State.Players.Count == 1, "controller confirmation removes only the selected participant");
+        await Until(() => _remote.Lobby is null && _session.Lobby.State.Players.Count(player => !player.PracticeCar) == 1, "controller confirmation removes only the selected participant");
         _remote = null;
         remoteWorld.QueueFree();
         await Frames(3);
         lobby.RefreshVehicle(_session.Lobby!.LocalPlayerId);
         await Frames(2);
-        Check(lobby.Cars.Values.Single().Root == visual && visual.GetChildCount() == 2, "Vehicle art refresh preserves identity and replaces only model");
+        Check(lobby.Cars[_session.Lobby!.LocalPlayerId].Root == visual && visual.GetChildCount() == 2, "Vehicle art refresh preserves identity and replaces only model");
         await Capture("joined-lobby");
         Check(_session.StartFromLobby(), "solo host Start uses existing readiness and match authority without Ready UI");
         await Until(() => _session.Arena?.Driver.EntryReady == true && _session.Arena.Driver.Match is not null, "arena synchronized");
@@ -389,7 +396,7 @@ public sealed partial class MenuIntegrationChecks : Node
         _remote = new DevelopmentSession();
         world.AddChild(_remote);
         _remote.Open(false, _endpoint, "Remote driver");
-        await Until(() => _session.Lobby?.State?.Players.Count == 2 && _remote.Lobby?.State?.Players.Count == 2, "two real UDP peers admitted");
+        await Until(() => _session.Lobby?.State?.Players.Count(player => !player.PracticeCar) == 2 && _remote.Lobby?.State?.Players.Count(player => !player.PracticeCar) == 2, "two real UDP peers admitted");
         _session.Lobby!.Request(LobbyCommand.Ready, true);
         _remote.Lobby!.Request(LobbyCommand.Ready, true);
         await Until(() => _session.Lobby.State!.CanStart, "two peers ready");
@@ -407,7 +414,7 @@ public sealed partial class MenuIntegrationChecks : Node
         ulong departingPlayer = _remote.Lobby!.LocalPlayerId;
         _remote.Leave();
         await Until(
-            () => _remote.LeaveComplete && _session.Lobby.State!.Players.Count == 2 &&
+            () => _remote.LeaveComplete && _session.Lobby.State!.Players.Count(player => !player.PracticeCar) == 2 &&
             !_session.Lobby.State.Players.Single(player => player.Id == departingPlayer).Connected,
             "client graceful leave completes while the arena retains its player reservation");
         _remote = null;

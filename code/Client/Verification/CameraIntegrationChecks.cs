@@ -187,6 +187,7 @@ public sealed partial class CameraIntegrationChecks : Node3D
             VerifyUpwardFraming(camera, input, state);
             VerifyLookSettings(camera, input, state);
             VerifyTacticalFraming(camera, input, state);
+            VerifyPhotoCamera(camera, input, state);
             camera.QueueFree();
             input.QueueFree();
             GD.Print("Camera integration passed: armed/unarmed framing, upward 90/downward 85-degree bounds, fixed-height upward look, RMB orbit/hold/release, controller/dead-zone return, suppression, identity/life/reseed resets, 30/60/144 FPS, unchanged gameplay input, heading/inertia/feedback regressions.");
