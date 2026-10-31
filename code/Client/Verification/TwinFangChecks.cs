@@ -83,6 +83,23 @@ public sealed partial class TwinFangChecks : Node3D
                 await Frame();
                 if (frame % 40 == 0) { await Capture("sweep-" + frame); }
             }
+            // Inspect the production material on both drums and all receiver faces,
+            // at close range as well as the established full-vehicle views above.
+            mount.Present(forward, 1f / 60);
+            foreach (var view in new[]
+            {
+                ("skin-front", new Vector3(2.1f, 2.7f, -3.1f)),
+                ("skin-rear", new Vector3(-2.1f, 2.6f, 2.8f)),
+                ("skin-left", new Vector3(-2.7f, 2.2f, 0)),
+                ("skin-right", new Vector3(2.7f, 2.2f, 0)),
+                ("skin-top", new Vector3(.1f, 5f, .1f)),
+            })
+            {
+                camera.Position = view.Item2;
+                camera.LookAt(new(0, 1.8f, -.3f));
+                await Frame();
+                await Capture(view.Item1);
+            }
             model.Visible = false;
             var mounts = new List<WeaponAimMount>();
             for (int car = 0; car < 8; car++)

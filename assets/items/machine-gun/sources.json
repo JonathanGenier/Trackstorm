@@ -8,6 +8,10 @@
     "Cartridge.glb": "b2cf6eedce70586df78efe88e65b1ec24d899e107cbb7de4d0c0fdce9a56f531",
     "reference/ApprovedTwinFang.png": "8ac1eb7711abec12378b49370182ef17d63976d82b9ca13b1f7c7b5fd38e639f",
     "MuzzleFlash.gdshader": "38ea79a546be3b4c9533ae5d04c818d6799ea6060c84c72cf60b69d195190230",
-    "WornMetal.gdshader": "d4ad3a5466dc93cbae828d188694860f1d4610834c592beb66f8f2d238549234"
-  }
+    "WornMetal.gdshader": "d4ad3a5466dc93cbae828d188694860f1d4610834c592beb66f8f2d238549234",
+    "Harlequin.svg": "dd64df9dc08a16acfefee3ce4a75757af1b43bbc6a6773731bf7bb9d78d0cb1f",
+    "Harlequin.gdshader": "de8729277fd19fd2236475bb615997e69f1b81e05fcd72b8439c92cfa1cdaad0",
+    "Harlequin.svg.import": "2ee69bcf73e8d82364208779cb31e6899813a9b8b5bcd3d3c5fb3a16d99585e8"
+  },
+  "skin": "TS-320: original vector paint and rest-space material, based on user-approved back 1.png and front 1.png (Jira attachments 10164/10165). Reference pixels are not redistributed. Production geometry unchanged."
 }

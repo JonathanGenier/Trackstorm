@@ -1,5 +1,15 @@
 # Twin Fang Machine Gun
 
+The Harlequin finish uses original `Harlequin.svg` paint artwork and
+`Harlequin.gdshader` rest-space mapping, guided by the user-approved TS-320
+`back 1.png` and `front 1.png` views (Jira attachments 10164/10165). Reference
+pixels are not shipped. The atlas contains diamond, scroll, scallop and star
+panels; its mipmapped import supports close and driving-camera distances.
+Receiver faces use planar mapping; shrouds and both drum shells use cylindrical
+mapping. Paint chips and roughness variation remain attached during articulation.
+The runtime skin preserves the production GLB, Blender source, cartridge belts
+and unrelated car/rack materials. See `sources.json` for artwork checksums.
+
 Original Blender-authored production geometry based on the user-approved
 `reference/ApprovedTwinFang.png` (built-in imagegen, October 11, 2026).
 No external model, texture, font or runtime dependency was acquired.

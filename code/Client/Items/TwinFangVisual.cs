@@ -35,8 +35,7 @@ internal sealed partial class TwinFangVisual : Node3D
             for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
             {
                 if (mesh.Mesh.SurfaceGetMaterial(surface) is not StandardMaterial3D original) { continue; }
-                var worn = new ShaderMaterial { Shader = Networking.MatchResourceLoader.LoadResource<Shader>(MetalShaderPath) };
-                worn.SetShaderParameter("base_color", original.AlbedoColor.Darkened(.45f));
+                var worn = CreateSkin(mesh, original);
                 mesh.SetSurfaceOverrideMaterial(surface, worn);
             }
         }

@@ -16,6 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Machine Gun Harlequin material, drum coverage and native runtime checks | [TS-320](ts-320.md) |
 | Story verification | [TS-307 verification evidence](ts-307.md) |
 | Story verification | [TS-306 verification evidence](ts-306.md) |
 | Magnetic acquisition, retention and persistent cursor | [TS-305 verification evidence](ts-305.md) |

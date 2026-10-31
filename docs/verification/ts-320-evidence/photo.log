@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Three UDP peers initialized
+Host tuning applied
+Verification restored synthetic focus after a desktop focus change
+AIM_AT requested=(-3.16231E-06, 2.1544857, 1.1406238E-05) firstTargetDrift=(-3.526874E-06, -0.008903742, 1.7288989E-05) requestedScreen=(639.9998, 420.80106)
+Photo entry clears actual acquired aim and desired network aim.
+Photo translation through production UDP capture remains isolated from driving, firing and aiming.
+Observer retains its own chase offset while native suspension settles.
+Switching to both controller sticks preserves photo isolation.
+Photo exit restores chase projection.
+Weapon aiming integration passed: 7 photo camera checks.

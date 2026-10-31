@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<!-- Original TS-320 paint artwork. Quadrants: diamonds, scroll panel, scallops, star. -->
+<defs>
+ <path id="star" d="M0 -78L18 -25L74 -24L29 10L46 63L0 31L-46 63L-29 10L-74 -24L-18 -25Z"/>
+</defs>
+<rect width="512" height="512" fill="#b29b6c"/><path d="M0 0L64 128L0 256L-64 128Z" fill="#801f26"/><path d="M128 0L192 128L128 256L64 128Z" fill="#20282a"/><path d="M256 0L320 128L256 256L192 128Z" fill="#801f26"/><path d="M384 0L448 128L384 256L320 128Z" fill="#20282a"/><path d="M512 0L576 128L512 256L448 128Z" fill="#801f26"/><path d="M0 256L64 384L0 512L-64 384Z" fill="#20282a"/><path d="M128 256L192 384L128 512L64 384Z" fill="#801f26"/><path d="M256 256L320 384L256 512L192 384Z" fill="#20282a"/><path d="M384 256L448 384L384 512L320 384Z" fill="#801f26"/><path d="M512 256L576 384L512 512L448 384Z" fill="#20282a"/>
+<rect x="512" width="512" height="512" fill="#842128"/>
+<g fill="none" stroke="#bd9651" stroke-width="10" stroke-linecap="round">
+ <rect x="526" y="14" width="484" height="484" rx="18"/>
+ <path d="M556 452C668 456 685 357 622 341C567 327 554 392 594 396C621 399 627 365 606 365M579 463C744 408 664 293 739 247C817 199 854 286 812 307C781 323 757 289 777 277M745 455C708 371 821 353 856 402C882 440 839 474 817 447M980 62C867 58 851 157 914 173C969 187 982 122 942 118C915 115 909 149 930 149M957 51C792 106 872 221 797 267C719 315 682 228 724 207C755 191 779 225 759 237"/>
+</g>
+<g fill="#cba756"><use href="#star" transform="translate(590 82) scale(.48)"/><use href="#star" transform="translate(949 432) scale(.48)"/></g>
+<rect y="512" width="512" height="512" fill="#b29b6c"/>
+<g fill="#92272a" stroke="#bd9651" stroke-width="7">
+ <path d="M0 528H128C125 765 3 765 0 528ZM128 528H256C253 765 131 765 128 528ZM256 528H384C381 765 259 765 256 528ZM384 528H512C509 765 387 765 384 528Z"/>
+ <path d="M0 784H128C125 1021 3 1021 0 784ZM128 784H256C253 1021 131 1021 128 784ZM256 784H384C381 1021 259 1021 384 784ZM384 784H512C509 1021 387 1021 384 784Z"/>
+</g>
+<path d="M0 524H512M0 780H512" stroke="#bd9651" stroke-width="16"/>
+<rect x="512" y="512" width="512" height="512" fill="#20282a"/>
+<circle cx="768" cy="768" r="232" fill="none" stroke="#bd9651" stroke-width="9"/>
+<use href="#star" transform="translate(768 778) scale(2.35)" fill="#cba756"/>
+<path d="M768 595L768 778L941 721L811 837L876 926L768 851L660 926L725 837L595 721L768 778" fill="#a7803c" opacity=".5"/>
+</svg>
