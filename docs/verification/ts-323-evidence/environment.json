@@ -1,0 +1,14 @@
+{
+  "testDate": "2026-10-31",
+  "timezone": "America/New_York",
+  "os": "Microsoft Windows NT 10.0.19045.0",
+  "sdk": "10.0.401",
+  "cpu": "NOT VERIFIED: CIM read access denied",
+  "gpu": "NVIDIA GeForce GTX 1070 (current startup renderer log; CIM read access denied)",
+  "source": "30bb34da24290f4ee4bfa3f7deeda232d88479b4",
+  "branch": "ts-323-pg",
+  "godot": "4.7.2.stable.mono.official.ed1daf0bf",
+  "buildVersion": "0.2.75",
+  "renderer": "Compatibility / OpenGL 3.3 NVIDIA 582.66 (rendered startup log)",
+  "limits": "User editor/background applications remained open. No reboot or controlled performance measurements. Startup visual run overlapped the initial sandbox death run. Native reruns were sequential. No settings or hardware changes."
+}

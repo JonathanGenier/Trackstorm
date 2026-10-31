@@ -1,0 +1,1581 @@
+{
+  "story": "TS-323",
+  "runId": "TS-323-2026-10-31-pilot",
+  "testDate": "2026-10-31",
+  "timezone": "America/New_York",
+  "sourceCommit": "30bb34da24290f4ee4bfa3f7deeda232d88479b4",
+  "buildVersion": "0.2.75",
+  "model": "6 Astra",
+  "branch": "ts-323-pg",
+  "form": "https://tally.so/r/ArzBOB",
+  "sections": 14,
+  "questions": 140,
+  "pilot": "FAILED",
+  "reading": "SUCCESS",
+  "answering": "SUCCESS",
+  "submission": "UNCONFIRMED: validation blocked; no success page or receipt",
+  "blocker": "Final Astra assessment (0-10), only if a formal experiential critique was performed is required and accepts numeric input only. Blank and N/A rejected with Please enter a value. No invented score supplied.",
+  "fullAudit": "NOT STARTED: pilot submission gate failed",
+  "totals": {
+    "PASS": 5,
+    "NOT_TESTED": 135,
+    "FAIL": 0,
+    "PARTIAL": 0
+  },
+  "results": [
+    {
+      "id": "A001",
+      "question": "Does the game launch successfully without startup errors?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045; Godot .NET 4.7.2 ed1daf0bf; Debug build of 30bb34da24290f4ee4bfa3f7deeda232d88479b4 (0.2.75).",
+      "observations": "Rendered production startup harness passed with exit 0 and no diagnostics: phase-aware recovery, initialization, menu gating and media continuity.",
+      "evidence": [
+        "startup-visual.log"
+      ],
+      "limitations": "Scoped to executed harness conditions. EOS authentication, WAN/multiple physical machines, audible output and human controller feel not verified. Automated loopback peers do not replace human multiplayer approval."
+    },
+    {
+      "id": "A002",
+      "question": "Does the main menu load and display correctly?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045; Godot .NET 4.7.2 ed1daf0bf; Debug build of 30bb34da24290f4ee4bfa3f7deeda232d88479b4 (0.2.75).",
+      "observations": "Current rendered 1280x720 settled menu inspected: readable Play, disabled Garage/Coming Soon, Settings, Quit and v0.2.75. Startup harness also verified viewport bounds and navigation.",
+      "evidence": [
+        "startup-visual.log",
+        "menu-settled.png"
+      ],
+      "limitations": "Scoped to executed harness conditions. EOS authentication, WAN/multiple physical machines, audible output and human controller feel not verified. Automated loopback peers do not replace human multiplayer approval."
+    },
+    {
+      "id": "A003",
+      "question": "Can a new gameplay session start and initialize correctly?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045; Godot .NET 4.7.2 ed1daf0bf; Debug build of 30bb34da24290f4ee4bfa3f7deeda232d88479b4 (0.2.75).",
+      "observations": "Native menu integration passed 3535 assertions, including a solo UDP gameplay session entering synchronized Countdown.",
+      "evidence": [
+        "menu-native.log"
+      ],
+      "limitations": "Scoped to executed harness conditions. EOS authentication, WAN/multiple physical machines, audible output and human controller feel not verified. Automated loopback peers do not replace human multiplayer approval."
+    },
+    {
+      "id": "A004",
+      "question": "Can the player exit and restart gameplay without stale state?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045; Godot .NET 4.7.2 ed1daf0bf; Debug build of 30bb34da24290f4ee4bfa3f7deeda232d88479b4 (0.2.75).",
+      "observations": "The same native menu run verified Leave returns to Main Menu, reentry starts a fresh Countdown, and production Quit disposes the arena/session.",
+      "evidence": [
+        "menu-native.log"
+      ],
+      "limitations": "Scoped to executed harness conditions. EOS authentication, WAN/multiple physical machines, audible output and human controller feel not verified. Automated loopback peers do not replace human multiplayer approval."
+    },
+    {
+      "id": "A005",
+      "question": "Does the game recover from vehicle death and respawn?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045; Godot .NET 4.7.2 ed1daf0bf; Debug build of 30bb34da24290f4ee4bfa3f7deeda232d88479b4 (0.2.75).",
+      "observations": "Eight native UDP peers completed four alternating Missile/collision deaths. All peers observed Dead/Respawning/Alive; respawn ticks 465, 662, 961, 1158; reset physics/HP/items/VFX and permanent second-slot discard verified.",
+      "evidence": [
+        "death-native.log",
+        "death-evidence.txt"
+      ],
+      "limitations": "Scoped to executed harness conditions. EOS authentication, WAN/multiple physical machines, audible output and human controller feel not verified. Automated loopback peers do not replace human multiplayer approval."
+    },
+    {
+      "id": "A006",
+      "question": "Can the player pause and resume without breaking gameplay?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A007",
+      "question": "Does restarting a session reset the appropriate world and player state?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A008",
+      "question": "Are scene transitions free of unexpected errors or missing resources?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A009",
+      "question": "Do repeated gameplay sessions avoid accumulating errors or orphaned objects?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A010",
+      "question": "Does the game remain stable throughout an extended single-player session?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A011",
+      "question": "Do all applicable main-menu and settings controls respond correctly?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A012",
+      "question": "Do keyboard and mouse inputs perform their assigned actions?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A013",
+      "question": "Do physical controller inputs and device switching behave correctly?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A014",
+      "question": "Are the two item slots displayed and updated correctly?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A015",
+      "question": "Do weapon-specific item HUD variants display correctly?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A016",
+      "question": "Are ammunition, cooldown, health and damage indicators accurate?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A017",
+      "question": "Do gameplay and camera settings persist through a restart?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A018",
+      "question": "Does Reset User Settings restore intended defaults?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A019",
+      "question": "Do audio and other available settings apply correctly?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A020",
+      "question": "Are HUD elements readable during driving, aiming and heavy combat?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A021",
+      "question": "Does vehicle acceleration behave consistently with established tuning?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A022",
+      "question": "Do braking and reversing behave correctly?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A023",
+      "question": "Does steering remain responsive at low and high speeds?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A024",
+      "question": "Does the suspension behave correctly on uneven terrain?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A025",
+      "question": "Are jumps and landings physically stable?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A026",
+      "question": "Do banks, ramps and slopes produce predictable vehicle behavior?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A027",
+      "question": "Do collisions with arena structures resolve correctly?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A028",
+      "question": "Do vehicle-to-vehicle collisions produce established damage and movement?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A029",
+      "question": "Do recovery, unstuck and respawn behavior work where implemented?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A030",
+      "question": "Does vehicle handling remain stable while carrying or deploying weapons?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A031",
+      "question": "Does the camera provide smooth full 360-degree movement?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A032",
+      "question": "Are approved camera defaults and player adjustments correctly applied?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A033",
+      "question": "Does entering and exiting aim mode preserve appropriate framing?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A034",
+      "question": "Does the raised driving crosshair remain visible above the weapon?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A035",
+      "question": "Do white, red and green crosshair states accurately represent firing and lock eligibility?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A036",
+      "question": "Does magnetic acquisition engage correctly on stationary and moving targets?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A037",
+      "question": "Does target retention remain stable without excessive stickiness?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A038",
+      "question": "Can mouse and controller users deliberately break away and switch targets?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A039",
+      "question": "Does free-camera mode toggle and restore normal gameplay without altering aim or vehicle authority?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A040",
+      "question": "Do crosshair placement, accepted shot direction and valid vertical aiming remain aligned across applicable weapons?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A041",
+      "question": "Do Carnival Mystery Crates display with their intended model and presentation?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A042",
+      "question": "Does crate destruction produce the approved smash and confetti sequence?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A043",
+      "question": "Does a successful pickup grant the expected item?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A044",
+      "question": "Does pickup correctly handle full item slots?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A045",
+      "question": "Are item-slot HUD and actual inventory state always consistent?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A046",
+      "question": "Can the player switch between available items without losing state?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A047",
+      "question": "Do weapon stow and deployment animations complete without conflicts?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A048",
+      "question": "Does weapon switching correctly interrupt or preserve in-progress actions according to established rules?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A049",
+      "question": "Are pickup effects, particles and destroyed crates cleaned up?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A050",
+      "question": "Can repeated pickup, use, depletion and replacement cycles run without state corruption?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A051",
+      "question": "Does the Machine Gun deploy and stow using its approved model and rack?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A052",
+      "question": "Do its barrels, articulation and firing animation operate correctly?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A053",
+      "question": "Can it fire straight forward during normal driving without false self-obstruction?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A054",
+      "question": "Does aiming track and fire at accepted targets correctly?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A055",
+      "question": "Are projectile origins and actual trajectories aligned?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A056",
+      "question": "Are the intended tracer colors, sequencing and visibility correct?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A057",
+      "question": "Do bullet impacts and hit effects correspond to actual collisions?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A058",
+      "question": "Do short bursts, sustained fire and start/stop transitions display consistently?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A059",
+      "question": "Does the weapon preserve target and driving visibility during heavy fire?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A060",
+      "question": "Where the approved Harlequin texture has been integrated, do geometry, drum magazines, material presentation and firing behavior remain correct?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A061",
+      "question": "Does the Missile deploy and stow correctly?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A062",
+      "question": "Does the Missile launch from the correct physical origin?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A063",
+      "question": "Does normal-driving straight firing work without camera mode?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A064",
+      "question": "Does aim mode permit correct manual leading of moving targets?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A065",
+      "question": "Does the standard Missile remain non-homing after launch?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A066",
+      "question": "Are its projectile model, flight animation and VFX displayed correctly?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A067",
+      "question": "Do terrain and collision interactions follow the approved behavior?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A068",
+      "question": "Are impact, explosion and damage effects consistent with collision outcomes?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A069",
+      "question": "Do ammunition, cooldown and destruction rules remain correct?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A070",
+      "question": "Do repeated launches, switching and recovery avoid stuck projectiles or weapon state?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A071",
+      "question": "Does the trunk, rack, turret and catapult deploy in the correct mechanical sequence?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A072",
+      "question": "Does the turret correctly follow accepted camera aiming?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A073",
+      "question": "Does the winch visibly cock the spoon and load the next projectile?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A074",
+      "question": "Are all five projectiles retained correctly during driving, jumps and inversion?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A075",
+      "question": "Does the first trigger initiate the intended automatic five-round volley?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A076",
+      "question": "Do subsequent shots maintain their intended firing interval without cancellation?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A077",
+      "question": "Does each projectile follow its own ballistic launch trajectory without after-launch steering?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A078",
+      "question": "Are the fuse, firework motion, sparks and smoke trail correctly presented?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A079",
+      "question": "Do explosions, blast radius, shield interactions and damage match approved behavior without duplicate damage?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A080",
+      "question": "Does repeated Salvo use avoid mechanical clipping, stuck loading, smoke accumulation and cleanup failures?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A081",
+      "question": "Does Jack-in-the-Box Oil deploy and launch using its approved presentation?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A082",
+      "question": "Do oil patches form at the intended terrain/contact locations?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A083",
+      "question": "Does wheel contact trigger the appropriate contamination state?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A084",
+      "question": "Does contamination produce the established traction and handling changes?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A085",
+      "question": "Are oil spray, trails and patch visuals consistent with gameplay state?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A086",
+      "question": "Do oil effects expire or clean up correctly without leaving stale traction changes?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A087",
+      "question": "Does the Proxy Mine deploy at its intended location and orientation?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A088",
+      "question": "Does mine proximity detection trigger according to its established rules?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A089",
+      "question": "Do mine explosion VFX and damage occur once and match the physical event?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A090",
+      "question": "Do multiple active oil patches and mines interact and clean up without runtime or collision problems?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A091",
+      "question": "Does the carried Shield preserve its approved protective geometry?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A092",
+      "question": "Does deployment produce the straight central face and backward-angled wings?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A093",
+      "question": "Does the Shield deploy upright and settle on flats, banks and slopes?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A094",
+      "question": "Does the deployed Shield behave as a heavy but movable physical object?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A095",
+      "question": "Do vehicle impacts produce established collision behavior and damage without duplication?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A096",
+      "question": "Does Shield durability and destruction remain correct in carried and deployed states?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A097",
+      "question": "Are Machine Gun and Missile hits intercepted correctly where Shield geometry blocks them?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A098",
+      "question": "Does a Shield correctly deny an EMP Claw impact against a protected vehicle?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A099",
+      "question": "Do blocked rear explosions and exposed front or partial-coverage explosions follow directional protection rules?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A100",
+      "question": "Do multiple Shields and repeated deployment/destruction avoid stale protection, collision state and performance problems?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A101",
+      "question": "Does the EMP Claw launcher deploy and present correctly?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A102",
+      "question": "Does the Claw guide and navigate around terrain according to established behavior?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A103",
+      "question": "Does vehicle attachment occur correctly and apply the intended EMP debuff?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A104",
+      "question": "Do claw noses, stowed ammunition, electricity VFX and counterplay behave correctly?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A105",
+      "question": "Do EMP status, HUD and DevTools integration remain consistent with actual state?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A106",
+      "question": "Does the Wrench deploy its robotic repair arm without unwanted clipping?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A107",
+      "question": "Does the Wrench complete its intended three-point hood repair sequence?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A108",
+      "question": "Does repair restore the correct health and update displayed status?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A109",
+      "question": "Does Boost apply the established acceleration or movement behavior?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A110",
+      "question": "Do Boost exhaust, camera sensation and visuals remain coherent without introducing handling or performance regressions?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A111",
+      "question": "Are current weapon models, mounts and materials displayed correctly?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A112",
+      "question": "Are visible projectiles and fired effects aligned with their physical origins?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A113",
+      "question": "Are explosions and impacts readable without masking important gameplay?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A114",
+      "question": "Do deployed items remain visually consistent with their actual collision shapes?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A115",
+      "question": "Are animations smooth when beginning, interrupting and completing actions?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A116",
+      "question": "Do arena meshes, props and terrain display without noticeable asset defects?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A117",
+      "question": "Do particle effects and visual effects stop at the correct lifecycle point?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A118",
+      "question": "Are implemented weapon, impact, vehicle and environmental sounds triggered correctly?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A119",
+      "question": "Are sound levels, spatial behavior and interruption consistent with established audio behavior?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A120",
+      "question": "Are important visual feedback states readable at normal gameplay distances and under sustained combat effects?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A121",
+      "question": "What FPS, frame-time and resource baseline can be measured under documented idle conditions?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A122",
+      "question": "How do driving and vehicle physics affect frame-time and CPU workload?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A123",
+      "question": "How does performance change with two to four cars when the test environment supports them?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A124",
+      "question": "Do Machine Gun firing, tracers and impact effects produce measurable spikes?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A125",
+      "question": "Do Missile and Salvo projectiles, explosions and smoke produce measurable spikes?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A126",
+      "question": "Do Shield physics, collision and multiple deployed Shields produce measurable spikes?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A127",
+      "question": "Do oil patches, mines, crates, confetti and world effects create persistent workload?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A128",
+      "question": "Do render workload, arena props, lights, meshes and materials show measurable bottlenecks?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A129",
+      "question": "Do memory, object counts and frame-time behavior remain stable during repeated-use and extended sessions?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A130",
+      "question": "Are performance results reproducible under controlled conditions, with environment and instrumentation limits explicitly recorded?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A131",
+      "question": "Can Astra launch and control two or more independent multiplayer instances?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A132",
+      "question": "Can clients join and maintain the same session without state divergence?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A133",
+      "question": "Are vehicle movement, orientation, collisions, damage and respawn synchronized?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A134",
+      "question": "Are crate pickup, item-slot changes, weapon switching and ammo consumption authoritative?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A135",
+      "question": "Do Machine Gun, Missile and Salvo firing, impacts and damage agree across host and clients?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A136",
+      "question": "Do oil contamination, mines, Boost and Wrench actions produce consistent remote state?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A137",
+      "question": "Do Shield deployment, collision, durability, protection and destruction remain authoritative?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A138",
+      "question": "Do EMP Claw navigation, attachment, debuff and Shield interception agree across clients?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A139",
+      "question": "Can network delay, concurrent actions and disconnect/reconnect scenarios be exercised without duplication or stale state?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    },
+    {
+      "id": "A140",
+      "question": "Can multi-client weapon interactions and sustained combat run without uncorrected divergence, runtime errors or escalating performance problems?",
+      "result": "NOT TESTED",
+      "conditions": "Outside the five-question pilot; full audit gated on successful submission.",
+      "observations": "No question-specific audit performed.",
+      "evidence": [
+        "tally-submission-blocked.jpg"
+      ],
+      "limitations": "Pilot submission blocked by mandatory numeric final critique field; not evidence of a gameplay failure."
+    }
+  ],
+  "finalVerification": {
+    "versionCheck": "FAIL: expected 0.2.76, actual 0.2.75; documentation-only scope",
+    "check": "PASS",
+    "coreTests": 1520,
+    "transportTests": 507
+  },
+  "operationalCritique": {
+    "assessment": "BELOW TARGET",
+    "score": 6.0,
+    "scope": "Pilot and questionnaire workflow only; not a full game or release score",
+    "limitation": "Full audit gated off by failed pilot submission"
+  }
+}

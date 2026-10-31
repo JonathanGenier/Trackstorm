@@ -1,0 +1,19 @@
+  Determining projects to restore...
+  Restored C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\third_party\eos\Epic.OnlineServices.csproj (in 123 ms).
+  Restored C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\Trackstorm.Core.csproj (in 3 ms).
+C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\Trackstorm.Transport.Tests.csproj : error NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json. [C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\Trackstorm.sln]
+C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Trackstorm.Core.Tests.csproj : error NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json. [C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\Trackstorm.sln]
+C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\Trackstorm.Client.csproj : error NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json. [C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\Trackstorm.sln]
+  Restored C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Trackstorm.Core.Tests.csproj (in 5.76 sec).
+  Restored C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\Trackstorm.Client.csproj (in 5.74 sec).
+  Restored C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\Trackstorm.Transport.Tests.csproj (in 5.76 sec).
+
+Build FAILED.
+
+C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\Trackstorm.Transport.Tests.csproj : error NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json. [C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\Trackstorm.sln]
+C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Trackstorm.Core.Tests.csproj : error NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json. [C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\Trackstorm.sln]
+C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\Trackstorm.Client.csproj : error NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json. [C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\Trackstorm.sln]
+    0 Warning(s)
+    3 Error(s)
+
+Time Elapsed 00:00:06.93

@@ -1,0 +1,4 @@
+Cycle 1: missile death, all eight peers Dead/Respawning/Alive, respawn tick 465, reset physics/HP/items/VFX and permanent second-slot discard verified.
+Cycle 2: collision death, all eight peers Dead/Respawning/Alive, respawn tick 662, reset physics/HP/items/VFX and permanent second-slot discard verified.
+Cycle 3: missile death, all eight peers Dead/Respawning/Alive, respawn tick 961, reset physics/HP/items/VFX and permanent second-slot discard verified.
+Cycle 4: collision death, all eight peers Dead/Respawning/Alive, respawn tick 1158, reset physics/HP/items/VFX and permanent second-slot discard verified.

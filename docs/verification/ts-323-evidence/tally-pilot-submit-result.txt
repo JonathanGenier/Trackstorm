@@ -1,0 +1,2269 @@
+Browser tab: 1, Title: "Trackstorm 0.3.0 — Astra Comprehensive Validation Questionnaire", URL: "https://tally.so/r/ArzBOB".
+0 AXWebArea Trackstorm 0.3.0 — Astra Comprehensive Validation Questionnaire, URL: tally.so/r/ArzBOB
+	1 container
+		2309 text 1 question needs your attention.
+		52 button Back
+		2 container
+			3 progress indicator Description: Form progress, Value: 2
+			53 heading Section 01 — Game startup and stability, Value: 2
+				54 text Section 01 — Game startup and stability
+			55 heading A001. Does the game launch successfully without startup errors?, Value: 3, ID: label_82e61359-8b5e-4c2e-a0f5-41db4a529d40
+				56 text A001. Does the game launch successfully without startup errors?
+			57 container A001. Does the game launch successfully without startup errors?
+				58 container
+					59 text A
+					60 radio button (settable, integer) Description: PASS, Value: 1, ID: choice_b22ac608-87c7-45a0-8ac3-f9a7d333ca69
+				61 container
+					62 text B
+					63 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_55fbd937-399a-4570-ba70-e60c519f9f0b
+				64 container
+					65 text C
+					66 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_da1f1105-0275-4c23-9a7b-5273354061dc
+				67 container
+					68 text D
+					69 radio button (settable, integer) Description: NOT TESTED, Value: 0, ID: choice_5c91e370-7638-4461-8c4c-18ecff57b2fd
+			70 heading A002. Does the main menu load and display correctly?, Value: 3, ID: label_a61511ab-5d04-40b4-b5d1-ac467392b0e8
+				71 text A002. Does the main menu load and display correctly?
+			72 container A002. Does the main menu load and display correctly?
+				73 container
+					74 text A
+					75 radio button (settable, integer) Description: PASS, Value: 1, ID: choice_3de12d51-f62c-4ca1-8646-1f84becfef9e
+				76 container
+					77 text B
+					78 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_79b17168-cfea-4c33-b687-297f487ea853
+				79 container
+					80 text C
+					81 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_65a906dc-aae7-47e8-8b18-eb8b765dfa52
+				82 container
+					83 text D
+					84 radio button (settable, integer) Description: NOT TESTED, Value: 0, ID: choice_dcdf8af7-eb66-4795-aed6-d6010337297e
+			85 heading A003. Can a new gameplay session start and initialize correctly?, Value: 3, ID: label_bba88703-b94d-4775-8b2d-0221eeb441fe
+				86 text A003. Can a new gameplay session start and initialize correctly?
+			87 container A003. Can a new gameplay session start and initialize correctly?
+				88 container
+					89 text A
+					90 radio button (settable, integer) Description: PASS, Value: 1, ID: choice_b210c6a0-b56a-430d-9570-dac609f29200
+				91 container
+					92 text B
+					93 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_cb5ce705-16f4-40aa-b936-19fea9c5ed74
+				94 container
+					95 text C
+					96 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_5c64bb1f-de8d-4a63-92ec-fbe3d9de0698
+				97 container
+					98 text D
+					99 radio button (settable, integer) Description: NOT TESTED, Value: 0, ID: choice_64c8f449-badb-4c43-afb8-a0674e974c73
+			100 heading A004. Can the player exit and restart gameplay without stale state?, Value: 3, ID: label_0e07b6ea-6d58-4ddd-bde6-cd9c6b2a3b60
+				101 text A004. Can the player exit and restart gameplay without stale state?
+			102 container A004. Can the player exit and restart gameplay without stale state?
+				103 container
+					104 text A
+					105 radio button (settable, integer) Description: PASS, Value: 1, ID: choice_83f67919-996a-4131-aec7-35bd915d9a63
+				106 container
+					107 text B
+					108 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_10c243b1-fe03-4a65-bac0-756860fb383d
+				109 container
+					110 text C
+					111 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_6fd41969-81d9-4f0e-8599-187c2fc41669
+				112 container
+					113 text D
+					114 radio button (settable, integer) Description: NOT TESTED, Value: 0, ID: choice_9ea559ed-b21a-47ea-8c91-1d665fe9f0a0
+			115 heading A005. Does the game recover from vehicle death and respawn?, Value: 3, ID: label_81a37c4c-05e0-466f-8592-b3e77d6d1612
+				116 text A005. Does the game recover from vehicle death and respawn?
+			117 container A005. Does the game recover from vehicle death and respawn?
+				118 container
+					119 text A
+					120 radio button (settable, integer) Description: PASS, Value: 1, ID: choice_f7e3c32b-d7fd-4cdf-bbaf-cd660e8477ae
+				121 container
+					122 text B
+					123 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_4947e4e7-e3ee-4907-95a6-0a9d01529bac
+				124 container
+					125 text C
+					126 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_9c65122d-20cf-428d-accf-fe94859b4361
+				127 container
+					128 text D
+					129 radio button (settable, integer) Description: NOT TESTED, Value: 0, ID: choice_c9dfd72e-9ea6-4064-917e-278de3b5c852
+			130 heading A006. Can the player pause and resume without breaking gameplay?, Value: 3, ID: label_3cb6ea9f-dc02-44fa-85f8-d271e3852b1c
+				131 text A006. Can the player pause and resume without breaking gameplay?
+			132 container A006. Can the player pause and resume without breaking gameplay?
+				133 container
+					134 text A
+					135 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_f6ac024a-71e0-43d3-8a13-2a4190ecac33
+				136 container
+					137 text B
+					138 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_6090c77b-1c7b-4b78-b9f4-bf85e5dbbe9b
+				139 container
+					140 text C
+					141 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_9a52cadc-2a18-41fd-90db-d68df588fbe8
+				142 container
+					143 text D
+					144 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_4844ac4d-fe0d-4420-b4db-c75304951dad
+			145 heading A007. Does restarting a session reset the appropriate world and player state?, Value: 3, ID: label_2377d4df-bf46-4bbd-afd3-d007498be260
+				146 text A007. Does restarting a session reset the appropriate world and player state?
+			147 container A007. Does restarting a session reset the appropriate world and player state?
+				148 container
+					149 text A
+					150 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_6367ded4-eb26-45a9-9f6c-12aecaf9c25c
+				151 container
+					152 text B
+					153 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_45849784-22e1-46e4-b8ea-75a81006747e
+				154 container
+					155 text C
+					156 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_cf07351e-3e79-4653-9977-4b3b556160e3
+				157 container
+					158 text D
+					159 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_cdcc42b8-8619-4e97-a7da-cd2292e45a9f
+			160 heading A008. Are scene transitions free of unexpected errors or missing resources?, Value: 3, ID: label_569229df-ee00-4b39-a33f-3fc70bb5cf6b
+				161 text A008. Are scene transitions free of unexpected errors or missing resources?
+			162 container A008. Are scene transitions free of unexpected errors or missing resources?
+				163 container
+					164 text A
+					165 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_40906a7c-18f6-4150-9848-ce92612e4b2b
+				166 container
+					167 text B
+					168 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_6f5e5df5-7272-4b11-b46f-793e407ff2d0
+				169 container
+					170 text C
+					171 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_783d5a25-f55f-455c-a15a-11aa00f89d66
+				172 container
+					173 text D
+					174 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_f5cbed65-084f-47c6-9d86-cc1e64d0527e
+			175 heading A009. Do repeated gameplay sessions avoid accumulating errors or orphaned objects?, Value: 3, ID: label_d9e3cf3c-b38e-4970-a24a-6ea54cff729c
+				176 text A009. Do repeated gameplay sessions avoid accumulating errors or orphaned objects?
+			177 container A009. Do repeated gameplay sessions avoid accumulating errors or orphaned objects?
+				178 container
+					179 text A
+					180 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_7fecd5b5-4159-45c2-bd13-72db2e3b44d6
+				181 container
+					182 text B
+					183 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_2d05c566-6b2a-4816-88a0-c5d7dd013b11
+				184 container
+					185 text C
+					186 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_dc61c9c9-ee5d-41fb-bd37-42e895e1256a
+				187 container
+					188 text D
+					189 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_1c9f8148-02a3-4e10-81d6-4f1069b887cc
+			190 heading A010. Does the game remain stable throughout an extended single-player session?, Value: 3, ID: label_0b85edec-ff11-457a-8329-1f1d568fa2da
+				191 text A010. Does the game remain stable throughout an extended single-player session?
+			192 container A010. Does the game remain stable throughout an extended single-player session?
+				193 container
+					194 text A
+					195 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_b071a3a0-2bb0-4a43-aa85-ddff9520d2ae
+				196 container
+					197 text B
+					198 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_24515dae-799f-44a5-b97a-1cf4db4565af
+				199 container
+					200 text C
+					201 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_a38ab4ac-356a-4003-8fc0-f3fdd52c4d0e
+				202 container
+					203 text D
+					204 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_71633cde-1e20-4c53-8d0f-6e2a319d47a1
+			205 heading Section 01 — Test evidence, failure details and limitations, Value: 3, ID: label_a1e01f1e-d6fb-416f-a2da-746701afa312
+				206 text Section 01 — Test evidence, failure details and limitations
+			207 text entry area (settable) ID: a1e01f1e-d6fb-416f-a2da-746701afa312, Value: FIVE-QUESTION PILOT ONLY — A001–A005 PASS under the conditions below. Base commit 30bb34da24290f4ee4bfa3f7deeda232d88479b4; actual version 0.2.75; Windows, Godot .NET 4.7.2, Debug. A001: rendered production startup harness completed recovery and initialization without diagnostics with native permissions; EOS authentication excluded. A002: inspected current rendered 1280x720 menu capture; readable Play/disabled Garage/Settings/Quit and version. A003/A004: native menu harness passed 3535 assertions including solo Countdown, session leave, fresh reentry Countdown and cleanup-aware Quit. A005: eight native UDP peers completed four alternating Missile/collision death/respawn cycles; ticks 465/662/961/1158, physics/HP/items/VFX reset and discarded-slot continuity verified. Earlier sandbox runs passed scenario assertions but wrappers failed log/certificate-store access; native reruns passed. A006–A140 NOT TESTED in this pilot. No human multiplayer approval or full audit claimed.
+			208 heading Section 01 — Evidence links (logs, screenshots, video, repository paths), Value: 3, ID: label_6131e3a1-6d98-4b31-b6ac-bff68d5bb80c
+				209 text Section 01 — Evidence links (logs, screenshots, video, repository paths)
+			210 text entry area (settable) ID: 6131e3a1-6d98-4b31-b6ac-bff68d5bb80c, Value: docs/verification/ts-323.md (report to be committed); .godot/ts-323/startup-visual.log; .godot/main-menu-checks/settled.png; .godot/ts-323/menu-native.log; .godot/ts-323/death-native.log
+			211 heading Section 02 — Menus, HUD, controls and settings, Value: 2
+				212 text Section 02 — Menus, HUD, controls and settings
+			213 heading A011. Do all applicable main-menu and settings controls respond correctly?, Value: 3, ID: label_e0d18666-1227-45c5-b058-2bc31ad0c3fa
+				214 text A011. Do all applicable main-menu and settings controls respond correctly?
+			215 container A011. Do all applicable main-menu and settings controls respond correctly?
+				216 container
+					217 text A
+					218 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_2c895dea-44ba-4d5f-9afe-1a4e2d09c9ba
+				219 container
+					220 text B
+					221 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_6870dbe5-8ab4-4a5f-bae2-0beee3cb0558
+				222 container
+					223 text C
+					224 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_b4cb03c9-5b00-4d9d-b2d9-1fcba13820d8
+				225 container
+					226 text D
+					227 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_06146d84-44c4-4418-b2f0-a55c4f160a48
+			228 heading A012. Do keyboard and mouse inputs perform their assigned actions?, Value: 3, ID: label_b0ee5819-e7d0-4580-841a-3d9825afc35f
+				229 text A012. Do keyboard and mouse inputs perform their assigned actions?
+			230 container A012. Do keyboard and mouse inputs perform their assigned actions?
+				231 container
+					232 text A
+					233 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_05b29414-d85b-4c0c-9967-b4d1a266193c
+				234 container
+					235 text B
+					236 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_f579cfd7-e4de-4d51-8f00-e2181705d500
+				237 container
+					238 text C
+					239 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_c4dcb43e-014a-4f5c-bf90-114cbc672232
+				240 container
+					241 text D
+					242 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_c62de664-8198-484e-b9af-5fdc1dd6dc20
+			243 heading A013. Do physical controller inputs and device switching behave correctly?, Value: 3, ID: label_fce06dfb-e218-458b-9d4d-9f3c0078ad0b
+				244 text A013. Do physical controller inputs and device switching behave correctly?
+			245 container A013. Do physical controller inputs and device switching behave correctly?
+				246 container
+					247 text A
+					248 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_5b6c0508-e0c5-486e-8759-7e1aee83c5d5
+				249 container
+					250 text B
+					251 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_9735ac7e-62bb-4bc3-9ade-e8fa1ce1b0a7
+				252 container
+					253 text C
+					254 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_eccd0a92-c5b3-4244-8994-64bd66583dbd
+				255 container
+					256 text D
+					257 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_cab9a29d-8825-4e09-8828-995662e580c0
+			258 heading A014. Are the two item slots displayed and updated correctly?, Value: 3, ID: label_89cde88f-9ddf-4488-a86f-46d15afc0d3a
+				259 text A014. Are the two item slots displayed and updated correctly?
+			260 container A014. Are the two item slots displayed and updated correctly?
+				261 container
+					262 text A
+					263 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_c006c62d-5681-493f-92b6-bf2d3cab825f
+				264 container
+					265 text B
+					266 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_94ef507d-05c1-474f-914a-cd83647d11bf
+				267 container
+					268 text C
+					269 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_c9c194c9-8d9f-487a-bf40-f66356cf14ba
+				270 container
+					271 text D
+					272 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_240dc0a8-6d41-4b38-bef2-e4c9446f9bbf
+			273 heading A015. Do weapon-specific item HUD variants display correctly?, Value: 3, ID: label_97edebf7-56da-4b70-b994-6314703923fc
+				274 text A015. Do weapon-specific item HUD variants display correctly?
+			275 container A015. Do weapon-specific item HUD variants display correctly?
+				276 container
+					277 text A
+					278 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_5d1985c9-27e0-4ce6-b043-e60483530935
+				279 container
+					280 text B
+					281 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_b56da422-6f06-4295-a13b-79317849a18e
+				282 container
+					283 text C
+					284 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_7d81f535-3f1b-4c00-bd8a-f4524984b543
+				285 container
+					286 text D
+					287 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_a4e2d75c-e99a-4dd9-aaff-71f418631e12
+			288 heading A016. Are ammunition, cooldown, health and damage indicators accurate?, Value: 3, ID: label_9e839132-36d2-4e82-811b-17d3b3606a02
+				289 text A016. Are ammunition, cooldown, health and damage indicators accurate?
+			290 container A016. Are ammunition, cooldown, health and damage indicators accurate?
+				291 container
+					292 text A
+					293 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_2f752c38-0973-46c8-b2ec-9d1630ee4623
+				294 container
+					295 text B
+					296 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_80791bb3-12ee-49fc-8ff9-8bc3124925f4
+				297 container
+					298 text C
+					299 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_94cf79cd-d5d2-4fb7-8778-1fbaa5ecc0cb
+				300 container
+					301 text D
+					302 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_6ec0322b-0480-4122-8b4d-cd7811172d54
+			303 heading A017. Do gameplay and camera settings persist through a restart?, Value: 3, ID: label_5ba46512-6ab4-47de-bd92-5009dcf5b669
+				304 text A017. Do gameplay and camera settings persist through a restart?
+			305 container A017. Do gameplay and camera settings persist through a restart?
+				306 container
+					307 text A
+					308 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_7d0bcb5d-f708-4fec-9068-a99ae01be869
+				309 container
+					310 text B
+					311 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_66fcfdae-a571-474e-a97c-86e42ab27032
+				312 container
+					313 text C
+					314 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_2e1f1691-ee74-4777-8fde-8df6d3582247
+				315 container
+					316 text D
+					317 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_14c2f4dd-ca90-4233-bf41-68954b6ef0d7
+			318 heading A018. Does Reset User Settings restore intended defaults?, Value: 3, ID: label_f318112f-fc66-46ae-8379-94bb0f0c702d
+				319 text A018. Does Reset User Settings restore intended defaults?
+			320 container A018. Does Reset User Settings restore intended defaults?
+				321 container
+					322 text A
+					323 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_9c19a09d-0db2-4e3f-b232-4c9587c1afdc
+				324 container
+					325 text B
+					326 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_ab7ebdcb-ff57-459c-b5da-30b9eef08f8d
+				327 container
+					328 text C
+					329 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_ac78a0fc-c0fd-479b-91db-990c55af6508
+				330 container
+					331 text D
+					332 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_03fdff68-fb5d-40b1-b349-96a60d1d1524
+			333 heading A019. Do audio and other available settings apply correctly?, Value: 3, ID: label_71249332-1440-4833-9c40-354487a02e70
+				334 text A019. Do audio and other available settings apply correctly?
+			335 container A019. Do audio and other available settings apply correctly?
+				336 container
+					337 text A
+					338 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_9a5a10f2-545e-4a8b-ad77-3e0ca2d9cb41
+				339 container
+					340 text B
+					341 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_368dd34f-498d-45d2-9735-2167c040b82f
+				342 container
+					343 text C
+					344 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_a1cd262e-4e44-4f83-8cd4-0ac29b67f5a1
+				345 container
+					346 text D
+					347 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_1058a656-f4fd-4709-bb58-af2bb1f20b60
+			348 heading A020. Are HUD elements readable during driving, aiming and heavy combat?, Value: 3, ID: label_480bae5c-7706-457e-9880-b34dc3d874aa
+				349 text A020. Are HUD elements readable during driving, aiming and heavy combat?
+			350 container A020. Are HUD elements readable during driving, aiming and heavy combat?
+				351 container
+					352 text A
+					353 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_cf1ebe0c-ac34-4e3d-8e36-bf0c93627196
+				354 container
+					355 text B
+					356 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_ae3c93fd-90b8-4658-af29-19849b507099
+				357 container
+					358 text C
+					359 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_5294ab54-c7d5-4f7a-af94-5ae15f6bc1d3
+				360 container
+					361 text D
+					362 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_0d59bdec-c190-454d-abbd-cc41401712a2
+			363 heading Section 02 — Test evidence, failure details and limitations, Value: 3, ID: label_7dd80479-9dc0-4cd0-b630-ccb067d7ff5a
+				364 text Section 02 — Test evidence, failure details and limitations
+			2391 text entry area (settable) ID: 7dd80479-9dc0-4cd0-b630-ccb067d7ff5a, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			366 heading Section 02 — Evidence links (logs, screenshots, video, repository paths), Value: 3, ID: label_de0a7522-6303-4ea5-8be3-b4c7d5f31b87
+				367 text Section 02 — Evidence links (logs, screenshots, video, repository paths)
+			2392 text entry area (settable) ID: de0a7522-6303-4ea5-8be3-b4c7d5f31b87, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			369 heading Section 03 — Vehicles, driving and physics, Value: 2
+				370 text Section 03 — Vehicles, driving and physics
+			371 heading A021. Does vehicle acceleration behave consistently with established tuning?, Value: 3, ID: label_3e86469c-1549-45c4-b91c-c24c531282b7
+				372 text A021. Does vehicle acceleration behave consistently with established tuning?
+			373 container A021. Does vehicle acceleration behave consistently with established tuning?
+				374 container
+					375 text A
+					376 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_c3006348-a944-4f39-9e7e-be576c8374e7
+				377 container
+					378 text B
+					379 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_d542a784-279c-4739-9d7e-c6dc70193163
+				380 container
+					381 text C
+					382 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_31680200-869e-4508-943f-c891231b0a78
+				383 container
+					384 text D
+					385 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_b6085380-28ac-488a-9acf-fe10112ba979
+			386 heading A022. Do braking and reversing behave correctly?, Value: 3, ID: label_0eecaa8f-88b3-4c96-84cc-ed22eef5823c
+				387 text A022. Do braking and reversing behave correctly?
+			388 container A022. Do braking and reversing behave correctly?
+				389 container
+					390 text A
+					391 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_193fb90b-9b75-4b2b-b883-78eaf38afc9d
+				392 container
+					393 text B
+					394 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_ec08607c-0047-4eaf-ba14-58a20aede31a
+				395 container
+					396 text C
+					397 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_7f543469-7e49-4fee-b1e7-6b9c27ec4154
+				398 container
+					399 text D
+					400 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_b8bba31a-33df-4cd6-9f67-23b379f6f8c6
+			401 heading A023. Does steering remain responsive at low and high speeds?, Value: 3, ID: label_9ed38916-5916-4bf7-adf8-b6db3e3f59b2
+				402 text A023. Does steering remain responsive at low and high speeds?
+			403 container A023. Does steering remain responsive at low and high speeds?
+				404 container
+					405 text A
+					406 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_35896737-8f29-4d3a-b065-e6688c04a3dd
+				407 container
+					408 text B
+					409 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_76f808ce-4d2f-4e51-9fa9-59c99bde635a
+				410 container
+					411 text C
+					412 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_c288c5ca-80d0-4ea9-9584-54769e459429
+				413 container
+					414 text D
+					415 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_f73a2ceb-17c9-4409-97a5-233a0ab9b41b
+			416 heading A024. Does the suspension behave correctly on uneven terrain?, Value: 3, ID: label_3f559c44-c672-44e7-a04f-41d37e8cd5e8
+				417 text A024. Does the suspension behave correctly on uneven terrain?
+			418 container A024. Does the suspension behave correctly on uneven terrain?
+				419 container
+					420 text A
+					421 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_4dd1198d-85d5-468f-8181-e119058b76ea
+				422 container
+					423 text B
+					424 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_08b38d0e-b9a8-4a12-af07-be793d0b5537
+				425 container
+					426 text C
+					427 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_0d08a63f-ff62-433a-81d9-e4025091d527
+				428 container
+					429 text D
+					430 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_25753945-48e7-4406-9507-c7658f016b73
+			431 heading A025. Are jumps and landings physically stable?, Value: 3, ID: label_c615a34c-d3f2-4560-8e0f-3883bfc76c66
+				432 text A025. Are jumps and landings physically stable?
+			433 container A025. Are jumps and landings physically stable?
+				434 container
+					435 text A
+					436 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_6245c878-0c0d-411e-89c6-89afdb90e5bb
+				437 container
+					438 text B
+					439 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_b7fcd493-573b-4466-9135-0d4c42ee5df3
+				440 container
+					441 text C
+					442 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_da6c248f-e236-47b6-9ce2-d27967729e6a
+				443 container
+					444 text D
+					445 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_75141695-ca1f-452e-a1ee-a99c3b9e9c74
+			446 heading A026. Do banks, ramps and slopes produce predictable vehicle behavior?, Value: 3, ID: label_94a07a11-ef7d-4296-9967-892d5f4234ff
+				447 text A026. Do banks, ramps and slopes produce predictable vehicle behavior?
+			448 container A026. Do banks, ramps and slopes produce predictable vehicle behavior?
+				449 container
+					450 text A
+					451 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_3745785c-8950-4168-bbbb-0c17a3ae0fa3
+				452 container
+					453 text B
+					454 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_cd62e38a-8061-4844-8237-6821f3ef737d
+				455 container
+					456 text C
+					457 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_1215b820-d8e6-4924-ace7-a41e14872aec
+				458 container
+					459 text D
+					460 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_01e0c6dd-ee02-4b8a-b7bb-bd635157a6b1
+			461 heading A027. Do collisions with arena structures resolve correctly?, Value: 3, ID: label_e7040b36-d612-46a6-a3af-7500223bbc15
+				462 text A027. Do collisions with arena structures resolve correctly?
+			463 container A027. Do collisions with arena structures resolve correctly?
+				464 container
+					465 text A
+					466 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_a70c9936-04f8-4d07-b2f8-386cfb6501ec
+				467 container
+					468 text B
+					469 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_0b5e44fd-9d58-48c1-a651-5d404349a5f5
+				470 container
+					471 text C
+					472 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_309e5e8b-ae95-40f1-a097-a142e51334ff
+				473 container
+					474 text D
+					475 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_17434474-0a91-4268-8976-0fef3c6e70a4
+			476 heading A028. Do vehicle-to-vehicle collisions produce established damage and movement?, Value: 3, ID: label_ada3f782-9166-44bb-b008-ea7170da5d74
+				477 text A028. Do vehicle-to-vehicle collisions produce established damage and movement?
+			478 container A028. Do vehicle-to-vehicle collisions produce established damage and movement?
+				479 container
+					480 text A
+					481 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_59b77404-99ec-4b5e-983a-9c4d4bed06fd
+				482 container
+					483 text B
+					484 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_cc7e7b50-6c79-4ba0-999c-95603a469e37
+				485 container
+					486 text C
+					487 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_4a7497c7-706b-4444-b74f-b7a0ec2012a2
+				488 container
+					489 text D
+					490 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_4c0d3b40-d193-43b1-9ec6-7ec93a241baf
+			491 heading A029. Do recovery, unstuck and respawn behavior work where implemented?, Value: 3, ID: label_6a33ca6d-35d2-428a-a54b-2bb814188863
+				492 text A029. Do recovery, unstuck and respawn behavior work where implemented?
+			493 container A029. Do recovery, unstuck and respawn behavior work where implemented?
+				494 container
+					495 text A
+					496 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_8f9bc737-2195-42d4-816b-89a5ea2fe402
+				497 container
+					498 text B
+					499 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_30f28102-7cb6-4c15-a81b-217f3f0715ca
+				500 container
+					501 text C
+					502 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_8a251370-4cc0-424f-b923-f0e1374c258f
+				503 container
+					504 text D
+					505 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_fa867f79-73c9-41e3-a50c-614b9daa26be
+			506 heading A030. Does vehicle handling remain stable while carrying or deploying weapons?, Value: 3, ID: label_c812ac81-32fa-4a09-ac7a-cd78b534baba
+				507 text A030. Does vehicle handling remain stable while carrying or deploying weapons?
+			508 container A030. Does vehicle handling remain stable while carrying or deploying weapons?
+				509 container
+					510 text A
+					511 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_1d1e8752-4fed-4ad7-a0c9-686f34a6ca8f
+				512 container
+					513 text B
+					514 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_536aaf69-c334-43f9-b0c6-2f6eca5e559c
+				515 container
+					516 text C
+					517 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_47bcdd61-2016-4598-8bbb-e24ad8fe53c7
+				518 container
+					519 text D
+					520 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_ab2440a0-5298-4877-bbb7-62822c4947c9
+			521 heading Section 03 — Test evidence, failure details and limitations, Value: 3, ID: label_1c336df1-006b-41f6-9175-61b11f33148d
+				522 text Section 03 — Test evidence, failure details and limitations
+			2393 text entry area (settable) ID: 1c336df1-006b-41f6-9175-61b11f33148d, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			524 heading Section 03 — Evidence links (logs, screenshots, video, repository paths), Value: 3, ID: label_233d7c47-2859-4bab-8cd7-fe4cf27b2400
+				525 text Section 03 — Evidence links (logs, screenshots, video, repository paths)
+			2394 text entry area (settable) ID: 233d7c47-2859-4bab-8cd7-fe4cf27b2400, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			527 heading Section 04 — Camera, crosshair and targeting, Value: 2
+				528 text Section 04 — Camera, crosshair and targeting
+			529 heading A031. Does the camera provide smooth full 360-degree movement?, Value: 3, ID: label_6dd3eeb5-2ec8-42f5-8c1d-21036a74e921
+				530 text A031. Does the camera provide smooth full 360-degree movement?
+			531 container A031. Does the camera provide smooth full 360-degree movement?
+				532 container
+					533 text A
+					534 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_90305e69-d6a0-4cd9-9b0e-9317a3e5d5fd
+				535 container
+					536 text B
+					537 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_972eda0a-45f6-41ed-8bd3-ea3d7b60ef1b
+				538 container
+					539 text C
+					540 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_8028240a-9c0e-4fb3-b2ed-ce1af75b6ed1
+				541 container
+					542 text D
+					543 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_b696170c-240d-43c7-b294-91cc73f6adb2
+			544 heading A032. Are approved camera defaults and player adjustments correctly applied?, Value: 3, ID: label_f02a0b6e-3153-48a6-9e20-2be32d2a12f2
+				545 text A032. Are approved camera defaults and player adjustments correctly applied?
+			546 container A032. Are approved camera defaults and player adjustments correctly applied?
+				547 container
+					548 text A
+					549 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_d1786965-c76e-4904-99d5-9f16e1458476
+				550 container
+					551 text B
+					552 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_ce8df8ba-6845-4fd4-8912-51a408c9d9fa
+				553 container
+					554 text C
+					555 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_4003d6ba-059a-46fb-86c2-be6ea9a8b22b
+				556 container
+					557 text D
+					558 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_646db1c6-9e07-4cf9-bcc2-449cded6cbeb
+			559 heading A033. Does entering and exiting aim mode preserve appropriate framing?, Value: 3, ID: label_182c99bb-0892-4467-b405-abb96fc4e1fd
+				560 text A033. Does entering and exiting aim mode preserve appropriate framing?
+			561 container A033. Does entering and exiting aim mode preserve appropriate framing?
+				562 container
+					563 text A
+					564 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_29ff0c2b-e481-4497-a9c5-a710b65debcf
+				565 container
+					566 text B
+					567 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_f00635fa-ec7d-4a78-89ce-163f45a9667d
+				568 container
+					569 text C
+					570 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_7355fab9-6dab-48c7-a602-a6d4afb54909
+				571 container
+					572 text D
+					573 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_08088892-dc61-48b3-92ea-314244551998
+			574 heading A034. Does the raised driving crosshair remain visible above the weapon?, Value: 3, ID: label_c2282011-792c-4ce3-a407-f670165aad7e
+				575 text A034. Does the raised driving crosshair remain visible above the weapon?
+			576 container A034. Does the raised driving crosshair remain visible above the weapon?
+				577 container
+					578 text A
+					579 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_11b9683f-15eb-429c-b8e6-99ce5a400eee
+				580 container
+					581 text B
+					582 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_b7737e7d-5534-47fd-a2ac-1dc3114aab61
+				583 container
+					584 text C
+					585 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_b92893a3-8ac7-47b6-9a4f-7f02c6d317fe
+				586 container
+					587 text D
+					588 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_2684e8d7-fd9a-4a18-a067-df20ea8266e8
+			589 heading A035. Do white, red and green crosshair states accurately represent firing and lock eligibility?, Value: 3, ID: label_3910507b-a8a5-42ba-8358-046c629297a2
+				590 text A035. Do white, red and green crosshair states accurately represent firing and lock eligibility?
+			591 container A035. Do white, red and green crosshair states accurately represent firing and lock eligibility?
+				592 container
+					593 text A
+					594 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_e444db8d-c81d-4ab3-9ecf-21812bcbf9ee
+				595 container
+					596 text B
+					597 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_d792cc51-f4b8-4239-8af1-84e3a0f58391
+				598 container
+					599 text C
+					600 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_bb72bf09-e3ad-443c-ae9c-ebd45bd41b83
+				601 container
+					602 text D
+					603 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_48a552d5-5239-4073-9076-112efbc72082
+			604 heading A036. Does magnetic acquisition engage correctly on stationary and moving targets?, Value: 3, ID: label_9c5e50f6-bfe0-432c-8f1a-f33ad60a2545
+				605 text A036. Does magnetic acquisition engage correctly on stationary and moving targets?
+			606 container A036. Does magnetic acquisition engage correctly on stationary and moving targets?
+				607 container
+					608 text A
+					609 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_f7d5a818-a910-4947-9523-f6b8c0d683b6
+				610 container
+					611 text B
+					612 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_9aaca67e-51cd-4cef-8501-a58c43e2ff1a
+				613 container
+					614 text C
+					615 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_c17b9f81-91be-46c9-b769-c9fa92618cb4
+				616 container
+					617 text D
+					618 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_69315b64-49f8-4625-a28a-bcb5c96ceef7
+			619 heading A037. Does target retention remain stable without excessive stickiness?, Value: 3, ID: label_4a66dc78-a55f-45c4-811e-43390c690a0f
+				620 text A037. Does target retention remain stable without excessive stickiness?
+			621 container A037. Does target retention remain stable without excessive stickiness?
+				622 container
+					623 text A
+					624 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_09a4a4ad-c83d-482d-9ec2-276e92afbf40
+				625 container
+					626 text B
+					627 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_e98f8ce0-2706-40ca-907f-9ff02c1d13cf
+				628 container
+					629 text C
+					630 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_83923b7e-7335-44ca-9b39-9fe8de941d40
+				631 container
+					632 text D
+					633 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_0f696701-b766-44a7-8435-818cf26a4bde
+			634 heading A038. Can mouse and controller users deliberately break away and switch targets?, Value: 3, ID: label_d4261444-9abc-41f1-bbd7-cc17fcf540d0
+				635 text A038. Can mouse and controller users deliberately break away and switch targets?
+			636 container A038. Can mouse and controller users deliberately break away and switch targets?
+				637 container
+					638 text A
+					639 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_bc0952dd-a6c2-4e09-8b19-7807cae1e1c9
+				640 container
+					641 text B
+					642 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_1fc9fcd6-4a22-462a-a80f-3981338a617f
+				643 container
+					644 text C
+					645 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_517870e7-54bf-4fae-8ce5-f93be675f801
+				646 container
+					647 text D
+					648 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_3d79d4e7-ee35-48c8-bd80-bb5de1cad2ab
+			649 heading Value: 3, ID: label_6ba4f3ba-b45f-497f-a6ac-2672a2b8fe49, A039. Does free-camera mode toggle and restore normal gameplay without altering aim or vehicle authority?
+				650 text A039. Does free-camera mode toggle and restore normal gameplay without altering aim or vehicle authority?
+			651 container A039. Does free-camera mode toggle and restore normal gameplay without altering aim or vehicle authority?
+				652 container
+					653 text A
+					654 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_68359bce-63a0-468a-a6ad-8239a4c4e412
+				655 container
+					656 text B
+					657 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_a740e9cd-a306-40e0-9c70-9f11c5f60567
+				658 container
+					659 text C
+					660 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_aec1e488-bae8-4f22-921f-f413a7694a12
+				661 container
+					662 text D
+					663 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_1b51172e-889d-4c3b-b753-336a3ae7cd95
+			664 heading Value: 3, ID: label_b106a7d8-d04c-42ca-829a-57fc818d50bb, A040. Do crosshair placement, accepted shot direction and valid vertical aiming remain aligned across applicable weapons?
+				665 text A040. Do crosshair placement, accepted shot direction and valid vertical aiming remain aligned across applicable weapons?
+			666 container A040. Do crosshair placement, accepted shot direction and valid vertical aiming remain aligned across applicable weapons?
+				667 container
+					668 text A
+					669 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_8a3c2fba-1136-467c-b24a-d90412e7a99d
+				670 container
+					671 text B
+					672 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_efea91a1-b3c2-4436-be45-c1e092ce2d3d
+				673 container
+					674 text C
+					675 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_6a91f696-c894-4a78-a6a1-c0d86f45b39b
+				676 container
+					677 text D
+					678 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_e59b22bc-323a-4836-a53a-cbaf6f2d97c6
+			679 heading Section 04 — Test evidence, failure details and limitations, Value: 3, ID: label_59283080-d23a-42b3-935b-f066d6cde5b7
+				680 text Section 04 — Test evidence, failure details and limitations
+			2395 text entry area (settable) ID: 59283080-d23a-42b3-935b-f066d6cde5b7, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			682 heading Section 04 — Evidence links (logs, screenshots, video, repository paths), Value: 3, ID: label_04bf90f2-09bd-4cc5-ab7b-dafd2a79fedc
+				683 text Section 04 — Evidence links (logs, screenshots, video, repository paths)
+			2396 text entry area (settable) ID: 04bf90f2-09bd-4cc5-ab7b-dafd2a79fedc, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			685 heading Section 05 — Item crates, inventory and weapon switching, Value: 2
+				686 text Section 05 — Item crates, inventory and weapon switching
+			687 heading A041. Do Carnival Mystery Crates display with their intended model and presentation?, Value: 3, ID: label_ead37009-ed3a-4b84-905c-3d76840ccac9
+				688 text A041. Do Carnival Mystery Crates display with their intended model and presentation?
+			689 container A041. Do Carnival Mystery Crates display with their intended model and presentation?
+				690 container
+					691 text A
+					692 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_3f8cd138-72ca-4f0b-a97b-c9560fa49c2b
+				693 container
+					694 text B
+					695 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_cdb41bff-da94-4400-810c-a786d594576c
+				696 container
+					697 text C
+					698 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_692788c0-c1e4-4730-8959-72ac85de71ba
+				699 container
+					700 text D
+					701 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_17ed9a51-01d3-45de-aee5-94290e25354a
+			702 heading A042. Does crate destruction produce the approved smash and confetti sequence?, Value: 3, ID: label_12092253-18b5-4dc6-83a5-d53baabc3d39
+				703 text A042. Does crate destruction produce the approved smash and confetti sequence?
+			704 container A042. Does crate destruction produce the approved smash and confetti sequence?
+				705 container
+					706 text A
+					707 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_e5456811-61ce-47ca-800e-752c1c12574b
+				708 container
+					709 text B
+					710 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_054c7217-1c7d-48dd-a432-3556a1b402f8
+				711 container
+					712 text C
+					713 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_2dbea41e-b9f9-401a-a535-96118355ef96
+				714 container
+					715 text D
+					716 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_fa316f0e-2d16-414c-80d9-b6009d5c9021
+			717 heading A043. Does a successful pickup grant the expected item?, Value: 3, ID: label_9e90423c-aa58-4d1c-9e48-ba3ed6f80b4c
+				718 text A043. Does a successful pickup grant the expected item?
+			719 container A043. Does a successful pickup grant the expected item?
+				720 container
+					721 text A
+					722 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_21daa65d-c7bc-463f-9420-f06af00aa076
+				723 container
+					724 text B
+					725 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_cee15f1b-f417-4c0d-95c2-aabbb7d0cd2f
+				726 container
+					727 text C
+					728 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_bb46fc6e-1ad6-4dd6-8ca2-933b425766c3
+				729 container
+					730 text D
+					731 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_178e7d6d-d459-4825-ba1c-d05f79b71411
+			732 heading A044. Does pickup correctly handle full item slots?, Value: 3, ID: label_874cd57a-7553-492d-a703-ca357099737f
+				733 text A044. Does pickup correctly handle full item slots?
+			734 container A044. Does pickup correctly handle full item slots?
+				735 container
+					736 text A
+					737 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_db2fcd2e-761b-4eab-a352-8afe89763aec
+				738 container
+					739 text B
+					740 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_8c7da9b4-4c05-4061-8007-7a743047cb72
+				741 container
+					742 text C
+					743 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_024af362-ce89-4e80-b32e-a5f7fc30782c
+				744 container
+					745 text D
+					746 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_ee9cb360-593c-4aad-8fb8-66c04b202802
+			747 heading A045. Are item-slot HUD and actual inventory state always consistent?, Value: 3, ID: label_0d633513-7534-4a93-a253-493e373e7ca2
+				748 text A045. Are item-slot HUD and actual inventory state always consistent?
+			749 container A045. Are item-slot HUD and actual inventory state always consistent?
+				750 container
+					751 text A
+					752 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_019208cc-39b8-4f2d-93d4-a7be320bd6a0
+				753 container
+					754 text B
+					755 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_63bf91a7-9332-4c98-a098-4d2c41f23a87
+				756 container
+					757 text C
+					758 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_f186b3c3-54f7-4303-bf10-955d2f40546c
+				759 container
+					760 text D
+					761 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_f822ebe0-7bc2-4ffc-a0b0-4db8f746fed1
+			762 heading A046. Can the player switch between available items without losing state?, Value: 3, ID: label_3b1b13e1-1990-4b1b-8f75-e97ea82a29ba
+				763 text A046. Can the player switch between available items without losing state?
+			764 container A046. Can the player switch between available items without losing state?
+				765 container
+					766 text A
+					767 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_3920690e-7fbd-44e9-a9fa-6ddf032f460b
+				768 container
+					769 text B
+					770 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_e06000c2-78cd-41b9-afd1-b289b83f9ccc
+				771 container
+					772 text C
+					773 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_34432805-788d-44c0-837a-5846907b0127
+				774 container
+					775 text D
+					776 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_5e316e67-38c4-44ec-a99c-ee447a983436
+			777 heading A047. Do weapon stow and deployment animations complete without conflicts?, Value: 3, ID: label_88371d8a-0912-4288-84bf-fdac34787bbe
+				778 text A047. Do weapon stow and deployment animations complete without conflicts?
+			779 container A047. Do weapon stow and deployment animations complete without conflicts?
+				780 container
+					781 text A
+					782 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_91af649c-bc1d-4e3d-b9c4-03fd047503ce
+				783 container
+					784 text B
+					785 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_a05dc709-9e10-41ca-92c5-1f0b138988cd
+				786 container
+					787 text C
+					788 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_6fd67604-a218-41d0-9956-54ea2d0d4c1d
+				789 container
+					790 text D
+					791 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_4ead90a6-19aa-472d-b9e7-1afb3d9563c8
+			792 heading Value: 3, ID: label_34f2f9d3-ed88-49ad-9b0b-cf8a4696a51e, A048. Does weapon switching correctly interrupt or preserve in-progress actions according to established rules?
+				793 text A048. Does weapon switching correctly interrupt or preserve in-progress actions according to established rules?
+			794 container A048. Does weapon switching correctly interrupt or preserve in-progress actions according to established rules?
+				795 container
+					796 text A
+					797 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_107abee3-ee28-4cdc-9f61-51b6c19dbb9d
+				798 container
+					799 text B
+					800 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_dcbb1950-a327-44b3-860f-e3d853dd12ec
+				801 container
+					802 text C
+					803 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_366ee030-5c72-4776-b6ed-12e7bf2b41b1
+				804 container
+					805 text D
+					806 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_ba76eaff-62d8-4fee-9b0a-8e03759180d4
+			807 heading A049. Are pickup effects, particles and destroyed crates cleaned up?, Value: 3, ID: label_16b77d44-17fb-437c-aae0-378aa2552cb1
+				808 text A049. Are pickup effects, particles and destroyed crates cleaned up?
+			809 container A049. Are pickup effects, particles and destroyed crates cleaned up?
+				810 container
+					811 text A
+					812 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_9b25f5e4-9487-4767-b6d9-ba0fc4bcba0b
+				813 container
+					814 text B
+					815 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_840bf93f-6209-40c5-bf13-21c429f31757
+				816 container
+					817 text C
+					818 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_5910fffc-09c6-49a5-8535-567a823f6ca0
+				819 container
+					820 text D
+					821 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_c4575e81-909e-45ab-8dd2-4d79d9266da6
+			822 heading A050. Can repeated pickup, use, depletion and replacement cycles run without state corruption?, Value: 3, ID: label_fca13c70-3391-4782-b69a-cf84ad6ed503
+				823 text A050. Can repeated pickup, use, depletion and replacement cycles run without state corruption?
+			824 container A050. Can repeated pickup, use, depletion and replacement cycles run without state corruption?
+				825 container
+					826 text A
+					827 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_2e146687-2f51-4005-9c57-2197df9f902e
+				828 container
+					829 text B
+					830 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_863d2646-e9e2-4910-88cc-fe48b07b5e07
+				831 container
+					832 text C
+					833 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_9c55430c-6b49-4b7d-83bb-890fa85f9afc
+				834 container
+					835 text D
+					836 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_cc29b94e-1d30-4b24-a99f-6d339f7fd7e3
+			837 heading Section 05 — Test evidence, failure details and limitations, Value: 3, ID: label_79507152-e4f6-4df3-96ce-d398ec8d72b3
+				838 text Section 05 — Test evidence, failure details and limitations
+			2397 text entry area (settable) ID: 79507152-e4f6-4df3-96ce-d398ec8d72b3, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			840 heading Section 05 — Evidence links (logs, screenshots, video, repository paths), Value: 3, ID: label_8a649d75-8d7f-4455-925e-d3230576e43d
+				841 text Section 05 — Evidence links (logs, screenshots, video, repository paths)
+			2398 text entry area (settable) ID: 8a649d75-8d7f-4455-925e-d3230576e43d, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			843 heading Section 06 — Machine Gun, Value: 2
+				844 text Section 06 — Machine Gun
+			845 heading A051. Does the Machine Gun deploy and stow using its approved model and rack?, Value: 3, ID: label_2b6a92a6-fcff-4ebd-acb5-600ec6c94089
+				846 text A051. Does the Machine Gun deploy and stow using its approved model and rack?
+			847 container A051. Does the Machine Gun deploy and stow using its approved model and rack?
+				848 container
+					849 text A
+					850 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_3bb6b637-3441-4304-999c-6ea69c004b6e
+				851 container
+					852 text B
+					853 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_3b85132e-ff4b-46a9-86d9-2f4002656b90
+				854 container
+					855 text C
+					856 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_f9853ada-20e5-457c-abf8-d4ec270c35b2
+				857 container
+					858 text D
+					859 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_44fe947e-e021-40b1-a01e-e4ddfcdc48c5
+			860 heading A052. Do its barrels, articulation and firing animation operate correctly?, Value: 3, ID: label_036fcf08-8608-4d6d-bbbf-2d9ecca0ed0a
+				861 text A052. Do its barrels, articulation and firing animation operate correctly?
+			862 container A052. Do its barrels, articulation and firing animation operate correctly?
+				863 container
+					864 text A
+					865 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_d7eefa0b-a569-41f5-97b3-bc362ec71e46
+				866 container
+					867 text B
+					868 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_edca157b-32b7-4cb3-afb5-6d1f84e5548f
+				869 container
+					870 text C
+					871 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_b1d931f1-3e15-449c-9bed-eee6b786befb
+				872 container
+					873 text D
+					874 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_8a457b86-5867-4bcb-ac2f-5622e0bc4aa6
+			875 heading A053. Can it fire straight forward during normal driving without false self-obstruction?, Value: 3, ID: label_bdcf9455-97d1-4fb2-b7b4-3219a4d6e916
+				876 text A053. Can it fire straight forward during normal driving without false self-obstruction?
+			877 container A053. Can it fire straight forward during normal driving without false self-obstruction?
+				878 container
+					879 text A
+					880 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_9accec98-85d5-4b63-aea1-1f7d5620f9a0
+				881 container
+					882 text B
+					883 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_5a4a3c71-afc7-412b-a6d2-95aaafddcb2e
+				884 container
+					885 text C
+					886 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_73a942c4-de12-4b4d-8339-437a4d7164b7
+				887 container
+					888 text D
+					889 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_23c52ee4-ee9e-4b02-be22-14b0bd02394c
+			890 heading A054. Does aiming track and fire at accepted targets correctly?, Value: 3, ID: label_852b5e56-a69f-469a-87ac-aec753bdc1f8
+				891 text A054. Does aiming track and fire at accepted targets correctly?
+			892 container A054. Does aiming track and fire at accepted targets correctly?
+				893 container
+					894 text A
+					895 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_4a7429be-a5f2-4d5f-9b50-ed48273b780c
+				896 container
+					897 text B
+					898 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_852b4856-54c4-414c-a0dc-59aa6d73b1d2
+				899 container
+					900 text C
+					901 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_e60fbd41-5a22-4ebf-9c9c-fefbed8751c9
+				902 container
+					903 text D
+					904 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_17cd25da-aa46-4b4f-ba06-8e72720932e8
+			905 heading A055. Are projectile origins and actual trajectories aligned?, Value: 3, ID: label_c4662a01-bbbf-4ff4-baa3-3a84c0fcbc85
+				906 text A055. Are projectile origins and actual trajectories aligned?
+			907 container A055. Are projectile origins and actual trajectories aligned?
+				908 container
+					909 text A
+					910 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_52889582-91bf-4cfe-82cc-877a7247394e
+				911 container
+					912 text B
+					913 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_d4ec63f3-de69-4f94-89aa-dda262863023
+				914 container
+					915 text C
+					916 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_2a21fc0c-26d3-4c5a-a194-abccf3fc3fe1
+				917 container
+					918 text D
+					919 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_116c6ca6-0682-4bf5-b2f2-06dc915bfeea
+			920 heading A056. Are the intended tracer colors, sequencing and visibility correct?, Value: 3, ID: label_00d4c6c3-5c8e-458e-ad09-345bfa8e01b9
+				921 text A056. Are the intended tracer colors, sequencing and visibility correct?
+			922 container A056. Are the intended tracer colors, sequencing and visibility correct?
+				923 container
+					924 text A
+					925 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_7efd43b8-9066-4294-b59d-9cf6621d084b
+				926 container
+					927 text B
+					928 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_aa08727e-379d-4df6-bd2c-057aa2ca53b2
+				929 container
+					930 text C
+					931 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_bd6f15b0-751f-4cd7-aeb5-4a10ef9a3218
+				932 container
+					933 text D
+					934 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_5471caef-af5d-480e-999d-e6b33d8ac72e
+			935 heading A057. Do bullet impacts and hit effects correspond to actual collisions?, Value: 3, ID: label_925d2e7f-8290-453c-b7b4-4a6d220bddef
+				936 text A057. Do bullet impacts and hit effects correspond to actual collisions?
+			937 container A057. Do bullet impacts and hit effects correspond to actual collisions?
+				938 container
+					939 text A
+					940 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_bffbbef2-c1cc-49f7-a4dc-fdc8b1b7a596
+				941 container
+					942 text B
+					943 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_a6f853e0-0b90-410e-b150-9ba6de85fb00
+				944 container
+					945 text C
+					946 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_04a90e52-3066-4354-a04e-bca454c05c88
+				947 container
+					948 text D
+					949 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_84e9bf20-4144-4fd8-96a4-40a27022b5f1
+			950 heading A058. Do short bursts, sustained fire and start/stop transitions display consistently?, Value: 3, ID: label_8e61061e-95d1-440e-80fc-4d5e02aef863
+				951 text A058. Do short bursts, sustained fire and start/stop transitions display consistently?
+			952 container A058. Do short bursts, sustained fire and start/stop transitions display consistently?
+				953 container
+					954 text A
+					955 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_6fa9ecbc-5171-4f40-87a5-99548e1dc973
+				956 container
+					957 text B
+					958 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_5c1caed3-a4c5-456a-b5ee-62acb7ad19cc
+				959 container
+					960 text C
+					961 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_58b9d509-26d1-4fb5-8442-c1b7d766f59b
+				962 container
+					963 text D
+					964 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_31a75144-3239-43e8-b33a-b47f3c93fa28
+			965 heading A059. Does the weapon preserve target and driving visibility during heavy fire?, Value: 3, ID: label_45e5d563-d45a-4a7a-b624-be779bf7fc13
+				966 text A059. Does the weapon preserve target and driving visibility during heavy fire?
+			967 container A059. Does the weapon preserve target and driving visibility during heavy fire?
+				968 container
+					969 text A
+					970 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_8e5f1d07-0c84-4edd-8268-29d106bc061e
+				971 container
+					972 text B
+					973 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_cbdd63a4-d6d6-4d06-9b12-1241e3086a90
+				974 container
+					975 text C
+					976 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_7fdb243b-7752-40ed-a39a-7f6d0e043240
+				977 container
+					978 text D
+					979 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_f3a57bf2-8c7e-430c-8244-f1539295c5c8
+			980 heading Value: 3, ID: label_e2d03b53-ca3f-496e-8e60-f9b264a06c8f, A060. Where the approved Harlequin texture has been integrated, do geometry, drum magazines, material presentation and firing behavior remain correct?
+				981 text A060. Where the approved Harlequin texture has been integrated, do geometry, drum magazines, material presentation and firing behavior remain correct?
+			982 container A060. Where the approved Harlequin texture has been integrated, do geometry, drum magazines, material presentation and firing behavior remain correct?
+				983 container
+					984 text A
+					985 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_99c8278a-62c7-43e3-bdc0-26d241744278
+				986 container
+					987 text B
+					988 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_8f97bb92-63c9-4b25-b227-1fc9bfd5ea59
+				989 container
+					990 text C
+					991 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_79f4ff73-01ee-4213-9038-3cdcd69d04a7
+				992 container
+					993 text D
+					994 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_dbb31028-edfd-4db2-b102-fa00bae97c66
+			995 heading Section 06 — Test evidence, failure details and limitations, Value: 3, ID: label_2d29ac7f-140c-492d-a45a-f7fb15dbf1fb
+				996 text Section 06 — Test evidence, failure details and limitations
+			2399 text entry area (settable) ID: 2d29ac7f-140c-492d-a45a-f7fb15dbf1fb, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			998 heading Section 06 — Evidence links (logs, screenshots, video, repository paths), Value: 3, ID: label_8a736011-e76e-4c44-aea3-185e78608755
+				999 text Section 06 — Evidence links (logs, screenshots, video, repository paths)
+			2400 text entry area (settable) ID: 8a736011-e76e-4c44-aea3-185e78608755, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			1001 heading Section 07 — Standard Missile, Value: 2
+				1002 text Section 07 — Standard Missile
+			1003 heading A061. Does the Missile deploy and stow correctly?, Value: 3, ID: label_f30b7209-c51f-4a0f-936f-3d9b890eed89
+				1004 text A061. Does the Missile deploy and stow correctly?
+			1005 container A061. Does the Missile deploy and stow correctly?
+				1006 container
+					1007 text A
+					1008 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_42a114ec-923e-4e73-892b-3caae4a1e76f
+				1009 container
+					1010 text B
+					1011 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_7ee52366-38ce-40f7-9ea8-706491d39918
+				1012 container
+					1013 text C
+					1014 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_ba39ba8d-5b1d-47ef-9eb3-2000ef6ff8d8
+				1015 container
+					1016 text D
+					1017 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_5747efd6-a4b0-4d15-8d37-1b2f0341d38b
+			1018 heading A062. Does the Missile launch from the correct physical origin?, Value: 3, ID: label_e4eef40a-77ff-4b4e-b286-f0dffce13b13
+				1019 text A062. Does the Missile launch from the correct physical origin?
+			1020 container A062. Does the Missile launch from the correct physical origin?
+				1021 container
+					1022 text A
+					1023 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_1291ca27-96d3-4b71-93cf-941c144c1615
+				1024 container
+					1025 text B
+					1026 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_3170e81d-cb64-4ead-a769-ae5c35c101d3
+				1027 container
+					1028 text C
+					1029 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_696ced65-3f13-4599-8abf-060faf66efdf
+				1030 container
+					1031 text D
+					1032 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_f8f10481-17d6-4f78-9327-0e34beddba69
+			1033 heading A063. Does normal-driving straight firing work without camera mode?, Value: 3, ID: label_a8ce07ea-03ac-4d9b-b9fe-8c09f80c9931
+				1034 text A063. Does normal-driving straight firing work without camera mode?
+			1035 container A063. Does normal-driving straight firing work without camera mode?
+				1036 container
+					1037 text A
+					1038 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_acd6b8b9-4383-418d-97c9-bb521af61662
+				1039 container
+					1040 text B
+					1041 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_9bdd7d77-2603-4eab-a75e-41ef00de46c7
+				1042 container
+					1043 text C
+					1044 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_fbec29f7-945b-4661-887b-3b4a3b1e3037
+				1045 container
+					1046 text D
+					1047 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_23422053-513e-497b-b906-3553b5737087
+			1048 heading A064. Does aim mode permit correct manual leading of moving targets?, Value: 3, ID: label_36fc5731-1091-4cc5-80bb-b27081b4d04c
+				1049 text A064. Does aim mode permit correct manual leading of moving targets?
+			1050 container A064. Does aim mode permit correct manual leading of moving targets?
+				1051 container
+					1052 text A
+					1053 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_dc8948da-9d8c-49e7-a1c2-950665968d5f
+				1054 container
+					1055 text B
+					1056 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_f1907017-5a54-4d99-8025-f748dacb68fc
+				1057 container
+					1058 text C
+					1059 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_24fa5e22-3848-4eaa-bd8a-05f081463c7a
+				1060 container
+					1061 text D
+					1062 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_f6cc288b-47a3-40c6-bc07-8add1c510a25
+			1063 heading A065. Does the standard Missile remain non-homing after launch?, Value: 3, ID: label_469daefb-33bc-48ed-b216-93d8f15dd04a
+				1064 text A065. Does the standard Missile remain non-homing after launch?
+			1065 container A065. Does the standard Missile remain non-homing after launch?
+				1066 container
+					1067 text A
+					1068 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_d5ea0bc8-cf77-4ef8-8db2-2e6ba2ce2325
+				1069 container
+					1070 text B
+					1071 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_5d504a96-4f1a-4deb-97bd-f76a4e1e110b
+				1072 container
+					1073 text C
+					1074 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_8c750ba4-ddf9-4eda-8928-7cb240a97276
+				1075 container
+					1076 text D
+					1077 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_73b872bd-78e9-4377-b58c-ffdbddb98a68
+			1078 heading A066. Are its projectile model, flight animation and VFX displayed correctly?, Value: 3, ID: label_86780286-8ccb-4acf-8522-f2cc33aa825f
+				1079 text A066. Are its projectile model, flight animation and VFX displayed correctly?
+			1080 container A066. Are its projectile model, flight animation and VFX displayed correctly?
+				1081 container
+					1082 text A
+					1083 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_bfd6c5dd-e822-4275-acfa-8bef0852bb91
+				1084 container
+					1085 text B
+					1086 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_5c5cbdc9-eeb7-4c44-9f7f-10bd463c8992
+				1087 container
+					1088 text C
+					1089 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_5f0fa1f5-a69b-4d54-b930-98e9cb02ced1
+				1090 container
+					1091 text D
+					1092 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_72d95c03-171f-48ef-a659-1ee2a0691bc6
+			1093 heading A067. Do terrain and collision interactions follow the approved behavior?, Value: 3, ID: label_50b1c4ce-4ef7-47ea-936b-195c2890098a
+				1094 text A067. Do terrain and collision interactions follow the approved behavior?
+			1095 container A067. Do terrain and collision interactions follow the approved behavior?
+				1096 container
+					1097 text A
+					1098 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_b33c8a0e-6e6f-4180-93a3-4b4d56bf6a14
+				1099 container
+					1100 text B
+					1101 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_6ee5910b-8178-4539-8b16-849d1389136f
+				1102 container
+					1103 text C
+					1104 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_3ba9713c-cc13-4b00-88cf-c08a6e1c561a
+				1105 container
+					1106 text D
+					1107 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_72dbcd0a-ed42-4b77-b075-48b5823a4ef0
+			1108 heading A068. Are impact, explosion and damage effects consistent with collision outcomes?, Value: 3, ID: label_7e3eb4b1-8b95-4e59-a109-f108483e2c49
+				1109 text A068. Are impact, explosion and damage effects consistent with collision outcomes?
+			1110 container A068. Are impact, explosion and damage effects consistent with collision outcomes?
+				1111 container
+					1112 text A
+					1113 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_a4b29b87-ed80-4ac0-9c0c-68324609a6dd
+				1114 container
+					1115 text B
+					1116 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_eb497775-9e92-4735-a8ca-fc684d8022b8
+				1117 container
+					1118 text C
+					1119 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_d2c857f0-314f-4f59-8921-4933380229ab
+				1120 container
+					1121 text D
+					1122 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_7447b3ed-ec30-4327-a41d-ce43ad7011cd
+			1123 heading A069. Do ammunition, cooldown and destruction rules remain correct?, Value: 3, ID: label_0d4ebcde-7ec3-402c-9d83-aafc25a7982c
+				1124 text A069. Do ammunition, cooldown and destruction rules remain correct?
+			1125 container A069. Do ammunition, cooldown and destruction rules remain correct?
+				1126 container
+					1127 text A
+					1128 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_ae4db464-4416-4cbe-a914-ae01a5d019a9
+				1129 container
+					1130 text B
+					1131 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_ad19e9fb-ee62-4840-8c13-2f511b88d4e2
+				1132 container
+					1133 text C
+					1134 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_9f1bd3fd-bdf1-4b30-9a7c-68a552d6c0e3
+				1135 container
+					1136 text D
+					1137 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_c325ab59-221e-41f0-8b15-a40ba6122878
+			1138 heading A070. Do repeated launches, switching and recovery avoid stuck projectiles or weapon state?, Value: 3, ID: label_b2f1109c-7316-4114-87a3-9df5ba8f6d1d
+				1139 text A070. Do repeated launches, switching and recovery avoid stuck projectiles or weapon state?
+			1140 container A070. Do repeated launches, switching and recovery avoid stuck projectiles or weapon state?
+				1141 container
+					1142 text A
+					1143 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_a9ccf2d7-5812-4053-83a4-7f9c0fa2c31a
+				1144 container
+					1145 text B
+					1146 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_91eaf86b-e4c9-4145-8f97-ebc3381e9421
+				1147 container
+					1148 text C
+					1149 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_336347e8-90c6-4b37-90b3-378697ef9a64
+				1150 container
+					1151 text D
+					1152 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_8abfc16c-9a45-4e7d-a2d0-8fc7e1ea5c0f
+			1153 heading Section 07 — Test evidence, failure details and limitations, Value: 3, ID: label_2841d5a6-4b61-4173-8e61-38e8f93c093e
+				1154 text Section 07 — Test evidence, failure details and limitations
+			2401 text entry area (settable) ID: 2841d5a6-4b61-4173-8e61-38e8f93c093e, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			1156 heading Section 07 — Evidence links (logs, screenshots, video, repository paths), Value: 3, ID: label_dc30608f-90f3-459f-bcef-dfa8519a0d83
+				1157 text Section 07 — Evidence links (logs, screenshots, video, repository paths)
+			2402 text entry area (settable) ID: dc30608f-90f3-459f-bcef-dfa8519a0d83, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			1159 heading Section 08 — Salvo Catapult, Value: 2
+				1160 text Section 08 — Salvo Catapult
+			1161 heading A071. Does the trunk, rack, turret and catapult deploy in the correct mechanical sequence?, Value: 3, ID: label_a58f1b43-7b91-4044-9cf4-50a5e03fae19
+				1162 text A071. Does the trunk, rack, turret and catapult deploy in the correct mechanical sequence?
+			1163 container A071. Does the trunk, rack, turret and catapult deploy in the correct mechanical sequence?
+				1164 container
+					1165 text A
+					1166 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_c00b456b-83c3-496a-b244-96650476a03f
+				1167 container
+					1168 text B
+					1169 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_4bd963d8-5c60-4ed6-a006-cc4da4089ccd
+				1170 container
+					1171 text C
+					1172 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_6469561d-3e76-402d-ae00-9a2827333f68
+				1173 container
+					1174 text D
+					1175 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_3e1ce8f9-c473-4495-af47-49688903d28f
+			1176 heading A072. Does the turret correctly follow accepted camera aiming?, Value: 3, ID: label_d24b10cb-051c-4a21-892c-40c0a2d02184
+				1177 text A072. Does the turret correctly follow accepted camera aiming?
+			1178 container A072. Does the turret correctly follow accepted camera aiming?
+				1179 container
+					1180 text A
+					1181 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_671918f0-0baa-4d1e-a720-c01542f0baf4
+				1182 container
+					1183 text B
+					1184 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_de6018fb-fd44-414d-8e24-a53f70682223
+				1185 container
+					1186 text C
+					1187 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_202df955-8b05-4bdd-9591-98f8384411f6
+				1188 container
+					1189 text D
+					1190 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_3bf0289f-917a-48f3-89ab-b6c36c045a98
+			1191 heading A073. Does the winch visibly cock the spoon and load the next projectile?, Value: 3, ID: label_d8dfff3f-2a4c-4c8f-9989-aab95c84e490
+				1192 text A073. Does the winch visibly cock the spoon and load the next projectile?
+			1193 container A073. Does the winch visibly cock the spoon and load the next projectile?
+				1194 container
+					1195 text A
+					1196 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_880b5510-42a9-49dd-9627-03c140d18969
+				1197 container
+					1198 text B
+					1199 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_4c91a64a-8a09-43b0-b8b1-e6c3a8c3595a
+				1200 container
+					1201 text C
+					1202 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_8e583dc1-8aa9-4c08-a89a-39ef7c9df709
+				1203 container
+					1204 text D
+					1205 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_e4a5bba1-4992-4cc0-92ca-8d52051bb8ef
+			1206 heading A074. Are all five projectiles retained correctly during driving, jumps and inversion?, Value: 3, ID: label_0a02b433-a063-4bf2-b46e-c106db6dcf8d
+				1207 text A074. Are all five projectiles retained correctly during driving, jumps and inversion?
+			1208 container A074. Are all five projectiles retained correctly during driving, jumps and inversion?
+				1209 container
+					1210 text A
+					1211 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_b77386f4-21aa-4ed9-8371-7bfbfca689b3
+				1212 container
+					1213 text B
+					1214 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_9600e49e-0129-46d7-87fc-9550240efe48
+				1215 container
+					1216 text C
+					1217 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_eea11c9d-ce3a-470b-b3f8-361933d91794
+				1218 container
+					1219 text D
+					1220 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_ca9b6286-a0f6-4e9b-bdb3-48762c386365
+			1221 heading A075. Does the first trigger initiate the intended automatic five-round volley?, Value: 3, ID: label_b940f19d-ccb0-407a-9840-0ef282cbe3c9
+				1222 text A075. Does the first trigger initiate the intended automatic five-round volley?
+			1223 container A075. Does the first trigger initiate the intended automatic five-round volley?
+				1224 container
+					1225 text A
+					1226 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_0c7f6b27-da84-4a77-b5e7-98e1d8b3de59
+				1227 container
+					1228 text B
+					1229 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_4345d8ee-1126-4fa8-940b-99e7029892b8
+				1230 container
+					1231 text C
+					1232 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_a75207ee-4e4b-4392-8a4d-f9ba0d04d3b5
+				1233 container
+					1234 text D
+					1235 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_7735a161-480a-4d1e-a560-322c01aa47f5
+			1236 heading A076. Do subsequent shots maintain their intended firing interval without cancellation?, Value: 3, ID: label_31adfa2f-df9f-4397-bf1b-1df355be24c1
+				1237 text A076. Do subsequent shots maintain their intended firing interval without cancellation?
+			1238 container A076. Do subsequent shots maintain their intended firing interval without cancellation?
+				1239 container
+					1240 text A
+					1241 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_f97eb753-39ba-4496-a67d-fa05dcf5c4c4
+				1242 container
+					1243 text B
+					1244 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_4a0abb06-0fda-424b-86c4-9e177b3a4e60
+				1245 container
+					1246 text C
+					1247 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_9b7b5aa2-1751-4dfe-b6d3-7ccac83ab0db
+				1248 container
+					1249 text D
+					1250 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_62b2e209-b7b2-4c74-87c1-6a20fa9e1422
+			1251 heading A077. Does each projectile follow its own ballistic launch trajectory without after-launch steering?, Value: 3, ID: label_0d3e1392-e7cc-4e2d-81e4-ed7eb6387a7a
+				1252 text A077. Does each projectile follow its own ballistic launch trajectory without after-launch steering?
+			1253 container A077. Does each projectile follow its own ballistic launch trajectory without after-launch steering?
+				1254 container
+					1255 text A
+					1256 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_c9973e9e-80b8-45d8-8c03-c795e1c456d3
+				1257 container
+					1258 text B
+					1259 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_f7fe95c3-50d4-4bc0-bb4e-5a6ff3abf464
+				1260 container
+					1261 text C
+					1262 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_1511cd68-94ee-4f19-bb07-343a17219378
+				1263 container
+					1264 text D
+					1265 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_19044dd7-6bf5-4176-ab9d-6c3070f9f0b6
+			1266 heading A078. Are the fuse, firework motion, sparks and smoke trail correctly presented?, Value: 3, ID: label_d4c63de4-5256-4cca-9ba9-90ed040aa956
+				1267 text A078. Are the fuse, firework motion, sparks and smoke trail correctly presented?
+			1268 container A078. Are the fuse, firework motion, sparks and smoke trail correctly presented?
+				1269 container
+					1270 text A
+					1271 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_fa5534d1-3ab5-43c0-ae0f-70d2b7ffe6c1
+				1272 container
+					1273 text B
+					1274 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_b2dfd05d-620a-46e1-bfeb-189e13e3c8bf
+				1275 container
+					1276 text C
+					1277 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_4ecf6f46-c23e-4f5a-9798-52d5ff927464
+				1278 container
+					1279 text D
+					1280 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_af81f3c8-f67d-40db-9e8a-f709168bea50
+			1281 heading Value: 3, ID: label_885012c7-1fa7-4f1c-a58d-0bec49a80204, A079. Do explosions, blast radius, shield interactions and damage match approved behavior without duplicate damage?
+				1282 text A079. Do explosions, blast radius, shield interactions and damage match approved behavior without duplicate damage?
+			1283 container A079. Do explosions, blast radius, shield interactions and damage match approved behavior without duplicate damage?
+				1284 container
+					1285 text A
+					1286 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_a2cd6604-e40c-4542-b695-656e9dfbca7e
+				1287 container
+					1288 text B
+					1289 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_1ced4660-1b1c-4e7b-8225-63a7fbfd8a2d
+				1290 container
+					1291 text C
+					1292 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_5edc77d7-5967-4ae1-9653-80b2f03daafb
+				1293 container
+					1294 text D
+					1295 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_365de500-977e-4c73-a71e-1c2c0c0cae25
+			1296 heading Value: 3, ID: label_5c97dc81-1795-421a-9d3f-5619f8621b04, A080. Does repeated Salvo use avoid mechanical clipping, stuck loading, smoke accumulation and cleanup failures?
+				1297 text A080. Does repeated Salvo use avoid mechanical clipping, stuck loading, smoke accumulation and cleanup failures?
+			1298 container A080. Does repeated Salvo use avoid mechanical clipping, stuck loading, smoke accumulation and cleanup failures?
+				1299 container
+					1300 text A
+					1301 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_664d4159-2ac0-4094-a1fa-51bf70ab49a1
+				1302 container
+					1303 text B
+					1304 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_691dd677-df7c-4837-84b8-fcef9600f894
+				1305 container
+					1306 text C
+					1307 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_51200243-a82b-4b0f-ae13-e8f079ecf7a2
+				1308 container
+					1309 text D
+					1310 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_acc8fca1-206e-4110-8aff-6b3324d8ff90
+			1311 heading Section 08 — Test evidence, failure details and limitations, Value: 3, ID: label_ff199a4e-291c-4df8-8358-c0c2ba8db0df
+				1312 text Section 08 — Test evidence, failure details and limitations
+			2403 text entry area (settable) ID: ff199a4e-291c-4df8-8358-c0c2ba8db0df, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			1314 heading Section 08 — Evidence links (logs, screenshots, video, repository paths), Value: 3, ID: label_d39aba8e-1719-499f-83a9-c4889ab45618
+				1315 text Section 08 — Evidence links (logs, screenshots, video, repository paths)
+			2404 text entry area (settable) ID: d39aba8e-1719-499f-83a9-c4889ab45618, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			1317 heading Section 09 — Oil and Proxy Mine, Value: 2
+				1318 text Section 09 — Oil and Proxy Mine
+			1319 heading A081. Does Jack-in-the-Box Oil deploy and launch using its approved presentation?, Value: 3, ID: label_88f2d60c-c485-46d3-ab83-267957dfe759
+				1320 text A081. Does Jack-in-the-Box Oil deploy and launch using its approved presentation?
+			1321 container A081. Does Jack-in-the-Box Oil deploy and launch using its approved presentation?
+				1322 container
+					1323 text A
+					1324 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_b5c4b62e-c04f-49b7-a548-7214784a8268
+				1325 container
+					1326 text B
+					1327 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_cd518bc1-d836-458a-8371-d754d131dbd8
+				1328 container
+					1329 text C
+					1330 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_aef7e172-9616-4dc0-bd29-01f74121e84c
+				1331 container
+					1332 text D
+					1333 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_21421958-712f-459b-bf7b-319111889e2d
+			1334 heading A082. Do oil patches form at the intended terrain/contact locations?, Value: 3, ID: label_fa7a53b2-ec6e-47e2-80e6-2d9cd2b76dda
+				1335 text A082. Do oil patches form at the intended terrain/contact locations?
+			1336 container A082. Do oil patches form at the intended terrain/contact locations?
+				1337 container
+					1338 text A
+					1339 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_cd7e9e9b-2a43-4b0f-9858-3fd3777e93d8
+				1340 container
+					1341 text B
+					1342 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_0aa510bf-d890-4f88-8c60-6ec65063b5d1
+				1343 container
+					1344 text C
+					1345 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_65b8418e-fc04-425e-a4c5-b23a10dce45e
+				1346 container
+					1347 text D
+					1348 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_0ddb7e4c-99a8-49af-ad37-cfe2c931fcdb
+			1349 heading A083. Does wheel contact trigger the appropriate contamination state?, Value: 3, ID: label_3d9231e8-ab2d-49fc-800a-def0a2aff55b
+				1350 text A083. Does wheel contact trigger the appropriate contamination state?
+			1351 container A083. Does wheel contact trigger the appropriate contamination state?
+				1352 container
+					1353 text A
+					1354 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_319eedbe-09c8-4892-b750-cbfcdb9ff2ff
+				1355 container
+					1356 text B
+					1357 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_08d36348-a5bb-4ced-884b-e27d52573d35
+				1358 container
+					1359 text C
+					1360 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_1ff8a4b4-b02a-41c7-a84b-994590e75469
+				1361 container
+					1362 text D
+					1363 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_d300d205-c7ad-4032-96d0-6d6befd99fdb
+			1364 heading A084. Does contamination produce the established traction and handling changes?, Value: 3, ID: label_4da11622-5028-4ad9-95aa-f36ddc7d56b6
+				1365 text A084. Does contamination produce the established traction and handling changes?
+			1366 container A084. Does contamination produce the established traction and handling changes?
+				1367 container
+					1368 text A
+					1369 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_021e4047-610d-4603-b3c9-5b8d5645f3bd
+				1370 container
+					1371 text B
+					1372 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_79ccb3c9-dd8e-4bb6-bd8c-78412c941c1a
+				1373 container
+					1374 text C
+					1375 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_34081d66-0ee1-4de7-930d-cb87fce37039
+				1376 container
+					1377 text D
+					1378 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_88e4c967-0ac4-4ebd-9007-cdd99713d218
+			1379 heading A085. Are oil spray, trails and patch visuals consistent with gameplay state?, Value: 3, ID: label_51a5d9f6-367d-4138-af53-ff4cbb54cdda
+				1380 text A085. Are oil spray, trails and patch visuals consistent with gameplay state?
+			1381 container A085. Are oil spray, trails and patch visuals consistent with gameplay state?
+				1382 container
+					1383 text A
+					1384 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_24e8033b-05ed-4a46-9009-43bbdb85dc50
+				1385 container
+					1386 text B
+					1387 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_8c30de40-9a52-4264-9c82-f32defffe2e7
+				1388 container
+					1389 text C
+					1390 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_afbb7b95-27dc-4388-b62c-0685277f5c3b
+				1391 container
+					1392 text D
+					1393 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_9d2281f1-028c-42ed-8952-ab4fd6ada797
+			1394 heading A086. Do oil effects expire or clean up correctly without leaving stale traction changes?, Value: 3, ID: label_bfca643e-33da-43e0-8b65-1931cba7a0db
+				1395 text A086. Do oil effects expire or clean up correctly without leaving stale traction changes?
+			1396 container A086. Do oil effects expire or clean up correctly without leaving stale traction changes?
+				1397 container
+					1398 text A
+					1399 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_013df776-50f8-4ecf-948a-99391cef35a5
+				1400 container
+					1401 text B
+					1402 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_f1e69078-41f7-4471-a15a-eb574332d220
+				1403 container
+					1404 text C
+					1405 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_e87e2fdb-69a2-42ae-9384-c48465a0f75e
+				1406 container
+					1407 text D
+					1408 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_66d26c7c-8060-4279-ba39-4f80a53a0eb0
+			1409 heading A087. Does the Proxy Mine deploy at its intended location and orientation?, Value: 3, ID: label_16551cea-a60e-47b1-88cc-6d70efb7c237
+				1410 text A087. Does the Proxy Mine deploy at its intended location and orientation?
+			1411 container A087. Does the Proxy Mine deploy at its intended location and orientation?
+				1412 container
+					1413 text A
+					1414 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_4c9d1b8d-3f45-4ffb-8392-b8b2136d1c05
+				1415 container
+					1416 text B
+					1417 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_3f6316f5-bd25-4b53-9069-cdfc5bbcd77b
+				1418 container
+					1419 text C
+					1420 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_7036a84a-03bc-4207-880a-bc536f647a4c
+				1421 container
+					1422 text D
+					1423 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_1a0271ff-903d-4156-a856-8416949b9c43
+			1424 heading A088. Does mine proximity detection trigger according to its established rules?, Value: 3, ID: label_662e7e7d-c343-423d-b20e-26f58c6a7c48
+				1425 text A088. Does mine proximity detection trigger according to its established rules?
+			1426 container A088. Does mine proximity detection trigger according to its established rules?
+				1427 container
+					1428 text A
+					1429 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_b4877c6c-d815-4c28-9a63-748460a881b3
+				1430 container
+					1431 text B
+					1432 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_abed596c-e0d4-4538-bd5a-2c1880ffbb4c
+				1433 container
+					1434 text C
+					1435 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_8c507067-fd1d-48ab-ac2e-51a248d2446a
+				1436 container
+					1437 text D
+					1438 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_7c8527ae-5590-472a-bacc-e44ca71d2339
+			1439 heading A089. Do mine explosion VFX and damage occur once and match the physical event?, Value: 3, ID: label_069fcc68-9664-4c0b-9c6c-cdb31efdc767
+				1440 text A089. Do mine explosion VFX and damage occur once and match the physical event?
+			1441 container A089. Do mine explosion VFX and damage occur once and match the physical event?
+				1442 container
+					1443 text A
+					1444 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_d68ff9e8-7ea4-4f0f-8454-3e5797c6960a
+				1445 container
+					1446 text B
+					1447 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_e7012af5-3609-4486-b8be-42c7c750540a
+				1448 container
+					1449 text C
+					1450 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_c28d0fd1-0fae-4de3-9faa-a3f2716895d8
+				1451 container
+					1452 text D
+					1453 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_63c03473-b1c2-4095-a187-63bdc8738ff2
+			1454 heading Value: 3, ID: label_2b456496-a05f-445a-8272-4207ee2fdd67, A090. Do multiple active oil patches and mines interact and clean up without runtime or collision problems?
+				1455 text A090. Do multiple active oil patches and mines interact and clean up without runtime or collision problems?
+			1456 container A090. Do multiple active oil patches and mines interact and clean up without runtime or collision problems?
+				1457 container
+					1458 text A
+					1459 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_2d653a8d-d365-4936-a93c-2e64e86f04fa
+				1460 container
+					1461 text B
+					1462 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_5a8af1c5-773e-45e8-be97-319483e07a51
+				1463 container
+					1464 text C
+					1465 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_5ac57647-2d9c-411b-93e7-f0f0cdb8de17
+				1466 container
+					1467 text D
+					1468 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_25bdf641-c53b-4be7-b4f3-becbf46feb23
+			1469 heading Section 09 — Test evidence, failure details and limitations, Value: 3, ID: label_f239e158-add7-49b0-b2a8-4b21ee15d00d
+				1470 text Section 09 — Test evidence, failure details and limitations
+			2405 text entry area (settable) ID: f239e158-add7-49b0-b2a8-4b21ee15d00d, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			1472 heading Section 09 — Evidence links (logs, screenshots, video, repository paths), Value: 3, ID: label_97e44bed-fee1-49f9-9d4b-c9623a164c77
+				1473 text Section 09 — Evidence links (logs, screenshots, video, repository paths)
+			2406 text entry area (settable) ID: 97e44bed-fee1-49f9-9d4b-c9623a164c77, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			1475 heading Section 10 — Shield, Value: 2
+				1476 text Section 10 — Shield
+			1477 heading A091. Does the carried Shield preserve its approved protective geometry?, Value: 3, ID: label_f3a4df8f-70d9-41fe-8273-de0087021fb0
+				1478 text A091. Does the carried Shield preserve its approved protective geometry?
+			1479 container A091. Does the carried Shield preserve its approved protective geometry?
+				1480 container
+					1481 text A
+					1482 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_a6be5f8a-2924-4533-a8f6-e8169578dc46
+				1483 container
+					1484 text B
+					1485 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_e1f0d868-b2a3-4738-9aba-76c5fda5b67e
+				1486 container
+					1487 text C
+					1488 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_f6d3f554-af8f-4b0a-a009-9dc4ba3a40a6
+				1489 container
+					1490 text D
+					1491 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_131a25a9-34e5-43d8-8e17-cafbea723ca4
+			1492 heading A092. Does deployment produce the straight central face and backward-angled wings?, Value: 3, ID: label_8b6ae752-9581-4a0f-aa1f-b6f2bf7cb6ee
+				1493 text A092. Does deployment produce the straight central face and backward-angled wings?
+			1494 container A092. Does deployment produce the straight central face and backward-angled wings?
+				1495 container
+					1496 text A
+					1497 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_7303892b-b98f-4950-b0dd-a858cbe5c5e3
+				1498 container
+					1499 text B
+					1500 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_d842b180-1c7e-44d0-9b66-8d950e3f016d
+				1501 container
+					1502 text C
+					1503 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_6cbaf253-2a3d-4532-b213-292e25132622
+				1504 container
+					1505 text D
+					1506 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_14a289d1-7718-48a2-8906-466b16ccc19d
+			1507 heading A093. Does the Shield deploy upright and settle on flats, banks and slopes?, Value: 3, ID: label_5367109b-239f-4eaf-a178-5c2b68286093
+				1508 text A093. Does the Shield deploy upright and settle on flats, banks and slopes?
+			1509 container A093. Does the Shield deploy upright and settle on flats, banks and slopes?
+				1510 container
+					1511 text A
+					1512 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_00d3660b-12bd-4919-acb9-56d36f89721c
+				1513 container
+					1514 text B
+					1515 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_2656d0e8-31f7-45f8-88fe-1845f2bed23f
+				1516 container
+					1517 text C
+					1518 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_50a0eaca-4406-4680-8b80-228d887c72bb
+				1519 container
+					1520 text D
+					1521 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_c06b139f-2e97-40a4-afb9-79bde9c766a4
+			1522 heading A094. Does the deployed Shield behave as a heavy but movable physical object?, Value: 3, ID: label_809a98b5-da19-4a89-a22e-7b0a186abbe3
+				1523 text A094. Does the deployed Shield behave as a heavy but movable physical object?
+			1524 container A094. Does the deployed Shield behave as a heavy but movable physical object?
+				1525 container
+					1526 text A
+					1527 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_3fdfa84e-9eee-4101-b273-371be9e27283
+				1528 container
+					1529 text B
+					1530 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_1b293f9f-6ef7-43f0-a8ef-016f17f9868b
+				1531 container
+					1532 text C
+					1533 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_cde37885-6e81-4992-a0d3-4faa001fc03c
+				1534 container
+					1535 text D
+					1536 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_52c4a85d-a9ac-43e6-9a63-b14bccc31ab6
+			1537 heading A095. Do vehicle impacts produce established collision behavior and damage without duplication?, Value: 3, ID: label_ee29a40c-1b97-4cfe-b882-de15210ce1e8
+				1538 text A095. Do vehicle impacts produce established collision behavior and damage without duplication?
+			1539 container A095. Do vehicle impacts produce established collision behavior and damage without duplication?
+				1540 container
+					1541 text A
+					1542 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_69d61f8d-2053-4b6f-82f2-55d314532600
+				1543 container
+					1544 text B
+					1545 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_826f6342-4db7-4d34-be26-13fd3165498c
+				1546 container
+					1547 text C
+					1548 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_3eb5e866-ad52-492a-9de7-3d946b2b5952
+				1549 container
+					1550 text D
+					1551 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_aef5a628-8df6-4c72-b25b-b1d93870ec51
+			1552 heading A096. Does Shield durability and destruction remain correct in carried and deployed states?, Value: 3, ID: label_8068e2da-b547-4ef7-a18e-e197ba596bfb
+				1553 text A096. Does Shield durability and destruction remain correct in carried and deployed states?
+			1554 container A096. Does Shield durability and destruction remain correct in carried and deployed states?
+				1555 container
+					1556 text A
+					1557 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_a35ad194-9d0d-43c4-9a8e-adebd3e87630
+				1558 container
+					1559 text B
+					1560 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_2f8d64ed-cc50-4483-bcf1-dd22cefb1762
+				1561 container
+					1562 text C
+					1563 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_6134932c-2c00-4f4a-9fce-cd45810948fc
+				1564 container
+					1565 text D
+					1566 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_f9d6f042-3c28-4d14-9a33-e0df86237a0c
+			1567 heading A097. Are Machine Gun and Missile hits intercepted correctly where Shield geometry blocks them?, Value: 3, ID: label_580f783f-b3a0-45da-ab9f-4e32f4895712
+				1568 text A097. Are Machine Gun and Missile hits intercepted correctly where Shield geometry blocks them?
+			1569 container A097. Are Machine Gun and Missile hits intercepted correctly where Shield geometry blocks them?
+				1570 container
+					1571 text A
+					1572 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_59f580c3-b4ce-4d05-a828-140f2a8b7146
+				1573 container
+					1574 text B
+					1575 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_bed88233-a71b-4920-9cd3-cdad5e88cbdc
+				1576 container
+					1577 text C
+					1578 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_63e33ef3-1f50-4e25-9b4f-f18a0bedf3ec
+				1579 container
+					1580 text D
+					1581 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_32a01824-9d8d-459a-a80e-dfea84dd5de7
+			1582 heading A098. Does a Shield correctly deny an EMP Claw impact against a protected vehicle?, Value: 3, ID: label_9e817fdd-9851-42ee-87c6-bd1c8f555fe9
+				1583 text A098. Does a Shield correctly deny an EMP Claw impact against a protected vehicle?
+			1584 container A098. Does a Shield correctly deny an EMP Claw impact against a protected vehicle?
+				1585 container
+					1586 text A
+					1587 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_7cd8053e-8e19-4b4d-a347-4eb954686c65
+				1588 container
+					1589 text B
+					1590 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_8867165e-976e-4fbb-a05f-9a7850fb81ee
+				1591 container
+					1592 text C
+					1593 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_b0400786-d0db-4b09-aa69-595f591be456
+				1594 container
+					1595 text D
+					1596 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_7bb5ec61-8e80-44f5-bd25-81e15fa9a9ec
+			1597 heading Value: 3, ID: label_9246d170-fd93-4e9a-a8df-84a5b7e83c3e, A099. Do blocked rear explosions and exposed front or partial-coverage explosions follow directional protection rules?
+				1598 text A099. Do blocked rear explosions and exposed front or partial-coverage explosions follow directional protection rules?
+			1599 container A099. Do blocked rear explosions and exposed front or partial-coverage explosions follow directional protection rules?
+				1600 container
+					1601 text A
+					1602 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_ded61d23-4fbc-41b4-ac04-26d0df55cc0f
+				1603 container
+					1604 text B
+					1605 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_ee3b9321-e32c-43f2-8bd5-b09be7757028
+				1606 container
+					1607 text C
+					1608 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_f1d902d9-b365-41e3-81ce-66b1241e70fe
+				1609 container
+					1610 text D
+					1611 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_a89bb356-d80c-4aac-8ac9-5b98d6423a6e
+			1612 heading Value: 3, ID: label_4f40de2a-5391-4887-aefa-776687022387, A100. Do multiple Shields and repeated deployment/destruction avoid stale protection, collision state and performance problems?
+				1613 text A100. Do multiple Shields and repeated deployment/destruction avoid stale protection, collision state and performance problems?
+			1614 container A100. Do multiple Shields and repeated deployment/destruction avoid stale protection, collision state and performance problems?
+				1615 container
+					1616 text A
+					1617 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_c412e0f1-9f4d-4a07-88c2-d37efa77b5b7
+				1618 container
+					1619 text B
+					1620 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_cca05e3d-517d-4ef0-a5ed-a849f75ec9b7
+				1621 container
+					1622 text C
+					1623 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_cef44f88-c1bd-45ff-827f-732484f9b23d
+				1624 container
+					1625 text D
+					1626 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_1ff87b44-9ae6-48ef-b140-3ce9622f8383
+			1627 heading Section 10 — Test evidence, failure details and limitations, Value: 3, ID: label_b303ac7a-1952-4568-9f8b-205ac7406477
+				1628 text Section 10 — Test evidence, failure details and limitations
+			2407 text entry area (settable) ID: b303ac7a-1952-4568-9f8b-205ac7406477, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			1630 heading Section 10 — Evidence links (logs, screenshots, video, repository paths), Value: 3, ID: label_0c169bcf-b380-4beb-ad45-0ed87f67db5f
+				1631 text Section 10 — Evidence links (logs, screenshots, video, repository paths)
+			2408 text entry area (settable) ID: 0c169bcf-b380-4beb-ad45-0ed87f67db5f, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			1633 heading Section 11 — EMP Claw, Wrench and Boost, Value: 2
+				1634 text Section 11 — EMP Claw, Wrench and Boost
+			1635 heading A101. Does the EMP Claw launcher deploy and present correctly?, Value: 3, ID: label_4ef5fd6c-f21d-4ddf-8ae0-aa6171cafdb7
+				1636 text A101. Does the EMP Claw launcher deploy and present correctly?
+			1637 container A101. Does the EMP Claw launcher deploy and present correctly?
+				1638 container
+					1639 text A
+					1640 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_d6db3fc9-bf01-4f33-9d6f-7417aaefe810
+				1641 container
+					1642 text B
+					1643 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_a59dc22d-6b72-4ca8-b43e-ad774ae759e7
+				1644 container
+					1645 text C
+					1646 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_3fef7095-bf3e-4196-a7b1-dd27ae8f23b5
+				1647 container
+					1648 text D
+					1649 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_2168d470-c7ab-4f1a-a8cf-7e4078f5822d
+			1650 heading A102. Does the Claw guide and navigate around terrain according to established behavior?, Value: 3, ID: label_0de0b8c9-f231-42e0-a6d3-719caf16eac5
+				1651 text A102. Does the Claw guide and navigate around terrain according to established behavior?
+			1652 container A102. Does the Claw guide and navigate around terrain according to established behavior?
+				1653 container
+					1654 text A
+					1655 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_3e78d45c-a5f9-4404-b819-b3a825153f86
+				1656 container
+					1657 text B
+					1658 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_1b89176d-ecb1-43eb-afda-e729e03b8f65
+				1659 container
+					1660 text C
+					1661 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_e280d788-871b-4625-904f-eff6568b96ba
+				1662 container
+					1663 text D
+					1664 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_da5afdb4-304b-4adc-bb9c-ac4ffb2875d7
+			1665 heading A103. Does vehicle attachment occur correctly and apply the intended EMP debuff?, Value: 3, ID: label_3cdd4dd9-d764-4dfc-bf87-ee25018b4d90
+				1666 text A103. Does vehicle attachment occur correctly and apply the intended EMP debuff?
+			1667 container A103. Does vehicle attachment occur correctly and apply the intended EMP debuff?
+				1668 container
+					1669 text A
+					1670 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_088b42ef-5c20-4bf9-896f-fa02170f8940
+				1671 container
+					1672 text B
+					1673 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_dc6478ca-5e29-4086-a976-8b131ac97828
+				1674 container
+					1675 text C
+					1676 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_69c84c71-4a0c-4d24-acdc-0f5a79140f0d
+				1677 container
+					1678 text D
+					1679 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_f09e3a6f-6132-40c1-af1a-fdbc20275189
+			1680 heading A104. Do claw noses, stowed ammunition, electricity VFX and counterplay behave correctly?, Value: 3, ID: label_e94465d7-1cd9-464e-a2f9-99cc9cb1281b
+				1681 text A104. Do claw noses, stowed ammunition, electricity VFX and counterplay behave correctly?
+			1682 container A104. Do claw noses, stowed ammunition, electricity VFX and counterplay behave correctly?
+				1683 container
+					1684 text A
+					1685 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_414208b9-bb86-4072-8c1f-2cfbdc8308f2
+				1686 container
+					1687 text B
+					1688 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_5a0288d4-f723-4991-85f2-73d9295e6a59
+				1689 container
+					1690 text C
+					1691 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_b87e3116-d584-40ac-9d62-4ce01356c31e
+				1692 container
+					1693 text D
+					1694 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_4cf62d4f-49c9-437b-acbd-78ff85bec2c1
+			1695 heading A105. Do EMP status, HUD and DevTools integration remain consistent with actual state?, Value: 3, ID: label_bde70ef6-77f9-46d0-80a7-3efd1307a0dc
+				1696 text A105. Do EMP status, HUD and DevTools integration remain consistent with actual state?
+			1697 container A105. Do EMP status, HUD and DevTools integration remain consistent with actual state?
+				1698 container
+					1699 text A
+					1700 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_eb9659bc-fddf-4071-a43a-cb6f97520106
+				1701 container
+					1702 text B
+					1703 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_58e9c27d-aabc-4282-bc72-f98242f0f712
+				1704 container
+					1705 text C
+					1706 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_58a1935a-2336-4a8f-8016-7fc25a0822df
+				1707 container
+					1708 text D
+					1709 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_ad019a48-82c1-4415-a1ae-9a2fc657d189
+			1710 heading A106. Does the Wrench deploy its robotic repair arm without unwanted clipping?, Value: 3, ID: label_96bd98e5-fb60-440f-b996-42210819a74c
+				1711 text A106. Does the Wrench deploy its robotic repair arm without unwanted clipping?
+			1712 container A106. Does the Wrench deploy its robotic repair arm without unwanted clipping?
+				1713 container
+					1714 text A
+					1715 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_d438403c-2516-4dcf-90ee-b9cb1f8e7c8d
+				1716 container
+					1717 text B
+					1718 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_53632d53-6b83-4fe8-8ae5-2bca10f11f6f
+				1719 container
+					1720 text C
+					1721 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_6887878b-787b-40b2-b39b-3a9c44f1277b
+				1722 container
+					1723 text D
+					1724 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_02d5ea4c-439c-4a50-b467-1620e32a202c
+			1725 heading A107. Does the Wrench complete its intended three-point hood repair sequence?, Value: 3, ID: label_5ae80225-a8c5-420f-b244-1a5789896f56
+				1726 text A107. Does the Wrench complete its intended three-point hood repair sequence?
+			1727 container A107. Does the Wrench complete its intended three-point hood repair sequence?
+				1728 container
+					1729 text A
+					1730 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_54b3827c-bc1e-49dd-8530-dd64dfb4d06e
+				1731 container
+					1732 text B
+					1733 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_89ca9f55-b73f-4dfc-adea-f1482d39f2ba
+				1734 container
+					1735 text C
+					1736 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_bc02f9c2-32da-474f-a3c8-12daa96d4bdd
+				1737 container
+					1738 text D
+					1739 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_2f75b142-a1d0-49b6-8d71-51cb6393da45
+			1740 heading A108. Does repair restore the correct health and update displayed status?, Value: 3, ID: label_46d6e1ca-6473-4e01-9f59-7639af113b5a
+				1741 text A108. Does repair restore the correct health and update displayed status?
+			1742 container A108. Does repair restore the correct health and update displayed status?
+				1743 container
+					1744 text A
+					1745 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_6bfb6b34-9173-4949-af1a-c20095dde8f2
+				1746 container
+					1747 text B
+					1748 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_80144d4d-14eb-413d-80aa-b1e4b1ce3265
+				1749 container
+					1750 text C
+					1751 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_60e15e5d-3436-4739-a80a-1940f150b328
+				1752 container
+					1753 text D
+					1754 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_d0e24eeb-5213-4d97-b87b-b8f1204d8d92
+			1755 heading A109. Does Boost apply the established acceleration or movement behavior?, Value: 3, ID: label_f8f7240b-3952-447b-8c4b-488c7a97cbba
+				1756 text A109. Does Boost apply the established acceleration or movement behavior?
+			1757 container A109. Does Boost apply the established acceleration or movement behavior?
+				1758 container
+					1759 text A
+					1760 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_665b138a-713e-48dc-9c29-56c9b5c63d1e
+				1761 container
+					1762 text B
+					1763 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_319b7aed-357b-4259-8d2d-3b42b9134a6c
+				1764 container
+					1765 text C
+					1766 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_c22a475f-4b1d-4367-9091-13e4c8013360
+				1767 container
+					1768 text D
+					1769 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_b770b6d5-3a26-4e9f-b33c-b2efaa9a1466
+			1770 heading Value: 3, ID: label_cd85e5b1-4967-4ff8-a589-8f992a2155cc, A110. Do Boost exhaust, camera sensation and visuals remain coherent without introducing handling or performance regressions?
+				1771 text A110. Do Boost exhaust, camera sensation and visuals remain coherent without introducing handling or performance regressions?
+			1772 container A110. Do Boost exhaust, camera sensation and visuals remain coherent without introducing handling or performance regressions?
+				1773 container
+					1774 text A
+					1775 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_d1de79b7-43e5-45c5-a3b7-48a8c8b46959
+				1776 container
+					1777 text B
+					1778 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_83a33939-b9d5-4478-961f-e3261487eefd
+				1779 container
+					1780 text C
+					1781 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_3ad59ee1-cf91-43ef-8d84-156b50a2248f
+				1782 container
+					1783 text D
+					1784 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_17d35501-ad04-46aa-986f-86e53b46caca
+			1785 heading Section 11 — Test evidence, failure details and limitations, Value: 3, ID: label_b7fb5593-4cad-4731-ab10-5cc97b5cf3e6
+				1786 text Section 11 — Test evidence, failure details and limitations
+			2409 text entry area (settable) ID: b7fb5593-4cad-4731-ab10-5cc97b5cf3e6, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			1788 heading Section 11 — Evidence links (logs, screenshots, video, repository paths), Value: 3, ID: label_32c9c0fb-a928-43a8-a5f1-95bdd5868f7e
+				1789 text Section 11 — Evidence links (logs, screenshots, video, repository paths)
+			2410 text entry area (settable) ID: 32c9c0fb-a928-43a8-a5f1-95bdd5868f7e, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			1791 heading Section 12 — Visuals, audio and world presentation, Value: 2
+				1792 text Section 12 — Visuals, audio and world presentation
+			1793 heading A111. Are current weapon models, mounts and materials displayed correctly?, Value: 3, ID: label_d6fa467c-26dd-43c1-b320-7cdb148c17fb
+				1794 text A111. Are current weapon models, mounts and materials displayed correctly?
+			1795 container A111. Are current weapon models, mounts and materials displayed correctly?
+				1796 container
+					1797 text A
+					1798 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_071f3aaa-98d4-4cf9-876c-a8d4c8a65cc7
+				1799 container
+					1800 text B
+					1801 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_c3124662-8020-4017-807d-cbe0912544d8
+				1802 container
+					1803 text C
+					1804 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_ed0f1556-19a1-44d1-a3a3-78ae6304ea27
+				1805 container
+					1806 text D
+					1807 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_8ddd3ba1-99c0-4b69-8e1b-c8da1ea5a725
+			1808 heading A112. Are visible projectiles and fired effects aligned with their physical origins?, Value: 3, ID: label_3e5787fa-57bc-455c-bc0b-5e6f59e88175
+				1809 text A112. Are visible projectiles and fired effects aligned with their physical origins?
+			1810 container A112. Are visible projectiles and fired effects aligned with their physical origins?
+				1811 container
+					1812 text A
+					1813 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_bf5f3498-4037-4cd1-bfe2-11598969d6eb
+				1814 container
+					1815 text B
+					1816 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_cf12fa18-55de-4a57-864a-f03fae358976
+				1817 container
+					1818 text C
+					1819 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_36725910-01ed-4a1c-a7f2-51d7f294c49b
+				1820 container
+					1821 text D
+					1822 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_a3175d41-2b13-4527-a7c3-4243231603d4
+			1823 heading A113. Are explosions and impacts readable without masking important gameplay?, Value: 3, ID: label_2ae7039b-4d5b-4a03-851a-1a2062b77f71
+				1824 text A113. Are explosions and impacts readable without masking important gameplay?
+			1825 container A113. Are explosions and impacts readable without masking important gameplay?
+				1826 container
+					1827 text A
+					1828 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_c80dfa68-b3eb-4a71-9c18-96452718d20a
+				1829 container
+					1830 text B
+					1831 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_dc2eee4d-89c2-44a2-bf66-97033ec0ceb6
+				1832 container
+					1833 text C
+					1834 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_3d85d745-22ad-4f74-864c-f04c9fc7b992
+				1835 container
+					1836 text D
+					1837 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_8bac85c7-69ef-43c9-8861-0112e493485b
+			1838 heading A114. Do deployed items remain visually consistent with their actual collision shapes?, Value: 3, ID: label_4a3fd175-7899-4651-9a73-ce0c5e87d727
+				1839 text A114. Do deployed items remain visually consistent with their actual collision shapes?
+			1840 container A114. Do deployed items remain visually consistent with their actual collision shapes?
+				1841 container
+					1842 text A
+					1843 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_f868c57a-9569-4d90-89cc-9b96340f9d54
+				1844 container
+					1845 text B
+					1846 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_5b941cab-837a-4a69-8063-c49af33180a0
+				1847 container
+					1848 text C
+					1849 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_8498213b-5b77-421e-9490-6be3825c3311
+				1850 container
+					1851 text D
+					1852 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_75f0010b-f674-45d6-ae24-5e516470c7ff
+			1853 heading A115. Are animations smooth when beginning, interrupting and completing actions?, Value: 3, ID: label_3c6009b3-2ec3-40fe-a421-e97f04a347ca
+				1854 text A115. Are animations smooth when beginning, interrupting and completing actions?
+			1855 container A115. Are animations smooth when beginning, interrupting and completing actions?
+				1856 container
+					1857 text A
+					1858 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_b040c440-93b9-46e3-8a47-14b5dde706bf
+				1859 container
+					1860 text B
+					1861 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_2c071095-12cd-4ab3-9304-5aa0945ff437
+				1862 container
+					1863 text C
+					1864 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_be7deacf-3237-404b-8208-463e52de017e
+				1865 container
+					1866 text D
+					1867 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_3b7b0f59-c53e-4010-b2f1-b517c2357544
+			1868 heading A116. Do arena meshes, props and terrain display without noticeable asset defects?, Value: 3, ID: label_be1fe154-eb0c-43e1-8fa1-3668ef43b1ec
+				1869 text A116. Do arena meshes, props and terrain display without noticeable asset defects?
+			1870 container A116. Do arena meshes, props and terrain display without noticeable asset defects?
+				1871 container
+					1872 text A
+					1873 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_7fee3a76-f499-48f8-ba30-5d8c3f9b2cdb
+				1874 container
+					1875 text B
+					1876 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_b7115db7-a9ce-4a2c-8952-20c54edb9ea5
+				1877 container
+					1878 text C
+					1879 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_7505ddd2-bc56-44f7-b513-7a549197b382
+				1880 container
+					1881 text D
+					1882 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_7a6f9d59-9bac-4182-ad4e-cb500c669d66
+			1883 heading A117. Do particle effects and visual effects stop at the correct lifecycle point?, Value: 3, ID: label_941ccd88-87e5-4992-bc70-0f64d9b629ab
+				1884 text A117. Do particle effects and visual effects stop at the correct lifecycle point?
+			1885 container A117. Do particle effects and visual effects stop at the correct lifecycle point?
+				1886 container
+					1887 text A
+					1888 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_8f4acaeb-012f-44fd-bc41-d310a333d352
+				1889 container
+					1890 text B
+					1891 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_d659845e-fee1-4467-97f0-d2749d6feb5f
+				1892 container
+					1893 text C
+					1894 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_89455a8f-a698-4ddc-867f-d0099d7b375d
+				1895 container
+					1896 text D
+					1897 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_0499c1a9-accd-4ced-8611-fe6fc7c1f446
+			1898 heading A118. Are implemented weapon, impact, vehicle and environmental sounds triggered correctly?, Value: 3, ID: label_c6bf7517-8997-4529-80ac-b57cf0914efb
+				1899 text A118. Are implemented weapon, impact, vehicle and environmental sounds triggered correctly?
+			1900 container A118. Are implemented weapon, impact, vehicle and environmental sounds triggered correctly?
+				1901 container
+					1902 text A
+					1903 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_c5c80012-dc05-4d1d-a06a-423c437dc7ee
+				1904 container
+					1905 text B
+					1906 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_d8a71210-a2f7-4acd-b618-dc992db6a08f
+				1907 container
+					1908 text C
+					1909 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_1d4d9336-7fa9-46ed-b835-cce652a422a5
+				1910 container
+					1911 text D
+					1912 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_b458284a-cfed-49d1-9a86-b14da4f17f92
+			1913 heading Value: 3, ID: label_a4991d1f-1ff1-4c0b-86d1-8ba32c4e7d9e, A119. Are sound levels, spatial behavior and interruption consistent with established audio behavior?
+				1914 text A119. Are sound levels, spatial behavior and interruption consistent with established audio behavior?
+			1915 container A119. Are sound levels, spatial behavior and interruption consistent with established audio behavior?
+				1916 container
+					1917 text A
+					1918 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_8a11096f-4b11-460d-8d45-9d4a05e56c75
+				1919 container
+					1920 text B
+					1921 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_335531e8-81e8-4243-aa6b-59cb4cff1b62
+				1922 container
+					1923 text C
+					1924 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_127ca8af-e092-4f46-8a27-335217de2b26
+				1925 container
+					1926 text D
+					1927 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_19415256-8254-4ebb-932d-2613c0c5846f
+			1928 heading Value: 3, ID: label_449ae1c1-6e61-484e-89d6-ba2f430fedd3, A120. Are important visual feedback states readable at normal gameplay distances and under sustained combat effects?
+				1929 text A120. Are important visual feedback states readable at normal gameplay distances and under sustained combat effects?
+			1930 container A120. Are important visual feedback states readable at normal gameplay distances and under sustained combat effects?
+				1931 container
+					1932 text A
+					1933 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_a9f336ef-b510-417f-86eb-a28337d05684
+				1934 container
+					1935 text B
+					1936 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_fbe3e571-17d0-4463-bc43-5beb99ec79c0
+				1937 container
+					1938 text C
+					1939 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_cce9b481-1979-48e8-9c02-ffb77b17d280
+				1940 container
+					1941 text D
+					1942 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_5abbb3ca-751f-45fe-9da5-a51655c5a722
+			1943 heading Section 12 — Test evidence, failure details and limitations, Value: 3, ID: label_49a5f007-1919-46b5-9935-d481fdb09045
+				1944 text Section 12 — Test evidence, failure details and limitations
+			2411 text entry area (settable) ID: 49a5f007-1919-46b5-9935-d481fdb09045, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			1946 heading Section 12 — Evidence links (logs, screenshots, video, repository paths), Value: 3, ID: label_7f90ef1a-9559-48a1-bdfc-a161a51a90b4
+				1947 text Section 12 — Evidence links (logs, screenshots, video, repository paths)
+			2412 text entry area (settable) ID: 7f90ef1a-9559-48a1-bdfc-a161a51a90b4, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			1949 heading Section 13 — FPS, performance and sustained-runtime testing, Value: 2
+				1950 text Section 13 — FPS, performance and sustained-runtime testing
+			1951 heading A121. What FPS, frame-time and resource baseline can be measured under documented idle conditions?, Value: 3, ID: label_8e4c369d-00e6-464a-861f-024fef513443
+				1952 text A121. What FPS, frame-time and resource baseline can be measured under documented idle conditions?
+			1953 container A121. What FPS, frame-time and resource baseline can be measured under documented idle conditions?
+				1954 container
+					1955 text A
+					1956 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_74b23db8-9900-4b14-bb00-35dab02c6e10
+				1957 container
+					1958 text B
+					1959 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_d99bce5d-e097-439e-802a-18db09da2bc9
+				1960 container
+					1961 text C
+					1962 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_406a9c68-08bc-49bb-b88b-2d0d2b354e9e
+				1963 container
+					1964 text D
+					1965 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_d4074d4f-e6ef-436b-8885-e4f53b63b593
+			1966 heading A122. How do driving and vehicle physics affect frame-time and CPU workload?, Value: 3, ID: label_a5fd9ff1-5087-405f-96b9-f13e2a7d53ef
+				1967 text A122. How do driving and vehicle physics affect frame-time and CPU workload?
+			1968 container A122. How do driving and vehicle physics affect frame-time and CPU workload?
+				1969 container
+					1970 text A
+					1971 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_bcee1540-599f-4a91-8c3f-fa3ada547ae1
+				1972 container
+					1973 text B
+					1974 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_1561f392-11ed-4cf9-991f-0eb6d49799d2
+				1975 container
+					1976 text C
+					1977 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_646c087c-b051-4b03-94ab-95bebbc3e614
+				1978 container
+					1979 text D
+					1980 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_9a0a3a78-c3ed-4c67-967c-369355be842b
+			1981 heading A123. How does performance change with two to four cars when the test environment supports them?, Value: 3, ID: label_c659cdd6-ea05-475d-a000-c2066ac9c6f6
+				1982 text A123. How does performance change with two to four cars when the test environment supports them?
+			1983 container A123. How does performance change with two to four cars when the test environment supports them?
+				1984 container
+					1985 text A
+					1986 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_fa70888b-a8c5-4d9c-9290-6158c733ea95
+				1987 container
+					1988 text B
+					1989 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_7a46fa52-4667-48b4-818e-080d6e096aed
+				1990 container
+					1991 text C
+					1992 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_30d9a3b7-7ba4-49ff-b1eb-6eaaacbf0240
+				1993 container
+					1994 text D
+					1995 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_fe79af4d-7a96-4771-92ae-c83ff90139b1
+			1996 heading A124. Do Machine Gun firing, tracers and impact effects produce measurable spikes?, Value: 3, ID: label_d8022d94-4220-4fb0-bbd3-c01ced386beb
+				1997 text A124. Do Machine Gun firing, tracers and impact effects produce measurable spikes?
+			1998 container A124. Do Machine Gun firing, tracers and impact effects produce measurable spikes?
+				1999 container
+					2000 text A
+					2001 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_dbac19f6-cddc-4a4c-8a91-a222cb068821
+				2002 container
+					2003 text B
+					2004 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_2145d472-8698-4180-854e-99830d08b1ed
+				2005 container
+					2006 text C
+					2007 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_795b319d-3452-40ef-aedb-f65ed3aea2bc
+				2008 container
+					2009 text D
+					2010 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_4da4bd44-2d7b-40cc-a828-3ab996f2de3c
+			2011 heading A125. Do Missile and Salvo projectiles, explosions and smoke produce measurable spikes?, Value: 3, ID: label_5b2c086e-1f74-4dc3-9079-9bb329a9982a
+				2012 text A125. Do Missile and Salvo projectiles, explosions and smoke produce measurable spikes?
+			2013 container A125. Do Missile and Salvo projectiles, explosions and smoke produce measurable spikes?
+				2014 container
+					2015 text A
+					2016 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_206f549a-01eb-4a22-aa7a-3333604b0987
+				2017 container
+					2018 text B
+					2019 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_44470254-f20f-4a2e-8ea4-3ca8a0bccb0b
+				2020 container
+					2021 text C
+					2022 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_dea092d3-c381-4e6b-882f-d3bf45f4995d
+				2023 container
+					2024 text D
+					2025 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_8c563f7b-1f2d-4373-bf3b-a4de37544be5
+			2026 heading A126. Do Shield physics, collision and multiple deployed Shields produce measurable spikes?, Value: 3, ID: label_0d115534-db75-4f05-bf07-c0bb815a611a
+				2027 text A126. Do Shield physics, collision and multiple deployed Shields produce measurable spikes?
+			2028 container A126. Do Shield physics, collision and multiple deployed Shields produce measurable spikes?
+				2029 container
+					2030 text A
+					2031 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_be80958f-56df-4ed0-9dc4-c1a3d0962ae6
+				2032 container
+					2033 text B
+					2034 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_c35dbeae-f950-47e6-bb82-4d04160e27a8
+				2035 container
+					2036 text C
+					2037 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_a4ce8c52-7937-467c-9a98-a1b863a80b5e
+				2038 container
+					2039 text D
+					2040 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_53db3188-7f73-4004-9e33-c55c175baf72
+			2041 heading A127. Do oil patches, mines, crates, confetti and world effects create persistent workload?, Value: 3, ID: label_f3a88807-70d0-4052-8109-ba4cb07716b8
+				2042 text A127. Do oil patches, mines, crates, confetti and world effects create persistent workload?
+			2043 container A127. Do oil patches, mines, crates, confetti and world effects create persistent workload?
+				2044 container
+					2045 text A
+					2046 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_e0e04dc7-30ed-4bf5-90df-06284b99210a
+				2047 container
+					2048 text B
+					2049 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_6e27e239-b6d5-4c41-a56c-6b200285540a
+				2050 container
+					2051 text C
+					2052 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_f325ec27-70e1-4670-a9fe-b5af10113b44
+				2053 container
+					2054 text D
+					2055 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_b1292c65-d0f1-40a2-952d-53fe1ba2a1be
+			2056 heading A128. Do render workload, arena props, lights, meshes and materials show measurable bottlenecks?, Value: 3, ID: label_0ffc26ea-26a1-4845-a6ed-a8d713368620
+				2057 text A128. Do render workload, arena props, lights, meshes and materials show measurable bottlenecks?
+			2058 container A128. Do render workload, arena props, lights, meshes and materials show measurable bottlenecks?
+				2059 container
+					2060 text A
+					2061 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_6f46585e-3bb7-4458-9c43-2384646203d4
+				2062 container
+					2063 text B
+					2064 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_00fd493e-f1d7-4a03-8292-31ac116577a5
+				2065 container
+					2066 text C
+					2067 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_ea696ee5-dfe3-4717-83ef-99714fd73bf5
+				2068 container
+					2069 text D
+					2070 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_c78ed367-0335-427e-9731-fd98921da605
+			2071 heading Value: 3, ID: label_4641bce2-58a6-40bc-8d20-4d3062a0c064, A129. Do memory, object counts and frame-time behavior remain stable during repeated-use and extended sessions?
+				2072 text A129. Do memory, object counts and frame-time behavior remain stable during repeated-use and extended sessions?
+			2073 container A129. Do memory, object counts and frame-time behavior remain stable during repeated-use and extended sessions?
+				2074 container
+					2075 text A
+					2076 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_2ef40fcf-9c57-4ab2-aa99-5e15926dc974
+				2077 container
+					2078 text B
+					2079 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_3c0bfb68-6048-45c4-b7e1-d95dd62cc925
+				2080 container
+					2081 text C
+					2082 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_3f876186-19f7-46b0-8d05-748ff745d87e
+				2083 container
+					2084 text D
+					2085 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_848d0bd2-e5b5-49aa-bfd0-63ccc3bc7bb8
+			2086 heading Value: 3, ID: label_c79bac40-5aa5-4114-8818-5ba25722f759, A130. Are performance results reproducible under controlled conditions, with environment and instrumentation limits explicitly recorded?
+				2087 text A130. Are performance results reproducible under controlled conditions, with environment and instrumentation limits explicitly recorded?
+			2088 container A130. Are performance results reproducible under controlled conditions, with environment and instrumentation limits explicitly recorded?
+				2089 container
+					2090 text A
+					2091 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_4a32826e-1306-40aa-a2cf-fd2781528e18
+				2092 container
+					2093 text B
+					2094 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_8d79314d-178a-4c09-9a9d-4d2d55e83410
+				2095 container
+					2096 text C
+					2097 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_34cafa27-54c8-48c9-8669-0a17d8a409ea
+				2098 container
+					2099 text D
+					2100 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_89602516-59e3-4d05-bf15-2bae3aed70e1
+			2101 heading Section 13 — Test evidence, failure details and limitations, Value: 3, ID: label_0470a322-c604-4841-ac45-7963ca20893a
+				2102 text Section 13 — Test evidence, failure details and limitations
+			2413 text entry area (settable) ID: 0470a322-c604-4841-ac45-7963ca20893a, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			2104 heading Section 13 — Evidence links (logs, screenshots, video, repository paths), Value: 3, ID: label_b2567527-d289-4f86-b89a-d841ea397075
+				2105 text Section 13 — Evidence links (logs, screenshots, video, repository paths)
+			2414 text entry area (settable) ID: b2567527-d289-4f86-b89a-d841ea397075, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			2107 heading Section 14 — Multiplayer simulation, authority and integration, Value: 2
+				2108 text Section 14 — Multiplayer simulation, authority and integration
+			2109 heading A131. Can Astra launch and control two or more independent multiplayer instances?, Value: 3, ID: label_f06ad037-a3af-48dc-891d-3d8ac22b97ec
+				2110 text A131. Can Astra launch and control two or more independent multiplayer instances?
+			2111 container A131. Can Astra launch and control two or more independent multiplayer instances?
+				2112 container
+					2113 text A
+					2114 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_4bafff73-fefc-4db4-b7e9-efc46021c77c
+				2115 container
+					2116 text B
+					2117 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_6c1a78c0-1d22-4d9a-9532-123c39e682ba
+				2118 container
+					2119 text C
+					2120 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_d7c26979-00be-493c-a0cf-1bcf239762db
+				2121 container
+					2122 text D
+					2123 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_f7d59372-adf8-4e8d-ae52-e9d55a88c35a
+			2124 heading A132. Can clients join and maintain the same session without state divergence?, Value: 3, ID: label_5ad8cd85-1829-4398-bb0a-4b9a1ad30cfa
+				2125 text A132. Can clients join and maintain the same session without state divergence?
+			2126 container A132. Can clients join and maintain the same session without state divergence?
+				2127 container
+					2128 text A
+					2129 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_7db6037f-548a-4b5e-bf1c-ff8d6fadebfd
+				2130 container
+					2131 text B
+					2132 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_51a337c8-d288-41a6-a651-a23aab2ace86
+				2133 container
+					2134 text C
+					2135 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_26f15913-96d1-46c1-bb6f-3d03bfeb07cc
+				2136 container
+					2137 text D
+					2138 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_669bf459-ca67-4ae0-b9bd-d04e9a687fb0
+			2139 heading A133. Are vehicle movement, orientation, collisions, damage and respawn synchronized?, Value: 3, ID: label_f7bc0564-34d5-43e7-8398-d63ca4f2d762
+				2140 text A133. Are vehicle movement, orientation, collisions, damage and respawn synchronized?
+			2141 container A133. Are vehicle movement, orientation, collisions, damage and respawn synchronized?
+				2142 container
+					2143 text A
+					2144 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_d649be7f-76ba-4198-a4f7-aa7274b387ee
+				2145 container
+					2146 text B
+					2147 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_a5a40e33-2d3a-452a-9459-5581bb4eacce
+				2148 container
+					2149 text C
+					2150 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_0b05e074-1f24-4ae0-90f4-455ac92d2dc4
+				2151 container
+					2152 text D
+					2153 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_957cab2a-2d0c-41e7-b3e8-198e46e1c17f
+			2154 heading A134. Are crate pickup, item-slot changes, weapon switching and ammo consumption authoritative?, Value: 3, ID: label_8594071e-cca2-4d1c-811d-db8849473b2f
+				2155 text A134. Are crate pickup, item-slot changes, weapon switching and ammo consumption authoritative?
+			2156 container A134. Are crate pickup, item-slot changes, weapon switching and ammo consumption authoritative?
+				2157 container
+					2158 text A
+					2159 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_53a0eb57-90cf-43be-9cee-cee3b9458d89
+				2160 container
+					2161 text B
+					2162 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_d667a9b8-306c-4fbc-82d2-f2f28998f7a1
+				2163 container
+					2164 text C
+					2165 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_bebf54b8-0967-4bc6-a12b-1c889e843738
+				2166 container
+					2167 text D
+					2168 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_dc138ac4-fd68-4efa-aa0a-cdf672da8637
+			2169 heading A135. Do Machine Gun, Missile and Salvo firing, impacts and damage agree across host and clients?, Value: 3, ID: label_a29e6c60-5c73-4897-8a35-2b0bd9884d5f
+				2170 text A135. Do Machine Gun, Missile and Salvo firing, impacts and damage agree across host and clients?
+			2171 container A135. Do Machine Gun, Missile and Salvo firing, impacts and damage agree across host and clients?
+				2172 container
+					2173 text A
+					2174 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_4fe9f8ac-c947-4b7d-aa28-0aa0ffdf16e4
+				2175 container
+					2176 text B
+					2177 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_8ba0bbae-f1d0-47a5-9ec0-d98be734e929
+				2178 container
+					2179 text C
+					2180 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_dd7ea3d8-f898-4910-ad8e-792a43755d04
+				2181 container
+					2182 text D
+					2183 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_4c7366b6-062a-4cc5-9f59-36e9f55748cd
+			2184 heading A136. Do oil contamination, mines, Boost and Wrench actions produce consistent remote state?, Value: 3, ID: label_870d48b0-7032-48e1-bdfd-075100ec806e
+				2185 text A136. Do oil contamination, mines, Boost and Wrench actions produce consistent remote state?
+			2186 container A136. Do oil contamination, mines, Boost and Wrench actions produce consistent remote state?
+				2187 container
+					2188 text A
+					2189 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_eea1ea02-765b-45da-a643-6410034b0e59
+				2190 container
+					2191 text B
+					2192 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_6a9ad713-ee87-4a20-9795-d7f4ed8e864b
+				2193 container
+					2194 text C
+					2195 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_d312aecc-235e-45cf-ab65-04ed3e135c41
+				2196 container
+					2197 text D
+					2198 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_ab7a1465-d114-4e97-b5b5-3b83032e1852
+			2199 heading A137. Do Shield deployment, collision, durability, protection and destruction remain authoritative?, Value: 3, ID: label_18295648-8152-425a-bad7-20930b875c61
+				2200 text A137. Do Shield deployment, collision, durability, protection and destruction remain authoritative?
+			2201 container A137. Do Shield deployment, collision, durability, protection and destruction remain authoritative?
+				2202 container
+					2203 text A
+					2204 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_91b9e7b7-f422-4af9-b24f-02d6db732808
+				2205 container
+					2206 text B
+					2207 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_c274963b-d844-49da-908c-977b5e1d1c8d
+				2208 container
+					2209 text C
+					2210 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_f4c0d9bb-3cb4-4301-95bf-3daf15df64de
+				2211 container
+					2212 text D
+					2213 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_e2b89a3f-5ab1-4ea7-b7c3-f32180320c7e
+			2214 heading A138. Do EMP Claw navigation, attachment, debuff and Shield interception agree across clients?, Value: 3, ID: label_1a8d9ad2-8ce0-49f3-ba89-c744983afbf4
+				2215 text A138. Do EMP Claw navigation, attachment, debuff and Shield interception agree across clients?
+			2216 container A138. Do EMP Claw navigation, attachment, debuff and Shield interception agree across clients?
+				2217 container
+					2218 text A
+					2219 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_dfd60d83-a14e-4720-b375-654cd77c955d
+				2220 container
+					2221 text B
+					2222 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_5cc76efc-14e4-481b-b07a-599934096754
+				2223 container
+					2224 text C
+					2225 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_7f6ce144-bcbf-48c5-82ff-6c9685750558
+				2226 container
+					2227 text D
+					2228 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_8e0bda36-4374-41a2-a293-0f0e1205e49c
+			2229 heading Value: 3, ID: label_995009eb-7924-49bc-90e0-2dd414225c82, A139. Can network delay, concurrent actions and disconnect/reconnect scenarios be exercised without duplication or stale state?
+				2230 text A139. Can network delay, concurrent actions and disconnect/reconnect scenarios be exercised without duplication or stale state?
+			2231 container A139. Can network delay, concurrent actions and disconnect/reconnect scenarios be exercised without duplication or stale state?
+				2232 container
+					2233 text A
+					2234 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_aa8aa96e-12e2-454b-ad66-5f62e0de8b03
+				2235 container
+					2236 text B
+					2237 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_e26f0a84-be5d-49ed-9338-a8354df466f3
+				2238 container
+					2239 text C
+					2240 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_8cb2a11d-d847-4fa4-b289-c303bac3b445
+				2241 container
+					2242 text D
+					2243 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_96f67f95-505e-49e9-9eb4-06729564df9c
+			2244 heading Value: 3, ID: label_4b41a8c8-73bc-43bf-9ec1-87417d5d8860, A140. Can multi-client weapon interactions and sustained combat run without uncorrected divergence, runtime errors or escalating performance problems?
+				2245 text A140. Can multi-client weapon interactions and sustained combat run without uncorrected divergence, runtime errors or escalating performance problems?
+			2246 container A140. Can multi-client weapon interactions and sustained combat run without uncorrected divergence, runtime errors or escalating performance problems?
+				2247 container
+					2248 text A
+					2249 radio button (settable, integer) Description: PASS, Value: 0, ID: choice_a6676b90-bec5-4933-b2c6-88da7b3c5246
+				2250 container
+					2251 text B
+					2252 radio button (settable, integer) Description: FAIL, Value: 0, ID: choice_99f19325-dc1c-45f0-8a35-526bbd3543d8
+				2253 container
+					2254 text C
+					2255 radio button (settable, integer) Description: PARTIAL, Value: 0, ID: choice_f85f551d-ead1-48ab-99b4-f02fb66de792
+				2256 container
+					2257 text D
+					2258 radio button (settable, integer) Description: NOT TESTED, Value: 1, ID: choice_db5bd2ea-caa0-42e3-ad67-022b689a57ec
+			2259 heading Section 14 — Test evidence, failure details and limitations, Value: 3, ID: label_df1172fa-af78-4ff3-aa28-07d0e6569733
+				2260 text Section 14 — Test evidence, failure details and limitations
+			2415 text entry area (settable) ID: df1172fa-af78-4ff3-aa28-07d0e6569733, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			2262 heading Section 14 — Evidence links (logs, screenshots, video, repository paths), Value: 3, ID: label_ecd7a83b-da1b-4a37-960c-73c325f9fd8a
+				2263 text Section 14 — Evidence links (logs, screenshots, video, repository paths)
+			2416 text entry area (settable) ID: ecd7a83b-da1b-4a37-960c-73c325f9fd8a, Value: NOT TESTED — outside the five-question pilot. No test evidence collected for this section in this submission. Full audit is gated on successful pilot submission.
+			2265 heading Final run summary, Value: 2
+				2266 text Final run summary
+			2267 heading Number of PASS results, Value: 3, ID: label_b55cbe24-abd0-44aa-8253-6e719225251d
+				2268 text Number of PASS results
+			2269 text field (settable) Value: 5, ID: b55cbe24-abd0-44aa-8253-6e719225251d
+			2270 heading Number of FAIL results, Value: 3, ID: label_ae200ba3-c117-47f2-8c3e-81e68cb56bd7
+				2271 text Number of FAIL results
+			2272 text field (settable) Value: 0, ID: ae200ba3-c117-47f2-8c3e-81e68cb56bd7
+			2273 heading Number of PARTIAL results, Value: 3, ID: label_f09124a2-fb08-46de-8ace-c5b62755be09
+				2274 text Number of PARTIAL results
+			2275 text field (settable) Value: 0, ID: f09124a2-fb08-46de-8ace-c5b62755be09
+			2276 heading Number of NOT TESTED results, Value: 3, ID: label_9121682b-bddd-42c3-baba-0c0c1ea1cb03
+				2277 text Number of NOT TESTED results
+			2278 text field (settable) Value: 135, ID: 9121682b-bddd-42c3-baba-0c0c1ea1cb03
+			2279 heading Top confirmed defects and question IDs, Value: 3, ID: label_3f3445a9-374f-439e-a9bb-78d5d5059853
+				2280 text Top confirmed defects and question IDs
+			2281 text entry area (settable) ID: 3f3445a9-374f-439e-a9bb-78d5d5059853, Value: No gameplay defect demonstrated in the five pilot questions. Initial sandbox access failures resolved by native-permission reruns.
+			2282 heading Outstanding multiplayer scenarios for developer verification, Value: 3, ID: label_5b61b929-5b84-4b5e-82eb-357f8ac65288
+				2283 text Outstanding multiplayer scenarios for developer verification
+			2284 text entry area (settable) ID: 5b61b929-5b84-4b5e-82eb-357f8ac65288, Value: All independent human/network multiplayer validation remains pending. Eight loopback peers are automated simulation, not human signoff.
+			2285 heading Runtime and performance caveats, Value: 3, ID: label_5d5f7312-45f7-490e-be65-e5a16feff1c8
+				2286 text Runtime and performance caveats
+			2287 text entry area (settable) Value: Pilot only; no FPS benchmark, long-session soak, physical-controller or audible-output assessment., ID: 5d5f7312-45f7-490e-be65-e5a16feff1c8
+			2288 heading Git repository evidence path / verification report link, Value: 3, ID: label_fb6a4244-3a59-4d4a-b43c-e9be33a50694
+				2289 text Git repository evidence path / verification report link
+			2290 text field (settable) Value: docs/verification/ts-323.md, ID: fb6a4244-3a59-4d4a-b43c-e9be33a50694
+			2291 heading Recommended next steps and relevant Jira Stories, Value: 3, ID: label_85cc022a-27e0-424b-a3fe-f5270fd9a5d2
+				2292 text Recommended next steps and relevant Jira Stories
+			2293 text entry area (settable) ID: 85cc022a-27e0-424b-a3fe-f5270fd9a5d2, Value: If this pilot submission succeeds, continue TS-323 full applicable audit. Preserve TS-312 human approvals and remaining integration ownership.
+			2294 heading Final Astra assessment (0–10), only if a formal experiential critique was performed, Value: 3, ID: label_c4398ce9-8db4-4a82-beb7-9d00798a7741
+				2295 text Final Astra assessment (0–10), only if a formal experiential critique was performed
+			2388 container
+				2389 text field (settable) c4398ce9-8db4-4a82-beb7-9d00798a7741
+				2390 text Please enter a value
+			2297 heading Approval statement, Value: 3, ID: label_e13b469b-1f96-4ed9-a8b6-c6b14a723e6c
+				2298 text Approval statement
+			2299 container Approval statement
+				2300 container
+					2301 text A
+					2302 radio button (settable, integer) Description: Technical validation complete with limitations documented, Value: 0, ID: choice_48f55df4-a377-4d85-bd95-c139ea96fede
+				2303 container
+					2304 text B
+					2305 radio button (settable, integer) Description: Validation incomplete — follow-up needed, Value: 1, ID: choice_040e0bae-029e-41b8-aa11-61a2665a8acf
+				2306 container
+					2307 text C
+					2308 radio button (settable, integer) Description: Unable to execute meaningful runtime tests, Value: 0, ID: choice_f1cfb82e-8967-4ad3-a725-aa474eb43d34
+			50 button Submit
+			51 link Description: Made with Tally Tally, Value: tally.so/?utm_source=tally&utm_medium=website&utm_campaign=powered-by_web&version=8&device=mobile
+
+The focused UI element is 2389 text field (settable) c4398ce9-8db4-4a82-beb7-9d00798a7741
