@@ -59,6 +59,14 @@ public sealed partial class SimulationBootstrap : Node
 
         ProjectSettings.SetSetting("application/config/version", canonicalVersion);
 
+        if (OS.GetCmdlineUserArgs().Contains("--performance-benchmark"))
+        {
+            // Release templates reject scene-path overrides; use the same opt-in
+            // entry-point pattern as the other exported verification harnesses.
+            GetTree().CallDeferred(SceneTree.MethodName.ChangeSceneToFile, "res://scenes/verification/performance_benchmark.tscn");
+            return;
+        }
+
         if (OnlineEnabled && OS.GetCmdlineUserArgs().Contains("--statistics-check"))
         {
             // Replace the scene so the normal input owner exits before the verification scene creates its own.

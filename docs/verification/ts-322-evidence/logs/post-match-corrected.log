@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connected; None; 
+Transport peer 1: Connected; None; 
+REMATCH_RESOURCE cycle=1; generation=6597983550729009692; managed=8863000; private=782442496; handles=457; nodes=13500; objects=23354; orphans=0; inputPending=4; snapshots=20; hostEvents=62; clientEvents=64
+REMATCH_RESOURCE cycle=2; generation=6597983550729009693; managed=9108736; private=797474816; handles=461; nodes=14491; objects=24956; orphans=0; inputPending=3; snapshots=20; hostEvents=122; clientEvents=133
+REMATCH_RESOURCE cycle=3; generation=6597983550729009694; managed=9939512; private=852557824; handles=465; nodes=14117; objects=24470; orphans=0; inputPending=4; snapshots=20; hostEvents=182; clientEvents=200
+System.InvalidOperationException: Return clears readiness and all match runtime
+   at Trackstorm.Client.Verification.PostMatchIntegrationChecks.Check(Boolean condition, String message) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\PostMatchIntegrationChecks.cs:line 508
+   at Trackstorm.Client.Verification.PostMatchIntegrationChecks.Run() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\PostMatchIntegrationChecks.cs:line 182
+Transport peer 1: Disconnected; RemoteRequest; Transport stopped

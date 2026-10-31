@@ -1,0 +1,552 @@
+[
+  {
+    "Scenario": "map-only",
+    "BeforeFps": [
+      280.98859805589115,
+      277.7446461412973,
+      276.9100239585278
+    ],
+    "AfterFps": [
+      281.740609516352,
+      277.9293907967968,
+      277.13389290199746
+    ],
+    "BeforeP95": [
+      3.7841,
+      3.8565,
+      3.8643
+    ],
+    "AfterP95": [
+      3.8039,
+      3.8469,
+      3.8694
+    ],
+    "BeforeCpu": [
+      null
+    ],
+    "AfterCpu": [
+      null
+    ],
+    "BeforeBytes": [
+      null
+    ],
+    "AfterBytes": [
+      null
+    ],
+    "BeforeAdvance": [
+      null,
+      null,
+      null
+    ],
+    "AfterAdvance": [
+      null,
+      null,
+      null
+    ],
+    "BeforeStutters": [
+      0,
+      0,
+      0
+    ],
+    "AfterStutters": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "Scenario": "map-pickups",
+    "BeforeFps": [
+      248.8733874160764,
+      246.58479063408836,
+      244.82307876240932
+    ],
+    "AfterFps": [
+      245.65959340554338,
+      245.63959170051518,
+      244.64790661673302
+    ],
+    "BeforeP95": [
+      4.2841,
+      4.3063,
+      4.3675
+    ],
+    "AfterP95": [
+      4.5061,
+      4.3472,
+      4.4025
+    ],
+    "BeforeCpu": [
+      null
+    ],
+    "AfterCpu": [
+      null
+    ],
+    "BeforeBytes": [
+      null
+    ],
+    "AfterBytes": [
+      null
+    ],
+    "BeforeAdvance": [
+      null,
+      null,
+      null
+    ],
+    "AfterAdvance": [
+      null,
+      null,
+      null
+    ],
+    "BeforeStutters": [
+      0,
+      0,
+      0
+    ],
+    "AfterStutters": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "Scenario": "pickup-publication-cpu",
+    "BeforeFps": [
+      null,
+      null,
+      null
+    ],
+    "AfterFps": [
+      null,
+      null,
+      null
+    ],
+    "BeforeP95": [
+      null
+    ],
+    "AfterP95": [
+      null
+    ],
+    "BeforeCpu": [
+      0.14383504,
+      0.14472437999999999,
+      0.14415479000000003
+    ],
+    "AfterCpu": [
+      0.015678,
+      0.018610670000000003,
+      0.018863570000000003
+    ],
+    "BeforeBytes": [
+      12067.8184,
+      12067.6504,
+      12067.6304
+    ],
+    "AfterBytes": [
+      3520.0296000000003,
+      3520.0296000000003,
+      3520.0296000000003
+    ],
+    "BeforeAdvance": [
+      null
+    ],
+    "AfterAdvance": [
+      null
+    ],
+    "BeforeStutters": [
+      null,
+      null,
+      null
+    ],
+    "AfterStutters": [
+      null,
+      null,
+      null
+    ]
+  },
+  {
+    "Scenario": "crate-pressure",
+    "BeforeFps": [
+      207.81826014714045,
+      200.7175237937009,
+      206.46013145879658
+    ],
+    "AfterFps": [
+      206.05593758761427,
+      206.18239318163313,
+      206.05852841233286
+    ],
+    "BeforeP95": [
+      5.3103,
+      5.5913,
+      5.2678
+    ],
+    "AfterP95": [
+      5.4117,
+      5.3404,
+      5.391
+    ],
+    "BeforeCpu": [
+      null
+    ],
+    "AfterCpu": [
+      null
+    ],
+    "BeforeBytes": [
+      null
+    ],
+    "AfterBytes": [
+      null
+    ],
+    "BeforeAdvance": [
+      null,
+      null,
+      null
+    ],
+    "AfterAdvance": [
+      null,
+      null,
+      null
+    ],
+    "BeforeStutters": [
+      0,
+      2,
+      2
+    ],
+    "AfterStutters": [
+      2,
+      2,
+      2
+    ]
+  },
+  {
+    "Scenario": "crate-cleanup",
+    "BeforeFps": [
+      274.05515082652283,
+      276.599775187074,
+      276.2621672714971
+    ],
+    "AfterFps": [
+      276.8253302823433,
+      275.96226670599555,
+      275.5454328794734
+    ],
+    "BeforeP95": [
+      3.9693,
+      3.8526,
+      3.8697
+    ],
+    "AfterP95": [
+      3.8842,
+      3.8715,
+      3.8803
+    ],
+    "BeforeCpu": [
+      null
+    ],
+    "AfterCpu": [
+      null
+    ],
+    "BeforeBytes": [
+      null
+    ],
+    "AfterBytes": [
+      null
+    ],
+    "BeforeAdvance": [
+      null,
+      null,
+      null
+    ],
+    "AfterAdvance": [
+      null,
+      null,
+      null
+    ],
+    "BeforeStutters": [
+      0,
+      0,
+      0
+    ],
+    "AfterStutters": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "Scenario": "idle-one",
+    "BeforeFps": [
+      195.7598222140151,
+      196.51749759947162,
+      191.62179072545734
+    ],
+    "AfterFps": [
+      197.8123477513816,
+      190.08874861091488,
+      196.35805252363744
+    ],
+    "BeforeP95": [
+      6.0176,
+      5.908,
+      6.3071
+    ],
+    "AfterP95": [
+      6.0103,
+      6.5892,
+      5.8905
+    ],
+    "BeforeCpu": [
+      null
+    ],
+    "AfterCpu": [
+      null
+    ],
+    "BeforeBytes": [
+      null
+    ],
+    "AfterBytes": [
+      null
+    ],
+    "BeforeAdvance": [
+      0.9068843333333338,
+      0.9072853333333328,
+      0.9369190000000002
+    ],
+    "AfterAdvance": [
+      0.906879666666667,
+      0.9667986666666673,
+      0.9214570000000002
+    ],
+    "BeforeStutters": [
+      0,
+      0,
+      0
+    ],
+    "AfterStutters": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "Scenario": "driving-one",
+    "BeforeFps": [
+      199.02561543766024,
+      164.1101064037577,
+      194.93882316854953
+    ],
+    "AfterFps": [
+      160.0902547477858,
+      172.26987642413928,
+      196.4924711836582
+    ],
+    "BeforeP95": [
+      6.5939,
+      7.7619,
+      6.6908
+    ],
+    "AfterP95": [
+      7.7301,
+      7.3723,
+      6.5207
+    ],
+    "BeforeCpu": [
+      null
+    ],
+    "AfterCpu": [
+      null
+    ],
+    "BeforeBytes": [
+      null
+    ],
+    "AfterBytes": [
+      null
+    ],
+    "BeforeAdvance": [
+      1.4677246666666666,
+      1.6423713333333336,
+      1.4279773333333332
+    ],
+    "AfterAdvance": [
+      1.4424969999999986,
+      1.4700036666666672,
+      1.4286120000000004
+    ],
+    "BeforeStutters": [
+      0,
+      0,
+      0
+    ],
+    "AfterStutters": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "Scenario": "four-cars",
+    "BeforeFps": [
+      143.83041344573186,
+      127.18067541110268,
+      141.82759317410867
+    ],
+    "AfterFps": [
+      120.1079375345687,
+      128.27240955071483,
+      141.97896742025875
+    ],
+    "BeforeP95": [
+      8.9111,
+      9.8134,
+      8.8282
+    ],
+    "AfterP95": [
+      10.2477,
+      9.5334,
+      8.8035
+    ],
+    "BeforeCpu": [
+      null
+    ],
+    "AfterCpu": [
+      null
+    ],
+    "BeforeBytes": [
+      null
+    ],
+    "AfterBytes": [
+      null
+    ],
+    "BeforeAdvance": [
+      2.2583313333333335,
+      2.4495929999999992,
+      2.2019983333333335
+    ],
+    "AfterAdvance": [
+      2.348570999999999,
+      2.2756730000000003,
+      2.2755853333333347
+    ],
+    "BeforeStutters": [
+      0,
+      0,
+      0
+    ],
+    "AfterStutters": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "Scenario": "combat-machine-gun",
+    "BeforeFps": [
+      106.52884816254678,
+      80.77260312455923,
+      105.48139059606522
+    ],
+    "AfterFps": [
+      96.67614574269949,
+      105.93274959706947,
+      109.87701754154507
+    ],
+    "BeforeP95": [
+      12.4613,
+      15.3471,
+      12.4054
+    ],
+    "AfterP95": [
+      14.1373,
+      12.5011,
+      11.6657
+    ],
+    "BeforeCpu": [
+      null
+    ],
+    "AfterCpu": [
+      null
+    ],
+    "BeforeBytes": [
+      null
+    ],
+    "AfterBytes": [
+      null
+    ],
+    "BeforeAdvance": [
+      3.4158690000000007,
+      3.5818246666666655,
+      3.3678266666666667
+    ],
+    "AfterAdvance": [
+      3.609999000000002,
+      3.2384010000000014,
+      3.1920946666666667
+    ],
+    "BeforeStutters": [
+      0,
+      1,
+      1
+    ],
+    "AfterStutters": [
+      1,
+      1,
+      0
+    ]
+  },
+  {
+    "Scenario": "sustained-four-cars",
+    "BeforeFps": [
+      111.61984465127429,
+      100.17141532933985,
+      110.8802609475711
+    ],
+    "AfterFps": [
+      101.23483647486746,
+      110.85350867191154,
+      114.02577559671242
+    ],
+    "BeforeP95": [
+      10.6661,
+      12.9168,
+      10.8469
+    ],
+    "AfterP95": [
+      11.6508,
+      10.8257,
+      10.5425
+    ],
+    "BeforeCpu": [
+      null
+    ],
+    "AfterCpu": [
+      null
+    ],
+    "BeforeBytes": [
+      null
+    ],
+    "AfterBytes": [
+      null
+    ],
+    "BeforeAdvance": [
+      2.4481153333333308,
+      2.5249106666666687,
+      2.485816000000002
+    ],
+    "AfterAdvance": [
+      2.6848870000000016,
+      2.4213090000000013,
+      2.424409666666666
+    ],
+    "BeforeStutters": [
+      0,
+      0,
+      0
+    ],
+    "AfterStutters": [
+      0,
+      0,
+      0
+    ]
+  }
+]

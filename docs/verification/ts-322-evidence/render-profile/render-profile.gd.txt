@@ -1,0 +1,68 @@
+extends SceneTree
+
+var samples: Array = []
+var started: int
+var output: String
+var viewport: RID
+var initial: Dictionary
+
+func _initialize() -> void:
+    output = ProjectSettings.globalize_path("res://.godot/ts-322/render-profile")
+    for argument in OS.get_cmdline_user_args():
+        if argument.begins_with("--benchmark-output="):
+            output = argument.trim_prefix("--benchmark-output=")
+    DirAccess.make_dir_recursive_absolute(output)
+    viewport = root.get_viewport_rid()
+    initial = {
+        "vsync_before_benchmark": DisplayServer.window_get_vsync_mode(),
+        "frame_cap_before_benchmark": Engine.max_fps,
+        "screen_refresh_hz": DisplayServer.screen_get_refresh_rate(DisplayServer.window_get_current_screen()),
+        "renderer": RenderingServer.get_current_rendering_method(),
+        "note": "Separate instrumented run. Render timers exclude script/physics CPU. Initial display values are project defaults before benchmark overrides, not a historical gameplay capture."
+    }
+    RenderingServer.viewport_set_measure_render_time(viewport, true)
+    started = Time.get_ticks_usec()
+    call_deferred("_start")
+
+func _start() -> void:
+    root.add_child(load("res://scenes/verification/performance_benchmark.tscn").instantiate())
+
+func _process(_delta: float) -> bool:
+    samples.append([
+        (Time.get_ticks_usec() - started) / 1000000.0,
+        RenderingServer.viewport_get_measured_render_time_cpu(viewport),
+        RenderingServer.viewport_get_measured_render_time_gpu(viewport),
+        RenderingServer.get_frame_setup_time_cpu()
+    ])
+    return false
+
+func summary(column: int) -> Dictionary:
+    var values: Array = []
+    var total: float = 0.0
+    for row in samples:
+        if row[column] > 0.0:
+            values.append(row[column])
+            total += row[column]
+    if values.is_empty():
+        return {"positive_samples": 0, "available": false}
+    values.sort()
+    return {
+        "positive_samples": values.size(), "available": true,
+        "mean_ms": total / values.size(),
+        "median_ms": values[int(ceil(values.size() * 0.5)) - 1],
+        "p95_ms": values[int(ceil(values.size() * 0.95)) - 1],
+        "max_ms": values[-1]
+    }
+
+func _finalize() -> void:
+    var file = FileAccess.open(output.path_join("render-profile.json"), FileAccess.WRITE)
+    if file:
+        file.store_string(JSON.stringify({
+            "initial": initial,
+            "all_samples": samples.size(),
+            "render_cpu": summary(1), "render_gpu": summary(2), "setup_cpu": summary(3),
+            "columns": ["elapsed_seconds", "render_cpu_ms", "render_gpu_ms", "setup_cpu_ms"],
+            "samples": samples
+        }))
+        file.close()
+

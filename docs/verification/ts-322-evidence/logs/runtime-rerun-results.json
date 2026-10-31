@@ -1,0 +1,46 @@
+[
+  {
+    "Name": "item-spawns",
+    "Script": "./check-item-spawns.ps1",
+    "Options": {
+      "Impaired": true
+    },
+    "Status": "PASS",
+    "Seconds": 20.667326,
+    "Error": "",
+    "Log": ".godot/ts-322/item-spawns-rerun.log"
+  },
+  {
+    "Name": "death-respawn",
+    "Script": "./check-death-respawn.ps1",
+    "Options": {
+      "Impaired": true
+    },
+    "Status": "FAIL",
+    "Seconds": 19.683212,
+    "Error": "Death/respawn integration failed. Artifacts: C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\death-checks\\6efd03e74de74838b97b279563400642",
+    "Log": ".godot/ts-322/death-respawn-rerun.log"
+  },
+  {
+    "Name": "reconnect",
+    "Script": "./check-reconnect.ps1",
+    "Options": {
+      "Shield": true
+    },
+    "Status": "FAIL",
+    "Seconds": 191.6994395,
+    "Error": "Reconnect integration failed; inspect .godot/reconnect-checks/runtime.log.",
+    "Log": ".godot/ts-322/reconnect-rerun.log"
+  },
+  {
+    "Name": "post-match",
+    "Script": "./check-post-match.ps1",
+    "Options": {
+      "Cycles": 3
+    },
+    "Status": "FAIL",
+    "Seconds": 28.7968108,
+    "Error": "Post-match integration failed. Artifacts: C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\post-match-checks\\8efb5c115807434ea3edd9c8ad030922",
+    "Log": ".godot/ts-322/post-match-rerun.log"
+  }
+]

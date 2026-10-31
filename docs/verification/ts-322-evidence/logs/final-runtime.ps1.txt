@@ -1,0 +1,29 @@
+$ErrorActionPreference = 'Stop'
+$godot = (Resolve-Path '.godot/godot-ci/4.7.2/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe').Path
+$checks = @(
+    @{ Name='startup'; Script='./check-startup.ps1'; Options=@{SkipBuild=$true;SkipMediaCheck=$true} },
+    @{ Name='network-two'; Script='./check-network-vehicles.ps1'; Options=@{Players=2;Latency=30;Jitter=5;Loss=2;ApplicationEntry=$true} },
+    @{ Name='carnival-pickup'; Script='./check-carnival-pickup.ps1'; Options=@{} },
+    @{ Name='carnival-smash'; Script='./check-carnival-smash.ps1'; Options=@{} },
+    @{ Name='item-spawns'; Script='./check-item-spawns.ps1'; Options=@{Impaired=$true} },
+    @{ Name='salvo'; Script='./check-salvo.ps1'; Options=@{Impaired=$true} },
+    @{ Name='reconnect-default'; Script='./check-reconnect.ps1'; Options=@{} }
+)
+$results = [Collections.Generic.List[object]]::new()
+foreach ($check in $checks) {
+    $options = $check.Options; $log = ".godot/ts-322/final-$($check.Name).log"
+    $timer = [Diagnostics.Stopwatch]::StartNew()
+    Write-Host "RUN $($check.Name)"
+    try {
+        $global:LASTEXITCODE = 0
+        if ($check.Name -eq 'startup') { & $check.Script -GodotPath $godot @options *> $log }
+        else { & $check.Script -GodotPath $godot -NoBuild @options *> $log }
+        if ($LASTEXITCODE -ne 0) { throw "Exit $LASTEXITCODE" }
+        $status='PASS'; $errorText=''
+    } catch { $status='FAIL'; $errorText=$_.Exception.Message; Write-Host $errorText; Get-Content $log -Tail 10 }
+    $results.Add([pscustomobject]@{ Name=$check.Name; Script=$check.Script; Options=$options; Status=$status; Seconds=$timer.Elapsed.TotalSeconds; Error=$errorText; Log=$log })
+    $results | ConvertTo-Json -Depth 6 | Set-Content .godot/ts-322/final-runtime-results.json
+    Write-Host "$status $($check.Name) $($timer.Elapsed.TotalSeconds.ToString('F1'))s"
+}
+if ($results.Status -contains 'FAIL') { exit 1 }
+

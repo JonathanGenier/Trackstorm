@@ -1,0 +1,32 @@
+$ErrorActionPreference = 'Stop'
+$root = (Get-Location).Path
+$output = Join-Path $root ('.godot/ts-322/render-profile-' + [DateTime]::UtcNow.ToString('yyyyMMdd-HHmmss'))
+New-Item -ItemType Directory -Path $output | Out-Null
+$exe = Join-Path $root '.godot/godot-ci/4.7.2/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64.exe'
+$start = [Diagnostics.ProcessStartInfo]::new($exe)
+$start.WorkingDirectory = $root
+$start.UseShellExecute = $false
+$start.CreateNoWindow = $true
+$start.WindowStyle = [Diagnostics.ProcessWindowStyle]::Hidden
+$start.RedirectStandardOutput = $true
+$start.RedirectStandardError = $true
+foreach ($argument in @('--path', $root, '--resolution', '1280x720', '--script', (Join-Path $root '.godot/ts-322/render-profile.gd'), '--', '--benchmark-ticks=300', "--benchmark-output=$output")) { $start.ArgumentList.Add($argument) }
+$process = [Diagnostics.Process]::new()
+$process.StartInfo = $start
+try {
+    [void]$process.Start()
+    $stdout = $process.StandardOutput.ReadToEndAsync()
+    $stderr = $process.StandardError.ReadToEndAsync()
+    if (-not $process.WaitForExit(300000)) { $process.Kill($true); throw 'Render profile timed out.' }
+    $log = $stdout.GetAwaiter().GetResult()
+    $errors = $stderr.GetAwaiter().GetResult()
+    $log | Set-Content (Join-Path $output 'runtime.log')
+    $errors | Set-Content (Join-Path $output 'error.log')
+    if ($process.ExitCode -ne 0 -or "$log`n$errors" -match 'ERROR:|WARNING:' -or $log -notmatch 'Performance benchmark completed') { throw "Render profile failed: $output" }
+    if (-not (Test-Path (Join-Path $output 'render-profile.json'))) { throw 'No render timing output.' }
+    $data = Get-Content (Join-Path $output 'render-profile.json') -Raw | ConvertFrom-Json
+    $data | Select-Object initial,all_samples,render_cpu,render_gpu,setup_cpu | ConvertTo-Json -Depth 5
+}
+finally { $process.Dispose() }
+Write-Host "Render profiling evidence: $output"
+

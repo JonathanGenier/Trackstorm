@@ -1,0 +1,54 @@
+{
+  "Note": "Final working-file byte hashes, including local line endings; not Git blob IDs. Runtime comparison DLL hashes are separately archived.",
+  "Files": [
+    {
+      "Path": "code/Client/Bootstrap/SimulationBootstrap.cs",
+      "WorkingFileSha256": "EAB0B1E16262F888F4D365C0E7AE0E3C9456AEAAEE5D21CAA720B18CE62E6D08"
+    },
+    {
+      "Path": "code/Client/Items/ItemSpawnPresentation.cs",
+      "WorkingFileSha256": "E09B7A2C0268F85462499D91C54AFCE548E94330ABAC89E629A5797FBA8C5BAC"
+    },
+    {
+      "Path": "code/Client/Verification/CarnivalSmashChecks.cs",
+      "WorkingFileSha256": "3526D5237005EEFBA6CD900A372CD0A97CDF02D2B31623FCD102C9B5C02379DB"
+    },
+    {
+      "Path": "code/Client/Verification/DeathRespawnIntegrationChecks.cs",
+      "WorkingFileSha256": "ED872D4D4CCA116CC5A276A91BBAFF8EE56673FE4E00CDE49B7129FBBDB95092"
+    },
+    {
+      "Path": "code/Client/Verification/ItemSpawnIntegrationChecks.cs",
+      "WorkingFileSha256": "2A49FFB66DBE38AD31F6097A46C57CA5D218D0B4DA14211B2D11B8549067B3B7"
+    },
+    {
+      "Path": "code/Client/Verification/PostMatchIntegrationChecks.cs",
+      "WorkingFileSha256": "2E81CC7D63CBFECEBEB5BFA7D84B8C5CE0F9D53AA4AC08F63D4E24CEEB78C02B"
+    },
+    {
+      "Path": "code/Client/Verification/ReconnectIntegrationChecks.cs",
+      "WorkingFileSha256": "59224AB572FB02CD99DFE9ADCE29E24CB92D767247EBEEFBE88FB30C2F695E6A"
+    },
+    {
+      "Path": "code/Client/Verification/WeaponAimChecks.SalvoPolish.cs",
+      "WorkingFileSha256": "79513F1679528811E97741B7AB1443B7F25DDE554706B6A0BC030ABD6C05BE4B"
+    },
+    {
+      "Path": "tools/fast-check-routes.ps1",
+      "WorkingFileSha256": "D28B9C93857D972944467B110325E7E76FE7540E8EA323650907DB96850544B7"
+    },
+    {
+      "Path": "code/Client/Verification/PerformanceBenchmark.cs",
+      "WorkingFileSha256": "2FF48478ECD2C934C71A61A31863DD904AABF70E776310082A1C93C40F77FDAB"
+    },
+    {
+      "Path": "tools/benchmark-performance.ps1",
+      "WorkingFileSha256": "782F42095778D20C975FD062393BEFE896BECB69318AD3C9630CFF428BD15D07"
+    },
+    {
+      "Path": "scenes/verification/performance_benchmark.tscn",
+      "WorkingFileSha256": "1E77FC7C1446BBAE204B474D587FDDF24C32815BE6480CA0368AD23DA302FE02"
+    }
+  ],
+  "DebugDllSha256": "85DBCAD4587E8526EE0D0473078C581F666E9847C78147DA01BD3BC5A9372408"
+}

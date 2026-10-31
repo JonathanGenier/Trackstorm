@@ -1,0 +1,90 @@
+{
+  "StartedUtc": "2026-10-31T15:49:18.0847577Z",
+  "Seconds": 3.1084522,
+  "Processes": [
+    {
+      "Name": "Godot_v4.7.2-stable_mono_win64",
+      "Id": 12736,
+      "CpuSeconds": 2.96875,
+      "CpuCores": 0.955057311159554,
+      "WorkingSetMB": 375.9
+    },
+    {
+      "Name": "firefox",
+      "Id": 14204,
+      "CpuSeconds": 0.1875,
+      "CpuCores": 0.060319409125866565,
+      "WorkingSetMB": 1013.9
+    },
+    {
+      "Name": "Godot_v4.7.2-stable_mono_win64",
+      "Id": 15860,
+      "CpuSeconds": 0.09375,
+      "CpuCores": 0.030159704562933282,
+      "WorkingSetMB": 866.7
+    },
+    {
+      "Name": "audiodg",
+      "Id": 9928,
+      "CpuSeconds": 0.078125,
+      "CpuCores": 0.025133087135777735,
+      "WorkingSetMB": 18.0
+    },
+    {
+      "Name": "pwsh",
+      "Id": 6620,
+      "CpuSeconds": 0.078125,
+      "CpuCores": 0.025133087135777735,
+      "WorkingSetMB": 78.1
+    },
+    {
+      "Name": "codex-computer-use",
+      "Id": 16672,
+      "CpuSeconds": 0.03125,
+      "CpuCores": 0.010053234854311095,
+      "WorkingSetMB": 124.9
+    },
+    {
+      "Name": "Discord",
+      "Id": 1996,
+      "CpuSeconds": 0.015625,
+      "CpuCores": 0.005026617427155548,
+      "WorkingSetMB": 169.0
+    },
+    {
+      "Name": "ChatGPT",
+      "Id": 1280,
+      "CpuSeconds": 0.015625,
+      "CpuCores": 0.005026617427155548,
+      "WorkingSetMB": 419.5
+    },
+    {
+      "Name": "explorer",
+      "Id": 8464,
+      "CpuSeconds": 0.015625,
+      "CpuCores": 0.005026617427155548,
+      "WorkingSetMB": 259.0
+    },
+    {
+      "Name": "StartMenuExperienceHost",
+      "Id": 9572,
+      "CpuSeconds": 0.0,
+      "CpuCores": 0.0,
+      "WorkingSetMB": 81.1
+    },
+    {
+      "Name": "spoolsv",
+      "Id": 3492,
+      "CpuSeconds": 0,
+      "CpuCores": 0.0,
+      "WorkingSetMB": 15.9
+    },
+    {
+      "Name": "smss",
+      "Id": 492,
+      "CpuSeconds": 0,
+      "CpuCores": 0.0,
+      "WorkingSetMB": 1.2
+    }
+  ]
+}

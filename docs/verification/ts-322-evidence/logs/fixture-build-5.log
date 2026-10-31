@@ -1,0 +1,3 @@
+PASS: Client Debug build (12.265s); log: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-322\fixture-build-5\Client-Debug-build-74d573a35f2842beb150ebf2a98ce6d6.stdout.log
+Targeted result: PASS. Evidence: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-322\fixture-build-5\results.json
+Run ./check.ps1 and applicable runtime/native checks before final Story handoff.

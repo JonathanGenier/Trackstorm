@@ -279,7 +279,10 @@ public sealed partial class WeaponAimChecks
 
         async Task ChangeTarget(ulong target)
         {
-            for (int i = 0; i < 2; i++)
+            // Earlier bearings leave different camera/reticle offsets. Refine
+            // ordinary mouse intent against fresh presentation, as AimAtCurrent
+            // does; the exact launch-target sequence still enforces the deadline.
+            for (int i = 0; i < 4 && _arenas[1].AssistedCar != target; i++)
             {
                 Vector3 direction = (_arenas[1].Bodies[target].VisualTransform * new Vector3(0, .3f, 0) - Camera.GlobalPosition).Normalized();
                 float yaw = MathF.Atan2(-direction.X, -direction.Z), pitch = MathF.Asin(direction.Y);
@@ -287,8 +290,11 @@ public sealed partial class WeaponAimChecks
                 float cursorYaw = MathF.Atan2(-cursorRay.X, -cursorRay.Z), cursorPitch = MathF.Asin(cursorRay.Y);
                 Send(new InputEventMouseMotion { ScreenRelative = new(-Mathf.AngleDifference(cursorYaw, yaw) / .003f, -(pitch - cursorPitch) / .003f) });
                 await Frames(12);
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             }
-            Require(_arenas[1].AssistedCar == target, "Camera deliberately acquires rival " + target + " before the next shot");
+            Require(_arenas[1].AssistedCar == target,
+                $"Camera deliberately acquires rival {target} before the next shot; observed={_arenas[1].AssistedCar}");
         }
     }
 }

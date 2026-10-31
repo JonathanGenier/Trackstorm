@@ -1,0 +1,151 @@
+Trackstorm Story version: expected '0.0.16'; actual '0.0.16'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm Story version: expected '0.1.15'; actual '0.1.15'.
+Trackstorm Story version: expected '0.2.1'; actual '0.2.1'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm Story version: expected '0.2.1'; actual '0.2.1'.
+Trackstorm Story version: expected '0.0.15'; actual '0.0.15'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.0.15.0'; actual file/product '0.0.15.0'.
+Trackstorm export preset versions: expected '0.0.15.0'; actual file/product '0.0.15.0'.
+Trackstorm export preset versions: expected '0.0.15.0'; actual file/product '0.0.15.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm Story version: expected '0.1.2'; actual '0.1.2'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Synchronized canonical Story version and tracked export preset to '0.1.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Synchronized canonical Story version and tracked export preset to '0.1.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm export preset versions: expected '0.1.1.0'; actual file/product '0.1.1.0'.
+Synchronized canonical Story version and tracked export preset to '0.1.1'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm export preset versions: expected '0.1.1.0'; actual file/product '0.1.1.0'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm export preset versions: expected '0.1.1.0'; actual file/product '0.1.1.0'.
+Synchronized canonical Story version and tracked export preset to '0.1.1'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm export preset versions: expected '0.1.1.0'; actual file/product '0.1.1.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm export preset versions: expected '0.2.0.0'; actual file/product '0.2.0.0'.
+Synchronized canonical Story version and tracked export preset to '0.2.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm export preset versions: expected '0.2.0.0'; actual file/product '0.2.0.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm export preset versions: expected '0.2.0.0'; actual file/product '0.2.0.0'.
+Synchronized canonical Story version and tracked export preset to '0.2.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm export preset versions: expected '0.2.0.0'; actual file/product '0.2.0.0'.
+Version rules: 108 checks passed.
+
+>> Workflow helper regression tests
+Created ts-999.md
+Added TS-999 to docs/verification/README.md
+ts-999.md already exists; leaving it unchanged.
+Verification index already links ts-999.md.
+No iteration checks selected. No tests were executed. Final Story verification remains required.
+Workflow helper regression tests passed.
+PASS: plan only (0.88s); log: C:\Users\orsin\AppData\Local\Temp\trackstorm-agent-tests-d35a66bc52d241999de639470d656afd\logs\plan-only-12585d6eff3a4955bcc49c9ed5ae6acf.stdout.log
+PASS: parameters (0.383s); log: C:\Users\orsin\AppData\Local\Temp\trackstorm-agent-tests-d35a66bc52d241999de639470d656afd\logs\parameters-227da9adaa474d0b8c861b300e69e61b.stdout.log
+FAIL: failure (0.51s); log: C:\Users\orsin\AppData\Local\Temp\trackstorm-agent-tests-d35a66bc52d241999de639470d656afd\logs\failure-33dc3fc9defb45ba843606187128faff.stdout.log
+complete diagnostic
+WARNING: fixture
+
+Exception: C:\Users\orsin\AppData\Local\Temp\trackstorm-agent-tests-d35a66bc52d241999de639470d656afd\ignored\failed.ps1:1
+Line |
+   1 |  … c"; Write-Output "WARNING: fixture"; throw "expected harness failure"
+     |                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | expected harness failure
+
+FAIL: explicit exit (0.402s); log: C:\Users\orsin\AppData\Local\Temp\trackstorm-agent-tests-d35a66bc52d241999de639470d656afd\logs\explicit-exit-35e921e4658e4b1eb824b65a8e8a1dd7.stdout.log
+
+
+FAIL: timeout (1.03s); log: C:\Users\orsin\AppData\Local\Temp\trackstorm-agent-tests-d35a66bc52d241999de639470d656afd\logs\timeout-8981605e0bcf4a3189b2415c9825aa8d.stdout.log
+
+
+Timed out after 1 seconds.
+FAIL: missing command (1.111s); log: C:\Users\orsin\AppData\Local\Temp\trackstorm-agent-tests-d35a66bc52d241999de639470d656afd\logs\missing-command-769dadcb090046e3bfddb9c942918b7a.stdout.log
+
+&: The term 'trackstorm-command-that-does-not-exist' is not recognized as a name of a cmdlet, function, script file, or executable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+FAIL: required runtime unavailable (1.185s); log: C:\Users\orsin\AppData\Local\Temp\trackstorm-agent-tests-d35a66bc52d241999de639470d656afd\logs\required-runtime-unavailable-655ac6f15667408da4b1b8a64269c11d.stdout.log
+PENDING: Manual: Drive all normal surfaces and transitions; restart uphill on infield grades; verify host tuning and client prediction.
+PENDING: Manual: Drive/playtest the affected vehicle behavior, including multiple cars when collisions or shared physics are material.
+PENDING: Manual: Observe momentum-biased damage, parked/off-center side hits, low-speed loaded pushing and hills; repeat under multiplayer latency.
+PENDING: Extended: check-environment-collision-network.ps1
+PENDING: Runtime: check-combat-collisions.ps1 (Godot unavailable)
+PENDING: Runtime: check-environment-collisions.ps1 (Godot unavailable)
+PENDING: Runtime: check-landing.ps1 (Godot unavailable)
+PENDING: Runtime: check-terrain-handling.ps1 (Godot unavailable)
+PENDING: Runtime: check-trophy-truck.ps1 (Godot unavailable)
+PENDING: Runtime: check-vehicle.ps1 (Godot unavailable)
+Targeted result: FAIL. Evidence: C:\Users\orsin\AppData\Local\Temp\trackstorm-agent-tests-d35a66bc52d241999de639470d656afd\logs\required\results.json
+Run ./check.ps1 and applicable runtime/native checks before final Story handoff.
+
+Exception: C:\Users\orsin\AppData\Local\Temp\trackstorm-agent-tests-d35a66bc52d241999de639470d656afd\tools\check-fast.ps1:109
+Line |
+ 109 |          throw 'Required runtime is unavailable. Supply -GodotPath or  …
+     |          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Required runtime is unavailable. Supply -GodotPath or GODOT_PATH. No runtime check passed.
+
+Agent tooling regression tests passed: 218 assertions. Expected failure/timeout fixtures above are negative tests.
+
+>> Frontend media verifier regression tests
+Frontend media verifier regression test passed.
+
+>> Frontend media materialization and checksums
+Frontend media verified: 5 materialized files.
+
+>> Restore
+  Determining projects to restore...
+  Restored C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\Trackstorm.Core.csproj (in 101 ms).
+  Restored C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\third_party\eos\Epic.OnlineServices.csproj (in 101 ms).
+  Restored C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\Trackstorm.Client.csproj (in 222 ms).
+  2 of 5 projects are up-to-date for restore.
+
+>> Debug build and analyzers
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.00
+
+>> Release build and analyzers
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Trackstorm.Core.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll
+  Epic.OnlineServices -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\third_party\eos\bin\Release\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\bin\ExportRelease\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:12.72
+
+>> Core tests
+Test run for C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:  1520, Skipped:     0, Total:  1520, Duration: 20 s - Trackstorm.Core.Tests.dll (net10.0)
+
+>> Transport conversion tests
+Test run for C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   507, Skipped:     0, Total:   507, Duration: 22 s - Trackstorm.Transport.Tests.dll (net10.0)
+
+All checks passed.

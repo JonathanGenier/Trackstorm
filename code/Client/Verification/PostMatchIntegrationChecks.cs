@@ -64,7 +64,8 @@ public sealed partial class PostMatchIntegrationChecks : Node
             _client = new DevelopmentSession();
             view.AddChild(_client);
             _client.Open(false, _endpoint, "Podium challenger");
-            await Until(() => _host.Lobby?.State?.Players.Count == 2 && _client.Lobby?.State?.Players.Count == 2, "Two production sessions admitted");
+            await Until(() => _host.Lobby?.State?.Players.Count(player => !player.PracticeCar) == 2 &&
+                _client.Lobby?.State?.Players.Count(player => !player.PracticeCar) == 2, "Two production participants admitted alongside practice cars");
             Check(!_host.NavigatePostMatch(PostMatchDestination.Rematch), "Rematch rejected before Finished");
             await Start();
 
@@ -178,7 +179,7 @@ public sealed partial class PostMatchIntegrationChecks : Node
             KeyEvent(Key.F8);
             navigation.Bindings.RestoreDefaults();
             await Until(() => _host.Stage == ApplicationStage.Lobby && _client.Stage == ApplicationStage.Lobby, "Return to Lobby reaches joined state on both peers");
-            Check(_host.Lobby!.State!.Players.All(player => !player.Ready) && _host.Arena is null && _client.Arena is null, "Return clears readiness and all match runtime");
+            Check(_host.Lobby!.State!.Players.All(player => player.Ready == player.PracticeCar) && _host.Arena is null && _client.Arena is null, "Return clears human readiness and all match runtime; practice cars stay ready");
             await Start();
             await FinishMatch();
             Press(_host, "End Match");
@@ -292,9 +293,11 @@ public sealed partial class PostMatchIntegrationChecks : Node
         }
         else
         {
-            // Solo quit-navigation fixture: no opponent exists for an attributed completion.
+            // No remote human remains; automatic practice cars can still be present.
+            // A detached quit-navigation result has exactly one winning participant.
             var final = new MatchState(state.Tick, match.Revision + 1, match.KillTarget, MatchPhase.Finished, null, winner,
-                match.Players.Select(row => new PlayerScore(row.Player, match.KillTarget, match.KillTarget, 1, (ulong)match.KillTarget) { CircusScore = 1375.5 }));
+                match.Players.Select(row => new PlayerScore(row.Player, match.KillTarget, match.KillTarget, row.Player == winner ? 1 : 0, (ulong)match.KillTarget)
+                    { CircusScore = row.Player == winner ? 1375.5 : 125.25 }));
             world.Restore(new SimulationState(state.Tick, state.LastInput, state.Vehicles, final));
         }
         await Until(() => _host.Stage == ApplicationStage.Podium && (!withClient || _client?.Stage == ApplicationStage.Podium), "Authoritative Finished transitions to dedicated Podium");
@@ -382,12 +385,14 @@ public sealed partial class PostMatchIntegrationChecks : Node
             foreach (int participants in new[] { 8, 10 })
             {
                 var roster = original.Roster;
-                var history = Enumerable.Range(3, participants - 2).Select(id => new MatchParticipant((ulong)id,
-                    id == 3 ? "WWWWWWWWWWWWWWWWWWWWWWWW" : $"Retained player {id}"));
+                var connected = roster.Players.Where(player => !player.PracticeCar).ToArray();
+                ulong firstRetained = connected.Max(player => player.Id) + 1;
+                var history = Enumerable.Range(0, participants - connected.Length).Select(offset => new MatchParticipant(firstRetained + (ulong)offset,
+                    offset == 0 ? "WWWWWWWWWWWWWWWWWWWWWWWW" : $"Retained player {offset}"));
                 var fixtureRoster = new LobbySnapshot(roster.Session, roster.Revision, roster.Match, roster.Phase,
-                    roster.Players, roster.CurrentHostId, roster.AuthorityEpoch, history, roster.Map);
-                ulong[] ids = new[] { 3UL, 1UL, 2UL }.Concat(Enumerable.Range(4, participants - 3).Select(id => (ulong)id)).ToArray();
-                var results = new FinalMatchResults(original.Results.Tick, new MatchOutcome("layout fixture", 3),
+                    connected, roster.CurrentHostId, roster.AuthorityEpoch, history, roster.Map);
+                ulong[] ids = new[] { firstRetained }.Concat(connected.Select(player => player.Id)).Concat(history.Skip(1).Select(player => player.Id)).ToArray();
+                var results = new FinalMatchResults(original.Results.Tick, new MatchOutcome("layout fixture", firstRetained),
                     ids.Select((id, index) => new FinalMatchStanding(id, index + 1, 1234567.89 - index * 100, index == 0 ? 5 : 0, 0, index == 0 ? 1 : 0)));
                 handoff.SetValue(_host, new PostMatchContext(fixtureRoster, results));
                 foreach (var size in new[] { new Vector2I(1280, 720), new Vector2I(640, 360) })

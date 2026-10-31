@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "godot": "4.7.2-stable (official)",
+  "debug": true,
+  "display": "Windows",
+  "renderer": "gl_compatibility",
+  "gpu": "NVIDIA GeForce GTX 1070",
+  "cpu": "Intel(R) Core(TM) i5-7600K CPU @ 3.80GHz",
+  "processors": 4,
+  "resolution": "(1280, 720)",
+  "vsync": "Disabled",
+  "maxFps": 0,
+  "physicsHz": 60,
+  "warmupTicks": 180,
+  "sampleTicks": 300,
+  "drawing": "One forced offscreen draw per process frame, automatic render loop disabled; hidden window safe",
+  "note": "Synthetic fixed-step workloads; not human input, remote multiplayer, GPU timings or historical regression proof."
+}

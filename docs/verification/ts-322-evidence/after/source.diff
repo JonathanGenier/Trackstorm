@@ -1,0 +1,66 @@
+diff --git a/code/Client/Items/ItemSpawnPresentation.cs b/code/Client/Items/ItemSpawnPresentation.cs
+index cfd4e4fb..1ae2bec8 100644
+--- a/code/Client/Items/ItemSpawnPresentation.cs
++++ b/code/Client/Items/ItemSpawnPresentation.cs
+@@ -11,6 +11,7 @@ internal sealed partial class ItemSpawnPresentation : Node3D
+     internal const string AssetPath = "res://assets/items/carnival-crate/CarnivalCrate.glb";
+     private readonly Dictionary<string, Node3D> _models = new(StringComparer.Ordinal);
+     private readonly Dictionary<string, Label3D> _labels = new(StringComparer.Ordinal);
++    private readonly Dictionary<string, bool?> _availability = new(StringComparer.Ordinal);
+     private readonly HashSet<string> _floating = new(StringComparer.Ordinal);
+     private readonly Dictionary<string, (Vector3 Point, Vector3 Normal)> _floors = new(StringComparer.Ordinal);
+     private readonly List<CarnivalSmash> _smashes = [];
+@@ -121,14 +122,20 @@ internal sealed partial class ItemSpawnPresentation : Node3D
+         }
+         foreach (var pair in _models)
+         {
+-            bool active = state.Spawns.Any(spawn => spawn.Id == pair.Key && spawn.Available);
++            var spawn = state.Spawns.SingleOrDefault(spawn => spawn.Id == pair.Key);
++            bool? availability = spawn?.Available;
++            // Complete item publications also arrive for weapon activity. Only an
++            // availability transition changes these native properties. Claim tokens
++            // are still processed below, including a new claim while already hidden.
++            if (!seed && _availability.TryGetValue(pair.Key, out var previous) && previous == availability) continue;
++            _availability[pair.Key] = availability;
++            bool active = availability == true;
+             pair.Value.Visible = active;
+             foreach (var particles in pair.Value.GetChildren().OfType<GpuParticles3D>())
+             {
+                 particles.Emitting = active;
+             }
+ 
+-            var spawn = state.Spawns.SingleOrDefault(spawn => spawn.Id == pair.Key);
+             _labels[pair.Key].Text = active ? "ITEM" : spawn is null ? string.Empty : "RECHARGING";
+         }
+         foreach (var claim in claims)
+diff --git a/code/Client/Verification/CarnivalSmashChecks.cs b/code/Client/Verification/CarnivalSmashChecks.cs
+index a8d1af74..83eff433 100644
+--- a/code/Client/Verification/CarnivalSmashChecks.cs
++++ b/code/Client/Verification/CarnivalSmashChecks.cs
+@@ -55,6 +55,13 @@ public sealed partial class CarnivalSmashChecks : Node3D
+             presentation.Apply(Publication(501));
+             Check(presentation.SmashCount == before+1 && presentation.ActiveSmashCount == 1, "Duplicate and unrelated publications produce exactly one smash");
+             Check(!intact.Visible && presentation.ActiveCount == 26, "A claim hides every crate and aura of exactly one stack");
++            presentation.Apply(Publication(503));
++            Check(presentation.SmashCount == before+2 && !intact.Visible,
++                "A newer claim while already unavailable still emits a smash");
++            presentation.Apply(Publication(0), seed: true);
++            Check(intact.Visible && presentation.GetNode<Node3D>(marker.Id).GetChildren().OfType<Label3D>().Single().Text == "ITEM",
++                "Recovery restores active visibility and label");
++            presentation.Apply(Publication(501));
+             Check(!Descendants(presentation).Any(n => n is CollisionObject3D or CollisionShape3D), "Intact stack and smash contain no physics bodies, areas or shapes");
+             var burst = Descendants(presentation).OfType<CarnivalSmash>().Single();
+             var batches = burst.GetChildren().OfType<MultiMeshInstance3D>().ToArray();
+@@ -69,6 +76,12 @@ public sealed partial class CarnivalSmashChecks : Node3D
+             Check(presentation.ActiveSmashCount == 0 && !intact.Visible, "Recovery clears transient debris and restores availability without replay");
+             presentation.Apply(Publication(502), observedTick: 1200);
+             Check(presentation.ActiveSmashCount == 0, "Outcomes already older than the effect lifetime do not start late debris");
++            presentation.Apply(new ItemPublication(++_revision, host.Snapshot(), [], [], [], []));
++            Check(presentation.ActiveCount == 0 && presentation.GetNode<Node3D>(marker.Id).GetChildren().OfType<Label3D>().Single().Text.Length == 0,
++                "Missing state hides the stack and clears the cooldown label");
++            presentation.Apply(Publication(0));
++            Check(presentation.ActiveCount == config.Items.Count && presentation.GetNode<Node3D>(marker.Id).GetChildren().OfType<Label3D>().Single().Text == "ITEM",
++                "Availability after missing state restores every stack and its active label");
+ 
+             if (DisplayServer.GetName() != "headless")
+             {

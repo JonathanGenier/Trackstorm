@@ -1,0 +1,61 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Three UDP peers initialized
+Host tuning applied
+Zero damage/impulse keeps targets valid; slow overlapping arcs expose later steering
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(500, 21.949999, 300) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 389.88873)
+Salvo acquires and visibly locks a car at 200 m beyond projectile reach
+Out-of-range lock never fires automatically
+Player may commit a volley while locked beyond reach
+Out-of-range lock preserves five-shot ammunition behavior
+Out-of-range lock does not extend projectile reach
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(500, 21.949999, 380) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 395.01505)
+Held assistance is active before the accepted-aim blackout
+Observer has accepted aim before packet blackout
+A bounded real UDP blackout expires accepted aim on shooter and observer
+Accepted-aim outage cannot retain a stale assisted car
+Fresh accepted aim resumes after packet delivery recovers (not authenticated reconnect)
+Held intent reacquires on the shooter only after fresh accepted aim arrives
+Visible cursor survives transient packet recovery and reacquisition
+Recovered accepted ray converges onto the first car before the hit volley
+Target-switching volley accepts one activation
+First shot samples the forward rival
+Camera deliberately acquires rival 3 before the next shot
+Second and third shots sample the second rival
+Camera deliberately acquires rival 1 before the next shot
+Fourth and fifth shots return to the first rival
+Deliberate camera switching is independently sampled between consecutive launches
+SWITCH_ENDPOINT actual=<500, 21.742197, 382.47855> expected=<500, 21.65, 380> error=2.4803
+SWITCH_ENDPOINT actual=<568.6688, 22.000397, 411.74725> expected=<570, 21.65, 410> error=2.2243
+SWITCH_ENDPOINT actual=<568.6688, 22.000263, 411.74728> expected=<570, 21.65, 410> error=2.2243
+SWITCH_ENDPOINT actual=<500.00034, 22.003962, 382.47852> expected=<500, 21.65, 380> error=2.5037
+SWITCH_ENDPOINT actual=<499.99994, 22.003849, 382.47852> expected=<500, 21.65, 380> error=2.5036
+All switched authoritative arcs reach their newly selected rival; old arcs remain unchanged
+Switching releases deliberate camera intent without authority-token expiry
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(500, 23.648989, 350) firstTargetDrift=(0, -1.9073486E-06, 0) requestedScreen=(640, 399.99994)
+Unassisted input state matches deliberate aiming=True
+Unassisted volley commits with aiming=True
+Unassisted volley completes with aiming=True
+All five actively aimed, unassisted endpoints reach 130 m
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(500, 23.64911, 350) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99927)
+Unassisted input state matches deliberate aiming=False
+Unassisted volley commits with aiming=False
+Unassisted volley completes with aiming=False
+All five unaimed endpoints preserve prior 65 m base-range and native ground-intersection behavior
+All repeated polish volleys finish flight and fully stow
+Observer receives the same ordered authoritative launch/impact outcomes for every polish volley
+Every locked, switched and manually led shot snapshots its accepted direction independently
+Owner and observers clean up the exhausted magazine and targeting circles
+Weapon aiming integration passed: 49 Salvo checks.

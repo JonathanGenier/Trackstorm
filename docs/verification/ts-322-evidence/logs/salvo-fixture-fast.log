@@ -1,0 +1,3 @@
+PASS: Client Debug build (24.683s); log: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-322\salvo-fixture-fast\Client-Debug-build-ebda995fd6bd4b6a88207c716ead2f28.stdout.log
+Targeted result: PASS. Evidence: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-322\salvo-fixture-fast\results.json
+Run ./check.ps1 and applicable runtime/native checks before final Story handoff.

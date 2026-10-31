@@ -11,6 +11,7 @@ internal sealed partial class ItemSpawnPresentation : Node3D
     internal const string AssetPath = "res://assets/items/carnival-crate/CarnivalCrate.glb";
     private readonly Dictionary<string, Node3D> _models = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Label3D> _labels = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, bool?> _availability = new(StringComparer.Ordinal);
     private readonly HashSet<string> _floating = new(StringComparer.Ordinal);
     private readonly Dictionary<string, (Vector3 Point, Vector3 Normal)> _floors = new(StringComparer.Ordinal);
     private readonly List<CarnivalSmash> _smashes = [];
@@ -121,14 +122,20 @@ internal sealed partial class ItemSpawnPresentation : Node3D
         }
         foreach (var pair in _models)
         {
-            bool active = state.Spawns.Any(spawn => spawn.Id == pair.Key && spawn.Available);
+            var spawn = state.Spawns.SingleOrDefault(spawn => spawn.Id == pair.Key);
+            bool? availability = spawn?.Available;
+            // Complete item publications also arrive for weapon activity. Only an
+            // availability transition changes these native properties. Claim tokens
+            // are still processed below, including a new claim while already hidden.
+            if (!seed && _availability.TryGetValue(pair.Key, out var previous) && previous == availability) continue;
+            _availability[pair.Key] = availability;
+            bool active = availability == true;
             pair.Value.Visible = active;
             foreach (var particles in pair.Value.GetChildren().OfType<GpuParticles3D>())
             {
                 particles.Emitting = active;
             }
 
-            var spawn = state.Spawns.SingleOrDefault(spawn => spawn.Id == pair.Key);
             _labels[pair.Key].Text = active ? "ITEM" : spawn is null ? string.Empty : "RECHARGING";
         }
         foreach (var claim in claims)

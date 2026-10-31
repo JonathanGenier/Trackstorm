@@ -198,8 +198,9 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 Require(_arenas.All(arena =>
                 {
                     var presentation = arena.GetChildren().OfType<Items.ItemPresentation>().Single();
-                    return presentation.GetChildren().SequenceEqual(new Node[] { presentation.EmpAttachments }) && presentation.EmpAttachments.GetChildCount() == 0;
-                }), "Held inventory creates no projectile/effect visuals; only the existing empty EMP attachment owner remains.");
+                    return presentation.GetChildren().SequenceEqual(new Node[] { presentation.EmpAttachments, presentation.MachineGunFire, presentation.MachineGunImpacts }) &&
+                        presentation.EmpAttachments.GetChildCount() == 0 && presentation.MachineGunFire.ActiveCount == 0 && presentation.MachineGunImpacts.ActiveCount == 0;
+                }), "Held inventory creates no projectile/effect visuals; the persistent EMP and Machine Gun owners remain empty.");
                 Capture("occupied-slots.png");
                 _evidence.Add($"All {PickupCount} pickups are available after cooldown, including under occupied vehicles. No duplicate awards or overwritten grants.");
                 Require(host.TryConfigure(0, new Dictionary<string, double> { ["spawns.cooldown_ticks"] = 1 }, out _), "Repeated pickup fixture configures a one-tick cooldown.");

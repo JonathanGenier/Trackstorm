@@ -1,0 +1,29 @@
+{
+  "Head": "3bee090efe24806a8ad308444c51a5d74be6ea3c",
+  "Status": [
+    " M code/Client/Items/ItemSpawnPresentation.cs",
+    " M code/Client/Verification/CarnivalSmashChecks.cs",
+    " M code/Client/Verification/DeathRespawnIntegrationChecks.cs",
+    " M code/Client/Verification/ItemSpawnIntegrationChecks.cs",
+    " M code/Client/Verification/PostMatchIntegrationChecks.cs",
+    " M code/Client/Verification/ReconnectIntegrationChecks.cs",
+    " M docs/features/item-spawns.md",
+    " M docs/features/statistics.md",
+    " M tools/fast-check-routes.ps1",
+    "?? code/Client/Verification/PerformanceBenchmark.cs",
+    "?? docs/performance.md",
+    "?? docs/verification/ts-322-evidence/",
+    "?? scenes/verification/performance_benchmark.tscn",
+    "?? tools/benchmark-performance.ps1"
+  ],
+  "Label": "optimized-v2",
+  "Ticks": 300,
+  "Runs": 3,
+  "Executable": "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64.exe",
+  "Exported": false,
+  "Headless": false,
+  "PowerMode": [
+    "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)"
+  ],
+  "StartedUtc": "2026-10-31T15:37:31.6097601Z"
+}

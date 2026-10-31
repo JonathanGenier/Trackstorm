@@ -1,0 +1,11 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connected; None; 
+Transport peer 1: Connected; None; 
+System.InvalidOperationException: Two production sessions admitted
+   at Trackstorm.Client.Verification.PostMatchIntegrationChecks.Check(Boolean condition, String message) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\PostMatchIntegrationChecks.cs:line 505
+   at Trackstorm.Client.Verification.PostMatchIntegrationChecks.Until(Func`1 condition, String message, Int32 limit) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\PostMatchIntegrationChecks.cs:line 495
+   at Trackstorm.Client.Verification.PostMatchIntegrationChecks.Run() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\PostMatchIntegrationChecks.cs:line 67
+Transport peer 1: Disconnected; RemoteRequest; Transport stopped

@@ -1,0 +1,325 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Five authored rounds; one lit captive round after cocking and feed.
+Seated round/fuse survive translated airborne pose and 0-degree roll, including 35-second ready wait.
+Seated round/fuse survive translated airborne pose and 90-degree roll, including 35-second ready wait.
+Seated round/fuse survive translated airborne pose and 180-degree roll, including 35-second ready wait.
+Seated round/fuse survive translated airborne pose and 270-degree roll, including 35-second ready wait.
+Flight model tumbles independently of ballistic translation.
+Five simultaneous arcs leave connected bounded world-space trails.
+Smoke survives projectile removal and remains at five seconds.
+Ten-second smoke remains alive while shader opacity gradually fades.
+All historical smoke expires fifteen seconds after its own emission.
+Rendered sixteen concurrent rounds for thirty simulated seconds; bounded 14416 smoke segments.
+Sixteen simultaneous high-speed trails for thirty seconds stay within 16,384 segments without drops.
+Over-budget catch-up declines new cosmetic segments while preserving existing fade lifetimes.
+Saturated pool fully drains after emission stops.
+Salvo projectile presentation passed: 15 checks; production round, fuse, tumble, 15-second fading smoke and fixed budget.
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Three UDP peers joined; native bank prepared.
+Remote player receives Salvo and second-slot Wrench.
+Wave 1: one activation, five automatic launches/impacts, damage to both targets, remote marker privacy.
+Banked ring visible only to owner; remote use sent over UDP.
+Wave 2: one activation, five automatic launches/impacts, moving aim and launch targets, remote marker privacy.
+Banked ring visible only to owner; remote use sent over UDP.
+Wave 3: one activation, five automatic launches/impacts, damage to both targets, remote marker privacy.
+Item scoring verified: 22 applied rival hits, 4092.653221 points; all received peer revisions agree.
+Salvo integration passed: three peers, three salvos, banked marker privacy, 15 replicated impacts and multiple targets.
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Three UDP peers initialized
+Host tuning applied
+Developer spawn controls isolate Salvo with Weapon category enabled
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Lit fuse has no timer and does not launch by itself
+AIM_AT requested=(0, 21.84915, -20) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 400.0031)
+Camera reaches Salvo bearing 0
+All peers articulate the same Salvo bearing 0
+Existing ground circle covers bearing 0
+Ground circle never bridges wall/ground discontinuities at bearing 0
+Remote inventories do not draw owner targeting circles
+AIM_AT requested=(-55, 21.849306, 35.000004) firstTargetDrift=(0, 0, 0) requestedScreen=(639.9244, 400.0009)
+Camera reaches Salvo bearing 90
+All peers articulate the same Salvo bearing 90
+Existing ground circle covers bearing 90
+Ground circle never bridges wall/ground discontinuities at bearing 90
+Remote inventories do not draw owner targeting circles
+AIM_AT requested=(4.808253E-06, 21.848925, 90) firstTargetDrift=(0, 0, 0) requestedScreen=(639.91736, 400.00052)
+Camera reaches Salvo bearing 180
+All peers articulate the same Salvo bearing 180
+Existing ground circle covers bearing 180
+Ground circle never bridges wall/ground discontinuities at bearing 180
+Remote inventories do not draw owner targeting circles
+AIM_AT requested=(55, 21.848928, 35.000004) firstTargetDrift=(0, 0, 0) requestedScreen=(639.92474, 400.00015)
+Camera reaches Salvo bearing -90
+All peers articulate the same Salvo bearing -90
+Existing ground circle covers bearing -90
+Ground circle never bridges wall/ground discontinuities at bearing -90
+Remote inventories do not draw owner targeting circles
+AIM_AT requested=(-12, 21.949997, 0) firstTargetDrift=(0, -1.9073486E-06, 0) requestedScreen=(626.05035, 398.89203)
+Salvo acquires the shared assisted-car marker
+One remote activation commits five shots
+First assisted shot launches
+Repeated trigger and switching cannot cancel or duplicate committed shots
+Shot-token rotation preserves shared assistance
+AIM_AT requested=(70, 21.64893, 35) firstTargetDrift=(0, 0, 0) requestedScreen=(639.8231, 399.98975)
+AIM_AT requested=(0, 21.649357, 105) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0387, 400.00134)
+AIM_AT requested=(-70, 36.649357, 35) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0358, 400.00156)
+AIM_AT requested=(0, 86.64935, -5) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0874, 400.0005)
+Committed magazine depletes after camera changes
+All five launches use the exact configured interval
+Later camera directions independently change successive targets
+Observer receives identical ordered launch/impact outcomes
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+AIM_AT requested=(900, 90, 850) firstTargetDrift=(0, 0, 0) requestedScreen=(639.9657, 402.1673)
+Out-of-arena activation accepted
+Out-of-arena first launch
+Out-of-arena volley completes through impaired transport
+Impaired out-of-arena depletion and outcomes converge
+No-contact rounds remain active beyond their aimed endpoints
+Out-of-arena rounds expire through authority after thirty seconds
+Expiry outcomes converge once through impaired native UDP
+AIM_AT requested=(50, 41.65, 5) firstTargetDrift=(0, 0, 0) requestedScreen=(640.10364, 399.99252)
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Repeated pickup activation 0
+Repeated volley depletion 0
+Repeated projectiles and rack cleanup 0
+Repeated volley has exactly five distinct replicated launches 0
+Repeated cleanup has bounded scene nodes: 4184, baseline 4184
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Repeated pickup activation 1
+Repeated volley depletion 1
+Repeated projectiles and rack cleanup 1
+Repeated volley has exactly five distinct replicated launches 1
+Repeated cleanup has bounded scene nodes: 4184, baseline 4184
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Repeated pickup activation 2
+Repeated volley depletion 2
+Repeated projectiles and rack cleanup 2
+Repeated volley has exactly five distinct replicated launches 2
+Repeated cleanup has bounded scene nodes: 4184, baseline 4184
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Repeated pickup activation 3
+Repeated volley depletion 3
+Repeated projectiles and rack cleanup 3
+Repeated volley has exactly five distinct replicated launches 3
+Repeated cleanup has bounded scene nodes: 4184, baseline 4184
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Repeated pickup activation 4
+Repeated volley depletion 4
+Repeated projectiles and rack cleanup 4
+Repeated volley has exactly five distinct replicated launches 4
+Repeated cleanup has bounded scene nodes: 4184, baseline 4184
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Repeated pickup activation 5
+Repeated volley depletion 5
+Repeated projectiles and rack cleanup 5
+Repeated volley has exactly five distinct replicated launches 5
+Repeated cleanup has bounded scene nodes: 4184, baseline 4184
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Repeated pickup activation 6
+Repeated volley depletion 6
+Repeated projectiles and rack cleanup 6
+Repeated volley has exactly five distinct replicated launches 6
+Repeated cleanup has bounded scene nodes: 4184, baseline 4184
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Repeated pickup activation 7
+Repeated volley depletion 7
+Repeated projectiles and rack cleanup 7
+Repeated volley has exactly five distinct replicated launches 7
+Repeated cleanup has bounded scene nodes: 4184, baseline 4184
+Repeated pickup/use/cleanup exercised more than one minute of authority time
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Lethal rival missile and timed respawn configured
+Rival receives a real Missile
+Rival Missile finishes deployment
+Final Salvo commits before lethal damage
+First round leaves before death
+Rival aims through the ordinary authoritative contract
+Rival fires its lethal Missile
+Native Missile collision destroys the firing Salvo vehicle
+Death clears committed rounds and flight with ordinary missile attribution
+Ordinary timed respawn creates a fresh life
+New life cannot resume the destroyed volley or retain its mechanism
+Weapon aiming integration passed: 147 Salvo checks.
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Three UDP peers initialized
+Host tuning applied
+Zero damage/impulse keeps targets valid; slow overlapping arcs expose later steering
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(500, 21.949999, 455) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0003, 390.65842)
+Near target acquired before retention regression
+Near moving target accepts one activation
+Near moving target launches exactly five rounds
+Near moving target retains the valid target through every shot; releases=0: 
+Near moving target samples the same assisted car at all five launches
+Near moving target preserves 75-tick cadence
+Near moving target keeps circle/turret aligned through all shots: 307 samples, ring error 2.55 m, peer yaw error 0.006 rad
+Moving target changes each launch snapshot without freezing the first direction
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(504.6696, 21.949999, 455.00003) firstTargetDrift=(0, 0, 0) requestedScreen=(646.26166, 399.6106)
+Manual lead starts from acquired car
+Manual lead releases before first Salvo shot
+Manual lead volley commits
+All five manual Salvo shots remain unassisted
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(501.58655, 21.949999, 455) firstTargetDrift=(0, 0, 0) requestedScreen=(648.57465, 399.97632)
+Manual lead starts from acquired car
+Manual lead releases before first Salvo shot
+Manual lead volley commits
+All five manual Salvo shots remain unassisted
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(500, 21.949999, 380) firstTargetDrift=(3.0517578E-05, 0, 3.0517578E-05) requestedScreen=(634.1838, 400.02066)
+Shared assistance acquires a 120 m car at bearing 0
+120 m bearing 0 accepts one activation
+120 m bearing 0 launches exactly five rounds
+120 m bearing 0 retains the valid target through every shot; releases=0: 
+120 m bearing 0 samples the same assisted car at all five launches
+120 m bearing 0 preserves 75-tick cadence
+120 m bearing 0 keeps circle/turret aligned through all shots: 307 samples, ring error 2.48 m, peer yaw error 0.000 rad
+All five authoritative arcs reach the 120 m target at bearing 0
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(380, 21.949999, 500) firstTargetDrift=(0, 0, 0) requestedScreen=(617.79816, 399.5368)
+Shared assistance acquires a 120 m car at bearing 90
+120 m bearing 90 accepts one activation
+120 m bearing 90 launches exactly five rounds
+120 m bearing 90 retains the valid target through every shot; releases=0: 
+120 m bearing 90 samples the same assisted car at all five launches
+120 m bearing 90 preserves 75-tick cadence
+120 m bearing 90 keeps circle/turret aligned through all shots: 307 samples, ring error 1.33 m, peer yaw error 0.000 rad
+All five authoritative arcs reach the 120 m target at bearing 90
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(500, 21.949999, 620) firstTargetDrift=(0, 0, 0) requestedScreen=(617.7015, 399.49918)
+Shared assistance acquires a 120 m car at bearing 180
+120 m bearing 180 accepts one activation
+120 m bearing 180 launches exactly five rounds
+120 m bearing 180 retains the valid target through every shot; releases=0: 
+120 m bearing 180 samples the same assisted car at all five launches
+120 m bearing 180 preserves 75-tick cadence
+120 m bearing 180 keeps circle/turret aligned through all shots: 307 samples, ring error 2.58 m, peer yaw error 0.000 rad
+All five authoritative arcs reach the 120 m target at bearing 180
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(620, 21.949999, 500) firstTargetDrift=(0, 0, 0) requestedScreen=(617.77563, 399.50665)
+Shared assistance acquires a 120 m car at bearing -90
+120 m bearing -90 accepts one activation
+120 m bearing -90 launches exactly five rounds
+120 m bearing -90 retains the valid target through every shot; releases=0: 
+120 m bearing -90 samples the same assisted car at all five launches
+120 m bearing -90 preserves 75-tick cadence
+120 m bearing -90 keeps circle/turret aligned through all shots: 306 samples, ring error 1.33 m, peer yaw error 0.000 rad
+All five authoritative arcs reach the 120 m target at bearing -90
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(500, 21.95, 300) firstTargetDrift=(0, 0, 0) requestedScreen=(623.7687, 399.7825)
+Salvo acquires and visibly locks a car at 200 m beyond projectile reach
+Out-of-range lock never fires automatically
+Player may commit a volley while locked beyond reach
+Out-of-range lock preserves five-shot ammunition behavior
+Out-of-range lock does not extend projectile reach
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(500, 21.949999, 380) firstTargetDrift=(0, 0, 0) requestedScreen=(624.138, 404.9101)
+Held assistance is active before the accepted-aim blackout
+Observer has accepted aim before packet blackout
+A bounded real UDP blackout expires accepted aim on shooter and observer
+Accepted-aim outage cannot retain a stale assisted car
+Fresh accepted aim resumes after packet delivery recovers (not authenticated reconnect)
+Held intent reacquires on the shooter only after fresh accepted aim arrives
+Visible cursor survives transient packet recovery and reacquisition
+Recovered accepted ray converges onto the first car before the hit volley
+Target-switching volley accepts one activation
+First shot samples the forward rival
+ERROR: System.InvalidOperationException: Camera deliberately acquires rival 3 before the next shot
+   at Trackstorm.Client.Verification.WeaponAimChecks.Require(Boolean condition, String message) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 626
+   at Trackstorm.Client.Verification.WeaponAimChecks.<>c__DisplayClass74_0.<<CheckSalvoAimPolish>g__ChangeTarget|19>d.MoveNext() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\WeaponAimChecks.SalvoPolish.cs:line 291
+--- End of stack trace from previous location ---
+   at Trackstorm.Client.Verification.WeaponAimChecks.CheckSalvoAimPolish() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\WeaponAimChecks.SalvoPolish.cs:line 222
+   at Trackstorm.Client.Verification.WeaponAimChecks.Run() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 127
+   at: void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__25.MoveNext() (res://code/Client/Verification/WeaponAimChecks.cs:127)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__25.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:127)
+       [2] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [3] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [4] void System.Threading.Tasks.Task.RunContinuations(object)
+       [5] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [6] bool System.Threading.Tasks.Task.TrySetException(object)
+       [7] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [8] void Trackstorm.Client.Verification.WeaponAimChecks+<CheckSalvoAimPolish>d__74.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\WeaponAimChecks.SalvoPolish.cs:222)
+       [9] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [10] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [11] void System.Threading.Tasks.Task.RunContinuations(object)
+       [12] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [13] bool System.Threading.Tasks.Task.TrySetException(object)
+       [14] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [15] void Trackstorm.Client.Verification.WeaponAimChecks+<>c__DisplayClass74_0+<<CheckSalvoAimPolish>g__ChangeTarget|19>d.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\WeaponAimChecks.SalvoPolish.cs:291)
+       [16] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [17] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [18] void System.Threading.Tasks.Task.RunContinuations(object)
+       [19] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder.SetResult()
+       [20] void Trackstorm.Client.Verification.WeaponAimChecks+<Frames>d__39.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:579)
+       [21] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [22] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [23] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)

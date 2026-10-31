@@ -1,0 +1,137 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Three UDP peers initialized
+Host tuning applied
+Zero damage/impulse keeps targets valid; slow overlapping arcs expose later steering
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(500, 21.949999, 455) firstTargetDrift=(0, 0, 0) requestedScreen=(640.00006, 390.4712)
+Near target acquired before retention regression
+Near moving target accepts one activation
+Near moving target launches exactly five rounds
+Near moving target retains the valid target through every shot; releases=0: 
+Near moving target samples the same assisted car at all five launches
+Near moving target preserves 75-tick cadence
+Near moving target keeps circle/turret aligned through all shots: 306 samples, ring error 2.54 m, peer yaw error 0.004 rad
+Moving target changes each launch snapshot without freezing the first direction
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(504.65454, 21.949999, 455) firstTargetDrift=(0, 0, 0) requestedScreen=(646.2455, 399.58694)
+Manual lead starts from acquired car
+Manual lead releases before first Salvo shot
+Manual lead volley commits
+All five manual Salvo shots remain unassisted
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(501.56152, 21.949999, 455) firstTargetDrift=(-3.0517578E-05, 0, -3.0517578E-05) requestedScreen=(648.56006, 399.97565)
+Manual lead starts from acquired car
+Manual lead releases before first Salvo shot
+Manual lead volley commits
+All five manual Salvo shots remain unassisted
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(500, 21.949999, 380) firstTargetDrift=(3.0517578E-05, 0, 0) requestedScreen=(634.198, 400.02054)
+Shared assistance acquires a 120 m car at bearing 0
+120 m bearing 0 accepts one activation
+120 m bearing 0 launches exactly five rounds
+120 m bearing 0 retains the valid target through every shot; releases=0: 
+120 m bearing 0 samples the same assisted car at all five launches
+120 m bearing 0 preserves 75-tick cadence
+120 m bearing 0 keeps circle/turret aligned through all shots: 307 samples, ring error 2.48 m, peer yaw error 0.000 rad
+All five authoritative arcs reach the 120 m target at bearing 0
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(380, 21.949999, 500) firstTargetDrift=(0, 0, 0) requestedScreen=(617.79785, 399.53622)
+Shared assistance acquires a 120 m car at bearing 90
+120 m bearing 90 accepts one activation
+120 m bearing 90 launches exactly five rounds
+120 m bearing 90 retains the valid target through every shot; releases=0: 
+120 m bearing 90 samples the same assisted car at all five launches
+120 m bearing 90 preserves 75-tick cadence
+120 m bearing 90 keeps circle/turret aligned through all shots: 307 samples, ring error 1.33 m, peer yaw error 0.000 rad
+All five authoritative arcs reach the 120 m target at bearing 90
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(500, 21.949999, 620) firstTargetDrift=(0, 0, 0) requestedScreen=(617.7012, 399.49774)
+Shared assistance acquires a 120 m car at bearing 180
+120 m bearing 180 accepts one activation
+120 m bearing 180 launches exactly five rounds
+120 m bearing 180 retains the valid target through every shot; releases=0: 
+120 m bearing 180 samples the same assisted car at all five launches
+120 m bearing 180 preserves 75-tick cadence
+120 m bearing 180 keeps circle/turret aligned through all shots: 306 samples, ring error 2.58 m, peer yaw error 0.000 rad
+All five authoritative arcs reach the 120 m target at bearing 180
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(620, 21.949999, 500) firstTargetDrift=(0, 0, 0) requestedScreen=(611.25055, 399.3556)
+Shared assistance acquires a 120 m car at bearing -90
+120 m bearing -90 accepts one activation
+120 m bearing -90 launches exactly five rounds
+120 m bearing -90 retains the valid target through every shot; releases=0: 
+120 m bearing -90 samples the same assisted car at all five launches
+120 m bearing -90 preserves 75-tick cadence
+120 m bearing -90 keeps circle/turret aligned through all shots: 306 samples, ring error 1.33 m, peer yaw error 0.000 rad
+All five authoritative arcs reach the 120 m target at bearing -90
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(500.00003, 21.949999, 300) firstTargetDrift=(0, 0, 0) requestedScreen=(622.37537, 399.76123)
+Salvo acquires and visibly locks a car at 200 m beyond projectile reach
+Out-of-range lock never fires automatically
+Player may commit a volley while locked beyond reach
+Out-of-range lock preserves five-shot ammunition behavior
+Out-of-range lock does not extend projectile reach
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(500, 21.949999, 380) firstTargetDrift=(0, 0, 0) requestedScreen=(622.77734, 404.88828)
+Held assistance is active before the accepted-aim blackout
+Observer has accepted aim before packet blackout
+A bounded real UDP blackout expires accepted aim on shooter and observer
+Accepted-aim outage cannot retain a stale assisted car
+Fresh accepted aim resumes after packet delivery recovers (not authenticated reconnect)
+Held intent reacquires on the shooter only after fresh accepted aim arrives
+Visible cursor survives transient packet recovery and reacquisition
+Recovered accepted ray converges onto the first car before the hit volley
+Target-switching volley accepts one activation
+First shot samples the forward rival
+Camera deliberately acquires rival 3 before the next shot; observed=3
+Second and third shots sample the second rival
+Camera deliberately acquires rival 1 before the next shot; observed=1
+Fourth and fifth shots return to the first rival
+Deliberate camera switching is independently sampled between consecutive launches
+SWITCH_ENDPOINT actual=<500.52322, 22.153385, 382.47855> expected=<500, 21.65, 380> error=2.5827
+SWITCH_ENDPOINT actual=<568.6688, 22.000223, 411.74554> expected=<570, 21.65, 410> error=2.2230
+SWITCH_ENDPOINT actual=<568.6688, 22.000423, 411.74857> expected=<570, 21.65, 410> error=2.2254
+SWITCH_ENDPOINT actual=<499.99826, 22.003841, 382.47852> expected=<500, 21.65, 380> error=2.5036
+SWITCH_ENDPOINT actual=<499.9963, 22.003864, 382.47852> expected=<500, 21.65, 380> error=2.5037
+All switched authoritative arcs reach their newly selected rival; old arcs remain unchanged
+Switching releases deliberate camera intent without authority-token expiry
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(500, 23.648985, 350) firstTargetDrift=(0, 0, 0) requestedScreen=(639.9996, 399.99957)
+Unassisted input state matches deliberate aiming=True
+Unassisted volley commits with aiming=True
+Unassisted volley completes with aiming=True
+All five actively aimed, unassisted endpoints reach 130 m
+Previous volley fully stows
+Fresh five-round magazine granted
+Native and authoritative preload complete
+AIM_AT requested=(500, 23.648874, 350) firstTargetDrift=(0, 0, 0) requestedScreen=(639.9996, 400.00012)
+Unassisted input state matches deliberate aiming=False
+Unassisted volley commits with aiming=False
+Unassisted volley completes with aiming=False
+All five unaimed endpoints preserve prior 65 m base-range and native ground-intersection behavior
+All repeated polish volleys finish flight and fully stow
+Observer receives the same ordered authoritative launch/impact outcomes for every polish volley
+Every locked, switched and manually led shot snapshots its accepted direction independently
+Owner and observers clean up the exhausted magazine and targeting circles
+Weapon aiming integration passed: 118 Salvo checks.

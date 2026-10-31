@@ -1,0 +1,104 @@
+{
+  "SchemaVersion": 1,
+  "Area": "Auto",
+  "Status": "COMPLETED_WITH_PENDING",
+  "Scope": "Targeted iteration only; not final Story verification",
+  "Context": {
+    "Head": "3bee090efe24806a8ad308444c51a5d74be6ea3c",
+    "Branch": "ts-322-pg",
+    "Dirty": true,
+    "Fingerprint": "E8E053E820CA98372DCAC6F68C2B991C920D83F044F242C6B41DAF653F2E97E7",
+    "PowerShell": "7.6.5",
+    "OS": "Microsoft Windows NT 10.0.19045.0"
+  },
+  "GodotPath": null,
+  "Paths": [
+    "code/Client/Items/ItemSpawnPresentation.cs",
+    "code/Client/Verification/CarnivalSmashChecks.cs",
+    "code/Client/Verification/PerformanceBenchmark.cs",
+    "docs/features/item-spawns.md",
+    "docs/features/statistics.md",
+    "docs/performance.md",
+    "scenes/verification/performance_benchmark.tscn",
+    "tools/benchmark-performance.ps1",
+    "tools/fast-check-routes.ps1"
+  ],
+  "Plan": {
+    "HasProductionChanges": true,
+    "WorkflowTests": true,
+    "CoreTests": false,
+    "TransportTests": false,
+    "ServiceTests": false,
+    "ClientBuild": true,
+    "VersionChecks": false,
+    "MediaChecks": false,
+    "RuntimeScripts": [
+      "check-carnival-pickup.ps1",
+      "check-carnival-smash.ps1",
+      "check-item-spawns.ps1",
+      "check-items.ps1",
+      "check-nitro.ps1",
+      "check-oil-handling.ps1",
+      "check-oil-jack.ps1",
+      "check-oil.ps1",
+      "check-pickup-drive.ps1",
+      "check-statistics.ps1"
+    ],
+    "ExtendedScripts": [],
+    "ManualScenarios": [
+      "Inspect the intact stack and gold smash in all environment presets at driving distances; confirm one unobstructed authoritative collectible, consistent peer bursts and complete debris cleanup.",
+      "Run tools/benchmark-performance.ps1 with matched before/after parameters; inspect per-trial results, rendered captures and the human PC controls in docs/performance.md."
+    ]
+  },
+  "Reasons": null,
+  "Checks": [
+    {
+      "Name": "tools/test-workflow-tools.ps1",
+      "Executable": "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\tools\\test-workflow-tools.ps1",
+      "Arguments": [],
+      "Parameters": {},
+      "StartedUtc": "2026-10-31T14:32:31.1478430Z",
+      "Status": "PASS",
+      "ExitCode": 0,
+      "DurationSeconds": 9.416,
+      "StdoutLog": "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\ts-322\\targeted\\tools-test-workflow-tools.ps1-90872baa564347b7a462b4c5fb9f4c46.stdout.log",
+      "StderrLog": "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\ts-322\\targeted\\tools-test-workflow-tools.ps1-90872baa564347b7a462b4c5fb9f4c46.stderr.log",
+      "Error": null
+    },
+    {
+      "Name": "Client Debug build",
+      "Executable": "dotnet",
+      "Arguments": [
+        "build",
+        "Trackstorm.Client.csproj",
+        "-c",
+        "Debug",
+        "-warnaserror"
+      ],
+      "Parameters": {},
+      "StartedUtc": "2026-10-31T14:32:40.5926767Z",
+      "Status": "PASS",
+      "ExitCode": 0,
+      "DurationSeconds": 10.631,
+      "StdoutLog": "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\ts-322\\targeted\\Client-Debug-build-cecd357d68a0424bab3d3c6afac65f85.stdout.log",
+      "StderrLog": "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\ts-322\\targeted\\Client-Debug-build-cecd357d68a0424bab3d3c6afac65f85.stderr.log",
+      "Error": null
+    }
+  ],
+  "Pending": [
+    "Manual: Inspect the intact stack and gold smash in all environment presets at driving distances; confirm one unobstructed authoritative collectible, consistent peer bursts and complete debris cleanup.",
+    "Manual: Run tools/benchmark-performance.ps1 with matched before/after parameters; inspect per-trial results, rendered captures and the human PC controls in docs/performance.md.",
+    "Runtime: check-carnival-pickup.ps1 (Godot unavailable)",
+    "Runtime: check-carnival-smash.ps1 (Godot unavailable)",
+    "Runtime: check-item-spawns.ps1 (Godot unavailable)",
+    "Runtime: check-items.ps1 (Godot unavailable)",
+    "Runtime: check-nitro.ps1 (Godot unavailable)",
+    "Runtime: check-oil-handling.ps1 (Godot unavailable)",
+    "Runtime: check-oil-jack.ps1 (Godot unavailable)",
+    "Runtime: check-oil.ps1 (Godot unavailable)",
+    "Runtime: check-pickup-drive.ps1 (Godot unavailable)",
+    "Runtime: check-statistics.ps1 (Godot unavailable)"
+  ],
+  "Unexecuted": [],
+  "Error": null
+}

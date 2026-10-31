@@ -55,6 +55,13 @@ public sealed partial class CarnivalSmashChecks : Node3D
             presentation.Apply(Publication(501));
             Check(presentation.SmashCount == before+1 && presentation.ActiveSmashCount == 1, "Duplicate and unrelated publications produce exactly one smash");
             Check(!intact.Visible && presentation.ActiveCount == 26, "A claim hides every crate and aura of exactly one stack");
+            presentation.Apply(Publication(503));
+            Check(presentation.SmashCount == before+2 && !intact.Visible,
+                "A newer claim while already unavailable still emits a smash");
+            presentation.Apply(Publication(0), seed: true);
+            Check(intact.Visible && presentation.GetNode<Node3D>(marker.Id).GetChildren().OfType<Label3D>().Single().Text == "ITEM",
+                "Recovery restores active visibility and label");
+            presentation.Apply(Publication(501));
             Check(!Descendants(presentation).Any(n => n is CollisionObject3D or CollisionShape3D), "Intact stack and smash contain no physics bodies, areas or shapes");
             var burst = Descendants(presentation).OfType<CarnivalSmash>().Single();
             var batches = burst.GetChildren().OfType<MultiMeshInstance3D>().ToArray();
@@ -69,6 +76,12 @@ public sealed partial class CarnivalSmashChecks : Node3D
             Check(presentation.ActiveSmashCount == 0 && !intact.Visible, "Recovery clears transient debris and restores availability without replay");
             presentation.Apply(Publication(502), observedTick: 1200);
             Check(presentation.ActiveSmashCount == 0, "Outcomes already older than the effect lifetime do not start late debris");
+            presentation.Apply(new ItemPublication(++_revision, host.Snapshot(), [], [], [], []));
+            Check(presentation.ActiveCount == 0 && presentation.GetNode<Node3D>(marker.Id).GetChildren().OfType<Label3D>().Single().Text.Length == 0,
+                "Missing state hides the stack and clears the cooldown label");
+            presentation.Apply(Publication(0));
+            Check(presentation.ActiveCount == config.Items.Count && presentation.GetNode<Node3D>(marker.Id).GetChildren().OfType<Label3D>().Single().Text == "ITEM",
+                "Availability after missing state restores every stack and its active label");
 
             if (DisplayServer.GetName() != "headless")
             {
