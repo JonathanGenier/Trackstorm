@@ -1,0 +1,21 @@
+{"trial":"front-left","frames":45,"contacted":1,"speed":0,"yaw":0,"steering":0,"remaining":[77,0,0,0],"peakLateralSpeed":0.0}
+{"trial":"front-right","frames":45,"contacted":2,"speed":0,"yaw":0,"steering":0,"remaining":[0,77,0,0],"peakLateralSpeed":0.0}
+{"trial":"rear-left","frames":45,"contacted":4,"speed":0,"yaw":0,"steering":0,"remaining":[0,0,77,0],"peakLateralSpeed":0.0}
+{"trial":"rear-right","frames":45,"contacted":8,"speed":0,"yaw":0,"steering":0,"remaining":[0,0,0,77],"peakLateralSpeed":0.0}
+{"trial":"front-only","frames":45,"contacted":3,"speed":0,"yaw":0,"steering":0,"remaining":[77,77,0,0],"peakLateralSpeed":0.0}
+{"trial":"rear-only","frames":45,"contacted":12,"speed":0,"yaw":0,"steering":0,"remaining":[0,0,77,77],"peakLateralSpeed":0.0}
+{"trial":"left-only","frames":45,"contacted":5,"speed":0,"yaw":0,"steering":0,"remaining":[77,0,77,0],"peakLateralSpeed":0.0}
+{"trial":"right-only","frames":45,"contacted":10,"speed":0,"yaw":0,"steering":0,"remaining":[0,77,0,77],"peakLateralSpeed":0.0}
+{"trial":"all-wheels","frames":45,"contacted":15,"speed":0,"yaw":0,"steering":0,"remaining":[77,77,77,77],"peakLateralSpeed":0.0}
+{"trial":"crossing-8","frames":150,"contacted":15,"speed":18.253311,"yaw":-1.3004914E-10,"steering":0,"remaining":[0,0,4,4],"peakLateralSpeed":4.252764E-09}
+{"trial":"crossing-20","frames":150,"contacted":15,"speed":31.363651,"yaw":3.365015E-10,"steering":0,"remaining":[0,0,0,0],"peakLateralSpeed":3.3109735E-08}
+{"trial":"crossing-40","frames":150,"contacted":15,"speed":43.90404,"yaw":-1.5103104E-12,"steering":0,"remaining":[0,0,0,0],"peakLateralSpeed":1.877854E-09}
+{"trial":"dry-corner","frames":120,"contacted":0,"speed":23.52784,"yaw":-2.1345444,"steering":0.33438545,"remaining":[0,0,0,0],"peakLateralSpeed":1.0248327}
+{"trial":"wet-corner","frames":120,"contacted":15,"speed":21.620092,"yaw":0.046326913,"steering":0.34385645,"remaining":[2,2,2,2],"peakLateralSpeed":10.23278}
+{"trial":"countersteering","frames":120,"contacted":0,"speed":28.737608,"yaw":1.7734838,"steering":-0.21202493,"remaining":[0,0,0,0],"peakLateralSpeed":2.419629}
+{"trial":"wet-braking","frames":120,"contacted":15,"speed":2.7252724,"yaw":8.713505E-09,"steering":0,"remaining":[2,2,2,2],"peakLateralSpeed":5.5438548E-08}
+{"trial":"wet-handbrake","frames":150,"contacted":15,"speed":0.4685185,"yaw":-0.16691022,"steering":0.57073665,"remaining":[0,0,0,0],"peakLateralSpeed":10.086788}
+{"trial":"jump-and-landing","frames":240,"contacted":15,"speed":22.561512,"yaw":-1.951202E-10,"steering":0,"remaining":[0,0,0,0],"peakLateralSpeed":1.9888615E-08}
+{"trial":"continuous-overlap-recovery","frames":500,"contacted":15,"speed":0,"yaw":0,"steering":0,"remaining":[0,0,0,0],"peakLateralSpeed":0.0}
+{"trial":"banked-contact","frames":90,"contacted":15,"speed":5.8067307,"yaw":-0.21582954,"steering":0.268178,"remaining":[32,32,32,32],"peakLateralSpeed":0.11612296}
+Oil handling passed: 20 native trials. Evidence: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\oil-handling\20261101-124340

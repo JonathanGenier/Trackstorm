@@ -1,0 +1,55 @@
+Browser tab: 1, Title: "Trackstorm 0.3.0 — Astra Comprehensive Validation Questionnaire", URL: "https://tally.so/r/ArzBOB".
+0 AXWebArea Trackstorm 0.3.0 — Astra Comprehensive Validation Questionnaire, URL: tally.so/r/ArzBOB
+	1 container
+		2 container
+			3 progress indicator Description: Form progress, Value: 1
+			52 heading Trackstorm 0.3.0 — Astra Comprehensive Validation Questionnaire, Value: 1
+				53 text Trackstorm 0.3.0 — Astra Comprehensive Validation Questionnaire
+			54 heading Validation run information, Value: 2
+				55 text Validation run information
+			56 heading Tester / agent name, Value: 3, ID: label_1cbfa1e2-e586-43b7-8116-f9fe3fbe4140
+				57 text Tester / agent name
+			58 text field (settable) Value: Codex — 6 Astra, ID: 1cbfa1e2-e586-43b7-8116-f9fe3fbe4140
+			59 heading Run ID, Value: 3, ID: label_39a0e8b1-014b-4df9-a0d0-c4ef5e9905b6
+				60 text Run ID
+			61 text field (settable) Value: TS-323-2026-10-31-full, ID: 39a0e8b1-014b-4df9-a0d0-c4ef5e9905b6
+			62 heading Jira validation Story, Value: 3, ID: label_de6823a2-057a-4067-b6ae-7af236152b4d
+				63 text Jira validation Story
+			64 text field (settable) Value: TS-323, ID: de6823a2-057a-4067-b6ae-7af236152b4d
+			65 heading Build / Git commit hash, Value: 3, ID: label_cb569695-1306-43e1-8556-a72d6ad69a33
+				66 text Build / Git commit hash
+			67 text field (settable) ID: cb569695-1306-43e1-8556-a72d6ad69a33, Value: 30bb34da24290f4ee4bfa3f7deeda232d88479b4 (game source); HEAD 5ccf6dfafd9d5fc6215f5ca25c5913180789f555 adds pilot documentation only; version 0.2.75
+			68 heading Operating system / Godot version / execution environment, Value: 3, ID: label_8adbca94-0b33-442c-a93b-4289dc36a805
+				69 text Operating system / Godot version / execution environment
+			70 text entry area (settable) ID: 8adbca94-0b33-442c-a93b-4289dc36a805, Value: Validation spans October 31–November 1, 2026, America/New_York, with a user-requested pause. Windows 10.0.19045; Godot .NET 4.7.2 ed1daf0bf; .NET SDK 10.0.401; Debug native/rendered and headless harnesses, local UDP peers and four independent Godot processes; Compatibility OpenGL 3.3, NVIDIA GTX 1070 driver 582.66; Intel Core i5-7600K 3.80 GHz, four processors, High performance power plan. Source unchanged across resume; fresh origin fetch November 1 confirmed main 30bb34d. Three performance trials used 1280x720, VSync off, uncapped, 60 Hz physics, 180 warmup/1200 sample ticks per phase and forced offscreen drawing. Native transport soak uses Release transport tests and a kinematic observation seam; separate Godot rematches exercise runtime session lifecycle.
+			71 heading Test date, Value: 3, ID: label_9b9d2a9a-f4f5-4be0-9325-f4223f7734fa
+				72 text Test date
+			73 text field (settable) Value: Oct 31, 2026, ID: 9b9d2a9a-f4f5-4be0-9325-f4223f7734fa
+			74 heading Test mode, Value: 3, ID: label_21429af6-4133-46ed-b05d-907c0d11473e
+				75 text Test mode
+			76 container Test mode
+				77 container
+					78 text A
+					79 radio button (settable, integer) Description: Native interactive gameplay, Value: 0, ID: choice_45fe9e15-7349-4aa6-ae60-d031167c68d1
+				80 container
+					81 text B
+					82 radio button (settable, integer) Description: Automated runtime, Value: 0, ID: choice_06d9dc5f-b89b-4283-a1f5-db3dc85e9f87
+				83 container
+					84 text C
+					85 radio button (settable, integer) Description: Headless/instrumented, Value: 0, ID: choice_a093f36e-1494-4fd9-b0fc-02462691d57d
+				86 container
+					87 text D
+					88 radio button (settable, integer) Description: Multi-instance, Value: 0, ID: choice_4cd04d52-c0ee-46e2-9824-df764497db15
+				89 container
+					90 text E
+					91 radio button (settable, integer) Description: Static inspection only, Value: 0, ID: choice_73330982-ebf2-4b8f-b95e-c1f2e9286692
+				92 container
+					93 text F
+					94 radio button (settable, integer) Description: Mixed, Value: 1, ID: choice_72986e05-8dd5-4869-981c-00a567747cb8
+			95 heading Testing limitations and available hardware, Value: 3, ID: label_a549f35f-c804-4ea9-95c2-09a8acead885
+				96 text Testing limitations and available hardware
+			97 text entry area (settable) ID: a549f35f-c804-4ea9-95c2-09a8acead885, Value: No physical gamepad connected in the input test. Synthetic input and local UDP automation do not establish physical-control feel, audio listening, remote WAN/EOS or human multiplayer approval. Oct 31: user editor/background apps open. Nov 1 resume: editor closed, browser/Discord retained. No controlled reboot comparison or thermal/GPU-clock control. Forced-offscreen benchmark throughput is not displayed FPS. Prior human approvals remain intact. No gameplay fixes or version/configuration changes.
+			50 button Next
+			51 link Description: Made with Tally Tally, Value: tally.so/?utm_source=tally&utm_medium=website&utm_campaign=powered-by_web&version=8&device=desktop
+
+The focused UI element is 70 text entry area (settable) ID: 8adbca94-0b33-442c-a93b-4289dc36a805, Value: Validation spans October 31–November 1, 2026, America/New_York, with a user-requested pause. Windows 10.0.19045; Godot .NET 4.7.2 ed1daf0bf; .NET SDK 10.0.401; Debug native/rendered and headless harnesses, local UDP peers and four independent Godot processes; Compatibility OpenGL 3.3, NVIDIA GTX 1070 driver 582.66; Intel Core i5-7600K 3.80 GHz, four processors, High performance power plan. Source unchanged across resume; fresh origin fetch November 1 confirmed main 30bb34d. Three performance trials used 1280x720, VSync off, uncapped, 60 Hz physics, 180 warmup/1200 sample ticks per phase and forced offscreen drawing. Native transport soak uses Release transport tests and a kinematic observation seam; separate Godot rematches exercise runtime session lifecycle.

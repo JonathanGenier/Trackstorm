@@ -1,0 +1,86 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Two native UDP peers connected
+Hosted blast radius equals measured 5.06 m car hull
+Repeated production Missile pickup
+Missile ready
+Production Missile fired
+Native collision impact received on both peers
+Reliable impact token and collision position identical on peers
+VFX centered on real authoritative collision
+Default firework allocation is bounded on both peers
+Repeated impact and smoke owners fully expire
+Repeated production Missile pickup
+Missile ready
+Production Missile fired
+Native collision impact received on both peers
+Reliable impact token and collision position identical on peers
+VFX centered on real authoritative collision
+Default firework allocation is bounded on both peers
+Repeated impact and smoke owners fully expire
+Repeated production Missile pickup
+Missile ready
+Production Missile fired
+Native collision impact received on both peers
+Reliable impact token and collision position identical on peers
+VFX centered on real authoritative collision
+Default firework allocation is bounded on both peers
+Repeated impact and smoke owners fully expire
+Repeated production Missile pickup
+Missile ready
+Production Missile fired
+Native collision impact received on both peers
+Reliable impact token and collision position identical on peers
+VFX centered on real authoritative collision
+Default firework allocation is bounded on both peers
+Repeated impact and smoke owners fully expire
+Latency shot pickup
+Latency shot ready
+Latency shot fired
+Reliable impact under latency/jitter/loss
+No extra or missing peer impacts
+Two-peer volley acquired
+Both peer launchers ready
+Both native peers fire in the same frame under latency
+Both volley impacts confirmed on both peers
+Concurrent peer-fired collision events stay consistent
+Peer volley effects and smoke expire on both native worlds
+Native flight smoke lifetime and spatial wake editors are operative
+Flight smoke category reset restores defaults
+All seven native explosion editors change independent visual settings
+Explosion category reset restores all visual defaults
+Fragments burn out independently rather than freezing/fading together
+Visible outer spark reach 10.73 m lies between two and two-and-a-half production car lengths
+150 native motion samples: deterministic peers, bounded reach and velocity-aligned spark axes
+Continuous dense plume calibrated to 7.6 m / 25 ft independently of render-frame travel
+Projectile owner retires while stopped smoke survives
+Retired smoke stops emission; lingering wisps remain world-space
+Residue has 4.5-second particle lifetime plus cleanup margin
+Smoke persists after projectile removal
+Stopped trail smoke fully expires
+Forty rapid retirements respect 32 retained smoke owners
+Arena presentation teardown frees retained smoke
+Launch and silent projectile removal never create impact VFX
+Impact smoke remains after the initial fiery flash
+Single smoke aftermath dissipates
+Sixteen simultaneous production effects
+Overlap smoke fully dissipates
+Sixteen overlapping effects clean up
+Sustained burst pool respects 32-effect cap
+Sustained burst pool respects 32-effect cap
+Sustained burst pool respects 32-effect cap
+Sustained burst pool respects 32-effect cap
+Sustained burst pool respects 32-effect cap
+Sustained burst pool respects 32-effect cap
+Sustained burst pool respects 32-effect cap
+Sustained burst pool respects 32-effect cap
+128 rapid fixture impacts leave no effect owners
+Independent maximum density and 2.5-car cosmetic reach consumed
+Longer cosmetic duration is operative
+Tuned effect and smoke duration expire
+Density zero disables decorative fragments
+All visual edits leave actual damage radius unchanged
+Presentation teardown frees remaining effects
+Missile explosion integration passed: native repeated impacts, UDP consistency, cosmetic bounds/tuning/cleanup.
+Missile explosion artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts241-checks

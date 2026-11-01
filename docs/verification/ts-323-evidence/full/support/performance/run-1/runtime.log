@@ -1,0 +1,16 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+BENCHMARK map-only: 5139 frames, mean FPS 257.0
+BENCHMARK map-pickups: 4533 frames, mean FPS 226.7
+BENCHMARK crate-pressure: 3565 frames, mean FPS 178.7
+BENCHMARK crate-cleanup: 4923 frames, mean FPS 246.2
+BENCHMARK idle-one: 3557 frames, mean FPS 177.9
+BENCHMARK driving-one: 2972 frames, mean FPS 148.7
+BENCHMARK three-cars-prior-roster: 1995 frames, mean FPS 99.8
+BENCHMARK four-cars: 1895 frames, mean FPS 94.8
+BENCHMARK combat-machine-gun: 1459 frames, mean FPS 73.0
+BENCHMARK sustained-four-cars: 1668 frames, mean FPS 83.5
+BENCHMARK five-cars-application-roster: 1523 frames, mean FPS 76.2
+Performance benchmark completed in 275.4s: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\performance\ts323-full-20261101-180806\run-1
+

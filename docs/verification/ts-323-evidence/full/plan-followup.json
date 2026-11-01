@@ -1,0 +1,5 @@
+[
+ {"name":"salvo-native","script":"check-salvo.ps1","args":["-Visual","-Impaired"]},
+ {"name":"items-unimpaired","script":"check-items.ps1","args":[]},
+ {"name":"emp-counterplay-repro","script":"check-emp-claw-counterplay.ps1","args":["-Visual"]}
+]

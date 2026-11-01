@@ -1,0 +1,1911 @@
+{
+  "sourceHead": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+  "sourceStatus": [],
+  "powerMode": [
+    "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)"
+  ],
+  "environments": [
+    {
+      "schema": 2,
+      "godot": "4.7.2-stable (official)",
+      "debug": true,
+      "display": "Windows",
+      "renderer": "gl_compatibility",
+      "gpu": "NVIDIA GeForce GTX 1070",
+      "cpu": "Intel(R) Core(TM) i5-7600K CPU @ 3.80GHz",
+      "processors": 4,
+      "resolution": "(1280, 720)",
+      "vsync": "Disabled",
+      "maxFps": 0,
+      "physicsHz": 60,
+      "warmupTicks": 180,
+      "sampleTicks": 1200,
+      "drawing": "One forced offscreen draw per process frame, automatic render loop disabled; hidden window safe",
+      "note": "Synthetic fixed-step workloads; not human input, remote multiplayer, GPU timings or historical regression proof."
+    },
+    {
+      "schema": 2,
+      "godot": "4.7.2-stable (official)",
+      "debug": true,
+      "display": "Windows",
+      "renderer": "gl_compatibility",
+      "gpu": "NVIDIA GeForce GTX 1070",
+      "cpu": "Intel(R) Core(TM) i5-7600K CPU @ 3.80GHz",
+      "processors": 4,
+      "resolution": "(1280, 720)",
+      "vsync": "Disabled",
+      "maxFps": 0,
+      "physicsHz": 60,
+      "warmupTicks": 180,
+      "sampleTicks": 1200,
+      "drawing": "One forced offscreen draw per process frame, automatic render loop disabled; hidden window safe",
+      "note": "Synthetic fixed-step workloads; not human input, remote multiplayer, GPU timings or historical regression proof."
+    },
+    {
+      "schema": 2,
+      "godot": "4.7.2-stable (official)",
+      "debug": true,
+      "display": "Windows",
+      "renderer": "gl_compatibility",
+      "gpu": "NVIDIA GeForce GTX 1070",
+      "cpu": "Intel(R) Core(TM) i5-7600K CPU @ 3.80GHz",
+      "processors": 4,
+      "resolution": "(1280, 720)",
+      "vsync": "Disabled",
+      "maxFps": 0,
+      "physicsHz": 60,
+      "warmupTicks": 180,
+      "sampleTicks": 1200,
+      "drawing": "One forced offscreen draw per process frame, automatic render loop disabled; hidden window safe",
+      "note": "Synthetic fixed-step workloads; not human input, remote multiplayer, GPU timings or historical regression proof."
+    }
+  ],
+  "limitations": "Three sequential Debug trials on the same unchanged source; 1280x720 Compatibility renderer, uncapped/VSync off, 60 Hz physics, 180 warmup and 1200 sample ticks per phase. One forced offscreen draw per process frame: these are render-loop intervals, not displayed FPS or GPU timers. Browser/Discord/Codex remained open; only light evidence bookkeeping during measurement, no reboot/thermal/clock control. Sequential scenarios include movement, camera and scene-composition differences, so they are not isolated causal A/B estimates. This is not an exported-build, historical regression or long human combat test.",
+  "phases": [
+    {
+      "scenario": "map-only",
+      "vehicles": 0,
+      "meanFrameMs": {
+        "minimum": 3.7122460438335843,
+        "maximum": 3.9422717412739168,
+        "runs": [
+          3.890344016345596,
+          3.9422717412739168,
+          3.7122460438335843
+        ]
+      },
+      "p95FrameMs": {
+        "minimum": 4.0913,
+        "maximum": 4.4996,
+        "runs": [
+          4.4082,
+          4.4996,
+          4.0913
+        ]
+      },
+      "p99FrameMs": {
+        "minimum": 4.455,
+        "maximum": 4.9442,
+        "runs": [
+          4.9442,
+          4.8166,
+          4.455
+        ]
+      },
+      "maximumFrameMs": {
+        "minimum": 6.8049,
+        "maximum": 7.8505,
+        "runs": [
+          6.8049,
+          7.5329,
+          7.8505
+        ]
+      },
+      "framesPerSecondFromMeanInterval": {
+        "minimum": 253.66084979135843,
+        "maximum": 269.3786963989364,
+        "runs": [
+          257.04667654028,
+          253.66084979135843,
+          269.3786963989364
+        ]
+      },
+      "cpuCoreEquivalent": {
+        "minimum": 0.9250521636915106,
+        "maximum": 0.9645132556248837,
+        "runs": [
+          0.9250521636915106,
+          0.9267565025724661,
+          0.9645132556248837
+        ]
+      },
+      "physicsMeanMs": {
+        "minimum": 0.3569215800739545,
+        "maximum": 0.4428349437980775,
+        "runs": [
+          0.3569215800739545,
+          0.4428349437980775,
+          0.39172325408619274
+        ]
+      },
+      "advanceMeanMs": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "drawCallsMean": {
+        "minimum": 861.0,
+        "maximum": 861.0,
+        "runs": [
+          861.0,
+          861.0,
+          861.0
+        ]
+      },
+      "framesOver33Ms": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "framesOver50Ms": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "machineGunRounds": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "privateBytesBefore": {
+        "minimum": 494145536.0,
+        "maximum": 500957184.0,
+        "runs": [
+          494145536.0,
+          500957184.0,
+          495525888.0
+        ]
+      },
+      "privateBytesAfter": {
+        "minimum": 442400768.0,
+        "maximum": 444100608.0,
+        "runs": [
+          442400768.0,
+          444100608.0,
+          443363328.0
+        ]
+      },
+      "nodesBefore": {
+        "minimum": 1728.0,
+        "maximum": 1728.0,
+        "runs": [
+          1728.0,
+          1728.0,
+          1728.0
+        ]
+      },
+      "nodesAfter": {
+        "minimum": 1728.0,
+        "maximum": 1728.0,
+        "runs": [
+          1728.0,
+          1728.0,
+          1728.0
+        ]
+      },
+      "orphansAfter": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "scenario": "map-pickups",
+      "vehicles": 0,
+      "meanFrameMs": {
+        "minimum": 4.244739715559327,
+        "maximum": 4.467319504021456,
+        "runs": [
+          4.411560313258324,
+          4.467319504021456,
+          4.244739715559327
+        ]
+      },
+      "p95FrameMs": {
+        "minimum": 4.7263,
+        "maximum": 5.0487,
+        "runs": [
+          5.0149,
+          5.0487,
+          4.7263
+        ]
+      },
+      "p99FrameMs": {
+        "minimum": 5.1181,
+        "maximum": 5.632,
+        "runs": [
+          5.632,
+          5.3059,
+          5.1181
+        ]
+      },
+      "maximumFrameMs": {
+        "minimum": 6.8347,
+        "maximum": 11.3144,
+        "runs": [
+          7.057,
+          11.3144,
+          6.8347
+        ]
+      },
+      "framesPerSecondFromMeanInterval": {
+        "minimum": 223.84787994227983,
+        "maximum": 235.58570536950592,
+        "runs": [
+          226.67716839201782,
+          223.84787994227983,
+          235.58570536950592
+        ]
+      },
+      "cpuCoreEquivalent": {
+        "minimum": 0.9374157497594904,
+        "maximum": 0.9569843003502249,
+        "runs": [
+          0.9374157497594904,
+          0.9421863128452458,
+          0.9569843003502249
+        ]
+      },
+      "physicsMeanMs": {
+        "minimum": 0.18150689874761627,
+        "maximum": 0.22645933869525983,
+        "runs": [
+          0.19607522611955971,
+          0.22645933869525983,
+          0.18150689874761627
+        ]
+      },
+      "advanceMeanMs": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "drawCallsMean": {
+        "minimum": 1314.0,
+        "maximum": 1314.0,
+        "runs": [
+          1314.0,
+          1314.0,
+          1314.0
+        ]
+      },
+      "framesOver33Ms": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "framesOver50Ms": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "machineGunRounds": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "privateBytesBefore": {
+        "minimum": 523460608.0,
+        "maximum": 528424960.0,
+        "runs": [
+          523460608.0,
+          528424960.0,
+          526524416.0
+        ]
+      },
+      "privateBytesAfter": {
+        "minimum": 515629056.0,
+        "maximum": 520552448.0,
+        "runs": [
+          515629056.0,
+          520552448.0,
+          518647808.0
+        ]
+      },
+      "nodesBefore": {
+        "minimum": 2107.0,
+        "maximum": 2107.0,
+        "runs": [
+          2107.0,
+          2107.0,
+          2107.0
+        ]
+      },
+      "nodesAfter": {
+        "minimum": 2107.0,
+        "maximum": 2107.0,
+        "runs": [
+          2107.0,
+          2107.0,
+          2107.0
+        ]
+      },
+      "orphansAfter": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "scenario": "crate-pressure",
+      "vehicles": 0,
+      "meanFrameMs": {
+        "minimum": 4.992677533149851,
+        "maximum": 5.594663085553988,
+        "runs": [
+          5.594663085553988,
+          5.44268130968624,
+          4.992677533149851
+        ]
+      },
+      "p95FrameMs": {
+        "minimum": 5.5616,
+        "maximum": 7.152,
+        "runs": [
+          7.152,
+          6.4884,
+          5.5616
+        ]
+      },
+      "p99FrameMs": {
+        "minimum": 24.1001,
+        "maximum": 25.81,
+        "runs": [
+          25.81,
+          25.4604,
+          24.1001
+        ]
+      },
+      "maximumFrameMs": {
+        "minimum": 45.8926,
+        "maximum": 82.2,
+        "runs": [
+          82.2,
+          51.9718,
+          45.8926
+        ]
+      },
+      "framesPerSecondFromMeanInterval": {
+        "minimum": 178.7417731341331,
+        "maximum": 200.2933282512852,
+        "runs": [
+          178.7417731341331,
+          183.73296967072432,
+          200.2933282512852
+        ]
+      },
+      "cpuCoreEquivalent": {
+        "minimum": 0.8822191229733327,
+        "maximum": 1.003117627085441,
+        "runs": [
+          0.8822191229733327,
+          0.9142171078261899,
+          1.003117627085441
+        ]
+      },
+      "physicsMeanMs": {
+        "minimum": 26.53943207405559,
+        "maximum": 29.39166311360312,
+        "runs": [
+          29.39166311360312,
+          27.172577353342874,
+          26.53943207405559
+        ]
+      },
+      "advanceMeanMs": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "drawCallsMean": {
+        "minimum": 1028.0911640953716,
+        "maximum": 1028.5659244433325,
+        "runs": [
+          1028.0911640953716,
+          1028.1950886766713,
+          1028.5659244433325
+        ]
+      },
+      "framesOver33Ms": {
+        "minimum": 9.0,
+        "maximum": 12.0,
+        "runs": [
+          11.0,
+          12.0,
+          9.0
+        ]
+      },
+      "framesOver50Ms": {
+        "minimum": 0.0,
+        "maximum": 5.0,
+        "runs": [
+          5.0,
+          1.0,
+          0.0
+        ]
+      },
+      "machineGunRounds": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "privateBytesBefore": {
+        "minimum": 519467008.0,
+        "maximum": 523878400.0,
+        "runs": [
+          523878400.0,
+          522665984.0,
+          519467008.0
+        ]
+      },
+      "privateBytesAfter": {
+        "minimum": 551788544.0,
+        "maximum": 572923904.0,
+        "runs": [
+          572923904.0,
+          559222784.0,
+          551788544.0
+        ]
+      },
+      "nodesBefore": {
+        "minimum": 2107.0,
+        "maximum": 2107.0,
+        "runs": [
+          2107.0,
+          2107.0,
+          2107.0
+        ]
+      },
+      "nodesAfter": {
+        "minimum": 2377.0,
+        "maximum": 2377.0,
+        "runs": [
+          2377.0,
+          2377.0,
+          2377.0
+        ]
+      },
+      "orphansAfter": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "scenario": "crate-cleanup",
+      "vehicles": 0,
+      "meanFrameMs": {
+        "minimum": 3.73254556654845,
+        "maximum": 4.1065306223043825,
+        "runs": [
+          4.061822222222222,
+          4.1065306223043825,
+          3.73254556654845
+        ]
+      },
+      "p95FrameMs": {
+        "minimum": 4.1088,
+        "maximum": 4.9512,
+        "runs": [
+          4.6479,
+          4.9512,
+          4.1088
+        ]
+      },
+      "p99FrameMs": {
+        "minimum": 4.3461,
+        "maximum": 6.1216,
+        "runs": [
+          5.099,
+          6.1216,
+          4.3461
+        ]
+      },
+      "maximumFrameMs": {
+        "minimum": 7.8009,
+        "maximum": 21.3552,
+        "runs": [
+          16.6366,
+          7.8009,
+          21.3552
+        ]
+      },
+      "framesPerSecondFromMeanInterval": {
+        "minimum": 243.51456058030058,
+        "maximum": 267.9136750431469,
+        "runs": [
+          246.19492072523553,
+          243.51456058030058,
+          267.9136750431469
+        ]
+      },
+      "cpuCoreEquivalent": {
+        "minimum": 0.8641187670935192,
+        "maximum": 0.971928329707451,
+        "runs": [
+          0.889836813722037,
+          0.8641187670935192,
+          0.971928329707451
+        ]
+      },
+      "physicsMeanMs": {
+        "minimum": 0.17355553481426353,
+        "maximum": 0.2802109262682385,
+        "runs": [
+          0.19118342474100852,
+          0.2802109262682385,
+          0.17355553481426353
+        ]
+      },
+      "advanceMeanMs": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "drawCallsMean": {
+        "minimum": 885.0,
+        "maximum": 885.0,
+        "runs": [
+          885.0,
+          885.0,
+          885.0
+        ]
+      },
+      "framesOver33Ms": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "framesOver50Ms": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "machineGunRounds": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "privateBytesBefore": {
+        "minimum": 557793280.0,
+        "maximum": 573280256.0,
+        "runs": [
+          573280256.0,
+          560689152.0,
+          557793280.0
+        ]
+      },
+      "privateBytesAfter": {
+        "minimum": 557793280.0,
+        "maximum": 571138048.0,
+        "runs": [
+          571138048.0,
+          558587904.0,
+          557793280.0
+        ]
+      },
+      "nodesBefore": {
+        "minimum": 2107.0,
+        "maximum": 2107.0,
+        "runs": [
+          2107.0,
+          2107.0,
+          2107.0
+        ]
+      },
+      "nodesAfter": {
+        "minimum": 2107.0,
+        "maximum": 2107.0,
+        "runs": [
+          2107.0,
+          2107.0,
+          2107.0
+        ]
+      },
+      "orphansAfter": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "scenario": "idle-one",
+      "vehicles": 1,
+      "meanFrameMs": {
+        "minimum": 5.2872987569426115,
+        "maximum": 5.654773388009043,
+        "runs": [
+          5.620629603598535,
+          5.654773388009043,
+          5.2872987569426115
+        ]
+      },
+      "p95FrameMs": {
+        "minimum": 6.356,
+        "maximum": 6.8535,
+        "runs": [
+          6.8535,
+          6.7845,
+          6.356
+        ]
+      },
+      "p99FrameMs": {
+        "minimum": 7.9343,
+        "maximum": 8.5186,
+        "runs": [
+          8.5186,
+          7.9343,
+          8.2013
+        ]
+      },
+      "maximumFrameMs": {
+        "minimum": 13.412,
+        "maximum": 15.7292,
+        "runs": [
+          15.7292,
+          14.625,
+          13.412
+        ]
+      },
+      "framesPerSecondFromMeanInterval": {
+        "minimum": 176.84174614680435,
+        "maximum": 189.1324939198729,
+        "runs": [
+          177.91601128808827,
+          176.84174614680435,
+          189.1324939198729
+        ]
+      },
+      "cpuCoreEquivalent": {
+        "minimum": 0.9391295115862993,
+        "maximum": 0.9556065819153425,
+        "runs": [
+          0.9391295115862993,
+          0.9475724466928145,
+          0.9556065819153425
+        ]
+      },
+      "physicsMeanMs": {
+        "minimum": 6.132997619677259,
+        "maximum": 6.293475395927492,
+        "runs": [
+          6.291332021366354,
+          6.293475395927492,
+          6.132997619677259
+        ]
+      },
+      "advanceMeanMs": {
+        "minimum": 0.9279758333333318,
+        "maximum": 0.966590666666669,
+        "runs": [
+          0.966590666666669,
+          0.9656360833333344,
+          0.9279758333333318
+        ]
+      },
+      "drawCallsMean": {
+        "minimum": 924.0,
+        "maximum": 924.0,
+        "runs": [
+          924.0,
+          924.0,
+          924.0
+        ]
+      },
+      "framesOver33Ms": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "framesOver50Ms": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "machineGunRounds": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "privateBytesBefore": {
+        "minimum": 826449920.0,
+        "maximum": 849641472.0,
+        "runs": [
+          849641472.0,
+          833777664.0,
+          826449920.0
+        ]
+      },
+      "privateBytesAfter": {
+        "minimum": 817684480.0,
+        "maximum": 827985920.0,
+        "runs": [
+          827568128.0,
+          827985920.0,
+          817684480.0
+        ]
+      },
+      "nodesBefore": {
+        "minimum": 2664.0,
+        "maximum": 2664.0,
+        "runs": [
+          2664.0,
+          2664.0,
+          2664.0
+        ]
+      },
+      "nodesAfter": {
+        "minimum": 2664.0,
+        "maximum": 2664.0,
+        "runs": [
+          2664.0,
+          2664.0,
+          2664.0
+        ]
+      },
+      "orphansAfter": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "scenario": "driving-one",
+      "vehicles": 1,
+      "meanFrameMs": {
+        "minimum": 5.478850479583443,
+        "maximum": 6.726521231493944,
+        "runs": [
+          6.726521231493944,
+          6.113453914373084,
+          5.478850479583443
+        ]
+      },
+      "p95FrameMs": {
+        "minimum": 7.3349,
+        "maximum": 8.9416,
+        "runs": [
+          8.9416,
+          8.061,
+          7.3349
+        ]
+      },
+      "p99FrameMs": {
+        "minimum": 8.5767,
+        "maximum": 12.7358,
+        "runs": [
+          12.7358,
+          10.394,
+          8.5767
+        ]
+      },
+      "maximumFrameMs": {
+        "minimum": 27.6,
+        "maximum": 32.6803,
+        "runs": [
+          32.6803,
+          30.0506,
+          27.6
+        ]
+      },
+      "framesPerSecondFromMeanInterval": {
+        "minimum": 148.66525587073818,
+        "maximum": 182.5200384143409,
+        "runs": [
+          148.66525587073818,
+          163.57365476313515,
+          182.5200384143409
+        ]
+      },
+      "cpuCoreEquivalent": {
+        "minimum": 0.9548250186733144,
+        "maximum": 0.9938201835813645,
+        "runs": [
+          0.9938201835813645,
+          0.9548250186733144,
+          0.9828897944534359
+        ]
+      },
+      "physicsMeanMs": {
+        "minimum": 9.671019266054577,
+        "maximum": 10.474055083584473,
+        "runs": [
+          10.1144693808884,
+          9.671019266054577,
+          10.474055083584473
+        ]
+      },
+      "advanceMeanMs": {
+        "minimum": 1.7419804166666673,
+        "maximum": 1.819937666666665,
+        "runs": [
+          1.819937666666665,
+          1.7923434999999976,
+          1.7419804166666673
+        ]
+      },
+      "drawCallsMean": {
+        "minimum": 929.3831804281346,
+        "maximum": 1180.7042395693136,
+        "runs": [
+          1180.7042395693136,
+          929.3831804281346,
+          929.8342011510002
+        ]
+      },
+      "framesOver33Ms": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "framesOver50Ms": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "machineGunRounds": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "privateBytesBefore": {
+        "minimum": 826781696.0,
+        "maximum": 925978624.0,
+        "runs": [
+          925978624.0,
+          837636096.0,
+          826781696.0
+        ]
+      },
+      "privateBytesAfter": {
+        "minimum": 843448320.0,
+        "maximum": 935112704.0,
+        "runs": [
+          935112704.0,
+          853327872.0,
+          843448320.0
+        ]
+      },
+      "nodesBefore": {
+        "minimum": 2741.0,
+        "maximum": 2928.0,
+        "runs": [
+          2928.0,
+          2741.0,
+          2741.0
+        ]
+      },
+      "nodesAfter": {
+        "minimum": 2730.0,
+        "maximum": 2917.0,
+        "runs": [
+          2917.0,
+          2730.0,
+          2730.0
+        ]
+      },
+      "orphansAfter": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "scenario": "three-cars-prior-roster",
+      "vehicles": 3,
+      "meanFrameMs": {
+        "minimum": 8.477087404580132,
+        "maximum": 10.018557744360924,
+        "runs": [
+          10.018557744360924,
+          9.117556843065712,
+          8.477087404580132
+        ]
+      },
+      "p95FrameMs": {
+        "minimum": 10.7665,
+        "maximum": 13.6062,
+        "runs": [
+          12.3609,
+          13.6062,
+          10.7665
+        ]
+      },
+      "p99FrameMs": {
+        "minimum": 17.9926,
+        "maximum": 19.3875,
+        "runs": [
+          19.3875,
+          19.1571,
+          17.9926
+        ]
+      },
+      "maximumFrameMs": {
+        "minimum": 25.478,
+        "maximum": 64.7817,
+        "runs": [
+          25.478,
+          64.7817,
+          59.9821
+        ]
+      },
+      "framesPerSecondFromMeanInterval": {
+        "minimum": 99.81476630834044,
+        "maximum": 117.96504533617343,
+        "runs": [
+          99.81476630834044,
+          109.67850458322532,
+          117.96504533617343
+        ]
+      },
+      "cpuCoreEquivalent": {
+        "minimum": 0.9313932855430479,
+        "maximum": 0.9960876838260055,
+        "runs": [
+          0.9321171678999511,
+          0.9313932855430479,
+          0.9960876838260055
+        ]
+      },
+      "physicsMeanMs": {
+        "minimum": 10.731116200169676,
+        "maximum": 11.53145563909763,
+        "runs": [
+          11.53145563909763,
+          11.319375456204307,
+          10.731116200169676
+        ]
+      },
+      "advanceMeanMs": {
+        "minimum": 2.0308777500000006,
+        "maximum": 2.1856656666666634,
+        "runs": [
+          2.1171938333333307,
+          2.1856656666666634,
+          2.0308777500000006
+        ]
+      },
+      "drawCallsMean": {
+        "minimum": 887.452098540146,
+        "maximum": 1119.7859649122806,
+        "runs": [
+          1119.7859649122806,
+          887.452098540146,
+          889.7905004240882
+        ]
+      },
+      "framesOver33Ms": {
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "runs": [
+          0.0,
+          1.0,
+          1.0
+        ]
+      },
+      "framesOver50Ms": {
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "runs": [
+          0.0,
+          1.0,
+          1.0
+        ]
+      },
+      "machineGunRounds": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "privateBytesBefore": {
+        "minimum": 851255296.0,
+        "maximum": 942977024.0,
+        "runs": [
+          942977024.0,
+          859414528.0,
+          851255296.0
+        ]
+      },
+      "privateBytesAfter": {
+        "minimum": 867143680.0,
+        "maximum": 945504256.0,
+        "runs": [
+          945504256.0,
+          871329792.0,
+          867143680.0
+        ]
+      },
+      "nodesBefore": {
+        "minimum": 3394.0,
+        "maximum": 3581.0,
+        "runs": [
+          3581.0,
+          3394.0,
+          3394.0
+        ]
+      },
+      "nodesAfter": {
+        "minimum": 3447.0,
+        "maximum": 3591.0,
+        "runs": [
+          3591.0,
+          3493.0,
+          3447.0
+        ]
+      },
+      "orphansAfter": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "scenario": "four-cars",
+      "vehicles": 4,
+      "meanFrameMs": {
+        "minimum": 10.218572290388545,
+        "maximum": 12.246239577039287,
+        "runs": [
+          10.550585540897105,
+          12.246239577039287,
+          10.218572290388545
+        ]
+      },
+      "p95FrameMs": {
+        "minimum": 12.1375,
+        "maximum": 14.5699,
+        "runs": [
+          12.5521,
+          14.5699,
+          12.1375
+        ]
+      },
+      "p99FrameMs": {
+        "minimum": 20.3086,
+        "maximum": 22.6744,
+        "runs": [
+          20.6793,
+          22.6744,
+          20.3086
+        ]
+      },
+      "maximumFrameMs": {
+        "minimum": 33.2723,
+        "maximum": 447.7572,
+        "runs": [
+          33.2723,
+          447.7572,
+          68.8608
+        ]
+      },
+      "framesPerSecondFromMeanInterval": {
+        "minimum": 81.65771980118039,
+        "maximum": 97.86102907356117,
+        "runs": [
+          94.78146934345135,
+          81.65771980118039,
+          97.86102907356117
+        ]
+      },
+      "cpuCoreEquivalent": {
+        "minimum": 0.950683549422646,
+        "maximum": 0.9942784348223778,
+        "runs": [
+          0.9942784348223778,
+          0.950683549422646,
+          0.9937968724294881
+        ]
+      },
+      "physicsMeanMs": {
+        "minimum": 10.871899208443368,
+        "maximum": 12.558470694864038,
+        "runs": [
+          10.871899208443368,
+          12.558470694864038,
+          11.532241308793322
+        ]
+      },
+      "advanceMeanMs": {
+        "minimum": 2.37351258333333,
+        "maximum": 2.603715416666672,
+        "runs": [
+          2.37351258333333,
+          2.603715416666672,
+          2.383021499999996
+        ]
+      },
+      "drawCallsMean": {
+        "minimum": 883.4795501022495,
+        "maximum": 1105.3208443271767,
+        "runs": [
+          1105.3208443271767,
+          884.1015105740181,
+          883.4795501022495
+        ]
+      },
+      "framesOver33Ms": {
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "runs": [
+          0.0,
+          1.0,
+          1.0
+        ]
+      },
+      "framesOver50Ms": {
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "runs": [
+          0.0,
+          1.0,
+          1.0
+        ]
+      },
+      "machineGunRounds": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "privateBytesBefore": {
+        "minimum": 871919616.0,
+        "maximum": 949473280.0,
+        "runs": [
+          949473280.0,
+          877346816.0,
+          871919616.0
+        ]
+      },
+      "privateBytesAfter": {
+        "minimum": 878108672.0,
+        "maximum": 958291968.0,
+        "runs": [
+          958291968.0,
+          950005760.0,
+          878108672.0
+        ]
+      },
+      "nodesBefore": {
+        "minimum": 3780.0,
+        "maximum": 3924.0,
+        "runs": [
+          3924.0,
+          3826.0,
+          3780.0
+        ]
+      },
+      "nodesAfter": {
+        "minimum": 3856.0,
+        "maximum": 4078.0,
+        "runs": [
+          3989.0,
+          4078.0,
+          3856.0
+        ]
+      },
+      "orphansAfter": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "scenario": "combat-machine-gun",
+      "vehicles": 4,
+      "meanFrameMs": {
+        "minimum": 13.504149121621632,
+        "maximum": 14.099897459421292,
+        "runs": [
+          13.696639958875938,
+          14.099897459421292,
+          13.504149121621632
+        ]
+      },
+      "p95FrameMs": {
+        "minimum": 16.2057,
+        "maximum": 18.3989,
+        "runs": [
+          18.2604,
+          18.3989,
+          16.2057
+        ]
+      },
+      "p99FrameMs": {
+        "minimum": 22.336,
+        "maximum": 23.2791,
+        "runs": [
+          22.6016,
+          23.2791,
+          22.336
+        ]
+      },
+      "maximumFrameMs": {
+        "minimum": 27.2842,
+        "maximum": 31.6404,
+        "runs": [
+          31.6404,
+          28.8027,
+          27.2842
+        ]
+      },
+      "framesPerSecondFromMeanInterval": {
+        "minimum": 70.92250159108912,
+        "maximum": 74.05131496947777,
+        "runs": [
+          73.01060720019602,
+          70.92250159108912,
+          74.05131496947777
+        ]
+      },
+      "cpuCoreEquivalent": {
+        "minimum": 1.0181285910981595,
+        "maximum": 1.022989212528894,
+        "runs": [
+          1.0181285910981595,
+          1.022989212528894,
+          1.0195829938369372
+        ]
+      },
+      "physicsMeanMs": {
+        "minimum": 11.838086803105092,
+        "maximum": 12.204172035641001,
+        "runs": [
+          12.204172035641001,
+          11.838086803105092,
+          12.01997432432433
+        ]
+      },
+      "advanceMeanMs": {
+        "minimum": 3.379877000000003,
+        "maximum": 3.46580525,
+        "runs": [
+          3.46580525,
+          3.379877000000003,
+          3.3954667500000006
+        ]
+      },
+      "drawCallsMean": {
+        "minimum": 1214.9,
+        "maximum": 1323.2470007057163,
+        "runs": [
+          1256.8211103495546,
+          1323.2470007057163,
+          1214.9
+        ]
+      },
+      "framesOver33Ms": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "framesOver50Ms": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "machineGunRounds": {
+        "minimum": 1347.0,
+        "maximum": 1347.0,
+        "runs": [
+          1347.0,
+          1347.0,
+          1347.0
+        ]
+      },
+      "privateBytesBefore": {
+        "minimum": 899805184.0,
+        "maximum": 987938816.0,
+        "runs": [
+          975515648.0,
+          987938816.0,
+          899805184.0
+        ]
+      },
+      "privateBytesAfter": {
+        "minimum": 902782976.0,
+        "maximum": 994385920.0,
+        "runs": [
+          926793728.0,
+          994385920.0,
+          902782976.0
+        ]
+      },
+      "nodesBefore": {
+        "minimum": 3830.0,
+        "maximum": 4148.0,
+        "runs": [
+          3830.0,
+          4148.0,
+          3903.0
+        ]
+      },
+      "nodesAfter": {
+        "minimum": 3803.0,
+        "maximum": 4121.0,
+        "runs": [
+          3803.0,
+          4121.0,
+          3876.0
+        ]
+      },
+      "orphansAfter": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "scenario": "sustained-four-cars",
+      "vehicles": 4,
+      "meanFrameMs": {
+        "minimum": 11.34972312499999,
+        "maximum": 11.980971882494002,
+        "runs": [
+          11.980971882494002,
+          11.72596889671361,
+          11.34972312499999
+        ]
+      },
+      "p95FrameMs": {
+        "minimum": 12.8503,
+        "maximum": 13.8166,
+        "runs": [
+          13.8166,
+          13.3141,
+          12.8503
+        ]
+      },
+      "p99FrameMs": {
+        "minimum": 21.0856,
+        "maximum": 21.7412,
+        "runs": [
+          21.7412,
+          21.4957,
+          21.0856
+        ]
+      },
+      "maximumFrameMs": {
+        "minimum": 22.9515,
+        "maximum": 23.9512,
+        "runs": [
+          22.9515,
+          23.9512,
+          23.5348
+        ]
+      },
+      "framesPerSecondFromMeanInterval": {
+        "minimum": 83.4656829018312,
+        "maximum": 88.1078761998435,
+        "runs": [
+          83.4656829018312,
+          85.28079929329047,
+          88.1078761998435
+        ]
+      },
+      "cpuCoreEquivalent": {
+        "minimum": 0.9681053399824181,
+        "maximum": 1.009737414952975,
+        "runs": [
+          0.9681053399824181,
+          1.009737414952975,
+          0.9912701285123371
+        ]
+      },
+      "physicsMeanMs": {
+        "minimum": 11.00312386363649,
+        "maximum": 11.943372901678602,
+        "runs": [
+          11.943372901678602,
+          11.47452699530514,
+          11.00312386363649
+        ]
+      },
+      "advanceMeanMs": {
+        "minimum": 2.4042497499999995,
+        "maximum": 2.562757999999999,
+        "runs": [
+          2.562757999999999,
+          2.4155698333333295,
+          2.4042497499999995
+        ]
+      },
+      "drawCallsMean": {
+        "minimum": 947.7847721822542,
+        "maximum": 1032.7423708920187,
+        "runs": [
+          947.7847721822542,
+          1032.7423708920187,
+          953.6846590909091
+        ]
+      },
+      "framesOver33Ms": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "framesOver50Ms": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "machineGunRounds": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "privateBytesBefore": {
+        "minimum": 903475200.0,
+        "maximum": 1007063040.0,
+        "runs": [
+          927387648.0,
+          1007063040.0,
+          903475200.0
+        ]
+      },
+      "privateBytesAfter": {
+        "minimum": 904114176.0,
+        "maximum": 1007763456.0,
+        "runs": [
+          927367168.0,
+          1007763456.0,
+          904114176.0
+        ]
+      },
+      "nodesBefore": {
+        "minimum": 3793.0,
+        "maximum": 4111.0,
+        "runs": [
+          3793.0,
+          4111.0,
+          3866.0
+        ]
+      },
+      "nodesAfter": {
+        "minimum": 3793.0,
+        "maximum": 4111.0,
+        "runs": [
+          3793.0,
+          4111.0,
+          3866.0
+        ]
+      },
+      "orphansAfter": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "scenario": "five-cars-application-roster",
+      "vehicles": 5,
+      "meanFrameMs": {
+        "minimum": 11.928942124105026,
+        "maximum": 13.165679776021085,
+        "runs": [
+          13.124670650032801,
+          13.165679776021085,
+          11.928942124105026
+        ]
+      },
+      "p95FrameMs": {
+        "minimum": 13.7579,
+        "maximum": 18.0569,
+        "runs": [
+          17.4573,
+          18.0569,
+          13.7579
+        ]
+      },
+      "p99FrameMs": {
+        "minimum": 22.3713,
+        "maximum": 23.915,
+        "runs": [
+          23.915,
+          23.202,
+          22.3713
+        ]
+      },
+      "maximumFrameMs": {
+        "minimum": 23.8038,
+        "maximum": 31.6875,
+        "runs": [
+          29.6787,
+          31.6875,
+          23.8038
+        ]
+      },
+      "framesPerSecondFromMeanInterval": {
+        "minimum": 75.95506020291637,
+        "maximum": 83.82973021382023,
+        "runs": [
+          76.19238811127812,
+          75.95506020291637,
+          83.82973021382023
+        ]
+      },
+      "cpuCoreEquivalent": {
+        "minimum": 0.9352191621930408,
+        "maximum": 0.9997400326006227,
+        "runs": [
+          0.9358389000134946,
+          0.9352191621930408,
+          0.9997400326006227
+        ]
+      },
+      "physicsMeanMs": {
+        "minimum": 12.383120525059883,
+        "maximum": 13.65283453709769,
+        "runs": [
+          13.65283453709769,
+          12.946696969696905,
+          12.383120525059883
+        ]
+      },
+      "advanceMeanMs": {
+        "minimum": 2.8600952500000014,
+        "maximum": 3.0713332500000066,
+        "runs": [
+          3.0713332500000066,
+          3.0641997499999976,
+          2.8600952500000014
+        ]
+      },
+      "drawCallsMean": {
+        "minimum": 820.5573122529644,
+        "maximum": 821.0059665871122,
+        "runs": [
+          820.7478660538411,
+          820.5573122529644,
+          821.0059665871122
+        ]
+      },
+      "framesOver33Ms": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "framesOver50Ms": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "machineGunRounds": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "privateBytesBefore": {
+        "minimum": 905023488.0,
+        "maximum": 1028481024.0,
+        "runs": [
+          938098688.0,
+          1028481024.0,
+          905023488.0
+        ]
+      },
+      "privateBytesAfter": {
+        "minimum": 905416704.0,
+        "maximum": 1028833280.0,
+        "runs": [
+          934445056.0,
+          1028833280.0,
+          905416704.0
+        ]
+      },
+      "nodesBefore": {
+        "minimum": 4224.0,
+        "maximum": 4530.0,
+        "runs": [
+          4224.0,
+          4530.0,
+          4285.0
+        ]
+      },
+      "nodesAfter": {
+        "minimum": 4214.0,
+        "maximum": 4520.0,
+        "runs": [
+          4214.0,
+          4520.0,
+          4275.0
+        ]
+      },
+      "orphansAfter": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "runs": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    }
+  ],
+  "teardown": [
+    {
+      "run": 1,
+      "memory": {
+        "managed": 17339032,
+        "privateBytes": 774746112,
+        "nodes": 2,
+        "resources": 252,
+        "orphans": 0,
+        "engineBytes": 110100044,
+        "videoBytes": 77570247,
+        "gen0": 396,
+        "gen1": 373,
+        "gen2": 10
+      }
+    },
+    {
+      "run": 2,
+      "memory": {
+        "managed": 9578456,
+        "privateBytes": 843366400,
+        "nodes": 2,
+        "resources": 248,
+        "orphans": 0,
+        "engineBytes": 109852743,
+        "videoBytes": 77484279,
+        "gen0": 401,
+        "gen1": 376,
+        "gen2": 10
+      }
+    },
+    {
+      "run": 3,
+      "memory": {
+        "managed": 12647912,
+        "privateBytes": 738459648,
+        "nodes": 2,
+        "resources": 232,
+        "orphans": 0,
+        "engineBytes": 109204335,
+        "videoBytes": 77230104,
+        "gen0": 404,
+        "gen1": 379,
+        "gen2": 10
+      }
+    }
+  ],
+  "pickupPublicationCpu": [
+    {
+      "run": 1,
+      "data": {
+        "scenario": "pickup-publication-cpu",
+        "calls": 10000,
+        "milliseconds": {
+          "count": 10,
+          "mean": 0.02134971,
+          "median": 0.021713,
+          "p95": 0.03395,
+          "p99": 0.03395,
+          "max": 0.03395
+        },
+        "bytesPerCall": {
+          "count": 10,
+          "mean": 3520.0296000000003,
+          "median": 3520,
+          "p95": 3520.152,
+          "p99": 3520.152,
+          "max": 3520.152
+        }
+      }
+    },
+    {
+      "run": 2,
+      "data": {
+        "scenario": "pickup-publication-cpu",
+        "calls": 10000,
+        "milliseconds": {
+          "count": 10,
+          "mean": 0.023896800000000003,
+          "median": 0.022287400000000002,
+          "p95": 0.048464799999999995,
+          "p99": 0.048464799999999995,
+          "max": 0.048464799999999995
+        },
+        "bytesPerCall": {
+          "count": 10,
+          "mean": 3520.0296000000003,
+          "median": 3520,
+          "p95": 3520.152,
+          "p99": 3520.152,
+          "max": 3520.152
+        }
+      }
+    },
+    {
+      "run": 3,
+      "data": {
+        "scenario": "pickup-publication-cpu",
+        "calls": 10000,
+        "milliseconds": {
+          "count": 10,
+          "mean": 0.0223321,
+          "median": 0.0206192,
+          "p95": 0.0488986,
+          "p99": 0.0488986,
+          "max": 0.0488986
+        },
+        "bytesPerCall": {
+          "count": 10,
+          "mean": 3520.0296000000003,
+          "median": 3520,
+          "p95": 3520.152,
+          "p99": 3520.152,
+          "max": 3520.152
+        }
+      }
+    }
+  ]
+}

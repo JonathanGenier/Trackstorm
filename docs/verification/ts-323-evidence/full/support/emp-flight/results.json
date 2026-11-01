@@ -1,0 +1,101 @@
+[
+  {
+    "scenario": "locked",
+    "launchKmh": 234,
+    "cruiseKmh": 99.99999,
+    "Position": {
+      "X": 17.2969,
+      "Y": 101.13282,
+      "Z": -87.671135
+    },
+    "EmpClawContact": {
+      "Vehicle": 2,
+      "Life": 1,
+      "LocalPosition": {
+        "X": -0.7031002,
+        "Y": -0.36717987,
+        "Z": 2.328865
+      },
+      "LocalNormal": {
+        "X": -1,
+        "Y": 0,
+        "Z": 0
+      }
+    }
+  },
+  {
+    "scenario": "interception",
+    "Position": {
+      "X": 0,
+      "Y": 101.50673,
+      "Z": -25.801317
+    },
+    "EmpClawContact": {
+      "Vehicle": 3,
+      "Life": 1,
+      "LocalPosition": {
+        "X": 0,
+        "Y": 0.2372284,
+        "Z": 2.6949997
+      },
+      "LocalNormal": {
+        "X": 0,
+        "Y": 0,
+        "Z": 1
+      }
+    }
+  },
+  {
+    "scenario": "owner-weapon-world",
+    "passed": true
+  },
+  {
+    "scenario": "forward-acquisition",
+    "passed": true
+  },
+  {
+    "scenario": "simultaneous-recovery-expiry",
+    "first": 9,
+    "second": 11,
+    "restored": 2
+  },
+  {
+    "scenario": "native-terrain",
+    "slopeDegrees": 12,
+    "minimum": 2.5228806,
+    "maximum": 3.4703217
+  },
+  {
+    "scenario": "native-terrain",
+    "slopeDegrees": -12,
+    "minimum": 1.1123123,
+    "maximum": 2.527031
+  },
+  {
+    "scenario": "native-terrain",
+    "slopeDegrees": 0,
+    "minimum": 1.213829,
+    "maximum": 2.7955856
+  },
+  {
+    "scenario": "network",
+    "delayMs": 100,
+    "jitterMs": 15,
+    "lossPercent": 3,
+    "motions": [
+      2187,
+      2122,
+      2127
+    ],
+    "launches": [
+      9,
+      9,
+      9
+    ],
+    "impacts": [
+      4,
+      4,
+      4
+    ]
+  }
+]

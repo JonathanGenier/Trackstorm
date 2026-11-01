@@ -1,0 +1,10 @@
+Browser tab: 1, Title: "Trackstorm 0.3.0 — Astra Comprehensive Validation Questionnaire", URL: "https://tally.so/r/ArzBOB".
+0 AXWebArea Trackstorm 0.3.0 — Astra Comprehensive Validation Questionnaire, URL: tally.so/r/ArzBOB
+	1 container
+		2 text Form submitted
+		3 heading Thanks for completing this form!, Value: 1
+			4 text Thanks for completing this form!
+		5 text Made with Tally, the simplest way to create forms for free.
+		6 link Description: Tally Create your own form, Value: tally.so/?utm_source=tally&utm_medium=website&utm_campaign=powered-by_web_typ&version=8&device=desktop
+
+The focused UI element is 3 heading Thanks for completing this form!, Value: 1

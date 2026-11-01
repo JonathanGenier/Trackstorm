@@ -1,0 +1,63 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+PROFILE walls=2 fps=49.7 physics_ms=48.668 process_ms=26.898 ground_ms/frame=0.015 fits=4 rays=160 nodes=6673 orphans=0 bodies=2
+Terrain 0: two normal-use deployments, full panel footing clear, upright, exact UDP state.
+PROFILE walls=4 fps=60.3 physics_ms=39.248 process_ms=17.258 ground_ms/frame=0.016 fits=4 rays=160 nodes=7037 orphans=0 bodies=4
+Terrain 1: two normal-use deployments, full panel footing clear, upright, exact UDP state.
+PROFILE walls=5 fps=59.9 physics_ms=23.648 process_ms=11.863 ground_ms/frame=0.002 fits=1 rays=40 nodes=7103 orphans=0 bodies=5
+Terrain 2: two normal-use deployments, full panel footing clear, upright, exact UDP state.
+PROFILE walls=8 fps=28.8 physics_ms=42.996 process_ms=26.931 ground_ms/frame=0.018 fits=7 rays=280 nodes=7611 orphans=0 bodies=8
+Terrain 3: two normal-use deployments, full panel footing clear, upright, exact UDP state.
+PROFILE walls=10 fps=45.2 physics_ms=56.199 process_ms=51.650 ground_ms/frame=0.035 fits=4 rays=640 nodes=7899 orphans=0 bodies=10
+Terrain 4: two normal-use deployments, full panel footing clear, upright, exact UDP state.
+PROFILE walls=12 fps=54.8 physics_ms=32.190 process_ms=43.899 ground_ms/frame=0.122 fits=4 rays=400 nodes=8188 orphans=0 bodies=12
+Terrain 5: two normal-use deployments, full panel footing clear, upright, exact UDP state.
+PROFILE walls=14 fps=60.1 physics_ms=43.300 process_ms=21.383 ground_ms/frame=0.019 fits=4 rays=400 nodes=8477 orphans=0 bodies=14
+Terrain 6: two normal-use deployments, full panel footing clear, upright, exact UDP state.
+PROFILE walls=14 fps=59.9 physics_ms=21.011 process_ms=21.579 ground_ms/frame=0.000 fits=0 rays=0 nodes=8471 orphans=0 bodies=14
+Terrain 7: two normal-use deployments, full panel footing clear, upright, exact UDP state.
+PROFILE walls=16 fps=59.6 physics_ms=24.580 process_ms=24.299 ground_ms/frame=0.036 fits=4 rays=560 nodes=8459 orphans=0 bodies=16
+PROFILE walls=16 fps=58.1 physics_ms=21.733 process_ms=24.874 ground_ms/frame=0.000 fits=0 rays=0 nodes=8459 orphans=0 bodies=16
+PROFILE walls=16 fps=59.6 physics_ms=26.606 process_ms=35.256 ground_ms/frame=0.000 fits=0 rays=0 nodes=8459 orphans=0 bodies=16
+PROFILE walls=16 fps=60.0 physics_ms=18.362 process_ms=21.795 ground_ms/frame=0.000 fits=0 rays=0 nodes=8459 orphans=0 bodies=16
+PROFILE walls=16 fps=59.8 physics_ms=16.175 process_ms=22.459 ground_ms/frame=0.000 fits=0 rays=0 nodes=8459 orphans=0 bodies=16
+PROFILE walls=16 fps=58.8 physics_ms=29.006 process_ms=16.866 ground_ms/frame=0.000 fits=0 rays=0 nodes=8459 orphans=0 bodies=16
+PROFILE walls=16 fps=57.8 physics_ms=11.289 process_ms=24.357 ground_ms/frame=0.000 fits=0 rays=0 nodes=8460 orphans=0 bodies=16
+PROFILE walls=16 fps=59.2 physics_ms=30.710 process_ms=20.053 ground_ms/frame=0.000 fits=0 rays=0 nodes=8460 orphans=0 bodies=16
+PROFILE walls=16 fps=59.8 physics_ms=12.538 process_ms=17.949 ground_ms/frame=0.000 fits=0 rays=0 nodes=8462 orphans=0 bodies=16
+PROFILE walls=16 fps=60.0 physics_ms=16.109 process_ms=15.621 ground_ms/frame=0.000 fits=0 rays=0 nodes=8457 orphans=0 bodies=16
+Sixteen varied-terrain walls, 1800-frame final soak; peak settled drift 0.000000 m, speed 0.000000 m/s.
+PROFILE walls=0 fps=60.0 physics_ms=7.927 process_ms=20.721 ground_ms/frame=0.000 fits=0 rays=0 nodes=8332 orphans=0 bodies=0
+Cycle 1: all sixteen walls and destruction effects removed on both peers; zero orphan nodes.
+PROFILE walls=0 fps=60.0 physics_ms=13.128 process_ms=17.139 ground_ms/frame=0.000 fits=0 rays=0 nodes=6459 orphans=0 bodies=0
+Terrain 0: two normal-use deployments, full panel footing clear, upright, exact UDP state.
+PROFILE walls=2 fps=60.0 physics_ms=15.486 process_ms=11.344 ground_ms/frame=0.009 fits=4 rays=160 nodes=6445 orphans=0 bodies=2
+PROFILE walls=4 fps=59.5 physics_ms=21.869 process_ms=24.905 ground_ms/frame=0.009 fits=4 rays=160 nodes=7038 orphans=0 bodies=4
+Terrain 1: two normal-use deployments, full panel footing clear, upright, exact UDP state.
+PROFILE walls=6 fps=60.0 physics_ms=22.047 process_ms=13.610 ground_ms/frame=0.009 fits=4 rays=160 nodes=7324 orphans=0 bodies=6
+Terrain 2: two normal-use deployments, full panel footing clear, upright, exact UDP state.
+PROFILE walls=6 fps=60.0 physics_ms=22.924 process_ms=17.559 ground_ms/frame=0.000 fits=0 rays=0 nodes=7319 orphans=0 bodies=6
+Terrain 3: two normal-use deployments, full panel footing clear, upright, exact UDP state.
+PROFILE walls=8 fps=56.1 physics_ms=37.562 process_ms=29.022 ground_ms/frame=0.008 fits=4 rays=160 nodes=7611 orphans=0 bodies=8
+Terrain 4: two normal-use deployments, full panel footing clear, upright, exact UDP state.
+PROFILE walls=10 fps=58.3 physics_ms=34.327 process_ms=14.051 ground_ms/frame=0.031 fits=4 rays=640 nodes=7749 orphans=0 bodies=10
+PROFILE walls=12 fps=60.0 physics_ms=20.835 process_ms=21.528 ground_ms/frame=0.022 fits=4 rays=400 nodes=8188 orphans=0 bodies=12
+Terrain 5: two normal-use deployments, full panel footing clear, upright, exact UDP state.
+PROFILE walls=14 fps=60.1 physics_ms=19.465 process_ms=19.576 ground_ms/frame=0.019 fits=4 rays=400 nodes=8474 orphans=0 bodies=14
+Terrain 6: two normal-use deployments, full panel footing clear, upright, exact UDP state.
+PROFILE walls=14 fps=60.0 physics_ms=20.662 process_ms=20.089 ground_ms/frame=0.000 fits=0 rays=0 nodes=8471 orphans=0 bodies=14
+Terrain 7: two normal-use deployments, full panel footing clear, upright, exact UDP state.
+PROFILE walls=16 fps=59.9 physics_ms=20.510 process_ms=20.284 ground_ms/frame=0.028 fits=4 rays=560 nodes=8458 orphans=0 bodies=16
+PROFILE walls=16 fps=60.0 physics_ms=15.101 process_ms=12.420 ground_ms/frame=0.000 fits=0 rays=0 nodes=8459 orphans=0 bodies=16
+PROFILE walls=16 fps=58.9 physics_ms=14.406 process_ms=30.978 ground_ms/frame=0.000 fits=0 rays=0 nodes=8460 orphans=0 bodies=16
+PROFILE walls=16 fps=59.9 physics_ms=23.285 process_ms=24.455 ground_ms/frame=0.000 fits=0 rays=0 nodes=8460 orphans=0 bodies=16
+PROFILE walls=16 fps=59.8 physics_ms=16.569 process_ms=21.926 ground_ms/frame=0.000 fits=0 rays=0 nodes=8458 orphans=0 bodies=16
+PROFILE walls=16 fps=60.0 physics_ms=14.548 process_ms=18.374 ground_ms/frame=0.000 fits=0 rays=0 nodes=8461 orphans=0 bodies=16
+PROFILE walls=16 fps=60.0 physics_ms=18.702 process_ms=16.321 ground_ms/frame=0.000 fits=0 rays=0 nodes=8460 orphans=0 bodies=16
+PROFILE walls=16 fps=60.0 physics_ms=9.792 process_ms=20.966 ground_ms/frame=0.000 fits=0 rays=0 nodes=8457 orphans=0 bodies=16
+PROFILE walls=16 fps=60.0 physics_ms=18.751 process_ms=13.031 ground_ms/frame=0.000 fits=0 rays=0 nodes=8457 orphans=0 bodies=16
+PROFILE walls=16 fps=60.0 physics_ms=13.545 process_ms=20.896 ground_ms/frame=0.000 fits=0 rays=0 nodes=8459 orphans=0 bodies=16
+Sixteen varied-terrain walls, 1800-frame final soak; peak settled drift 0.000000 m, speed 0.000000 m/s.
+PROFILE walls=0 fps=60.0 physics_ms=17.341 process_ms=17.263 ground_ms/frame=0.000 fits=0 rays=0 nodes=8331 orphans=0 bodies=0
+Cycle 2: all sixteen walls and destruction effects removed on both peers; zero orphan nodes.
+World wall integration passed: varied terrain, repeated deployment, sixteen-wall stability soak and UDP convergence.

@@ -1,0 +1,7 @@
+Exception: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\check-items.ps1:26
+Line |
+  26 |      throw "Item integration failed. Artifacts: $itemOutput"
+     |      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Item integration failed. Artifacts:
+     | C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\item-checks\8ef2f00f109847a38f9ec2cfff22431c
+

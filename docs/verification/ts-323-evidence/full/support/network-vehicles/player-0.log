@@ -1,0 +1,14 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+NETWORK_CONNECTION {"RemotePeerId":1,"State":1,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":2,"State":1,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":3,"State":1,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":1,"State":2,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":2,"State":2,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":3,"State":2,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":2,"State":0,"Reason":2,"Detail":"Transport stopped"}
+NETWORK_CONNECTION {"RemotePeerId":3,"State":0,"Reason":2,"Detail":"Transport stopped"}
+Network vehicle metrics: host=True, entry=False, maximum=0, startup=0, steady=0, snaps=0; full report: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\network-vehicle-checks\cb3dbdb40f7f416b84d3911f08409d3d\player-0.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":35.4287404,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":6903,"messages":3,"peak":2301},{"peer":1,"protocol":"TD","delivery":"Unreliable","bytes":1645039,"messages":235,"peak":7237},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":6272,"messages":3,"peak":2237},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":3670,"messages":12,"peak":337},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":2596,"messages":4,"peak":1005},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":556989,"messages":481,"peak":1249},{"peer":2,"protocol":"TC","delivery":"Reliable","bytes":2301,"messages":1,"peak":2301},{"peer":2,"protocol":"TD","delivery":"Unreliable","bytes":1619403,"messages":231,"peak":7237},{"peer":2,"protocol":"TI","delivery":"Reliable","bytes":2237,"messages":1,"peak":2237},{"peer":2,"protocol":"TM","delivery":"Reliable","bytes":3064,"messages":10,"peak":337},{"peer":2,"protocol":"TS","delivery":"Reliable","bytes":1025,"messages":2,"peak":1005},{"peer":2,"protocol":"TS","delivery":"Unreliable","bytes":537389,"messages":451,"peak":1249},{"peer":3,"protocol":"TC","delivery":"Reliable","bytes":4602,"messages":2,"peak":2301},{"peer":3,"protocol":"TD","delivery":"Unreliable","bytes":1625812,"messages":232,"peak":7237},{"peer":3,"protocol":"TI","delivery":"Reliable","bytes":4407,"messages":2,"peak":2237},{"peer":3,"protocol":"TM","delivery":"Reliable","bytes":3367,"messages":11,"peak":337},{"peer":3,"protocol":"TS","delivery":"Reliable","bytes":1963,"messages":3,"peak":1005},{"peer":3,"protocol":"TS","delivery":"Unreliable","bytes":539265,"messages":453,"peak":1249}]}

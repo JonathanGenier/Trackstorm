@@ -1,0 +1,8 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+NETWORK_CONNECTION {"RemotePeerId":1,"State":1,"Reason":0,"Detail":""}
+NETWORK_CONNECTION {"RemotePeerId":1,"State":2,"Reason":0,"Detail":""}
+Network vehicle metrics: host=False, entry=False, maximum=0.40835762, startup=0.16377946734428406, steady=0.4083576202392578, snaps=0; full report: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\network-vehicle-checks\cb3dbdb40f7f416b84d3911f08409d3d\player-2.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":27.6541875,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":139211,"messages":962,"peak":145}]}

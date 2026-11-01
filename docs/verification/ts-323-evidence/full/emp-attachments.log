@@ -1,0 +1,55 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+{"scenario":"surface-vs-hull","x":-0.9,"z":-2.3,"gapMetres":0.50865173,"local":{"X":-0.9,"Y":0.4474182,"Z":-2.3000002}}
+{"scenario":"surface-vs-hull","x":-0.9,"z":-1.8,"gapMetres":0.504982,"local":{"X":-0.9,"Y":0.45108795,"Z":-1.8000002}}
+{"scenario":"surface-vs-hull","x":-0.9,"z":-1.3,"gapMetres":0.5012131,"local":{"X":-0.9,"Y":0.45485687,"Z":-1.3000002}}
+{"scenario":"surface-vs-hull","x":-0.9,"z":-0.8,"gapMetres":0.27451324,"local":{"X":-0.9,"Y":0.6815567,"Z":-0.8000002}}
+{"scenario":"surface-vs-hull","x":-0.9,"z":0,"gapMetres":-0.016433716,"local":{"X":-0.9,"Y":0.97250366,"Z":0}}
+{"scenario":"surface-vs-hull","x":-0.9,"z":0.6,"gapMetres":-0.016433716,"local":{"X":-0.9,"Y":0.97250366,"Z":0.6000004}}
+{"scenario":"surface-vs-hull","x":0,"z":-2.3,"gapMetres":0.48060608,"local":{"X":0,"Y":0.47546387,"Z":-2.3000002}}
+{"scenario":"surface-vs-hull","x":0,"z":-1.8,"gapMetres":0.37535095,"local":{"X":0,"Y":0.580719,"Z":-1.8000002}}
+{"scenario":"surface-vs-hull","x":0,"z":-1.3,"gapMetres":0.35356903,"local":{"X":0,"Y":0.6025009,"Z":-1.3000002}}
+{"scenario":"surface-vs-hull","x":0,"z":-0.8,"gapMetres":0.23422241,"local":{"X":0,"Y":0.72184753,"Z":-0.8000002}}
+{"scenario":"surface-vs-hull","x":0,"z":0,"gapMetres":-0.025932312,"local":{"X":0,"Y":0.98200226,"Z":0}}
+{"scenario":"surface-vs-hull","x":0,"z":0.6,"gapMetres":-0.029930115,"local":{"X":0,"Y":0.98600006,"Z":0.6000004}}
+{"scenario":"surface-vs-hull","x":0.9,"z":-2.3,"gapMetres":0.50865173,"local":{"X":0.9,"Y":0.4474182,"Z":-2.3000002}}
+{"scenario":"surface-vs-hull","x":0.9,"z":-1.8,"gapMetres":0.50496674,"local":{"X":0.9,"Y":0.4511032,"Z":-1.8000002}}
+{"scenario":"surface-vs-hull","x":0.9,"z":-1.3,"gapMetres":0.5012131,"local":{"X":0.9,"Y":0.45485687,"Z":-1.3000002}}
+{"scenario":"surface-vs-hull","x":0.9,"z":-0.8,"gapMetres":0.27451324,"local":{"X":0.9,"Y":0.6815567,"Z":-0.8000002}}
+{"scenario":"surface-vs-hull","x":0.9,"z":0,"gapMetres":-0.016433716,"local":{"X":0.9,"Y":0.97250366,"Z":0}}
+{"scenario":"surface-vs-hull","x":0.9,"z":0.6,"gapMetres":-0.016433716,"local":{"X":0.9,"Y":0.97250366,"Z":0.6000004}}
+{"scenario":"hood-edge","LocalPosition":{"X":0.8462764,"Y":0.45465088,"Z":-1.7921152},"LocalNormal":{"X":0.06438,"Y":0.9978934,"Z":-0.007999275}}
+{"scenario":"windshield","LocalPosition":{"X":-0.69435865,"Y":0.68712616,"Z":-0.7935524},"LocalNormal":{"X":0,"Y":0.75651497,"Z":-0.6539764}}
+{"scenario":"moving-hood","LocalPosition":{"X":0.5095631,"Y":0.47497135,"Z":-1.588275},"LocalNormal":{"X":0.040731844,"Y":0.99900824,"Z":-0.017982174}}
+EMP authored surface checks: maximum old hull gap 0.5087 m; 18 grid contacts and three native attachment flights, including moving/rotating impact.
+{"scenario":"native-attachment","face":"rear","Id":4,"LocalPosition":{"X":0,"Y":0.32647705,"Z":2.884944},"LocalNormal":{"X":0.029299723,"Y":0.8087577,"Z":0.58741164}}
+{"scenario":"rendered-pop-cleanup","name":"rear","moving":true,"sampledFrames":60,"peers":3}
+{"scenario":"native-attachment","face":"front","Id":5,"LocalPosition":{"X":2.6175852E-07,"Y":0.3311081,"Z":-2.9941683},"LocalNormal":{"X":-0.004002353,"Y":0.30792683,"Z":-0.9514016}}
+{"scenario":"rendered-pop-cleanup","name":"front","moving":true,"sampledFrames":60,"peers":3}
+{"scenario":"native-attachment","face":"right","Id":6,"LocalPosition":{"X":-1.2549278,"Y":0.24890146,"Z":0},"LocalNormal":{"X":-0.98861915,"Y":0.15044129,"Z":0}}
+{"scenario":"rendered-pop-cleanup","name":"right","moving":true,"sampledFrames":60,"peers":3}
+{"scenario":"native-attachment","face":"left","Id":7,"LocalPosition":{"X":1.2549278,"Y":0.24890146,"Z":0},"LocalNormal":{"X":0.98861915,"Y":0.15044129,"Z":0}}
+{"scenario":"rendered-pop-cleanup","name":"left","moving":true,"sampledFrames":60,"peers":3}
+{"scenario":"native-attachment","face":"roof","Id":8,"LocalPosition":{"X":0,"Y":0.97249997,"Z":-0.2318573},"LocalNormal":{"X":0,"Y":1.0000001,"Z":0}}
+{"scenario":"rendered-pop-cleanup","name":"roof","moving":true,"sampledFrames":60,"peers":3}
+{"scenario":"native-attachment","face":"underside","Id":9,"LocalPosition":{"X":0,"Y":-0.48499972,"Z":0.20027925},"LocalNormal":{"X":-0.20952877,"Y":-0.97780263,"Z":0}}
+{"scenario":"rendered-pop-cleanup","name":"underside","moving":true,"sampledFrames":60,"peers":3}
+{"scenario":"rotating-moving-anchors","maximumError":1.861498E-05,"attachments":3}
+{"scenario":"independent-natural-expiry","deadlines":[3466,3544,3622],"fullPower":1}
+{"scenario":"native-driving-nitro-tumble","displacement":65.560265,"hp":978.52344}
+{"scenario":"native-power","path":"host","claws":0,"seconds":2,"speedMetresPerSecond":21.828918,"distance":18.693798,"throttle":0.9550664,"power":1}
+{"scenario":"native-power","path":"remote-input","claws":0,"seconds":2,"speedMetresPerSecond":21.828918,"distance":18.693798,"throttle":0.9550664,"power":1}
+{"scenario":"native-power","path":"single-player-practice-driver","claws":0,"seconds":2,"speedMetresPerSecond":16.000736,"distance":17.421896,"throttle":0,"power":1}
+{"scenario":"native-power","path":"host","claws":1,"seconds":2,"speedMetresPerSecond":5.0819426,"distance":4.48444,"throttle":0.9550664,"power":0.2}
+{"scenario":"native-power","path":"remote-input","claws":1,"seconds":2,"speedMetresPerSecond":5.0819426,"distance":4.48444,"throttle":0.9550664,"power":0.2}
+{"scenario":"native-power","path":"single-player-practice-driver","claws":1,"seconds":2,"speedMetresPerSecond":5.0819426,"distance":4.4844437,"throttle":0.9550664,"power":0.2}
+{"scenario":"native-power","path":"host","claws":2,"seconds":2,"speedMetresPerSecond":5.0819426,"distance":4.48444,"throttle":0.9550664,"power":0.2}
+{"scenario":"native-power","path":"remote-input","claws":2,"seconds":2,"speedMetresPerSecond":5.0819426,"distance":4.48444,"throttle":0.9550664,"power":0.2}
+{"scenario":"native-power","path":"single-player-practice-driver","claws":2,"seconds":2,"speedMetresPerSecond":5.0819426,"distance":4.4844437,"throttle":0.9550664,"power":0.2}
+{"scenario":"native-power","path":"host","claws":3,"seconds":2,"speedMetresPerSecond":5.0819426,"distance":4.48444,"throttle":0.9550664,"power":0.2}
+{"scenario":"native-power","path":"remote-input","claws":3,"seconds":2,"speedMetresPerSecond":5.0819426,"distance":4.48444,"throttle":0.9550664,"power":0.2}
+{"scenario":"native-power","path":"single-player-practice-driver","claws":3,"seconds":2,"speedMetresPerSecond":5.0819426,"distance":4.4844437,"throttle":0.9550664,"power":0.2}
+{"scenario":"native-emp-death-respawn","beforeLife":1,"afterLife":2}
+EMP attachment integration passed: 659 checks; native contacts, three impaired peers, independent expiry, rotating anchors and reconstruction.
+{"scenario":"network","delayMs":100,"jitterMs":15,"lossPercent":3,"motions":[112,112,106],"launches":[10,10,10],"impacts":[13,13,13]}
+EMP flight integration passed: 660 checks; three impaired UDP peers, native hits, terrain, recovery and cleanup.

@@ -1,0 +1,233 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Two native UDP peers ready
+Fixture configuration accepted
+Previous rack completely closed
+Grant Salvo
+Retain second MachineGun
+Both UDP peers complete rack, slide, telescope, winch and captive feed
+Five horizontal rounds; cocked spoon slopes down toward bowl
+Authored bowl at release agrees with authoritative launch socket
+Authored bowl at release agrees with authoritative launch socket
+Spring base is already seated and stationary throughout cocking: 0.65
+Spring base is already seated and stationary throughout cocking: 0.68
+Spring base is already seated and stationary throughout cocking: 0.72
+Spring base is already seated and stationary throughout cocking: 0.8
+Spring base is already seated and stationary throughout cocking: 0.84
+Spring base is already seated and stationary throughout cocking: 0.92
+Spring base is already seated and stationary throughout cocking: 1
+Spring base is already seated and stationary throughout cocking: 0.65
+Spring base is already seated and stationary throughout cocking: 0.68
+Spring base is already seated and stationary throughout cocking: 0.72
+Spring base is already seated and stationary throughout cocking: 0.8
+Spring base is already seated and stationary throughout cocking: 0.84
+Spring base is already seated and stationary throughout cocking: 0.92
+Spring base is already seated and stationary throughout cocking: 1
+Captured side-ready
+Captured rear-winch
+Captured magazine
+Captured mechanics-close
+Captured winch-close
+Accepted camera articulation reaches 45 degrees on both peers
+Loaded bowl remains above conservative cabin at yaw 45
+Aiming never consumes ammunition
+Loaded bowl remains above conservative cabin at yaw 45
+Aiming never consumes ammunition
+Captured yaw-45
+Yaw alone does not wind or unwind the fixed winch: 45
+Accepted camera articulation reaches 90 degrees on both peers
+Loaded bowl remains above conservative cabin at yaw 90
+Aiming never consumes ammunition
+Loaded bowl remains above conservative cabin at yaw 90
+Aiming never consumes ammunition
+Captured yaw-90
+Yaw alone does not wind or unwind the fixed winch: 90
+Accepted camera articulation reaches 135 degrees on both peers
+Loaded bowl remains above conservative cabin at yaw 135
+Aiming never consumes ammunition
+Loaded bowl remains above conservative cabin at yaw 135
+Aiming never consumes ammunition
+Captured yaw-135
+Yaw alone does not wind or unwind the fixed winch: 135
+Accepted camera articulation reaches 180 degrees on both peers
+Loaded bowl remains above conservative cabin at yaw 180
+Aiming never consumes ammunition
+Loaded bowl remains above conservative cabin at yaw 180
+Aiming never consumes ammunition
+Captured yaw-180
+Yaw alone does not wind or unwind the fixed winch: 180
+Accepted camera articulation reaches -135 degrees on both peers
+Loaded bowl remains above conservative cabin at yaw -135
+Aiming never consumes ammunition
+Loaded bowl remains above conservative cabin at yaw -135
+Aiming never consumes ammunition
+Captured yaw--135
+Yaw alone does not wind or unwind the fixed winch: -135
+Accepted camera articulation reaches -90 degrees on both peers
+Loaded bowl remains above conservative cabin at yaw -90
+Aiming never consumes ammunition
+Loaded bowl remains above conservative cabin at yaw -90
+Aiming never consumes ammunition
+Captured yaw--90
+Yaw alone does not wind or unwind the fixed winch: -90
+Accepted camera articulation reaches -45 degrees on both peers
+Loaded bowl remains above conservative cabin at yaw -45
+Aiming never consumes ammunition
+Loaded bowl remains above conservative cabin at yaw -45
+Aiming never consumes ammunition
+Captured yaw--45
+Yaw alone does not wind or unwind the fixed winch: -45
+Accepted camera articulation reaches 0 degrees on both peers
+Loaded bowl remains above conservative cabin at yaw 0
+Aiming never consumes ammunition
+Loaded bowl remains above conservative cabin at yaw 0
+Aiming never consumes ammunition
+Captured yaw-0
+Yaw alone does not wind or unwind the fixed winch: 0
+Driving and steering retain captive ammunition on both peers
+Native airborne motion retains loaded presentation at initial roll 0
+Captured airborne-0
+Native airborne motion retains loaded presentation at initial roll 90
+Captured airborne-90
+Native airborne motion retains loaded presentation at initial roll 180
+Captured airborne-180
+catapult-safe-stow-0 selection sent
+catapult-safe-stow-0 finishes on both peers
+catapult-safe-stow-0 has exclusive mechanism ownership and full closure
+catapult-safe-stow-0 preserves both capabilities and selected intent
+catapult-redeploy-0 selection sent
+catapult-redeploy-0 finishes on both peers
+catapult-redeploy-0 has exclusive mechanism ownership and full closure
+catapult-redeploy-0 preserves both capabilities and selected intent
+Selection round trip does not consume or duplicate rounds
+catapult-safe-stow-1 selection sent
+catapult-safe-stow-1 finishes on both peers
+catapult-safe-stow-1 has exclusive mechanism ownership and full closure
+catapult-safe-stow-1 preserves both capabilities and selected intent
+catapult-redeploy-1 selection sent
+catapult-redeploy-1 finishes on both peers
+catapult-redeploy-1 has exclusive mechanism ownership and full closure
+catapult-redeploy-1 preserves both capabilities and selected intent
+Selection round trip does not consume or duplicate rounds
+Loaded round remains captive at roll 90
+Captured roll-90
+Loaded round remains captive at roll 180
+Captured roll-180
+Loaded round remains captive at roll 270
+Captured roll-270
+Side aim established before repeated releases
+One activation commits five mechanical cycles
+Accepted remaining rounds 4
+Captured release-stop
+Captured winch-reset
+Winch/feed reset retains exactly 4 rounds
+Captured remaining-4
+Accepted remaining rounds 3
+Winch/feed reset retains exactly 3 rounds
+Captured remaining-3
+Accepted remaining rounds 2
+Winch/feed reset retains exactly 2 rounds
+Captured remaining-2
+Accepted remaining rounds 1
+Winch/feed reset retains exactly 1 rounds
+Captured remaining-1
+Accepted remaining rounds 0
+Final round releases then fully nests rack and closes trunk
+Both peers start all four subsequent release strokes before launch: 4,4
+Release reaches approximately 45 degrees and spring extends/recompresses
+Winch visibly pays out and hauls in: 16.573/38.986 radians across both peers
+Existing firing leaves second-slot capability untouched
+Previous rack completely closed
+Grant Salvo
+Retain second Shield
+Fresh magazine deploys for recovery
+Reconstruction redeploys both peer mechanisms
+Recovery never replays a historical release
+impaired-catapult-to-shield selection sent
+impaired-catapult-to-shield finishes on both peers
+impaired-catapult-to-shield has exclusive mechanism ownership and full closure
+impaired-catapult-to-shield preserves both capabilities and selected intent
+impaired-shield-to-catapult selection sent
+impaired-shield-to-catapult finishes on both peers
+impaired-shield-to-catapult has exclusive mechanism ownership and full closure
+impaired-shield-to-catapult preserves both capabilities and selected intent
+Previous rack completely closed
+Grant Salvo
+Retain second Shield
+Fresh ready magazine for recorded mechanical cycle
+Winch capture uses an ordinary accepted shot
+Captured winch cycle 0
+Captured winch cycle 1
+Captured winch cycle 2
+Captured winch cycle 3
+Captured winch cycle 4
+Captured winch cycle 5
+Captured winch cycle 6
+Captured winch cycle 7
+Captured winch cycle 8
+Captured winch cycle 9
+Captured winch cycle 10
+Captured winch cycle 11
+Captured winch cycle 12
+Captured winch cycle 13
+Captured winch cycle 14
+Captured winch cycle 15
+Captured winch cycle 16
+Captured winch cycle 17
+Captured winch cycle 18
+Captured winch cycle 19
+Captured winch cycle 20
+Captured winch cycle 21
+Captured winch cycle 22
+Captured winch cycle 23
+Captured winch cycle 24
+Captured winch cycle 25
+Captured winch cycle 26
+Captured winch cycle 27
+Captured winch cycle 28
+Captured winch cycle 29
+Recorded mechanical cycle finishes reset with 4 rounds on both peers
+Recorded activation finishes all five automatic rounds
+Recorded volley stows normally
+Previous rack completely closed
+Grant Salvo
+Retain second Shield
+Fresh ready magazine for recorded mechanical cycle
+Winch capture uses an ordinary accepted shot
+Captured winch cycle 0
+Captured winch cycle 1
+Captured winch cycle 2
+Captured winch cycle 3
+Captured winch cycle 4
+Captured winch cycle 5
+Captured winch cycle 6
+Captured winch cycle 7
+Captured winch cycle 8
+Captured winch cycle 9
+Captured winch cycle 10
+Captured winch cycle 11
+Captured winch cycle 12
+Captured winch cycle 13
+Captured winch cycle 14
+Captured winch cycle 15
+Captured winch cycle 16
+Captured winch cycle 17
+Captured winch cycle 18
+Captured winch cycle 19
+Captured winch cycle 20
+Captured winch cycle 21
+Captured winch cycle 22
+Captured winch cycle 23
+Captured winch cycle 24
+Captured winch cycle 25
+Captured winch cycle 26
+Captured winch cycle 27
+Captured winch cycle 28
+Captured winch cycle 29
+Recorded mechanical cycle finishes reset with 4 rounds on both peers
+Recorded activation finishes all five automatic rounds
+Recorded volley stows normally
+Rendered coil, seats, cable endpoints and platform overlap: 4751 temporal samples; failure=none
+Salvo catapult integration passed: 228 checks on two UDP peers.
+Weapon handoff integration passed: 228 checks on two UDP peers.

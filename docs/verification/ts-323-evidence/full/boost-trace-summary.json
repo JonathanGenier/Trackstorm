@@ -1,0 +1,56 @@
+{
+  "source": ".godot/ts-227/playtest/trace.json",
+  "sha256": "0E1D653E6C24920DFE408973ABD7F664F00665B938534C8E76BDE61F971DB685",
+  "conditions": "Native physics fixture, explicit Nitro requests; source code unchanged. Phase comparisons are not controlled acceleration A/B trials.",
+  "phases": [
+    {
+      "phase": "airborne-boost",
+      "frames": 360,
+      "boostFrames": 150,
+      "minimumSpeedMps": 11.647914,
+      "maximumSpeedMps": 32.300026
+    },
+    {
+      "phase": "enter-sustain-exit",
+      "frames": 360,
+      "boostFrames": 180,
+      "minimumSpeedMps": 24.0,
+      "maximumSpeedMps": 50.04529
+    },
+    {
+      "phase": "high-speed-no-boost",
+      "frames": 360,
+      "boostFrames": 0,
+      "minimumSpeedMps": 34.210518,
+      "maximumSpeedMps": 58.001694
+    },
+    {
+      "phase": "repeated-use",
+      "frames": 360,
+      "boostFrames": 216,
+      "minimumSpeedMps": 24.0,
+      "maximumSpeedMps": 61.957977
+    },
+    {
+      "phase": "short-cancelled-pulses",
+      "frames": 360,
+      "boostFrames": 56,
+      "minimumSpeedMps": 24.0,
+      "maximumSpeedMps": 48.535618
+    },
+    {
+      "phase": "simultaneous-boost",
+      "frames": 360,
+      "boostFrames": 180,
+      "minimumSpeedMps": 24.0,
+      "maximumSpeedMps": 41.999878
+    },
+    {
+      "phase": "steering-traffic",
+      "frames": 360,
+      "boostFrames": 210,
+      "minimumSpeedMps": 0.008160171,
+      "maximumSpeedMps": 39.44221
+    }
+  ]
+}

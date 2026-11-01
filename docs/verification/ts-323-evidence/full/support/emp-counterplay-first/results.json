@@ -1,0 +1,122 @@
+[
+  {
+    "scenario": "rendered-pop-cleanup",
+    "name": "contact-0",
+    "moving": true,
+    "sampledFrames": 60,
+    "peers": 3
+  },
+  {
+    "scenario": "native-independent-nose-pop",
+    "cycle": 0,
+    "rotated": false,
+    "membraneError": 7.6293945E-06,
+    "networkDelayMs": 100,
+    "lossPercent": 3
+  },
+  {
+    "scenario": "rendered-pop-cleanup",
+    "name": "contact-1",
+    "moving": true,
+    "sampledFrames": 60,
+    "peers": 3
+  },
+  {
+    "scenario": "native-independent-nose-pop",
+    "cycle": 1,
+    "rotated": true,
+    "membraneError": 1.8192213E-05,
+    "networkDelayMs": 100,
+    "lossPercent": 3
+  },
+  {
+    "scenario": "rendered-pop-cleanup",
+    "name": "contact-2",
+    "moving": true,
+    "sampledFrames": 60,
+    "peers": 3
+  },
+  {
+    "scenario": "native-independent-nose-pop",
+    "cycle": 2,
+    "rotated": true,
+    "membraneError": 8.996945E-06,
+    "networkDelayMs": 100,
+    "lossPercent": 3
+  },
+  {
+    "scenario": "native-vehicle-ground-and-sweep",
+    "otherVehicle": true,
+    "upsideDownTerrain": true,
+    "thinWallSweep": true
+  },
+  {
+    "scenario": "rendered-pop-cleanup",
+    "name": "machine-gun",
+    "moving": true,
+    "sampledFrames": 60,
+    "peers": 3
+  },
+  {
+    "scenario": "rendered-pop-cleanup",
+    "name": "missile",
+    "moving": false,
+    "sampledFrames": 60,
+    "peers": 3
+  },
+  {
+    "scenario": "attached-damaging-blast",
+    "weapon": "Missile",
+    "survivors": 2,
+    "nativeWorldHit": true
+  },
+  {
+    "scenario": "rendered-pop-cleanup",
+    "name": "salvo",
+    "moving": false,
+    "sampledFrames": 60,
+    "peers": 3
+  },
+  {
+    "scenario": "attached-damaging-blast",
+    "weapon": "Salvo",
+    "survivors": 2,
+    "nativeWorldHit": true
+  },
+  {
+    "scenario": "native-stored-gunfire",
+    "socketsDestroyed": 3,
+    "emptyRetracted": true
+  },
+  {
+    "scenario": "native-shield-and-missile",
+    "simultaneousShieldPops": 2,
+    "blastDestroyed": 3,
+    "originalBlastOnly": true
+  },
+  {
+    "scenario": "owner-weapon-world",
+    "passed": true
+  },
+  {
+    "scenario": "network",
+    "delayMs": 100,
+    "jitterMs": 15,
+    "lossPercent": 3,
+    "motions": [
+      157,
+      152,
+      137
+    ],
+    "launches": [
+      1,
+      1,
+      1
+    ],
+    "impacts": [
+      9,
+      9,
+      9
+    ]
+  }
+]

@@ -1,0 +1,6 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Moving muzzle alignment: 360 new flights at 30/60 FPS, maximum first-frame endpoint error=0.000002 m.
+VFX CPU update only: median=0.306ms p95=0.350ms; peak=512; dropped=136. Not GPU profiling.
+Machine Gun VFX checks passed: 711; scripted rendered evidence, separate native harness required.

@@ -1,0 +1,162 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Three UDP peers initialized
+Host tuning applied
+Developer spawn controls isolate Salvo with Weapon category enabled
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Lit fuse has no timer and does not launch by itself
+AIM_AT requested=(0, 21.849403, -20) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.9982)
+Camera reaches Salvo bearing 0
+All peers articulate the same Salvo bearing 0
+Existing ground circle covers bearing 0
+Ground circle never bridges wall/ground discontinuities at bearing 0
+Remote inventories do not draw owner targeting circles
+AIM_AT requested=(-55, 21.84904, 35.000004) firstTargetDrift=(0, 0, 0) requestedScreen=(639.92535, 399.99808)
+Camera reaches Salvo bearing 90
+All peers articulate the same Salvo bearing 90
+Existing ground circle covers bearing 90
+Ground circle never bridges wall/ground discontinuities at bearing 90
+Remote inventories do not draw owner targeting circles
+AIM_AT requested=(4.808253E-06, 21.849072, 90) firstTargetDrift=(0, 0, 0) requestedScreen=(639.91724, 399.99915)
+Camera reaches Salvo bearing 180
+All peers articulate the same Salvo bearing 180
+Existing ground circle covers bearing 180
+Ground circle never bridges wall/ground discontinuities at bearing 180
+Remote inventories do not draw owner targeting circles
+AIM_AT requested=(55, 21.849192, 35.000004) firstTargetDrift=(0, 0, 0) requestedScreen=(639.92487, 400.00092)
+Camera reaches Salvo bearing -90
+All peers articulate the same Salvo bearing -90
+Existing ground circle covers bearing -90
+Ground circle never bridges wall/ground discontinuities at bearing -90
+Remote inventories do not draw owner targeting circles
+AIM_AT requested=(-12, 21.949999, 0) firstTargetDrift=(0, 1.9073486E-06, 0) requestedScreen=(626.05914, 398.8879)
+Salvo acquires the shared assisted-car marker
+One remote activation commits five shots
+First assisted shot launches
+Repeated trigger and switching cannot cancel or duplicate committed shots
+Shot-token rotation preserves shared assistance
+AIM_AT requested=(70, 21.64867, 35) firstTargetDrift=(0, 0, 0) requestedScreen=(639.8079, 399.98868)
+AIM_AT requested=(0, 21.64936, 105) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0387, 400.0016)
+AIM_AT requested=(-70, 36.64936, 35) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0358, 399.99997)
+AIM_AT requested=(0, 86.64936, -5) firstTargetDrift=(0, 0, 0) requestedScreen=(640.08746, 400.0012)
+Committed magazine depletes after camera changes
+All five launches use the exact configured interval
+Later camera directions independently change successive targets
+Observer receives identical ordered launch/impact outcomes
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+AIM_AT requested=(900, 90, 850) firstTargetDrift=(0, 0, 0) requestedScreen=(639.9644, 402.04425)
+Out-of-arena activation accepted
+Out-of-arena first launch
+Out-of-arena volley completes through impaired transport
+Impaired out-of-arena depletion and outcomes converge
+No-contact rounds remain active beyond their aimed endpoints
+Out-of-arena rounds expire through authority after thirty seconds
+Expiry outcomes converge once through impaired native UDP
+AIM_AT requested=(50, 41.65, 5) firstTargetDrift=(0, 0, 0) requestedScreen=(640.1066, 399.9908)
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Repeated pickup activation 0
+Repeated volley depletion 0
+Repeated projectiles and rack cleanup 0
+Repeated volley has exactly five distinct replicated launches 0
+Repeated cleanup has bounded scene nodes: 4181, baseline 4181
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Repeated pickup activation 1
+Repeated volley depletion 1
+Repeated projectiles and rack cleanup 1
+Repeated volley has exactly five distinct replicated launches 1
+Repeated cleanup has bounded scene nodes: 4181, baseline 4181
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Repeated pickup activation 2
+Repeated volley depletion 2
+Repeated projectiles and rack cleanup 2
+Repeated volley has exactly five distinct replicated launches 2
+Repeated cleanup has bounded scene nodes: 4184, baseline 4181
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Repeated pickup activation 3
+Repeated volley depletion 3
+Repeated projectiles and rack cleanup 3
+Repeated volley has exactly five distinct replicated launches 3
+Repeated cleanup has bounded scene nodes: 4184, baseline 4181
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Repeated pickup activation 4
+Repeated volley depletion 4
+Repeated projectiles and rack cleanup 4
+Repeated volley has exactly five distinct replicated launches 4
+Repeated cleanup has bounded scene nodes: 4181, baseline 4181
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Repeated pickup activation 5
+Repeated volley depletion 5
+Repeated projectiles and rack cleanup 5
+Repeated volley has exactly five distinct replicated launches 5
+Repeated cleanup has bounded scene nodes: 4184, baseline 4181
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Repeated pickup activation 6
+Repeated volley depletion 6
+Repeated projectiles and rack cleanup 6
+Repeated volley has exactly five distinct replicated launches 6
+Repeated cleanup has bounded scene nodes: 4184, baseline 4181
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Repeated pickup activation 7
+Repeated volley depletion 7
+Repeated projectiles and rack cleanup 7
+Repeated volley has exactly five distinct replicated launches 7
+Repeated cleanup has bounded scene nodes: 4184, baseline 4181
+Repeated pickup/use/cleanup exercised more than one minute of authority time
+Prior Salvo closes trunk
+Normal weighted pickup awards one five-round Salvo exactly once
+Local deployment rejects an early trigger
+Catapult completes captive preload on authority and owner
+All peers show five secured rounds and a lit loaded fuse
+Lethal rival missile and timed respawn configured
+Rival receives a real Missile
+Rival Missile finishes deployment
+Final Salvo commits before lethal damage
+First round leaves before death
+Rival aims through the ordinary authoritative contract
+Rival fires its lethal Missile
+Native Missile collision destroys the firing Salvo vehicle
+Death clears committed rounds and flight with ordinary missile attribution
+Ordinary timed respawn creates a fresh life
+New life cannot resume the destroyed volley or retain its mechanism
+Weapon aiming integration passed: 147 Salvo checks.

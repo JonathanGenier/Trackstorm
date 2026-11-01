@@ -1,0 +1,68 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+ERROR: System.InvalidOperationException: Handle is not initialized.
+   at System.Runtime.InteropServices.GCHandle.FromIntPtr(IntPtr value)
+   at Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(IntPtr oldGCHandlePtr, IntPtr* outNewGCHandlePtr, godot_bool createWeak) in /root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:line 1284
+   at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/NativeInterop/ExceptionUtils.cs:113)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/NativeInterop/ExceptionUtils.cs:113)
+       [2] Godot.NativeInterop.godot_bool Godot.Bridge.ScriptManagerBridge.SwapGCHandleForType(nint, System.IntPtr*, Godot.NativeInterop.godot_bool) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/ScriptManagerBridge.cs:1284)
+       [3] void Godot.NativeInterop.NativeFuncs.godotsharp_method_bind_ptrcall(nint, nint, System.Void**, System.Void*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Godot.SourceGenerators.Internal/Godot.SourceGenerators.Internal.UnmanagedCallbacksGenerator/Godot.NativeInterop.NativeFuncs.generated.cs:380)
+       [4] Godot.GodotObject Godot.NativeCalls.godot_icall_3_1268(nint, nint, string, string, int) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/NativeCalls.cs:11611)
+       [5] Godot.Resource Godot.ResourceLoader.Load(string, string, Godot.ResourceLoader+CacheMode) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/ResourceLoader.cs:120)
+       [6] T Godot.ResourceLoader.Load<T>(string, string, Godot.ResourceLoader+CacheMode) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Extensions/ResourceLoaderExtensions.cs:27)
+       [7] T Trackstorm.Client.Networking.MatchResourceLoader.LoadResource<T>(string) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Networking\MatchResourceLoader.cs:88)
+       [8] void Trackstorm.Client.Vehicles.BoostExhaust._Ready() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Vehicles\BoostExhaust.cs:63)
+       [9] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2660)
+       [10] bool Godot.Node3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node3D.cs:1127)
+       [11] bool Trackstorm.Client.Vehicles.BoostExhaust.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Vehicles.BoostExhaust_ScriptMethods.generated.cs:100)
+       [12] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)
+       [13] void Godot.NativeInterop.NativeFuncs.godotsharp_method_bind_ptrcall(nint, nint, System.Void**, System.Void*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Godot.SourceGenerators.Internal/Godot.SourceGenerators.Internal.UnmanagedCallbacksGenerator/Godot.NativeInterop.NativeFuncs.generated.cs:380)
+       [14] void Godot.NativeCalls.godot_icall_3_912(nint, nint, nint, Godot.NativeInterop.godot_bool, int) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/NativeCalls.cs:8061)
+       [15] void Godot.Node.AddChild(Godot.Node, bool, Godot.Node+InternalMode) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:848)
+       [16] void Trackstorm.Client.Vehicles.CarRackPresentation._Ready() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Vehicles\CarRackPresentation.cs:62)
+       [17] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2660)
+       [18] bool Trackstorm.Client.Vehicles.CarRackPresentation.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Vehicles.CarRackPresentation_ScriptMethods.generated.cs:160)
+       [19] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)
+       [20] void Godot.NativeInterop.NativeFuncs.godotsharp_method_bind_ptrcall(nint, nint, System.Void**, System.Void*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Godot.SourceGenerators.Internal/Godot.SourceGenerators.Internal.UnmanagedCallbacksGenerator/Godot.NativeInterop.NativeFuncs.generated.cs:380)
+       [21] void Godot.NativeCalls.godot_icall_3_912(nint, nint, nint, Godot.NativeInterop.godot_bool, int) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/NativeCalls.cs:8061)
+       [22] void Godot.Node.AddChild(Godot.Node, bool, Godot.Node+InternalMode) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:848)
+       [23] void Trackstorm.Client.Networking.NetworkVehicleBody._Ready() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Networking\NetworkVehicleBody.cs:84)
+       [24] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2660)
+       [25] bool Godot.Node3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node3D.cs:1127)
+       [26] bool Godot.CollisionObject3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/CollisionObject3D.cs:607)
+       [27] bool Godot.PhysicsBody3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/PhysicsBody3D.cs:239)
+       [28] bool Godot.StaticBody3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/StaticBody3D.cs:153)
+       [29] bool Trackstorm.Client.Networking.NetworkVehicleBody.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Networking.NetworkVehicleBody_ScriptMethods.generated.cs:100)
+       [30] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)
+       [31] void Godot.NativeInterop.NativeFuncs.godotsharp_method_bind_ptrcall(nint, nint, System.Void**, System.Void*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Godot.SourceGenerators.Internal/Godot.SourceGenerators.Internal.UnmanagedCallbacksGenerator/Godot.NativeInterop.NativeFuncs.generated.cs:380)
+       [32] void Godot.NativeCalls.godot_icall_3_912(nint, nint, nint, Godot.NativeInterop.godot_bool, int) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/NativeCalls.cs:8061)
+       [33] void Godot.Node.AddChild(Godot.Node, bool, Godot.Node+InternalMode) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:848)
+       [34] void Trackstorm.Client.Networking.NetworkVehicleArena.SynchronizeBodies(Trackstorm.Core.Networking.Replication.WorldSnapshot) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Networking\NetworkVehicleArena.cs:574)
+       [35] void Trackstorm.Client.Networking.VehicleNetworkDriver.FlushPrediction(System.Func`2[Trackstorm.Core.Vehicles.VehicleSnapshot,Trackstorm.Core.Vehicles.VehicleObservation]) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Networking\VehicleNetworkDriver.cs:1090)
+       [36] void Trackstorm.Client.Networking.VehicleNetworkDriver.Advance(Trackstorm.Core.Input.InputFrame, System.Func`2[Trackstorm.Core.Vehicles.VehicleSnapshot,Trackstorm.Core.Vehicles.VehicleObservation]) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Networking\VehicleNetworkDriver.cs:310)
+       [37] void Trackstorm.Client.Networking.NetworkVehicleArena.Advance(Trackstorm.Core.Input.InputFrame) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Networking\NetworkVehicleArena.cs:401)
+       [38] void Trackstorm.Client.Verification.EmpClawFlightChecks+<Frames>d__30.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\EmpClawFlightChecks.cs:162)
+       [39] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [40] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext(System.Threading.Thread)
+       [41] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)
+{"scenario":"rendered-pop-cleanup","name":"contact-0","moving":true,"sampledFrames":60,"peers":3}
+{"scenario":"native-independent-nose-pop","cycle":0,"rotated":false,"membraneError":7.6293945E-06,"networkDelayMs":100,"lossPercent":3}
+{"scenario":"rendered-pop-cleanup","name":"contact-1","moving":true,"sampledFrames":60,"peers":3}
+{"scenario":"native-independent-nose-pop","cycle":1,"rotated":true,"membraneError":1.8192213E-05,"networkDelayMs":100,"lossPercent":3}
+{"scenario":"rendered-pop-cleanup","name":"contact-2","moving":true,"sampledFrames":60,"peers":3}
+{"scenario":"native-independent-nose-pop","cycle":2,"rotated":true,"membraneError":8.996945E-06,"networkDelayMs":100,"lossPercent":3}
+{"scenario":"native-vehicle-ground-and-sweep","otherVehicle":true,"upsideDownTerrain":true,"thinWallSweep":true}
+{"scenario":"rendered-pop-cleanup","name":"machine-gun","moving":true,"sampledFrames":60,"peers":3}
+{"scenario":"rendered-pop-cleanup","name":"missile","moving":false,"sampledFrames":60,"peers":3}
+{"scenario":"attached-damaging-blast","weapon":"Missile","survivors":2,"nativeWorldHit":true}
+{"scenario":"rendered-pop-cleanup","name":"salvo","moving":false,"sampledFrames":60,"peers":3}
+{"scenario":"attached-damaging-blast","weapon":"Salvo","survivors":2,"nativeWorldHit":true}
+{"scenario":"native-stored-gunfire","socketsDestroyed":3,"emptyRetracted":true}
+{"scenario":"native-shield-and-missile","simultaneousShieldPops":2,"blastDestroyed":3,"originalBlastOnly":true}
+{"scenario":"owner-weapon-world","passed":true}
+EMP counterplay integration passed: 388 checks.
+{"scenario":"network","delayMs":100,"jitterMs":15,"lossPercent":3,"motions":[157,152,137],"launches":[1,1,1],"impacts":[9,9,9]}
+EMP flight integration passed: 389 checks; three impaired UDP peers, native hits, terrain, recovery and cleanup.

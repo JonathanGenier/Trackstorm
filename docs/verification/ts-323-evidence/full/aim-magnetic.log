@@ -1,0 +1,72 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Three UDP peers initialized
+Host tuning applied
+Magnetic fixture waits for actual Missile deployment
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 391.56192)
+Magnetic lead fixture acquired
+MAGNETIC_RELEASE target=1 reason=deliberate magnetic cursor departure
+Progressive mouse departure sign=-1 moves visibly before release; moved=True gap=6.722 target=0
+Departed visible cursor ray matches submitted Missile intent
+Manually aimed Missile request accepted
+Authority launches the manually aimed Missile
+Magnetic fixture waits for actual Missile deployment
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 391.8382)
+Magnetic lead fixture acquired
+MAGNETIC_RELEASE target=1 reason=deliberate magnetic cursor departure
+Progressive mouse departure sign=1 moves visibly before release; moved=True gap=6.717 target=0
+Departed visible cursor ray matches submitted Missile intent
+Manually aimed Missile request accepted
+Authority launches the manually aimed Missile
+Magnetic fixture waits for actual Missile deployment
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 391.8868)
+Magnetic lead fixture acquired
+MAGNETIC_RELEASE target=1 reason=deliberate magnetic cursor departure
+Progressive controller departure sign=-1 moves visibly before release; moved=True gap=3.757 target=0
+Departed visible cursor ray matches submitted Missile intent
+Manually aimed Missile request accepted
+Authority launches the manually aimed Missile
+Magnetic fixture waits for actual Missile deployment
+AIM_AT requested=(0, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 391.56656)
+Magnetic lead fixture acquired
+MAGNETIC_RELEASE target=1 reason=deliberate magnetic cursor departure
+Progressive controller departure sign=1 moves visibly before release; moved=True gap=6.863 target=0
+Departed visible cursor ray matches submitted Missile intent
+Manually aimed Missile request accepted
+Authority launches the manually aimed Missile
+Magnetic fixture waits for actual Missile deployment
+AIM_AT requested=(0, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 388.50397)
+Magnetic lead fixture acquired
+MAGNETIC_RELEASE target=1 reason=deliberate magnetic cursor departure
+Progressive mouse departure sign=-1 moves visibly before release; moved=True gap=7.962 target=0
+Departed visible cursor ray matches submitted Missile intent
+Manually aimed Missile request accepted
+Authority launches the manually aimed Missile
+Magnetic fixture waits for actual Missile deployment
+AIM_AT requested=(0, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 388.24457)
+Magnetic lead fixture acquired
+MAGNETIC_RELEASE target=1 reason=deliberate magnetic cursor departure
+Progressive mouse departure sign=1 moves visibly before release; moved=True gap=7.853 target=0
+Departed visible cursor ray matches submitted Missile intent
+Manually aimed Missile request accepted
+Authority launches the manually aimed Missile
+Magnetic fixture waits for actual Missile deployment
+AIM_AT requested=(0, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 388.27124)
+Magnetic lead fixture acquired
+MAGNETIC_RELEASE target=1 reason=deliberate magnetic cursor departure
+Progressive controller departure sign=-1 moves visibly before release; moved=True gap=5.128 target=0
+Departed visible cursor ray matches submitted Missile intent
+Manually aimed Missile request accepted
+Authority launches the manually aimed Missile
+Magnetic fixture waits for actual Missile deployment
+AIM_AT requested=(0, 56.95, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 388.2831)
+Magnetic lead fixture acquired
+MAGNETIC_RELEASE target=1 reason=deliberate magnetic cursor departure
+MAGNETIC_RELEASE target=3 reason=deliberate magnetic cursor departure
+Progressive controller departure sign=1 moves visibly before release; moved=True gap=5.130 target=0
+Departed visible cursor ray matches submitted Missile intent
+Manually aimed Missile request accepted
+Authority launches the manually aimed Missile
+Weapon aiming integration passed: 50 accuracy/retention checks.
+Weapon aiming artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\aim-checks\19aa103f65d140df92b06246af7fc02c
+

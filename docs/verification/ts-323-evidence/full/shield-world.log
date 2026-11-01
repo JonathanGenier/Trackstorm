@@ -1,0 +1,43 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Blocked normal use retained the shield; retry after clearing the obstruction uses the same capability.
+Scenario 0: flat/banked fixture deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 1: flat/banked fixture deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 2: flat/banked fixture deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Scenario 3: flat/banked fixture deployment keeps identity, 875 HP, exact slot, independent upright native walls.
+Bank slide follows elevation: 203.21 -> 203.10 m; both ends remain terrain-aligned.
+Fast uphill slide follows elevation: 203.10 -> 203.71 m.
+First wall contact: car 16.55 -> 2.70 m/s, ordinary collision damage retained.
+Off-centre vehicle hit moved wall 0.49 m; heading changed 16.0 degrees; HP 812.3.
+Banked off-centre car peak support-relative rise 0.12 m; upward speed 1.07 m/s.
+Unpowered wall coast from 8 m/s: 1.43 m travel; 0.00 m/s after three seconds.
+Late join restored both walls; sustained native Machine Gun fire destroyed the targeted pool and removed its collider.
+Three UDP peers retained the surviving movable wall through 300 further native physics frames.
+Native weapon activation after 132 deployment frames, with authority and presentation ready.
+Native Missile launch at <0, 203.465, -50.155>.
+Native Missile impact at <0, 202.58269, -59.86>.
+Native Missile wall damage: 812.3 -> 512.3 HP.
+Native weapon activation after 110 deployment frames, with authority and presentation ready.
+Native Salvo launch at <0, 205.41528, 3.5604265>.
+Native Salvo impact at <0, 201.5208, -59.860004>.
+Native Salvo launch at <0, 205.41528, 3.5445344>.
+Native Salvo impact at <0, 201.5208, -59.875893>.
+Native Salvo wall damage: 512.3 -> 12.3 HP.
+Sixteen walls deployed via ordinary use, then sustained for 600 physics frames across three UDP arenas.
+Hard native vehicle hit released tipping at 900.0 HP; angular speed 22.43 rad/s.
+Tipped wall broke on native side/ground contact and left the live set.
+Hard impact 0, vehicle 2: car peak rise 0.00 m; peak upward speed 0.00 m/s over three seconds.
+Hard native vehicle hit released tipping at 900.0 HP; angular speed 22.88 rad/s.
+Tipped wall broke on native side/ground contact and left the live set.
+Hard impact 1, vehicle 1: car peak rise 0.00 m; peak upward speed 0.00 m/s over three seconds.
+Hard native vehicle hit released tipping at 900.0 HP; angular speed 28.77 rad/s.
+Tipped wall broke on native side/ground contact and left the live set.
+Hard impact 2, vehicle 2: car peak rise 0.00 m; peak upward speed 0.00 m/s over three seconds.
+Hard native vehicle hit released tipping at 900.0 HP; angular speed 26.35 rad/s.
+Tipped wall broke on native side/ground contact and left the live set.
+Hard impact 3, vehicle 1: car peak rise 0.00 m; peak upward speed 0.00 m/s over three seconds.
+Hard native vehicle hit released tipping at 900.0 HP; angular speed 12.35 rad/s.
+Tipped wall broke on native side/ground contact and left the live set.
+Hard impact 4, vehicle 2: car peak rise 0.00 m; peak upward speed 0.00 m/s over three seconds.
+Configured native expiry fired at its exact captured deadline despite retuning; all three peer colliders removed.
+World wall integration passed: native contact spin, tipping/breakage, expiry, deployment, motion, weapons, late join and UDP convergence.

@@ -1,0 +1,51 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Native Metal classification and outward wall normal
+An isolated confirmed contact emits
+Metal impact fully retires
+Native Concrete classification and outward wall normal
+An isolated confirmed contact emits
+Concrete impact fully retires
+Native Asphalt classification and outward wall normal
+An isolated confirmed contact emits
+Asphalt impact fully retires
+Native Rock classification and outward wall normal
+An isolated confirmed contact emits
+Rock impact fully retires
+Native Dirt classification and outward wall normal
+An isolated confirmed contact emits
+Dirt impact fully retires
+Native Grass classification and outward wall normal
+An isolated confirmed contact emits
+Grass impact fully retires
+Native Mud classification and outward wall normal
+An isolated confirmed contact emits
+Mud impact fully retires
+Native DeepMud classification and outward wall normal
+An isolated confirmed contact emits
+DeepMud impact fully retires
+Native Water classification and outward wall normal
+An isolated confirmed contact emits
+Water impact fully retires
+Native Unknown classification and outward wall normal
+An isolated confirmed contact emits
+Unknown impact fully retires
+Unavailable identity falls back to neutral debris
+Asphalt floor contact uses upward normal
+Dirt floor contact uses upward normal
+Duplicate reliable publication does not replay an impact
+An accepted miss creates no contact effect
+Older empty recovery clears old impact presentation
+30 FPS sustained Metal stays within per-shooter bounds
+30 FPS sustained Concrete stays within per-shooter bounds
+30 FPS sustained Dirt stays within per-shooter bounds
+60 FPS sustained Metal stays within per-shooter bounds
+60 FPS sustained Concrete stays within per-shooter bounds
+60 FPS sustained Dirt stays within per-shooter bounds
+6,400 scripted contacts keep bounded instances and create no per-hit nodes
+Eight shooters at maximum configured 120 rounds/s coalesce dense contacts without pool exhaustion
+Catch-up saturation is bounded and drops excess cosmetic work
+Release drains all eight shooters without replay
+CPU sample + update only: median=0.954ms p95=1.048ms; peak=128, emitted=3439, coalesced=6100, dropped=192; not GPU profiling.
+Machine Gun impact checks passed: 47

@@ -1,0 +1,247 @@
+[
+  {
+    "file": "images/hud-selected-slot2.png",
+    "original": ".godot/hud-checks/fa457881e0c748fda263c5aacb4eb16f/selected-slot-2.png",
+    "sourceLastWriteUtc": "2026-10-31T23:35:51.1634952Z",
+    "observation": "Rendered HUD fixture: selected second Boost slot, distinct 38%/65% charges and 850/1000 HP readable at 1280x720. Speed is injected display state, not a drive measurement.",
+    "sha256": "66207EC3FADC0E2F8AB7BEE5644DD40817FAAF48B1CE86149B53CEAE5B11AB6B"
+  },
+  {
+    "file": "images/hud-emp640.png",
+    "original": ".godot/hud-checks/fa457881e0c748fda263c5aacb4eb16f/emp-three-640.png",
+    "sourceLastWriteUtc": "2026-10-31T23:35:32.0789292Z",
+    "observation": "Three-claw EMP status and countdowns visible at 640x360; small item labels need human readability review.",
+    "sha256": "61D72FB645A39EEAC4986A9BFE125E0D6D69A1BFA23BCC2378605FA28E2C7CE2"
+  },
+  {
+    "file": "images/vehicle-drive.png",
+    "original": ".godot/vehicle-checks/8e41ff69910f4b0d94effc311121e267/visual.drive.png",
+    "sourceLastWriteUtc": "2026-10-31T23:37:12.1615800Z",
+    "observation": "Production car in bounded native vehicle fixture; speed and item display readable. This is a test arena, not the production map.",
+    "sha256": "271663262E503E1744C74349A1E8DA0E258A26631534E384E3B4363249F6D081"
+  },
+  {
+    "file": "images/vehicle-collision.png",
+    "original": ".godot/vehicle-checks/8e41ff69910f4b0d94effc311121e267/visual.collision.png",
+    "sourceLastWriteUtc": "2026-10-31T23:37:41.3482908Z",
+    "observation": "Native collision fixture shows destroyed 0/100 HP car and impact smoke; deliberate scenario, not an unexplained crash.",
+    "sha256": "720C151844A5DE475862DAD74FDD17D908A362A583E891E8DFC2D49FDF1515E7"
+  },
+  {
+    "file": "images/production-traffic.png",
+    "original": ".godot/integrated-driving-checks/traffic.png",
+    "sourceLastWriteUtc": "2026-10-31T23:39:33.1661740Z",
+    "observation": "Eight-car production route run; visible tire marks, vegetation, tunnel/ramp and terrain. Metrics separately verify all vehicles remained supported, upright and alive.",
+    "sha256": "03E00345AC3734CFB71DFBBCB9791A0A1600F4218C7A78B110D9D906C0946ECA"
+  },
+  {
+    "file": "images/native-mg-forward.png",
+    "original": ".godot/aim-checks/b738a5a09fa64b04ac418833e1d720d1/mg-forward.png",
+    "sourceLastWriteUtc": "2026-10-31T23:39:52.4670041Z",
+    "observation": "Three-peer native firing fixture: green target cursor above the mounted Machine Gun, red/green tracers, target chevron and readable 476-round ammo.",
+    "sha256": "FEC1291E477AF074FC4ED0E10F295DE022D77DBD13BDBAEE6842CED94C6923AD"
+  },
+  {
+    "file": "images/native-mg-sustained.png",
+    "original": ".godot/aim-checks/b738a5a09fa64b04ac418833e1d720d1/mg-multiple-sustained.png",
+    "sourceLastWriteUtc": "2026-10-31T23:40:23.4411534Z",
+    "observation": "Two-shooter sustained native fire, visible colored tracers and target marker. Later unrelated freedom/reacquisition stage failed; do not label the entire default harness PASS.",
+    "sha256": "3BD7532538C791FE801AD1D16ADD2311F07E83DDE17DDE769360270D000DA024"
+  },
+  {
+    "file": "images/crate-intact.png",
+    "original": ".godot/ts-311/414b1b17a9a14676a1d1585dfcc127e1/ClearBlue-intact.png",
+    "sourceLastWriteUtc": "2026-10-31T23:50:17.1340068Z",
+    "observation": "Three authored carnival crates and ITEM label visible on production terrain under ClearBlue.",
+    "sha256": "040D84CEF6CA121102C8577E3365E7195273B2B5030CEFE868F9DD8B3C7CBE15"
+  },
+  {
+    "file": "images/crate-smash.png",
+    "original": ".godot/ts-311/414b1b17a9a14676a1d1585dfcc127e1/ClearBlue-0.22s.png",
+    "sourceLastWriteUtc": "2026-10-31T23:50:17.7356868Z",
+    "observation": "At 0.22s after scripted claim publication the crate stack is fragmented with gold confetti and RECHARGING label. Acquisition is separately verified by native pickup-drive.",
+    "sha256": "E810729378C14A205ED49793617409BFCE0F221F636D1B15E27353CC8432DB68"
+  },
+  {
+    "file": "images/harlequin-mounted.png",
+    "original": ".godot/ts234-visual/forward.png",
+    "sourceLastWriteUtc": "2026-11-01T17:26:56.2914718Z",
+    "observation": "November 1 rendered Twin Fang fixture: patterned receiver and both lower drum magazines, rack and full car geometry inspected.",
+    "sha256": "C43EB86FB31454094D754603F970DAFDAAD98D1700B9A9D78D8D1876342A8D03"
+  },
+  {
+    "file": "images/mg-eight-presentations.png",
+    "original": ".godot/ts234-visual/eight-shooters.png",
+    "sourceLastWriteUtc": "2026-11-01T17:27:39.4218145Z",
+    "observation": "Eight simultaneous scripted gun presentations; this image is an isolated visual fixture, not eight independent gameplay clients.",
+    "sha256": "CA6B2F178B48666D87600A8AD8D3F4F248ADB37EA080CECB3B8505CF4A82C6B9"
+  },
+  {
+    "file": "images/mg-tracer-colors.png",
+    "original": ".godot/ts235-readability-vfx/gold-red-green-sequence.png",
+    "sourceLastWriteUtc": "2026-11-01T17:28:40.8807867Z",
+    "observation": "Inspected gold-core red/green tracer sequence from the production muzzle presentation. Native authority was checked separately.",
+    "sha256": "CF82B942940B3130739B2590E7F03003D9C02EAB7948FFED4C5EB12CFF806A8D"
+  },
+  {
+    "file": "images/missile-player-camera.png",
+    "original": ".godot/ts240-checks/04a-player-camera.png",
+    "sourceLastWriteUtc": "2026-11-01T17:30:06.2921890Z",
+    "observation": "Mounted Missile is visible from production chase camera on the banked map after deployment.",
+    "sha256": "EF09E958DE7204C745965A8378532CB9560DAB54B355F55A6E047FD87FFDA545"
+  },
+  {
+    "file": "images/missile-vfx-pressure.png",
+    "original": ".godot/ts240-checks/09-sixteen-flight-vfx.png",
+    "sourceLastWriteUtc": "2026-11-01T17:30:39.6539840Z",
+    "observation": "Sixteen production Missile VFX owners in a scripted circular presentation fixture, with visible flames, confetti and smoke. The circular arrangement is fixture-authored, not homing behavior.",
+    "sha256": "DE95D44BB1BE200309AB105A4A8B80594D83B321DE1DFDC3614667AAA561E5C1"
+  },
+  {
+    "file": "images/salvo-ready.png",
+    "original": ".godot/ts175/side-ready.png",
+    "sourceLastWriteUtc": "2026-11-01T17:35:49.1282619Z",
+    "observation": "Two-peer mechanical fixture: full mounted catapult, spoon and retained ammunition inspected from the side.",
+    "sha256": "AC17204B642A876D7EEC565B889585961B14797DA4251A29AB21AE6634DDFE28"
+  },
+  {
+    "file": "images/salvo-winch.png",
+    "original": ".godot/ts175/rear-winch.png",
+    "sourceLastWriteUtc": "2026-11-01T17:35:49.3089894Z",
+    "observation": "Rear winch, rack and retained projectile visible; runtime geometric samples verify cable/coil/seat relationships across motion.",
+    "sha256": "E54DE9551F605A7B85A004325F6A7BDC0B1D41CFFDF25F6959CA8A0381B54FE5"
+  },
+  {
+    "file": "images/salvo-inverted.png",
+    "original": ".godot/ts175/airborne-180.png",
+    "sourceLastWriteUtc": "2026-11-01T17:35:54.6524382Z",
+    "observation": "Scripted native inverted pose retains the mounted assembly and ammunition. This is not a human jump playtest.",
+    "sha256": "AE67813FAF805C675A05F20624376329B2254A5A9898E1237F8A118A41DA083B"
+  },
+  {
+    "file": "images/salvo-smoke2s.png",
+    "original": ".godot/ts-213/polish1/explosions/05-smoke-2.0.png",
+    "sourceLastWriteUtc": "2026-11-01T17:38:39.2790797Z",
+    "observation": "Dense smoke at age 2 seconds; nearby vehicles outside the cloud remain visible. Visibility through the cloud is not established.",
+    "sha256": "154287B257BE1F17D668F07B2919C9D01FE0A86D2BA77F7230C59B2A36DF562E"
+  },
+  {
+    "file": "images/salvo-repeated-smoke.png",
+    "original": ".godot/ts-213/polish1/explosions/06-single-view-repeated-smoke.png",
+    "sourceLastWriteUtc": "2026-11-01T17:39:10.9241112Z",
+    "observation": "Repeated smoke fills a larger opaque region. Cleanup passed, but mixed-combat readability and balance need human review.",
+    "sha256": "D82827C1E81566028BF46EF2F557B42ED9FBF5B48E7E3E259B9B032B34D1FA0C"
+  },
+  {
+    "file": "images/oil-deployed.png",
+    "original": "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\ts-245-round8\\runtime\\ready.png",
+    "sourceLastWriteUtc": "2026-11-01T17:39:47.0318606Z",
+    "observation": "Directly inspected: red/cream patterned jack box and extended spring-mounted jester above the truck on a banked sandy surface.",
+    "sha256": "68F24B404DE3000DFBD8E6BBE7B2ABCBB56A57CB615948A80B7BF4C67464BFB2"
+  },
+  {
+    "file": "images/oil-curved-deposits.png",
+    "original": "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\ts-245-round8\\runtime\\curved-deposits.png",
+    "sourceLastWriteUtc": "2026-11-01T17:40:10.8711288Z",
+    "observation": "Directly inspected: dark joined deposits follow a curved path on native terrain; visible tire tracks continue out of the deposited area.",
+    "sha256": "FB7416EAA751FD694ECC05390630C20C83E9551DEC627AFEE0AA3C7ADF734133"
+  },
+  {
+    "file": "images/shield-expanded.png",
+    "original": ".godot/ts-219/playtest/check-20261101-174359-expanded-peer0.png",
+    "sourceLastWriteUtc": "2026-11-01T17:44:22.9068020Z",
+    "observation": "Directly inspected deployed red/cream armored wall with central face, side panels, hinges and metal borders in a native fixture.",
+    "sha256": "EF2E40CC6B86FD49F0BBDD639F2D7C84C8A1D76FFD4D540E3AB8C0E56E503722"
+  },
+  {
+    "file": "images/shield-chase-mounted.png",
+    "original": ".godot/ts-219/playtest/check-20261101-174359-chase-mounted-peer0.png",
+    "sourceLastWriteUtc": "2026-11-01T17:44:36.3753116Z",
+    "observation": "Directly inspected chase framing with carried Shield across the lower foreground; the roof and forward horizon remain visible. Mixed-combat visibility is not established.",
+    "sha256": "E3CB80674FD4612FE7BCEE25F975DDB33EFB175372A910C968E9FCF1499415C7"
+  },
+  {
+    "file": "images/emp-mounted.png",
+    "original": ".godot/ts296-round4/07-gameplay-distance.png",
+    "sourceLastWriteUtc": "2026-11-01T17:52:40.1349568Z",
+    "observation": "Directly inspected mounted red/cream EMP cannon and three front-facing clown-nose rounds in the trunk rack; this presentation fixture is not combat proof.",
+    "sha256": "4FFFF5D029F54B84DBCFB40D91E70BBE58CB40FCCFECB81102BE3F7589CAD165"
+  },
+  {
+    "file": "images/emp-loader-flight.png",
+    "original": ".godot/ts296-round4/reload-insert-1.png",
+    "sourceLastWriteUtc": "2026-11-01T17:53:01.5609542Z",
+    "observation": "Directly inspected retained round, loader and airborne Claw electric trails in the presentation fixture. Attachment and damage require the separate native combat checks.",
+    "sha256": "2C0B823ED2DFD3587F00F69D59A8509C65A1CE176FF81B39D695549683EAACBD"
+  },
+  {
+    "file": "images/mine-close.png",
+    "original": ".godot/mine-checks/close.png",
+    "sourceLastWriteUtc": "2026-11-01T17:43:53.4367790Z",
+    "observation": "Current failed-run capture directly inspected: circular red/gold Mine with red proximity glow beside the target vehicle in the isolated flat native fixture.",
+    "sha256": "1AFE66324D6A75FC7970C0C5311A3EDC9D61E6889E157FA20604284DC9920DD1"
+  },
+  {
+    "file": "images/mine-contact.png",
+    "original": ".godot/mine-checks/detonation-contact.png",
+    "sourceLastWriteUtc": "2026-11-01T17:43:53.7930304Z",
+    "observation": "Current failed-run contact frame directly inspected: Mine model has disappeared and a small dark effect is beside the target. A single capture does not establish knockback; the subsequent motion assertion failed.",
+    "sha256": "F083FDE32CED2F5796E043990EB36D91C4403FD6A1EF28C9DC5E12D349DBC425"
+  },
+  {
+    "file": "images/wrench-ready.png",
+    "original": ".godot/ts293/ready-side.png",
+    "sourceLastWriteUtc": "2026-11-01T17:58:35.7030498Z",
+    "observation": "Directly inspected red/cream/gold star-patterned articulated repair arm extended above the cab with visible clearance in a native two-peer fixture.",
+    "sha256": "B8FE085BBAFD32D028D0682864062EB1D30C0CEAEDD4239369515BEDE23AE38C"
+  },
+  {
+    "file": "images/wrench-contact.png",
+    "original": ".godot/ts293/contact-1.png",
+    "sourceLastWriteUtc": "2026-11-01T17:58:39.3165895Z",
+    "observation": "Directly inspected repair-arm tip contacting the hood during the second of three authored repair beats.",
+    "sha256": "4CFC707E8E88109AD415BA065F829D9310A1407E478276AC0E182DEBF66C383B"
+  },
+  {
+    "file": "images/boost-chase.png",
+    "original": ".godot/ts225-vfx/chase.png",
+    "sourceLastWriteUtc": "2026-11-01T18:00:39.6197221Z",
+    "observation": "Directly inspected chase-view exhaust with blue-white core, orange fringe and trailing smoke on the production track; forward track remains visible. This VFX fixture reports zero vehicle speed.",
+    "sha256": "A2D82BBBC37F2EF10CB083F56FBC1FC0C9BEF5D9CA9A1D5931C14BD239551C0A"
+  },
+  {
+    "file": "images/boost-eight.png",
+    "original": ".godot/ts225-vfx/eight.png",
+    "sourceLastWriteUtc": "2026-11-01T18:00:43.8534394Z",
+    "observation": "Directly inspected eight stationary scripted vehicle presentations with exhaust on the production track. The on-image 55 FPS reading is one instant, not a sustained benchmark.",
+    "sha256": "082C75327DB6D0F5CAD8B5910A3143309B2203EE9C0B7BDC4E95D71139FD8514"
+  },
+  {
+    "file": "images/benchmark-idle.png",
+    "original": ".godot/performance/ts323-full-20261101-180806/run-1/idle-one.png",
+    "sourceLastWriteUtc": "2026-11-01T18:10:24.3212530Z",
+    "observation": "Directly inspected current one-car benchmark phase-end capture on the production track, with fence, vegetation and crates visible. It is a forced offscreen benchmark view.",
+    "sha256": "D848FF29ECB7231F5E471E401127014205E728C0F37C7701376AA534B630DF23"
+  },
+  {
+    "file": "images/benchmark-mg-phase-end.png",
+    "original": ".godot/performance/ts323-full-20261101-180806/run-1/combat-machine-gun.png",
+    "sourceLastWriteUtc": "2026-11-01T18:11:57.3661595Z",
+    "observation": "Directly inspected phase-end capture with an open rack and no visible mounted gun. The recorded Machine Gun event counter supplies firing evidence; this still is not a firing instant.",
+    "sha256": "953FB487953283D21BAC2FFBD508AC2C1CE899203878243A28793B8D12489E5D"
+  },
+  {
+    "file": "images/salvo-firework-fuse.png",
+    "original": ".godot/ts-212/projectiles/paper-firework-closeup.png",
+    "sourceLastWriteUtc": "2026-11-01T18:34:21.1543284Z",
+    "observation": "Directly inspected current rendered presentation fixture: red/gold paper firework body and bright active fuse sparks. Isolated fixture view, not a combat-readability judgment.",
+    "sha256": "C2C779CCC550BB08F02AD5B693DD71FA94AD5A9116EFAD25D18170FEDFB2B04C"
+  },
+  {
+    "file": "images/salvo-sixteen-trails.png",
+    "original": ".godot/ts-212/projectiles/sixteen-concurrent-midflight.png",
+    "sourceLastWriteUtc": "2026-11-01T18:34:37.8424058Z",
+    "observation": "Directly inspected current rendered sixteen-flight fixture. Deliberately slowed parallel accepted arcs create overlapping dense black smoke trails; this synthetic arrangement is not a normal volley, GPU profile or human competitive visibility test.",
+    "sha256": "556E90ADDB0F50F6FE324883A431460BF6B57ED6A24876123CA4D9EB73BB8E86"
+  }
+]

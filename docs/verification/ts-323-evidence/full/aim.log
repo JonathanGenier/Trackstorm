@@ -1,0 +1,195 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Three UDP peers initialized
+Host tuning applied
+AIM_AT requested=(0, 22.25, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 410.4616)
+AIM_GEOMETRY forward: lens=(0, 24.705023, 44.205) rotation=(-0.038819835, 0, 0) targetDisplayed=(0, 21.650002, 0) targetNative=(0, 21.65, 0) targetScreen=(640, 406.21127) center=(640, 400) bounds=(617.383, 399.15805), (45.23401, 33.01117)
+Machine Gun forward accepted ready
+MG_GEOMETRY forward: aim=WeaponAimSolution { Vehicle = 2, Life = 1, Token = 1, Tick = 366, Yaw = 0, Pitch = -0.039278217, Origin = <0, 23.380417, 34.946568>, Direction = <0, -0.039268117, -0.9992287>, Clear = True, Ready = True } target=<0, 21.65, 0> cameraDesired=<0, -0.039268117, -0.9992287>
+MG_TARGET_LOADOUT forward: active=; attached shields=0
+Camera shooter submits ordinary held-use request
+MG_BARRELS forward peer=0 left=11 right=11 rays=25 hits=25 dropped=0 ready=True
+Both real Machine Gun barrels present on peer 0 during forward
+forward: confirmed travelling fire reaches peer 0 within fixed pool
+MG_BARRELS forward peer=1 left=11 right=10 rays=25 hits=25 dropped=0 ready=True
+Both real Machine Gun barrels present on peer 1 during forward
+forward: confirmed travelling fire reaches peer 1 within fixed pool
+MG_BARRELS forward peer=2 left=11 right=10 rays=25 hits=25 dropped=0 ready=True
+Both real Machine Gun barrels present on peer 2 during forward
+forward: confirmed travelling fire reaches peer 2 within fixed pool
+MG_DAMAGE forward: hp=1000->950.47876 damage=2.25 range=225 shields=0 phase=Active
+Machine Gun forward: native hit/damage, 26 rounds, 26 target hits
+AIM_REMOTE firing-forward: acceptedYaw=0 renderedYaw=0 acceptedPitch=-0.039278217 renderedPitch=-0.039278217
+Remote mount yaw and payload pitch settle to accepted firing-forward aim on actual presentation nodes
+forward: fixed rack, full payload scale and shared pivot origin align on observer
+AIM_AT requested=(20, 22.25, 35) firstTargetDrift=(0, 0, 0) requestedScreen=(672.77765, 405.72037)
+AIM_GEOMETRY side: lens=(-7.226919, 24.89811, 38.037163) rotation=(-0.087382965, -1.4073076, 0) targetDisplayed=(20, 21.65, 35) targetNative=(20, 21.65, 35) targetScreen=(672.8089, 398.89218) center=(640, 400) bounds=(607.2708, 386.87247), (126.31073, 54.93805)
+Machine Gun side accepted ready
+MG_GEOMETRY side: aim=WeaponAimSolution { Vehicle = 2, Life = 1, Token = 1, Tick = 611, Yaw = -1.4801713, Pitch = -0.0724699, Origin = <1.8871372, 23.317457, 36.67351>, Direction = <0.9932824, -0.072406486, -0.09026346>, Clear = True, Ready = True } target=<20, 21.65, 35> cameraDesired=<0.9932824, -0.07240648, -0.090263404>
+MG_TARGET_LOADOUT side: active=; attached shields=0
+Camera shooter submits ordinary held-use request
+MG_BARRELS side peer=0 left=12 right=11 rays=24 hits=24 dropped=0 ready=True
+Both real Machine Gun barrels present on peer 0 during side
+side: confirmed travelling fire reaches peer 0 within fixed pool
+MG_BARRELS side peer=1 left=11 right=11 rays=24 hits=24 dropped=0 ready=True
+Both real Machine Gun barrels present on peer 1 during side
+side: confirmed travelling fire reaches peer 1 within fixed pool
+MG_BARRELS side peer=2 left=11 right=11 rays=24 hits=24 dropped=0 ready=True
+Both real Machine Gun barrels present on peer 2 during side
+side: confirmed travelling fire reaches peer 2 within fixed pool
+MG_DAMAGE side: hp=950.47876->892.6127 damage=2.25 range=225 shields=0 phase=Active
+Machine Gun side: native hit/damage, 27 rounds, 27 target hits
+AIM_REMOTE firing-side: acceptedYaw=-1.4801713 renderedYaw=-1.4801713 acceptedPitch=-0.0724699 renderedPitch=-0.0724699
+Remote mount yaw and payload pitch settle to accepted firing-side aim on actual presentation nodes
+side: fixed rack, full payload scale and shared pivot origin align on observer
+AIM_AT requested=(0, 22.24998, 45) firstTargetDrift=(0, -5.722046E-06, 0) requestedScreen=(640, 346.9451)
+AIM_GEOMETRY rear: lens=(5.691686E-07, 27.108118, 30.33447) rotation=(-0.40418446, 3.1415925, 0) targetDisplayed=(0, 21.649986, 45) targetNative=(0, 21.65, 45) targetScreen=(640, 335.19843) center=(640, 400) bounds=(566.00824, 293.60986), (147.98352, 148.98813)
+Machine Gun rear accepted ready
+MG_GEOMETRY rear: aim=WeaponAimSolution { Vehicle = 2, Life = 1, Token = 1, Tick = 856, Yaw = 3.1415925, Pitch = -0.13416837, Origin = <-2.8429875E-07, 23.20088, 38.727825>, Direction = <-1.496388E-07, -0.1337662, 0.99101293>, Clear = True, Ready = True } target=<0, 21.65, 45> cameraDesired=<-8.663715E-08, -0.13376509, 0.99101305>
+MG_TARGET_LOADOUT rear: active=; attached shields=0
+Camera shooter submits ordinary held-use request
+MG_BARRELS rear peer=0 left=11 right=12 rays=24 hits=24 dropped=0 ready=True
+Both real Machine Gun barrels present on peer 0 during rear
+rear: confirmed travelling fire reaches peer 0 within fixed pool
+MG_BARRELS rear peer=1 left=11 right=12 rays=24 hits=24 dropped=0 ready=True
+Both real Machine Gun barrels present on peer 1 during rear
+rear: confirmed travelling fire reaches peer 1 within fixed pool
+MG_BARRELS rear peer=2 left=11 right=12 rays=24 hits=24 dropped=0 ready=True
+Both real Machine Gun barrels present on peer 2 during rear
+rear: confirmed travelling fire reaches peer 2 within fixed pool
+MG_DAMAGE rear: hp=892.6127->831.8627 damage=2.25 range=225 shields=0 phase=Active
+Machine Gun rear: native hit/damage, 27 rounds, 27 target hits
+AIM_REMOTE firing-rear: acceptedYaw=3.1415925 renderedYaw=3.1415925 acceptedPitch=-0.1341678 renderedPitch=-0.13416755
+Remote mount yaw and payload pitch settle to accepted firing-rear aim on actual presentation nodes
+rear: fixed rack, full payload scale and shared pivot origin align on observer
+AIM_AT requested=(0, 34.25, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 409.91547)
+AIM_GEOMETRY airborne: lens=(0, 24.705023, 44.205) rotation=(0.2284512, 0, 0) targetDisplayed=(0, 33.65, 0) targetNative=(0, 33.65, 0) targetScreen=(640, 405.84924) center=(640, 400) bounds=(617.7829, 391.84396), (44.434204, 42.147247)
+Machine Gun airborne accepted ready
+MG_GEOMETRY airborne: aim=WeaponAimSolution { Vehicle = 2, Life = 1, Token = 1, Tick = 1101, Yaw = 0, Pitch = 0.28237087, Origin = <0, 23.984398, 35.020344>, Direction = <0, 0.27863342, -0.96039754>, Clear = True, Ready = True } target=<0, 33.65, 0> cameraDesired=<0, 0.27863342, -0.96039754>
+MG_TARGET_LOADOUT airborne: active=; attached shields=0
+Camera shooter submits ordinary held-use request
+MG_BARRELS airborne peer=0 left=11 right=10 rays=24 hits=24 dropped=0 ready=True
+Both real Machine Gun barrels present on peer 0 during airborne
+airborne: confirmed travelling fire reaches peer 0 within fixed pool
+MG_BARRELS airborne peer=1 left=10 right=10 rays=24 hits=24 dropped=0 ready=True
+Both real Machine Gun barrels present on peer 1 during airborne
+airborne: confirmed travelling fire reaches peer 1 within fixed pool
+MG_BARRELS airborne peer=2 left=10 right=10 rays=24 hits=24 dropped=0 ready=True
+Both real Machine Gun barrels present on peer 2 during airborne
+airborne: confirmed travelling fire reaches peer 2 within fixed pool
+MG_DAMAGE airborne: hp=831.8627->782.9127 damage=2.25 range=225 shields=0 phase=Active
+Machine Gun airborne: native hit/damage, 26 rounds, 26 target hits
+AIM_REMOTE firing-airborne: acceptedYaw=0 renderedYaw=3.74E-43 acceptedPitch=0.28237087 renderedPitch=0.28237087
+Remote mount yaw and payload pitch settle to accepted firing-airborne aim on actual presentation nodes
+airborne: fixed rack, full payload scale and shared pivot origin align on observer
+AIM_AT requested=(-4.5, 22.249876, 35) firstTargetDrift=(0, -3.0517578E-05, 0) requestedScreen=(572.88654, 421.04468)
+AIM_GEOMETRY close-side: lens=(5.3313003, 26.629873, 40.995865) rotation=(-0.33212137, 0.9092512, 0) targetDisplayed=(-4.5, 21.649906, 35) targetNative=(-4.5, 21.65, 35) targetScreen=(572.346, 406.55188) center=(640, 400) bounds=(408.72708, 350.34702), (315.49973, 208.89377)
+Machine Gun close-side accepted ready
+MG_GEOMETRY close-side: aim=WeaponAimSolution { Vehicle = 2, Life = 1, Token = 1, Tick = 1346, Yaw = 1.2556254, Pitch = -0.25574315, Origin = <-1.7475679, 22.974415, 36.275227>, Direction = <-0.919821, -0.25296447, -0.29989713>, Clear = True, Ready = True } target=<-4.5, 21.65, 35> cameraDesired=<-0.91982317, -0.25295612, -0.2998977>
+MG_TARGET_LOADOUT close-side: active=; attached shields=0
+Camera shooter submits ordinary held-use request
+MG_BARRELS close-side peer=0 left=11 right=11 rays=24 hits=24 dropped=0 ready=True
+Both real Machine Gun barrels present on peer 0 during close-side
+close-side: confirmed travelling fire reaches peer 0 within fixed pool
+MG_BARRELS close-side peer=1 left=10 right=10 rays=24 hits=24 dropped=0 ready=True
+Both real Machine Gun barrels present on peer 1 during close-side
+close-side: confirmed travelling fire reaches peer 1 within fixed pool
+MG_BARRELS close-side peer=2 left=11 right=11 rays=24 hits=24 dropped=0 ready=True
+Both real Machine Gun barrels present on peer 2 during close-side
+close-side: confirmed travelling fire reaches peer 2 within fixed pool
+MG_DAMAGE close-side: hp=782.9127->722.1627 damage=2.25 range=225 shields=0 phase=Active
+Machine Gun close-side: native hit/damage, 27 rounds, 27 target hits
+AIM_REMOTE firing-close-side: acceptedYaw=1.2556255 renderedYaw=1.2556255 acceptedPitch=-0.25573507 renderedPitch=-0.2557419
+Remote mount yaw and payload pitch settle to accepted firing-close-side aim on actual presentation nodes
+close-side: fixed rack, full payload scale and shared pivot origin align on observer
+Actual held mouse input reaches vertical sky aim through authoritative acceptance
+Vertical free fire produces actual authoritative rays: 27
+AIM_REMOTE vertical: acceptedYaw=0.7843865 renderedYaw=0.7843865 acceptedPitch=1.5707964 renderedPitch=1.5707964
+Remote mount yaw and payload pitch settle to accepted vertical aim on actual presentation nodes
+Self-blocked camera direction is not firing-ready
+Self-blocked held fire spends no rounds
+AIM_AT requested=(0, 34.65, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 422.90067)
+Second shooter receives a fresh selected Machine Gun
+Both shooters submit sustained activation
+Two simultaneous shooters sustain default spread and cadence through real UDP (320 rounds)
+Observer receives identical ordered firing endpoints/tracers (480 rounds)
+Release stops actual firing on both peers
+Native release drains every peer's travelling bullet pool
+Native confirmed vehicle impacts receive metal treatment on all three peers and fully drain after release
+Aim expiry stops held fire without stale-forward fallback
+AIM_AT requested=(0, 34.65, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 424.41504)
+Fresh camera intent resumes held fire after aim expiry
+Suppression clears camera aiming and firing presentation
+Switch retires Machine Gun capability
+Switch back does not replay earlier sustained activation
+Fresh item deploys again before rapid moving aim
+Moving rapid yaw/pitch: speed=37.59m/s travel=58.58m turn=2.236rad yaw=0.672rad pitch=0.804rad observer births=320
+Rendered native rounds retain stable left red/right green gold/gold/colored identities
+Pre-draw peer 0: left=490 right=490 births; max endpoint error=0.000004m
+Pre-draw peer 1: left=490 right=490 births; max endpoint error=0.000005m
+Pre-draw peer 2: left=490 right=490 births; max endpoint error=0.000005m
+Moving observer retains identical ordered events (980 rounds)
+Machine Gun camera firing verified: 980 native rays, 471 target hits; fixed rack uses existing yaw/pitch payload
+RMB initially up: visible rival cannot acquire; ordinary desired aim remains available
+LMB free fire without RMB produces authoritative rays (37) without acquiring
+Press and hold RMB acquires and retains with no mouse movement or firing
+Release while still centred immediately clears assistance, preserving weapon aim
+LMB remains held across RMB release: 80 subsequent rays, no released-button reacquisition
+Released camera does not follow the previously selected moving rival
+Repress starts fresh eligible acquisition
+Short RMB tap cannot latch engagement
+Repress starts fresh eligible acquisition
+Short RMB tap cannot latch engagement
+Repress starts fresh eligible acquisition
+Short RMB tap cannot latch engagement
+Release/repress between renders crosses a fresh input-intent boundary
+Production focus-loss notification clears assistance and suppresses ordinary input
+Focus return does not restore the old held engagement
+Existing remappable controller camera input enables neutral retention without RMB
+Controller deliberate outward input releases its engagement
+AIM_AT requested=(3.2, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.025, 399.9662)
+Near-car acquisition starts from a genuine cursor miss with assistance disabled
+Forgiving acquisition survives small approach input and converges: error=0.00000 rad
+Small unintended corrections remain retained while RMB stays held: 0.00000->0.00000 rad
+Settled retained cursor keeps actual authoritative shots on the visible car: 40 rays, 0.00210 rad off centre
+Outward departure releases target before returning to cursor-directed shots
+After target loss actual shots follow accepted free aim away from car centre: 40 rays
+AIM_AT requested=(0, 21.949999, -25) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 399.99994)
+Driving/fire exercised assist=False: speed=30.79m/s distance=50.06m turn=1.621rad rays=240 hits=54 retained=0/180 meanError=0.59712rad
+AIM_AT requested=(0, 21.949999, -25) firstTargetDrift=(0, 0, 0) requestedScreen=(640, 386.62558)
+Driving/fire exercised assist=True: speed=30.79m/s distance=50.06m turn=1.621rad rays=240 hits=240 retained=180/180 meanError=0.00000rad
+Visible-target driving retention reduces error without forced camera following: visible=180, retained=180, retainedError=0.00000, firstRelease=
+Braking is not aim-away input: speed=32.30->0.36m/s, same retained car
+Deliberate aim-away releases even after sustained driving engagement
+AIM_AT requested=(-4, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(583.2959, 400.72644)
+First rival can be deliberately acquired before switching
+AIM_AT requested=(4, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(590.1256, 400.69913)
+Deliberate sweep switches to the chosen second car
+Slow deliberate adjustment beyond the frame also releases
+Stopping beside the dismissed car does not pull free aim back onto it
+AIM_AT requested=(4, 21.949999, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(571.9002, 400.82645)
+ERROR: System.InvalidOperationException: Deliberately returning toward the dismissed car rearms acquisition: selected=0 expected=3 angle=0.10805 sight=True hit=(3.676982, 22.105198, 2.4785347) lens=(-1.7340674, 24.705023, 43.997807) target=(4, 21.949999, 0) accepted=1 active=True dismissed=3 cursor=(571.9061, 400.8265)
+   at Trackstorm.Client.Verification.WeaponAimChecks.Require(Boolean condition, String message) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 626
+   at Trackstorm.Client.Verification.WeaponAimChecks.CheckAimFreedom() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\WeaponAimChecks.Freedom.cs:line 145
+   at Trackstorm.Client.Verification.WeaponAimChecks.Run() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:line 185
+   at: void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__25.MoveNext() (res://code/Client/Verification/WeaponAimChecks.cs:185)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.WeaponAimChecks+<Run>d__25.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:185)
+       [2] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [3] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [4] void System.Threading.Tasks.Task.RunContinuations(object)
+       [5] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [6] bool System.Threading.Tasks.Task.TrySetException(object)
+       [7] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [8] void Trackstorm.Client.Verification.WeaponAimChecks+<CheckAimFreedom>d__48.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\WeaponAimChecks.Freedom.cs:145)
+       [9] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [10] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [11] void System.Threading.Tasks.Task.RunContinuations(object)
+       [12] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder.SetResult()
+       [13] void Trackstorm.Client.Verification.WeaponAimChecks+<AimAtCurrent>d__36.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\WeaponAimChecks.cs:534)
+       [14] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [15] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [16] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)
+

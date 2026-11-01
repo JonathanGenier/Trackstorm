@@ -1,0 +1,5 @@
+Exception: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\check-emp-claw-flight.ps1:19
+Line |
+  19 |      throw 'EMP flight integration verification failed.'
+     |      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | EMP flight integration verification failed.

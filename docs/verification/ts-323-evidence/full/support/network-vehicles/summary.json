@@ -1,0 +1,115 @@
+{
+  "conditions": "Four independent headless native Godot processes on one physical computer; 30 ms delay, 5 ms jitter, 2% loss. Intervals are headless process observations, not displayed FPS. Startup stalls are retained, not hidden by the passing reconciliation gate.",
+  "players": [
+    {
+      "file": "player-0.json",
+      "rendered": false,
+      "applicationEntry": false,
+      "roster": 4,
+      "meanIntervalMs": 17.42548984034833,
+      "p95IntervalMs": 29.389,
+      "maximumIntervalMs": 374.615,
+      "stalls": [
+        {
+          "Seconds": 0.2333333333333333,
+          "Milliseconds": 374.615,
+          "Tick": 16,
+          "SnapshotAge": null
+        },
+        {
+          "Seconds": 10.816666666666784,
+          "Milliseconds": 104.22,
+          "Tick": 651,
+          "SnapshotAge": null
+        },
+        {
+          "Seconds": 11.016666666666794,
+          "Milliseconds": 110.665,
+          "Tick": 663,
+          "SnapshotAge": null
+        }
+      ],
+      "predictionErrorMaximumMetres": 0,
+      "hardSnaps": 0,
+      "snapshotAgeMaximumMs": 0
+    },
+    {
+      "file": "player-1.json",
+      "rendered": false,
+      "applicationEntry": false,
+      "roster": 4,
+      "meanIntervalMs": 17.93085501066098,
+      "p95IntervalMs": 28.25,
+      "maximumIntervalMs": 981.183,
+      "stalls": [
+        {
+          "Seconds": 0.06666666666666667,
+          "Milliseconds": 981.183,
+          "Tick": 65,
+          "SnapshotAge": 0.011930700013181195
+        },
+        {
+          "Seconds": 0.19999999999999998,
+          "Milliseconds": 116.861,
+          "Tick": 77,
+          "SnapshotAge": 0.006890500022564083
+        }
+      ],
+      "predictionErrorMaximumMetres": 0.41979092,
+      "hardSnaps": 0,
+      "snapshotAgeMaximumMs": 133.53120000101626
+    },
+    {
+      "file": "player-2.json",
+      "rendered": false,
+      "applicationEntry": false,
+      "roster": 4,
+      "meanIntervalMs": 17.904740466101693,
+      "p95IntervalMs": 25.26,
+      "maximumIntervalMs": 1017.349,
+      "stalls": [
+        {
+          "Seconds": 0.03333333333333333,
+          "Milliseconds": 1017.349,
+          "Tick": 60,
+          "SnapshotAge": 0.0024575999996159226
+        }
+      ],
+      "predictionErrorMaximumMetres": 0.40835762,
+      "hardSnaps": 0,
+      "snapshotAgeMaximumMs": 100.70519999135286
+    },
+    {
+      "file": "player-3.json",
+      "rendered": false,
+      "applicationEntry": false,
+      "roster": 4,
+      "meanIntervalMs": 17.95684893617022,
+      "p95IntervalMs": 26.755,
+      "maximumIntervalMs": 930.999,
+      "stalls": [
+        {
+          "Seconds": 0,
+          "Milliseconds": 930.999,
+          "Tick": 5,
+          "SnapshotAge": 0.8418693999992684
+        },
+        {
+          "Seconds": 0.13333333333333333,
+          "Milliseconds": 159.941,
+          "Tick": 65,
+          "SnapshotAge": 0.01340419999905862
+        },
+        {
+          "Seconds": 10.066666666666746,
+          "Milliseconds": 100.466,
+          "Tick": 661,
+          "SnapshotAge": 0.006358899991028011
+        }
+      ],
+      "predictionErrorMaximumMetres": 0.42391798,
+      "hardSnaps": 0,
+      "snapshotAgeMaximumMs": 134.01619999785908
+    }
+  ]
+}

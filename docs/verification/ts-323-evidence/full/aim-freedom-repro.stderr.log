@@ -1,0 +1,6 @@
+Exception: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\check-weapon-aim.ps1:29
+Line |
+  29 |  .  passed:')) { throw "Weapon aiming checks failed: $outputDirectory" }
+     |                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Weapon aiming checks failed:
+     | C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\aim-checks\c237b97b5e4340778884210e441426f0

@@ -1,0 +1,6 @@
+Exception: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\tools\version-rules.ps1:122
+Line |
+ 122 |          throw "Trackstorm Story version: expected '$expected'; actual .
+     |          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Trackstorm Story version: expected '0.2.76'; actual '0.2.75'; current main '0.2.75'. Synchronize main and
+     | recalculate.

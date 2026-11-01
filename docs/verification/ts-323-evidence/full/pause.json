@@ -1,0 +1,8 @@
+{
+  "status": "PAUSED_BY_USER",
+  "pausedUtc": "2026-10-31T23:55:46.9909883Z",
+  "interruptedJob": "twin-fang",
+  "process": 260,
+  "runner": 7888,
+  "note": "Current native check interrupted at user request; no PASS or FAIL inferred. Pending combat, performance, soak, final check, critique, Tally submission and documentation delivery remain unexecuted."
+}

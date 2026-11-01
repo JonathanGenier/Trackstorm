@@ -1,0 +1,14 @@
+[
+ {"name":"settings","script":"check-settings.ps1","args":["-Visual"]},
+ {"name":"hud","script":"check-hud.ps1","args":[]},
+ {"name":"input","script":"check-input.ps1","args":[]},
+ {"name":"vehicle","script":"check-vehicle.ps1","args":["-Visual"]},
+ {"name":"integrated-driving","script":"check-integrated-driving.ps1","args":[]},
+ {"name":"camera","script":"check-camera.ps1","args":[]},
+ {"name":"aim","script":"check-weapon-aim.ps1","args":["-Visual"]},
+ {"name":"aim-camera-settings","script":"check-weapon-aim.ps1","args":["-CameraSettings"]},
+ {"name":"aim-magnetic","script":"check-weapon-aim.ps1","args":["-Magnetic","-Impaired"]},
+ {"name":"pickup-drive","script":"check-pickup-drive.ps1","args":["-Impaired"]},
+ {"name":"carnival-smash","script":"check-carnival-smash.ps1","args":["-Visual"]},
+ {"name":"items","script":"check-items.ps1","args":["-Impaired"]}
+]

@@ -16,7 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
-| Astra questionnaire pilot, Tally submission blocker and local question results | [TS-323](ts-323.md) |
+| Complete 140-question Astra audit, confirmed Tally submission, native/performance evidence and runtime findings | [TS-323](ts-323.md) |
 | Machine Gun Harlequin material, drum coverage and native runtime checks | [TS-320](ts-320.md) |
 | Story verification | [TS-307 verification evidence](ts-307.md) |
 | Story verification | [TS-306 verification evidence](ts-306.md) |

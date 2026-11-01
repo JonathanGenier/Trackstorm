@@ -1,0 +1,39 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Three UDP peers initialized
+Host tuning applied
+MachineGun: ordinary grant
+MachineGun: driving ready without camera aim
+MachineGun: authority accepts road-forward direction
+MachineGun: driving square projects the accepted firing line
+MachineGun: raised driving square visible
+MachineGun: ordinary trigger engagement
+MachineGun: authoritative firing produces outcomes
+MachineGun: firing consumes ammunition
+Missile: ordinary grant
+Missile: driving ready without camera aim
+Missile: authority accepts road-forward direction
+Missile: driving square projects the accepted firing line
+Missile: raised driving square visible
+Missile: ordinary firing request
+Missile: authoritative firing produces outcomes
+Missile: firing consumes ammunition
+EmpClaw: ordinary grant
+EmpClaw: driving ready without camera aim
+EmpClaw: authority accepts road-forward direction
+EmpClaw: driving square projects the accepted firing line
+EmpClaw: raised driving square visible
+EmpClaw: ordinary firing request
+EmpClaw: authoritative firing produces outcomes
+EmpClaw: firing consumes ammunition
+Salvo: ordinary grant
+Salvo: driving ready without camera aim
+Salvo: authority accepts road-forward direction
+Salvo: driving square projects the accepted firing line
+Salvo: raised driving square visible
+Salvo: ordinary firing request
+Salvo: authoritative firing produces outcomes
+Salvo: firing consumes ammunition
+Weapon aiming integration passed: 34 driving checks.
+Weapon aiming artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\aim-checks\47082e2cd6d84698a75acbd0bd725e3f

@@ -1,0 +1,94 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.53
+  Determining projects to restore...
+  Restored C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\Trackstorm.Transport.Tests.csproj (in 510 ms).
+  Restored C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\Trackstorm.Client.csproj (in 510 ms).
+  2 of 4 projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\third_party\eos\bin\Release\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\bin\Release\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:48.54
+Test run for C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 1 of 1 NUnit test cases using Current Discovery mode, Explicit run
+SOAK seconds=59.98; tick=3600; managed=5388120; private=33583104; working=93020160; handles=448; threads=20; peakPending=21; peakSnapshotAge=1.0399; received=8022; staleDelivered=2017; controlledDrops=0; gc2=5
+SOAK seconds=119.99; tick=7200; managed=6430072; private=33935360; working=92078080; handles=445; threads=19; peakPending=20; peakSnapshotAge=0.1507; received=16125; staleDelivered=4031; controlledDrops=0; gc2=10
+CORRECTION tick=8707; vehicle=5; error=0.1454; scheduleLag=0.0018; age=0.0004; pending=12; clientAck=8683; authorityAck=8688; hostTick=8708; snapshotTick=8703
+CORRECTION tick=9978; vehicle=5; error=0.1660; scheduleLag=0.0282; age=0.0001; pending=9; clientAck=9957; authorityAck=9961; hostTick=9979; snapshotTick=9975
+SOAK seconds=179.99; tick=10800; managed=4800240; private=32129024; working=92229632; handles=447; threads=18; peakPending=19; peakSnapshotAge=0.1499; received=24194; staleDelivered=6049; controlledDrops=0; gc2=15
+SOAK seconds=239.98; tick=14400; managed=9148720; private=30359552; working=90210304; handles=447; threads=18; peakPending=19; peakSnapshotAge=0.1652; received=32240; staleDelivered=8055; controlledDrops=0; gc2=20
+CORRECTION tick=16953; vehicle=4; error=0.1026; scheduleLag=0.0016; age=0.0001; pending=10; clientAck=16918; authorityAck=16922; hostTick=16954; snapshotTick=16950
+SOAK seconds=299.98; tick=18000; managed=7499200; private=33456128; working=93401088; handles=444; threads=18; peakPending=21; peakSnapshotAge=0.1675; received=40337; staleDelivered=10080; controlledDrops=0; gc2=25
+CORRECTION tick=18465; vehicle=4; error=0.1691; scheduleLag=0.0012; age=0.0001; pending=9; clientAck=18431; authorityAck=18435; hostTick=18466; snapshotTick=18462
+CORRECTION tick=18465; vehicle=6; error=0.1691; scheduleLag=0.0012; age=0.0001; pending=9; clientAck=18444; authorityAck=18448; hostTick=18466; snapshotTick=18462
+CORRECTION tick=18466; vehicle=7; error=0.1683; scheduleLag=0.0015; age=0.0001; pending=10; clientAck=18444; authorityAck=18449; hostTick=18467; snapshotTick=18462
+CORRECTION tick=18502; vehicle=2; error=0.2825; scheduleLag=0.0232; age=0.0001; pending=9; clientAck=18481; authorityAck=18485; hostTick=18503; snapshotTick=18501
+CORRECTION tick=18502; vehicle=4; error=0.2839; scheduleLag=0.0232; age=0.0001; pending=9; clientAck=18468; authorityAck=18471; hostTick=18503; snapshotTick=18501
+CORRECTION tick=18509; vehicle=2; error=0.2735; scheduleLag=0.0011; age=0.0001; pending=11; clientAck=18486; authorityAck=18492; hostTick=18510; snapshotTick=18504
+CORRECTION tick=18509; vehicle=4; error=0.1371; scheduleLag=0.0011; age=0.0000; pending=12; clientAck=18472; authorityAck=18478; hostTick=18510; snapshotTick=18504
+CORRECTION tick=18513; vehicle=3; error=0.1345; scheduleLag=0.0005; age=0.0001; pending=10; clientAck=18490; authorityAck=18494; hostTick=18514; snapshotTick=18510
+CORRECTION tick=18513; vehicle=5; error=0.1345; scheduleLag=0.0005; age=0.0001; pending=10; clientAck=18491; authorityAck=18495; hostTick=18514; snapshotTick=18510
+CORRECTION tick=19004; vehicle=2; error=0.1259; scheduleLag=0.0007; age=0.0001; pending=9; clientAck=18983; authorityAck=18986; hostTick=19005; snapshotTick=19002
+CORRECTION tick=19221; vehicle=6; error=0.1423; scheduleLag=0.0019; age=0.0001; pending=10; clientAck=19199; authorityAck=19203; hostTick=19222; snapshotTick=19218
+SOAK seconds=359.98; tick=21600; managed=6792448; private=31825920; working=92225536; handles=444; threads=18; peakPending=21; peakSnapshotAge=0.1842; received=48400; staleDelivered=12104; controlledDrops=0; gc2=30
+CORRECTION tick=23528; vehicle=2; error=0.1519; scheduleLag=0.0019; age=0.0000; pending=8; clientAck=23508; authorityAck=23511; hostTick=23529; snapshotTick=23526
+SOAK seconds=419.98; tick=25200; managed=6337432; private=30863360; working=91377664; handles=444; threads=17; peakPending=21; peakSnapshotAge=0.1656; received=56487; staleDelivered=14133; controlledDrops=0; gc2=35
+CORRECTION tick=25638; vehicle=3; error=0.1629; scheduleLag=0.0125; age=0.0003; pending=9; clientAck=25616; authorityAck=25620; hostTick=25639; snapshotTick=25635
+CORRECTION tick=25638; vehicle=4; error=0.1629; scheduleLag=0.0125; age=0.0001; pending=9; clientAck=25604; authorityAck=25608; hostTick=25639; snapshotTick=25635
+CORRECTION tick=25638; vehicle=5; error=0.1629; scheduleLag=0.0125; age=0.0000; pending=6; clientAck=25620; authorityAck=25621; hostTick=25639; snapshotTick=25638
+CORRECTION tick=25649; vehicle=5; error=0.1779; scheduleLag=0.0014; age=0.0000; pending=9; clientAck=25628; authorityAck=25631; hostTick=25650; snapshotTick=25647
+CORRECTION tick=25649; vehicle=7; error=0.1793; scheduleLag=0.0014; age=0.0000; pending=9; clientAck=25628; authorityAck=25631; hostTick=25650; snapshotTick=25647
+CORRECTION tick=25651; vehicle=6; error=0.1813; scheduleLag=0.0006; age=0.0000; pending=11; clientAck=25628; authorityAck=25633; hostTick=25652; snapshotTick=25647
+CORRECTION tick=27471; vehicle=5; error=0.2656; scheduleLag=0.0148; age=0.0001; pending=9; clientAck=27450; authorityAck=27454; hostTick=27472; snapshotTick=27468
+CORRECTION tick=27471; vehicle=7; error=0.2656; scheduleLag=0.0148; age=0.0001; pending=9; clientAck=27450; authorityAck=27454; hostTick=27472; snapshotTick=27468
+SOAK seconds=479.98; tick=28800; managed=7793368; private=30769152; working=91688960; handles=447; threads=18; peakPending=19; peakSnapshotAge=0.1506; received=64529; staleDelivered=16165; controlledDrops=0; gc2=40
+CORRECTION tick=31965; vehicle=5; error=0.1294; scheduleLag=0.0000; age=0.0003; pending=10; clientAck=31943; authorityAck=31947; hostTick=31966; snapshotTick=31962
+SOAK seconds=539.98; tick=32400; managed=9378224; private=33959936; working=94380032; handles=444; threads=17; peakPending=19; peakSnapshotAge=0.1656; received=72602; staleDelivered=18169; controlledDrops=0; gc2=45
+SOAK seconds=599.98; tick=36000; managed=9523328; private=31318016; working=91779072; handles=447; threads=19; peakPending=21; peakSnapshotAge=0.1829; received=80647; staleDelivered=20184; controlledDrops=0; gc2=50
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=2885; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2895; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2890; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2882; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2882; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2876; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2874; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0496m; steady p99=0.0000m; steady max=0.2839m; steady >1cm=42; max pending at completion=15
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=80562; p99=0.0000m; max=0.2839m; snapshots/client=11484; stale packets rejected
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Passed TenMinuteEightPlayerImpairmentSoak [10 m]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 10.0466 Minutes
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connected; None; 
+Transport peer 1: Connected; None; 
+REMATCH_RESOURCE cycle=1; generation=6239528626100936192; managed=8958656; private=782417920; handles=467; nodes=13958; objects=23880; orphans=0; inputPending=14; snapshots=20; hostEvents=75; clientEvents=79
+REMATCH_RESOURCE cycle=2; generation=6239528626100936193; managed=9465760; private=795074560; handles=469; nodes=14693; objects=25193; orphans=0; inputPending=13; snapshots=20; hostEvents=149; clientEvents=160
+REMATCH_RESOURCE cycle=3; generation=6239528626100936194; managed=9458568; private=808300544; handles=470; nodes=14125; objects=24472; orphans=0; inputPending=11; snapshots=20; hostEvents=220; clientEvents=236
+Post-match integration passed: 191 assertions.
+Post-match verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\post-match-checks\b40a7fbfde5646c68e9aa7ea14e5700d
+Network soak passed: 683.83 seconds; ten-minute UDP run and 3 native Finished/rematch cycles. Separate-PC EOS and gameplay voting are not covered.

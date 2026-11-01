@@ -1,0 +1,1033 @@
+[
+  {
+    "name": "settings",
+    "script": "check-settings.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-settings.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual"
+    ],
+    "startUtc": "2026-10-31T23:35:17.9549074Z",
+    "endUtc": "2026-10-31T23:35:24.1126193Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 6.2273681
+  },
+  {
+    "name": "hud",
+    "script": "check-hud.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-hud.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild"
+    ],
+    "startUtc": "2026-10-31T23:35:24.2718607Z",
+    "endUtc": "2026-10-31T23:35:58.87274Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 34.6426301
+  },
+  {
+    "name": "input",
+    "script": "check-input.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-input.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild"
+    ],
+    "startUtc": "2026-10-31T23:35:58.9248566Z",
+    "endUtc": "2026-10-31T23:36:22.266773Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 23.3930847
+  },
+  {
+    "name": "vehicle",
+    "script": "check-vehicle.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-vehicle.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual"
+    ],
+    "startUtc": "2026-10-31T23:36:22.3315502Z",
+    "endUtc": "2026-10-31T23:38:06.84605Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 104.5563535
+  },
+  {
+    "name": "integrated-driving",
+    "script": "check-integrated-driving.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-integrated-driving.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild"
+    ],
+    "startUtc": "2026-10-31T23:38:06.8982541Z",
+    "endUtc": "2026-10-31T23:39:33.5661703Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 86.7074801
+  },
+  {
+    "name": "camera",
+    "script": "check-camera.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-camera.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild"
+    ],
+    "startUtc": "2026-10-31T23:39:33.6135715Z",
+    "endUtc": "2026-10-31T23:39:39.8638546Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 6.2859481
+  },
+  {
+    "name": "aim",
+    "script": "check-weapon-aim.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-weapon-aim.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual"
+    ],
+    "startUtc": "2026-10-31T23:39:39.9111038Z",
+    "endUtc": "2026-10-31T23:41:31.531085Z",
+    "exitCode": 1,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 111.6567107
+  },
+  {
+    "name": "aim-camera-settings",
+    "script": "check-weapon-aim.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-weapon-aim.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-CameraSettings"
+    ],
+    "startUtc": "2026-10-31T23:41:31.5865213Z",
+    "endUtc": "2026-10-31T23:43:44.4218584Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 132.8751707
+  },
+  {
+    "name": "aim-magnetic",
+    "script": "check-weapon-aim.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-weapon-aim.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Magnetic",
+      "-Impaired"
+    ],
+    "startUtc": "2026-10-31T23:43:44.4788959Z",
+    "endUtc": "2026-10-31T23:44:53.7829069Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 69.3385408
+  },
+  {
+    "name": "pickup-drive",
+    "script": "check-pickup-drive.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-pickup-drive.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Impaired"
+    ],
+    "startUtc": "2026-10-31T23:44:53.8225163Z",
+    "endUtc": "2026-10-31T23:50:10.1598379Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 316.380031
+  },
+  {
+    "name": "carnival-smash",
+    "script": "check-carnival-smash.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-carnival-smash.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual"
+    ],
+    "startUtc": "2026-10-31T23:50:10.2046184Z",
+    "endUtc": "2026-10-31T23:51:42.2935165Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 92.130346
+  },
+  {
+    "name": "items",
+    "script": "check-items.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-items.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Impaired"
+    ],
+    "startUtc": "2026-10-31T23:51:42.3379075Z",
+    "endUtc": "2026-10-31T23:52:07.9528936Z",
+    "exitCode": 1,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 25.6562899
+  },
+  {
+    "name": "aim-freedom-repro",
+    "script": "check-weapon-aim.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-weapon-aim.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Freedom",
+      "-Visual"
+    ],
+    "startUtc": "2026-10-31T23:52:08.172419Z",
+    "endUtc": "2026-10-31T23:53:00.9478334Z",
+    "exitCode": 1,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 52.9006908
+  },
+  {
+    "name": "aim-driving",
+    "script": "check-weapon-aim.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-weapon-aim.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Driving",
+      "-Visual"
+    ],
+    "startUtc": "2026-10-31T23:53:01.1354734Z",
+    "endUtc": "2026-10-31T23:53:46.3945288Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 45.2988171
+  },
+  {
+    "name": "aim-missile",
+    "script": "check-weapon-aim.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-weapon-aim.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Missile",
+      "-Impaired"
+    ],
+    "startUtc": "2026-10-31T23:53:46.4373419Z",
+    "endUtc": "2026-10-31T23:55:27.1565196Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 100.7763145
+  },
+  {
+    "name": "twin-fang",
+    "script": "check-twin-fang.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-twin-fang.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Motion"
+    ],
+    "startUtc": "2026-11-01T17:26:51.5091921Z",
+    "endUtc": "2026-11-01T17:27:44.8660476Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 53.3968939
+  },
+  {
+    "name": "machine-gun",
+    "script": "check-machine-gun.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-machine-gun.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Impaired"
+    ],
+    "startUtc": "2026-11-01T17:27:44.9448046Z",
+    "endUtc": "2026-11-01T17:28:34.2267853Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 49.3148924
+  },
+  {
+    "name": "machine-gun-vfx",
+    "script": "check-machine-gun-vfx.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-machine-gun-vfx.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Motion"
+    ],
+    "startUtc": "2026-11-01T17:28:34.2673558Z",
+    "endUtc": "2026-11-01T17:29:04.2320909Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 29.9998071
+  },
+  {
+    "name": "machine-gun-impact",
+    "script": "check-machine-gun-impact.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-machine-gun-impact.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild"
+    ],
+    "startUtc": "2026-11-01T17:29:04.2713407Z",
+    "endUtc": "2026-11-01T17:29:43.5449784Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 39.3119478
+  },
+  {
+    "name": "missile-presentation",
+    "script": "check-missile-presentation.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-missile-presentation.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual"
+    ],
+    "startUtc": "2026-11-01T17:29:43.5872211Z",
+    "endUtc": "2026-11-01T17:30:48.4044903Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 64.8547895
+  },
+  {
+    "name": "missile-terrain",
+    "script": "check-missile-terrain.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-missile-terrain.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild"
+    ],
+    "startUtc": "2026-11-01T17:30:48.4465652Z",
+    "endUtc": "2026-11-01T17:34:14.2346695Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 205.835504
+  },
+  {
+    "name": "missile-explosion",
+    "script": "check-missile-explosion.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-missile-explosion.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual"
+    ],
+    "startUtc": "2026-11-01T17:34:14.2863121Z",
+    "endUtc": "2026-11-01T17:35:41.6523552Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 87.4017438
+  },
+  {
+    "name": "salvo-catapult",
+    "script": "check-salvo-catapult.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-salvo-catapult.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual"
+    ],
+    "startUtc": "2026-11-01T17:35:41.6948371Z",
+    "endUtc": "2026-11-01T17:36:52.3731228Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 70.7137392
+  },
+  {
+    "name": "salvo-explosion",
+    "script": "check-salvo-explosion.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-salvo-explosion.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual"
+    ],
+    "startUtc": "2026-11-01T17:36:52.4124547Z",
+    "endUtc": "2026-11-01T17:39:23.4493323Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 151.071398
+  },
+  {
+    "name": "oil-jack",
+    "script": "check-oil-jack.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-oil-jack.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual",
+      "-Impaired"
+    ],
+    "startUtc": "2026-11-01T17:39:23.4882077Z",
+    "endUtc": "2026-11-01T17:43:05.1372962Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 221.6872936
+  },
+  {
+    "name": "oil-tires",
+    "script": "check-oil-tires.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-oil-tires.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual"
+    ],
+    "startUtc": "2026-11-01T17:43:05.1787936Z",
+    "endUtc": "2026-11-01T17:43:40.2095768Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 35.0730335
+  },
+  {
+    "name": "oil-handling",
+    "script": "check-oil-handling.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-oil-handling.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild"
+    ],
+    "startUtc": "2026-11-01T17:43:40.2751091Z",
+    "endUtc": "2026-11-01T17:43:47.0905237Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 6.8529852
+  },
+  {
+    "name": "mine",
+    "script": "check-mine.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-mine.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual",
+      "-Impaired"
+    ],
+    "startUtc": "2026-11-01T17:43:47.1405676Z",
+    "endUtc": "2026-11-01T17:43:56.6599222Z",
+    "exitCode": 1,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 9.5561032
+  },
+  {
+    "name": "shield-presentation",
+    "script": "check-shield-presentation.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-shield-presentation.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual"
+    ],
+    "startUtc": "2026-11-01T17:43:56.7037818Z",
+    "endUtc": "2026-11-01T17:45:13.7477568Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 77.0841145
+  },
+  {
+    "name": "shield-world",
+    "script": "check-world-wall.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-world-wall.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Impaired"
+    ],
+    "startUtc": "2026-11-01T17:45:13.7953406Z",
+    "endUtc": "2026-11-01T17:47:20.443144Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 126.6868564
+  },
+  {
+    "name": "shield-terrain",
+    "script": "check-world-wall.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-world-wall.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-TerrainStability",
+      "-ProductionMap",
+      "-Impaired",
+      "-Profile"
+    ],
+    "startUtc": "2026-11-01T17:47:20.5506945Z",
+    "endUtc": "2026-11-01T17:49:35.6017343Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 135.0886726
+  },
+  {
+    "name": "shield-heavy",
+    "script": "check-world-wall.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-world-wall.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Heavy",
+      "-Impaired"
+    ],
+    "startUtc": "2026-11-01T17:49:35.6587346Z",
+    "endUtc": "2026-11-01T17:50:48.9342521Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 73.3296275
+  },
+  {
+    "name": "shield-interception",
+    "script": "check-shield-interception.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-shield-interception.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual"
+    ],
+    "startUtc": "2026-11-01T17:50:49.0116064Z",
+    "endUtc": "2026-11-01T17:52:05.9889041Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 77.0109669
+  },
+  {
+    "name": "emp-presentation",
+    "script": "check-emp-claw.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-emp-claw.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual"
+    ],
+    "startUtc": "2026-11-01T17:52:06.0270897Z",
+    "endUtc": "2026-11-01T17:53:49.47791Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 103.4824179
+  },
+  {
+    "name": "emp-devtools",
+    "script": "check-developer-options.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-developer-options.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-EmpClawOnly"
+    ],
+    "startUtc": "2026-11-01T17:53:49.5113926Z",
+    "endUtc": "2026-11-01T17:53:58.1112875Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 8.6316097
+  },
+  {
+    "name": "emp-flight",
+    "script": "check-emp-claw-flight.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-emp-claw-flight.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild"
+    ],
+    "startUtc": "2026-11-01T17:53:58.148858Z",
+    "endUtc": "2026-11-01T17:55:18.2654489Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 80.1568551
+  },
+  {
+    "name": "emp-attachments",
+    "script": "check-emp-claw-attachments.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-emp-claw-attachments.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild"
+    ],
+    "startUtc": "2026-11-01T17:55:18.3130472Z",
+    "endUtc": "2026-11-01T17:56:57.4572481Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 99.176428
+  },
+  {
+    "name": "emp-counterplay",
+    "script": "check-emp-claw-counterplay.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-emp-claw-counterplay.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual"
+    ],
+    "startUtc": "2026-11-01T17:56:57.4926668Z",
+    "endUtc": "2026-11-01T17:58:26.2482885Z",
+    "exitCode": 1,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 88.812192
+  },
+  {
+    "name": "wrench-arm",
+    "script": "check-wrench-arm.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-wrench-arm.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual",
+      "-Impaired"
+    ],
+    "startUtc": "2026-11-01T17:58:26.3068614Z",
+    "endUtc": "2026-11-01T18:00:13.6691045Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 107.3970102
+  },
+  {
+    "name": "boost-exhaust",
+    "script": "check-boost-exhaust.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-boost-exhaust.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild"
+    ],
+    "startUtc": "2026-11-01T18:00:13.7301649Z",
+    "endUtc": "2026-11-01T18:00:55.434812Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 41.7481403
+  },
+  {
+    "name": "boost-camera",
+    "script": "check-boost-camera.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-boost-camera.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild"
+    ],
+    "startUtc": "2026-11-01T18:00:55.4870841Z",
+    "endUtc": "2026-11-01T18:01:11.1058682Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 15.6529485
+  },
+  {
+    "name": "audio",
+    "script": "check-audio.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-audio.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild"
+    ],
+    "startUtc": "2026-11-01T18:01:11.1438908Z",
+    "endUtc": "2026-11-01T18:01:24.1528575Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 13.0422477
+  },
+  {
+    "name": "post-match",
+    "script": "check-post-match.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-post-match.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Impaired",
+      "-Cycles",
+      "3"
+    ],
+    "startUtc": "2026-11-01T18:01:24.1898937Z",
+    "endUtc": "2026-11-01T18:02:43.8949378Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 79.7390866
+  },
+  {
+    "name": "reconnect-shield",
+    "script": "check-reconnect.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-reconnect.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Shield"
+    ],
+    "startUtc": "2026-11-01T18:02:43.9335942Z",
+    "endUtc": "2026-11-01T18:05:14.8749261Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 150.974786
+  },
+  {
+    "name": "reconnect-oil",
+    "script": "check-reconnect.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-reconnect.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-OilFiring"
+    ],
+    "startUtc": "2026-11-01T18:05:14.9271891Z",
+    "endUtc": "2026-11-01T18:06:36.0004405Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 81.1133378
+  },
+  {
+    "name": "reconnect-emp",
+    "script": "check-reconnect.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-reconnect.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-EmpClaw"
+    ],
+    "startUtc": "2026-11-01T18:06:36.0527351Z",
+    "endUtc": "2026-11-01T18:07:29.375498Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 53.3582542
+  },
+  {
+    "name": "network-vehicles-four",
+    "script": "check-network-vehicles.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-network-vehicles.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Players",
+      "4",
+      "-Latency",
+      "30",
+      "-Jitter",
+      "5",
+      "-Loss",
+      "2"
+    ],
+    "startUtc": "2026-11-01T18:07:29.4243042Z",
+    "endUtc": "2026-11-01T18:08:06.1733199Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 36.7856826
+  },
+  {
+    "name": "performance",
+    "script": "tools/benchmark-performance.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\tools\\benchmark-performance.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Ticks",
+      "1200",
+      "-Runs",
+      "3",
+      "-Label",
+      "ts323-full"
+    ],
+    "startUtc": "2026-11-01T18:08:06.2128133Z",
+    "endUtc": "2026-11-01T18:21:55.7264432Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 829.5542408
+  },
+  {
+    "name": "network-soak",
+    "script": "check-network-soak.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-network-soak.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-Cycles",
+      "3"
+    ],
+    "startUtc": "2026-11-01T18:21:55.7698208Z",
+    "endUtc": "2026-11-01T18:34:11.8598727Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 736.125352
+  },
+  {
+    "name": "salvo-native",
+    "script": "check-salvo.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-salvo.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual",
+      "-Impaired"
+    ],
+    "startUtc": "2026-11-01T18:34:17.8185265Z",
+    "endUtc": "2026-11-01T18:41:06.0134102Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 408.2498524
+  },
+  {
+    "name": "items-unimpaired",
+    "script": "check-items.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-items.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild"
+    ],
+    "startUtc": "2026-11-01T18:41:06.1040745Z",
+    "endUtc": "2026-11-01T18:41:23.5879201Z",
+    "exitCode": 1,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 17.5195307
+  },
+  {
+    "name": "emp-counterplay-repro",
+    "script": "check-emp-claw-counterplay.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check-emp-claw-counterplay.ps1",
+      "-GodotPath",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual"
+    ],
+    "startUtc": "2026-11-01T18:41:23.6329484Z",
+    "endUtc": "2026-11-01T18:42:51.6211217Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 88.0212108
+  },
+  {
+    "name": "check-full",
+    "script": "check.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\check.ps1"
+    ],
+    "startUtc": "2026-11-01T18:42:59.0793854Z",
+    "endUtc": "2026-11-01T18:44:40.035926Z",
+    "exitCode": 0,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 100.9959075
+  },
+  {
+    "name": "version-full",
+    "script": "tools/check-version.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\tools\\check-version.ps1"
+    ],
+    "startUtc": "2026-11-01T18:44:40.1309466Z",
+    "endUtc": "2026-11-01T18:44:40.9275907Z",
+    "exitCode": 1,
+    "timedOut": false,
+    "source": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+    "elapsedSeconds": 0.8307613
+  }
+]

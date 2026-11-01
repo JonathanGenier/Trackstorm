@@ -1,0 +1,18 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Five authored rounds; one lit captive round after cocking and feed.
+Seated round/fuse survive translated airborne pose and 0-degree roll, including 35-second ready wait.
+Seated round/fuse survive translated airborne pose and 90-degree roll, including 35-second ready wait.
+Seated round/fuse survive translated airborne pose and 180-degree roll, including 35-second ready wait.
+Seated round/fuse survive translated airborne pose and 270-degree roll, including 35-second ready wait.
+Flight model tumbles independently of ballistic translation.
+Five simultaneous arcs leave connected bounded world-space trails.
+Smoke survives projectile removal and remains at five seconds.
+Ten-second smoke remains alive while shader opacity gradually fades.
+All historical smoke expires fifteen seconds after its own emission.
+Rendered sixteen concurrent rounds for thirty simulated seconds; bounded 14432 smoke segments.
+Sixteen simultaneous high-speed trails for thirty seconds stay within 16,384 segments without drops.
+Over-budget catch-up declines new cosmetic segments while preserving existing fade lifetimes.
+Saturated pool fully drains after emission stops.
+Salvo projectile presentation passed: 15 checks; production round, fuse, tumble, 15-second fading smoke and fixed budget.

@@ -1,0 +1,5 @@
+Exception: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\check-mine.ps1:16
+Line |
+  16 |  . ine integration passed:')) { throw 'Proxy Mine integration failed.' }
+     |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Proxy Mine integration failed.

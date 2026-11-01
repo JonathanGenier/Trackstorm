@@ -1,0 +1,11 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Heavy case 0: drift 0.085 m, car damage 0.0, wall HP 1000.0, final speed 0.000 m/s.
+Heavy case 1: drift 0.489 m, car damage 62.7, wall HP 937.3, final speed 0.000 m/s.
+Heavy case 2: drift 1.141 m, car damage 100.0, wall HP 900.0, final speed 0.000 m/s.
+Heavy case 3: drift 0.485 m, car damage 63.1, wall HP 936.9, final speed 0.000 m/s.
+Heavy case 4: drift 0.484 m, car damage 63.1, wall HP 936.9, final speed 0.000 m/s.
+Heavy case 5: drift 0.492 m, car damage 62.7, wall HP 937.3, final speed 0.000 m/s.
+Heavy case 6: drift 0.005 m, car damage 62.7, wall HP 937.3, final speed 0.000 m/s.
+Heavy case 7: drift 2.604 m, car damage 0.0, wall HP 1000.0, final speed 0.640 m/s.
+World wall integration passed: heavy center/wings/bank, simultaneous cars, repeated use, sustained push and authoritative damage.

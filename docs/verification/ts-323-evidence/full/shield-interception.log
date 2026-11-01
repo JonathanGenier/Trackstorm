@@ -1,0 +1,97 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Three native UDP worlds joined
+Active fixture configuration
+Production default blast radius is three feet
+Five-metre Salvo fixture exposes both hull and armor to one blast
+Fresh ordinary selected Shield
+Native projectile detonated
+Salvo, yaw 0, blast <0, 0.25, 4>: covered car unchanged
+Rear/upper blast damages armor once
+Exact shield HP and damage watermark converge across three impaired UDP peers
+Vehicle HP converges without duplicate damage
+Fresh ordinary selected Shield
+Native projectile detonated
+Salvo, yaw 0, blast <0, 0.25, -3>: exposed car damaged
+Exact shield HP and damage watermark converge across three impaired UDP peers
+Vehicle HP converges without duplicate damage
+Fresh ordinary selected Shield
+Native projectile detonated
+Salvo, yaw 0, blast <0, 3, 3.6>: exposed car damaged
+Rear/upper blast damages armor once
+Exact shield HP and damage watermark converge across three impaired UDP peers
+Vehicle HP converges without duplicate damage
+Fresh ordinary selected Shield
+Native projectile detonated
+Salvo, yaw 1.2, blast <0, 0.25, 4>: covered car unchanged
+Rear/upper blast damages armor once
+Exact shield HP and damage watermark converge across three impaired UDP peers
+Vehicle HP converges without duplicate damage
+Fresh ordinary selected Shield
+Native projectile detonated
+Salvo, yaw 1.2, blast <0, 0.25, -3>: exposed car damaged
+Exact shield HP and damage watermark converge across three impaired UDP peers
+Vehicle HP converges without duplicate damage
+Fresh ordinary selected Shield
+Native projectile detonated
+Salvo, yaw 1.2, blast <0, 3, 3.6>: exposed car damaged
+Rear/upper blast damages armor once
+Exact shield HP and damage watermark converge across three impaired UDP peers
+Vehicle HP converges without duplicate damage
+Fresh ordinary selected Shield
+Native projectile detonated
+Missile, yaw 0, blast <0, 0.25, 4>: covered car unchanged
+Rear/upper blast damages armor once
+Exact shield HP and damage watermark converge across three impaired UDP peers
+Vehicle HP converges without duplicate damage
+Fresh ordinary selected Shield
+Native projectile detonated
+Missile, yaw 0, blast <0, 0.25, -3>: exposed car damaged
+Exact shield HP and damage watermark converge across three impaired UDP peers
+Vehicle HP converges without duplicate damage
+Fresh ordinary selected Shield
+Native projectile detonated
+Missile, yaw 0, blast <0, 3, 3.6>: exposed car damaged
+Rear/upper blast damages armor once
+Exact shield HP and damage watermark converge across three impaired UDP peers
+Vehicle HP converges without duplicate damage
+Fresh ordinary selected Shield
+Native projectile detonated
+Missile, yaw 1.2, blast <0, 0.25, 4>: covered car unchanged
+Rear/upper blast damages armor once
+Exact shield HP and damage watermark converge across three impaired UDP peers
+Vehicle HP converges without duplicate damage
+Fresh ordinary selected Shield
+Native projectile detonated
+Missile, yaw 1.2, blast <0, 0.25, -3>: exposed car damaged
+Exact shield HP and damage watermark converge across three impaired UDP peers
+Vehicle HP converges without duplicate damage
+Fresh ordinary selected Shield
+Native projectile detonated
+Missile, yaw 1.2, blast <0, 3, 3.6>: exposed car damaged
+Rear/upper blast damages armor once
+Exact shield HP and damage watermark converge across three impaired UDP peers
+Vehicle HP converges without duplicate damage
+Contact weapons use selected rear armor
+Two simultaneous EMP rounds hit native armor
+EMP denied at <0, 0.25, 4> with no HP loss or replicated attachment
+Two simultaneous EMP rounds hit native armor
+EMP denied at <-2.4, 0.25, 2.5> with no HP loss or replicated attachment
+Two simultaneous EMP rounds hit native armor
+EMP denied at <2.4, 0.25, 2.5> with no HP loss or replicated attachment
+Mine detonates through native contact
+Mine rear armor receives exactly one 250 HP application
+Mine removal and armor damage converge across impaired peers
+Mine detonates through native contact
+Mine exposed front receives exactly one 250 HP application
+Mine removal and armor damage converge across impaired peers
+Deployed wall fixture gets ordinary shield
+Install world-space wall fixture
+Missile hits damaged deployed wall
+Lethal wall hit removes armor while shielding the car
+Destroyed wall disappears on every peer
+Next missile reaches exposed chassis
+No stale native wall interception after destruction
+Ten seconds of sustained post-destruction gameplay retain cleanup
+Shield interception integration passed: 93 checks; native impacts, directional cover and impaired UDP.

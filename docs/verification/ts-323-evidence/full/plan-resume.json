@@ -1,0 +1,247 @@
+[
+  {
+    "name": "twin-fang",
+    "script": "check-twin-fang.ps1",
+    "args": [
+      "-Motion"
+    ]
+  },
+  {
+    "name": "machine-gun",
+    "script": "check-machine-gun.ps1",
+    "args": [
+      "-Impaired"
+    ]
+  },
+  {
+    "name": "machine-gun-vfx",
+    "script": "check-machine-gun-vfx.ps1",
+    "args": [
+      "-Motion"
+    ]
+  },
+  {
+    "name": "machine-gun-impact",
+    "script": "check-machine-gun-impact.ps1",
+    "args": []
+  },
+  {
+    "name": "missile-presentation",
+    "script": "check-missile-presentation.ps1",
+    "args": [
+      "-Visual"
+    ]
+  },
+  {
+    "name": "missile-terrain",
+    "script": "check-missile-terrain.ps1",
+    "args": []
+  },
+  {
+    "name": "missile-explosion",
+    "script": "check-missile-explosion.ps1",
+    "args": [
+      "-Visual"
+    ]
+  },
+  {
+    "name": "salvo-catapult",
+    "script": "check-salvo-catapult.ps1",
+    "args": [
+      "-Visual"
+    ]
+  },
+  {
+    "name": "salvo-explosion",
+    "script": "check-salvo-explosion.ps1",
+    "args": [
+      "-Visual"
+    ]
+  },
+  {
+    "name": "oil-jack",
+    "script": "check-oil-jack.ps1",
+    "args": [
+      "-Visual",
+      "-Impaired"
+    ]
+  },
+  {
+    "name": "oil-tires",
+    "script": "check-oil-tires.ps1",
+    "args": [
+      "-Visual"
+    ]
+  },
+  {
+    "name": "oil-handling",
+    "script": "check-oil-handling.ps1",
+    "args": []
+  },
+  {
+    "name": "mine",
+    "script": "check-mine.ps1",
+    "args": [
+      "-Visual",
+      "-Impaired"
+    ]
+  },
+  {
+    "name": "shield-presentation",
+    "script": "check-shield-presentation.ps1",
+    "args": [
+      "-Visual"
+    ]
+  },
+  {
+    "name": "shield-world",
+    "script": "check-world-wall.ps1",
+    "args": [
+      "-Impaired"
+    ]
+  },
+  {
+    "name": "shield-terrain",
+    "script": "check-world-wall.ps1",
+    "args": [
+      "-TerrainStability",
+      "-ProductionMap",
+      "-Impaired",
+      "-Profile"
+    ]
+  },
+  {
+    "name": "shield-heavy",
+    "script": "check-world-wall.ps1",
+    "args": [
+      "-Heavy",
+      "-Impaired"
+    ]
+  },
+  {
+    "name": "shield-interception",
+    "script": "check-shield-interception.ps1",
+    "args": [
+      "-Visual"
+    ]
+  },
+  {
+    "name": "emp-presentation",
+    "script": "check-emp-claw.ps1",
+    "args": [
+      "-Visual"
+    ]
+  },
+  {
+    "name": "emp-devtools",
+    "script": "check-developer-options.ps1",
+    "args": [
+      "-EmpClawOnly"
+    ]
+  },
+  {
+    "name": "emp-flight",
+    "script": "check-emp-claw-flight.ps1",
+    "args": []
+  },
+  {
+    "name": "emp-attachments",
+    "script": "check-emp-claw-attachments.ps1",
+    "args": []
+  },
+  {
+    "name": "emp-counterplay",
+    "script": "check-emp-claw-counterplay.ps1",
+    "args": [
+      "-Visual"
+    ]
+  },
+  {
+    "name": "wrench-arm",
+    "script": "check-wrench-arm.ps1",
+    "args": [
+      "-Visual",
+      "-Impaired"
+    ]
+  },
+  {
+    "name": "boost-exhaust",
+    "script": "check-boost-exhaust.ps1",
+    "args": []
+  },
+  {
+    "name": "boost-camera",
+    "script": "check-boost-camera.ps1",
+    "args": []
+  },
+  {
+    "name": "audio",
+    "script": "check-audio.ps1",
+    "args": []
+  },
+  {
+    "name": "post-match",
+    "script": "check-post-match.ps1",
+    "args": [
+      "-Impaired",
+      "-Cycles",
+      "3"
+    ]
+  },
+  {
+    "name": "reconnect-shield",
+    "script": "check-reconnect.ps1",
+    "args": [
+      "-Shield"
+    ]
+  },
+  {
+    "name": "reconnect-oil",
+    "script": "check-reconnect.ps1",
+    "args": [
+      "-OilFiring"
+    ]
+  },
+  {
+    "name": "reconnect-emp",
+    "script": "check-reconnect.ps1",
+    "args": [
+      "-EmpClaw"
+    ]
+  },
+  {
+    "name": "network-vehicles-four",
+    "script": "check-network-vehicles.ps1",
+    "args": [
+      "-Players",
+      "4",
+      "-Latency",
+      "30",
+      "-Jitter",
+      "5",
+      "-Loss",
+      "2"
+    ]
+  },
+  {
+    "name": "performance",
+    "script": "tools/benchmark-performance.ps1",
+    "args": [
+      "-Ticks",
+      "1200",
+      "-Runs",
+      "3",
+      "-Label",
+      "ts323-full"
+    ]
+  },
+  {
+    "name": "network-soak",
+    "script": "check-network-soak.ps1",
+    "build": true,
+    "args": [
+      "-Cycles",
+      "3"
+    ]
+  }
+]

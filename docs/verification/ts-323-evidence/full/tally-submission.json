@@ -1,0 +1,34 @@
+{
+  "status": "SUCCESS_CONFIRMED",
+  "confirmedUtc": "2026-11-01T18:46:50.599Z",
+  "form": "https://tally.so/r/ArzBOB",
+  "runId": "TS-323-2026-10-31-full",
+  "questions": 140,
+  "sections": 14,
+  "totals": {
+    "PASS": 99,
+    "FAIL": 4,
+    "PARTIAL": 36,
+    "NOT TESTED": 1
+  },
+  "critiqueScore": 6.5,
+  "visibleConfirmation": [
+    "Form submitted",
+    "Thanks for completing this form!"
+  ],
+  "submissionId": null,
+  "submissionIdNote": "No submission ID or receipt number was displayed; confirmation is the browser success page.",
+  "fullAuditSubmitAttempts": 1,
+  "preSubmitValidation": {
+    "questions": 140,
+    "counts": {
+      "PASS": 99,
+      "FAIL": 4,
+      "PARTIAL": 36,
+      "NOT TESTED": 1
+    },
+    "mismatches": [],
+    "fieldMismatches": []
+  },
+  "screenshot": "tally-submission.jpg"
+}

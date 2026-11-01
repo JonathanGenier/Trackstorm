@@ -1,0 +1,14 @@
+{
+  "Head": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+  "Status": [],
+  "Label": "ts323-full",
+  "Ticks": 1200,
+  "Runs": 3,
+  "Executable": "C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+  "Exported": false,
+  "Headless": false,
+  "PowerMode": [
+    "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)"
+  ],
+  "StartedUtc": "2026-11-01T18:08:06.9613739Z"
+}

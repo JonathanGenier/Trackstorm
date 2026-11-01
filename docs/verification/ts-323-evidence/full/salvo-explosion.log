@@ -1,0 +1,154 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Three native UDP worlds joined
+Active fixture configuration
+Production default blast radius is three feet
+Terrain probe flat crossing: fraction=0.5
+Terrain probe flat exact endpoint: fraction=1
+Terrain probe flat boundary start: fraction=0
+Terrain probe diagonal seam: fraction=0.5
+Terrain probe shallow boundary: fraction=0.5
+Five native terrain boundary contacts, including exact endpoint/start and seam: failures=
+774 production terrain surface-start contacts at steep/shallow angles
+Original 5 m aiming-circle radius restored with 0.5 m ring width
+DevTools damage-radius changes do not resize or move the aiming circle
+Independent marker-scale control retains its range
+Target acquires ordinary rear armor
+One native chassis impact reaches all three peers
+Front-exposed vehicle takes damage; rear armor remains intact
+Three visual bursts apply no later damage
+Two overlapping native rear-panel impacts replicate once each
+Overlapping impacts spend shield HP twice without vehicle leakage
+All peers agree on impact tokens, owners and positions
+Repeated normal Salvo grant
+Repeated normal Salvo grant
+Both catapults ready
+Host and remote simultaneously commit five-shot volleys
+Ten native impacts converge under 45 ms delay, 8 ms jitter and 2% loss
+No missing or duplicate cross-client explosions
+Repeated normal Salvo grant
+Repeated normal Salvo grant
+Both catapults ready
+Host and remote simultaneously commit five-shot volleys
+Ten native impacts converge under 45 ms delay, 8 ms jitter and 2% loss
+No missing or duplicate cross-client explosions
+Repeated normal Salvo grant
+Repeated normal Salvo grant
+Both catapults ready
+Host and remote simultaneously commit five-shot volleys
+Ten native impacts converge under 45 ms delay, 8 ms jitter and 2% loss
+No missing or duplicate cross-client explosions
+Production smoke accumulation has bounded, unique effect owners
+Production smoke accumulation has bounded, unique effect owners
+Production smoke accumulation has bounded, unique effect owners
+terrain-0-speed-150 speed configured
+terrain-0-speed-150 full magazine
+terrain-0-speed-150 full magazine
+terrain-0-speed-150 catapults ready
+terrain-0-speed-150 concurrent five-round activation
+terrain-0-speed-150 all ten impacts replicated
+terrain-0-speed-150 each of ten launched rounds hit native ground, without lifetime fallback
+terrain-0-speed-150 unique matching outcomes peer 0
+terrain-0-speed-150 one live visual explosion for every authoritative impact peer 0
+terrain-0-speed-150 unique matching outcomes peer 1
+terrain-0-speed-150 one live visual explosion for every authoritative impact peer 1
+terrain-0-speed-150 unique matching outcomes peer 2
+terrain-0-speed-150 one live visual explosion for every authoritative impact peer 2
+terrain-0-speed-150 enlarged VFX retain three-foot gameplay radius
+terrain-0-speed-200 speed configured
+terrain-0-speed-200 full magazine
+terrain-0-speed-200 full magazine
+terrain-0-speed-200 catapults ready
+terrain-0-speed-200 concurrent five-round activation
+terrain-0-speed-200 all ten impacts replicated
+terrain-0-speed-200 each of ten launched rounds hit native ground, without lifetime fallback
+terrain-0-speed-200 unique matching outcomes peer 0
+terrain-0-speed-200 one live visual explosion for every authoritative impact peer 0
+terrain-0-speed-200 unique matching outcomes peer 1
+terrain-0-speed-200 one live visual explosion for every authoritative impact peer 1
+terrain-0-speed-200 unique matching outcomes peer 2
+terrain-0-speed-200 one live visual explosion for every authoritative impact peer 2
+terrain-0-speed-200 enlarged VFX retain three-foot gameplay radius
+terrain-1-speed-20 speed configured
+terrain-1-speed-20 full magazine
+terrain-1-speed-20 full magazine
+terrain-1-speed-20 catapults ready
+terrain-1-speed-20 concurrent five-round activation
+terrain-1-speed-20 all ten impacts replicated
+terrain-1-speed-20 each of ten launched rounds hit native ground, without lifetime fallback
+terrain-1-speed-20 unique matching outcomes peer 0
+terrain-1-speed-20 one live visual explosion for every authoritative impact peer 0
+terrain-1-speed-20 unique matching outcomes peer 1
+terrain-1-speed-20 one live visual explosion for every authoritative impact peer 1
+terrain-1-speed-20 unique matching outcomes peer 2
+terrain-1-speed-20 one live visual explosion for every authoritative impact peer 2
+terrain-1-speed-20 enlarged VFX retain three-foot gameplay radius
+terrain-1-speed-200 speed configured
+terrain-1-speed-200 full magazine
+terrain-1-speed-200 full magazine
+terrain-1-speed-200 catapults ready
+terrain-1-speed-200 concurrent five-round activation
+terrain-1-speed-200 all ten impacts replicated
+terrain-1-speed-200 each of ten launched rounds hit native ground, without lifetime fallback
+terrain-1-speed-200 unique matching outcomes peer 0
+terrain-1-speed-200 one live visual explosion for every authoritative impact peer 0
+terrain-1-speed-200 unique matching outcomes peer 1
+terrain-1-speed-200 one live visual explosion for every authoritative impact peer 1
+terrain-1-speed-200 unique matching outcomes peer 2
+terrain-1-speed-200 one live visual explosion for every authoritative impact peer 2
+terrain-1-speed-200 enlarged VFX retain three-foot gameplay radius
+terrain-2-speed-150 speed configured
+terrain-2-speed-150 full magazine
+terrain-2-speed-150 full magazine
+terrain-2-speed-150 catapults ready
+terrain-2-speed-150 concurrent five-round activation
+terrain-2-speed-150 all ten impacts replicated
+terrain-2-speed-150 each of ten launched rounds hit native ground, without lifetime fallback
+terrain-2-speed-150 unique matching outcomes peer 0
+terrain-2-speed-150 one live visual explosion for every authoritative impact peer 0
+terrain-2-speed-150 unique matching outcomes peer 1
+terrain-2-speed-150 one live visual explosion for every authoritative impact peer 1
+terrain-2-speed-150 unique matching outcomes peer 2
+terrain-2-speed-150 one live visual explosion for every authoritative impact peer 2
+terrain-2-speed-150 enlarged VFX retain three-foot gameplay radius
+terrain-2-speed-200 speed configured
+terrain-2-speed-200 full magazine
+terrain-2-speed-200 full magazine
+terrain-2-speed-200 catapults ready
+terrain-2-speed-200 concurrent five-round activation
+terrain-2-speed-200 all ten impacts replicated
+terrain-2-speed-200 each of ten launched rounds hit native ground, without lifetime fallback
+terrain-2-speed-200 unique matching outcomes peer 0
+terrain-2-speed-200 one live visual explosion for every authoritative impact peer 0
+terrain-2-speed-200 unique matching outcomes peer 1
+terrain-2-speed-200 one live visual explosion for every authoritative impact peer 1
+terrain-2-speed-200 unique matching outcomes peer 2
+terrain-2-speed-200 one live visual explosion for every authoritative impact peer 2
+terrain-2-speed-200 enlarged VFX retain three-foot gameplay radius
+Five off-map lifetime detonations converge after checkpoint continuation
+Original 30-second deadline detonates once per round at its final flight endpoint, peer 0
+Every off-map fallback also creates one effect, peer 0
+Original 30-second deadline detonates once per round at its final flight endpoint, peer 1
+Every off-map fallback also creates one effect, peer 1
+Original 30-second deadline detonates once per round at its final flight endpoint, peer 2
+Every off-map fallback also creates one effect, peer 2
+Production launch speed restored after terrain fixtures
+Imported tall rock receives one real swept Salvo impact
+Native impact is outside ground-origin radius, exercising authored rock bounds
+One native Salvo explosion fractures imported rock once into two pieces
+Authoritative fracture replaces intact native geometry with visible pieces
+Three rendered bursts never repeat the rock destruction transaction
+Native Salvo impact on a large rotated debris edge advances destruction exactly one stage
+Duplicate reliable publication cannot duplicate the effect
+Three rapid visual bursts complete within 0.44 seconds
+Rollback of a recently detonated round neither duplicates nor restarts its active effect
+Smoke remains at age 2 seconds
+Smoke remains at age 10 seconds
+Smoke remains at age 19.5 seconds
+Smoke expires at twenty seconds
+Older accepted recovery checkpoint replays no historical explosion
+First post-recovery explosion appears exactly once after revision rebase
+Earlier native smoke fully clears
+Arena-owned effects free together on teardown
+Salvo explosion integration passed: 155 checks; native impacts, shield coverage, repeated volleys, impaired UDP, three bursts and smoke budget.

@@ -1,0 +1,1756 @@
+{
+  "story": "TS-323",
+  "runId": "TS-323-2026-10-31-full",
+  "dates": [
+    "2026-10-31",
+    "2026-11-01"
+  ],
+  "timezone": "America/New_York",
+  "branch": "ts-323-pg",
+  "sourceCommit": "30bb34da24290f4ee4bfa3f7deeda232d88479b4",
+  "testedHead": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+  "buildVersion": "0.2.75",
+  "form": "https://tally.so/r/ArzBOB",
+  "sections": 14,
+  "questions": 140,
+  "submission": "SUCCESS_CONFIRMED",
+  "critiqueScore": 6.5,
+  "totals": {
+    "PASS": 99,
+    "FAIL": 4,
+    "PARTIAL": 36,
+    "NOT TESTED": 1
+  },
+  "results": [
+    {
+      "id": "A001",
+      "question": "Does the game launch successfully without startup errors?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045; Godot .NET 4.7.2 ed1daf0bf; Debug build of 30bb34da24290f4ee4bfa3f7deeda232d88479b4 (0.2.75). Reused from the pilot after confirming game source and main unchanged on November 1; documentation-only HEAD 5ccf6df.",
+      "observations": "Rendered production startup harness passed with exit 0 and no diagnostics: phase-aware recovery, initialization, menu gating and media continuity.",
+      "evidence": [
+        "../startup-visual.log"
+      ],
+      "limitations": "Scoped to executed harness conditions. EOS authentication, WAN/multiple physical machines, audible output and human controller feel not verified. Automated loopback peers do not replace human multiplayer approval."
+    },
+    {
+      "id": "A002",
+      "question": "Does the main menu load and display correctly?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045; Godot .NET 4.7.2 ed1daf0bf; Debug build of 30bb34da24290f4ee4bfa3f7deeda232d88479b4 (0.2.75). Reused from the pilot after confirming game source and main unchanged on November 1; documentation-only HEAD 5ccf6df.",
+      "observations": "Current rendered 1280x720 settled menu inspected: readable Play, disabled Garage/Coming Soon, Settings, Quit and v0.2.75. Startup harness also verified viewport bounds and navigation.",
+      "evidence": [
+        "../startup-visual.log",
+        "../menu-settled.png"
+      ],
+      "limitations": "Scoped to executed harness conditions. EOS authentication, WAN/multiple physical machines, audible output and human controller feel not verified. Automated loopback peers do not replace human multiplayer approval."
+    },
+    {
+      "id": "A003",
+      "question": "Can a new gameplay session start and initialize correctly?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045; Godot .NET 4.7.2 ed1daf0bf; Debug build of 30bb34da24290f4ee4bfa3f7deeda232d88479b4 (0.2.75). Reused from the pilot after confirming game source and main unchanged on November 1; documentation-only HEAD 5ccf6df.",
+      "observations": "Native menu integration passed 3535 assertions, including a solo UDP gameplay session entering synchronized Countdown.",
+      "evidence": [
+        "../menu-native.log"
+      ],
+      "limitations": "Scoped to executed harness conditions. EOS authentication, WAN/multiple physical machines, audible output and human controller feel not verified. Automated loopback peers do not replace human multiplayer approval."
+    },
+    {
+      "id": "A004",
+      "question": "Can the player exit and restart gameplay without stale state?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045; Godot .NET 4.7.2 ed1daf0bf; Debug build of 30bb34da24290f4ee4bfa3f7deeda232d88479b4 (0.2.75). Reused from the pilot after confirming game source and main unchanged on November 1; documentation-only HEAD 5ccf6df.",
+      "observations": "The same native menu run verified Leave returns to Main Menu, reentry starts a fresh Countdown, and production Quit disposes the arena/session.",
+      "evidence": [
+        "../menu-native.log"
+      ],
+      "limitations": "Scoped to executed harness conditions. EOS authentication, WAN/multiple physical machines, audible output and human controller feel not verified. Automated loopback peers do not replace human multiplayer approval."
+    },
+    {
+      "id": "A005",
+      "question": "Does the game recover from vehicle death and respawn?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045; Godot .NET 4.7.2 ed1daf0bf; Debug build of 30bb34da24290f4ee4bfa3f7deeda232d88479b4 (0.2.75). Reused from the pilot after confirming game source and main unchanged on November 1; documentation-only HEAD 5ccf6df.",
+      "observations": "Eight native UDP peers completed four alternating Missile/collision deaths. All peers observed Dead/Respawning/Alive; respawn ticks 465, 662, 961, 1158; reset physics/HP/items/VFX and permanent second-slot discard verified.",
+      "evidence": [
+        "../death-native.log",
+        "../death-evidence.txt"
+      ],
+      "limitations": "Scoped to executed harness conditions. EOS authentication, WAN/multiple physical machines, audible output and human controller feel not verified. Automated loopback peers do not replace human multiplayer approval."
+    },
+    {
+      "id": "A006",
+      "question": "Can the player pause and resume without breaking gameplay?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Menu harness exercised gameplay input suppression and return to gameplay; this is the game menu/resume contract, not a claim that a multiplayer world globally pauses.",
+      "evidence": [
+        "../menu-native.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A007",
+      "question": "Does restarting a session reset the appropriate world and player state?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Current-source menu leave/reentry checks reset the session. The new impaired post-match run passed 191 assertions across three fresh rematch generations, including reset/state-transition contracts.",
+      "evidence": [
+        "../menu-native.log",
+        "post-match.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A008",
+      "question": "Are scene transitions free of unexpected errors or missing resources?",
+      "result": "FAIL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Menu/startup transition checks passed, but native multi-world vehicle initialization during rendered EMP counterplay emitted a Godot managed-handle error in MatchResourceLoader/BoostExhaust._Ready. The wrapper exited 1 despite completed functional assertions, so error-free resource initialization cannot be claimed. One identical focused rendered rerun passed without diagnostics (389 counterplay assertions, 390 including final network assertion); this non-reproduction does not erase the first diagnostic or establish its cause.",
+      "evidence": [
+        "../startup-visual.log",
+        "../menu-native.log",
+        "emp-counterplay.log",
+        "emp-counterplay.stderr.log",
+        "emp-counterplay-repro.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A009",
+      "question": "Do repeated gameplay sessions avoid accumulating errors or orphaned objects?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Three impaired rematches passed with zero orphan nodes in every cycle. Recorded node counts were 13,646/14,273/14,583 and private memory 789.3/805.2/807.1 MB; bounded current counts do not establish a long-session leak trend. A separate native initialization diagnostic is recorded at A008.",
+      "evidence": [
+        "post-match.log",
+        "emp-counterplay.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A010",
+      "question": "Does the game remain stable throughout an extended single-player session?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Eight cars completed 5,400 production-map ticks with no rollovers, unsupported samples or HP loss. This bounded 90-simulation-second route run does not establish a long human single-player session.",
+      "evidence": [
+        "integrated-driving.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A011",
+      "question": "Do all applicable main-menu and settings controls respond correctly?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Menu navigation and settings signals passed; settings write/read/rendered phases completed 8/30/74 assertions.",
+      "evidence": [
+        "../menu-native.log",
+        "settings.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A012",
+      "question": "Do keyboard and mouse inputs perform their assigned actions?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "2,052 native synthetic input assertions passed, including bindings, remapping, short taps and suppression; vehicle traces exercised the resulting controls.",
+      "evidence": [
+        "input.log",
+        "vehicle.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A013",
+      "question": "Do physical controller inputs and device switching behave correctly?",
+      "result": "NOT TESTED",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "The input harness detected zero connected physical gamepads. Synthetic joypad events do not verify a physical controller or real device switching.",
+      "evidence": [
+        "input.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A014",
+      "question": "Are the two item slots displayed and updated correctly?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Nine-resolution HUD check passed; inspected 1280x720 capture shows independently charged slots and a clear selected-slot border. Eight-peer switching/discard checks also passed before the separate Missile failure.",
+      "evidence": [
+        "hud.log",
+        "items.log",
+        "images/hud-selected-slot2.png"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A015",
+      "question": "Do weapon-specific item HUD variants display correctly?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "HUD runtime exercised all item display states, Machine Gun counts, Salvo rounds, Shield HP, Boost percentage and EMP counters at multiple resolutions.",
+      "evidence": [
+        "hud.log",
+        "images/hud-emp640.png"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A016",
+      "question": "Are ammunition, cooldown, health and damage indicators accurate?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "HUD state/units/HP assertions passed; native vehicle damage changed HP, and eight peers agreed on exact 500 HP Wrench repair. Display fixtures and actual authority checks are separate evidence.",
+      "evidence": [
+        "hud.log",
+        "vehicle.log",
+        "items.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A017",
+      "question": "Do gameplay and camera settings persist through a restart?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "A separate process loaded saved gameplay, input, camera, audio, display and HUD preferences; camera values applied in 164 ground/air aiming cases without changing host or observer preferences.",
+      "evidence": [
+        "settings.log",
+        "aim-camera-settings.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A018",
+      "question": "Does Reset User Settings restore intended defaults?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Settings runtime exercised reset/default restoration and persisted bindings/preferences in isolated verification files.",
+      "evidence": [
+        "settings.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A019",
+      "question": "Do audio and other available settings apply correctly?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Settings tests verified mute/unmute and Music/SFX runtime bus gains plus display/HUD application and persistence. Actual audible mix and device output were not listened to.",
+      "evidence": [
+        "settings.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A020",
+      "question": "Are HUD elements readable during driving, aiming and heavy combat?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Inspected normal HUD and native Machine Gun firing captures remain legible. These selected views do not establish readability during every mixed-weapon combat combination or physical play.",
+      "evidence": [
+        "hud.log",
+        "aim.log",
+        "images/native-mg-sustained.png"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A021",
+      "question": "Does vehicle acceleration behave consistently with established tuning?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native acceleration traces passed at 30 and 144 render rates; measured final speeds included 14.267 m/s from rest in the scripted acceleration case.",
+      "evidence": [
+        "vehicle.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A022",
+      "question": "Do braking and reversing behave correctly?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Braking, reverse and brake-to-throttle recovery passed; reverse observation 5.67 m/s displayed as 20 km/h.",
+      "evidence": [
+        "vehicle.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A023",
+      "question": "Does steering remain responsive at low and high speeds?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Low/fast cornering, lane changes, handbrake and power-out traces passed at both render rates. Physical-control responsiveness remains a separate human judgment.",
+      "evidence": [
+        "vehicle.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A024",
+      "question": "Does the suspension behave correctly on uneven terrain?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native suspension/surface checks and eight-car production terrain routes passed; all 5,400 route ticks remained supported under the measured fixture conditions.",
+      "evidence": [
+        "vehicle.log",
+        "integrated-driving.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A025",
+      "question": "Are jumps and landings physically stable?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native ramp/landing/recovery cases passed, including rendered mud landing. Scope is the executed fixtures, not every possible jump or collision.",
+      "evidence": [
+        "vehicle.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A026",
+      "question": "Do banks, ramps and slopes produce predictable vehicle behavior?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native ramp/surface transitions and production infield route traversal remained finite, upright and supported in the executed cases.",
+      "evidence": [
+        "vehicle.log",
+        "integrated-driving.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A027",
+      "question": "Do collisions with arena structures resolve correctly?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native structure/prop collision and damage assertions passed in the vehicle fixture. Production route integration also completed without invalid state.",
+      "evidence": [
+        "vehicle.log",
+        "integrated-driving.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A028",
+      "question": "Do vehicle-to-vehicle collisions produce established damage and movement?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Vehicle-to-vehicle collision fixture produced distinct expected HP loss (81.74 and 26.97 HP), while repeated low-severity brushing preserved 100 HP. Native movement and impulse checks passed.",
+      "evidence": [
+        "vehicle.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A029",
+      "question": "Do recovery, unstuck and respawn behavior work where implemented?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Vehicle recovery and life reset passed; prior current-source death/respawn run verified four alternating Missile/collision deaths and return to Alive with reset physics/items/VFX.",
+      "evidence": [
+        "vehicle.log",
+        "../death-native.log",
+        "../death-evidence.txt"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A030",
+      "question": "Does vehicle handling remain stable while carrying or deploying weapons?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Driving-fire tests passed with Machine Gun, Missile, EMP Claw and Salvo; integration routes remained stable. Physical handling feel across every carried/deployed loadout was not established.",
+      "evidence": [
+        "aim-driving.log",
+        "integrated-driving.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A031",
+      "question": "Does the camera provide smooth full 360-degree movement?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native camera checks exercised orbit/hold/release, angular bounds and stable transforms at 30/60/144 FPS. Subjective smoothness on physical devices is outside this automated result.",
+      "evidence": [
+        "camera.log",
+        "vehicle.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A032",
+      "question": "Are approved camera defaults and player adjustments correctly applied?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Defaults and local camera adjustments passed separate-process persistence and 986 preference/aim assertions across 164 low/default/high ground/air cases.",
+      "evidence": [
+        "settings.log",
+        "aim-camera-settings.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A033",
+      "question": "Does entering and exiting aim mode preserve appropriate framing?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native camera orbit, held aim, release/recenter and life/reset framing checks passed; ordinary driving-fire also passed without camera aim.",
+      "evidence": [
+        "camera.log",
+        "vehicle.log",
+        "aim-driving.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A034",
+      "question": "Does the raised driving crosshair remain visible above the weapon?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "All four direct-fire/Salvo driving fixtures verified a raised square visible above the weapon and projected onto the accepted firing line.",
+      "evidence": [
+        "aim-driving.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A035",
+      "question": "Do white, red and green crosshair states accurately represent firing and lock eligibility?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Accepted ready and free-fire behavior and a green target cursor were observed. The default integrated aim run aborted at reacquisition, so the complete later color/eligibility sequence is not claimed.",
+      "evidence": [
+        "aim.log",
+        "aim-missile.log",
+        "images/native-mg-forward.png"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A036",
+      "question": "Does magnetic acquisition engage correctly on stationary and moving targets?",
+      "result": "FAIL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Initial acquisition worked, but deliberately returning to a dismissed car did not rearm acquisition: selected=0, expected=3, visible sight=True. The same assertion failed in the isolated Freedom run.",
+      "evidence": [
+        "aim.log",
+        "aim-freedom-repro.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A037",
+      "question": "Does target retention remain stable without excessive stickiness?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Magnetic departure/manual-leading checks passed under impairment, and earlier retained driving engagement passed. Dismissed-target reacquisition remains broken in the reproduced fixture.",
+      "evidence": [
+        "aim-magnetic.log",
+        "aim-freedom-repro.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A038",
+      "question": "Can mouse and controller users deliberately break away and switch targets?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Synthetic mouse and controller deliberate departure passed and a sweep selected the second car. Returning to a dismissed target failed; no physical-controller judgment is claimed.",
+      "evidence": [
+        "aim-magnetic.log",
+        "aim-freedom-repro.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A039",
+      "question": "Does free-camera mode toggle and restore normal gameplay without altering aim or vehicle authority?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Photo/free-camera checks passed keyboard/D-pad toggles, translation at 30/60/144 FPS, mouse look, no drive/fire/aim authority, leaderboard access and chase restoration after exit/focus/menu/recovery.",
+      "evidence": [
+        "camera.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A040",
+      "question": "Do crosshair placement, accepted shot direction and valid vertical aiming remain aligned across applicable weapons?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Road-forward accepted lines passed for Machine Gun/Missile/EMP/Salvo; 272 Missile and 986 camera-preference checks passed, including socket/accepted direction and vertical cases. The full default aim sequence aborted at a separate reacquisition assertion.",
+      "evidence": [
+        "aim-driving.log",
+        "aim-missile.log",
+        "aim-camera-settings.log",
+        "aim.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A041",
+      "question": "Do Carnival Mystery Crates display with their intended model and presentation?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Rendered production terrain capture shows the authored three-crate carnival stack with red/gold materials and ITEM label; runtime presentation assertions passed.",
+      "evidence": [
+        "carnival-smash.log",
+        "images/crate-intact.png"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A042",
+      "question": "Does crate destruction produce the approved smash and confetti sequence?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Inspected the 0.22-second smash capture with separated fragments and gold confetti. The harness exercised five environment presets, normal lifecycle and bounded publication pressure.",
+      "evidence": [
+        "carnival-smash.log",
+        "images/crate-smash.png"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A043",
+      "question": "Does a successful pickup grant the expected item?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Both application peers obtained every registered item through normal pickup authority; all 180 native moving crossings acquired an item at three speeds and offsets.",
+      "evidence": [
+        "pickup-drive.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A044",
+      "question": "Does pickup correctly handle full item slots?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Both peers filled two sequential slots, rejected acquisition when full, then used an item and retried successfully.",
+      "evidence": [
+        "pickup-drive.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A045",
+      "question": "Are item-slot HUD and actual inventory state always consistent?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "HUD fixture reflected selected ownership and resources; eight native peers agreed on switch/discard and Wrench consumption, and normal pickup verified both slots.",
+      "evidence": [
+        "hud.log",
+        "items.log",
+        "pickup-drive.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A046",
+      "question": "Can the player switch between available items without losing state?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Eight-peer slot switching/discard checks passed, preserving the other physical slot; Missile checks also preserved a new pickup while the empty launcher returned.",
+      "evidence": [
+        "items.log",
+        "aim-missile.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A047",
+      "question": "Do weapon stow and deployment animations complete without conflicts?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Focused Machine Gun, Missile, Salvo, Oil, Shield, EMP and Wrench presentation/handoff checks exercised stow/deployment and preserved incoming items. Mine's later motion failure and EMP counterplay's resource diagnostic prevent a blanket conflict-free integrated result.",
+      "evidence": [
+        "twin-fang.log",
+        "missile-presentation.log",
+        "salvo-catapult.log",
+        "oil-jack.log",
+        "shield-presentation.log",
+        "emp-presentation.log",
+        "wrench-arm.log",
+        "mine.log",
+        "emp-counterplay.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A048",
+      "question": "Does weapon switching correctly interrupt or preserve in-progress actions according to established rules?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Missile pickup during post-fire retraction waited for complete stow. Salvo committed shots resisted switching/retrigger cancellation at exact 75-tick spacing; real death cleared the volley and timed respawn could not resume it. Cross-weapon interruption coverage is recorded by individual fixtures; every integrated interruption combination was not exercised.",
+      "evidence": [
+        "aim-missile.log",
+        "input.log",
+        "salvo-native.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A049",
+      "question": "Are pickup effects, particles and destroyed crates cleaned up?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "117 waves of 27 crate claims reached the 54-burst cap; all effects expired, paused cleanup returned nodes to baseline, resources stayed 565->565 and orphan count 0->0.",
+      "evidence": [
+        "carnival-smash.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A050",
+      "question": "Can repeated pickup, use, depletion and replacement cycles run without state corruption?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Normal pickup/use/retry and 180 moving crossings passed. Eight-peer Wrench cycles passed, but the general item run stopped at Missile damage falloff, so its later replacement scenarios were not completed.",
+      "evidence": [
+        "pickup-drive.log",
+        "items.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A051",
+      "question": "Does the Machine Gun deploy and stow using its approved model and rack?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Rendered Twin Fang checks passed forward/side/rear/overhead views, rack integration, yaw/elevation sweep and firing/release. Inspected production Harlequin model mounted on the car.",
+      "evidence": [
+        "twin-fang.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A052",
+      "question": "Do its barrels, articulation and firing animation operate correctly?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Twin Fang checks verified confirmed belt motion, barrel articulation, low-FPS flash and eight simultaneous scripted shooters.",
+      "evidence": [
+        "twin-fang.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A053",
+      "question": "Can it fire straight forward during normal driving without false self-obstruction?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Three-peer driving-fire fixture accepted road-forward Machine Gun direction without camera aim, produced authoritative outcomes and consumed rounds.",
+      "evidence": [
+        "aim-driving.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A054",
+      "question": "Does aiming track and fire at accepted targets correctly?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native forward/side/rear/elevated and moving Machine Gun cases produced accepted rays, actual hits and replicated damage. Reacquiring dismissed targets is separately failed at A036.",
+      "evidence": [
+        "aim.log",
+        "machine-gun.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A055",
+      "question": "Are projectile origins and actual trajectories aligned?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Rendered VFX checks measured 360 new flights at 30/60 FPS with maximum first-frame endpoint error 0.000002 m. Native firing separately verified shared origin/pivot and observer endpoints.",
+      "evidence": [
+        "machine-gun-vfx.log",
+        "aim.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A056",
+      "question": "Are the intended tracer colors, sequencing and visibility correct?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "711 rendered VFX checks passed; inspected the gold/red/green sequence capture and actual native tracer captures.",
+      "evidence": [
+        "machine-gun-vfx.log",
+        "images/native-mg-sustained.png"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A057",
+      "question": "Do bullet impacts and hit effects correspond to actual collisions?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Actual native hits/damage passed; 47 rendered impact checks covered material-specific feedback, sustained contacts, release and bounded catch-up. Cosmetic pressure deliberately coalesced/dropped excess work.",
+      "evidence": [
+        "machine-gun.log",
+        "machine-gun-impact.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A058",
+      "question": "Do short bursts, sustained fire and start/stop transitions display consistently?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native held-use/release and partial-magazine reuse through exhaustion passed under impairment; host and observer agreed on ordered firing. Visual checks exercised burst/release and low-FPS presentation.",
+      "evidence": [
+        "machine-gun.log",
+        "twin-fang.log",
+        "machine-gun-vfx.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A059",
+      "question": "Does the weapon preserve target and driving visibility during heavy fire?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Selected native firing and eight-shooter presentation captures kept the weapon/target visible. Competitive target visibility under mixed heavy combat was not tested by human players.",
+      "evidence": [
+        "aim.log",
+        "twin-fang.log",
+        "images/native-mg-sustained.png"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A060",
+      "question": "Where the approved Harlequin texture has been integrated, do geometry, drum magazines, material presentation and firing behavior remain correct?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Inspected rendered red/charcoal/cream Harlequin body and both lower drum magazines; yaw/elevation, belt and eight-shooter firing checks passed on the current imported model.",
+      "evidence": [
+        "twin-fang.log",
+        "machine-gun.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A061",
+      "question": "Does the Missile deploy and stow correctly?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Two production UDP peers completed deployment and full stow; early taps did not queue shots. All five body sections retained overlap through 101 extension poses, and replacement waited for closure.",
+      "evidence": [
+        "missile-presentation.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A062",
+      "question": "Does the Missile launch from the correct physical origin?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "272 Missile aiming checks verified the authored socket equals the shared launch pivot on all three peers; observer received identical ordered launch/impact outcomes.",
+      "evidence": [
+        "aim-missile.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A063",
+      "question": "Does normal-driving straight firing work without camera mode?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Normal driving fire accepted the Missile road-forward direction without camera aim and consumed its one-shot resource.",
+      "evidence": [
+        "aim-driving.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A064",
+      "question": "Does aim mode permit correct manual leading of moving targets?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Impaired magnetic-departure/manual-leading and Missile aiming checks passed using synthetic mouse/controller intent; actual authoritative launches followed the submitted free-aim direction.",
+      "evidence": [
+        "aim-magnetic.log",
+        "aim-missile.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A065",
+      "question": "Does the standard Missile remain non-homing after launch?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native Missile terrain suite passed straight/elevated and terrain transition cases with serialized continuation. Accepted manual launch direction was separately verified; no vehicle-homing behavior was observed in the exercised cases.",
+      "evidence": [
+        "missile-terrain.log",
+        "aim-missile.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A066",
+      "question": "Are its projectile model, flight animation and VFX displayed correctly?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Inspected player-camera mounted Missile and sixteen-flight VFX captures. Forty assertions verified flame surfaces, bounded confetti, density/reset behavior and cleanup of all flight owners.",
+      "evidence": [
+        "missile-presentation.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A067",
+      "question": "Do terrain and collision interactions follow the approved behavior?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native traversal, terrain transitions, impacts, tuning, serialized continuation and sustained cleanup passed, including production-map surface/bank cases.",
+      "evidence": [
+        "missile-terrain.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A068",
+      "question": "Are impact, explosion and damage effects consistent with collision outcomes?",
+      "result": "FAIL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Both impaired and unimpaired eight-peer item scenarios failed the same Missile damage-falloff assertion: near=1000 and far=1000 HP after the replicated impact. Focused aimed Missile hits did damage targets. Reproduction without impairment rules it out as the sole explanation; fixture versus gameplay cause remains unresolved.",
+      "evidence": [
+        "items.log",
+        "aim-missile.log",
+        "items-unimpaired.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A069",
+      "question": "Do ammunition, cooldown and destruction rules remain correct?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Focused Missile checks verified deployment readiness, one-shot consumption, empty-launcher return, and preservation of the next pickup until stow completed; all peers agreed on ordered outcomes.",
+      "evidence": [
+        "aim-missile.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A070",
+      "question": "Do repeated launches, switching and recovery avoid stuck projectiles or weapon state?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Repeated Missile launches with Oil/Missile/Nitro handoffs preserved capabilities, never refilled the returning empty mount, closed fully before redeploying and retired all projectile VFX owners.",
+      "evidence": [
+        "missile-presentation.log",
+        "aim-missile.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A071",
+      "question": "Does the trunk, rack, turret and catapult deploy in the correct mechanical sequence?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Two native UDP peers completed rack/slide/telescope/winch/feed sequencing and normal stow. Full closure preceded handoffs; 228 mechanical and handoff checks passed.",
+      "evidence": [
+        "salvo-catapult.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A072",
+      "question": "Does the turret correctly follow accepted camera aiming?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Accepted camera articulation reached 45 degrees on both peers while the loaded bowl stayed above the cabin; aiming did not consume ammunition. Driving-forward accepted aim also passed.",
+      "evidence": [
+        "salvo-catapult.log",
+        "aim-driving.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A073",
+      "question": "Does the winch visibly cock the spoon and load the next projectile?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Inspected mounted mechanism and rear winch captures. Runtime checks sampled coil, cable endpoints, seats and platform overlap across 4,751 animation poses without a geometry failure.",
+      "evidence": [
+        "salvo-catapult.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A074",
+      "question": "Are all five projectiles retained correctly during driving, jumps and inversion?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native mechanical fixture retained the horizontal rounds and mounted assembly in airborne/inverted orientations; inspected the 180-degree inversion capture.",
+      "evidence": [
+        "salvo-catapult.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A075",
+      "question": "Does the first trigger initiate the intended automatic five-round volley?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Recorded activation completed all five automatic rounds on both UDP peers and then stowed normally.",
+      "evidence": [
+        "salvo-catapult.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A076",
+      "question": "Do subsequent shots maintain their intended firing interval without cancellation?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "The current impaired native Salvo aiming run passed 147 checks. All five launches used the exact configured 75-tick interval; repeated trigger and switching could not cancel or duplicate the committed volley. Later camera changes independently selected successive launch targets, and the observer received identical ordered outcomes.",
+      "evidence": [
+        "salvo-native.log",
+        "support/salvo/aim-runtime.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A077",
+      "question": "Does each projectile follow its own ballistic launch trajectory without after-launch steering?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native swept-collision observation checked every launched Salvo arc while camera input changed later shot targets; no launched arc retargeted. The current run passed fixed ballistic continuation, out-of-arena flight and expiry, repeated five-round cleanup, and real Missile death followed by fresh respawn without an old volley.",
+      "evidence": [
+        "salvo-native.log",
+        "support/salvo/aim-runtime.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A078",
+      "question": "Are the fuse, firework motion, sparks and smoke trail correctly presented?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Current rendered Salvo projectile phase verified the production paper firework, lit captive fuse through 35-second waits/inversion, independent tumble and five connected smoke trails. Inspected firework/fuse and sixteen-flight captures. Historical trail segments survived projectile removal and expired at fifteen seconds; the separate explosion smoke expires at twenty seconds. Sixteen deliberately slowed concurrent arcs remained within the fixed trail budget.",
+      "evidence": [
+        "salvo-native.log",
+        "support/salvo/projectile-evidence.txt",
+        "images/salvo-firework-fuse.png",
+        "images/salvo-sixteen-trails.png"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A079",
+      "question": "Do explosions, blast radius, shield interactions and damage match approved behavior without duplicate damage?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "155 Salvo explosion checks passed native impacts, Shield coverage, imported-rock destruction, duplicate/rollback suppression and three cosmetic bursts without repeated authoritative damage/destruction.",
+      "evidence": [
+        "salvo-explosion.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A080",
+      "question": "Does repeated Salvo use avoid mechanical clipping, stuck loading, smoke accumulation and cleanup failures?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Repeated mechanical cycles sampled 4,751 poses without a geometry failure; repeated native explosions and recovery produced no replay, smoke expired at 20 seconds and arena teardown freed effects.",
+      "evidence": [
+        "salvo-catapult.log",
+        "salvo-explosion.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A081",
+      "question": "Does Jack-in-the-Box Oil deploy and launch using its approved presentation?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Inspected deployed jester and curved oil deposit captures; native banked/airborne firing, spring motion, rack replacement and mouth/box clearance passed.",
+      "evidence": [
+        "oil-jack.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A082",
+      "question": "Do oil patches form at the intended terrain/contact locations?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native 23-degree asphalt ramp, banked turning, airborne gravity/landing and vertical wall first-hit deposition passed; 40 rendered flight frames had no liquid vertices inside the box.",
+      "evidence": [
+        "oil-jack.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A083",
+      "question": "Does wheel contact trigger the appropriate contamination state?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Oil tire runtime passed 98 assertions and handling trials recorded per-wheel contacts/remaining contamination, including banked contact.",
+      "evidence": [
+        "oil-tires.log",
+        "oil-handling.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A084",
+      "question": "Does contamination produce the established traction and handling changes?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Twenty native handling trials exercised contaminated traction and recovery, with throttle/steering and continuous-overlap boundaries. Physical driver feel remains a human review.",
+      "evidence": [
+        "oil-handling.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A085",
+      "question": "Are oil spray, trails and patch visuals consistent with gameplay state?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Rendered Oil and tire-effect checks passed; inspected native curved deposits. Meter samples followed accepted observer time, with measured publication lag documented rather than hidden.",
+      "evidence": [
+        "oil-jack.log",
+        "oil-tires.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A086",
+      "question": "Do oil effects expire or clean up correctly without leaving stale traction changes?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Oil expired exactly at its 30-second authoritative deadline; twelve activations retired all hazards and owned flight/visual representations on four peers. Continuous-overlap handling trial ended with all four contamination timers zero.",
+      "evidence": [
+        "oil-jack.log",
+        "oil-handling.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A087",
+      "question": "Does the Proxy Mine deploy at its intended location and orientation?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native Mine deployment seated on the real flat platform with terrain clearance and stable timer. Flat/banked/uneven support normals converged for 1,200 ticks each; late admission reconstructed its arm placement.",
+      "evidence": [
+        "mine.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A088",
+      "question": "Does mine proximity detection trigger according to its established rules?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native proximity trials measured outer/mid/close pull of 0.115/8.625/12.065 m/s after ten ticks, followed by a single moving-vehicle contact detonation.",
+      "evidence": [
+        "mine.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A089",
+      "question": "Do mine explosion VFX and damage occur once and match the physical event?",
+      "result": "FAIL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Contact detonated once, applying the configured 60 HP and 18,000 N.s, but the following native knockback-motion assertion failed at ProxyMineIntegrationChecks.cs:186. Later VFX/cleanup checks in this run did not execute. This failure was also recorded in prior main-branch evidence; its cause remains unresolved.",
+      "evidence": [
+        "mine.log",
+        "mine.stderr.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A090",
+      "question": "Do multiple active oil patches and mines interact and clean up without runtime or collision problems?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Repeated Oil use and contamination cleanup passed on four native peers. The Mine run stopped at knockback motion, so combined multiple Oil/Mine cleanup and collision stability are not established.",
+      "evidence": [
+        "oil-jack.log",
+        "oil-handling.log",
+        "mine.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A091",
+      "question": "Does the carried Shield preserve its approved protective geometry?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Mounted Shield presentation retained identity and damage through switching, steering, landing and a twenty-degree slope course; articulated tires and trunk lids remained clear.",
+      "evidence": [
+        "shield-presentation.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A092",
+      "question": "Does deployment produce the straight central face and backward-angled wings?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Production presentation observed wing expansion between folded and expanded poses; native peers agreed on live wall identities, stages and HP after ordinary and queued-use deployment.",
+      "evidence": [
+        "shield-presentation.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A093",
+      "question": "Does the Shield deploy upright and settle on flats, banks and slopes?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Four flat/banked native scenarios retained upright independent walls and 875 HP; sliding followed elevation while both ends stayed terrain aligned. Production-map varied-terrain cycles ended with sixteen walls stable for 1,800 frames, zero measured settled drift and zero orphan nodes after cleanup.",
+      "evidence": [
+        "shield-world.log",
+        "shield-terrain.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A094",
+      "question": "Does the deployed Shield behave as a heavy but movable physical object?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "An off-centre native impact moved the wall 0.49 m and rotated it 16 degrees. Unpowered 8 m/s coasting stopped after 1.43 m in three seconds; hard hits released tipping and ground contact broke the wall. Eight heavy-body cases covered centre/wings/bank, simultaneous cars and sustained push.",
+      "evidence": [
+        "shield-world.log",
+        "shield-heavy.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A095",
+      "question": "Do vehicle impacts produce established collision behavior and damage without duplication?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "First wall contact slowed the vehicle from 16.55 to 2.70 m/s with ordinary collision damage. Five hard-contact trials recorded no excess vehicle rise; eight heavy-body cases retained authoritative damage and converged after centre/wing/bank and simultaneous-car contact.",
+      "evidence": [
+        "shield-world.log",
+        "shield-heavy.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A096",
+      "question": "Does Shield durability and destruction remain correct in carried and deployed states?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Mounted damage carried into the expanded wall. Heavy damage left the other wall unchanged; destruction removed its live authority immediately, released bounded non-colliding visuals, and allowed stored-shield redeployment.",
+      "evidence": [
+        "shield-presentation.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A097",
+      "question": "Are Machine Gun and Missile hits intercepted correctly where Shield geometry blocks them?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Sustained native Machine Gun fire destroyed the targeted wall pool and removed its collider. Native Missile impacts damaged/intercepted walls; a lethal wall hit still protected the car, and the next Missile reached the now-exposed chassis.",
+      "evidence": [
+        "shield-world.log",
+        "shield-interception.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A098",
+      "question": "Does a Shield correctly deny an EMP Claw impact against a protected vehicle?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Two simultaneous EMP rounds hit native rear/wing armor at three contact locations with no vehicle HP loss or replicated attachment on three impaired UDP peers.",
+      "evidence": [
+        "shield-interception.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A099",
+      "question": "Do blocked rear explosions and exposed front or partial-coverage explosions follow directional protection rules?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Ninety-three interception checks passed covered rear versus exposed front/upper blasts at yaw 0 and 1.2, exact single armor damage and peer convergence. The explicit five-metre Salvo fixture tests overlapping hull/armor exposure; the log separately verifies the production three-foot default radius.",
+      "evidence": [
+        "shield-interception.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A100",
+      "question": "Do multiple Shields and repeated deployment/destruction avoid stale protection, collision state and performance problems?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Sixteen walls deployed by ordinary use and remained bounded on three UDP arenas. Two production-terrain cycles included a 1,800-frame sixteen-wall stability soak and zero orphans after cleanup. Exact captured expiry removed all peer colliders despite retuning; independent-wall destruction/redeployment passed. Rendered GPU scaling is not established by the headless terrain profile.",
+      "evidence": [
+        "shield-world.log",
+        "shield-terrain.log",
+        "shield-presentation.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A101",
+      "question": "Does the EMP Claw launcher deploy and present correctly?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "EMP presentation passed 2,369 checks with native pickup/use replication. Inspected mounted cannon, three retained clown-nose rounds and a loader/flight presentation frame. Impact states in this presentation suite are fixture-only; combat coverage is recorded separately.",
+      "evidence": [
+        "emp-presentation.log",
+        "images/emp-mounted.png",
+        "images/emp-loader-flight.png"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A102",
+      "question": "Does the Claw guide and navigate around terrain according to established behavior?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "EMP flight passed 249 checks on three UDP worlds with 100 ms delay, 15 ms jitter and 3% loss: locked/forward acquisition, interception, owner/weapon/world behavior, flat and plus/minus 12-degree native terrain, recovery and cleanup. Each peer received nine launches and four impacts. The optional production-map/long-flight modes were not run.",
+      "evidence": [
+        "emp-flight.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A103",
+      "question": "Does vehicle attachment occur correctly and apply the intended EMP debuff?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native attachment lifecycle passed 659 checks (660 including final network assertion). Three attached Claws retained rotating/moving anchors within 0.000018615 m and independent expiry. Host, remote and practice-driver trials reduced power to 0.2 with one to three Claws without stacking further suppression; natural expiry and death/respawn restored state.",
+      "evidence": [
+        "emp-attachments.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A104",
+      "question": "Do claw noses, stowed ammunition, electricity VFX and counterplay behave correctly?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Rendered native counterplay completed 388 functional checks (389 including final network assertion), covering nose cleanup, weapon removal, stored sockets, empty retraction and Shield pops. However, the wrapper exited 1 because Godot reported Handle is not initialized during BoostExhaust resource loading. The functional assertions do not erase that runtime diagnostic; its cause and reproducibility require follow-up. One identical focused rendered rerun passed without diagnostics (389 counterplay assertions, 390 including final network assertion); this non-reproduction does not erase the first diagnostic or establish its cause.",
+      "evidence": [
+        "emp-counterplay.log",
+        "emp-counterplay.stderr.log",
+        "emp-presentation.log",
+        "emp-counterplay-repro.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A105",
+      "question": "Do EMP status, HUD and DevTools integration remain consistent with actual state?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native attachment checks verified actual debuff/expiry and remote state. HUD fixtures exercised EMP counters at multiple resolutions. Separate Developer Options write/read processes passed 64/38 assertions for EMP tuning, pickup isolation and persistence; these are separate actual-state/UI/config checks.",
+      "evidence": [
+        "emp-attachments.log",
+        "hud.log",
+        "emp-devtools.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A106",
+      "question": "Does the Wrench deploy its robotic repair arm without unwanted clipping?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Two impaired native UDP peers passed 11,152 Wrench checks including folded trunk containment, rack/roof clearance, driving/braking/terrain contact and full closure before handoff. Inspected deployed side and hood-contact captures.",
+      "evidence": [
+        "wrench-arm.log",
+        "images/wrench-ready.png",
+        "images/wrench-contact.png"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A107",
+      "question": "Does the Wrench complete its intended three-point hood repair sequence?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "All three repair beats completed across repeated use and incoming-pickup/switch races, including while driving; a next use could not bypass the occupied mechanism.",
+      "evidence": [
+        "wrench-arm.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A108",
+      "question": "Does repair restore the correct health and update displayed status?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Wrench races applied exactly one 500 HP repair and one use, preserved incoming capabilities and converged inventory after closure. Earlier eight-peer trials verified full-health consumption and 40-to-540 HP healing; HUD fixtures verified health representation.",
+      "evidence": [
+        "wrench-arm.log",
+        "items.log",
+        "hud.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A109",
+      "question": "Does Boost apply the established acceleration or movement behavior?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "The native Boost camera/physics fixture exercised 992 active frames, repeated use, steering, airborne thrust and three simultaneous boosted bodies. Its entry/sustain/exit phase accelerated from 24 to 50.04529 m/s using explicit fixture Nitro requests. This does not establish end-to-end network inventory activation or human handling feel.",
+      "evidence": [
+        "boost-camera.log",
+        "boost-trace-summary.json"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A110",
+      "question": "Do Boost exhaust, camera sensation and visuals remain coherent without introducing handling or performance regressions?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native camera bounds/cutoff/reseed passed, with 7.345 m minimum lens-to-rack clearance and 0.187 ms p95 rollover Follow CPU. Rendered exhaust passed 700 ms hitch release/depletion and 1/8/32-vehicle lifecycle checks; 32-vehicle stress p95 was 57.86 ms. No controlled regression or subjective sensation claim is made, and the separate counterplay run logged a BoostExhaust resource-init error. One identical focused rendered rerun passed without diagnostics (389 counterplay assertions, 390 including final network assertion); this non-reproduction does not erase the first diagnostic or establish its cause.",
+      "evidence": [
+        "boost-camera.log",
+        "boost-exhaust.log",
+        "emp-counterplay.log",
+        "images/boost-chase.png",
+        "images/boost-eight.png",
+        "emp-counterplay-repro.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A111",
+      "question": "Are current weapon models, mounts and materials displayed correctly?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Inspected current mounted Machine Gun, Missile, Salvo, Oil, Shield, EMP, Wrench and Boost captures plus the deployed Mine; their selected views retained authored geometry/materials. A separate BoostExhaust resource-initialization diagnostic occurred in EMP counterplay, so all-loadout error-free presentation is not established. One identical focused rendered rerun passed without diagnostics (389 counterplay assertions, 390 including final network assertion); this non-reproduction does not erase the first diagnostic or establish its cause.",
+      "evidence": [
+        "visual-observations.json",
+        "emp-counterplay.log",
+        "emp-counterplay-repro.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A112",
+      "question": "Are visible projectiles and fired effects aligned with their physical origins?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native Machine Gun/Missile checks verified authored socket/shared origin and accepted shot alignment; MG moving-muzzle error stayed within 0.000002 m. Salvo mechanical launch and EMP native launch/contact suites exercised their production origins and effects.",
+      "evidence": [
+        "aim.log",
+        "aim-missile.log",
+        "machine-gun-vfx.log",
+        "salvo-catapult.log",
+        "emp-flight.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A113",
+      "question": "Are explosions and impacts readable without masking important gameplay?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Inspected native Machine Gun impacts and Missile/Salvo effect captures. Repeated Salvo smoke forms a large opaque region; nearby outside vehicles remain visible, but target readability through overlapping effects was not assessed in human mixed combat.",
+      "evidence": [
+        "machine-gun-impact.log",
+        "missile-explosion.log",
+        "salvo-explosion.log",
+        "images/salvo-repeated-smoke.png"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A114",
+      "question": "Do deployed items remain visually consistent with their actual collision shapes?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Shield native weapon/contact tests and rendered wall captures agree on exercised blocking surfaces. Oil deposited at native first contacts and EMP attachment probes followed actual visible surface anchors. Mine's full collision/terrain sequence aborted, and every deployed item's visual/collider correspondence was not exhaustively inspected.",
+      "evidence": [
+        "shield-world.log",
+        "shield-interception.log",
+        "oil-jack.log",
+        "emp-attachments.log",
+        "mine.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A115",
+      "question": "Are animations smooth when beginning, interrupting and completing actions?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native mechanical samples and rendered captures covered deployment, load/repair beats, interruption/handoff and completion across weapons; MG also exercised low-FPS presentation. This is sampled/scripted motion evidence, not a human judgment of all transitions during mixed combat.",
+      "evidence": [
+        "twin-fang.log",
+        "missile-presentation.log",
+        "salvo-catapult.log",
+        "oil-jack.log",
+        "wrench-arm.log",
+        "boost-exhaust.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A116",
+      "question": "Do arena meshes, props and terrain display without noticeable asset defects?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Inspected production-map traffic/crate/Boost views with track, fence, vegetation and rocks present; the eight-car route stayed supported. These selected views are not an exhaustive visual review of every arena asset, material and viewing angle.",
+      "evidence": [
+        "integrated-driving.log",
+        "carnival-smash.log",
+        "images/boost-eight.png"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A117",
+      "question": "Do particle effects and visual effects stop at the correct lifecycle point?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Crate, Machine Gun, Missile, Salvo, Oil, Shield and Boost fixtures exercised bounded effects and cleanup, including 20-second Salvo smoke expiry and 700 ms Boost hitch cutoff. Mine's later cleanup scenarios were not reached; EMP counterplay completed cleanup assertions but logged a managed-resource diagnostic. One identical focused rendered rerun passed without diagnostics (389 counterplay assertions, 390 including final network assertion); this non-reproduction does not erase the first diagnostic or establish its cause.",
+      "evidence": [
+        "carnival-smash.log",
+        "machine-gun-impact.log",
+        "missile-explosion.log",
+        "salvo-explosion.log",
+        "oil-jack.log",
+        "shield-world.log",
+        "boost-exhaust.log",
+        "mine.log",
+        "emp-counterplay.log",
+        "emp-counterplay-repro.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A118",
+      "question": "Are implemented weapon, impact, vehicle and environmental sounds triggered correctly?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "The audio runtime passed 54 assertions: playable imported cues/tracks, independent buses, match cues, music continuity through native two-peer joining/Countdown/Active and cleanup. The full weapon/impact/vehicle/environment trigger inventory was not directly exercised and listened to.",
+      "evidence": [
+        "audio.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A119",
+      "question": "Are sound levels, spatial behavior and interruption consistent with established audio behavior?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Runtime verified Master/Music gains, SFX mute routing, playlist continuation/wraparound, exit release and fresh reentry. Actual listening, spatial positioning, overlapping combat mix and hardware audio output were not assessed.",
+      "evidence": [
+        "audio.log",
+        "settings.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A120",
+      "question": "Are important visual feedback states readable at normal gameplay distances and under sustained combat effects?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "HUD, crosshair, mounted weapon and selected firing captures are readable in their fixture views. No human competitive test established all important states at normal distances under sustained mixed-weapon effects.",
+      "evidence": [
+        "hud.log",
+        "aim.log",
+        "shield-presentation.log",
+        "images/native-mg-sustained.png",
+        "images/salvo-repeated-smoke.png"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A121",
+      "question": "What FPS, frame-time and resource baseline can be measured under documented idle conditions?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Three 1280x720 Debug trials measured one-car idle mean intervals 5.29–5.65 ms, p95 6.36–6.85 ms and equivalent render-loop throughput 176.8–189.1 frames/s. End private memory was 817.7–828.0 MB with 2,664 nodes and zero orphans. Each phase used 180 warmup/1,200 sample ticks, uncapped/VSync off forced offscreen rendering; these are not displayed FPS or a performance acceptance threshold.",
+      "evidence": [
+        "performance.log",
+        "support/performance/summary.json",
+        "support/performance/performance.md"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A122",
+      "question": "How do driving and vehicle physics affect frame-time and CPU workload?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Driving-one mean intervals were 5.48–6.73 ms, p95 7.33–8.94 ms. Engine physics-monitor means were 9.67–10.47 ms versus idle 6.13–6.29 ms; measured arena Advance CPU means were 1.74–1.82 ms versus idle 0.928–0.967 ms. These instruments have different scopes and must not be added. Sequential movement/camera changes prevent attributing the entire difference solely to physics.",
+      "evidence": [
+        "support/performance/summary.json",
+        "support/performance/performance.md"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A123",
+      "question": "How does performance change with two to four cars when the test environment supports them?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Three-car rendered p95 intervals were 10.77–13.61 ms; four-car p95 12.14–14.57 ms, with means 10.22–12.25 ms for four cars. The fixture also covers one and five cars but no isolated two-car trial. Four independent headless processes separately passed with bounded prediction; their frame intervals are not rendered FPS.",
+      "evidence": [
+        "support/performance/summary.json",
+        "support/network-vehicles/summary.json",
+        "network-vehicles-four.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A124",
+      "question": "Do Machine Gun firing, tracers and impact effects produce measurable spikes?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Four-car Machine Gun combat recorded 1,347 Machine Gun events per trial, mean intervals 13.50–14.10 ms, p95 16.21–18.40 ms and p99 22.34–23.28 ms; no sampled intervals exceeded 33 ms. Separate VFX and impact CPU p95 values were 0.350 and 1.048 ms. Measurement coverage passed; GPU attribution and a universal frame-budget claim are not established.",
+      "evidence": [
+        "support/performance/summary.json",
+        "machine-gun-vfx.log",
+        "machine-gun-impact.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A125",
+      "question": "Do Missile and Salvo projectiles, explosions and smoke produce measurable spikes?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "The rendered sixteen-flight Salvo presentation fixture measured native process time median 0.98 ms and p95 11.96 ms over thirty simulated seconds; it deliberately slows accepted arcs to keep bodies/trails visible. This is CPU process instrumentation, not displayed frame-time spikes or a full-match GPU benchmark. Missile/explosion/smoke GPU attribution and representative mixed-combat spike measurements were not performed.",
+      "evidence": [
+        "salvo-native.log",
+        "support/salvo/projectile-evidence.txt"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A126",
+      "question": "Do Shield physics, collision and multiple deployed Shields produce measurable spikes?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "The headless two-arena production-terrain profile recorded physics-processing samples up to 56.199 ms and ground-fit work up to 0.122 ms/frame during repeated deployment; sixteen-wall settled physics samples ranged 9.792–30.710 ms. Cleanup reached zero orphan nodes. These are engine CPU samples, not rendered FPS, per-wall causal cost or GPU measurements.",
+      "evidence": [
+        "shield-terrain.log",
+        "shield-heavy.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A127",
+      "question": "Do oil patches, mines, crates, confetti and world effects create persistent workload?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Rendered crate pressure had p99 intervals 24.10–25.81 ms; cleanup returned to 4.35–6.12 ms and nodes from 2,377 to 2,107, with zero orphans. Oil repeated-use expiry/cleanup passed. Mine's full lifecycle stopped at its motion failure; instrumented persistent Oil/Mine workload and all combined world effects were not measured.",
+      "evidence": [
+        "support/performance/summary.json",
+        "carnival-smash.log",
+        "oil-jack.log",
+        "mine.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A128",
+      "question": "Do render workload, arena props, lights, meshes and materials show measurable bottlenecks?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Map-only measured 861 mean draw calls and 3.71–3.94 ms mean intervals; adding pickups measured 1,314 calls and 4.24–4.47 ms. Full arena/car phases are recorded separately. No GPU timers or isolated prop/light/material toggles identify a specific rendering bottleneck, and sequential phase differences also include camera/world composition.",
+      "evidence": [
+        "support/performance/summary.json",
+        "support/performance/performance.md"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A129",
+      "question": "Do memory, object counts and frame-time behavior remain stable during repeated-use and extended sessions?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Three rendered benchmark trials returned arena teardown to two nodes and zero orphans, and crate cleanup returned nodes 2377 to 2107. The ten-minute eight-peer native UDP movement soak passed all 36000 ticks: resource checkpoints stayed between 30.36 and 33.96 MB private memory, with zero prediction-limited client ticks and zero controlled queue drops. Three subsequent Godot rematches passed 191 assertions with zero orphans. The soak uses a kinematic observation seam rather than rendered physics/combat; no long human mixed-combat session or leak proof is established.",
+      "evidence": [
+        "performance.log",
+        "support/performance/summary.json",
+        "network-soak.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A130",
+      "question": "Are performance results reproducible under controlled conditions, with environment and instrumentation limits explicitly recorded?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "All three unchanged-source Debug benchmark trials completed with recorded hardware, power scheme, renderer, resolution, VSync, warmup and sample counts. Their ranges are preserved. Browser/Discord/Codex remained open, imports/file caches were warm, and no reboot, thermal/clock control, cold-start or exported-build comparison was performed; this is repeat sampling, not a fully controlled regression experiment.",
+      "evidence": [
+        "performance.log",
+        "support/performance/run.json",
+        "support/performance/summary.json"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A131",
+      "question": "Can Astra launch and control two or more independent multiplayer instances?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Launched four independent native Godot processes on this computer and drove them through scripted production vehicle input with 30 ms delay, 5 ms jitter and 2% loss. The command completed successfully. This is scripted local multi-process control, not human, separate-device or EOS acceptance.",
+      "evidence": [
+        "network-vehicles-four.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A132",
+      "question": "Can clients join and maintain the same session without state divergence?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Four independent headless native Godot processes joined the same local session under 30 ms delay, 5 ms jitter and 2% loss. All passed; clients recorded maximum prediction errors 0.41979/0.40836/0.42392 m with zero hard snaps. This is bounded reconciliation evidence, not zero numerical error or WAN approval.",
+      "evidence": [
+        "network-vehicles-four.log",
+        "support/network-vehicles/player-1.json",
+        "support/network-vehicles/player-2.json",
+        "support/network-vehicles/player-3.json"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A133",
+      "question": "Are vehicle movement, orientation, collisions, damage and respawn synchronized?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "The four-process production-map run exercised movement, orientation, world/vehicle collision damage and camera input with zero hard snaps. Current-source eight-peer death/respawn cycles and two-peer reconnect tag checks separately verified lifecycle and HP agreement. Human latency/feel remains unverified.",
+      "evidence": [
+        "network-vehicles-four.log",
+        "support/network-vehicles/player-1.json",
+        "../death-native.log",
+        "../death-evidence.txt",
+        "reconnect-shield.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A134",
+      "question": "Are crate pickup, item-slot changes, weapon switching and ammo consumption authoritative?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native pickup tests acquired all nine items and respected both slots/full rejection. Eight peers agreed on switch/discard and Wrench consumption; dedicated Machine Gun/Missile checks verified resource consumption and single ordered events, and Wrench handoffs preserved incoming capabilities.",
+      "evidence": [
+        "pickup-drive.log",
+        "items.log",
+        "machine-gun.log",
+        "aim-missile.log",
+        "wrench-arm.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A135",
+      "question": "Do Machine Gun, Missile and Salvo firing, impacts and damage agree across host and clients?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Dedicated Machine Gun and Missile aiming/native suites produced identical ordered firing/impact outcomes and damage on local peers. Salvo passed three-peer three-volley integration (15 impacts), 147 shared-aim and 118 further targeting checks under impairment. The general item Missile falloff scenario failed with and without impairment, although peers agreed on its unchanged target HP; broad correct damage behavior is therefore not established.",
+      "evidence": [
+        "machine-gun.log",
+        "aim-missile.log",
+        "salvo-native.log",
+        "items.log",
+        "items-unimpaired.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A136",
+      "question": "Do oil contamination, mines, Boost and Wrench actions produce consistent remote state?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Oil native use/contamination and firing recovery passed; Wrench healing agreed across eight peers. Shield-focused recovery also retained Mine state without impact replay and exact Boost checkpoint/37.5% charge. The Mine motion run aborted before its later replicated response checks, and normal Boost activation was not exercised across independent clients.",
+      "evidence": [
+        "oil-jack.log",
+        "oil-handling.log",
+        "reconnect-oil.log",
+        "reconnect-shield.log",
+        "items.log",
+        "wrench-arm.log",
+        "mine.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A137",
+      "question": "Do Shield deployment, collision, durability, protection and destruction remain authoritative?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Native Shield deployment, impacts, durability, directional protection, destruction and expiry converged across local UDP peers. Three reconnects including 125 seconds offline preserved the retained wall's HP/pose/tipping/watermark and kept expired walls absent without refill or timer restart.",
+      "evidence": [
+        "shield-world.log",
+        "shield-terrain.log",
+        "shield-heavy.log",
+        "shield-interception.log",
+        "reconnect-shield.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A138",
+      "question": "Do EMP Claw navigation, attachment, debuff and Shield interception agree across clients?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Three impaired UDP peers agreed on EMP flight, attachment, capped debuff and expiry. Counterplay received identical one launch/nine impact events per peer, but its wrapper failed on a Godot managed-handle diagnostic during BoostExhaust initialization. Shield interception separately denied simultaneous Claws with no attachment. No human multiplayer approval is implied. One identical focused rendered rerun passed without diagnostics (389 counterplay assertions, 390 including final network assertion); this non-reproduction does not erase the first diagnostic or establish its cause.",
+      "evidence": [
+        "emp-flight.log",
+        "emp-attachments.log",
+        "emp-counterplay.log",
+        "emp-counterplay.stderr.log",
+        "shield-interception.log",
+        "emp-counterplay-repro.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A139",
+      "question": "Can network delay, concurrent actions and disconnect/reconnect scenarios be exercised without duplication or stale state?",
+      "result": "PASS",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Focused UDP recovery runs passed: Shield three resyncs including 125 seconds offline; Oil two firing recoveries with unchanged emission/deadline and no replay; EMP six staggered attachments, a five-second interruption and 32-second offline expiry with exact cleanup. Identity/initial state use explicit test seams; authenticated EOS, WAN and host-migration fencing were not verified here.",
+      "evidence": [
+        "reconnect-shield.log",
+        "reconnect-oil.log",
+        "reconnect-emp.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    },
+    {
+      "id": "A140",
+      "question": "Can multi-client weapon interactions and sustained combat run without uncorrected divergence, runtime errors or escalating performance problems?",
+      "result": "PARTIAL",
+      "conditions": "Windows 10.0.19045, Godot .NET 4.7.2 ed1daf0bf, .NET 10.0.401, Debug runtime unless specified; source 30bb34da24290f4ee4bfa3f7deeda232d88479b4 / version 0.2.75. October 31-November 1, 2026. Exact commands, flags, UTC intervals and exits are in commands.json.",
+      "observations": "Focused impaired multi-peer weapon and recovery scenarios passed within their recorded coverage, and the ten-minute movement soak passed with maximum steady correction 0.2839 m, stale packets rejected and three native rematches. The soak does not execute Godot weapon combat. A separate EMP-counterplay run emitted a managed-handle runtime diagnostic, and aiming, Missile falloff and Mine motion checks failed. Sustained mixed-weapon human multiplayer and escalating workload over a long session remain unverified. One identical focused rendered rerun passed without diagnostics (389 counterplay assertions, 390 including final network assertion); this non-reproduction does not erase the first diagnostic or establish its cause.",
+      "evidence": [
+        "network-soak.log",
+        "emp-counterplay.log",
+        "aim-freedom-repro.log",
+        "items.log",
+        "mine.log",
+        "emp-counterplay-repro.log"
+      ],
+      "limitations": "Result is scoped to the cited executed harnesses and inspected captures. Synthetic input/local UDP do not replace physical controls, heard audio, remote EOS/WAN or human multiplayer approval. Specific gaps and incomplete/failed scenarios are stated in observations; bounded runs are not a 15-minute human endurance test."
+    }
+  ]
+}

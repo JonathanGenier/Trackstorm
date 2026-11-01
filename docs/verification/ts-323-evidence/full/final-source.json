@@ -1,0 +1,38 @@
+{
+  "checkedUtc": "2026-11-01T18:31:25.0933357Z",
+  "branch": "ts-323-pg",
+  "head": "5ccf6dfafd9d5fc6215f5ca25c5913180789f555",
+  "localMain": "30bb34da24290f4ee4bfa3f7deeda232d88479b4",
+  "originMain": "30bb34da24290f4ee4bfa3f7deeda232d88479b4",
+  "divergence": "1\t0",
+  "changedFromMain": [
+    "docs/verification/README.md",
+    "docs/verification/ts-323-evidence/build-final.log",
+    "docs/verification/ts-323-evidence/build-network.log",
+    "docs/verification/ts-323-evidence/build.log",
+    "docs/verification/ts-323-evidence/check.log",
+    "docs/verification/ts-323-evidence/death-evidence.txt",
+    "docs/verification/ts-323-evidence/death-native.log",
+    "docs/verification/ts-323-evidence/death.log",
+    "docs/verification/ts-323-evidence/environment.json",
+    "docs/verification/ts-323-evidence/menu-native.log",
+    "docs/verification/ts-323-evidence/menu-settled.png",
+    "docs/verification/ts-323-evidence/menu.log",
+    "docs/verification/ts-323-evidence/questionnaire.md",
+    "docs/verification/ts-323-evidence/restore-network.log",
+    "docs/verification/ts-323-evidence/results.json",
+    "docs/verification/ts-323-evidence/startup-visual.log",
+    "docs/verification/ts-323-evidence/startup.log",
+    "docs/verification/ts-323-evidence/tally-inventory.txt",
+    "docs/verification/ts-323-evidence/tally-pilot-filled.txt",
+    "docs/verification/ts-323-evidence/tally-pilot-submit-result.txt",
+    "docs/verification/ts-323-evidence/tally-submission-blocked.jpg",
+    "docs/verification/ts-323-evidence/version-check.log",
+    "docs/verification/ts-323.md"
+  ],
+  "workingTree": [
+    "?? docs/verification/ts-323-evidence/pilot-report.md"
+  ],
+  "unresolved": [],
+  "operations": null
+}
